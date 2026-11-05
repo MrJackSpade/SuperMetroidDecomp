@@ -7,6 +7,8 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -32,6 +34,49 @@ internal static class IntroSpriteSheetComposer
     /// <summary>The Ceres destruction scene's families: the shared Ceres flight family and the destruction family.</summary>
     private static IEnumerable<ICinematicSpriteFrames> CeresDestructionFamilies(IntroCinematicArtwork intro) =>
         [CeresFlightCharacters.Of(intro.CeresFlight).Sprites, IntroCinematicSourceArtwork.Of(intro).CeresDestructionSprites];
+
+    /// <summary>
+    /// The Ceres scene's families as the Zebes reveal draws them (#1513): the reveal clears the station's actors as it
+    /// loads its own characters, and from then on only the planet, the four star sheets and the title run, so each
+    /// family keeps only the poses their programs show and the scene's sheet draws from that family.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The reveal's actors show a pose no Ceres family composes.</exception>
+    private static IEnumerable<ICinematicSpriteFrames> ZebesRevealFamilies(IntroCinematicArtwork intro)
+    {
+        var shown = new HashSet<CinematicSpritePose>();
+        for (int actor = 0; actor < CeresDestructionActorDefinitions.ZebesActorCount; actor++)
+        {
+            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Programs.FramesFrom(CeresDestructionActors.ZebesActor(actor).Program))
+            {
+                // The blank pose draws nothing.
+                if (pose != CinematicSpritePose.Blank)
+                    shown.Add(pose);
+            }
+        }
+        var destruction = new HashSet<CinematicSpritePose>(CeresDestructionSpriteDefinitions.Poses);
+        var families = new List<ICinematicSpriteFrames>();
+        var composed = new HashSet<CinematicSpritePose>();
+        foreach (ICinematicSpriteFrames family in CeresDestructionFamilies(intro))
+        {
+            bool isDestruction = family.Family == CinematicSpriteFamily.CeresDestruction;
+            var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
+            foreach ((CinematicSpritePose pose, SpriteComposition composition) in family.Frames)
+            {
+                if (shown.Contains(pose) && destruction.Contains(pose) == isDestruction)
+                {
+                    frames.Add(pose, composition);
+                    composed.Add(pose);
+                }
+            }
+            families.Add(new ShownFrames(family.Family, frames));
+        }
+        foreach (CinematicSpritePose pose in shown)
+        {
+            if (!composed.Contains(pose))
+                throw new InvalidDataException($"The Zebes reveal shows pose {pose.Index}, which no Ceres family composes.");
+        }
+        return families;
+    }
 
     /// <summary>What the intro sheet composes.</summary>
     internal static SpriteSheetSources Sources(IntroCinematicArtwork intro)
@@ -63,22 +108,29 @@ internal static class IntroSpriteSheetComposer
     /// the OBJ characters the station's scene loads, coloured as the scene loads the flight's palette.
     /// </summary>
     internal static SpriteSheetSources CeresDestructionSources(IntroCinematicArtwork intro) =>
-        DestructionSources(intro, CeresDestructionObjectPage.Characters(Ensure.NotNull(intro), zebesRevealed: false));
+        DestructionSources(intro, CeresDestructionFamilies(Ensure.NotNull(intro)), CeresDestructionObjectPage.Characters(intro, zebesRevealed: false));
 
-    /// <summary>What the Zebes reveal's sheet composes: the same families over the OBJ characters once the reveal loads its own.</summary>
+    /// <summary>
+    /// What the Zebes reveal's sheet composes: the poses the reveal's actors show over the OBJ characters once the reveal
+    /// loads its own (#1513).
+    /// </summary>
     internal static SpriteSheetSources ZebesRevealSources(IntroCinematicArtwork intro) =>
-        DestructionSources(intro, CeresDestructionObjectPage.Characters(Ensure.NotNull(intro), zebesRevealed: true));
+        DestructionSources(intro, ZebesRevealFamilies(Ensure.NotNull(intro)), CeresDestructionObjectPage.Characters(intro, zebesRevealed: true));
 
-    /// <summary>The destruction's families over the OBJ <paramref name="characters"/> the scene has loaded.</summary>
-    private static SpriteSheetSources DestructionSources(IntroCinematicArtwork intro, byte[] characters)
+    /// <summary><paramref name="families"/> over the OBJ <paramref name="characters"/> the scene has loaded.</summary>
+    private static SpriteSheetSources DestructionSources(IntroCinematicArtwork intro, IEnumerable<ICinematicSpriteFrames> families, byte[] characters)
     {
         SpriteArtwork page = CeresDestructionObjectPage.Of(characters);
-        return CeresSources(CeresDestructionFamilies(intro), page, CeresFlightCharacters.Of(intro.CeresFlight).Palette);
+        return CeresSources(families, page, CeresFlightCharacters.Of(intro.CeresFlight).Palette);
     }
 
-    /// <summary>The frames the Ceres destruction scene's sheets hold.</summary>
+    /// <summary>The frames the Ceres destruction scene's sheet holds.</summary>
     internal static IEnumerable<string> CeresDestructionFrameNames(IntroCinematicArtwork intro) =>
         FrameNames(CeresDestructionFamilies(Ensure.NotNull(intro)));
+
+    /// <summary>The frames the Zebes reveal's sheet holds: the poses its actors show (#1513).</summary>
+    internal static IEnumerable<string> ZebesRevealFrameNames(IntroCinematicArtwork intro) =>
+        FrameNames(ZebesRevealFamilies(Ensure.NotNull(intro)));
 
     /// <summary>The frames the intro sheet of <paramref name="intro"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(IntroCinematicArtwork intro) => FrameNames(Families(Ensure.NotNull(intro)));
@@ -125,4 +177,10 @@ internal static class IntroSpriteSheetComposer
     /// <summary>The frames a sheet of <paramref name="families"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(IEnumerable<ICinematicSpriteFrames> families) =>
         families.SelectMany(family => family.Frames.Keys.Select(pose => CinematicSpriteSheet.FrameName(family.Family, pose)));
+
+    /// <summary>One family's compositions of the poses a scene shows.</summary>
+    /// <param name="Family">The family the compositions belong to.</param>
+    /// <param name="Frames">Each shown composition, by the pose that shows it.</param>
+    private sealed record ShownFrames(CinematicSpriteFamily Family, IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> Frames)
+        : ICinematicSpriteFrames;
 }

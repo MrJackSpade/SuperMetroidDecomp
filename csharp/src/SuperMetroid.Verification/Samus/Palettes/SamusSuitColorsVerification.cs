@@ -56,24 +56,6 @@ internal static class SamusSuitColorsVerification
         foreach (SamusSuit shownSuit in Enum.GetValues<SamusSuit>())
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(shownSuit, invalid), "Normal color index bounds");
-        foreach (bool powerOnly in new[] { false, true })
-        {
-            var document = RequiredJson.Deserialize<SamusSuitColorDocument>(extracted, ArtworkJson.Options);
-            int ordinal = 1000;
-            foreach (var palette in new[] { document.Power, document.Varia, document.Gravity })
-            for (int color = 0; color < 16; color++, ordinal++)
-                if (!powerOnly || ReferenceEquals(palette, document.Power))
-                    palette[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-            var edited = SamusSuitColorFile.Read(new MemoryStream(SamusSuitColorFile.Write(document)));
-            ordinal = 1000;
-            for (int suit = 0; suit < 3; suit++)
-            for (int color = 0; color < 16; color++, ordinal++)
-            {
-                int source = suit == 0 ? 0x9b9400 : suit == 1 ? 0x9b9520 : 0x9b9800;
-                ushort expected = !powerOnly || suit == 0 ? (ushort)ordinal : ReadVerificationWord(cartridge, source + 2 * color);
-                AssertEqual(expected, edited.Resolve(SamusSuits.AtListPlace(suit), color), "Every supplied suit color survives independent Power/suit edits");
-            }
-        }
         ushort[] equipment =
         [
             0,

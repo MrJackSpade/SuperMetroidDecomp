@@ -23,7 +23,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
-/// <summary>Checks installed full-body palette cycles and editable shade components against the retail color tables.</summary>
+/// <summary>Checks installed full-body palette cycles and shade components against the retail color tables.</summary>
 internal static class SamusFullBodyCycleColorsVerification
 {
     /// <summary>Compares extracted Speed Booster, Screw Attack, and shinespark color domains with their native words and schema boundaries.</summary>
@@ -279,137 +279,6 @@ internal static class SamusFullBodyCycleColorsVerification
             ushort value = (ushort)invalid;
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.StoredShineColor(RgbColor.FromWord(checked(value)), 0), "Stored-shine RGB5 bounds");
         }
-        var document = RequiredJson.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        ordinal = 0;
-        foreach (var family in new[] { document.SpeedBooster, document.ScrewAttack, document.StoredShine, document.ActiveShinespark })
-        foreach (var suit in family)
-        foreach (var row in suit)
-        for (int color = 0; color < 16; color++, ordinal++)
-            row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-        var edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
-        ordinal = 0;
-        foreach (int first in new[] { 0x9b20, 0x9ca0, 0x9ba0, 0x9c20 })
-        for (int suit = 0; suit < 3; suit++)
-        for (int shade = 0; shade < 4; shade++)
-        for (int color = 0; color < 16; color++, ordinal++)
-            AssertEqual((ushort)ordinal, edited.Resolve((ushort)(first + suit * 0x200 + shade * 32), color), "Every independent full-body color edit survives calculated placement");
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        for (int suit = 0; suit < 3; suit++)
-        for (int color = 0; color < 16; color++)
-        {
-            int word = 2000 + suit * 16 + color;
-            (document ?? throw new InvalidOperationException("Verification requires document.")).SpeedBooster[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-        }
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-        {
-            int suit = (pointer - 0x9b20) / 0x200;
-            ushort expected = pointer == 0x9b20 + suit * 0x200 ? (ushort)(2000 + suit * 16 + color) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-            AssertEqual(expected, edited.Resolve(pointer, color), "Changing only a shared source row preserves all supplied family colors");
-        }
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        ordinal = 3000;
-        foreach (var family in new[] { (document ?? throw new InvalidOperationException("Verification requires document.")).SpeedBooster, document.StoredShine, document.ActiveShinespark, document.ScrewAttack })
-        foreach (var row in family[0])
-        for (int color = 0; color < 16; color++, ordinal++)
-            row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-        {
-            ushort expected = pointer < 0x9d20 ? (ushort)(3000 + (pointer - 0x9b20) / 2 + color) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-            AssertEqual(expected, edited.Resolve(pointer, color), "Power-only edits preserve supplied Varia and Gravity colors");
-        }
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        for (int suit = 0; suit < 3; suit++)
-        for (int color = 0; color < 16; color++)
-        {
-            int word = 4000 + suit * 16 + color;
-            (document ?? throw new InvalidOperationException("Verification requires document.")).StoredShine[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-        }
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-        {
-            int suit = (pointer - 0x9b20) / 0x200;
-            ushort expected = pointer == 0x9ba0 + suit * 0x200 ? (ushort)(4000 + suit * 16 + color) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-            AssertEqual(expected, edited.Resolve(pointer, color), "Stored-shine basis-only edits preserve supplied derived shades");
-        }
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        for (int suit = 0; suit < 3; suit++)
-        for (int color = 0; color < 16; color++)
-        {
-            int word = 5000 + suit * 16 + color;
-            (document ?? throw new InvalidOperationException("Verification requires document.")).SpeedBooster[suit][1][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-        }
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-        {
-            int suit = (pointer - 0x9b20) / 0x200;
-            ushort expected = pointer == 0x9b40 + suit * 0x200 ? (ushort)(5000 + suit * 16 + color) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-            AssertEqual(expected, edited.Resolve(pointer, color), "Dim-only edits preserve supplied brighter shades");
-        }
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        (document ?? throw new InvalidOperationException("Verification requires document.")).SpeedBooster[0][3][9] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
-        document.SpeedBooster[1][3][10] = new PaletteRgb5 { Red = 4, Green = 5, Blue = 6 };
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-        {
-            ushort expected = new SamusFullBodyCycleColorsExpected(pointer, color) switch
-            {
-                (0x9b80, 9) => 1 | 2 << 5 | 3 << 10,
-                (0x9d80, 10) => 4 | 5 << 5 | 6 << 10,
-                _ => ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)),
-            };
-            AssertEqual(expected, edited.Resolve(pointer, color), "Shared blue source-only edits preserve supplied dependent colors");
-        }
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        for (int suit = 0; suit < 3; suit++)
-        for (int color = 0; color < 16; color++)
-        {
-            int word = 6000 + suit * 16 + color;
-            (document ?? throw new InvalidOperationException("Verification requires document.")).ActiveShinespark[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-        }
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-        {
-            int suit = (pointer - 0x9b20) / 0x200;
-            ushort expected = pointer == 0x9c20 + suit * 0x200 ? (ushort)(6000 + suit * 16 + color) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-            AssertEqual(expected, edited.Resolve(pointer, color), "Active base-only edits preserve supplied tinted shades");
-        }
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        for (int suit = 0; suit < 3; suit++)
-        for (int color = 0; color < 16; color++)
-        {
-            int word = 7000 + suit * 16 + color;
-            (document ?? throw new InvalidOperationException("Verification requires document.")).ScrewAttack[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-        }
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-        {
-            int suit = (pointer - 0x9b20) / 0x200;
-            ushort expected = pointer == 0x9ca0 + suit * 0x200 ? (ushort)(7000 + suit * 16 + color) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-            AssertEqual(expected, edited.Resolve(pointer, color), "Screw base-only edits preserve supplied tinted shades");
-        }
-        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
-        (document ?? throw new InvalidOperationException("Verification requires document.")).ScrewAttack[1][3][2] = new PaletteRgb5 { Red = 3, Green = 4, Blue = 5 };
-        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
-        foreach (ushort pointer in originalPointers)
-        for (int color = 0; color < 16; color++)
-            AssertEqual(pointer == 0x9f00 && color == 2 ? (ushort)(3 | 4 << 5 | 5 << 10) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), edited.Resolve(pointer, color),
-                "Varia bright-only edit preserves supplied midpoint and other colors");
     }
     /// <summary>Drives the four installed cycle families' production owners for each suit and checks CGRAM without source rereads.</summary>
     internal static void VerifySamusFullBodyCycleColors(

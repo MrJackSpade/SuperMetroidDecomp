@@ -92,7 +92,7 @@ internal static class InstalledPowerBombIsolationTests
             if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name is
                 "<FixedColor>k__BackingField" or "<PresentationColors>k__BackingField") continue;
             Require(Equals(field.GetValue(first), field.GetValue(second)),
-                $"{context}: {field.Name} differs: stock={field.GetValue(first)}, edited={field.GetValue(second)}");
+                $"{context}: {field.Name} differs: first={field.GetValue(first)}, second={field.GetValue(second)}");
         }
     }
 

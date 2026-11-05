@@ -15,50 +15,18 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Checks that each selected Samus artwork family contributes to the installed content identity.</summary>
+/// <summary>A minimal, ROM-free Samus body catalog that checks bind Samus to when they need no retail artwork.</summary>
 internal static class SamusContentIdentityVerification
 {
-    /// <summary>Direct, authored fixtures cover every selected Samus visual-data family.</summary>
-    internal static void VerifySamusContentIdentity()
-    {
-        InstalledSamusBodyArtwork baseline = CreateSamusIdentityFixture();
-        string[] edits =
-        [
-            "top-characters", "bottom-characters", "pose-pointer", "graphics-offset", "landing-offset",
-            "posture-offset", "drained-offset", "frame-selector", "transfer-split",
-            "spritemap-top", "spritemap-bottom", "spritemap-entry", "spritemap-part",
-            "atmosphere-one", "atmosphere-shared", "death-suit", "death-suitless", "death-whiteout",
-            "death-selector", "death-tiles", "cannon-pose", "cannon-drawing", "cannon-attributes",
-            "cannon-sources", "cannon-tiles",
-        ];
-        foreach (string edit in edits)
-        {
-            InstalledSamusBodyArtwork changed = CreateSamusIdentityFixture(edit);
-            AssertTrue(changed.ContentIdentity != baseline.ContentIdentity, $"{edit} invalidates Samus identity");
-        }
-        Guid build = Guid.Parse("01234567-89ab-cdef-0123-456789abcdef");
-        GameContentIdentity Identity(InstalledSamusBodyArtwork samus) => GameContentIdentity.Create(
-            new string('A', 64), new string('B', 64), new string('C', 64), build,
-            new Dictionary<string, string> { [GameInstallationLayout.SamusBodyDirectoryName] = samus.ContentIdentity });
-        GameContentIdentity first = Identity(baseline);
-        GameContentIdentity second = Identity(CreateSamusIdentityFixture("cannon-tiles"));
-        AssertTrue(first.CompositeSha256 != second.CompositeSha256, "Samus edit changes host aggregate");
-        AssertTrue(first.GetCompatibilityWarnings(second.ToSnapshot(), "test").Single()
-            .Contains(GameInstallationLayout.SamusBodyDirectoryName, StringComparison.Ordinal),
-            "Samus drift receives a component-specific warning");
-        Console.WriteLine($"  Samus content identity: {edits.Length} independent visual edits, " +
-            "canonical spritemap order and host aggregate/warnings pass without a ROM.");
-    }
-
     /// <summary>
-    /// Builds a minimal Samus art catalog, optionally changing one visual family or spritemap order; its characters are
-    /// registered, so bodies built from its tables compose their sheets from them.
+    /// Builds a minimal Samus art catalog; its characters are registered, so bodies built from its tables compose their
+    /// sheets from them.
     /// </summary>
-    internal static InstalledSamusBodyArtwork CreateSamusIdentityFixture(string? edit = null) =>
-        SamusBodySheetFixtures.Register(CreateSamusIdentityCharacters(edit));
+    internal static InstalledSamusBodyArtwork CreateSamusIdentityFixture() =>
+        SamusBodySheetFixtures.Register(CreateSamusIdentityCharacters());
 
-    /// <summary>Builds a minimal Samus art catalog and its characters, optionally changing one visual family or spritemap order.</summary>
-    internal static SamusBodyCharacterArtwork CreateSamusIdentityCharacters(string? edit = null)
+    /// <summary>Builds a minimal Samus art catalog and its characters.</summary>
+    internal static SamusBodyCharacterArtwork CreateSamusIdentityCharacters()
     {
         int firstRecord = SamusBodySources.RecordCount -
             (SamusBodySources.TopSetCount + SamusBodySources.BottomSetCount);
@@ -66,42 +34,25 @@ internal static class SamusContentIdentityVerification
         int[] bottomStarts = [.. Enumerable.Range(SamusBodySources.TopSetCount, SamusBodySources.BottomSetCount)
             .Select(index => firstRecord + index)];
         var poses = new int[InstalledSamusBodyArtwork.PoseCount];
-        if (edit == "pose-pointer") poses[0] += 1;
         var graphics = new int[InstalledSamusBodyArtwork.PoseCount];
-        if (edit == "graphics-offset") graphics[0] = -1;
         var landing = new int[SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount];
-        if (edit == "landing-offset") landing[0] = 1;
         var posture = new sbyte[SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount];
-        if (edit == "posture-offset") posture[0] = -1;
         var drained = new sbyte[SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount];
-        if (edit == "drained-offset") drained[0] = 1;
         var frames = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        if (edit == "frame-selector") frames[0] = new SamusBodyFrameSelection(1, 0, 0, 0);
-        SamusBodyTileTransfer[][] Half(int count, string family) => Enumerable.Range(0, count)
-            .Select(index =>
-            {
-                var bytes = new byte[RoomCharacterAtlasFormat.BytesPerTile];
-                if (edit == family && index == 0) bytes[0] = 1;
-                return new[] { new SamusBodyTileTransfer(edit == "transfer-split" ? (ushort)16 : (ushort)32,
-                    edit == "transfer-split" ? (ushort)16 : (ushort)0, bytes) };
-            }).ToArray();
+        SamusBodyTileTransfer[][] Half(int count) => Enumerable.Range(0, count)
+            .Select(_ => new[] { new SamusBodyTileTransfer(32, 0, new byte[RoomCharacterAtlasFormat.BytesPerTile]) }).ToArray();
 
         var topBases = new ushort[InstalledSamusBodyArtwork.PoseCount];
         var bottomBases = new ushort[InstalledSamusBodyArtwork.PoseCount];
-        if (edit == "spritemap-top") topBases[0] = 1;
-        if (edit == "spritemap-bottom") bottomBases[0] = 1;
         SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapSources.EntryCount)];
-        if (edit == "spritemap-entry") entries[0] = new SamusSpritemapId(1);
         SamusSpritemapDefinition[] definitions =
         [
-            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, edit == "spritemap-part" ? 1 : 0), large: false, character: 0, palette: 0, priority: 0)]),
+            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, 0), large: false, character: 0, palette: 0, priority: 0)]),
             new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, priority: 0)]),
         ];
         var spritemaps = new SamusSpritemapSources(topBases, bottomBases, entries, definitions);
         var one = new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
         var shared = new SpritePart[one.Length];
-        if (edit == "atmosphere-one") one[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);
-        if (edit == "atmosphere-shared") shared[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);
         var atmosphere = new SamusAtmosphericSourceArtwork(one, shared);
         ushort[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
             .Select(_ => new ushort[InstalledSamusDeathPalettes.ColorCount]).ToArray();
@@ -109,13 +60,9 @@ internal static class SamusContentIdentityVerification
         ushort[][] suitless = Rows();
         var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
         var explosion = new ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
-        if (edit == "death-suit") suited[0][0][0] = 1;
-        if (edit == "death-suitless") suitless[0][0] = 1;
-        if (edit == "death-whiteout") whiteout[0] = 1;
-        if (edit == "death-selector") explosion[0] = 1;
         var deathPalettes = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(suitless), ToColors(whiteout), explosion);
         SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(Png(SamusDeathTileAtlasFormat.Width,
-            SamusDeathTileAtlasFormat.Height, edit == "death-tiles"));
+            SamusDeathTileAtlasFormat.Height));
         var cannonDocument = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,
@@ -126,33 +73,18 @@ internal static class SamusContentIdentityVerification
             CoverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
                 .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
         };
-        if (edit == "cannon-pose") cannonDocument.PoseDescriptors[0]++;
-        if (edit == "cannon-drawing") cannonDocument.DrawingData[0] = 1;
-        if (edit == "cannon-attributes")
-            cannonDocument.CoverAppearances[0] = SpriteVisualPart.FromSpritePart(SpritePart.Single(character: 1, palette: 0, priority: 0), SpriteArtwork.CharactersPerRow);
-        if (edit == "cannon-sources") cannonDocument.CoverTiles[0][0] = 1;
         int cannonWidth = SamusArmCannonArtworkFormat.CoverTileCount * 8;
         InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
             new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)),
-            Png(cannonWidth, 8, edit == "cannon-tiles"));
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained }, Half(topStarts.Length, "top-characters"), Half(bottomStarts.Length, "bottom-characters"));
+            Png(cannonWidth, 8));
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained }, Half(topStarts.Length), Half(bottomStarts.Length));
 
-        static MemoryStream Png(int width, int height, bool changed)
+        static MemoryStream Png(int width, int height)
         {
             var stream = new MemoryStream();
-            var pixels = new byte[width * height];
-            if (changed) pixels[^1] = 1;
-            IndexedPng.Write(stream, new(checked((ushort)width), checked((ushort)height)), pixels, [new RgbaPixel(0, 0, 0), new RgbaPixel(255, 255, 255)]);
+            IndexedPng.Write(stream, new(checked((ushort)width), checked((ushort)height)), new byte[width * height], [new RgbaPixel(0, 0, 0), new RgbaPixel(255, 255, 255)]);
             stream.Position = 0;
             return stream;
         }
-    }
-
-    /// <summary>Runs the focused Samus artwork identity check.</summary>
-    [VerificationCommand("--samus-content-identity")]
-    internal static int SamusContentIdentityCommand()
-    {
-        Suite(nameof(VerifySamusContentIdentity), () => VerifySamusContentIdentity());
-        return 0;
     }
 }

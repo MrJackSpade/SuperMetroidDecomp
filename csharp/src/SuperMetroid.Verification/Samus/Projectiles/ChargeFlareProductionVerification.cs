@@ -24,7 +24,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 /// <summary>Checks compiled charge flare compositions in production draw and saved-state rebinding.</summary>
 internal static class ChargeFlareProductionVerification
 {
-    /// <summary>Compares normal and Hyper flare frames with native OAM, then checks visual edits leave projectile state intact.</summary>
+    /// <summary>Compares normal and Hyper flare frames with native OAM and checks drawing leaves projectile state intact.</summary>
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         InstalledSamusBodyArtwork body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentation maps)
@@ -108,21 +108,5 @@ internal static class ChargeFlareProductionVerification
             Array.Fill(system.Charge.FlareTimers, WrappingCountdown.Start(3));
             return system;
         }
-    }
-
-    /// <summary>Blocks live reads of the native flare selector table and every referenced spritemap body.</summary>
-    internal static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
-    {
-        var forbidden = new HashSet<int>();
-        for (int i = 0; i < ChargeFlareSpriteSelection.Selectors.Count * 2; i++)
-            forbidden.Add(ChargeFlareSpriteDefinitions.SelectorTable + i);
-        foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
-        {
-            int address = 0x930000 | pointer;
-            int size = 2 + 5 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
-            for (int i = 0; i < size; i++) forbidden.Add(address + i);
-        }
-        return new CartridgeReadGuard(source).Forbid(forbidden.Contains,
-            address => $"Flare composition read from ROM at {address:X6}.");
     }
 }

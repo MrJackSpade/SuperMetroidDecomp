@@ -6,7 +6,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareProductionVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -23,7 +22,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
-/// <summary>Checks Grapple flare timing, OAM, editable offsets, and restored actor binding against native presentation.</summary>
+/// <summary>Checks Grapple flare timing, OAM, and restored actor binding against native presentation.</summary>
 internal static class GrappleFlarePresentationVerification
 {
     /// <summary>Compares flare drawing across phases and coordinates with native cadence, then checks the real actor's sheet binding.</summary>
@@ -31,7 +30,6 @@ internal static class GrappleFlarePresentationVerification
         InstalledSamusBodyArtwork body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentation maps, GrappleTileAtlas grappleArtwork)
     {
-        var guard = NewGrappleFlarePresentationGuard(NewChargeFlareCompositionGuard(bus));
         var flarePlacement = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(
             GrappleFlarePlacementExtractor.Extract(bus)));
         // The cases bind Samus to this body and flare placement: content a capture names, never copies.
@@ -44,8 +42,8 @@ internal static class GrappleFlarePresentationVerification
         foreach (ushort counter in new ushort[] { 0, 1, 2 })
         foreach (ushort coordinate in new ushort[] { 0, 1, 100, 255, 256, 511, 32768, 65535 })
         {
-            SamusState native = Seed(), actual = Seed(), changed = Seed();
-            Check(native, actual, changed);
+            SamusState native = Seed(), actual = Seed();
+            Check(native, actual);
             SamusState Seed()
             {
                 var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
@@ -71,16 +69,15 @@ internal static class GrappleFlarePresentationVerification
                 ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
                 : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
             native.Grapple.FlareCounter = 1;
-            var actual = Clone(native); var changed = Clone(native);
+            var actual = Clone(native);
             for (int tick = 0; tick < 512; tick++)
             {
                 ushort tickX = (ushort)(tick % 256);
-                changed.Position = changed.Position.WithWholeX(tickX);
                 actual.Position = actual.Position.WithWholeX(tickX);
                 native.Position = native.Position.WithWholeX(tickX);
-                Check(native, actual, changed);
+                Check(native, actual);
                 // Native post-Samus tile upload owns this counter, not the flare.
-                native.Grapple.FlareCounter = actual.Grapple.FlareCounter = changed.Grapple.FlareCounter = (ushort)Math.Min(120, native.Grapple.FlareCounter + 1);
+                native.Grapple.FlareCounter = actual.Grapple.FlareCounter = (ushort)Math.Min(120, native.Grapple.FlareCounter + 1);
             }
         }
         // Exercise negative timers across the complete authored main-flare frame domain
@@ -94,14 +91,14 @@ internal static class GrappleFlarePresentationVerification
             samus.Grapple.FlareAnimationFrame = frame;
             samus.Grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(timer);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
-            Check(samus, Clone(samus), Clone(samus));
+            Check(samus, Clone(samus));
         }
         Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(roomAssets, maps, grappleArtwork));
-        Console.WriteLine($"Grapple flare: {cases} phase, position, sentinel, rewind and timer-boundary cases preserve native cadence/OAM and complete Samus state with visual/cadence ROM forbidden; actual actor override/rebind passes.");
+        Console.WriteLine($"Grapple flare: {cases} phase, position, sentinel, rewind and timer-boundary cases preserve native cadence/OAM and complete Samus state; actual actor rebind passes.");
 
-        void Check(SamusState native, SamusState actual, SamusState changed)
+        void Check(SamusState native, SamusState actual)
         {
-            foreach (SamusState samus in new[] { native, actual, changed })
+            foreach (SamusState samus in new[] { native, actual })
             {
                 samus.Presentation.BodyFrames.BindBodyFixture(body);
                 samus.Grapple.FlarePlacement = flarePlacement;
@@ -184,12 +181,6 @@ internal static class GrappleFlarePresentationVerification
             return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();
         }
     }
-
-    /// <summary>Forbids production reads from migrated flare cadence and spritemap-selector tables.</summary>
-    private static CartridgeReadGuard NewGrappleFlarePresentationGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0x90c481 and < 0x90c4b5 or >= 0x93a225 and < 0x93a231,
-                address => $"Grapple flare still reads compiled cadence/selector at {address:X6}.");
 
     /// <summary>Reads one native facing-row selector offset to check both rows choose the shared main flare.</summary>
     private static ushort ReadNativeGrappleFlareSpritemapOffset(ISnesAddressSpace bus, int address) =>

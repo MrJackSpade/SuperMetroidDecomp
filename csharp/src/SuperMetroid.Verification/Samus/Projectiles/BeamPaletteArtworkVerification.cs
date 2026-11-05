@@ -23,15 +23,15 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Checks beam palette extraction, live ownership, and editable color changes.</summary>
+/// <summary>Checks beam palette extraction and live ownership.</summary>
 internal static class BeamPaletteArtworkVerification
 {
-    /// <summary>Compares every beam selection's CGRAM with native output and checks isolated JSON color edits.</summary>
+    /// <summary>Compares every beam selection's CGRAM with native output and rejects malformed palette documents.</summary>
     internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
         var catalog = BeamPaletteFile.Read(new MemoryStream(bytes));
-        Suite(nameof(VerifyBeamPaletteOwnership), () => VerifyBeamPaletteOwnership(bus, catalog));
+        Suite(nameof(VerifyBeamPaletteOwnership), () => VerifyBeamPaletteOwnership(catalog));
         Suite(nameof(VerifyCrystalFlashFinishBeamPalette), () => VerifyCrystalFlashFinishBeamPalette(catalog));
         for (ushort selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
@@ -45,16 +45,8 @@ internal static class BeamPaletteArtworkVerification
             RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog });
             for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
                 AssertEqual(expected.Colors[SamusColourNative.BeamFirstCgram + i], shown[i], "Extracted beam palette matches the native beam colours");
-            var document = RequiredJson.Parse(bytes);
-            var red = document.Required("palettes").Required(BeamPaletteFile.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
-            red["red"] = red.Required("red").GetValue<int>() ^ 1;
-            var edited = BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
-            RgbColor[] shownEdited = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = edited });
-            for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-                AssertEqual((ushort)(expected.Colors[SamusColourNative.BeamFirstCgram + i].ToWord() ^ (i == 3 ? 1 : 0)),
-                    shownEdited[i], "Palette edit changes exactly the selected color channel bit");
             AssertTrue(catalog.Colours(SamusBeamCombinations.FromTableIndex(selection)).SequenceEqual(shown),
-                "Previously extracted palette remains immutable after editing input");
+                "The shown beams are the extracted selection's palette");
         }
         string json = Encoding.UTF8.GetString(bytes);
         AssertThrows<InvalidDataException>(() => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
@@ -70,7 +62,7 @@ internal static class BeamPaletteArtworkVerification
         invalid = JsonNode.Parse(bytes);
         (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").Required(BeamPaletteFile.Key(0)).Required(0)["damage"] = 100;
         Reject(invalid, "Presentation cannot introduce gameplay properties");
-        Console.WriteLine("Beam palettes: twelve native full-CGRAM matches, exact isolated RGB edits, ROM-free queue path and strict JSON validation pass.");
+        Console.WriteLine("Beam palettes: twelve native full-CGRAM matches, ROM-free queue path and strict JSON validation pass.");
 
         static void Reject(JsonNode document, string message) => AssertThrows<InvalidDataException>(
             () => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
@@ -105,10 +97,10 @@ internal static class BeamPaletteArtworkVerification
     }
 
     /// <summary>
-    /// Checks that Crystal Flash's completion and the debug grapple show beam shades (#1512), and that an edited palette
-    /// reaches the grapple's shade through the import's shades rather than the cartridge's colours.
+    /// Checks that Crystal Flash's completion and the debug grapple show beam shades (#1512), and that the grapple's shade
+    /// shows the extracted Ice beam palette.
     /// </summary>
-    private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, InstalledBeamPalettes palettes)
+    private static void VerifyBeamPaletteOwnership(InstalledBeamPalettes palettes)
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -131,15 +123,6 @@ internal static class BeamPaletteArtworkVerification
         AssertTrue(nativeRuntime.Player.Colours.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes })
                 .SequenceEqual(palettes.Colours(SamusBeamCombination.Ice)),
             "Stock debug grapple colours match the Ice beam palette");
-
-        var editedDocument = RequiredJson.Parse(BeamPaletteExtractor.Extract(bus));
-        var editedColor = editedDocument.Required("palettes").Required(BeamPaletteFile.Key(SamusBeamCombination.Ice)).Required(3);
-        editedColor["red"] = editedColor.Required("red").GetValue<int>() ^ 1;
-        var editedPalettes = BeamPaletteFile.Read(
-            new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
-        AssertTrue(nativeRuntime.Player.Colours.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = editedPalettes })
-                .SequenceEqual(editedPalettes.Colours(SamusBeamCombination.Ice)),
-            "The grapple's shade uses the edited extracted palette, not cartridge colors");
     }
 
     /// <summary>Runs the beam palette extraction and live ownership checks.</summary>

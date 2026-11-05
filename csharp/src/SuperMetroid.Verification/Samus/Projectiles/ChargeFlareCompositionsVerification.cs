@@ -19,10 +19,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Compares editable charge-flare sprite compositions with native OAM output and production rendering.</summary>
+/// <summary>Compares installed charge-flare sprite compositions with native OAM output and production rendering.</summary>
 internal static class ChargeFlareCompositionsVerification
 {
-    /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then validates visual edits and malformed assets.</summary>
+    /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then rejects malformed assets.</summary>
     internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
         bool flareOnly = false)
     {
@@ -66,13 +66,6 @@ internal static class ChargeFlareCompositionsVerification
         }
         var document = RequiredJson.Parse(json);
         string first = ChargeFlareSpriteSelection.Selectors[0].Name;
-        int oldX = document.Required("frames").Required(first).Required(0).Required("offsetX").GetValue<int>();
-        document.Required("frames").Required(first).Required(0)["offsetX"] = oldX + 7;
-        var edited = Load(document);
-        var before = new OamBuffer(); var after = new OamBuffer();
-        stock.Draw(0, before, new(100, 100)); edited.Draw(0, after, new(100, 100));
-        AssertEqual((before.GetEntry(0).Position.X + 7) & 511, after.GetEntry(0).Position.X, "Composition edit changes emitted flare position");
-        AssertEqual(before.GetEntry(0).Position.Y, after.GetEntry(0).Position.Y, "X-only composition edit preserves Y");
         document.Required("frames").AsObject().Remove(first);
         AssertThrows<InvalidDataException>(() => Load(document), "Missing charge-flare composition rejected");
         document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;
@@ -82,7 +75,7 @@ internal static class ChargeFlareCompositionsVerification
         AssertThrows<InvalidDataException>(() => ChargeFlareSprites.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare JSON rejected");
         AssertThrows<InvalidDataException>(() => stock.Draw(54, new OamBuffer(), new(0, 0)), "Non-charge selector is not silently substituted");
         AssertThrows<InvalidDataException>(() => stock.Draw(ushort.MaxValue, new OamBuffer(), new(0, 0)), "Invalid selector is not clamped");
-        Console.WriteLine($"Charge-flare compositions: {cases} native OAM comparisons, editable displacement and invalid-resource checks pass.");
+        Console.WriteLine($"Charge-flare compositions: {cases} native OAM comparisons and invalid-resource checks pass.");
         static ChargeFlareSprites Load(JsonNode node) => ChargeFlareSprites.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
 

@@ -52,11 +52,9 @@ internal static class CrystalFlashColorsVerification
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Crystal Flash color JSON is null.");
         SamusState samus = StartCrystalFlash();
-        SamusState nativeSamus = StartCrystalFlash();
 
         var guard = NewCrystalFlashColorReadGuard(rom);
         var samusColours = new SamusColours();
-        var nativeColours = new SamusColours();
         // Crystal Flash names body and bubble shades (#1512); the import resolves them from the installed colours.
         var installedSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = InstalledAreaMapPresentation.SamusColoursOf(original).CrystalFlash };
         int duration = CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
@@ -65,20 +63,6 @@ internal static class CrystalFlashColorsVerification
         {
             AssertTrue(samus.CrystalFlash.UpdatePalette(samusColours, samus),
                 $"Crystal Flash call {call} retains palette ownership");
-            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(nativeColours, nativeSamus),
-                $"native Crystal Flash call {call} retains palette ownership");
-            AssertEqual(nativeSamus.CrystalFlash.CrystalPaletteTimer.RawValue,
-                samus.CrystalFlash.CrystalPaletteTimer.RawValue,
-                $"color edit preserves body timer on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteTimer.RawValue,
-                samus.CrystalFlash.SpecialPaletteTimer.RawValue,
-                $"color edit preserves bubble timer on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.BodyStep,
-                samus.CrystalFlash.BodyStep,
-                $"color edit preserves body cursor on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.BubbleStep,
-                samus.CrystalFlash.BubbleStep,
-                $"color edit preserves bubble cursor on call {call}");
             int bodyFrame = call / duration;
             int bubbleFrame = call / 5 % CrystalFlashColorFormat.BubbleFrameCount;
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)

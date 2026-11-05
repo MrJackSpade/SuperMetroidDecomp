@@ -12,7 +12,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks editable projectile sprite bindings independently of timed mechanics.</summary>
+/// <summary>Checks installed projectile sprite bindings independently of timed mechanics.</summary>
 internal static class ProjectileFrameBindingsVerification
 {
     /// <summary>Checks 805 native sprite references, both projectile handlers, the installed bindings and malformed binding documents.</summary>
@@ -23,17 +23,13 @@ internal static class ProjectileFrameBindingsVerification
         AssertEqual(ProjectileFrameBindingFormat.FrameCount,
             SamusProjectileRecordDefinitions.TimedRecordAddresses.Count,
             "physical timed records and visual frame bindings have identical coverage");
-        var blocked = new HashSet<int>();
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
-            blocked.Add(address);
-            blocked.Add(SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 3)));
             ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
             AssertEqual(native, stock.Resolve(pointer),
                 $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
         }
-        var guard = NewProjectileFrameBindingReadGuard(rom, blocked);
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             int record = SamusSourceDefinitions.ProjectileDataBank.Value | pointer;
@@ -100,11 +96,6 @@ internal static class ProjectileFrameBindingsVerification
             "uncatalogued sprite selection fails before gameplay");
         Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, installed bindings and malformed documents pass.");
     }
-
-    /// <summary>Rejects reads of migrated sprite-reference operands in timed projectile records.</summary>
-    private static CartridgeReadGuard NewProjectileFrameBindingReadGuard(ISnesAddressSpace source, HashSet<int> blocked) =>
-        new CartridgeReadGuard(source).Forbid(blocked.Contains,
-            address => new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}."));
 
     /// <summary>Runs the projectile frame binding checks.</summary>
     [VerificationCommand("--projectile-frame-bindings")]

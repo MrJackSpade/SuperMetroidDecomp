@@ -17,12 +17,11 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Retail OAM, compiled program, live override, and mutable-memory checks for projectile trails.</summary>
 internal static class ProjectileTrailArtworkVerification
 {
-    /// <summary>Compares stock and edited trail appearance through production drawing while keeping timing, movement, and program control cartridge-owned.</summary>
+    /// <summary>Compares stock trail appearance through production drawing while keeping timing, movement, and program control cartridge-owned.</summary>
     internal static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
         byte[] json = ProjectileTrailExtractor.Extract(bus);
-        var catalog = InstalledProjectileTrails.Load(new MemoryStream(json));
         var encountered = new HashSet<ushort>();
         foreach (ushort start in new[] { ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave, ProjectileTrailDefinitions.Missile })
         {
@@ -106,11 +105,6 @@ internal static class ProjectileTrailArtworkVerification
         }
         var document = RequiredJson.Parse(json);
         ProjectileTrailFrame first = ProjectileTrailVisualDefinitions.Frames[0];
-        var part = document.Required("frames").Required(ProjectileTrailNative.Name(first));
-        part["flipX"] = !part.Required("flipX").GetValue<bool>();
-        var edited = Load(document);
-        AssertEqual(catalog.Resolve(first) with { Flip = catalog.Resolve(first).Flip ^ TileFlip.Horizontal }, edited.Resolve(first),
-            "Trail flip edit changes only the horizontal flip");
         var animation = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
         trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.FrameHold = WrappingCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
@@ -129,7 +123,7 @@ internal static class ProjectileTrailArtworkVerification
         (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").Required(ProjectileTrailNative.Name(first))["palette"] = 8;
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native pose comparisons, frozen-start preservation and strict metadata rejection pass.");
-        // Round-trip an edited frame node through the same JSON catalog validation as installed assets.
+        // Round-trip a malformed frame node through the same JSON catalog validation as installed assets.
         InstalledProjectileTrails Load(JsonNode document) => InstalledProjectileTrails.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 

@@ -65,12 +65,9 @@ internal static class SuiteTimingVerification
             double allocatedMegabytes = allocated / (1024.0 * 1024.0);
             Console.WriteLine($"TIME {new string(' ', 2 * suiteDepth)}{name}: {watch.Elapsed.TotalSeconds:0.00} s (self {self.TotalSeconds:0.00} s), " +
                 $"{allocatedMegabytes:0.0} MB allocated (self {selfAllocated / (1024.0 * 1024.0):0.0} MB){marker}");
-            // Suites directly under a flag start from their own live data only: collect and return the previous
-            // suite's garbage instead of letting the heap grow. Only an outermost suite collects, after its watch has
-            // stopped. A nested suite's collection would land in its parent's time, and an aggressive collection
-            // over a heap holding the shared installed fixtures costs seconds each, so a suite made of many nested
-            // checks would spend most of its time collecting rather than checking (#1532).
-            if (suiteDepth == 0) GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
+            // Suites directly under a flag or its bundle start from their own live data only:
+            // collect and return the previous suite's garbage instead of letting the heap grow.
+            if (suiteDepth <= 1) GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
         }
     }
 

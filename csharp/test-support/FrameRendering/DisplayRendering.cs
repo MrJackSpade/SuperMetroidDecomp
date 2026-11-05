@@ -21,12 +21,6 @@ internal static class DisplayRendering
     /// <summary>The pixels a packet of <paramref name="scene"/> alone shows.</summary>
     internal static RgbaPixel[] Render(LayeredScene scene) => Render(new DisplayPacket(0, scene));
 
-    /// <summary>
-    /// Makes this thread's renderer now, so a thread that draws for the life of the process makes its device before its
-    /// first draw.
-    /// </summary>
-    internal static void Prepare() => _ = Renderer();
-
     /// <summary>This thread's renderer, made with its WARP device on first use.</summary>
     private static D3D11FrameRenderer Renderer() => renderer ??= new D3D11FrameRenderer(new D3D11RenderDevice(D3D11DeviceKind.Warp));
 }

@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -9,8 +8,8 @@ namespace SuperMetroid.Verification.Harness;
 /// Draws a batch of independent items at once (#1532) on a fixed set of long-lived companion threads, each drawing with
 /// its own renderer: <see cref="DisplayRendering"/> keeps one renderer per thread, so every companion draws with its own
 /// WARP device, and the companions live for the process so each keeps its renderer and its uploaded images from batch to
-/// batch. The companions and their renderers are made once, as a shared fixture. Every item is drawn exactly as when the
-/// items were drawn one by one; <see cref="DrawEach"/> returns only once every item is drawn.
+/// batch. Each companion makes its renderer on its first draw. Every item is drawn exactly as when the items were drawn
+/// one by one; <see cref="DrawEach"/> returns only once every item is drawn.
 /// </summary>
 internal static class ConcurrentSceneDrawing
 {
@@ -20,12 +19,8 @@ internal static class ConcurrentSceneDrawing
     /// </summary>
     private static readonly int CompanionCount = Math.Clamp(Environment.ProcessorCount / 4, 2, 6);
 
-    /// <summary>
-    /// The companion threads, each with its renderer made, made on first use as one shared fixture: they and their
-    /// renderers live for the process, so their making is no cost of the check that first draws through them.
-    /// </summary>
-    private static readonly Lazy<DrawingCompanion[]> companions =
-        new(() => SharedFixtureTiming.Load("Fixture: scene drawing companions", MakeCompanions));
+    /// <summary>The companion threads, started on first use; they and the renderers they make live for the process.</summary>
+    private static readonly Lazy<DrawingCompanion[]> companions = new(MakeCompanions);
 
     /// <summary>
     /// What <paramref name="draw"/> makes of each of <paramref name="items"/>, in item order, the items drawn at once on
@@ -82,14 +77,12 @@ internal static class ConcurrentSceneDrawing
         return results;
     }
 
-    /// <summary>Starts the companions and waits until each has made its renderer; a renderer's failure is rethrown here.</summary>
+    /// <summary>Starts the companions.</summary>
     private static DrawingCompanion[] MakeCompanions()
     {
         var made = new DrawingCompanion[CompanionCount];
         for (int number = 0; number < made.Length; number++)
             made[number] = new DrawingCompanion(number);
-        foreach (DrawingCompanion companion in made)
-            companion.Ready.GetAwaiter().GetResult();
         return made;
     }
 
@@ -99,7 +92,8 @@ internal static class ConcurrentSceneDrawing
     private readonly record struct CompanionWork(Action Work, TaskCompletionSource Done);
 
     /// <summary>
-    /// A background thread that makes its renderer, then runs the work given to it in order, for the life of the process.
+    /// A background thread that runs the work given to it in order, for the life of the process; its first draw makes its
+    /// renderer, so a renderer that cannot be made fails that draw.
     /// A failure completes the task of the work that failed, which <see cref="DrawEach"/> rethrows on the calling thread;
     /// none escapes the thread.
     /// </summary>
@@ -108,10 +102,7 @@ internal static class ConcurrentSceneDrawing
         /// <summary>The work given to the companion and not yet run, in the order it was given.</summary>
         private readonly BlockingCollection<CompanionWork> pending = new(new ConcurrentQueue<CompanionWork>());
 
-        /// <summary>Completed once the companion's renderer is made, or with the exception that stopped its making.</summary>
-        private readonly TaskCompletionSource ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        /// <summary>Starts the companion's thread, which makes its renderer before it runs any work.</summary>
+        /// <summary>Starts the companion's thread.</summary>
         /// <param name="number">The companion's place among the companions, which names its thread.</param>
         internal DrawingCompanion(int number)
         {
@@ -123,9 +114,6 @@ internal static class ConcurrentSceneDrawing
             thread.Start();
         }
 
-        /// <summary>Completes once the companion's renderer is made.</summary>
-        internal Task Ready => ready.Task;
-
         /// <summary>Gives the companion <paramref name="work"/> to run after the work given before it.</summary>
         internal Task Run(Action work)
         {
@@ -134,20 +122,9 @@ internal static class ConcurrentSceneDrawing
             return done.Task;
         }
 
-        /// <summary>Makes the thread's renderer, then runs each piece of work given to the companion.</summary>
+        /// <summary>Runs each piece of work given to the companion.</summary>
         private void RunPending()
         {
-            try
-            {
-                DisplayRendering.Prepare();
-            }
-            catch (Exception exception)
-            {
-                // Passed to the fixture's making, which rethrows it: a companion without a renderer draws nothing.
-                ready.SetException(exception);
-                return;
-            }
-            ready.SetResult();
             foreach (CompanionWork work in pending.GetConsumingEnumerable())
             {
                 try

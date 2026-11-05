@@ -89,34 +89,24 @@ public sealed record GameInstallation(string Root)
     public string BossAndIntroOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossAndIntroOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     public SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices LoadBossAndIntroOverreads() => BossAndIntroOverreadFiles.Load(BossAndIntroOverreadDirectory);
-    /// <summary>Stock pre-coloured sprite sheets and their frame manifests.</summary>
+    /// <summary>Installed pre-coloured sprite sheets and their frame manifests, which the player edits in place.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
-    /// <summary>Player-edited sprite sheet images or frame manifests, which replace the stock files of the same name.</summary>
-    public string SpriteSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SpriteSheetDirectoryName);
-    /// <summary>Loads every validated sprite sheet, preferring the player's overrides.</summary>
-    public InstalledSpriteSheets LoadSpriteSheets() => SpriteSheetFiles.Load(SpriteSheetDirectory, SpriteSheetOverrideDirectory);
-    /// <summary>Stock pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
+    /// <summary>Loads every installed sprite sheet.</summary>
+    public InstalledSpriteSheets LoadSpriteSheets() => SpriteSheetFiles.Load(SpriteSheetDirectory);
+    /// <summary>Installed pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
     public string EnemySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName);
-    /// <summary>Player-edited enemy sheet files, which replace the stock files of the same name.</summary>
-    public string EnemySheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemySheetDirectoryName);
-    /// <summary>Loads every validated enemy sheet, preferring the player's overrides.</summary>
-    public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory, EnemySheetOverrideDirectory);
-    /// <summary>Stock indexed common gameplay OBJ sheet and its source manifest.</summary>
+    /// <summary>Loads every installed enemy sheet.</summary>
+    public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
+    /// <summary>Installed indexed common gameplay OBJ sheet and its source manifest, which the player edits in place.</summary>
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
-    /// <summary>Editable common gameplay OBJ sheet, preserved across stock rebuilds.</summary>
-    public string StandardObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.StandardObjectDirectoryName);
-    /// <summary>Validates the stock common OBJ sheet and selects a compatible replacement PNG for the shared character transfer.</summary>
-    public RoomCharacterAtlas LoadStandardObjects() =>
-        StandardObjectArtworkFiles.Load(StandardObjectDirectory, StandardObjectOverrideDirectory);
-    /// <summary>Stock projectile artwork and presentation selectors under the replaceable content tree.</summary>
+    /// <summary>Validates and loads the installed common OBJ sheet for the shared character transfer.</summary>
+    public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
+    /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Stock Samus body PNGs and visual selectors under the replaceable content tree.</summary>
+    /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Replacement Samus body PNGs and visual selectors survive stock rebuilds.</summary>
-    public string SamusBodyOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Loads validated Samus body artwork and compatible replacement PNGs and selectors from the persistent override tree.</summary>
-    public InstalledSamusBodyArtwork LoadSamusBodyArt() =>
-        SamusBodyArtworkFiles.Load(SamusBodyDirectory, SamusBodyOverrideDirectory);
+    /// <summary>Loads the validated installed Samus body artwork.</summary>
+    public InstalledSamusBodyArtwork LoadSamusBodyArt() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
     /// <summary>Stock opening-cinematic artwork under the replaceable content tree.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>
@@ -154,12 +144,10 @@ public sealed record GameInstallation(string Root)
     public string RoomBlockSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBlockSheetDirectoryName);
     /// <summary>Loads every tileset's installed pre-coloured block sheet as the player left it (#1392).</summary>
     public InstalledRoomArtwork LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory);
-    /// <summary>Stock pre-assembled boss body sheets under the replaceable content tree (#1466).</summary>
+    /// <summary>Installed pre-assembled boss body sheets (#1466), which the player edits in place.</summary>
     public string BossBodySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossBodySheetDirectoryName);
-    /// <summary>Edited boss body pictures survive stock content replacement.</summary>
-    public string BossBodySheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.BossBodySheetDirectoryName);
-    /// <summary>Loads every boss's pre-assembled body sheet, preferring the player's edits (#1466).</summary>
-    public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory, BossBodySheetOverrideDirectory);
+    /// <summary>Loads every boss's installed pre-assembled body sheet (#1466).</summary>
+    public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
     public string RoomVisualLayoutDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomVisualLayoutDirectoryName);
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
@@ -305,17 +293,12 @@ public sealed record GameInstallation(string Root)
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
     public InstalledXrayReveals LoadXrayRevealVisuals() =>
         XrayRevealVisualFiles.Load(XrayRevealVisualDirectory);
-    /// <summary>Persistent projectile artwork and presentation replacements, preserved during stock rebuilds.</summary>
-    public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Loads validated projectile presentation with compatible user artwork and visual-selector replacements.</summary>
-    public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
-    /// <summary>Ordinary enemy tile sheets; replacement PNGs survive stock-content rebuilds.</summary>
+    /// <summary>Loads the validated installed projectile presentation.</summary>
+    public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory);
+    /// <summary>Installed enemy, boss and area artwork, which the player edits in place.</summary>
     public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Persistent ordinary-enemy PNG replacements, preserved during stock rebuilds.</summary>
-    public string EnemyTileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Loads validated enemy, boss and area artwork and compatible replacement PNGs from the persistent override tree.</summary>
-    public InstalledEnemyArtwork LoadEnemyTiles() =>
-        EnemyTileArtworkFiles.Load(EnemyTileDirectory, EnemyTileOverrideDirectory);
+    /// <summary>Loads the validated installed enemy, boss and area artwork.</summary>
+    public InstalledEnemyArtwork LoadEnemyTiles() => EnemyTileArtworkFiles.Load(EnemyTileDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 

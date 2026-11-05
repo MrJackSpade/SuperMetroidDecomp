@@ -22,10 +22,10 @@ internal static class EnemyProjectileArtworkContractChecks
         var direct = EnemyProjectileSpritemapDefinitions.FrameNames.ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>());
         var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var document = new EnemyProjectileSpritemapDocument {
-            Version = (int)EnemyProjectileSpritemapVersion.Current, Frames = direct, ProgramFrames = programs };
-        EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value, EnemyProjectileSpritemapCatalog? stock = null) =>
+            Version = EnemyProjectileSpritemapDocuments.Version, Frames = direct, ProgramFrames = programs };
+        EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value) =>
             EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
         EnemyProjectileSpritemapCatalog catalog = Load(document);
         EnemyProjectileFrameId directId = EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[0]);
         EnemyProjectilePresentationFrameDefinition program = EnemyProjectilePresentationFrameSets.All[0];
@@ -35,21 +35,14 @@ internal static class EnemyProjectileArtworkContractChecks
         var camelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, camelCase));
         withNullFrame.Required("frames")[directName] = null;
-        Reject(() => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(withNullFrame.ToJsonString())), null),
+        Reject(() => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(withNullFrame.ToJsonString()))),
             "null direct composition");
         direct.Remove(directName); direct.Add("unowned-direct", []);
         Reject(() => Load(document), "same-count substituted direct composition");
         direct.Remove("unowned-direct"); direct.Add(directName, []);
         programs.Remove(program.Name); programs.Add("unowned-program", []);
         Reject(() => Load(document), "same-count substituted program composition");
-        var legacy = document with { Version = (int)EnemyProjectileSpritemapVersion.CeresOnly,
-            Frames = EnemyProjectileSpritemapDefinitions.FrameNames.Take(EnemyProjectileSpritemapDocuments.LegacyFrameCount)
-                .ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>()), ProgramFrames = null };
-        Reject(() => Load(legacy), "legacy stock without complete inheritance");
-        EnemyProjectileSpritemapCatalog merged = Load(legacy, catalog);
-        Require(merged.GetProgramFrame(program.Frame).IsEmpty &&
-            merged.Get(EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[^1])).IsEmpty,
-            "legacy override inherits program and later direct frames from validated private stock");
+        Reject(() => Load(document with { Version = EnemyProjectileSpritemapDocuments.Version - 1 }), "a document of an earlier revision");
         ConfirmStaticCalls(directId, program.Frame);
     }
 

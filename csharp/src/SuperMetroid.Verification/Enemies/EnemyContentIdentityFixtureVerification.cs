@@ -361,7 +361,7 @@ internal static class EnemyContentIdentityFixtureVerification
             Register("oam-binding");
             return new EnemySpritemapDocument
             {
-                Version = EnemySpritemapSchema.Current.Revision,
+                Version = EnemySpritemapSchema.Revision,
                 Frames = Ordered(definitions.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, Parts("oam", index == definitions.Length - 1)))),
                 DisplayFrames = Ordered(definitions.Select((frame, index) => KeyValuePair.Create(frame.Name,
@@ -393,7 +393,7 @@ internal static class EnemyContentIdentityFixtureVerification
             });
             return new EnemyExtendedFrameDocument
             {
-                Version = EnemyExtendedFrameSchema.Current.Revision, Frames = Ordered(frames),
+                Version = EnemyExtendedFrameSchema.Revision, Frames = Ordered(frames),
                 DisplayFrames = Ordered(definitions.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, index == 0 && edit == "extended-binding" ? definitions[1].Name : frame.Name))),
             };
@@ -408,7 +408,7 @@ internal static class EnemyContentIdentityFixtureVerification
             var programs = EnemyProjectilePresentationFrameSets.All.ToArray();
             return new EnemyProjectileSpritemapDocument
             {
-                Version = (int)EnemyProjectileSpritemapVersion.Current,
+                Version = EnemyProjectileSpritemapDocuments.Version,
                 Frames = Ordered(frames.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, Parts("projectile", index == frames.Length - 1)))),
                 ProgramFrames = Ordered(programs.Select((frame, index) =>

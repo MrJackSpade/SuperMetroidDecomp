@@ -56,42 +56,17 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             JsonSerializer.Deserialize<BabyMetroidCutsceneColorDocument>(stockJson,
                 CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock cutscene Baby color JSON is null.");
-        visual.Initial[5] = ChangeRed(visual.Initial[5]);
-        foreach (PaletteRgb5[] frame in visual.Fade)
-            frame[5] = ChangeRed(frame[5]);
-        string overrides = Path.Combine(stockDirectory,
-            "baby-metroid-cutscene-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overrideFile = Path.Combine(overrides,
-            BabyMetroidCutsceneColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, BabyMetroidCutsceneColorFile.Write(visual));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { BabyMetroidCutsceneColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors() } };
-        BabyMetroidCutsceneColorCatalog colors = edited.Bosses.BabyMetroidCutsceneColors ??
-            throw new InvalidDataException("Edited enemy art has no cutscene Baby colors.");
-        AssertTrue(native.InitialColor(5) != colors.InitialColor(5),
-            "cutscene Baby initial edit takes effect");
-        AssertEqual(native.InitialColor(4), colors.InitialColor(4),
-            "cutscene Baby initial adjacent color stays native");
-        for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
-        {
-            AssertTrue(native.FadeColor(index, 5) != colors.FadeColor(index, 5),
-                $"cutscene Baby fade {index} edit takes effect");
-            AssertEqual(native.FadeColor(index, 4), colors.FadeColor(index, 4),
-                $"cutscene Baby fade {index} adjacent color stays native");
-        }
-        AssertEqual(colors.FadeColor(6, 5),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors().FadeColor(6, 5),
-            "cutscene Baby color override survives catalog reload");
+        BabyMetroidCutsceneColorCatalog colors = native;
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         // The Baby's colours load while Mother Brain's encounter is loaded, which lays them over its sprites (#1512).
         var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = motherBrain;
         Type type = typeof(RoomEnemySystem);
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
         int destination = 0x01e2 / 2;
-        ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.Maps, edited.Bosses, BossShadeColours.Filled(0x1234));
+        ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.Maps, stock.Bosses, BossShadeColours.Filled(0x1234));
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
         ushort[] cgram = Shown();
         AssertEqual(0x1234, cgram[destination - 1],
@@ -114,30 +89,11 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live cutscene Baby palette consumers avoid migrated RGB5 ROM reads");
 
-        File.WriteAllBytes(overrideFile, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors(),
-            "invalid cutscene Baby color override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1}"u8.ToArray());
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors(),
-            "duplicate cutscene Baby color property fails loudly");
         visual.Fade[0][5] = visual.Fade[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
             () => BabyMetroidCutsceneColorFile.Read(new MemoryStream(BabyMetroidCutsceneColorFile.Write(visual), writable: false)),
             "reading cutscene Baby colors rejects an RGB5 channel outside five-bit precision");
-        File.Delete(overrideFile);
-        File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).BabyMetroidCutsceneColors(),
-            "corrupt stock cutscene Baby colors fail loudly where it is read");
-        File.WriteAllBytes(file, stockJson);
-        Console.WriteLine("  Cutscene Baby colors: 99 native RGB5 words, six selectors, live initial/fade CGRAM, persistent override, ROM guard and strict failures pass.");
-
-        static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
-        {
-            Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
-        };
+        Console.WriteLine("  Cutscene Baby colors: 99 native RGB5 words, six selectors, live initial/fade CGRAM, ROM guard and strict failures pass.");
     }
 
     /// <summary>Blocks migrated initial and fade color ranges while the cutscene applies palettes.</summary>

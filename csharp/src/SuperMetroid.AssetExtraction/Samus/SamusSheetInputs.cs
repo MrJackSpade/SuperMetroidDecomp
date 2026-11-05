@@ -33,7 +33,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         string samusBody = Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName);
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
-        InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName), null);
+        InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName));
         GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null);
         IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null);
         // Her colour tables are the ones the map presentation was read with, edits included.
@@ -55,16 +55,16 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             overruns.Chainsaw,
             tables.CrystalFlash,
             projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
-            SamusDeathPaletteArtworkFiles.Load(samusBody, null),
+            SamusDeathPaletteArtworkFiles.Load(samusBody),
             maps.RoomPaletteFx);
         return new(
             projectiles,
             ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
-                StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Characters.Span),
+                StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName)).Characters.Span),
             palettes,
             intro,
-            SamusBodyArtworkFiles.LoadCharacters(samusBody, null),
-            SamusDeathTileArtworkFiles.Load(samusBody, null),
+            SamusBodyArtworkFiles.LoadCharacters(samusBody),
+            SamusDeathTileArtworkFiles.Load(samusBody),
             sources);
     }
 

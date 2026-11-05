@@ -12,13 +12,10 @@ using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 
-/// <summary>Checks installed Botwoon head frames and compatibility of older enemy artwork overrides.</summary>
+/// <summary>Checks installed Botwoon head frames against the cartridge's OAM.</summary>
 internal static class BotwoonVisualsVerification
 {
-    /// <summary>JSON options: Camel-case property names.</summary>
-    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
-    /// <summary>Compares sixteen installed head frames to native OAM and confirms pre-Botwoon edits survive schema upgrade.</summary>
+    /// <summary>Compares sixteen installed head frames to native OAM.</summary>
     internal static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileSourceArtwork stock)
     {
@@ -45,37 +42,7 @@ internal static class BotwoonVisualsVerification
         AssertEqual(16, selected.Count,
             "Botwoon head selects sixteen distinct visible OAM frames");
 
-        // Existing version-59 edits must survive the newly extracted head frames.
-        byte[] current = EnemySpritemapFiles.Extract(rom);
-        EnemySpritemapDocument document = RequiredJson.Deserialize<EnemySpritemapDocument>(
-            current, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        // Version 59 ends before Botwoon; removing only Botwoon from today's
-        // catalog incorrectly retains every family added in subsequent versions.
-        // Version 59 named frames as they were named before frames were named for their meaning (#1465).
-        EnemySpritemapDefinition[] previous = EnemySpritemapDefinitions.Frames
-            .Take(EnemySpritemapDefinitions.PreBotwoonFrameCount).ToArray();
-        Dictionary<string, string> legacyNames = EnemySpritemapDefinitions.Frames
-            .ToDictionary(frame => frame.Name, frame => frame.LegacyName, StringComparer.Ordinal);
-        var previousFrames = previous
-            .ToDictionary(frame => frame.LegacyName, frame => document.Frames[frame.Name], StringComparer.Ordinal);
-        Dictionary<string, string> bindings = document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames.");
-        var previousBindings = previous
-            .ToDictionary(frame => frame.LegacyName, frame => legacyNames[bindings[frame.Name]], StringComparer.Ordinal);
-        AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount,
-            previousFrames.Count, "version-fifty-nine composition schema count");
-        using var previousJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-            new EnemySpritemapDocument
-            {
-                Version = EnemySpritemapSchema.PreBotwoon.Revision,
-                Frames = previousFrames,
-                DisplayFrames = previousBindings,
-            }, CamelCaseJson));
-        EnemySpritemapCatalog upgraded = EnemySpritemapDocuments.Load(
-            previousJson, stock.Spritemaps);
-        foreach (NativeEnemySpritemapDefinition frame in BotwoonVisualDefinitionsConstants.Frames())
-            AssertTrue(upgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
-                $"version-fifty-nine override inherits {frame.Name}");
         Console.WriteLine(
-            "  Botwoon visuals: 16 typed head frames draw the cartridge OAM, and legacy override migration passes.");
+            "  Botwoon visuals: 16 typed head frames draw the cartridge OAM.");
     }
 }

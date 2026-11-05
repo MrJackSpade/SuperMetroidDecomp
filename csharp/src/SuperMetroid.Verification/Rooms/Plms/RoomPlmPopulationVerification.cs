@@ -1240,7 +1240,7 @@ internal static class RoomPlmPopulationVerification
             .Select(index => SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)]).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
-            Version = (int)EnemyProjectileSpritemapVersion.Current,
+            Version = EnemyProjectileSpritemapDocuments.Version,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),

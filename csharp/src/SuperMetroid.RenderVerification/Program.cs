@@ -91,29 +91,6 @@ internal static class Program
                 InstalledPowerBombIsolationTests.Run(RepositoryInstallation.Installation.Root);
                 return;
             }
-            if (args is ["--installed-samus-file-contracts"])
-            {
-                InstalledSamusFileContractTests.Run(RepositoryInstallation.Installation.Root);
-                return;
-            }
-            if (args is ["--installed-samus-isolation"])
-            {
-                string samusInstallationRoot = RepositoryInstallation.Installation.Root;
-                using var fixture = new InstalledSamusArtworkFixture(samusInstallationRoot, editLayout: true);
-                InstalledSamusIsolationTests.Run(fixture, samusInstallationRoot);
-                return;
-            }
-            if (args is ["--installed-samus-artwork"])
-            {
-                using var fixture = new InstalledSamusArtworkFixture(RepositoryInstallation.Installation.Root);
-                foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
-                {
-                    using var device = new D3D11RenderDevice(kind);
-                    using var renderer = new D3D11FrameRenderer(device);
-                    InstalledSamusArtworkTests.Run(fixture, device, renderer);
-                }
-                return;
-            }
             if (args is ["--background-mosaic"])
             {
                 foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())

@@ -27,8 +27,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Checks five color transfers, isolated overrides, hurt whiteout,
-    /// death-phase palette use, reload persistence, and invalid asset rejection.</summary>
+    /// <summary>Checks five color transfers, hurt whiteout, death-phase palette use, and out-of-range channel rejection.</summary>
     internal static void VerifyInstalledCrocomireColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -46,37 +45,10 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         Suite(nameof(VerifyBand), () => VerifyBand(CrocomireSourceDefinitions.WallSpikesColors,
             CrocomireColorDefinitions.WallSpikesCount, native.ResolveWallSpikes, "wall spikes"));
 
-        string file = Path.Combine(stockDirectory, CrocomireColorFormat.FileName);
-        byte[] stockJson = File.ReadAllBytes(file);
+        CrocomireColorCatalog colors = native;
         CrocomireColorDocument visual = JsonSerializer.Deserialize<CrocomireColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+            File.ReadAllBytes(Path.Combine(stockDirectory, CrocomireColorFormat.FileName)), CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Crocomire color JSON is null.");
-        visual.FightBody[1] = ChangeRed(visual.FightBody[1]);
-        visual.InitialWall[1] = ChangeRed(visual.InitialWall[1]);
-        visual.InitialProjectile[1] = ChangeRed(visual.InitialProjectile[1]);
-        visual.SkeletonArm[1] = ChangeRed(visual.SkeletonArm[1]);
-        visual.WallSpikes[1] = ChangeRed(visual.WallSpikes[1]);
-        string overrides = Path.Combine(stockDirectory, "crocomire-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overrideFile = Path.Combine(overrides, CrocomireColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, CrocomireColorFile.Write(visual));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { CrocomireColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors() } };
-        CrocomireColorCatalog colors = edited.Bosses.CrocomireColors ??
-            throw new InvalidDataException("Edited enemy art has no Crocomire colors.");
-        CheckEditedBand(CrocomireColorDefinitions.FightBodyCount,
-            native.ResolveFightBody, colors.ResolveFightBody, "fight body");
-        CheckEditedBand(CrocomireColorDefinitions.InitialWallCount,
-            native.ResolveInitialWall, colors.ResolveInitialWall, "initial wall");
-        CheckEditedBand(CrocomireColorDefinitions.InitialProjectileCount,
-            native.ResolveInitialProjectile, colors.ResolveInitialProjectile,
-            "initial projectile");
-        CheckEditedBand(CrocomireColorDefinitions.SkeletonArmCount,
-            native.ResolveSkeletonArm, colors.ResolveSkeletonArm, "skeleton arm");
-        CheckEditedBand(CrocomireColorDefinitions.WallSpikesCount,
-            native.ResolveWallSpikes, colors.ResolveWallSpikes, "wall spikes");
-        AssertEqual(colors.ResolveFightBody(1),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors().ResolveFightBody(1),
-            "Crocomire color override survives catalog reload");
 
         // Execute the real boss initializer and hurt-flash hook with palette ROM reads
         // forbidden. Their CGRAM writes must come from the installed resource, while the
@@ -86,7 +58,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                 < (CrocomireSourceDefinitions.WallSpikesColors +
                     CrocomireColorDefinitions.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
@@ -101,7 +73,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             state.BodyCursor,
             "installed Crocomire colors leave the initial program unchanged");
         // The import pre-colours his pictures in each load of his colours, which his colour state names (#1512).
-        BossSourceArtwork bosses = edited.Bosses;
+        BossSourceArtwork bosses = stock.Bosses;
         AssertBand(BossSheetShades.SpawnedObjects(bosses), CrocomireShades.Wall, 16, colors.ResolveInitialWall, "initial wall");
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
         AssertTrue(state.Colours.ShowsFightBody && !state.Colours.HurtFlash, "a hurt update shows the restored fight body");
@@ -122,24 +94,10 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             "installed skeleton-arm colors leave death-phase handoff unchanged");
 
-        File.WriteAllBytes(overrideFile, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors(),
-            "invalid Crocomire color override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1}"u8.ToArray());
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors(),
-            "duplicate Crocomire color property fails loudly");
         visual.FightBody[1] = visual.FightBody[1] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => CrocomireColorFile.Read(new MemoryStream(CrocomireColorFile.Write(visual), writable: false)),
             "reading Crocomire colors rejects an RGB5 channel outside five-bit precision");
-        File.Delete(overrideFile);
-        File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).CrocomireColors(),
-            "corrupt stock Crocomire colors fail loudly where it is read");
-        File.WriteAllBytes(file, stockJson);
-        Console.WriteLine("  Crocomire colors: five native RGB5 transfers, live boss CGRAM, white flash, persistent override, and strict failures pass.");
+        Console.WriteLine("  Crocomire colors: five native RGB5 transfers, live boss CGRAM, white flash, and channel rejection pass.");
 
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
@@ -155,22 +113,6 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), found.Colours[color],
                     $"installed Crocomire {name} color {color}");
-        }
-
-        static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
-        {
-            Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
-        };
-
-        static void CheckEditedBand(int count, Func<int, RgbColor> original,
-            Func<int, RgbColor> changed, string name)
-        {
-            AssertTrue(original(1) != changed(1),
-                $"Crocomire {name} edit changes selected color");
-            for (int color = 0; color < count; color++)
-                if (color != 1)
-                    AssertEqual(original(color), changed(color),
-                        $"Crocomire {name} edit leaves color {color} unchanged");
         }
     }
 }

@@ -27,7 +27,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Native colour-write and guarded-source checks for editable Tourian entrance statue colors (#1512).</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
-    /// <summary>Checks entrance, eye, and grey-room palette writes, isolated edits, override persistence, and invalid file rejection.</summary>
+    /// <summary>Checks entrance, eye, and grey-room palette writes and out-of-range channel rejection.</summary>
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -89,41 +89,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed Tourian entry and eye actors do not read palette ROM ranges");
 
-        string stockPath = Path.Combine(stockDirectory, TourianStatueColorFormat.FileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        string overrides = Path.Combine(stockDirectory, "tourian-statue-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, TourianStatueColorFormat.FileName);
-        JsonNode changed = RequiredJson.Parse(stockBytes);
-        changed.Required("base").Required(1)["red"] = changed.Required("base").Required(1).Required("red").GetValue<int>() ^ 1;
-        changed.Required("statue").Required(1)["green"] = changed.Required("statue").Required(1).Required("green").GetValue<int>() ^ 1;
-        changed.Required("eye").Required(2).Required(1)["blue"] = changed.Required("eye").Required(2).Required(1).Required("blue").GetValue<int>() ^ 1;
-        File.WriteAllBytes(overridePath, Encoding.UTF8.GetBytes(changed.ToJsonString()));
-        // The edit changes exactly the edited channels of the installed colours the import paints the statue's shades from.
-        TourianStatuePalettes editedColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).TourianStatueColors();
-        for (int color = 0; color < TourianStatueColorFormat.BaseColorCount; color++)
-            AssertEqual(color == 1 ? colors.ResolveBase(color).WithRed(colors.ResolveBase(color).Red ^ 1) : colors.ResolveBase(color),
-                editedColors.ResolveBase(color), $"Tourian entrance edit base colour {color}");
-        for (int color = 0; color < TourianStatueColorFormat.StatueColorCount; color++)
-            AssertEqual(color == 1 ? colors.ResolveStatue(color).WithGreen(colors.ResolveStatue(color).Green ^ 1) : colors.ResolveStatue(color),
-                editedColors.ResolveStatue(color), $"Tourian entrance edit statue colour {color}");
-        for (int row = 0; row < TourianStatueColorDefinitions.EyeGlowCount; row++)
-        for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
-        {
-            RgbColor stockEye = colors.ResolveEye(row, color);
-            AssertEqual(row == 2 && color == 1 ? stockEye.WithBlue(stockEye.Blue ^ 1) : stockEye, editedColors.ResolveEye(row, color),
-                $"Tourian eye edit glow {row} colour {color}");
-        }
+        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockDirectory, TourianStatueColorFormat.FileName));
 
         // The $87:837F grey instruction is reached on re-entry after each
         // defeated-boss statue's grey event. Exercise the actual room program,
         // including its four compiled destination operands.
-        JsonNode greyOnly = RequiredJson.Parse(stockBytes);
-        greyOnly.Required("grey").Required(1)["blue"] =
-            greyOnly.Required("grey").Required(1).Required("blue").GetValue<int>() ^ 1;
-        byte[] greyBytes = Encoding.UTF8.GetBytes(greyOnly.ToJsonString());
-        File.WriteAllBytes(overridePath, greyBytes);
-        TourianStatuePalettes editedGreyColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).TourianStatueColors();
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var installedRoom = CreateGreyRoom(
             NewTourianStatueColorGuard(
@@ -142,35 +112,15 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             AssertNativeWrites(destination < SnesCgram.ColorCount / 2 ? greyRoom : greyScene, 0x87839c, destination,
                 TourianStatueColorDefinitions.GreyColorCount, $"Tourian grey room instruction at colour {destination} shows the native grey");
         }
-        for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
-            AssertEqual(color == 1 ? colors.ResolveGrey(color).WithBlue(colors.ResolveGrey(color).Blue ^ 1) : colors.ResolveGrey(color),
-                editedGreyColors.ResolveGrey(color), $"Tourian grey edit colour {color}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Tourian statue installed paths avoid migrated ROM colors");
 
-        EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
-        AssertTrue(greyBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
-            "Stock re-extraction preserves Tourian statue override");
-        AssertEqual(editedGreyColors.ResolveGrey(1),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).TourianStatueColors().ResolveGrey(1),
-            "Tourian statue grey edit survives reload");
-        File.WriteAllText(overridePath, "broken");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).TourianStatueColors(),
-            "Corrupt Tourian statue override fails loudly");
-        File.WriteAllText(overridePath, "{\"version\":1,\"version\":1}");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).TourianStatueColors(),
-            "Duplicate Tourian statue property fails loudly");
         JsonNode invalid = RequiredJson.Parse(stockBytes);
         invalid.Required("eye").Required(0).Required(0)["red"] = 32;
         AssertThrows<InvalidDataException>(() => TourianStatueColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Tourian statue RGB5 channel rejected");
-        File.Delete(overridePath);
-        File.WriteAllText(stockPath, "broken stock");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).TourianStatueColors(),
-            "Corrupt Tourian statue stock colors fail loudly where it is read");
-        File.WriteAllBytes(stockPath, stockBytes);
-        Console.WriteLine("  Tourian statue colors: 56 native RGB5 words, entrance/eye/grey shown colours match native writes, isolated edits, ROM guard, override persistence and strict failures pass.");
+        Console.WriteLine("  Tourian statue colors: 56 native RGB5 words, entrance/eye/grey shown colours match native writes, ROM guard and channel rejection pass.");
 
         void CheckSource(int address, ushort expected)
         {

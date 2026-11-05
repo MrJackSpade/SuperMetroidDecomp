@@ -2,35 +2,27 @@ using System.Text.Json;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Retains the exact selected Samus filename across JSON and codec admission.</summary>
+/// <summary>Retains the exact installed Samus filename across JSON and codec admission.</summary>
 internal sealed record SamusArtworkFile(string Path, byte[] Bytes)
 {
     /// <summary>Exception-data key marking the precise child file responsible for invalid artwork.</summary>
     private const string DiagnosticPathKey = "SuperMetroid.SamusArtworkFile.Path";
 
-    /// <summary>Captures the selected file path and its bytes before compilation.</summary>
+    /// <summary>Captures the installed file path and its bytes before compilation.</summary>
     internal static SamusArtworkFile Read(string path) => new(path, File.ReadAllBytes(path));
 
-    /// <summary>Uses an existing same-named override file, otherwise retaining the current artwork.</summary>
-    internal SamusArtworkFile Select(string? overrideDirectory)
-    {
-        string? replacement = overrideDirectory is null ? null :
-            System.IO.Path.Combine(overrideDirectory, System.IO.Path.GetFileName(Path));
-        return replacement is not null && File.Exists(replacement) ? Read(replacement) : this;
-    }
-
-    /// <summary>Deserializes selected artwork with a path-specific error context.</summary>
+    /// <summary>Deserializes installed artwork with a path-specific error context.</summary>
     internal T Json<T>(JsonSerializerOptions options) => Compile(stream =>
         JsonAssetDocument.Read<T>(stream, options, $"Samus artwork {Path}"));
 
-    /// <summary>Passes an immutable in-memory view of the selected bytes to the artwork compiler.</summary>
+    /// <summary>Passes an immutable in-memory view of the installed bytes to the artwork compiler.</summary>
     internal T Compile<T>(Func<Stream, T> compile) => WithContext(() =>
     {
         using var stream = new MemoryStream(Bytes, writable: false);
         return compile(stream);
     });
 
-    /// <summary>Annotates an invalid artwork error once with the exact selected file path.</summary>
+    /// <summary>Annotates an invalid artwork error once with the exact installed file path.</summary>
     internal T WithContext<T>(Func<T> compile)
     {
         try { return compile(); }

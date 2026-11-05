@@ -24,7 +24,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
     /// <summary>Compares transfer sources, destinations, and bytes, then checks
     /// a selected pixel override reaches pending and legacy queued uploads.</summary>
     internal static void VerifyInstalledGunshipLiftoffArtwork(
-        SuperMetroidAddressSpace bus, string directory, InstalledEnemyArtwork stock)
+        SuperMetroidAddressSpace bus, InstalledEnemyArtwork stock)
     {
         GunshipLiftoffArtworkCatalog installed = stock.Enemies.GunshipLiftoff ??
             throw new InvalidDataException("Installed enemy art omitted gunship takeoff frames.");
@@ -72,43 +72,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + pagesByte, pagesBytes)),
             "all five installed takeoff pages match the native OBJ characters");
 
-        string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(0);
-        string stockPath = Path.Combine(directory, fileName);
-        byte[] original = File.ReadAllBytes(stockPath);
-        string overrides = Path.Combine(directory, "gunship-liftoff-overrides");
-        Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, fileName);
-        using (var stream = new MemoryStream(original, writable: false))
-        {
-            IndexedPngImage image = IndexedPng.Read(stream, new(256, 8));
-            image.Pixels[0] ^= 1;
-            using var output = File.Create(overridePath);
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Colours);
-        }
-        InstalledEnemyArtwork edited = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { GunshipLiftoff = EnemyTileArtworkFiles.Open(directory, overrides).GunshipLiftoff() });
-        runtime.EnemySession.TileArtwork = edited.Enemies;
-        runtime.BossArtwork.Artwork = edited.Bosses;
-        byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime)), RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
-        AssertEqual((byte)(installedPage[pagesByte] ^ 0x80), editedPage[pagesByte],
-            "rebound PNG changes the takeoff page shown");
-        AssertTrue(editedPage.AsSpan(..pagesByte).SequenceEqual(installedPage.AsSpan(..pagesByte)) &&
-            editedPage.AsSpan((pagesByte + 1)..).SequenceEqual(installedPage.AsSpan((pagesByte + 1)..)),
-            "gunship PNG edit changes only its selected planar pixel");
-        AssertTrue(EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { GunshipLiftoff = EnemyTileArtworkFiles.Open(directory, overrides).GunshipLiftoff() }).Enemies.GunshipLiftoff is not null,
-            "gunship PNG override survives reload");
-
-        File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).GunshipLiftoff(),
-            "corrupt stock gunship frame fails loudly where it is read");
-        File.WriteAllBytes(stockPath, original);
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(directory, overrides).GunshipLiftoff(),
-            "malformed gunship override fails loudly");
         Console.WriteLine(
             "Gunship takeoff art: five compiled pages, installed PNG parity, " +
-            "live/rebound page edit and strict resources pass.");
+            "live page uploads pass.");
 
         static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art, IInstalledArtworkContent resolver)
         {

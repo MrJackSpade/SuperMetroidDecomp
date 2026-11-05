@@ -20,7 +20,7 @@ internal static class TorizoSwapArtworkVerification
 {
     /// <summary>Matches all Torizo transfer descriptors and bytes to cartridge data, then checks live PNG edits and rejection.</summary>
     internal static void VerifyTorizoSwapArtwork(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, InstalledEnemyArtwork stock)
     {
         AssertEqual(52, TorizoArtworkSwapDefinitions.All.Length,
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
@@ -90,66 +90,33 @@ internal static class TorizoSwapArtworkVerification
 
         TorizoTileSheet golden =
             TorizoSwapArtworkDefinitions.GoldenAwakening;
-        string overrideDirectory = Path.Combine(stockDirectory,
-            "torizo-instruction-tile-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        using (var input = new MemoryStream(File.ReadAllBytes(
-                   Path.Combine(stockDirectory, golden.FileName)), writable: false))
-        {
-            int tiles = golden.ByteCount / RoomCharacterAtlasFormat.BytesPerTile;
-            int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
-            int rows = (tiles + columns - 1) / columns;
-            IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-            image.Pixels[0] ^= 1;
-            using var output = File.Create(Path.Combine(overrideDirectory,
-                golden.FileName));
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Colours);
-        }
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { TorizoSwaps = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).TorizoSwaps() } };
         AssertTrue((stock.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires stock.TorizoSwaps.")).TryResolve(
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> stockBytes),
             "stock Golden Torizo upload remains addressable");
-        AssertTrue((edited.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires edited.TorizoSwaps.")).TryResolve(
-                golden.SourceAddress, golden.ByteCount,
-                out ReadOnlyMemory<byte> editedBytes),
-            "edited Golden Torizo upload remains addressable");
-        AssertEqual((byte)(stockBytes.Span[0] ^ 0x80), editedBytes.Span[0],
-            "Golden Torizo PNG edit changes the first native tile-plane byte");
-        AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
-            "Golden Torizo PNG edit leaves every other tile byte intact");
-        var editedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
-        RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
-        editedSlot.Bind(EnemyDefinitionId.GoldenTorizo, editedSlot.Definition);
-        editedSlot.Bind(editedSlot.DefinitionId, installedSlot.Definition);
+        var goldenEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        RoomEnemySlot goldenSlot = goldenEnemies.SlotTable.Slots[0];
+        goldenSlot.Bind(EnemyDefinitionId.GoldenTorizo, goldenSlot.Definition);
+        goldenSlot.Bind(goldenSlot.DefinitionId, installedSlot.Definition);
         // Golden Torizo's initial program shows its awakening sheet first.
         TorizoArtworkSwap goldenSwap = TorizoAnimations.Programs.Steps(TorizoBodyProgram.GoldenInitial0)
             .OfType<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>().Select(step => step.Cue).OfType<TorizoCue.ShowArtwork>().First().Swap;
         int goldenUpload = goldenSwap.Ordinal;
         AssertEqual(golden.SourceAddress, TorizoArtworkSwapDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial swap shows its awakening sheet");
-        ShowTorizoArtwork(editedEnemies, editedSlot, goldenSwap);
+        ShowTorizoArtwork(goldenEnemies, goldenSlot, goldenSwap);
         (EncounterArtworkSequence goldenSequence, int goldenStep) = StepOf(goldenSwap);
-        AssertEqual<int?>(goldenStep, editedEnemies.Room.Session.ArtworkProgress.StepOf(goldenSequence),
+        AssertEqual<int?>(goldenStep, goldenEnemies.Room.Session.ArtworkProgress.StepOf(goldenSequence),
             "Golden Torizo's swap reaches its sequence's first step");
-        EncounterArtworkUpload awakening = EncounterArtworkUploads.Step(goldenSequence, goldenStep, new EnemyTileTransfers(edited)).Single();
+        EncounterArtworkUpload awakening = EncounterArtworkUploads.Step(goldenSequence, goldenStep, new EnemyTileTransfers(stock)).Single();
         AssertEqual((0x6d00 - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2, awakening.FirstByte,
             "Golden Torizo's awakening sheet lands where the cartridge copies it");
-        AssertEqual(editedBytes.Span[0], awakening.Characters.Span[0],
-            "edited Golden Torizo PNG changes the pictured awakening sheet");
-        AssertTrue(EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).TorizoSwaps().TryResolve(golden.SourceAddress,
-                    golden.ByteCount, out ReadOnlyMemory<byte> reloaded) &&
-                   reloaded.Span.SequenceEqual(editedBytes.Span),
-            "Golden Torizo tile override survives catalog reload");
-        File.WriteAllBytes(Path.Combine(overrideDirectory, golden.FileName), [1, 2, 3]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).TorizoSwaps(),
-            "invalid Golden Torizo PNG fails loudly");
+        AssertTrue(awakening.Characters.Span.SequenceEqual(stockBytes.Span),
+            "Golden Torizo's awakening sheet pictures the installed tiles");
 
         Console.WriteLine(
             "Torizo instruction VRAM: 52 native descriptors, eight installed tile PNGs, " +
-            "byte parity, live edit, reload, and invalid-asset rejection pass.");
+            "byte parity and the awakening sheet's upload pass.");
     }
 
     /// <summary>The artwork sequence and step <paramref name="swap"/> takes: Golden Torizo's swaps, else Bomb Torizo's (#1513).</summary>
@@ -168,5 +135,4 @@ internal static class TorizoSwapArtworkVerification
                 new TorizoCue.ShowArtwork(swap),
                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,
             $"Torizo artwork swap {swap.Ordinal} runs on");
-
 }

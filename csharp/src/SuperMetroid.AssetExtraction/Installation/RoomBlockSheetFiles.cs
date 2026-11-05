@@ -98,7 +98,7 @@ public static class RoomBlockSheetFiles
             throw new InvalidDataException($"Floor manifest {floorPath} is not revision {FloorManifestVersion}.");
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
-        SpriteSheetStore store = SpriteSheetStore.Open(directory, null, ProvenanceFileName,
+        SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName,
             2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + floors.Tilesets.Length);
         // The inputs each block depends on are the extraction's record: an edit repaints a block's pictures, not what they
         // depend on.

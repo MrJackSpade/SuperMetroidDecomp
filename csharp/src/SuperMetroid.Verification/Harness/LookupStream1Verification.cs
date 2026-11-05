@@ -860,7 +860,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
+        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory);
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
         InstalledSamusBodyArtwork Create(sbyte[] offsets, InstalledSamusSpritemaps? maps = null,
@@ -919,7 +919,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
+        SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory);
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1PostureGeometryRomByte(rom, 0x908d80 + index))).ToArray();
         InstalledSamusBodyArtwork Create(sbyte[] offsets, InstalledSamusSpritemaps? maps = null,
@@ -2664,7 +2664,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        InstalledSamusBodyArtwork body = SamusBodyArtworkFiles.Load(directory, null);
+        InstalledSamusBodyArtwork body = SamusBodyArtworkFiles.Load(directory);
         byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
@@ -2762,7 +2762,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        var body = SamusBodyArtworkFiles.Load(directory, null);
+        var body = SamusBodyArtworkFiles.Load(directory);
         var stock = body.Spritemaps.Source;
         ushort[] nativePointers = Enumerable.Range(0, 2096).Select(index =>
             LittleEndianBytes.Word(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2), LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2))).ToArray();
@@ -2843,7 +2843,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
+        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory);
         var body = bodyArt.Body;
         var top = Enumerable.Range(0, 13).Select(set => bodyArt.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => bodyArt.BottomSet(set).ToArray()).ToArray();
@@ -2937,7 +2937,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
+        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory);
         var body = bodyArt.Body;
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1BodyTransfersRomByte(rom, address), LookupStream1BodyTransfersRomByte(rom, address + 1));
         var top = Enumerable.Range(0, 13).Select(set => bodyArt.TopSet(set).ToArray()).ToArray();

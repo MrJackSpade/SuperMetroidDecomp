@@ -36,15 +36,14 @@ public static class StandardObjectArtworkFiles
                 sourceCartridgeSha256)));
     }
 
-    /// <summary>Validates stock provenance, PNG digest, and atlas geometry before compiling an optional standard OBJ PNG replacement without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the standard OBJ PNG and its provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory whose standard OBJ PNG replaces stock when present; an absent file retains stock.</param>
-    /// <returns>The selected owned $2E00-byte 4-bpp character stream; PNG palette colors do not replace runtime CGRAM colors.</returns>
+    /// <summary>Validates the manifest's provenance and compiles the installed standard OBJ PNG, as the player may have edited it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the standard OBJ PNG and its provenance manifest.</param>
+    /// <returns>The owned $2E00-byte 4-bpp character stream; PNG palette colors do not replace runtime CGRAM colors.</returns>
     /// <remarks>The PNG is 256x96 pixels with 368 row-major 8x8 characters; the final sixteen display cells must remain index zero.</remarks>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, or atlas validation fails, or the selected PNG has invalid geometry, indices, or display padding.</exception>
-    public static RoomCharacterAtlas Load(string stockDirectory, string? overrideDirectory)
+    /// <exception cref="InvalidDataException">The manifest's provenance fails, or the PNG has invalid geometry, indices, or display padding.</exception>
+    public static RoomCharacterAtlas Load(string directory)
     {
-        string manifestPath = Path.Combine(stockDirectory, StandardObjectArtworkFormat.ManifestFileName);
+        string manifestPath = Path.Combine(directory, StandardObjectArtworkFormat.ManifestFileName);
         Manifest manifest;
         try
         {
@@ -59,22 +58,15 @@ public static class StandardObjectArtworkFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Standard OBJ manifest does not match the pinned cartridge.");
-        string stockPath = Path.Combine(stockDirectory, StandardObjectArtworkFormat.FileName);
-        byte[] stock = File.ReadAllBytes(stockPath);
-        _ = RoomCharacterAtlasPng.Read(new MemoryStream(stock, writable: false),
-            StandardObjectArtworkFormat.ByteCount);
-        string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
-            StandardObjectArtworkFormat.FileName);
-        byte[] selected = overridePath is not null && File.Exists(overridePath)
-            ? File.ReadAllBytes(overridePath) : stock;
+        string path = Path.Combine(directory, StandardObjectArtworkFormat.FileName);
         try
         {
-            return RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false),
+            return RoomCharacterAtlasPng.Read(new MemoryStream(File.ReadAllBytes(path), writable: false),
                 StandardObjectArtworkFormat.ByteCount);
         }
         catch (InvalidDataException error)
         {
-            throw new InvalidDataException($"Invalid standard OBJ PNG {overridePath ?? stockPath}: {error.Message}", error);
+            throw new InvalidDataException($"Invalid standard OBJ PNG {path}: {error.Message}", error);
         }
     }
 

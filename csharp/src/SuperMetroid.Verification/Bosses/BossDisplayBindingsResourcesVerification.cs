@@ -18,7 +18,7 @@ namespace SuperMetroid.Verification.Bosses;
 /// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
 internal static class BossDisplayBindingsResourcesVerification
 {
-    /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes, then checks schema-26 merge behavior.</summary>
+    /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes.</summary>
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
         foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
@@ -47,37 +47,7 @@ internal static class BossDisplayBindingsResourcesVerification
         cross[phantoon] = draygon;
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(edits.Oam with { DisplayFrames = cross })),
             "BG2 bindings cannot select another boss's visuals");
-        // Version 26 retains every prior user edit/binding and inherits the 56 new
-        // stock roots. It must not discard or silently synthesize the new bindings.
-        // Schema 26 named frames by where the cartridge stores them (#1465).
-        EnemySpritemapDefinition[] old = EnemyExtendedFrameDefinitions.Frames.ToArray()[..EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount];
-        Dictionary<string, string> legacyNames = EnemyExtendedFrameDefinitions.Frames
-            .ToDictionary(frame => frame.Name, frame => frame.LegacyName, StringComparer.Ordinal);
-        var legacy = edits.Oam with
-        {
-            Version = EnemyExtendedFrameSchema.PreBg2BossBindings.Revision,
-            Frames = old.ToDictionary(frame => frame.LegacyName, frame => edits.Oam.Frames[frame.Name]),
-            DisplayFrames = old.ToDictionary(frame => frame.LegacyName, frame => legacyNames[edits.Oam.DisplayFrames[frame.Name]]),
-        };
-        // Older Draygon bindings cannot point at the new BG2 keys. Use an authored
-        // old OAM target just as a real schema-26 file does.
-        string oldDraygon = old.First(frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) &&
-            !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame)).LegacyName;
-        foreach (string name in legacy.DisplayFrames.Keys.ToArray())
-            if (!legacy.Frames.ContainsKey(legacy.DisplayFrames[name])) legacy.DisplayFrames[name] = oldDraygon;
-        EnemyExtendedFrameCatalog baseline = (stock.Build().Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.Build().ExtendedFrames."));
-        EnemyExtendedFrameCatalog merged = EnemyExtendedFrameDocuments.Load(json.Json(legacy), baseline);
-        AssertEqual(merged.ContentIdentity, EnemyExtendedFrameDocuments.Load(json.Json(legacy), baseline).ContentIdentity,
-            "schema-26 merge persists identically across reload");
-        // Later schema versions also add ordinary OAM roots; only BG2-only roots must stay empty.
-        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames[EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount..])
-        {
-            AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited), "legacy file inherits each newly declared root");
-            if (EnemyExtendedFrameBounds.IsBg2Only(frame))
-                AssertEqual(0, inherited.Length, "native BG2-only roots do not fabricate OAM during legacy merge");
-            AssertEqual(frame.Pointer, merged.GetDisplayPointer(frame.Bank, frame.Pointer), "new stock binding remains identity");
-        }
-        Console.WriteLine("PASS boss display resources: missing binding/BG2 fail before VRAM writes, bounded empty-frame rules, cross-family rejection and schema-26 inheritance.");
+        Console.WriteLine("PASS boss display resources: missing binding/BG2 fail before VRAM writes, bounded empty-frame rules and cross-family rejection.");
     }
 
     /// <summary>Focused native duration/goto acceptance, not an AI playthrough or read search.</summary>

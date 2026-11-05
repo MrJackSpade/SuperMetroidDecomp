@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="XrayReveal">The X-ray reveal BG2 shows in place of the room's own BG2, or null (#1392).</param>
 /// <param name="Bg2Image">The room's library background drawn from its image, where BG2 shows the tilemap it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
-public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
+public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, FxOverlayCells? Bg3,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyPictures? Sky = null,
     RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
     RoomBlockArtwork BlockArtwork = RoomBlockArtwork.Tileset, XrayRevealPlane? XrayReveal = null,
@@ -37,5 +37,5 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
 {
     /// <summary>The BG3 plane the frame shows (#1403).</summary>
     /// <exception cref="InvalidOperationException">The plane's pictures are not yet resolved.</exception>
-    public Layer3Cells ShownBg3 => Bg3 ?? throw new InvalidOperationException("BG3 is shown once the frame boundary that latched it resolves its pictures.");
+    public FxOverlayCells ShownBg3 => Bg3 ?? throw new InvalidOperationException("BG3 is shown once the frame boundary that latched it resolves its pictures.");
 }

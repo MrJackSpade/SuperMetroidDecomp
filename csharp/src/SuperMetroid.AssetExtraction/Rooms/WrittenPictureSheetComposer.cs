@@ -67,8 +67,8 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
         HudSheetLayout hud = HudImageSheet.Layout(GameplayHudArtwork.Of(inputs.Maps.GameplayHud), HudImageSheet.Maps(inputs.Maps));
-        List<WrittenSubject> subjects = [new WrittenSubject(Layer3Plane.ClearedPicture, [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(Layer3ClearedCellDefinitions.ClearedCell)))]),
-            .. uploads.FxTypes.Order().Select(type => new WrittenSubject(Layer3Plane.EffectPagePicture(type),
+        List<WrittenSubject> subjects = [new WrittenSubject(FxOverlayPlane.ClearedPicture, [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(Layer3ClearedCellDefinitions.ClearedCell)))]),
+            .. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPlane.EffectPagePicture(type),
                 Rows(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
         return Compose(inputs, tileset, WrittenPictureLayer.Bg3, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),

@@ -47,11 +47,11 @@ internal static class RetailRoomPublicationTests
                 case PublishedFx.Unchecked:
                     break;
                 case PublishedFx.Water:
-                    if (runtime.Display.DisplayedRoomLayer3Fx?.Type != RoomFxType.Water)
+                    if (runtime.Display.DisplayedRoomFxOverlay?.Type != RoomFxType.Water)
                         throw new InvalidOperationException("Retail water fixture did not publish water FX.");
                     break;
                 case PublishedFx.Heat:
-                    if (runtime.Display.DisplayedRoomLayer3Fx is not { Type: RoomFxType.Lava } lava ||
+                    if (runtime.Display.DisplayedRoomFxOverlay is not { Type: RoomFxType.Lava } lava ||
                         lava.Surface.Y != RoomPublicationFixtureDefinitions.BusinessCenterSurface)
                         throw new InvalidOperationException("Retail heat fixture did not publish its authored lava surface.");
                     break;

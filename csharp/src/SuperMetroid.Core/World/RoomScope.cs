@@ -101,7 +101,7 @@ internal sealed record RoomScope
     public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>The room's layer-3 FX: liquid, rain, fog and the BG3 tilemap.</summary>
-    public required RoomLayer3FxState Layer3Fx { get; init; }
+    public required RoomFxOverlayState FxOverlay { get; init; }
 
     /// <summary>The room's palette-FX objects.</summary>
     public required RoomPaletteFxSystem PaletteFx { get; init; }

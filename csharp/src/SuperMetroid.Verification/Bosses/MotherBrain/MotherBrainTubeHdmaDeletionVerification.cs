@@ -22,7 +22,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
-        var fx = runtime.RoomLayer3Fx;
+        var fx = runtime.RoomFxOverlay;
         AssertEqual(RoomFxType.Acid, fx.Type, "Mother Brain's room has acid");
 
         // The first HDMA pass installs the pre-instruction; later passes swap the RNG bytes.

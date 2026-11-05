@@ -19,7 +19,7 @@ public enum GameplayPictures
     Hud,
 
     /// <summary>The room effect's pages on layer 3: its liquid, fog or haze.</summary>
-    Layer3,
+    FxOverlay,
 
     /// <summary>The message box's pictures.</summary>
     MessageBox,

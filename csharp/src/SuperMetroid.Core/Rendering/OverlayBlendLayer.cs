@@ -13,7 +13,7 @@ public sealed record OverlayBlendLayer : DisplayLayer
     /// <summary>The layer's vertical scroll line by line, added to the screen position before the map wraps.</summary>
     public LineScroll Vertical { get; }
     /// <summary>The overlay plane the layer shows (#1348), as its cells' pictures (#1403).</summary>
-    public Layer3Cells Plane { get; }
+    public FxOverlayCells Plane { get; }
     /// <summary>The plane row the layer's tilemap begins on: 0 for liquids, 32 for an atmosphere's page.</summary>
     public int FirstRow { get; }
     /// <summary>The map's height, 32 or 64 eight-pixel rows, where it wraps vertically; the plane is always 32 tiles wide.</summary>
@@ -31,11 +31,11 @@ public sealed record OverlayBlendLayer : DisplayLayer
     /// <param name="operation">Addition or subtraction when the layer is drawn on its own.</param>
     /// <param name="horizontal">The layer's horizontal scroll line by line.</param>
     /// <param name="vertical">The layer's vertical scroll line by line.</param>
-    public OverlayBlendLayer(Layer3Cells plane, int firstRow, int mapHeightTiles,
+    public OverlayBlendLayer(FxOverlayCells plane, int firstRow, int mapHeightTiles,
         int firstScanline, BlendOperation operation, LineScroll horizontal, LineScroll vertical)
     {
         if (mapHeightTiles is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(mapHeightTiles));
-        if (firstRow < 0 || firstRow + mapHeightTiles > Layer3Plane.Rows) throw new ArgumentOutOfRangeException(nameof(firstRow));
+        if (firstRow < 0 || firstRow + mapHeightTiles > FxOverlayPlane.Rows) throw new ArgumentOutOfRangeException(nameof(firstRow));
         if (firstScanline is < 0 or > ScreenGeometry.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(firstScanline));
         if (operation is not (BlendOperation.Add or BlendOperation.Subtract))

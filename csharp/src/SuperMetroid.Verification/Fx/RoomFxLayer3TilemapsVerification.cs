@@ -41,7 +41,7 @@ internal static class RoomFxLayer3TilemapsVerification
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;
             ushort[] plane = LoadConstructedRoomFxTilemap(type, catalog, out CartridgeReadGuard guarded);
-            int first = Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns;
+            int first = FxOverlayPlane.EffectPageFirstRow * FxOverlayPlane.Columns;
             for (int index = 0; index < native.Length / sizeof(ushort); index++)
                 AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]), plane[first + index],
                     $"room-FX {type} installed page word {index} is shown on the BG3 plane");
@@ -81,7 +81,7 @@ internal static class RoomFxLayer3TilemapsVerification
         guarded = NewForbiddenRoomFxTilemapBus(memory);
         var stateSession = new RoomFxSession{
         };
-        RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, record, randomNumber: 0);
+        RoomFxOverlayState state = RoomFxOverlayState.ForDefinition(stateSession, record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         AssertEqual<RoomFxType?>(type, state.EffectPlane.EffectPage, "the room's BG3 plane shows the selected FX type's page");
         return state.EffectPlane.WordsIn(catalog);

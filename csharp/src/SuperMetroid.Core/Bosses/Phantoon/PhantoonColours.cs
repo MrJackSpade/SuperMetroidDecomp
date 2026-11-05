@@ -105,5 +105,5 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     }
 
     /// <summary>The pictures the power coming on recolours: the room's, its HUD's and its layer-3 effect's.</summary>
-    private static readonly GameplayPictures[] PoweredPictures = [GameplayPictures.Room, GameplayPictures.Hud, GameplayPictures.Layer3];
+    private static readonly GameplayPictures[] PoweredPictures = [GameplayPictures.Room, GameplayPictures.Hud, GameplayPictures.FxOverlay];
 }

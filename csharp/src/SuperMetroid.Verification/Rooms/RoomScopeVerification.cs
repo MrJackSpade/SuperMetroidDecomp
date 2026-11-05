@@ -84,7 +84,7 @@ internal static class RoomScopeVerification
             ReferenceEquals(runtime.BeamCharge, destination.Projectiles.Charge),
             "the held beam charge is the session's, shared by both rooms");
         VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
-        VerificationAssertions.AssertTrue(!ReferenceEquals(source.Layer3Fx, destination.Layer3Fx) &&
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source.FxOverlay, destination.FxOverlay) &&
             !ReferenceEquals(source.PaletteFx, destination.PaletteFx) && !ReferenceEquals(source.CeresHaze, destination.CeresHaze) &&
             !ReferenceEquals(source.SandTiles, destination.SandTiles) && !ReferenceEquals(source.SpikeTiles, destination.SpikeTiles) &&
             !ReferenceEquals(source.TreadmillTiles, destination.TreadmillTiles) &&
@@ -95,9 +95,9 @@ internal static class RoomScopeVerification
             !ReferenceEquals(source.CeresElevatorShaft, destination.CeresElevatorShaft) &&
             !destination.MaridiaElevatube.IsActive && !destination.CeresElevatorShaft.IsActive,
             "the destination builds its own room mains, inactive in a room that does not select them");
-        VerificationAssertions.AssertTrue(ReferenceEquals(source.Layer3Fx.FixedColors, destination.Layer3Fx.FixedColors) &&
-            ReferenceEquals(source.Layer3Fx.Fireflea, destination.Layer3Fx.Fireflea) &&
-            ReferenceEquals(runtime.RoomFx.FixedColors, destination.Layer3Fx.FixedColors),
+        VerificationAssertions.AssertTrue(ReferenceEquals(source.FxOverlay.FixedColors, destination.FxOverlay.FixedColors) &&
+            ReferenceEquals(source.FxOverlay.Fireflea, destination.FxOverlay.Fireflea) &&
+            ReferenceEquals(runtime.RoomFx.FixedColors, destination.FxOverlay.FixedColors),
             "the COLDATA shadows and Fireflea state are the session's, shared by both rooms");
         VerificationAssertions.AssertEqual(heatPhase, runtime.PaletteFxSession.SamusInHeatPaletteIndex,
             "the palette-FX heat phase survives the load on the session");

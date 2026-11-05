@@ -39,7 +39,7 @@ internal sealed class GameplayScreenLayers
                     ? ScreenLayers.None
                     : ScreenLayers.Background));
         if (_room.DoorTransitionMainScreenLayers is null &&
-            room.Layer3Fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
+            room.FxOverlay.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
         {
             Chosen = WaterfallRoomDisplayRules.MainScreen;
         }

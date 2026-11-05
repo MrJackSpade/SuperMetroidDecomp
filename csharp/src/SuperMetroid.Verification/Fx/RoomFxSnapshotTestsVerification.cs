@@ -34,15 +34,15 @@ internal static class RoomFxSnapshotTestsVerification
             new Configuration(RoomFxType.Fog, LayerBlendingConfiguration.FogAdditive),
         };
         // The BG3 plane shows the fixture's random VRAM (#1348).
-        Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors);
+        FxOverlayCells plane = FxOverlayCellsFixtures.FromVram(vram.Bytes, cgram.Colors);
         foreach ((RoomFxType type, LayerBlendingConfiguration blend) in configurations)
         foreach (short surface in new short[] { -20, 0, 32, 100, 223, 300 })
         foreach (int phase in new[] { 0, 7, 15 })
         foreach (ushort currentY in new ushort[] { 400, ushort.MaxValue })
         {
-            var fx = new RoomLayer3FxRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
+            var fx = new RoomFxOverlayRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
                 WaterBg3WavePhase: phase, WaterSurfaceScreenY: surface);
-            OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(fx, plane);
+            OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(fx, plane);
             samples++;
             var packet = new DisplayPacket(0,
                 new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, 15));
@@ -56,7 +56,7 @@ internal static class RoomFxSnapshotTestsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
             (BlendOperation)255, ScrollBands.Uniform(0), ScrollBands.Uniform(0)), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], 15));
-        AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomLayer3Fx(
+        AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomFxOverlay(
             new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture preserves invalid water configuration failure");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");
     }

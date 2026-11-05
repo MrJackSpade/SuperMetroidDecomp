@@ -302,7 +302,7 @@ internal static class RoomBlockPicturesVerification
             SuperMetroidRuntime runtime = LoadRoom(room, stocked);
             runtime.StepFrame(0);
             GameplayDisplayLatch latched = runtime.Display.Latched;
-            Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
+            FxOverlayPlane plane = latched.FxOverlay ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             // The plane names its pictures (#1466); the installed pages spell the words the cartridge writes for them.
             ushort[] planeWords = plane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
@@ -315,7 +315,7 @@ internal static class RoomBlockPicturesVerification
                 ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.");
             ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
-            for (int index = 0; index < Layer3Plane.Columns * Layer3Plane.Rows; index++)
+            for (int index = 0; index < FxOverlayPlane.Columns * FxOverlayPlane.Rows; index++)
             {
                 BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
                 var word = new SnesBgTilemapWord(planeWords[index]);

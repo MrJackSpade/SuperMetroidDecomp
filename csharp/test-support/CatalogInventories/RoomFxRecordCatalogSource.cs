@@ -167,7 +167,7 @@ internal static class RoomFxRecordCatalogSource
                     $"{SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
                     $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
                     $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
-                    $"{Member(record.DefaultLayerBlend)}, {Member(record.Layer3LayerBlend)}, " +
+                    $"{Member(record.DefaultLayerBlend)}, {Member(record.EffectLayerBlend)}, " +
                     $"{Flags(record.LiquidOptions)}, {Flags(record.PaletteFxSlots)}, " +
                     $"{Flags(record.AnimatedTileSlots)}, {Member(record.PaletteBlend)}),");
             }

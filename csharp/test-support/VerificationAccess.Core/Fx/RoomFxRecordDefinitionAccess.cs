@@ -26,7 +26,7 @@ internal static class RoomFxRecordDefinitionAccess
             8 => checked((byte)self.Timer),
             9 => RoomFxRecordEncoding.TypeByte(self.Type),
             10 => RoomFxRecordEncoding.LayerBlendByte(self.DefaultLayerBlend),
-            11 => RoomFxRecordEncoding.LayerBlendByte(self.Layer3LayerBlend),
+            11 => RoomFxRecordEncoding.LayerBlendByte(self.EffectLayerBlend),
             12 => RoomFxRecordEncoding.LiquidOptionsByte(self.LiquidOptions),
             13 => RoomFxRecordEncoding.SlotsByte(self.PaletteFxSlots),
             14 => RoomFxRecordEncoding.SlotsByte(self.AnimatedTileSlots),

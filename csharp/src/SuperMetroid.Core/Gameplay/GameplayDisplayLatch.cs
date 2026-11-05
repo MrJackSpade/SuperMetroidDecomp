@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Scrolls">The camera's layer-1 and layer-2 scrolls and the room shake.</param>
 /// <param name="MainScreen">The layers gameplay shows on the main screen.</param>
 /// <param name="PerspectiveFloor">The Ceres perspective floor the frame shows in place of the ordinary layers, or null.</param>
-/// <param name="RoomLayer3Fx">Room-FX BG3 state.</param>
+/// <param name="RoomFxOverlay">Room-FX BG3 state.</param>
 /// <param name="MorphBallEyeBeam">The Morph Ball eye beam's cone as the frame ends: its eye's position and aim, its width and colour; null while no beam exists.</param>
 /// <param name="Phantoon">Phantoon's wave, blend, and mosaic latches, when Phantoon exists.</param>
 /// <param name="TourianStatueVerticalOffset">
@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The X-ray reveal BG2 shows while X-ray is active, drawn from the room's block pictures (#1392).
 /// </param>
 /// <param name="Rooms">The room backgrounds this frame boundary displays, resolved from level data; null before the first room.</param>
-/// <param name="Layer3">The room effect's BG3 plane this frame boundary latched, which its pictures are resolved from; null before the first room.</param>
+/// <param name="FxOverlay">The room effect's BG3 plane this frame boundary latched, which its pictures are resolved from; null before the first room.</param>
 /// <param name="Hud">The HUD's images this frame boundary latched, which the pause screen keeps (#1466).</param>
 /// <param name="PicturedHud">
 /// <paramref name="Hud"/>'s images as their pictures in the room's BG3 sheet, which the frame's HUD layer draws (#1466); null
@@ -41,7 +41,7 @@ public sealed record GameplayDisplayLatch(
     GameplayRenderSnapshot Scrolls,
     ScreenLayers MainScreen,
     PerspectiveFloor? PerspectiveFloor,
-    RoomLayer3FxRenderSnapshot? RoomLayer3Fx,
+    RoomFxOverlayRenderSnapshot? RoomFxOverlay,
     MorphBallEyeBeamCone? MorphBallEyeBeam,
     PhantoonDisplaySnapshot? Phantoon,
     int TourianStatueVerticalOffset,
@@ -50,7 +50,7 @@ public sealed record GameplayDisplayLatch(
     GameplayLatchedFixedColors FixedColors,
     XrayRevealPlane? XrayReveal,
     RoomBackgrounds? Rooms,
-    Layer3Plane? Layer3 = null,
+    FxOverlayPlane? FxOverlay = null,
     ShownHud? Hud = null,
     PicturedHud? PicturedHud = null)
 {

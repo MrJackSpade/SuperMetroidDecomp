@@ -85,7 +85,7 @@ internal sealed class EnemyFramePhase
         if (_room.Camera is not null && room.Enemies.IsLoaded)
         {
             EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, FrameCounterLowByte = _clock.ShortCounter, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms.BreakableTerrain, FrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
-            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.Layer3Fx, room.PaletteFx, room.Enemies);
+            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.FxOverlay, room.PaletteFx, room.Enemies);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha
@@ -138,7 +138,7 @@ internal sealed class EnemyFramePhase
             }
             // The landing tube stops the liquid surface's motion; the next frame shows it still.
             if (result.StopLiquidMotion)
-                room.Layer3Fx.StopLiquidMotion();
+                room.FxOverlay.StopLiquidMotion();
             if (result.ElevatorClearedProjectileData)
             {
                 // The elevator clears all ten projectile slots and their counters. Ordinary

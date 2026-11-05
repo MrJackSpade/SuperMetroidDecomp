@@ -37,7 +37,7 @@ public static class GameplayDisplayCapture
             // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
             // color window replaces room liquid/fog blending while the beam owns the per-line effects.
             MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
-            if (rainbow?.Active != true && latched.RoomLayer3Fx is { } fx)
+            if (rainbow?.Active != true && latched.RoomFxOverlay is { } fx)
             {
                 if (fx.Type == RoomFxType.Spores)
                 {
@@ -51,7 +51,7 @@ public static class GameplayDisplayCapture
                         throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureWaterfall(ordinary, fx);
                 }
-                else AddLayer(GameplayEffectCapture.CaptureRoomLayer3Fx(fx, Bg3(latched)));
+                else AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(fx, Bg3(latched)));
             }
             if (live.CeresHaze is { } haze)
                 AddLayer(GameplayEffectCapture.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.RoomFxPaletteBlends));
@@ -97,7 +97,7 @@ public static class GameplayDisplayCapture
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. Type 13 also gives the statue OBJ zero quake displacement.
             bg2Scroll = bg2Scroll.WithY(CoordinateAxis.Wrap(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset));
-        RoomLayer3FxRenderSnapshot? fx = latched.RoomLayer3Fx;
+        RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
 
@@ -159,7 +159,7 @@ public static class GameplayDisplayCapture
         TransparentColorZero: false, Priority: null);
 
     /// <summary>The BG3 plane the frame boundary displays (#1348).</summary>
-    private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
+    private static FxOverlayCells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
 
     /// <summary>
@@ -289,8 +289,8 @@ public static class GameplayDisplayCapture
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = shownReveal })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
-        var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
-            ? GameplayEffectCapture.CaptureRoomLayer3Fx(fx, ordinary.Rooms.ShownBg3) : null;
+        var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
+            ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.ShownBg3) : null;
         if (mode != XrayRoomBlendMode.Fireflea && sub is null)
         {
             // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
@@ -298,7 +298,7 @@ public static class GameplayDisplayCapture
             // capture its real pixels rather than substituting transparent backdrop.
             sub = new OverlayBlendLayer(
                 ordinary.Rooms.ShownBg3, 0,
-                Layer3Plane.Rows,
+                FxOverlayPlane.Rows,
                 ScreenGeometry.GameplayHudHeightPixels,
                 BlendOperation.Add,
                 ScrollBands.Uniform(0), ScrollBands.Uniform(0));

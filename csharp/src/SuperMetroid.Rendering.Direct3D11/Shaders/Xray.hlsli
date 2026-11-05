@@ -16,7 +16,7 @@ uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position)
     bool overlaid = (roomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(position & 65535, size, picture, within);
     if (!overlaid)
     {
-        if (source == SourceLayer3)
+        if (source == SourceFxOverlay)
             shown = Bg3Picture(map, size.y, position & 65535, within, picture);
         else if (source == SourceBossBody)
         {
@@ -90,7 +90,7 @@ uint XrayGameplay(uint2 screen)
             sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + bg2Scroll).x;
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayBackground(SourceLayer3, (uint)MatrixC, uint2(32,(uint)CenterX),
+            uint2 bg3 = XrayBackground(SourceFxOverlay, (uint)MatrixC, uint2(32,(uint)CenterX),
                 screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }

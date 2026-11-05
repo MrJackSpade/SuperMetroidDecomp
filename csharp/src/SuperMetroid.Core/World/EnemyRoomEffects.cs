@@ -53,15 +53,15 @@ internal sealed class EnemyRoomEffects
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
     /// through it.
     /// </remarks>
-    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomPaletteFxSystem roomPaletteFx, RoomEnemySystem enemies)
+    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomFxOverlayState roomFxOverlay, RoomPaletteFxSystem roomPaletteFx, RoomEnemySystem enemies)
     {
         ApplyPendingBotwoonWallPlm(requests, plms);
         ApplyPendingSporeSpawnCeilingPlm(requests, plms);
         ApplyPendingCrocomireArenaPlms(requests, plms);
         ApplyPendingKraidPlms(requests, plms);
-        ApplyPendingMotherBrainPlms(requests, plms, roomLayer3Fx, roomPaletteFx);
+        ApplyPendingMotherBrainPlms(requests, plms, roomFxOverlay, roomPaletteFx);
         ApplyPendingShitroidWallPlms(requests, plms);
-        ApplyPendingChozoStatuePlms(plms, roomLayer3Fx, enemies);
+        ApplyPendingChozoStatuePlms(plms, roomFxOverlay, enemies);
         ApplyPendingTorizoBellyGlow(requests, roomPaletteFx);
     }
 
@@ -178,7 +178,7 @@ internal sealed class EnemyRoomEffects
     /// owner. The enemy state publishes requests in call order; consuming them
     /// here retains the descending-slot allocation and one-frame execution seam.
     /// </summary>
-    internal void ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomPaletteFxSystem roomPaletteFx)
+    internal void ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomFxOverlayState roomFxOverlay, RoomPaletteFxSystem roomPaletteFx)
     {
         if (requests.MotherBrainDeathStep is { } death)
         {
@@ -199,7 +199,7 @@ internal sealed class EnemyRoomEffects
             // each frame would reset its delay and prevent the acid from moving.
             RoomFxHeader fx = _room.LoadedRoom.State.Fx
                 ?? throw new InvalidOperationException("Mother Brain requested an FX entry in a room without FX.");
-            _display.LayerBlendingDefaultConfig = roomLayer3Fx.ApplyEntry(fx.Records[requests.MotherBrainFxEntry]);
+            _display.LayerBlendingDefaultConfig = roomFxOverlay.ApplyEntry(fx.Records[requests.MotherBrainFxEntry]);
         }
         if (requests.MotherBrainPlms.Count == 0)
             return;
@@ -246,9 +246,9 @@ internal sealed class EnemyRoomEffects
     /// Also runs at the frame's entry, before movement, so Samus cannot collide before a pending
     /// initialization setup has installed the hand block.
     /// </summary>
-    internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomEnemySystem enemies)
+    internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms, RoomFxOverlayState roomFxOverlay, RoomEnemySystem enemies)
     {
-        plms.ChozoStatue.BindChozoStatueContext(enemies.PlmRequests, enemies.RoomFx, roomLayer3Fx);
+        plms.ChozoStatue.BindChozoStatueContext(enemies.PlmRequests, enemies.RoomFx, roomFxOverlay);
         if (_room.LevelData is not null)
             enemies.PlmRequests.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
     }

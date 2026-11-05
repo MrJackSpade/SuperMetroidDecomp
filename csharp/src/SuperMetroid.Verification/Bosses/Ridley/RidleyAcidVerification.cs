@@ -31,7 +31,7 @@ internal static class RidleyAcidVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         // The room load's queued uploads, the acid's characters among them, are shown once its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var fx = runtime.RoomLayer3Fx;
+        var fx = runtime.RoomFxOverlay;
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
         AssertEqual((ushort)528, fx.BaseY.Whole, "acid starts below the arena");
         var state = runtime.Enemies.RidleyEncounter.Ridley;
@@ -59,7 +59,7 @@ internal static class RidleyAcidVerification
         AssertEqual((ushort)440, fx.TargetSurface.Y, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.YVelocity.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer.RawValue, "native reveal writes rise delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual((ushort)440, fx.BaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
@@ -68,7 +68,7 @@ internal static class RidleyAcidVerification
         AssertEqual((ushort)528, fx.TargetSurface.Y, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.YVelocity.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer.RawValue, "native death writes drain delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual((ushort)528, fx.BaseY.Whole, "acid drains below arena after death");
         AssertAcidVisible(false);
         Console.WriteLine("Ridley acid: retail reveal raises 528 -> 440; death roar drains 440 -> 528 through shared FX.");
@@ -80,8 +80,8 @@ internal static class RidleyAcidVerification
             var memory = FramePaint.FromNative(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), runtime.DisplayedSprites.Draws);
             // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
             ushort[] plane = fx.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
-            var effect = GameplayEffectCapture.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
-                Layer3CellsFixtures.FromWords(plane, runtime.ComposedVram(), GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)));
+            var effect = GameplayEffectCapture.CaptureRoomFxOverlay((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
+                FxOverlayCellsFixtures.FromWords(plane, runtime.ComposedVram(), GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)));
             var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
             var actual = DisplayRendering.Render(new LayeredScene(memory,
                 effect is null ? [] : new DisplayLayer[] { effect }, 15));

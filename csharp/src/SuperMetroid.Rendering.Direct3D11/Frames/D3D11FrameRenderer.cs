@@ -217,7 +217,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>The one layer-3 plane a frame shows (#1348): every layer that reads layer 3 reads the same plane.</summary>
-    private static Layer3Cells SameBg3(Layer3Cells? shown, Layer3Cells plane) =>
+    private static FxOverlayCells SameBg3(FxOverlayCells? shown, FxOverlayCells plane) =>
         shown is null || ReferenceEquals(shown, plane) ? plane
             : throw new InvalidOperationException("A frame's layers show two different layer-3 planes.");
 
@@ -230,7 +230,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // The plane's rows shown: the first in the layer word, how many in the map height (#1348).
         data[1] = (uint)layer.FirstRow;
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
-        data[14] = (uint)D3D11RoomSource.Layer3;
+        data[14] = (uint)D3D11RoomSource.FxOverlay;
         data[25] = (uint)layer.FirstLine; data[26] = 224;
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.Horizontal, 0, 0);
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.Vertical, 0, 0);
@@ -512,7 +512,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => null,
         };
         RoomBackgroundLayer? floor = null;
-        Layer3Cells? bg3 = rooms?.Bg3;
+        FxOverlayCells? bg3 = rooms?.Bg3;
         AffineFloor? floorMap = null;
         // A gameplay room's turning floor shows the room's shading; a frontend screen's the shading its floor names (#1512).
         D3D11PictureColouring floorColouring = D3D11PictureColouring.OwnShading;

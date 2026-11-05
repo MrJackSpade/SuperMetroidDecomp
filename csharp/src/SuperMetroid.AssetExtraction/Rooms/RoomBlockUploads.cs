@@ -255,7 +255,7 @@ internal static class RoomBlockUploads
     /// <summary>The room effects whose BG3 pages <paramref name="state"/>'s rooms show, and the characters each animates on BG3.</summary>
     private static IEnumerable<RoomFxType> EffectsIn(RoomStateSettings state) =>
         (state.Fx?.Records ?? []).Select(record => record.Type)
-            .Where(RoomLayer3FxState.ShowsPage).Distinct();
+            .Where(RoomFxOverlayState.ShowsPage).Distinct();
 
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>
     internal static IEnumerable<AnimatedCharacterPlacement> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)

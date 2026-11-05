@@ -108,7 +108,7 @@ internal sealed class ActiveRoomState
     public LandingSiteEntryState? LandingSiteEntry => View(c => c.LandingSiteEntry, s => s.LandingSiteEntry);
 
     /// <summary>The loading or loaded room's layer-3 FX, for the accepted-frame publication.</summary>
-    internal RoomLayer3FxState? Layer3Fx => View(c => c.Layer3Fx, s => s.Layer3Fx);
+    internal RoomFxOverlayState? FxOverlay => View(c => c.FxOverlay, s => s.FxOverlay);
 
     /// <summary>The loading or loaded room's Tourian statues, for the accepted-frame publication.</summary>
     internal TourianStatueSequence? TourianStatues => View(c => c.TourianStatues, s => s.TourianStatues);

@@ -340,7 +340,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("PeriodicSubDamage", checked((ushort)samus.LiquidPhysics.PeriodicSubDamage), NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", checked((ushort)samus.LiquidPhysics.PeriodicDamage), NativeSnapshotMemory.PeriodicDamage);
                 Check("Acid damage surface", checked((ushort)samus.LiquidPhysics.LavaAcidYPosition), NativeSnapshotMemory.AcidSurface);
-                Check("Liquid tide phase", checked((ushort)runtime.RoomLayer3Fx.TidePhase), NativeSnapshotMemory.TidePhase);
+                Check("Liquid tide phase", checked((ushort)runtime.RoomFxOverlay.TidePhase), NativeSnapshotMemory.TidePhase);
             }
             Check("Samus X", samus.Position.X.Whole, NativeSnapshotMemory.X);
             Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, NativeSnapshotMemory.XFraction);

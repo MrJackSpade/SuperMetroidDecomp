@@ -239,12 +239,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 ChozoStatueAcidLoweringStarted = true;
                 // The cue writes the liquid words consumed by the liquid handler once, when
                 // it runs; the liquid owns them from then on.
-                _roomFx.Layer3Fx?.SetLiquidMotion(
+                _roomFx.FxOverlay?.SetLiquidMotion(
                     timer: ChozoStatueFxData.LoweringDelay, packedYVelocity: ChozoStatueFxData.LoweringVelocity);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                _roomFx.Layer3Fx?.SetLiquidMotion(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
+                _roomFx.FxOverlay?.SetLiquidMotion(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.UnlockSamus }:

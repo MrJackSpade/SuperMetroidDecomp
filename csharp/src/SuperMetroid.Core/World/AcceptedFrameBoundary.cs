@@ -129,7 +129,7 @@ internal sealed class AcceptedFrameBoundary
             _backgroundScroll.Bg2Scroll,
             // Before the first room no enemy earthquake shakes the room.
             _room.Enemies?.Earthquake.LastRoomShake ?? default);
-        RoomLayer3FxRenderSnapshot? roomLayer3Fx = _room.Layer3Fx?.CaptureForDisplay();
+        RoomFxOverlayRenderSnapshot? roomFxOverlay = _room.FxOverlay?.CaptureForDisplay();
         Displays?.Phantoon?.Wave.LatchDisplay();
         if (Displays?.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
@@ -140,7 +140,7 @@ internal sealed class AcceptedFrameBoundary
             displayScroll,
             _screenLayers.Displayed,
             CapturePerspectiveFloor(displayScroll.Bg1Scroll),
-            roomLayer3Fx,
+            roomFxOverlay,
             // Before the first room no eye beam is shown.
             _room.Enemies?.DisplaySources.MorphBallEyeBeam.LatchDisplay(),
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
@@ -152,7 +152,7 @@ internal sealed class AcceptedFrameBoundary
             // The reveal and the room's planes are drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
             CaptureRoomBackgrounds(),
-            _room.Scope is null ? null : CaptureLayer3Plane(),
+            _room.Scope is null ? null : CaptureFxOverlayPlane(),
             // The HUD's images as gameplay last placed them, which this frame boundary shows.
             _hud.Shown());
         // The planes' blocks show the pictures named by what gameplay has shown so far (#1392, #1466).
@@ -168,8 +168,8 @@ internal sealed class AcceptedFrameBoundary
         var room = _room.ActiveRoom;
         return new(
             // Before the first room no FX record is selected and no blending is configured.
-            _room.Layer3Fx?.Type ?? RoomFxType.None,
-            _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
+            _room.FxOverlay?.Type ?? RoomFxType.None,
+            _room.FxOverlay?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
             LatchedScrollingSky.Capture(_room.ScrollingSky),
             room?.Definition,
             // Before the first room no boss is loaded.
@@ -293,7 +293,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg1Overlay = bg1Overlay,
                 // The room effect's page draws from the BG3 sheet's pictures, as the effects' animations select them; the
                 // plane holds nothing else (#1466).
-                Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's frame boundary latches its BG3 plane."),
+                Bg3 = new FxOverlayCells(scope.Bg3Pictures.Resolve(latched.FxOverlay ?? throw new InvalidOperationException("A room's frame boundary latches its BG3 plane."),
                     appearance)),
             },
             // The HUD's images draw from the same sheet, on the HUD's own layer (#1466).
@@ -303,7 +303,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>The BG3 plane this frame boundary displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
-    internal Layer3Plane CaptureLayer3Plane() => _room.Layer3Fx?.EffectPlane ?? Layer3Plane.Cleared;
+    internal FxOverlayPlane CaptureFxOverlayPlane() => _room.FxOverlay?.EffectPlane ?? FxOverlayPlane.Cleared;
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's BG3 sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

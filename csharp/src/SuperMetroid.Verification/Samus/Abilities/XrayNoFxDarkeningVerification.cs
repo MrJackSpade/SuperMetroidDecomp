@@ -30,7 +30,7 @@ internal static class XrayNoFxDarkeningVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
-        AssertTrue(runtime.RoomLayer3Fx.CaptureForDisplay() is null, "fixture has no visible room FX");
+        AssertTrue(runtime.RoomFxOverlay.CaptureForDisplay() is null, "fixture has no visible room FX");
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Kinematics.YSpeed = default;
@@ -53,7 +53,7 @@ internal static class XrayNoFxDarkeningVerification
         var math = (GameplayBlendLayer)snapshot.Layers[0];
         AssertTrue(math.BlendPlane is not null, "no-FX X-ray retains the actual BG3 plane");
         // Clear_FX_Tilemap leaves the effect area of a room without FX in the cleared cell, which the subscreen shows.
-        Layer3Plane layer3 = runtime.AcceptedLayer3Plane;
+        FxOverlayPlane layer3 = runtime.AcceptedFxOverlayPlane;
         AssertTrue(layer3.EffectPage is null,
             "capture retains the cleared BG3 effect area");
         // Where the subscreen shows nothing, colour math takes the fixed colour without halving: the blend with its BG3
@@ -63,7 +63,7 @@ internal static class XrayNoFxDarkeningVerification
         foreach (int index in samples)
             AssertEqual(Channels(unblended[index], channel => Math.Min(MaximumChannel, channel + FixedColorChannel)), transparent[index],
                 "transparent BG3 preserves native fixed-color fallback without halving");
-        runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
+        runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
         // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());

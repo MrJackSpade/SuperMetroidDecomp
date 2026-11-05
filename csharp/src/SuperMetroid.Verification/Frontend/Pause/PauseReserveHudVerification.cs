@@ -22,7 +22,7 @@ internal static class PauseReserveHudVerification
         [8, 9, 40, 41, 70, 71, 72, 73];
 
     /// <summary>BG3 words below the HUD rows whose cleared effect tiles the HUD synchronization must leave alone.</summary>
-    private const int PauseClearedEffectWords = 28 * Layer3Plane.Columns;
+    private const int PauseClearedEffectWords = 28 * FxOverlayPlane.Columns;
 
     /// <summary>Confirms AUTO label changes, manual refill digits, next-NMI presentation, and preservation of unrelated HUD cells.</summary>
     internal static void VerifyPauseReserveHud()
@@ -49,10 +49,10 @@ internal static class PauseReserveHudVerification
         game.Session.Show(pause);
         game.GameState = SuperMetroidGameState.PausedB;
         // The pause screen's BG3 words: the HUD's static top row, its three mutable rows, then the cleared effect rows.
-        ushort Shown(int hudCell) => pause.screen.Bg3Tiles[Layer3Plane.Columns + hudCell].PackedWord;
+        ushort Shown(int hudCell) => pause.screen.Bg3Tiles[FxOverlayPlane.Columns + hudCell].PackedWord;
         ushort originalAuto = Shown(8);
-        ushort[] initialHud = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3Plane.Columns, HudStateConstants.MutableTileCount));
-        ushort[] initialFx = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3PlaneConstants.HudRows * Layer3Plane.Columns, PauseClearedEffectWords));
+        ushort[] initialHud = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(FxOverlayPlane.Columns, HudStateConstants.MutableTileCount));
+        ushort[] initialFx = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(FxOverlayPlaneConstants.HudRows * FxOverlayPlane.Columns, PauseClearedEffectWords));
         void Step(ControllerButton input = ControllerButton.None) => game.StepCaptured(input);
         Step(ControllerButton.A);
         AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "paused A switches to manual");
@@ -80,7 +80,7 @@ internal static class PauseReserveHudVerification
             AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), Shown(index), "empty AUTO uses native table");
         foreach (int index in Enumerable.Range(0, HudStateConstants.MutableTileCount).Except(ReserveDisplayCells))
             AssertEqual(initialHud[index], Shown(index), "reserve updates preserve other HUD cells");
-        AssertTrue(initialFx.AsSpan().SequenceEqual(BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3PlaneConstants.HudRows * Layer3Plane.Columns, PauseClearedEffectWords))),
+        AssertTrue(initialFx.AsSpan().SequenceEqual(BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(FxOverlayPlaneConstants.HudRows * FxOverlayPlane.Columns, PauseClearedEffectWords))),
             "HUD synchronization preserves cleared pause FX rows");
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
         {

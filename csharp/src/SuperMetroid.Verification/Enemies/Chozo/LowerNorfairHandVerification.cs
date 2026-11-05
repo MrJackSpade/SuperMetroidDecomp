@@ -66,7 +66,7 @@ internal static class LowerNorfairHandVerification
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
         AssertTrue((runtime.Enemies.SlotTable.Slots[0].SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException("Verification requires the statue state.")).HandTriggered, "hand wakes statue");
         AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "statue takes control on hand contact");
-        ushort startingAcidY = runtime.RoomLayer3Fx.BaseY.Whole;
+        ushort startingAcidY = runtime.RoomFxOverlay.BaseY.Whole;
         bool sawAcidDrain = false;
         var displayedHeights = new HashSet<ushort>();
         bool sawStartCommand = false;
@@ -77,35 +77,35 @@ internal static class LowerNorfairHandVerification
             if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueAcidLoweringStarted)
             {
                 sawStartCommand = true;
-                AssertEqual((ushort)32, runtime.RoomLayer3Fx.Timer.RawValue, "start instruction writes live delay once");
-                AssertEqual((ushort)64, runtime.RoomLayer3Fx.YVelocity.RawValue, "start instruction writes live 8.8 velocity");
+                AssertEqual((ushort)32, runtime.RoomFxOverlay.Timer.RawValue, "start instruction writes live delay once");
+                AssertEqual((ushort)64, runtime.RoomFxOverlay.YVelocity.RawValue, "start instruction writes live 8.8 velocity");
             }
-            sawAcidDrain |= runtime.RoomLayer3Fx.BaseY.Whole > startingAcidY &&
-                runtime.RoomLayer3Fx.BaseY.Whole < 0x2d2;
+            sawAcidDrain |= runtime.RoomFxOverlay.BaseY.Whole > startingAcidY &&
+                runtime.RoomFxOverlay.BaseY.Whole < 0x2d2;
             if (!runtime.Player.GroundedSamusMovementEnabled)
             {
-                AssertTrue(runtime.RoomLayer3Fx.BaseY.Whole - previousBaseY is 0 or 1,
+                AssertTrue(runtime.RoomFxOverlay.BaseY.Whole - previousBaseY is 0 or 1,
                     "live acid moves gradually rather than teleporting before release");
-                if (runtime.Display.DisplayedRoomLayer3Fx is { } displayed &&
+                if (runtime.Display.DisplayedRoomFxOverlay is { } displayed &&
                     displayed.Surface.Y > startingAcidY && displayed.Surface.Y < 0x2d2)
                     displayedHeights.Add(displayed.Surface.Y);
             }
-            previousBaseY = runtime.RoomLayer3Fx.BaseY.Whole;
+            previousBaseY = runtime.RoomFxOverlay.BaseY.Whole;
         }
         AssertTrue(runtime.Player.GroundedSamusMovementEnabled, "statue finishes and releases Samus");
         AssertTrue(sawAcidDrain, "acid surface must visibly descend during the live statue sequence");
-        AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseY.Whole,
+        AssertEqual((ushort)0x2d2, runtime.RoomFxOverlay.BaseY.Whole,
             "statue completes acid lowering before leaving the room");
         AssertTrue(displayedHeights.Count > 50, "accepted display snapshots contain the progressing acid surface");
         // Enemy AI publishes the final base after this frame's FX handler. The next
         // handler updates the surface registers, then the following NMI displays them.
         runtime.StepFrame(0);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomLayer3Fx.")).Surface.Y,
+        AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomFxOverlay.")).Surface.Y,
             "final drained height reaches display without a room transition");
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
         runtime.StepFrame(0);
-        AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseY.Whole, "re-entry restores drained acid");
+        AssertEqual((ushort)0x2d2, runtime.RoomFxOverlay.BaseY.Whole, "re-entry restores drained acid");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         AssertTrue(level != runtime.Room.LevelData, "re-entry uses newly loaded room terrain");
         AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,

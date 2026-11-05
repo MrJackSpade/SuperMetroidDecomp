@@ -33,7 +33,7 @@ StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: what a layer pass draws: the room's layer 1 or 2 as level data shows it, the sky's rows, the layer-3
 // plane, a boss body, the X-ray reveal, a library background, the HUD, a pictured plane or a picture grid.
 // SourceLayer2Overlay added to it lays words written over layer 2 on top.
-static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceLayer3 = 4;
+static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceFxOverlay = 4;
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
@@ -106,7 +106,7 @@ bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
     within = cell != 0 ? (position & 15) : position;
     return RoomLevels[RoomLevels[RoomSkyWord] + (position.y >> 3)] != 0;
 }
-// The layer-3 plane (Layer3Plane): 32 by 64 cells. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
+// The layer-3 plane (FxOverlayPlane): 32 by 64 cells. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
 // Where the plane's pictures are resolved (#1392), `picture` is the word's picture and `within` its pixel in it.
 bool Bg3Picture(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out uint picture)
 {
@@ -578,7 +578,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     bool overlaid = (RoomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(scrolled, uint2(MapWidth, MapHeight), picture, within);
     if (!overlaid)
     {
-        if (source == SourceLayer3)
+        if (source == SourceFxOverlay)
         {
             if (!Bg3Picture(TilemapWord, MapHeight, scrolled, within, picture)) return;
         }

@@ -269,7 +269,7 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Loads one authored-shape item PLM into a synthetic room with selectable prior collection and Chozo state.</summary>
-    internal static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomLayer3FxState? roomFx = null, CollectibleRoomLayout layout = default)
+    internal static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomFxOverlayState? roomFx = null, CollectibleRoomLayout layout = default)
     {
         const ushort population = 0x9000;
         Extent16<RoomBlocks> size = layout.RoomSize ?? new(8, 8);

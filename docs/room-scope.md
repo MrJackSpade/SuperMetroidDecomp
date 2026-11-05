@@ -93,7 +93,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   sub-pixel position and the Spazer special-attack phase also survived the original reset, but every shot that reads
   them writes them first, so neither is handed over.
 - **Room-FX session state**: the Fireflea darkness state and the COLDATA shadows are never cleared by room loading;
-  they live on `RoomFxSession`, which each room's `RoomLayer3FxState` reads, with the host's installed FX catalogs.
+  they live on `RoomFxSession`, which each room's `RoomFxOverlayState` reads, with the host's installed FX catalogs.
 - **Palette-FX handler state**: the handler enable bit (`$1E79`) and the Norfair heat palette phases survive room
   loading on `PaletteFxSessionState`, which each room's `RoomPaletteFxSystem` reads.
 - **X-ray direct G-mode** is demoted, not reset.
@@ -116,7 +116,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   `SamusBombProjectileSystem` at the teardown step, before the beam upload, and the installed projectile artwork is
   bound to them there. Samus's speed and shinespark echo storage is cleared at the same step.
 - **Room FX, animated tiles, Ceres haze and the Tourian statues never survive**: the FX step builds the layer-3 FX
-  (through `RoomLayer3FxState.ForRoom`), the Ceres haze, the sand, spike and treadmill tiles and the palette FX
+  (through `RoomFxOverlayState.ForRoom`), the Ceres haze, the sand, spike and treadmill tiles and the palette FX
   (`RoomPaletteFxSystem.ForRoom`); the header step builds the Wrecked Ship treadmill tiles a door's setup code may
   start; the post-enemy step builds the statue sequence. Owners that loaded in place have only construction-time
   loading now, so none can be reloaded. The host tester's Tourian unlock restarts the live room's statue sequence.
@@ -144,7 +144,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 | `SamusBombProjectileSystem` | slots, bomb counter, cooldown, power-bomb explosion | room |
 | `SamusProjectileSystem` | slots, trails, counter, combo, earthquake | room |
 | `BeamChargeState` | charge, flare, charge palette | session carry-over |
-| `RoomLayer3FxState`, `RoomPaletteFxSystem`, sand/spike/treadmill tiles | FX state | room |
+| `RoomFxOverlayState`, `RoomPaletteFxSystem`, sand/spike/treadmill tiles | FX state | room |
 | `RoomFxSession` | Fireflea state, COLDATA shadows, installed FX catalogs | session carry-over |
 | `PaletteFxSessionState` | handler enable bit, heat palette phases | session carry-over |
 | Treadmill, elevatube and Ceres shaft room mains | active flag, script state | room, with the elevatube exit carried |

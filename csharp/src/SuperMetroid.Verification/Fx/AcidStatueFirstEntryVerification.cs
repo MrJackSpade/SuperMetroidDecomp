@@ -82,7 +82,7 @@ internal static class AcidStatueFirstEntryVerification
             DoorTransitionPhase phase = transition.Phase;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             RoomHeaderDefinition activeRoom = runtime.Room.LoadedRoom.Definition;
-            RoomLayer3FxRenderSnapshot? displayed = runtime.Display.DisplayedRoomLayer3Fx;
+            RoomFxOverlayRenderSnapshot? displayed = runtime.Display.DisplayedRoomFxOverlay;
             if (activeRoom != destinationRoom)
                 continue;
             LayeredScene? snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -114,13 +114,13 @@ internal static class AcidStatueFirstEntryVerification
             "first-entry fade shows the dark room above the drained surface, not the high-acid flash");
         AssertTrue(lastDestinationFadePixels[(lastDestinationFadeSurfaceRow + 8) * 256 + 16] != background,
             "first-entry fade draws the drained acid below its surface");
-        ushort transitionEndY = runtime.RoomLayer3Fx.Surface.Y;
+        ushort transitionEndY = runtime.RoomFxOverlay.Surface.Y;
         for (int frame = 0; frame < 8; frame++)
         {
             runtime.StepFrame(0);
             runtime.PublishDisplayFrame();
         }
-        AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.Surface.Y,
+        AssertEqual(drainedAcidY, runtime.RoomFxOverlay.Surface.Y,
             $"completed Chozo event restores the drained acid height (transition ended at ${transitionEndY:X4})");
         Console.WriteLine($"Acid Statue first entry: checked {destinationFrames} destination transition frames.");
     }

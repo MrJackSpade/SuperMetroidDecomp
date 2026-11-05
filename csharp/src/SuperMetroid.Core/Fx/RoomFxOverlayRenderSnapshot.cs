@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Immutable gameplay BG3 values published by one frame boundary.</summary>
-public readonly record struct RoomLayer3FxRenderSnapshot(
+public readonly record struct RoomFxOverlayRenderSnapshot(
     RoomFxType Type,
     LayerBlendingConfiguration LayerBlendConfiguration,
     Position16<OverlayPixels> Scroll,

@@ -64,7 +64,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public SamusBombProjectileSystem? BombProjectiles { get; set; }
 
     /// <summary>The layer-3 FX, once the FX step has built it.</summary>
-    public RoomLayer3FxState? Layer3Fx { get; set; }
+    public RoomFxOverlayState? FxOverlay { get; set; }
 
     /// <summary>The palette FX, once the FX step has built them.</summary>
     public RoomPaletteFxSystem? PaletteFx { get; set; }
@@ -139,7 +139,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         LandingSiteEntry = LandingSiteEntry,
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),
-        Layer3Fx = Layer3Fx ?? throw Missing(nameof(Layer3Fx)),
+        FxOverlay = FxOverlay ?? throw Missing(nameof(FxOverlay)),
         PaletteFx = PaletteFx ?? throw Missing(nameof(PaletteFx)),
         CeresHaze = CeresHaze ?? throw Missing(nameof(CeresHaze)),
         SandTiles = SandTiles ?? throw Missing(nameof(SandTiles)),

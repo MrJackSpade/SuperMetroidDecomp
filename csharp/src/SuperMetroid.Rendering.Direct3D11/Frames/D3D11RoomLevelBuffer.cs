@@ -169,7 +169,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomDoorBackground? door = frame.Door;
         RoomOverlayPictures? overlay = frame.Overlay, bg2Overlay = frame.Bg2Overlay;
         SkyPictures? sky = frame.Sky;
-        Layer3Cells? bg3 = frame.Bg3;
+        FxOverlayCells? bg3 = frame.Bg3;
         AffineFloor? mode7 = frame.Floor;
         ShownBossBody? bossBody = frame.BossBody;
         XrayRevealPlane? reveal = frame.XrayReveal;
@@ -242,7 +242,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         ImmutableArray<BgTilePicture?> overlayPictures = overlay?.Pictures ?? default;
         int overlayOffset = ReserveTilePictures(overlayPictures, RoomWrittenOverlay.CellCount);
         ImmutableArray<BgTilePicture?> bg3Pictures = bg3 is null ? default : [.. bg3.Pictures.Select(picture => (BgTilePicture?)picture)];
-        int bg3PicturesOffset = ReserveTilePictures(bg3Pictures, Layer3Plane.Rows * Layer3Plane.Columns);
+        int bg3PicturesOffset = ReserveTilePictures(bg3Pictures, FxOverlayPlane.Rows * FxOverlayPlane.Columns);
         // Reserves two words for each of `count` tile pictures; zero without pictures.
         int ReserveTilePictures(ImmutableArray<BgTilePicture?> pictures, int count)
         {
@@ -368,7 +368,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackBossBody(upload, bossBody, bossBodyOffset, pictureWords);
         upload[Bg3Word] = (uint)bg3PicturesOffset;
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[new(message, D3D11PictureColouring.MessageBox)];
-        PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords, D3D11PictureColouring.Layer3);
+        PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, FxOverlayPlane.Rows * FxOverlayPlane.Columns, pictureWords, D3D11PictureColouring.FxOverlay);
         packed = frame;
         packedGeneration = images.Generation;
         return true;
@@ -529,7 +529,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 yield return new(shown.Picture, D3D11PictureColouring.Room);
         }
         foreach (BgTilePicture picture in frame.Bg3?.Pictures ?? [])
-            yield return new(picture.Picture, D3D11PictureColouring.Layer3);
+            yield return new(picture.Picture, D3D11PictureColouring.FxOverlay);
     }
 
     /// <summary>How plane slot <paramref name="slot"/>'s block pictures are coloured: layers 1 and 2 the room's, the third the room a door leaves (#1512).</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 /// The room FX as room PLMs use it (#1395). PLMs write the shared liquid values Samus reads; the port keeps Samus's
 /// copy of the liquid options, so enabling water physics writes both in the same operation.
 /// </summary>
-internal sealed class RoomPlmFx(RoomLayer3FxState fx, Func<SamusState?> samus) : IRoomPlmFx
+internal sealed class RoomPlmFx(RoomFxOverlayState fx, Func<SamusState?> samus) : IRoomPlmFx
 {
     /// <inheritdoc/>
     public FixedCoordinate BaseY => fx.BaseY;

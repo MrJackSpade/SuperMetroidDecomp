@@ -9,18 +9,18 @@ namespace SuperMetroid.Core.Fx;
 /// effect's installed page from its first row, so verification can compare the plane with the words the cartridge uploads.
 /// The plane itself names only which page shows; the words are the import's knowledge.
 /// </summary>
-internal static class Layer3PlaneWords
+internal static class FxOverlayPlaneWords
 {
     /// <summary>The tile words of the plane.</summary>
-    extension(Layer3Plane plane)
+    extension(FxOverlayPlane plane)
     {
         /// <summary>Each cell's tile, row-major, its effect's page read from <paramref name="pages"/>.</summary>
         internal BackgroundTile[] TilesIn(RoomFxLayer3Pages pages)
         {
-            var tiles = new BackgroundTile[Layer3Plane.Columns * Layer3Plane.Rows];
+            var tiles = new BackgroundTile[FxOverlayPlane.Columns * FxOverlayPlane.Rows];
             tiles.AsSpan().Fill(Layer3ClearedCellDefinitions.ClearedCell);
             if (plane.EffectPage is { } type)
-                pages.Resolve(type).Span.CopyTo(tiles.AsSpan(Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns));
+                pages.Resolve(type).Span.CopyTo(tiles.AsSpan(FxOverlayPlane.EffectPageFirstRow * FxOverlayPlane.Columns));
             return tiles;
         }
 

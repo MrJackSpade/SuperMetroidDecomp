@@ -58,7 +58,7 @@ internal static class CollectibleMessageTimingVerification
             ushort[] shown = runtime.AcceptedHudWords;
             return Enumerable.Range(0, runtime.Hud.TileWords.Length)
                 .Where(index => index % 32 < 26)
-                .Select(index => shown[Layer3Plane.Columns + index]).ToArray();
+                .Select(index => shown[FxOverlayPlane.Columns + index]).ToArray();
         }
         ushort[] beforeVisibleHud = VisibleHudWords();
         (RoomBlockCell Cell, SpriteSheetFrame? Picture) beforeTile = ShownBlock();
@@ -101,7 +101,7 @@ internal static class CollectibleMessageTimingVerification
         ushort[] published = runtime.AcceptedHudWords;
         for (int i = 0; i < drawn.Length; i++)
             if (i % 32 < 26)
-                AssertEqual(drawn[i], published[Layer3Plane.Columns + i], "post-message NMI publishes HUD");
+                AssertEqual(drawn[i], published[FxOverlayPlane.Columns + i], "post-message NMI publishes HUD");
         Console.WriteLine("  Pickup message: native early grant, retained pickup/HUD during fanfare, and post-message visual update agree.");
     }
 

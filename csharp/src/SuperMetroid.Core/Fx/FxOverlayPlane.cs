@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// lower 32 rows) read this one plane, and nothing is uploaded for them. The HUD is not in it: the HUD is its own
 /// display layer, so a liquid whose scroll wraps shows the plane's own cleared rows.
 /// </summary>
-public sealed class Layer3Plane
+public sealed class FxOverlayPlane
 {
     /// <summary>Tile columns; the plane repeats every 256 pixels across.</summary>
     public const int Columns = 32;
@@ -24,18 +24,18 @@ public sealed class Layer3Plane
     public const string ClearedPicture = "Cleared";
 
     /// <summary>The plane of a room whose effect shows no page: every cell the cleared picture.</summary>
-    public static Layer3Plane Cleared { get; } = new(null);
+    public static FxOverlayPlane Cleared { get; } = new(null);
 
     /// <summary>The plane showing each effect's page, shared so a frame showing the same page reuses its resolved pictures.</summary>
-    private static readonly Dictionary<RoomFxType, Layer3Plane> Pages =
-        Enum.GetValues<RoomFxType>().ToDictionary(type => type, type => new Layer3Plane(type));
+    private static readonly Dictionary<RoomFxType, FxOverlayPlane> Pages =
+        Enum.GetValues<RoomFxType>().ToDictionary(type => type, type => new FxOverlayPlane(type));
 
     /// <summary>Takes the effect whose page the plane shows.</summary>
-    private Layer3Plane(RoomFxType? effectPage) => EffectPage = effectPage;
+    private FxOverlayPlane(RoomFxType? effectPage) => EffectPage = effectPage;
 
     /// <summary>The plane showing the page of <paramref name="effectPage"/>, or <see cref="Cleared"/> for none.</summary>
     /// <param name="effectPage">The effect whose page the plane shows from row <see cref="EffectPageFirstRow"/>, or null.</param>
-    public static Layer3Plane Of(RoomFxType? effectPage) => effectPage is { } type ? Pages[type] : Cleared;
+    public static FxOverlayPlane Of(RoomFxType? effectPage) => effectPage is { } type ? Pages[type] : Cleared;
 
     /// <summary>The effect whose page the plane shows from row <see cref="EffectPageFirstRow"/>; null when it shows none.</summary>
     public RoomFxType? EffectPage { get; }

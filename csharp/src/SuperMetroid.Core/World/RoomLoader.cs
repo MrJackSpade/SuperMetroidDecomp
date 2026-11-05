@@ -884,14 +884,14 @@ internal sealed class RoomLoader
         // LoadFXHeader selects the door-specific sixteen-byte record, applies its palette
         // blend, chooses the effect page the BG3 plane shows, and creates the type-owned per-line
         // effect and animtile state before palette-FX objects and enemies begin running.
-        var roomLayer3Fx = RoomLayer3FxState.ForRoom(
+        var roomFxOverlay = RoomFxOverlayState.ForRoom(
             _roomFx,
             room.State.Fx,
             door,
             _system.RandomNumber,
             room.Definition);
-        scope.Layer3Fx = roomLayer3Fx;
-        roomLayer3Fx.PrimeViewport(destinationCamera.PixelPosition);
+        scope.FxOverlay = roomFxOverlay;
+        roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
         scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.CeresHazeSetups.Contains(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
@@ -902,7 +902,7 @@ internal sealed class RoomLoader
         scope.TreadmillTiles = new RoomTreadmillAnimatedTilesState(room.State.Fx, door,
             room.AreaIndex);
         if (_player.Samus is not null)
-            _player.Samus.LiquidPhysics.ConfigureFor(roomLayer3Fx);
+            _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
         // Loading calls LoadFXHeader after room setup and before enemies. Its selected
         // sixteen-byte record owns two independent object bitsets. The half must
@@ -952,7 +952,7 @@ internal sealed class RoomLoader
             Bosses = progress,
             Events = progress,
             TourianStatue = plmServices,
-            RoomFx = roomLayer3Fx is { } fx ? new RoomPlmFx(fx, () => _player.Samus) : null,
+            RoomFx = roomFxOverlay is { } fx ? new RoomPlmFx(fx, () => _player.Samus) : null,
             Earthquake = plmServices,
             Enemies = plmServices,
         };
@@ -1035,8 +1035,8 @@ internal sealed class RoomLoader
         // The Tourian escape setup spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomLayer3Fx, roomPaletteFx, enemies);
-        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomLayer3Fx, roomPaletteFx, plms, enemies);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomFxOverlay, roomPaletteFx, enemies);
+        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomPaletteFx, plms, enemies);
         // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
         enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 

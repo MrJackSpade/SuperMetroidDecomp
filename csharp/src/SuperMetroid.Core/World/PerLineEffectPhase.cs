@@ -55,7 +55,7 @@ internal sealed class PerLineEffectPhase
     {
         if (!RunsThisUpdate)
             return;
-        room.Layer3Fx.AdvanceLiquidMotion(_system, _freeze.TimeIsFrozen);
+        room.FxOverlay.AdvanceLiquidMotion(_system, _freeze.TimeIsFrozen);
         room.TourianStatues.StepDescent(plms);
     }
 }

@@ -45,10 +45,10 @@ internal static class WaterfallTests
         oam[0] = 80; oam[1] = 64; oam[3] = 0x36;
         oam[4] = 96; oam[5] = 64; oam[7] = 0x38;
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 2, 0);
-        Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
+        FxOverlayCells plane = FxOverlayCellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
         var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             WaterfallRoomDisplayRules.MainScreen);
-        var bg3 = new OverlayBlendLayer(plane, Layer3Plane.Rows / 2, 32, 32,
+        var bg3 = new OverlayBlendLayer(plane, FxOverlayPlane.Rows / 2, 32, 32,
             BlendOperation.Subtract, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
         var layer = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), ScreenWindow.Closed, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, bg3, subscreenUsesBg2: true);
         var scene = new LayeredScene(memory, [layer], 15);

@@ -23,7 +23,7 @@ internal static class LookupHorizontalHeatWaveVerification
         for (int cameraPhase = 0; cameraPhase < 16; cameraPhase++)
         foreach (ushort baseScroll in new ushort[] { 0, ushort.MaxValue })
         {
-            var fx = new RoomLayer3FxRenderSnapshot(RoomFxType.Lava,
+            var fx = new RoomFxOverlayRenderSnapshot(RoomFxType.Lava,
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave)
                 { LavaAcidBg2WavePhase = phase };

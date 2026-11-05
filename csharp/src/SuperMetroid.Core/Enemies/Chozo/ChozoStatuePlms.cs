@@ -29,10 +29,10 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
     /// <summary>The room's enemy PLM requests for hand activation, bound when the room loads.</summary>
     private IEnemyPlmRequests? _chozoHands;
     /// <summary>The room's FX owner for Lower Norfair acid height writes, bound when the room loads.</summary>
-    private RoomLayer3FxState? _chozoRoomFx;
+    private RoomFxOverlayState? _chozoRoomFx;
 
     /// <summary>Connects the hand setup to the existing actor owner.</summary>
-    internal void BindChozoStatueContext(IEnemyPlmRequests hands, EnemyRoomFx enemyRoomFx, RoomLayer3FxState roomFx)
+    internal void BindChozoStatueContext(IEnemyPlmRequests hands, EnemyRoomFx enemyRoomFx, RoomFxOverlayState roomFx)
     {
         _chozoHands = hands;
         _chozoRoomFx = roomFx;

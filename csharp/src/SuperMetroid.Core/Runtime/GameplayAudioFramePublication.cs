@@ -19,7 +19,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
     {
         if (runtime.AttractDemo.IsAttractDemo)
             return;
-        var room = runtime.Room.LoadedScope.Layer3Fx.SoundRequests;
+        var room = runtime.Room.LoadedScope.FxOverlay.SoundRequests;
         while (roomSounds < room.Count)
         {
             var request = room[roomSounds++];

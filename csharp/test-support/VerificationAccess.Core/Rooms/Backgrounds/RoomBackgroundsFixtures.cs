@@ -29,7 +29,7 @@ internal static class RoomBackgroundsFixtures
     internal static RoomBackgrounds Blank() => Uniform(new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount], default);
 
     /// <summary>A BG3 plane of zero words, as a blank memory image shows it (#1403).</summary>
-    internal static Layer3Cells BlankBg3() => Layer3CellsFixtures.Blank;
+    internal static FxOverlayCells BlankBg3() => FxOverlayCellsFixtures.Blank;
 
     /// <summary>A Ceres room's turning floor, with its floor animation frames, whose drawing a check does not look at (#1467).</summary>
     internal static RoomFloor CeresFloor() => new(AffineFloorConstants.BlankCeresRoom());
@@ -198,7 +198,7 @@ internal static class RoomBackgroundsFixtures
     /// A BG3 plane of seeded two-bit pictures (#1392, #1403): each cell a quarter of a seeded 16x16 picture whose pixels
     /// keep colour zero's row, even 16-colour rows coloured as <paramref name="scene"/> is and odd ones differently.
     /// </summary>
-    internal static Layer3Cells SeededBg3Pictures(Random random, RgbColor[] scene)
+    internal static FxOverlayCells SeededBg3Pictures(Random random, RgbColor[] scene)
     {
         int side = RoomBlockSheet.BlockPixels, columns = 4;
         var size = new Extent16<ImagePixels>((ushort)(columns * side), (ushort)(SeededPictureCount / columns * side));
@@ -207,13 +207,13 @@ internal static class RoomBackgroundsFixtures
             corners.Add($"{picture}", new Position16<ImagePixels>((ushort)(picture % columns * side), (ushort)(picture / columns * side)));
         SpriteSheet sheet = SeededSheet(random, scene, size, corners, new Extent16<ImagePixels>((ushort)side, (ushort)side), "seeded BG3",
             SpriteImageColours.TwoBppBackground);
-        var pictures = new BgTilePicture?[Layer3Plane.Columns * Layer3Plane.Rows];
+        var pictures = new BgTilePicture?[FxOverlayPlane.Columns * FxOverlayPlane.Rows];
         for (int word = 0; word < pictures.Length; word++)
         {
             pictures[word] = new BgTilePicture(sheet.Frame($"{random.Next(SeededPictureCount)}"),
                 new Position16<ImagePixels>((ushort)(random.Next(2) * 8), (ushort)(random.Next(2) * 8)));
         }
-        return new Layer3Cells([.. pictures]);
+        return new FxOverlayCells([.. pictures]);
     }
 
     /// <summary>

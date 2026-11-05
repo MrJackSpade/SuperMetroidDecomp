@@ -20,7 +20,7 @@ internal static class ColorWindowSmokeTests
         var vram = new byte[SnesVram.ByteCount]; random.NextBytes(vram);
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = FramePaint.FromNative(palette, []);
-        Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
+        FxOverlayCells bg3 = FxOverlayCellsFixtures.FromVram(vram, palette, 0x7ff8);
         var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
             new Position16<TilePlanePixels>(3, 11), null);
         PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedPicturedPlaneLayer.MapSize);

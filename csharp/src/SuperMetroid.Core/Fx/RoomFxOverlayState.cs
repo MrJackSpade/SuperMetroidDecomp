@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Fx;
 /// The translated BG3 effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomLayer3FxState : IGameplayShadingSource
+public sealed class RoomFxOverlayState : IGameplayShadingSource
 {
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
@@ -35,7 +35,7 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
     public RoomFxType? EffectPageType { get; private set; }
 
     /// <summary>The BG3 plane the room shows (#1348, #1466): the cleared picture, with its effect's page picture when it has one.</summary>
-    public Layer3Plane EffectPlane => Layer3Plane.Of(EffectPageType);
+    public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(EffectPageType);
 
     /// <summary>
     /// The palette blend the last FX record loaded selected for layer 3's blend colours (#1512), or null while no record
@@ -180,7 +180,7 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
-    public static RoomLayer3FxState ForRoom(
+    public static RoomFxOverlayState ForRoom(
         RoomFxSession session,
         RoomFxHeader? fx,
         DoorDefinition? door,
@@ -191,16 +191,16 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
     /// <summary>Builds one room's layer-3 FX from a load source, which may supply its record directly.</summary>
     /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
     /// <param name="source">The FX record's source.</param>
-    internal static RoomLayer3FxState ForRecord(RoomFxSession session, RoomFxLoadSource source)
+    internal static RoomFxOverlayState ForRecord(RoomFxSession session, RoomFxLoadSource source)
     {
-        var fx = new RoomLayer3FxState(session);
+        var fx = new RoomFxOverlayState(session);
         fx.SelectRecord(source);
         return fx;
     }
 
     /// <summary>
     /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and PLMs.
-    /// The BG3 plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="Layer3Plane"/>).
+    /// The BG3 plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="FxOverlayPlane"/>).
     /// </summary>
     private void SelectRecord(RoomFxLoadSource source)
     {
@@ -217,7 +217,7 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
         Surface = new(0, BaseY.Whole);
 
         Type = definition.Type;
-        LayerBlendConfiguration = definition.Layer3LayerBlend;
+        LayerBlendConfiguration = definition.EffectLayerBlend;
         animatedTiles.Load(Type);
         PaletteBlend = definition.PaletteBlend;
 
@@ -321,7 +321,7 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
     }
 
     /// <summary>Runs the active effect's per-frame behaviour step and rain animtile handler.</summary>
-    public void Step(ArtworkFrameSelections frames, RoomLayer3FxFrame frame)
+    public void Step(ArtworkFrameSelections frames, RoomFxOverlayFrame frame)
     {
         Ensure.NotNull(frames);
         audioPowerBomb = frame.PowerBomb;
@@ -398,8 +398,8 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
     }
 
     /// <summary>Captures values visible alongside the current frame boundary's sprite frame.</summary>
-    public RoomLayer3FxRenderSnapshot? CaptureForDisplay() => IsRenderable
-        ? new RoomLayer3FxRenderSnapshot(
+    public RoomFxOverlayRenderSnapshot? CaptureForDisplay() => IsRenderable
+        ? new RoomFxOverlayRenderSnapshot(
             Type,
             LayerBlendConfiguration,
             Scroll,
@@ -449,7 +449,7 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
-        LayerBlendConfiguration = definition.Layer3LayerBlend;
+        LayerBlendConfiguration = definition.EffectLayerBlend;
         PaletteBlend = definition.PaletteBlend;
         return definition.DefaultLayerBlend;
     }
@@ -463,7 +463,7 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
         Ensure.NotNull(frame);
         if (PaletteBlend is not { } blend)
             return;
-        frame.Shade(GameplayPictures.Layer3, RoomFxBlendShading.Of(blend));
+        frame.Shade(GameplayPictures.FxOverlay, RoomFxBlendShading.Of(blend));
         frame.Shade(GameplayPictures.Hud, RoomFxBlendShading.Of(blend));
     }
 
@@ -763,7 +763,7 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
 
     /// <summary>Creates one room's effect state, with no FX record selected, over the session's carried state.</summary>
     /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
-    public RoomLayer3FxState(RoomFxSession session)
+    public RoomFxOverlayState(RoomFxSession session)
     {
         _session = Ensure.NotNull(session);
         Type = RoomFxType.None;

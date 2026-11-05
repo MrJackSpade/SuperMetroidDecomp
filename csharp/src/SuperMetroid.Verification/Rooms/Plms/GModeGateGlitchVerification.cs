@@ -442,7 +442,7 @@ internal static class GModeGateGlitchVerification
             new RoomTerrainBlock[width * 16],
             new RoomBlockBehavior[width * 16]);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
+        RoomFxOverlayState roomFx = CreateNoobTubeWaterFx();
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();
         var plms = PlmFixtures.Unbound();

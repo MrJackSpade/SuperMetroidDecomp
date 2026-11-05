@@ -122,11 +122,11 @@ internal static class GameplayDisplayFrameTestsVerification
     private static void VerifySceneRegisterTiming(SuperMetroidRuntime runtime)
     {
         GameplaySceneView before = Registers(runtime);
-        RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
-        runtime.RoomLayer3Fx.Type = RoomFxType.TourianEntranceStatue;
+        RoomFxType originalFx = runtime.RoomFxOverlay.Type;
+        runtime.RoomFxOverlay.Type = RoomFxType.TourianEntranceStatue;
         AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize, "FX-selected BG2SC");
         AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(32, 64), "FX-selected BG2SC");
-        runtime.RoomLayer3Fx.Type = originalFx;
+        runtime.RoomFxOverlay.Type = originalFx;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // $88:AFB2 writes the BG2VOFS mirror while the same pass rebuilds the band table.
@@ -151,9 +151,9 @@ internal static class GameplayDisplayFrameTestsVerification
     private static void VerifyFixedColorTiming(SuperMetroidRuntime runtime)
     {
         // Fireflea darkness: FX selector and the shared COLDATA shadows.
-        RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
-        RoomFixedColor fixedColor = runtime.RoomLayer3Fx.FixedColors;
-        runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
+        RoomFxType originalFx = runtime.RoomFxOverlay.Type;
+        RoomFixedColor fixedColor = runtime.RoomFxOverlay.FixedColors;
+        runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
         fixedColor.Color = new RgbColor(9, 9, 9);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea blend selector waits for the NMI");
@@ -166,7 +166,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(4, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
             "the next accepted frame publishes the chosen fixed colour");
-        runtime.RoomLayer3Fx.Type = originalFx;
+        runtime.RoomFxOverlay.Type = originalFx;
         fixedColor.Color = RgbColor.Black;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 

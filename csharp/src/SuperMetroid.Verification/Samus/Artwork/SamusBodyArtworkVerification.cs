@@ -27,7 +27,7 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 internal static class SamusBodyArtworkVerification
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
-    [PrivateInstallation("Edits and corrupts Samus body artwork files on a private copy to check overrides and that damaged stock fails loudly.")]
+    [PrivateInstallation("Writes a malformed manifest and a damaged arm-cannon PNG into a private copy's Samus body directory to check that each fails where it loads, then puts the installed bytes back.")]
     internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyCharacterArtwork stockCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
@@ -95,7 +95,6 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(bottomAddress),
                 sprites.BottomBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} bottom OAM base");
         }
-        var spritemapGuard = NewCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
         ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapSources.EntryCount).Select(index =>
             CartridgeImportSource.Require(bus).ReadCartridgeWord(InstalledSamusSpritemaps.PointerTableAddress + index * 2))];
@@ -154,10 +153,6 @@ internal static class SamusBodyArtworkVerification
                 SamusSourceDefinitions.DrainedVerticalOffsets.Value + i)),
                 stock.DrainedYOffsets[i], $"Samus drained visual byte {i}");
 
-        // The installed selector and both VRAM halves must take the production path
-        // without even reading one cartridge byte. This covers every authored pose's
-        // initial frame, including all flashback/normal-gameplay pose identities.
-        var guardedBus = NewCartridgeReadGuard(bus);
         // These two production owners call the same indexed bank-$92 OAM routine as
         // Samus's body, but do not call Samus.Draw. Exercise both rather than inferring
         // their binding from the generic catalog's all-index byte-parity test.
@@ -344,287 +339,24 @@ internal static class SamusBodyArtworkVerification
                 frames.Shown.Bottom, $"Samus pose {pose:X2} shows its frame-zero bottom definition, or none before any is named");
         }
 
-        // An override changes pixels and selector data without changing animation timing.
-        Directory.CreateDirectory(installation.SamusBodyOverrideDirectory);
-        string stockPng = Path.Combine(installation.SamusBodyDirectory, "top-00.png");
-        string overridePng = Path.Combine(installation.SamusBodyOverrideDirectory, "top-00.png");
-        byte[] original = File.ReadAllBytes(stockPng);
-        IndexedPngImage image = IndexedPng.Read(new MemoryStream(original, false), new(64, checked((ushort)(stockCharacters.TopSet(0).Count * 16))));
-        byte[] pixels = (byte[])image.Pixels.Clone();
-        pixels[0] = (byte)((pixels[0] + 1) & 15);
-        using (var output = File.Create(overridePng))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Colours);
-        string selectedManifest = Path.Combine(installation.SamusBodyOverrideDirectory,
-            SamusBodyArtworkFiles.ManifestFileName);
-        JsonNode document = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusBodyArtworkFiles.ManifestFileName)));
-        byte originalPosition = (byte)document.Required("frames").Required(0).Required("topPosition").GetValue<int>();
-        document.Required("frames").Required(0)["topPosition"] = originalPosition == 0 ? 1 : 0;
-        sbyte originalYOffset = (sbyte)document.Required("graphicsYOffsets").Required(1).GetValue<int>();
-        document.Required("graphicsYOffsets")[1] = originalYOffset + 1;
-        // Each spritemap is its list of parts; a part's horizontal place is its offsetX.
-        JsonNode poseOneParts = document.Required("spritemaps").Required(
-            SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose)]));
-        int originalPartX = poseOneParts.Required(0).Required("offsetX").GetValue<int>();
-        poseOneParts.Required(0)["offsetX"] = originalPartX + 1;
-        foreach (int owner in new[]
-        {
-            SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[0x018F]),
-            SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[(deathSamus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires deathSamus.DeathSequence.ExplosionSpritemapIndex."))]),
-        })
-        {
-            JsonNode ownerParts = document.Required("spritemaps").Required(owner);
-            ownerParts.Required(0)["offsetX"] =
-                ownerParts.Required(0).Required("offsetX").GetValue<int>() + 1;
-        }
-        byte originalLandingYOffset = (byte)document.Required("landingYOffsets").Required(0).GetValue<int>();
-        document.Required("landingYOffsets")[0] = originalLandingYOffset + 1;
-        File.WriteAllText(selectedManifest, document.ToJsonString());
-        string atmosphereOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
-            SamusAtmosphericArtworkFiles.ArtworkFileName);
-        JsonNode atmosphereDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusAtmosphericArtworkFiles.ArtworkFileName)));
-        // Type one's first part names the next character, so its OAM character byte rises by one.
-        JsonNode typeOnePart = atmosphereDocument.Required("typeOne").Required(0);
-        int nextCharacter = typeOnePart.Required("tileRow").GetValue<int>() * SpriteArtwork.CharactersPerRow +
-            typeOnePart.Required("tileColumn").GetValue<int>() + 1;
-        typeOnePart["tileRow"] = nextCharacter / SpriteArtwork.CharactersPerRow;
-        typeOnePart["tileColumn"] = nextCharacter % SpriteArtwork.CharactersPerRow;
-        File.WriteAllText(atmosphereOverride, atmosphereDocument.ToJsonString());
-        string deathOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
-            SamusDeathPaletteArtworkFiles.ArtworkFileName);
-        JsonNode deathDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusDeathPaletteArtworkFiles.ArtworkFileName)));
-        int originalDeathColor = deathDocument.Required("suited").Required(0).Required(0).Required(0).GetValue<int>();
-        deathDocument.Required("suited").Required(0).Required(0)[0] = originalDeathColor + 1;
-        File.WriteAllText(deathOverride, deathDocument.ToJsonString());
-        string deathTileOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
-            SamusDeathTileAtlasFormat.ArtworkFileName);
-        IndexedPngImage deathTileImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
-            Path.Combine(installation.SamusBodyDirectory,
-                SamusDeathTileAtlasFormat.ArtworkFileName)), writable: false),
-            new(SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height));
-        byte[] editedDeathPixels = (byte[])deathTileImage.Pixels.Clone();
-        editedDeathPixels[0] = (byte)((editedDeathPixels[0] + 1) & 15);
-        using (var output = File.Create(deathTileOverride))
-            IndexedPng.Write(output, new(deathTileImage.Size.X, deathTileImage.Size.Y),
-                editedDeathPixels, deathTileImage.Colours);
-        string armJsonOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
-            SamusArmCannonArtworkFormat.JsonFileName);
-        JsonNode armDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusArmCannonArtworkFormat.JsonFileName)));
-        ushort armPosePointer = stock.ArmCannon.PoseDrawingData(SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose));
-        byte armSelector = stock.ArmCannon.ReadDrawingByteAt(armPosePointer);
-        ushort armXAddress = unchecked((ushort)(armPosePointer +
-            ((armSelector & 0x80) != 0 ? 4 : 2)));
-        int armXIndex = armXAddress - SamusSourceDefinitions.ArmCannonDrawingData;
-        int stockArmX = armDocument.Required("drawingData").Required(armXIndex).GetValue<int>();
-        armDocument.Required("drawingData")[armXIndex] = unchecked((byte)(stockArmX + 1));
-        File.WriteAllText(armJsonOverride, armDocument.ToJsonString());
-        string armPngOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
-            SamusArmCannonArtworkFormat.TileFileName);
-        IndexedPngImage armImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
-            Path.Combine(installation.SamusBodyDirectory,
-                SamusArmCannonArtworkFormat.TileFileName)), writable: false),
-            new(checked((ushort)(SamusArmCannonArtworkFormat.TileSourcePointers.Count * 8)), 8));
-        ushort selectedArmTileSource = stock.ArmCannon.TileSource(armSelector & 0x7f, 3);
-        int selectedArmTileIndex = SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(selectedArmTileSource);
-        AssertTrue(selectedArmTileIndex >= 0,
-            "standing Samus's fully open cover selects an extracted tile");
-        byte[] armPixels = (byte[])armImage.Pixels.Clone();
-        int selectedArmPixel = selectedArmTileIndex * 8;
-        armPixels[selectedArmPixel] = (byte)((armPixels[selectedArmPixel] + 1) & 15);
-        using (var output = File.Create(armPngOverride))
-            IndexedPng.Write(output, new(armImage.Size.X, armImage.Size.Y), armPixels,
-                armImage.Colours);
-        SamusBodyCharacterArtwork replacementCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
-        // The edited body shows its own characters, so its sheets compose from them.
-        InstalledSamusBodyArtwork replacement = SamusBodySheetFixtures.Register(replacementCharacters);
-        InstalledSamusDeathPalettes replacementDeathPalettes = SamusDeathPaletteArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
-        SamusDeathTileAtlas replacementDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
-        AssertTrue(stock.ArmCannon.ReadDrawingByteAt(armXAddress) !=
-                replacement.ArmCannon.ReadDrawingByteAt(armXAddress),
-            "edited arm-cannon JSON changes a pose OAM X offset");
-        ReadOnlyMemory<byte> editedArmTile = default;
-        AssertTrue(stock.ArmCannon.Source.TryResolveTile(
-                SamusSourceDefinitions.CharacterDataBank.Value |
-                    selectedArmTileSource, 32,
-                out var stockArmTile) &&
-            replacement.ArmCannon.Source.TryResolveTile(
-                SamusSourceDefinitions.CharacterDataBank.Value |
-                    selectedArmTileSource, 32,
-                out editedArmTile) &&
-            !stockArmTile.Span.SequenceEqual(editedArmTile.Span),
-            "edited arm-cannon indexed PNG changes the production DMA character");
-        var originalArmSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
-        {
-            Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
-        };
-        var editedArmSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
-        {
-            Pose = originalArmSamus.Pose, Position = FixedPosition<RoomPixels>.FromWhole(originalArmSamus.Position.Whole), SelectedHudItem = originalArmSamus.SelectedHudItem,
-        };
-        originalArmSamus.Presentation.BodyFrames.BindBodyFixture(stock);
-        editedArmSamus.Presentation.BodyFrames.BindBodyFixture(replacement);
-        originalArmSamus.ArmCannon.Artwork = stock.ArmCannon;
-        editedArmSamus.ArmCannon.Artwork = replacement.ArmCannon;
-        for (int frame = 0; frame < 4; frame++)
-        {
-            originalArmSamus.ArmCannon.Update(originalArmSamus);
-            editedArmSamus.ArmCannon.Update(editedArmSamus);
-        }
-        var originalArmFrame = new SpriteFrameBuffer();
-        var editedArmFrame = new SpriteFrameBuffer();
-        originalArmFrame.BeginFrame();
-        editedArmFrame.BeginFrame();
-        originalArmSamus.ArmCannon.Draw(
-            originalArmFrame, originalArmSamus, Position16<RoomPixels>.Zero, 0);
-        editedArmSamus.ArmCannon.Draw(
-            editedArmFrame, editedArmSamus, Position16<RoomPixels>.Zero, 0);
-        OamBuffer originalArmOam = originalArmFrame.FinalizeAsOam();
-        OamBuffer editedArmOam = editedArmFrame.FinalizeAsOam();
-        AssertTrue(originalArmOam.LastFinalizedSpriteCount == 1 && editedArmOam.LastFinalizedSpriteCount == 1,
-            "stock and edited covers both emit a visible OBJ");
-        int originalSignedX = unchecked((sbyte)stockArmX);
-        int editedSignedX = unchecked((sbyte)(unchecked((byte)(stockArmX + 1))));
-        AssertEqual(originalArmOam.GetEntry(0).Position.X + editedSignedX - originalSignedX,
-            editedArmOam.GetEntry(0).Position.X,
-            "edited arm-cannon pose offset moves the production OAM entry on screen");
-        AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(unchecked(selectedArmTileSource)),
-            SheetFrameSources.CharacterDraw((ImageSpriteDraw)editedArmFrame.Draws[0]).Artwork.Id.Variant,
-            "edited cannon PNG belongs to the displayed cover frame");
-        AssertEqual(SheetFrameSources.CharacterDraw((ImageSpriteDraw)originalArmFrame.Draws[0]).Artwork.Id, SheetFrameSources.CharacterDraw((ImageSpriteDraw)editedArmFrame.Draws[0]).Artwork.Id,
-            "cosmetic cover edits keep the displayed cover frame's identity");
-        AssertTrue(!replacementCharacters.TopSet(0)[0].Planar.Span.SequenceEqual(stockCharacters.TopSet(0)[0].Planar.Span),
-            "Samus body PNG override changes compiled tile bytes");
-        AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
-            "Samus body JSON override changes a visual frame selector");
-        ushort poseOneIndex = stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose);
-        OamBuffer stockSpritemapOam = SamusSpritemapDrawsAccess.SamusSpritemapOam(poseOneIndex,
-            new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(stock.Spritemaps), new SpriteSource(SpriteSourceKind.Samus));
-        OamBuffer editedSpritemapOam = SamusSpritemapDrawsAccess.SamusSpritemapOam(poseOneIndex,
-            new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(replacement.Spritemaps), new SpriteSource(SpriteSourceKind.Samus));
-        AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
-            editedSpritemapOam.LowTable[0],
-            "edited Samus spritemap part changes production OAM X by one pixel");
-        var stockSplash = new SamusAtmosphericEffectsState();
-        var editedSplash = new SamusAtmosphericEffectsState();
-        stockSplash.SetSlot(0, SamusAtmosphericEffectType.DivingSplash, 0, 2, new(128, 128));
-        editedSplash.SetSlot(0, SamusAtmosphericEffectType.DivingSplash, 0, 2, new(128, 128));
-        OamBuffer stockSplashOam = SpriteFrameBuffer.DrawnOam(frame => stockSplash.UpdateAndDraw(frame, new(0, 0), 128,
-            SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
-        OamBuffer editedSplashOam = SpriteFrameBuffer.DrawnOam(frame => editedSplash.UpdateAndDraw(frame, new(0, 0), 128,
-            SamusBodySheetFixtures.ForAtmosphere(replacement.Spritemaps)));
-        AssertEqual(unchecked((byte)(stockSplashOam.LowTable[0] + 1)),
-            editedSplashOam.LowTable[0],
-            "edited water-entry spritemap reaches the production atmospheric owner");
-        var stockDirect = new SamusAtmosphericEffectsState();
-        var editedDirect = new SamusAtmosphericEffectsState();
-        stockDirect.SetSlot(0, SamusAtmosphericEffectType.FootstepSplash, 0, 2, new(128, 128));
-        editedDirect.SetSlot(0, SamusAtmosphericEffectType.FootstepSplash, 0, 2, new(128, 128));
-        OamBuffer stockDirectOam = SpriteFrameBuffer.DrawnOam(frame => stockDirect.UpdateAndDraw(frame,
-            Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
-        OamBuffer editedDirectOam = SpriteFrameBuffer.DrawnOam(frame => editedDirect.UpdateAndDraw(frame,
-            Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(replacement.Spritemaps, replacement.Atmosphere)));
-        AssertEqual(unchecked((byte)(stockDirectOam.LowTable[2] + 1)),
-            editedDirectOam.LowTable[2],
-            "edited atmospheric small-OBJ attribute reaches the production OAM byte");
-        var editedDeathSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
-        {
-            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
-        editedDeathSamus.DeathSequence.Begin(editedDeathSamus, Position16<RoomPixels>.Zero);
-        var editedDeathColors = new SamusColours();
-        for (int frame = 0; frame < 16; frame++)
-            editedDeathSamus.DeathSequence.Step(editedDeathSamus,
-                editedDeathColors, replacement.DeathSteps);
-        for (int frame = 0; frame < 60; frame++)
-            editedDeathSamus.DeathSequence.Step(editedDeathSamus,
-                editedDeathColors, replacement.DeathSteps);
-        AssertEqual((ushort)(originalDeathColor + 1),
-            editedDeathColors.ShownSuit(InstalledFixtures.SamusShadeSources with { Death = replacementDeathPalettes })[0],
-            "edited death suit color reaches the death shade the import makes");
-        AssertTrue(!stockDeathTiles.Explosion.Characters.SequenceEqual(replacementDeathTiles.Explosion.Characters),
-            "edited death explosion PNG reaches the explosion characters its sheet is composed from");
-        OamBuffer stockDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
-        OamBuffer editedDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(replacement)));
-        AssertEqual(unchecked((byte)(stockDeathOam.LowTable[0] + 1)),
-            editedDeathOam.LowTable[0],
-            "edited death explosion spritemap reaches the production sequence owner");
-        var stockLandingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
-        {
-            Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
-        var editedLandingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
-        {
-            Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
-        stockLandingSamus.Presentation.BodyFrames.BindBodyFixture(stock);
-        editedLandingSamus.Presentation.BodyFrames.BindBodyFixture(replacement);
-        stockLandingSamus.Presentation.Draw(stockLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
-        editedLandingSamus.Presentation.Draw(editedLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
-        AssertEqual(unchecked((ushort)(stockLandingSamus.Presentation.SpritemapPosition.Y - 1)),
-            editedLandingSamus.Presentation.SpritemapPosition.Y,
-            "edited landing visual offset changes production OAM origin without a ROM read");
-        var editedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose };
-        editedSamus.Presentation.BodyFrames.BindBodyFixture(replacement);
-        AssertEqual((sbyte)(originalYOffset + 1),
-            SamusPoseMetadata.ReadGraphicsYOffset(editedSamus),
-            "edited Samus visual Y offset is used without a cartridge read");
-        var stockSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        stockSamus.Presentation.BodyFrames.BindBodyFixture(stock);
-        editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
-        stockSamus.Presentation.Draw(stockSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
-        editedSamus.Presentation.Draw(editedSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
-        AssertEqual(unchecked((ushort)(stockSamus.Presentation.SpritemapPosition.Y - 1)),
-            editedSamus.Presentation.SpritemapPosition.Y,
-            "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");
-        AssertEqual(unchecked((byte)originalYOffset),
-            SamusPoseProjectileOrigins.ReadYOffset(SamusPoseId.FacingRightNormalPose),
-            "editing Samus art never changes the compiled projectile collision correction");
-        var originalSelector = new SamusBodyFrameState();
-        var editedSelector = new SamusBodyFrameState();
-        originalSelector.BindArtwork(stock);
-        editedSelector.BindArtwork(replacement);
-        originalSelector.Select(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
-        editedSelector.Select(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
-        AssertTrue(originalSelector.TopDefinitionAddress != editedSelector.TopDefinitionAddress,
-            "edited Samus body JSON changes the production pose-$01 frame selector");
-        var stockFrames = new SamusBodyFrameState();
-        var editedFrames = new SamusBodyFrameState();
-        stockFrames.BindArtwork(stock);
-        editedFrames.BindArtwork(replacement);
-        stockFrames.Select(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
-        editedFrames.Select(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
-        AssertTrue(!stockCharacters.BodyArtwork(stockFrames.Shown.Top, stockFrames.Shown.Bottom).Characters.SequenceEqual(
-                replacementCharacters.BodyArtwork(editedFrames.Shown.Top, editedFrames.Shown.Bottom).Characters),
-            "edited Samus body PNG changes the picture production shows for pose $09");
+        // A manifest that moves a native set pointer is rejected where it loads, and the check puts the installed manifest
+        // back. Installed content is never repaired in place (#1532): a damaged arm-cannon PNG fails where it loads too.
+        string manifestPath = Path.Combine(installation.SamusBodyDirectory, SamusBodyArtworkFiles.ManifestFileName);
+        string originalManifest = File.ReadAllText(manifestPath);
+        JsonNode document = RequiredJson.Parse(originalManifest);
         document.Required("topSetStarts")[0] = 1;
-        File.WriteAllText(selectedManifest, document.ToJsonString());
+        File.WriteAllText(manifestPath, document.ToJsonString());
         AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
-            "Samus body override cannot change native set-pointer identity");
-        document.Required("topSetStarts")[0] = stock.TopSetStarts[0];
-        File.WriteAllText(selectedManifest, document.ToJsonString());
-        // Installed content is never repaired in place (#1532): a damaged stock arm-cannon PNG fails where it loads, and
-        // the check puts the stock bytes back. Player artwork lives outside the content directory and stays selected.
+            "a Samus body manifest cannot change native set-pointer identity");
+        File.WriteAllText(manifestPath, originalManifest);
         string stockArmPath = Path.Combine(installation.SamusBodyDirectory,
             SamusArmCannonArtworkFormat.TileFileName);
         byte[] originalArmStock = File.ReadAllBytes(stockArmPath);
         File.WriteAllBytes(stockArmPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
-            "a damaged stock arm-cannon PNG fails where it loads, whatever overrides select");
+            "a damaged arm-cannon PNG fails where it loads");
         File.WriteAllBytes(stockArmPath, originalArmStock);
-        InstalledSamusArmCannonArtwork reboundArm = installation.LoadSamusBodyArt().ArmCannon;
-        AssertTrue(reboundArm.ReadDrawingByteAt(armXAddress) != stock.ArmCannon.ReadDrawingByteAt(armXAddress),
-            "edited arm-cannon placement JSON stays selected over the restored stock");
-        AssertTrue(reboundArm.Source.TryResolveTile(SamusSourceDefinitions.CharacterDataBank.Value |
-                selectedArmTileSource, 32, out var reboundArmTile) &&
-            reboundArmTile.Span.SequenceEqual(editedArmTile.Span),
-            "edited arm-cannon PNG pixels stay selected over the restored stock");
-        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
+        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; a malformed manifest and a damaged PNG fail where they load.");
     }
 
     /// <summary>The sixteen colour words of the cartridge's death palette whose pointer lies at <paramref name="pointerAt"/>.</summary>

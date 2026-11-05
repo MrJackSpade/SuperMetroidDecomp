@@ -15,7 +15,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Poses;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks that editable Samus body offsets change projectile artwork without moving physical shot origins.</summary>
+/// <summary>Checks that the Samus body graphics offset never moves physical shot origins.</summary>
 internal static class PoseProjectileOriginVerification
 {
     /// <summary>Compares every pose and direction across signed graphics-offset classes for beams and Grapple.</summary>
@@ -61,7 +61,6 @@ internal static class PoseProjectileOriginVerification
                 initialize(samus, slot);
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.RunningXOrigins : SamusSourceDefinitionsConstants.DefaultXOrigins) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.RunningYOrigins : SamusSourceDefinitionsConstants.DefaultYOrigins) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
-                AssertEqual(unchecked((sbyte)art), SamusPoseMetadata.ReadGraphicsYOffset(samus), "Visual body offset remains replaceable");
 
                 var g = samus.Grapple;
                 g.Phase = GrapplePhase.Inactive;

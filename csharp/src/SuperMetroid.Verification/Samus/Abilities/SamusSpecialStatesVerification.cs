@@ -232,18 +232,18 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(4, crystalWindow.FixedColor.Red,
         "Crystal Flash transition selects shared fixed-color entry three");
 
-    // Editable RGB reaches black after four calls, but the native lifetime remains
+    // The stock RGB reaches black after four calls, but the native lifetime remains
     // tied to the stock color row. Compare that lifetime against the cartridge itself.
     int stockFadeSteps = ReadRetailCrystalFlashStockFadeSteps();
     for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
     {
         AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash afterglow call {hdmaCall}");
         AssertEqual(Math.Max(0, 4 - hdmaCall), crystalWindow.FixedColor.Red,
-            "custom Crystal Flash red fades without shortening native lifetime");
+            "Crystal Flash red fades without shortening native lifetime");
         AssertEqual(Math.Max(0, 3 - hdmaCall), crystalWindow.FixedColor.Green,
-            "custom Crystal Flash green fade");
+            "Crystal Flash green fade");
         AssertEqual(Math.Max(0, 2 - hdmaCall), crystalWindow.FixedColor.Blue,
-            "custom Crystal Flash blue fade");
+            "Crystal Flash blue fade");
     }
     AssertTrue(crystalWindow.StepFrame(),
         "Crystal Flash cleans up on the call after the native fade count");

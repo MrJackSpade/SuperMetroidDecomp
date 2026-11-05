@@ -45,56 +45,40 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// Reads the installed map and menu presentation (#1409): the stock files their manifest verifies and the player's
-/// overrides, compiled into the presentation catalog the game binds. Overrides never alter stock provenance or
-/// exploration rules.
+/// Reads the installed map and menu presentation (#1409), as the player may have edited it in place, compiled into the
+/// presentation catalog the game binds.
 /// </summary>
 public static class MapPresentationFiles
 {
-    /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
-    public static AreaMapPresentation Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Reads all areas atomically into a new catalog; a file that does not decode fails loudly, naming the file.</summary>
+    public static AreaMapPresentation Load(string directory)
     {
-        using var stock = VerifiedStockReader.Open(stockDirectory);
-        var mapBytes = new Dictionary<AreaId, ArraySegment<byte>>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
-            mapBytes.Add(area, stock.Read(AreaMapCatalogFormat.FileName(area)));
-        Dictionary<AreaId, HashSet<int>> stationCells = stock.ReadStationCells();
+        using var installed = InstalledMapReader.Open(directory);
+        Dictionary<AreaId, HashSet<int>> stationCells = installed.ReadStationCells();
         var areas = new IAreaMapView[AreaIds.RetailCount];
         using var identity = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            using var baselineStream = ReadOnlyStream(mapBytes[area]);
-            AreaMapPresentationAsset baseline = AreaMapPresentationFile.Read(baselineStream, new AreaMapDecodeRules(area));
-            IAreaMapView definition = new AreaMapStockRules(baseline, stationCells[area]);
-            // The identity covers baseline rule content too: equal override bytes do
-            // not imply equal exploration semantics across different stock installs.
-            AppendFramed(mapBytes[area]);
+            string file = AreaMapCatalogFormat.FileName(area);
+            ArraySegment<byte> mapBytes = installed.Read(file);
+            try
+            {
+                using var baselineStream = ReadOnlyStream(mapBytes);
+                AreaMapPresentationAsset baseline = AreaMapPresentationFile.Read(baselineStream, new AreaMapDecodeRules(area));
+                IAreaMapView definition = new AreaMapStockRules(baseline, stationCells[area]);
+                // The cells, decoded again under the exploration rules they were read to derive.
+                using var stream = ReadOnlyStream(mapBytes);
+                areas[AreaIds.ToIndex(area)] = AreaMapPresentationFile.Read(stream, definition);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid {area} map presentation ({installed.PathOf(file)}): {error.Message}", error);
+            }
+            // Hash framed contents in fixed area order, the station cells with the map they reveal.
+            AppendFramed(mapBytes);
             byte[] stationPlane = new byte[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
             foreach (int cell in stationCells[area]) stationPlane[cell] = 1;
             AppendFramed(stationPlane);
-            string? replacement = OverridePath(AreaMapCatalogFormat.FileName(area));
-            ArraySegment<byte> selected = replacement is not null ? File.ReadAllBytes(replacement) : mapBytes[area];
-            if (replacement is null)
-            {
-                // The stock cells, decoded again under the stock exploration rules they were read to derive.
-                using var stockStream = ReadOnlyStream(mapBytes[area]);
-                areas[AreaIds.ToIndex(area)] = AreaMapPresentationFile.Read(stockStream, definition);
-            }
-            else
-            {
-                try
-                {
-                    using var stream = ReadOnlyStream(selected);
-                    areas[AreaIds.ToIndex(area)] = AreaMapPresentationFile.Read(stream, definition);
-                }
-                catch (InvalidDataException error)
-                {
-                    throw new InvalidDataException($"Invalid {area} map presentation ({replacement}): {error.Message}", error);
-                }
-            }
-            // Hash framed contents in fixed area order: identity changes after a valid
-            // replacement is reloaded, without rewriting original extraction provenance.
-            AppendFramed(selected);
         }
         // Each resource below is framed into the identity in this fixed order.
         MapTileCharacters tiles = Resource(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s));
@@ -108,9 +92,9 @@ public static class MapPresentationFiles
         MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowFile.Read(s));
         MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
         WorldMapArtwork artwork = MultiFileResource<WorldMapArtwork>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
-            "world-map PNG artwork", (s, _) => WorldMapCharacters.Read(s[0], s[1]));
+            "world-map PNG artwork", s => WorldMapCharacters.Read(s[0], s[1]));
         MapSpriteCompositions sprites = MultiFileResource<MapSpriteCompositions>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile],
-            "map sprites", (s, _) => MapSpriteArtwork.Read(s[0], s[1]));
+            "map sprites", s => MapSpriteArtwork.Read(s[0], s[1]));
         MapTileCharacters pauseTiles = Resource(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s));
         PauseBackdropPresentation pauseBackdrops = Resource(PauseBackdropDefinitions.FileName, "pause backdrop", s => PauseBackdropPresentation.Load(s));
         PauseSelectorPresentation pauseSelectors = Resource(PauseSelectorFormat.FileName, "pause selectors", s => PauseSelectorSourcePresentation.Load(s));
@@ -136,22 +120,14 @@ public static class MapPresentationFiles
         CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
         TitleGraphicsPresentation titleGraphics = MultiFileResource<TitleGraphicsPresentation>(
             [TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.FloorMapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
-            "title graphics", (s, _) => TitleGraphicsCharacters.Read(s[0], s[1], s[2], s[3]));
+            "title graphics", s => TitleGraphicsCharacters.Read(s[0], s[1], s[2], s[3]));
         TitlePalettePresentation titlePalette = Resource(TitlePaletteFormat.FileName, "title palette", s => TitlePaletteFile.Read(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFile.FileName, "title gradient", s => TitleGradientFile.Read(s));
-        // Version-seventeen overrides predate the Samus-in-heat rows. Preserve
-        // their edits while inheriting only those new rows from current stock.
-        RoomPaletteFxPresentation roomPaletteFx = MigratingResource<RoomPaletteFxPresentation>(RoomPaletteFxPresentationFormat.FileName,
-            "room palette effects", (s, current) => RoomPaletteFxPresentationFile.Read(s, current), StockFingerprint.StockAndSelected);
+        RoomPaletteFxPresentation roomPaletteFx = Resource(RoomPaletteFxPresentationFormat.FileName, "room palette effects", s => RoomPaletteFxPresentationFile.Read(s));
         MotherBrainHealthPalettePresentation motherBrainHealthPalette = Resource(MotherBrainHealthPaletteFile.FileName, "Mother Brain health palette", s => MotherBrainHealthPaletteFile.Read(s));
-        // A version-two user override predates the fake-death rows. Preserve its edits
-        // and fill only that new color family from verified, current stock content.
-        MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = MigratingResource<MotherBrainRainbowPalettePresentation>(MotherBrainRainbowPaletteFile.FileName,
-            "Mother Brain rainbow palette", (s, current) => MotherBrainRainbowPaletteFile.Read(s, current), StockFingerprint.StockAndSelected);
-        MotherBrainRoomColorPresentation motherBrainRoomColors = MigratingResource<MotherBrainRoomColorPresentation>(MotherBrainRoomColorFormat.FileName,
-            "Mother Brain room colors", (s, current) => MotherBrainRoomColorFile.Read(s, current), StockFingerprint.StockAndSelected);
-        RoomFxAnimatedTileAtlas roomFxAnimatedTiles = MigratingResource<RoomFxAnimatedTileAtlas>(RoomFxAnimatedTileAtlasFile.FileName,
-            "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlasPng.Read(s, current), StockFingerprint.SelectedOnly);
+        MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = Resource(MotherBrainRainbowPaletteFile.FileName, "Mother Brain rainbow palette", s => MotherBrainRainbowPaletteFile.Read(s));
+        MotherBrainRoomColorPresentation motherBrainRoomColors = Resource(MotherBrainRoomColorFormat.FileName, "Mother Brain room colors", s => MotherBrainRoomColorFile.Read(s));
+        RoomFxAnimatedTileAtlas roomFxAnimatedTiles = Resource(RoomFxAnimatedTileAtlasFile.FileName, "room-FX presentation", s => RoomFxAnimatedTileAtlasPng.Read(s));
         RoomFxLayer3Pages roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s));
         RoomFxBlendInks roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendFile.Read(s));
         InstalledPowerBombFixedColors powerBombFixedColors = Resource(PowerBombFixedColorFile.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
@@ -161,12 +137,11 @@ public static class MapPresentationFiles
         SamusFullBodyCycleColours samusFullBodyCycleColors = Resource(SamusFullBodyCycleColorFormat.FileName, "Samus full-body cycle colors", s => SamusFullBodyCycleColorFile.Read(s).ToColours());
         InstalledCrystalFlashColors crystalFlashColors = Resource(CrystalFlashColorFile.FileName, "Crystal Flash colors", s => CrystalFlashColorFile.Read(s));
         SamusChargeColours samusChargeColors = Resource(SamusChargeColorFormat.FileName, "Samus charge colors", s => SamusChargeColorFile.Read(s).ToColours());
-        CeresRidleyColorCatalog ceresRidleyColors = MigratingResource<CeresRidleyColorCatalog>(CeresRidleyColorFormat.FileName,
-            "Ceres Ridley colors", (s, current) => CeresRidleyColorFile.Read(s, current), StockFingerprint.SelectedOnly);
+        CeresRidleyColorCatalog ceresRidleyColors = Resource(CeresRidleyColorFormat.FileName, "Ceres Ridley colors", s => CeresRidleyColorFile.Read(s));
         CeresRidleyFloorColorCatalog ceresRidleyFloorColors = Resource(CeresRidleyFloorColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
         SamusHyperBeamColours samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorFile.Read(s).ToColours());
-        stock.RequireAllManifestFilesRead();
+        installed.RequireAllManifestFilesRead();
         var catalog = new InstalledAreaMapPresentation(new AreaMapPresentationParts { Areas = areas, HiddenCells = new(MapTileWords.PauseBlank.ToCell(), MapTileWords.FileSelectUndownloadedBlank.ToCell()), ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = palettes.Backdrops(), Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitleBackdrop = titlePalette.Backdrop, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
             new InstalledPresentationSources(new MapCharacterArtwork(tiles, hudTiles, pauseTiles),
                 new GameplayMessageArtwork(gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices), roomFxLayer3Tilemaps, staffCredits,
@@ -176,48 +151,22 @@ public static class MapPresentationFiles
         return catalog;
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
-            MultiFileResource<T>([file], description, (streams, _) => compile(streams[0]));
+            MultiFileResource<T>([file], description, streams => compile(streams[0]));
 
-        T MigratingResource<T>(string file, string description, Func<Stream, T?, T> compile, StockFingerprint fingerprint) where T : class =>
-            MultiFileResource<T>([file], description, (streams, current) => compile(streams[0], current), fingerprint);
-
-        // Stock is hash-checked and compiled exactly once. An unedited resource reuses that
-        // compiled stock value; an edited one compiles its override against current stock.
-        T MultiFileResource<T>(string[] files, string description, Func<Stream[], T?, T> compile, StockFingerprint fingerprint = StockFingerprint.SelectedOnly) where T : class
+        // Each installed file is read and compiled once, as installed.
+        T MultiFileResource<T>(string[] files, string description, Func<Stream[], T> compile) where T : class
         {
-            ArraySegment<byte>[] stockBytes = files.Select(stock.Read).ToArray();
-            T stockValue = Compile(files.Select(file => Path.Combine(stockDirectory, file)).ToArray(), stockBytes, null);
-            if (fingerprint == StockFingerprint.StockAndSelected)
-                foreach (ArraySegment<byte> bytes in stockBytes) AppendFramed(bytes);
-            string?[] edited = files.Select(OverridePath).ToArray();
-            var selected = new ArraySegment<byte>[files.Length];
-            for (int index = 0; index < files.Length; index++)
+            ArraySegment<byte>[] contents = files.Select(installed.Read).ToArray();
+            foreach (ArraySegment<byte> bytes in contents) AppendFramed(bytes);
+            try
             {
-                selected[index] = edited[index] is { } path ? File.ReadAllBytes(path) : stockBytes[index];
-                AppendFramed(selected[index]);
+                return compile(contents.Select(bytes => (Stream)ReadOnlyStream(bytes)).ToArray());
             }
-            if (edited.All(path => path is null)) return stockValue;
-            return Compile(files.Select((file, index) => edited[index] ?? Path.Combine(stockDirectory, file)).ToArray(), selected, stockValue);
-
-            T Compile(string[] paths, ArraySegment<byte>[] contents, T? current)
+            catch (InvalidDataException error)
             {
-                try
-                {
-                    return compile(contents.Select(bytes => (Stream)ReadOnlyStream(bytes)).ToArray(), current);
-                }
-                catch (InvalidDataException error)
-                {
-                    // Attribute both required stock and optional edits to the actual files,
-                    // retaining the codec error instead of reporting only a directory.
-                    throw new InvalidDataException($"Invalid {description} '{string.Join("', '", paths.Select(Path.GetFullPath))}': {error.Message}", error);
-                }
+                // Attribute the failure to the actual files, retaining the codec error instead of reporting only a directory.
+                throw new InvalidDataException($"Invalid {description} '{string.Join("', '", files.Select(installed.PathOf))}': {error.Message}", error);
             }
-        }
-
-        string? OverridePath(string name)
-        {
-            string? path = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            return path is not null && File.Exists(path) ? path : null;
         }
 
         void AppendFramed(ReadOnlySpan<byte> bytes)
@@ -231,33 +180,33 @@ public static class MapPresentationFiles
 
     /// <summary>
     /// A read-only view whose buffer the JSON reader may parse in place. Compilers copy what
-    /// they keep, so pooled stock bytes are never referenced after <see cref="Load"/> returns.
+    /// they keep, so pooled installed bytes are never referenced after <see cref="Load"/> returns.
     /// </summary>
     private static MemoryStream ReadOnlyStream(ArraySegment<byte> bytes) =>
-        new(bytes.Array ?? throw new ArgumentException("A stock resource view must wrap an array.", nameof(bytes)),
+        new(bytes.Array ?? throw new ArgumentException("An installed resource view must wrap an array.", nameof(bytes)),
             bytes.Offset, bytes.Count, writable: false, publiclyVisible: true);
 
-    /// <summary>Reads stock files that must match the extraction manifest's SHA-256 values.</summary>
-    private sealed class VerifiedStockReader : IDisposable
+    /// <summary>Reads the installed files the extraction manifest lists, each as installed.</summary>
+    private sealed class InstalledMapReader : IDisposable
     {
-        /// <summary>Root of the extracted stock files subject to manifest checks.</summary>
+        /// <summary>Root of the installed map presentation files.</summary>
         private readonly string directory;
-        /// <summary>Expected digests and provenance for the stock content.</summary>
+        /// <summary>The extraction manifest, which lists every installed file the catalog reads.</summary>
         private readonly AreaMapCatalogManifest manifest;
-        /// <summary>Names actually verified during this catalog load.</summary>
+        /// <summary>Names actually read during this catalog load.</summary>
         private readonly HashSet<string> read = new(StringComparer.Ordinal);
         /// <summary>Buffers retained only for one load and returned to the shared pool on disposal.</summary>
         private readonly List<byte[]> rented = [];
 
-        /// <summary>Starts a manifest-bound read session in the extracted stock directory.</summary>
-        private VerifiedStockReader(string directory, AreaMapCatalogManifest manifest)
+        /// <summary>Starts a manifest-bound read session in the installed directory.</summary>
+        private InstalledMapReader(string directory, AreaMapCatalogManifest manifest)
         {
             this.directory = directory;
             this.manifest = manifest;
         }
 
         /// <summary>Loads and validates the manifest's version and required resource count.</summary>
-        public static VerifiedStockReader Open(string directory)
+        public static InstalledMapReader Open(string directory)
         {
             AreaMapCatalogManifest manifest;
             try
@@ -268,30 +217,28 @@ public static class MapPresentationFiles
             }
             catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
             if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + AreaMapCatalogFormat.SharedResourceCount)
-                throw new InvalidDataException($"Map catalog manifest must contain the supported version, seven maps and all {AreaMapCatalogFormat.SharedResourceCount} shared presentation resource hashes.");
-            return new VerifiedStockReader(directory, manifest);
+                throw new InvalidDataException($"Map catalog manifest must contain the supported version, seven maps and all {AreaMapCatalogFormat.SharedResourceCount} shared presentation resources.");
+            return new InstalledMapReader(directory, manifest);
         }
 
-        /// <summary>Rents a buffer, reads one listed stock file, and checks its SHA-256 digest.</summary>
+        /// <summary>The full path of an installed file, for diagnostics.</summary>
+        public string PathOf(string file) => Path.GetFullPath(Path.Combine(directory, file));
+
+        /// <summary>Rents a buffer and reads one listed installed file into it.</summary>
         public ArraySegment<byte> Read(string file)
         {
-            if (!manifest.Sha256.TryGetValue(file, out string? expected))
+            if (!manifest.Sha256.ContainsKey(file))
                 throw new InvalidDataException($"Map catalog manifest is missing {file}.");
             using var input = File.OpenRead(Path.Combine(directory, file));
             int length = checked((int)input.Length);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(length);
             rented.Add(buffer);
             input.ReadExactly(buffer.AsSpan(0, length));
-            var bytes = new ArraySegment<byte>(buffer, 0, length);
-            Span<byte> actual = stackalloc byte[SHA256.HashSizeInBytes];
-            SHA256.HashData(bytes, actual);
-            if (!string.Equals(expected, Convert.ToHexString(actual), StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock map '{Path.GetFullPath(Path.Combine(directory, file))}' failed its SHA-256 check. Put edits in the overrides directory, not stock content.");
             read.Add(file);
-            return bytes;
+            return new ArraySegment<byte>(buffer, 0, length);
         }
 
-        /// <summary>Returns every stock buffer rented during this load to the shared pool.</summary>
+        /// <summary>Returns every buffer rented during this load to the shared pool.</summary>
         public void Dispose()
         {
             foreach (byte[] buffer in rented) ArrayPool<byte>.Shared.Return(buffer);
@@ -321,12 +268,12 @@ public static class MapPresentationFiles
             return stationCells;
         }
 
-        /// <summary>Every manifest-bound stock file is verified by the load that uses it.</summary>
+        /// <summary>Every file the manifest lists is read by the load that uses it.</summary>
         public void RequireAllManifestFilesRead()
         {
             string[] unread = manifest.Sha256.Keys.Where(file => !read.Contains(file)).ToArray();
             if (unread.Length > 0)
-                throw new InvalidDataException($"Map catalog manifest lists stock files the catalog never verifies: {string.Join(", ", unread)}.");
+                throw new InvalidDataException($"Map catalog manifest lists files the catalog never reads: {string.Join(", ", unread)}.");
         }
     }
 }

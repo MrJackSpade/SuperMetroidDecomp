@@ -25,11 +25,11 @@ using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks installed file-select world and room screens, artwork overrides, and menu rebinding against native presentation.</summary>
+/// <summary>Checks installed file-select world and room screens against native presentation.</summary>
 internal static class MapScreensVerification
 {
-    /// <summary>Compares six areas' VRAM and pixels, then verifies independent JSON and PNG edits, restored menus, and strict resource validation.</summary>
-    internal static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
+    /// <summary>Compares six areas' VRAM and pixels with native output.</summary>
+    internal static void VerifyMapScreens(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         var guard = NewMapScreenGuard(bus);
         var system = new SharedGameState();
@@ -60,156 +60,11 @@ internal static class MapScreensVerification
                 AssertTrue(ScenePixels.Same(nativeRoom.BackgroundsScene(new(scroll, scroll)), installedRoom.BackgroundsScene(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, verifyCapturedRendering: true));
-        Directory.CreateDirectory(overrides);
-        string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = RequiredJson.Deserialize<MapScreenDocument>(File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)), options);
-        foreach (MapScreenPage definition in MapScreens.Pages())
-        {
-            string name = definition.Id.Name;
-            var isolated = new Dictionary<string, MapPresentationCell[]>(document.Pages);
-            isolated[name] = document.Pages[name].Select(cell => cell with { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray();
-            using (var output = File.Create(jsonPath)) MapScreenPresentation.Write(output, document with { Pages = isolated });
-            var oneEdit = MapPresentationFiles.Load(stock, overrides);
-            bool room = definition.Id is MapScreenPageId.RoomFrame;
-            AreaId area = definition.Id switch
-            {
-                MapScreenPageId.WorldForeground => AreaId.Crateria,
-                MapScreenPageId.WorldBackground background => background.Area,
-                MapScreenPageId.RoomFrame frame => frame.Area,
-                _ => throw new InvalidOperationException($"Undefined map-screen page {name}."),
-            };
-            LayeredScene before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original)).FrameOnlyScene()
-                : World(guard, original, (int)area).BackgroundsScene();
-            LayeredScene after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit, sheets: MenuSheetFixtures.ForFileSelectMap(oneEdit)).FrameOnlyScene()
-                : World(guard, oneEdit, (int)area).BackgroundsScene();
-            AssertTrue(!ScenePixels.Same(before, after), $"independent {name} JSON edit reaches its composed pixels");
-        }
-        var pages = document.Pages.ToDictionary(pair => pair.Key, pair => pair.Value.Select(cell => cell with
-        { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray());
-        using (var output = File.Create(jsonPath)) MapScreenPresentation.Write(output, document with { Pages = pages });
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity, "screen JSON changes catalog identity");
-        var worldBefore = World(guard, original, (int)AreaId.Maridia);
-        var worldAfter = World(guard, edited, (int)AreaId.Maridia);
-        AssertTrue(!ScenePixels.Same(worldBefore.BackgroundsScene(), worldAfter.BackgroundsScene()), "JSON world layer edits change composed pixels");
-        var roomBefore = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-        var roomAfter = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: edited, sheets: MenuSheetFixtures.ForFileSelectMap(edited));
-        AssertTrue(!ScenePixels.Same(roomBefore.FrameOnlyScene(), roomAfter.FrameOnlyScene()), "JSON room frame edits change transition pixels");
-        using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, worldAfter); captured.Position = 0;
-        worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
-        worldAfter.BindFixtureArtwork(original);
-        AssertTrue(ScenePixels.Same(worldBefore.BackgroundsScene(), worldAfter.BackgroundsScene()), "restored world replaces stale edited page without changing selected area");
-        Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(original, edited));
-        // Test each PNG independently: a combined edit must not mask a disconnected resource.
-        File.WriteAllBytes(jsonPath, File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)));
-        foreach (var atlas in new[]
-        {
-            new VerifyMapScreensCase(WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16),
-            new VerifyMapScreensCase(WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4)
-        })
-        {
-            string path = Path.Combine(overrides, atlas.First);
-            IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(stock, atlas.First))) image = IndexedPng.Read(input, new(WorldMapArtworkFormat.Width, checked((ushort)atlas.Second)));
-            for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % atlas.Third);
-            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            var artEdit = MapPresentationFiles.Load(stock, overrides);
-            AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
-            var changedWorld = World(guard, artEdit, (int)AreaId.Maridia);
-            AssertTrue(!ScenePixels.Same(worldBefore.BackgroundsScene(), changedWorld.BackgroundsScene()), "each world PNG edit reaches composed world pixels independently");
-            changedWorld.BindFixtureArtwork(original);
-            AssertTrue(ScenePixels.Same(worldBefore.BackgroundsScene(), changedWorld.BackgroundsScene()), "world artwork rebind restores exact stock pixels");
-            File.WriteAllText(path, "invalid PNG");
-            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
-            using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
-            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "wrong world PNG dimensions rejected");
-            image.Pixels[0] = (byte)atlas.Third;
-            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Third + 1));
-            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "world PNG index outside native depth rejected");
-            File.WriteAllBytes(path, File.ReadAllBytes(Path.Combine(stock, atlas.First)));
-        }
-        // Preserve the original bytes around invalid-resource tests; all paths are
-        // this fixture's isolated generated stock, never an installed player's files.
-        foreach (string name in new[] { MapScreenDefinitions.FileName, WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile })
-        {
-            string path = Path.Combine(stock, name);
-            byte[] bytes = File.ReadAllBytes(path);
-            try
-            {
-                File.WriteAllText(path, "corrupt stock");
-                AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "stock resource hash failure remains visible with override present");
-                File.Delete(path);
-                AssertThrows<FileNotFoundException>(() => MapPresentationFiles.Load(stock, overrides), "missing stock screen resource remains visible with override present");
-            }
-            finally { File.WriteAllBytes(path, bytes); }
-        }
-        var invalidPages = new Dictionary<string, MapPresentationCell[]>(document.Pages);
-        invalidPages.Remove(MapScreenDefinitions.WorldForeground.Name);
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            MapScreenPresentation.Write(written, document with { Pages = invalidPages });
-            _ = MapScreenPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "missing named screen page rejected on read");
-        invalidPages = new(document.Pages);
-        invalidPages[MapScreenDefinitions.WorldForeground.Name] = [];
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            MapScreenPresentation.Write(written, document with { Pages = invalidPages });
-            _ = MapScreenPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "wrong page dimensions rejected on read");
-        invalidPages[MapScreenDefinitions.WorldForeground.Name] = document.Pages[MapScreenDefinitions.WorldForeground.Name].ToArray();
-        invalidPages[MapScreenDefinitions.WorldForeground.Name][0] = invalidPages[MapScreenDefinitions.WorldForeground.Name][0] with { TileRow = 999 };
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            MapScreenPresentation.Write(written, document with { Pages = invalidPages });
-            _ = MapScreenPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "out of atlas reference rejected on read");
-        File.WriteAllText(jsonPath, "broken JSON");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt screen override fails loudly");
-        AssertEqual("broken JSON", File.ReadAllText(jsonPath), "invalid screen override never overwritten");
-        Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
+        Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons and the guarded full menu pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentation catalog, int area) =>
             new(area, catalog.Backdrops,
                 catalog.WorldArtwork, MenuSheetFixtures.ForFileSelectMap(catalog));
-    }
-
-    /// <summary>Runs file-select transition and load phases with edited screens, then restores and rebinds the menu to stock art.</summary>
-    private static void VerifyScreenMenuRebinding(AreaMapPresentation original, AreaMapPresentation edited)
-    {
-        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var data = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
-        data.Progress.SetAreaMap(AreaId.Maridia, acquired: true);
-        data.Progress.UsedStations(AreaId.Maridia).Add(0);
-        saves.SaveSlot(0, data);
-        var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
-        var changed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, edited, MenuSheetFixtures.ForFileSelectMap(edited));
-        for (int tick = 0; tick < 104; tick++)
-        {
-            ControllerButton input = tick == 48 ? ControllerButton.Start : 0;
-            control.Step(input); changed.Step(input);
-            AssertEqual(control.Phase, changed.Phase, "layout replacement never changes menu transition timing");
-        }
-        AssertTrue(!ScenePixels.Same(control.CaptureRenderSnapshot(), changed.CaptureRenderSnapshot()), "normal installed menu displays edited room frame");
-        using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, changed); state.Position = 0;
-        changed = DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
-        changed.BindFixtureArtwork(original);
-        AssertTrue(ScenePixels.Same(control.CaptureRenderSnapshot(), changed.CaptureRenderSnapshot()), "whole restored menu rebinds current frame pixels");
-        for (int tick = 0; tick < 80; tick++)
-        {
-            ControllerButton input = tick == 0 ? ControllerButton.Start : 0;
-            control.Step(input); changed.Step(input);
-            AssertEqual(control.Phase, changed.Phase, "restored menu retains load phase");
-            AssertEqual(control.LoadRequested, changed.LoadRequested, "restored menu retains load handoff timing");
-            AssertTrue(ScenePixels.Same(control.CaptureRenderSnapshot(), changed.CaptureRenderSnapshot()), "restored menu retains exact load fade pixels");
-        }
-        AssertTrue(changed.LoadRequested, "screen fixture reaches load handoff");
-        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).Progression.HasAreaMap(AreaId.Maridia), "screen edits preserve saved map progression");
     }
 
     /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>

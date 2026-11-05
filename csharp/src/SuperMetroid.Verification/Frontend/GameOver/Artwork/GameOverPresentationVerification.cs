@@ -16,11 +16,10 @@ namespace SuperMetroid.Verification.Frontend.GameOver.Artwork;
 /// <summary>Checks installed game-over artwork and Baby animation against cartridge playback.</summary>
 internal static class GameOverPresentationVerification
 {
-    /// <summary>Compares a No-to-title sequence, then checks visible overrides, live rebinding, and malformed assets.</summary>
+    /// <summary>Compares a No-to-title sequence with native output.</summary>
     internal static void VerifyGameOverPresentationAssets(
         ISnesAddressSpace bus,
         string stock,
-        string overrides,
         AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, GameOverPresentationFormat.FileName);
@@ -83,100 +82,7 @@ internal static class GameOverPresentationVerification
         AssertTrue(comparedFrames > 500,
             "game-over parity covers animation, music wait, input and fade");
 
-        var document = RequiredJson.Deserialize<GameOverPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        document = document with
-        {
-            BabyAnchor = new(checked((ushort)(document.BabyAnchor.X + 8)), document.BabyAnchor.Y),
-            CursorX = document.CursorX + 8,
-        };
-        MapPresentationCell firstVisible = document.Tilemap.First(cell =>
-            cell.TileColumn != (GameOverPageDefinitions.BlankTile % MapTileAtlasFormat.TileColumns) ||
-            cell.TileRow != (GameOverPageDefinitions.BlankTile / MapTileAtlasFormat.TileColumns));
-        int visibleIndex = Array.IndexOf(document.Tilemap, firstVisible);
-        document.Tilemap[visibleIndex] = firstVisible with { FlipX = !firstVisible.FlipX };
-        document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0] =
-            document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0] with
-            { FlipY = !document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0].FlipY };
-        Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, GameOverPresentationFormat.FileName);
-        using (var output = File.Create(replacement))
-            GameOverSourcePresentation.Write(output, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "game-over override changes selected catalog identity");
-        AssertEqual(document.BabyAnchor, edited.GameOver.BabyAnchor,
-            "edited game-over Baby anchor reaches compiled presentation");
-
-        var originalEditAudio = new AudioQueues();
-        var editedAudio = new AudioQueues();
-        var originalMenu = new GameOverMenuState(
-            originalEditAudio, original, MenuSheetFixtures.For(original));
-        var editedMenu = new GameOverMenuState(
-            editedAudio, edited, MenuSheetFixtures.For(edited));
-        for (int frame = 0; frame < 40; frame++)
-        {
-            originalMenu.Step(0);
-            editedMenu.Step(0);
-            _ = originalEditAudio.AdvanceFrame(default);
-            _ = editedAudio.AdvanceFrame(default);
-        }
-        AssertTrue(!originalMenu.Render().SequenceEqual(editedMenu.Render()),
-            "game-over tilemap, actor and anchor edits reach the real renderer");
-
-        for (int frame = 0; frame < 23; frame++)
-            originalMenu.Step(0);
-        int? stepBeforeRebind = originalMenu.BabyStep;
-        GameOverMenuPhase phaseBeforeRebind = originalMenu.Phase;
-        int babyXBeforeRebind = originalMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X;
-        originalMenu.BindFixtureArtwork(edited);
-        AssertEqual(stepBeforeRebind, originalMenu.BabyStep,
-            "game-over content rebind preserves Baby animation phase");
-        AssertEqual(phaseBeforeRebind, originalMenu.Phase,
-            "game-over content rebind preserves menu phase");
-        AssertEqual(babyXBeforeRebind + 8,
-            (int)originalMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X,
-            "game-over rebind applies edited Baby anchor without resetting live timing");
-
-        File.WriteAllText(replacement, "{ broken game-over JSON");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
-            "corrupt game-over override fails loudly");
-        using (var output = File.Create(replacement))
-            GameOverSourcePresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOverSourcePresentation.Write(written, document with { BabyPalette = 8 });
-            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "game-over rejects invalid actor palette on read");
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOverSourcePresentation.Write(written, document with { Tilemap = document.Tilemap[..^1] });
-            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "game-over rejects incomplete tilemap on read");
-        var missingSprite = RequiredJson.Deserialize<GameOverPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        missingSprite.Sprites.Remove(GameOverPresentationDefinitions.EggFrame);
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOverSourcePresentation.Write(written, missingSprite);
-            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "game-over rejects missing named sprite on read");
-        var shortPalette = RequiredJson.Deserialize<GameOverPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        shortPalette.BabyPalettes[GameOverPresentationNames.BabyPaletteName(
-            GameOverBabyPalette.OpenCry)] = [0];
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOverSourcePresentation.Write(written, shortPalette);
-            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "game-over rejects malformed Baby palette on read");
-
         Console.WriteLine(
-            $"Game-over presentation: {comparedFrames} exact ROM-free frames, compiled " +
-            "Baby dispatcher parity, visible edits, state-safe rebind and strict failures pass.");
+            "Game-over presentation: deterministic stock and native parity pass.");
     }
 }

@@ -473,9 +473,6 @@ Asset operations share the DebugRunner developer executable under the `assets` s
 ```powershell
 dotnet run --project src/SuperMetroid.DebugRunner -- assets ../standalone-assets/raw ../standalone-assets/png
 dotnet run --project src/SuperMetroid.DebugRunner -- assets audio ../standalone-assets/raw ../standalone-assets/audio
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-override-init "$env:LOCALAPPDATA\SuperMetroid"
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid" music-0f-track-05 brinstar.wav 2563200
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid" sfx-1-0b power-beam.wav none
 dotnet run --project src/SuperMetroid.DebugRunner -- assets room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
 ```
 
@@ -484,22 +481,9 @@ upload streams, audio metadata, and canonical decoded PCM WAVs. Installation the
 song and every sound effect, in every bank context, into finished 16-bit stereo clips at the
 native 32,040 Hz (`game/audio/clips`, listed in `audio-clips.json`); the game plays those clips.
 
-Audio is modded by replacing finished clips. Initialize `overrides/audio` once with
-`audio-override-init`, then install each replacement with `audio-replace`, naming the clip by its
-stable identity: `music-{data index}-track-{nn}` for a song (the data index in hexadecimal, as
-the extracted catalog names tracks) or `sfx-{library}-{command}` for a sound effect (the command
-in hexadecimal; it replaces the sound in every bank context). A replacement must be an
-uncompressed 16-bit stereo WAV at 32,040 Hz. The optional last argument is the frame a song loops
-back to, or `none` to play it once; a sound that never ends on the cartridge needs a loop, and a
-one-shot sound cannot have one. Each edit is validated against the stock clips before it replaces
-the override, so a rejected edit leaves the previous override in place.
-
-Startup validates the immutable `game/audio` clips first and the override second; corrupt stock
-or user content fails loudly instead of silently choosing the other copy. The override sits
-outside the replaceable `game/` directory, survives stock repair and application updates, and is
-selected by both Windows and Android after restart. Initialization refuses to overwrite an
-existing override directory. Instrument, sample and sequence edits are not overrides: they are
-stock-content diagnostics in `game/audio` and are replaced by repair.
+Audio is modded by editing the installed clips in `game/audio` in place: each is an uncompressed
+16-bit stereo WAV at 32,040 Hz, and `audio-clips.json` records each clip's frame count and the frame a
+song loops back to. Running the extractor again restores the originals.
 
 Room tileset palettes are edited in place in `game/room-palettes`; running the extractor again restores the
 originals. Files are named for the artwork, not its cartridge location: a palette is
@@ -544,9 +528,8 @@ reveals and copyright from `title`, the intro's cinematic actors and caret from 
 revealed, `zebes-reveal-sprites`, and the ending's actors from a sheet for each of its scenes:
 `ending-cloud-sprites`, `ending-explosion-sprites`, `ending-suited-reward-sprites` or
 `ending-suitless-reward-sprites`, then `ending-shooting-sprites`, which also holds the logo the shooting scene ends
-on. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
-anchors and digit spacing; a layout written for the earlier version, which also held the frames and
-palette, is rejected until it is rewritten.
+on. The escape countdown's layout, `escape-timer.json` in `game/maps`, holds only the anchors and
+digit spacing.
 
 Room blocks are drawn from pre-coloured block sheets in `game/room-block-sheets`, one for each tileset
 (`{blocks}.{characters}.{palette}`, for example `Norfair.Norfair.HeatedNorfair`), in the same three files as a sprite

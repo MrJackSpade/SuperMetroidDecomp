@@ -187,73 +187,31 @@ internal static class IntroNarrationPresentationVerification
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
     };
 
-    /// <summary>Checks deterministic stock JSON, installed text overrides, identity changes, and corrupt-override failure.</summary>
+    /// <summary>Checks that the installed opening narration is the deterministic cartridge extraction.</summary>
     internal static void VerifyIntroNarrationAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroNarrationFile.FileName))),
             "installed opening narration is the deterministic cartridge extraction");
 
-        Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
-        document.Required("pages").Required(IntroNarrationPageId.Page1.ToString()).Required("lines").Required(0)["text"] =
-            "TEST";
-        string replacement = Path.Combine(
-            overrideDirectory, IntroNarrationFile.FileName);
-        File.WriteAllText(replacement,
-            document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertEqual('T', edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Character,
-            "catalog override changes installed opening narration");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "opening-narration override changes catalog content identity");
-
-        File.WriteAllText(replacement, "{ broken opening narration");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt opening-narration override fails loudly");
         Console.WriteLine(
-            "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
+            "Opening-narration catalog: deterministic stock passes.");
     }
 
-    /// <summary>Checks deterministic stock PNG bytes, edited installed VRAM bytes, identity changes, and corrupt-PNG rejection.</summary>
+    /// <summary>Checks that the installed opening font is the deterministic cartridge extraction.</summary>
     internal static void VerifyIntroFontAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroFontCharacters.FileName))),
             "installed opening font is the deterministic cartridge extraction");
-        IndexedPngImage image = IndexedPng.Read(
-            new MemoryStream(deterministic, writable: false),
-            new(IntroFontCharacters.Width, IntroFontCharacters.Height));
-        image.Pixels[0] ^= 1;
-        Directory.CreateDirectory(overrideDirectory);
-        string replacement = Path.Combine(overrideDirectory, IntroFontCharacters.FileName);
-        using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertTrue(!IntroFontCharacters.Of(edited.IntroFont).Characters.Span.SequenceEqual(
-            IntroFontCharacters.Of(stockCatalog.IntroFont).Characters.Span),
-            "opening-font override changes installed VRAM bytes");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "opening-font override changes catalog content identity");
-        File.WriteAllText(replacement, "not a PNG");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt opening-font override fails loudly");
         Console.WriteLine(
-            "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
+            "Opening-font catalog: deterministic stock passes.");
     }
 
     /// <summary>Rejects cartridge text reads from the English narration's bank-$8C source ranges.</summary>

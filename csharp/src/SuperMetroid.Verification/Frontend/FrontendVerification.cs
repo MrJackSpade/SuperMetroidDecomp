@@ -126,13 +126,13 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     progress.SetAreaMap(AreaId.Crateria, acquired: true);
 
     var addressSpace = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    using var overrideRootScratch = new TestScratchDirectory("file-select-label-fixture");
-    string overrideRoot = overrideRootScratch.Root;
-    Directory.CreateDirectory(overrideRoot);
-    File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationFormat.FileName),
+    // The synthetic cartridge's file-select presentation is written over a scratch copy of the installed map presentation.
+    using var mapScratch = new TestScratchDirectory("file-select-label-fixture");
+    string mapDirectory = mapScratch.Root;
+    PrivateInstallationCopy.CopyInstallation(RepositoryInstallation.Installation.MapDirectory, mapDirectory);
+    File.WriteAllBytes(Path.Combine(mapDirectory, FileSelectPresentationFormat.FileName),
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
-    var fixturePresentation = MapPresentationFiles.Load(
-        RepositoryInstallation.Installation.MapDirectory, overrideRoot);
+    var fixturePresentation = MapPresentationFiles.Load(mapDirectory);
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap(fixturePresentation);

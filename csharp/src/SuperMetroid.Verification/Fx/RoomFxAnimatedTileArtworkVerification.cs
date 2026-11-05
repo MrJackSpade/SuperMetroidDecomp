@@ -11,7 +11,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Fx;
 
-/// <summary>Retail and override checks for room-FX, treadmill, and Tourian statue animated-tile PNG frames.</summary>
+/// <summary>Retail checks for room-FX, treadmill, and Tourian statue animated-tile PNG frames.</summary>
 internal static class RoomFxAnimatedTileArtworkVerification
 {
     /// <summary>Checks retail room-FX frames through both transfer owners, installed edits, and older atlas-width imports.</summary>
@@ -94,132 +94,6 @@ internal static class RoomFxAnimatedTileArtworkVerification
         AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes, each shown on its update.");
-    }
-
-    /// <summary>Checks that installed animated-tile overrides change the intended VRAM frames without changing mechanics.</summary>
-    internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
-        string stock, string overrides, AreaMapPresentation baseline)
-    {
-        string file = Path.Combine(overrides, RoomFxAnimatedTileAtlasFile.FileName);
-        byte[] source = File.ReadAllBytes(Path.Combine(stock, RoomFxAnimatedTileAtlasFile.FileName));
-        IndexedPngImage image = IndexedPng.Read(new MemoryStream(source),
-            new(RoomFxAnimatedTileAtlasFile.Width, RoomFxAnimatedTileAtlasFile.Height));
-        byte[] editedPixels = image.Pixels.ToArray();
-        editedPixels[0] = (byte)((editedPixels[0] + 1) % RoomFxAnimatedTileAtlasFile.ColorCount);
-        editedPixels[RoomFxAnimatedTileAtlasFile.LegacyWidth] = (byte)(
-            (editedPixels[RoomFxAnimatedTileAtlasFile.LegacyWidth] + 1) %
-            RoomFxAnimatedTileAtlasFile.ColorCount);
-        editedPixels[RoomFxAnimatedTileAtlasFile.PreStatueWidth] = (byte)(
-            (editedPixels[RoomFxAnimatedTileAtlasFile.PreStatueWidth] + 1) %
-            RoomFxAnimatedTileAtlasFile.ColorCount);
-        using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), editedPixels,
-                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFile.ColorCount));
-        AreaMapPresentation changed = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(changed.ContentIdentity != baseline.ContentIdentity,
-            "room-FX PNG edit changes installed content identity");
-        int sourceAddress = AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0));
-        AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
-            out ReadOnlyMemory<byte> edited), "edited room-FX atlas resolves first frame");
-        AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
-            out ReadOnlyMemory<byte> original), "stock room-FX atlas resolves first frame");
-        AssertTrue(!edited.Span.SequenceEqual(original.Span),
-            "edited room-FX PNG changes the selected frame bytes");
-        var state = new RoomFxAnimatedTilesState();
-        var frames = new ArtworkFrameSelections();
-        var guarded = NewRoomFxArtworkForbiddenBus(rom);
-        state.LoadDefinition(AnimatedTileObject.MaridiaSandCeiling);
-        state.Step(frames);
-        AssertTrue(frames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.MaridiaSandCeiling), out ArtworkFrame shownSand) &&
-                shownSand == AnimatedTileFrames.Frame(AnimatedTileObject.MaridiaSandCeiling, 0),
-            "the edited first frame is the frame the sand ceiling shows");
-        AssertEqual(0, guarded.ForbiddenReadAttempts, "edited room-FX animation remains ROM-free");
-        int treadmillSource = AnimatedTileImageSources.Treadmill(0);
-        AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(treadmillSource,
-                RoomFxAnimatedTileLoops.TreadmillFrameByteCount,
-                out ReadOnlyMemory<byte> editedTreadmill),
-            "edited room-FX atlas resolves the Wrecked Ship treadmill frame");
-        AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(treadmillSource,
-                RoomFxAnimatedTileLoops.TreadmillFrameByteCount,
-                out ReadOnlyMemory<byte> stockTreadmill),
-            "stock room-FX atlas resolves the Wrecked Ship treadmill frame");
-        AssertTrue(!editedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
-            "edited treadmill pixels compile to a distinct installed NMI frame");
-        var treadmill = new WreckedShipTreadmillAnimatedTilesState();
-        var treadmillFrames = new ArtworkFrameSelections();
-        treadmill.Start(WreckedShipTreadmillDirection.Rightwards);
-        treadmill.Step(areaBossDefeated: true, treadmillFrames);
-        AnimatedTileObject rightwards = WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards).AnimatedObject;
-        AssertTrue(treadmillFrames.TryShown(AnimatedTileFrames.Of(rightwards), out ArtworkFrame shownTreadmill) &&
-                shownTreadmill == AnimatedTileFrames.Frame(rightwards, 0),
-            "the edited first frame is the frame the treadmill shows");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "edited treadmill animation remains ROM-free");
-        int statueSource = AnimatedTileImageSources.TourianStatueStripStart;
-        AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
-                out ReadOnlyMemory<byte> stockStatue),
-            "stock Tourian statue frame is installed");
-        AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
-                out ReadOnlyMemory<byte> editedStatue) &&
-            !editedStatue.Span.SequenceEqual(stockStatue.Span),
-            "edited Tourian statue pixels compile to a distinct installed frame");
-        File.Delete(file);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
-            "removing room-FX override restores stock identity");
-
-        // The immediately preceding 97-character format keeps its edits and
-        // inherits only the newly added Tourian statue strip from current stock.
-        byte[] preStatuePixels = new byte[
-            RoomFxAnimatedTileAtlasFile.PreStatueWidth * RoomFxAnimatedTileAtlasFile.Height];
-        for (int row = 0; row < RoomFxAnimatedTileAtlasFile.Height; row++)
-            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.Width,
-                    RoomFxAnimatedTileAtlasFile.PreStatueWidth)
-                .CopyTo(preStatuePixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.PreStatueWidth,
-                    RoomFxAnimatedTileAtlasFile.PreStatueWidth));
-        preStatuePixels[0] = (byte)((preStatuePixels[0] + 1) %
-            RoomFxAnimatedTileAtlasFile.ColorCount);
-        using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFile.PreStatueWidth, RoomFxAnimatedTileAtlasFile.Height), preStatuePixels,
-                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFile.ColorCount));
-        AreaMapPresentation migratedPreStatue =
-            MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(migratedPreStatue.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
-                out ReadOnlyMemory<byte> migratedPreStatueSimple) &&
-            !migratedPreStatueSimple.Span.SequenceEqual(original.Span),
-            "pre-statue override retains its edited room-FX pixels");
-        AssertTrue(migratedPreStatue.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
-                out ReadOnlyMemory<byte> migratedStatue) &&
-            migratedStatue.Span.SequenceEqual(stockStatue.Span),
-            "pre-statue override inherits checked stock statue pixels");
-        File.Delete(file);
-
-        // A pre-treadmill 89-character override must keep its original edits after an
-        // update, with only the newly added four frames inherited from checked stock.
-        byte[] legacyPixels = new byte[
-            RoomFxAnimatedTileAtlasFile.LegacyWidth * RoomFxAnimatedTileAtlasFile.Height];
-        for (int row = 0; row < RoomFxAnimatedTileAtlasFile.Height; row++)
-            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.Width,
-                    RoomFxAnimatedTileAtlasFile.LegacyWidth)
-                .CopyTo(legacyPixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.LegacyWidth,
-                    RoomFxAnimatedTileAtlasFile.LegacyWidth));
-        legacyPixels[0] = (byte)((legacyPixels[0] + 1) %
-            RoomFxAnimatedTileAtlasFile.ColorCount);
-        using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFile.LegacyWidth, RoomFxAnimatedTileAtlasFile.Height), legacyPixels,
-                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFile.ColorCount));
-        AreaMapPresentation migrated = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
-                out ReadOnlyMemory<byte> migratedSimple) &&
-            !migratedSimple.Span.SequenceEqual(original.Span),
-            "old-size room-FX override retains its edited liquid/sand pixels");
-        AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(treadmillSource,
-                RoomFxAnimatedTileLoops.TreadmillFrameByteCount,
-                out ReadOnlyMemory<byte> migratedTreadmill) &&
-            migratedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
-            "old-size room-FX override receives only new treadmill frames from stock");
-        File.Delete(file);
-        Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
     /// <summary>Wraps the runtime bus so installed animated-tile transfers cannot reread any bank-$87 artwork.</summary>

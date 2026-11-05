@@ -81,13 +81,13 @@ public static class SpriteSheetFiles
             Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName)));
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<AreaMapPresentation>(() => MapPresentationFiles.Load(
-            Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
+            Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
         // The intro sheet is named from the stock intro compositions installed beside it.
         var intro = new Lazy<IntroCinematicArtwork>(() => IntroCinematicArtworkFiles.Load(
-            Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
+            Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName)));
         // The ending sheets are named from the stock ending compositions installed beside them.
         var ending = new Lazy<EndingObjectArtwork>(() => EndingObjectArtworkFiles.Load(
-            Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
+            Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName)));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileNames[sheet]);

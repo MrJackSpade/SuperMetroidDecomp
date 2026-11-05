@@ -90,41 +90,18 @@ internal static class EscapeTypewriterPresentationVerification
             $"Escape typewriter: Ceres/Zebes extraction and {comparedFrames} stock frames match with installed ROM reads forbidden; UTF-8 edits, active rebind and strict glyph validation pass.");
     }
 
-    /// <summary>Checks deterministic stock extraction and that a catalog override changes rendered text and content identity.</summary>
+    /// <summary>Checks that the installed escape typewriter is the deterministic cartridge extraction.</summary>
     internal static void VerifyEscapeTypewriterAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EscapeTypewriterDocumentDefinitions.FileName))),
             "installed escape typewriter is the deterministic cartridge extraction");
 
-        Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
-        document.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).Required("lines").Required(0)["text"] =
-            "TEST!";
-        string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDocumentDefinitions.FileName);
-        File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        var state = new EscapeTypewriterState(
-            edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes));
-        var vram = new SnesVram();
-        state.StepInto(vram);
-        state.StepInto(vram);
-        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
-            vram.ReadWord(0x106), "catalog override changes installed escape text");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "escape text override changes catalog content identity");
-
-        File.WriteAllText(replacement, "{ broken escape text");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt escape text override fails loudly");
         Console.WriteLine(
-            "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");
+            "Escape typewriter catalog: deterministic stock passes.");
     }
 
     /// <summary>Runs the focused escape typewriter comparison against the repository ROM.</summary>

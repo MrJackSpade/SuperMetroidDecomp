@@ -71,7 +71,7 @@ Within either platform's application-data root:
   optional only while all extracted assets remain complete and valid.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/maps/gameplay-hud.json`: editable HUD tilemap and icons, including the
-  32-cell immutable BG3 top row. Copy to `overrides/maps/` to preserve edits.
+  32-cell immutable BG3 top row.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/samus-body/`: 24 indexed Samus upper/lower-body PNG atlases and editable
   pose/frame/transfer-definition JSON.
@@ -84,8 +84,8 @@ Within either platform's application-data root:
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/gameplay-palettes/gameplay-base-palettes.json`: the 256-color initial CGRAM
-  image and 16 common sprite colors restored on room entry. Copy the JSON to
-  `overrides/gameplay-palettes/` to edit it without altering stock content.
+  image and 16 common sprite colors restored on room entry. Edit it in place; running the extractor again
+  restores the original.
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
   gameplay sprite sheet, edited in place.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest, which the block sheets are
@@ -126,19 +126,13 @@ copy, leaving the active file and all other saved data untouched.
 Room and gameplay base palettes, map palettes and highlight cycles, title/opening/Ceres
 palettes, ending palettes, Mother Brain colors, and room palette effects reject unknown
 fields and duplicate names at every object level. This includes repeated world-map
-selections and RGB components. An invalid override reports an error; it is not silently
+selections and RGB components. An invalid file reports an error; it is not silently
 accepted with a field ignored or overwritten.
 
 Room static and gameplay base palettes retain their historical case-insensitive field
 names, but two spellings of the same field in one object are ambiguous and rejected.
 The other listed formats retain their case-sensitive names. RGB5 components must all
 be present and range from 0 to 31; keep the documented row and palette sizes.
-
-Supported older overrides still inherit only newer color families from validated stock:
-version 17 room effects inherit Samus heat colors, version 1/2 Mother Brain room colors
-inherit their missing room-entry/recovery families, and version 2 Mother Brain rainbow
-colors inherit the fake-death fade. Existing edited families remain selected. These
-migrations require current installed stock, not a runtime cartridge reader.
 
 ## Room and cinematic JSON validation
 
@@ -178,9 +172,9 @@ dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release 
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import-rom
 # Check room-character, palette and visual-block stock import.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
-# Check all opening character PNGs, live VRAM replacement, and stock repair.
+# Check all opening character PNGs against the cartridge.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-cinematic-artwork "C:\ROMs\Super Metroid.smc"
-# Constructed palette JSON contracts, supported legacy overrides and exact BG/OBJ pixels; no retail ROM needed.
+# Constructed palette JSON contracts and exact BG/OBJ pixels; no retail ROM needed.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --palette-json-contracts
 # Constructed room/environment/intro tile-word and malformed-document checks; no ROM needed.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --tilemap-json-contracts
@@ -234,41 +228,39 @@ originals. These files do not change pose timing, movement, collision, or
 equipment. The same installed artwork is used by normal gameplay, attract demos,
 and the opening flashbacks.
 
-## Opening-cinematic character PNG overrides
+## Opening-cinematic character PNGs
 
 The opening cinematic installs three indexed 4-bpp sheets under `game/intro-cinematic/`:
 `intro-background-characters.png` (256x256), `intro-object-characters.png` (256x64),
-and `intro-cinematic-object-characters.png` (256x72). Copy any sheet to the same filename
-under `overrides/intro-cinematic/` and edit its pixel indexes (0 through 15). The
+and `intro-cinematic-object-characters.png` (256x72). Edit a sheet's pixel indexes (0 through 15)
+in place. The
 two object sheets follow cartridge upload order; the cinematic sheet overwrites the
 last 1 KiB of the fixed intro sheet in VRAM. Restart to select edits; loading a
 debugger state rebinds the current sheets. Palette colors, scene tilemaps, sprite
-compositions, scrolling, and timing are not changed by these PNGs. Stock files and
-`intro-artwork.json` are validated and repaired from the installed ROM; overrides
-survive repair and application updates. Invalid overrides fail with their paths
-instead of silently falling back.
+compositions, scrolling, and timing are not changed by these PNGs. An invalid file fails
+with its path; running the extractor again restores the originals.
 
 The same directory also contains `intro-background-page-0.json` through
 `intro-background-page-3.json`. Each file describes one ordered 32x32 BG tilemap page
-with tile column/row, palette, priority and flip fields. Copy an individual page
-under `overrides/intro-cinematic/` to edit its placement without changing character
+with tile column/row, palette, priority and flip fields. Edit a page in place to change
+its placement without changing character
 pixels or scene timing. These pages are reloaded after debugger-state restoration.
 `intro-portrait-tilemap.json` and `intro-initial-narration-tilemap.json` use the same
 32x32 schema. The initial narration page applies only before the first illustrated
 page begins; restoring a later debugger state preserves its live typewriter text.
 `intro-narration-palette.json` in the same directory contains the opening scene's
-256 native-precision RGB5 colors. Copy it to `overrides/intro-cinematic/` to edit
+256 native-precision RGB5 colors. Edit it in place to change
 the colors without changing narration timing or scene transitions. A restored
 initial card rebinds the selected colors; an in-progress fade retains its live
 accumulators and uses the selected palette at the next scene target.
 `intro-final-text-divider.json` contains the 32-by-4 ordered BG3 tile references
-beneath the illustrated text pages. Copy it to `overrides/intro-cinematic/` to
-edit tile positions, palette selections, priority, or flips. Live text, caret
+beneath the illustrated text pages. Edit it in place to change
+tile positions, palette selections, priority, or flips. Live text, caret
 motion, and page timing stay in code; a restored illustrated page replaces only
 those four divider rows.
 `intro-samus-eye-frames.json` contains four ordered 3-by-2 BG2 tile rectangles
 for the portrait's blinking eye. Each cell can change its tile, palette,
-priority, or flips under `overrides/intro-cinematic/`. The cartridge's blink
+priority, or flips. The cartridge's blink
 script, frame durations, and portrait placement remain compiled behavior; a
 restored illustrated page reapplies the active rectangle without restarting
 its blink timer.
@@ -288,23 +280,22 @@ The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 in
 `ceres-flight-palette.json` (all 256 native-precision RGB5 colors) and
 `ceres-flight-sprites.json` (the six star, asteroid, station, and vortex OAM frames).
 The sprite JSON exposes offsets, tile references, priority, flips, and optional
-palette overrides; it does not change actor paths or frame timing. Override these under
-the same `overrides/intro-cinematic/` directory. The two Mode-7 maps share one character
+palette selections; it does not change actor paths or frame timing. Edit these files in
+place. The two Mode-7 maps share one character
 sheet and palette; the game's camera, scale, rotation, actor movement and letter timing
 remain code. Palette edits also rebind after loading a debugger state.
 `ceres-flight-actors.json` exposes the five rear-view actors' initial 16-bit
 screen X/Y positions, in large-asteroid, station, small-asteroid, vortex, and
 rear-stars order. Their stock values come from the pinned cartridge's initializer
-operands. Keep the IDs and order; edit only `x`/`y` in
-`overrides/intro-cinematic/`, then restart the scene. Actor speed, wrapping,
+operands. Keep the IDs and order; edit only `x`/`y`, then restart the scene. Actor speed, wrapping,
 instruction timing, and scene handoffs remain compiled.
 
 Ceres destruction reuses those character sheets and the approach's front/rear maps.
 Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.json`
 (three ordered 32x24 views). The following planet reveal uses
 `zebes-reveal-tilemap.json` (one 32x32 BG page) and
-`zebes-reveal-characters.png` (256x128 indexed). Each can be overridden separately
-under `overrides/intro-cinematic/`; restored debugger states rebind these visuals
+`zebes-reveal-characters.png` (256x128 indexed). Each can be edited separately in
+place; restored debugger states rebind these visuals
 without restarting the destruction or descent timeline. Explosion, actor and
 camera behavior remain compiled cartridge logic.
 `ceres-destruction-sprites.json` adds the 23 distinct station-blast, explosion,
@@ -313,25 +304,22 @@ from `ceres-flight-sprites.json`. Both files support visual part edits without
 changing the native actor instruction timing, motion, or scene handoff.
 `ceres-destruction-actors.json` holds the initial 16-bit screen X/Y positions
 of the large asteroid, small asteroid, and vortex behind the station blast.
-Keep those three IDs and their order, and edit only `x`/`y` in
-`overrides/intro-cinematic/`. The stock values come from the cartridge-checked
+Keep those three IDs and their order, and edit only `x`/`y`. The stock values come from the cartridge-checked
 actor initializers; horizontal motion, wrapping, animation, and phase timing
 remain code-owned. Restart the scene to apply a placement edit.
 `ceres-zebes-reveal-actors.json` holds the initial 16-bit screen X/Y coordinates
 for the planet, four star sheets, and PLANET ZEBES title. Keep the six IDs and
-their order; edit only `x`/`y` under `overrides/intro-cinematic/`, then restart
+their order; edit only `x`/`y`, then restart
 the scene. These values are read from the pinned cartridge's actor initializer
 operands. The slide acceleration, visibility schedule, deletion, and phase
-handoff remain compiled. Missing, reordered, or malformed entries fail loudly,
-and an override survives stock installation repair.
+handoff remain compiled. Missing, reordered, or malformed entries fail loudly.
 The ending's ship flyaway also reuses the Ceres Mode-7 character PNG and the front
 view of the Ceres flight map, with its original sixteen-frame upload cadence.
 
 The ending's two escape views and planet-explosion backdrop are installed separately
 under `game/ending-mode7/`. Each scene has an indexed 128x128 character PNG and a
 128x64 ordered tile-index map JSON (`ending-escape-a-*`, `ending-escape-b-*`, and
-`ending-planet-explosion-*`). Put a same-named file under `overrides/ending-mode7/`
-to replace just that stream. The map describes the native low-byte lane, which is
+`ending-planet-explosion-*`). Edit a file in place to change just that stream. The map describes the native low-byte lane, which is
 repeated across the two Mode-7 map halves; the PNG supplies the high-byte character
 lane. These edits do not change ship/cloud sprites, palettes, explosion timing,
 camera transforms or scene handoffs. A restored debugger state rebinds the current
@@ -339,8 +327,8 @@ files, retaining any flyaway chunks the cartridge has already uploaded.
 The reward-jump icon has its own `post-credits-icon-map.json` (128x128 tile
 references) and `post-credits-icon-characters.png` (128x128 indexed pixels)
 under `game/ending-mode7/`. The runtime interleaves these files for the original
-sixteen queued uploads; same-named files under `overrides/ending-mode7/` replace
-either half without changing the jump or shooting sequence.
+sixteen queued uploads; editing either file in place changes that half without changing the jump
+or shooting sequence.
 
 Ending/credits character streams are installed under `game/ending-objects/`:
 `ending-cloud-characters.png` and `ending-explosion-objects.png`, plus
@@ -351,10 +339,10 @@ reward variants. The planet explosion's four maps are ordered tile references in
 references are `credits-waiting-tilemap.json` in the same directory.
 `ending-cloud-sprites.json` contains the six editable atmospheric-cloud OAM
 compositions, including part offsets, tile references, flips, priority, and
-optional palette overrides. `ending-explosion-sprites.json` contains the sixteen
+optional palette selections. `ending-explosion-sprites.json` contains the sixteen
 editable planet-damage, flash, lava, glow, starfield, silhouette, and afterglow
 OAM compositions. Their actor instruction lists, movement, and scene callbacks
-remain compiled game logic rather than artwork overrides.
+remain compiled game logic rather than artwork.
 `ending-completion-text-sprites.json` contains the 56 progressive operation,
 success, clear-time, digit, and colon OAM compositions. Editing these parts
 does not alter the cartridge-matched typewriter pacing or credits handoff.
@@ -370,9 +358,8 @@ The small transformation character upload is installed as the indexed PNG
 `post-credits-tile-fragment-b.json`. The
 final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2
 references in `post-credits-logo-map.json`; its six upload positions and timing
-are fixed game logic. Copy any indexed PNG or JSON file to
-`overrides/ending-objects/` with the
-same filename to replace it without changing scene mechanics.
+are fixed game logic. Edit any indexed PNG or JSON file in place to change it without changing
+scene mechanics.
 The planet-explosion upload still overlays the four fragments after its main sheet,
 then restores the already-installed ending font over the overlapping font region.
 Other sprite placement, animation scripts, palette-FX mechanics and scene timing remain compiled code.
@@ -381,15 +368,13 @@ Seven ending color images are installed as native-precision RGB5 JSON under
 `game/ending-palettes/`: escape, explosion, credits, post-credits, final
 gunship, final-logo initial colors, and the logo's sixteen two-palette
 crossfade steps. In `ending-logo-crossfade-palette.json`, colors are ordered
-by step, then OBJ palette, then sixteen colors. Copy a same-named file under
-`overrides/ending-palettes/` to edit it
+by step, then OBJ palette, then sixteen colors. Edit a file in place to change it
 without changing the cartridge's partial CGRAM copy ranges, fade cadence, or
-palette-FX programs. The stock files are hash-checked; malformed overrides fail
-loudly instead of silently reverting to stock.
+palette-FX programs. A malformed file fails loudly where it is read.
 
 The ending's animated explosion, cloud, gunship and post-credits glare colors
-use the shared `game/maps/room-palette-effects.json` resource. Copy it to
-`overrides/maps/` to edit those RGB5 frames. The ending still owns the cartridge
+use the shared `game/maps/room-palette-effects.json` resource. Edit it in place to change those
+RGB5 frames. The ending still owns the cartridge
 object allocation, cycle timing, color destinations and scene transitions.
 
 Developer dependency boundary: `RoomPaletteFxSystem.Step` requires a non-null
@@ -405,13 +390,11 @@ Run the focused compiler contract with
 `dotnet run --project csharp/src/SuperMetroid.EnsureVerification -- --palette-fx-contract`.
 
 Mother Brain's rainbow and drained-phase colors are installed as
-`game/maps/mother-brain-rainbow-palette.json`. Copy it to the same filename under
-`overrides/maps/` to edit the body, brain, and leg palettes. `beamInitial` is the
+`game/maps/mother-brain-rainbow-palette.json`. Edit it in place to change the body, brain, and
+leg palettes. `beamInitial` is the
 first rainbow-beam HDMA color; `beamCycle` contains its 38 subsequent RGB5 colors.
 `fakeDeathToGrey` contains eight three-color frames for the fake-death descent;
-the ascent reuses the first three brain colors of each `fromGrey` frame. A
-version-two override retains its existing edits and receives the new descent
-frames from current stock content.
+the ascent reuses the first three brain colors of each `fromGrey` frame.
 The signed loop terminator, beam window geometry, and attack timing remain engine
 logic. A debugger-state load rebinds the current color resource.
 
@@ -421,51 +404,40 @@ Mother Brain's separate fake-death room colors are installed as
 is displayed in two CGRAM destinations. `phaseTwoAttack` and
 `phaseTwoRearLeg` each contain fifteen nontransparent sprite colors.
 `initialGlassShard` and `initialTubeProjectile` contain the two fifteen-color
-room-entry sprite palettes. Version-one overrides keep their existing edits and
-inherit these new colors from current stock content. `recoveryLights` contains
-seven two-slice room-light images shown after the Baby Metroid cutscene;
-version-one and version-two overrides inherit that new family from current
-stock while preserving their edits. Copy this file to
-`overrides/maps/` to recolor those effects. The cartridge bytecode, flash
+room-entry sprite palettes. `recoveryLights` contains seven two-slice room-light images shown
+after the Baby Metroid cutscene. Edit this file in place to recolor those effects. The cartridge bytecode, flash
 cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 
 The `game/maps/room-fx-animated-tiles.png` indexed 2-bpp strip contains the
 native lava, acid, rain, and Maridia sand frames, Wrecked Ship's four 32-byte
 treadmill frames, the Tourian statue strip, then three 48-byte spores frames.
-Copy it to `overrides/maps/` to change the pixels. Activation, frame order,
+Edit it in place to change the pixels. Activation, frame order,
 cadence, loop control and VRAM destinations remain compiled. Queued NMI
-transfers use the selected installed art rather than reading bank $87.
-Older sheets ending before treadmills, statues or spores retain their edits
-and inherit only the missing tail from current checked stock content. Adding
-spores does not shift any existing character or statue transfer alias.
+transfers use the installed art rather than reading bank $87. Adding spores does not shift any
+existing character or statue transfer alias.
 
 Spores use a ten-tick three-frame loop and camera-anchored quarter-pixel
 vertical scroll. Their installed `room-fx-layer3-tilemaps.json` page and
-`room-fx-blend-palettes.json` colors can also be replaced. Native source-aware
+`room-fx-blend-palettes.json` colors can also be edited in place. Native source-aware
 color math keeps the effect behind BG1 terrain and excludes OBJ palettes
 zero through three; it never tints the HUD or enables liquid physics.
-Malformed FX artwork/tilemap/palette files fail with the exact selected path;
-valid edits cannot conceal missing or damaged required stock files.
+Malformed FX artwork/tilemap/palette files fail with the exact path.
 
 `game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors and the
-`ceresHazeBlue`/`ceresHazeRed` RGB5 tints. Copy it to `overrides/maps/` to recolor
+`ceresHazeBlue`/`ceresHazeRed` RGB5 tints. Edit it in place to recolor
 the Ceres haze before or after Ridley's defeat. The tint affects both software
 and hardware rendering; haze activation, scanline bands, and fade timing remain
-compiled. Each channel must be 0–31. Older overrides without the two tint
-fields keep the stock blue/red colors.
+compiled. Each channel must be 0–31.
 
 `game/maps/power-bomb-fixed-colors.json` contains the 16 pre-explosion and
 32 explosion RGB5 rows used by Power Bombs, Crystal Flash and the Ceres
-explosion. Copy it to `overrides/maps/` to recolor them. Radius math, window
+explosion. Edit it in place to recolor them. Radius math, window
 geometry and cleanup timing remain compiled. Crystal Flash's stock fade
-lifetime is separate from the edited colors: black does not end it early,
-and brighter replacements do not prolong it. Unused replacement color is
-cleared when its window ends. Older debugger states warn during migration;
-an old modded capture retains its historical remaining fade because its
-counterfactual stock elapsed time was never recorded.
+lifetime is separate from the installed colors: black does not end it early,
+and brighter colors do not prolong it. Unused color is cleared when its window ends.
 
 `SuperMetroid.RenderVerification --installed-power-bomb-isolation`
-checks real disk overrides, complete effect lifetimes, state restoration and
+checks the installed colours' complete effect lifetimes, state restoration and
 software/Direct3D output without importing a cartridge or touching player data.
 See the source-access audit for exact coverage and remaining environmental gates.
 

@@ -174,49 +174,17 @@ internal static class SamusVisorColorsVerification
         return samus;
     }
 
-    /// <summary>Checks edited visor colors through newly bound Samus room/X-ray states and stock identity restoration.</summary>
-    internal static void VerifySamusVisorColorOverride(string stock, string overrides,
-        AreaMapPresentation baseline, ISnesAddressSpace rom)
+    /// <summary>Checks that the visor colour codec rejects out-of-range colours.</summary>
+    internal static void VerifySamusVisorColorsRejectMalformedDocuments(string stock)
     {
-        string path = Path.Combine(overrides, SamusVisorColorFile.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
             File.ReadAllBytes(Path.Combine(stock, SamusVisorColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Samus visor color document is null.");
-        PaletteRgb5 original = document.Colors[3];
-        PaletteRgb5 originalXray = document.Colors[0];
-        document.Colors[0] = originalXray with { Red = (originalXray.Red + 1) % 32 };
-        document.Colors[3] = original with { Red = (original.Red + 1) % 32 };
-        File.WriteAllBytes(path, SamusVisorColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
-            "visor color override changes installed content identity");
-        // Samus binds no colour table (#1512): the edited table reaches her through the shades the import makes from it.
-        var editedSources = InstalledFixtures.SamusShadeSources with { Visor = InstalledAreaMapPresentation.SamusColoursOf(edited).Visor };
-        var visor = new SamusVisorPaletteState();
-        var samusColours = new SamusColours();
-        var guarded = NewForbiddenVisorColorBus(new TestAddressSpace());
-        _ = visor.Update(samusColours, 0, LayerBlendingConfiguration.VisorBackdrop28);
-        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Visor.Resolve(3), samusColours.ShownVisor(editedSources),
-            "edited visor color reaches the room cycle's shade");
-        AssertEqual(0, guarded.ForbiddenReadAttempts, "edited visor color avoids native table");
-        SamusState xraySamus = CreateXraySamus();
-        var xrayColours = new SamusColours();
-        var guardedXray = NewForbiddenVisorColorBus(rom);
-        AssertTrue(xraySamus.Xray.UpdatePalette(xrayColours, xraySamus.EquippedItems),
-            "edited X-ray widening cycle shows a visor shade");
-        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Visor.Resolve(0), xrayColours.ShownVisor(editedSources),
-            "edited visor color reaches the X-ray shade");
-        AssertEqual(0, guardedXray.ForbiddenReadAttempts, "edited X-ray color avoids native table");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(document with
         {
-            Colors = [.. document.Colors.Take(3), original with { Red = 32 }, .. document.Colors.Skip(4)],
+            Colors = [.. document.Colors.Take(3), document.Colors[3] with { Red = 32 }, .. document.Colors.Skip(4)],
         }))), "out-of-range visor color fails loudly");
-        File.Delete(path);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
-            "removing visor override restores stock content identity");
-        Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");
     }
 
     /// <summary>Forbids installed room or X-ray palette updates from reading the native six-color source table.</summary>

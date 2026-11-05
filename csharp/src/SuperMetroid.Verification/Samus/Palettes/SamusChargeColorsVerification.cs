@@ -26,12 +26,12 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
-/// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>
+/// <summary>Checks extracted Samus charge palettes, native phase selection, and guarded runtime color updates.</summary>
 internal static class SamusChargeColorsVerification
 {
-    /// <summary>Edits representative charge and Hyper colors, then checks installed identity and CGRAM output without rereading native palette words.</summary>
-    internal static void VerifySamusChargeColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
+    /// <summary>Checks the installed charge and Hyper colors' CGRAM output without rereading native palette words.</summary>
+    internal static void VerifySamusChargeColors(string stockDirectory,
+        AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var native = SamusChargeColorFile.Read(new MemoryStream(extracted, writable: false)).ToColours();
@@ -57,22 +57,14 @@ internal static class SamusChargeColorsVerification
             File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock charge colors are null.");
-        Paint(document.ChargedBeam[0][0]);
-        Paint(document.PseudoScrew[0][0]);
-        Paint(document.HyperShot[0]);
-        string replacement = Path.Combine(overrideDirectory, SamusChargeColorFormat.FileName);
-        File.WriteAllBytes(replacement, SamusChargeColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "charge colors change installed content identity");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge,
         };
-        // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the edited charge colours.
-        var editedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledAreaMapPresentation.SamusColoursOf(edited).Charge };
+        // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
+        var installedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledAreaMapPresentation.SamusColoursOf(original).Charge };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.FlareCounter = 60;
         var samusColours = new SamusColours();
@@ -93,9 +85,9 @@ internal static class SamusChargeColorsVerification
                 AssertEqual(phase, appliedPhase,
                     $"installed charge phase {family}/{suit}/{phase}");
                 for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                    AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Charge.ResolveCharge(family != 0, suit, phase, color),
-                        samusColours.ShownSuit(editedSources)[color],
-                        $"edited charge CGRAM {family}/{suit}/{phase}/{color}");
+                    AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Charge.ResolveCharge(family != 0, suit, phase, color),
+                        samusColours.ShownSuit(installedSources)[color],
+                        $"installed charge CGRAM {family}/{suit}/{phase}/{color}");
             }
         }
         AssertEqual(0, projectiles.Charge.ChargePaletteStep, "six charge phases wrap");
@@ -120,9 +112,9 @@ internal static class SamusChargeColorsVerification
             // Even low-five-bit timer offsets $14..$02 select Hyper palettes 0..9.
             AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Charge.ResolveHyper(frame, color),
-                    samusColours.ShownSuit(editedSources)[color],
-                    $"edited Hyper-shot colour {frame}/{color}");
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Charge.ResolveHyper(frame, color),
+                    samusColours.ShownSuit(installedSources)[color],
+                    $"installed Hyper-shot colour {frame}/{color}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed charge and Hyper-shot avoid extracted source reads");
@@ -131,31 +123,13 @@ internal static class SamusChargeColorsVerification
         AssertThrows<InvalidDataException>(() => SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document))),
             "charge colors reject invalid RGB5 channels");
 
-        string replacementStock = Path.Combine(
-            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
-            "charge-color-reextract");
-        byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        AreaMapPresentation repaired = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(rom, replacementStock, overrideDirectory);
-        AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
-            "stock re-extraction preserves charge color override");
-        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
-            "stock re-extraction does not rewrite charge colors");
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing charge override restores stock identity");
-        Console.WriteLine("Samus charge colors: 736 ROM words, 36 charge phases, 20 Hyper calls, edited CGRAM, source-read guard and stock repair pass.");
+        Console.WriteLine("Samus charge colors: 736 ROM words, 36 charge phases, 20 Hyper calls reach CGRAM and source-read guard pass.");
 
         ushort BlockWord(int address)
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
             return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
-        }
-        static void Paint(PaletteRgb5[] colors)
-        {
-            PaletteRgb5 existing = colors[1];
-            colors[1] = existing with { Blue = existing.Blue == 31 ? 30 : existing.Blue + 1 };
         }
     }
 

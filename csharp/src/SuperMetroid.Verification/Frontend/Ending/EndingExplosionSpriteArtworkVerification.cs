@@ -207,70 +207,19 @@ internal static class EndingExplosionSpriteArtworkVerification
         }
     }
 
-    /// <summary>Flips the starfield art and confirms a live explosion scene changes OAM and pixels without bank-$8C reads, then rejects a missing frame.</summary>
-    internal static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
-        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
+    /// <summary>Checks that an explosion sprite document missing a named frame is rejected on read.</summary>
+    internal static void VerifyEndingExplosionSpritesRejectMissingFrame(GameInstallation installation)
     {
-        string name = EndingExplosionSpriteFormat.FileName;
-        string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
-        string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
-        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingExplosionSpriteDocument document =
             JsonSerializer.Deserialize<EndingExplosionSpriteDocument>(
-                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingExplosionSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending explosion sprite JSON is empty.");
-        // The starfield remains visible through the explosion, giving the edit a
-        // reliable live-frame assertion instead of merely checking an isolated OAM map.
-        document.Frames["starfield"] = document.Frames["starfield"]
-            .Select(part => part with { FlipX = !part.FlipX }).ToArray();
-        try
+        document.Frames.Remove("starfield");
+        AssertThrows<InvalidDataException>(() =>
         {
-            using (var output = File.Create(overridePath))
-                EndingExplosionSpritePresentation.Write(output, document);
-            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
-            var audio = new AudioQueues();
-            var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            for (int frame = 0; frame < 10000 &&
-                scene.Stage.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
-            {
-                scene.Step();
-                audio.AdvanceFrame(default);
-            }
-            AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, scene.Stage.Phase,
-                "ending explosion edit reaches its actual scene");
-            bool visible = false;
-            for (int frame = 0; frame < 2400 &&
-                scene.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast && !visible; frame++)
-            {
-                scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-                LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
-                LayeredScene after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                visible = !before.Paint.SpriteParts().SequenceEqual(after.Paint.SpriteParts()) &&
-                    !DisplayRendering.Render(before).SequenceEqual(
-                        DisplayRendering.Render(after));
-                if (!visible)
-                {
-                    scene.Step();
-                    audio.AdvanceFrame(default);
-                }
-            }
-            AssertTrue(visible,
-                "edited explosion starfield changes live OAM and visible ending pixels");
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                "explosion art rebind never rereads installed bank-$8C sprite maps");
-            document.Frames.Remove("starfield");
-            AssertThrows<InvalidDataException>(() =>
-            {
-                using var invalid = new MemoryStream();
-                EndingExplosionSpritePresentation.Write(invalid, document);
-                _ = EndingExplosionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
-            }, "ending explosion sprites reject missing named art on read");
-        }
-        finally
-        {
-            File.Delete(overridePath);
-        }
+            using var invalid = new MemoryStream();
+            EndingExplosionSpritePresentation.Write(invalid, document);
+            _ = EndingExplosionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "ending explosion sprites reject missing named art on read");
     }
 }

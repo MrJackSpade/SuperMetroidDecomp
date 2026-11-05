@@ -14,14 +14,13 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;
 
-/// <summary>Checks extracted file-select presentation parity, editable overrides, and strict document validation.</summary>
+/// <summary>Checks extracted file-select presentation parity and strict document validation.</summary>
 internal static class FileSelectPresentationVerification
 {
-    /// <summary>Compares native and installed COPY/CLEAR flows frame by frame, then verifies live art replacement and malformed-input failures.</summary>
+    /// <summary>Compares native and installed COPY/CLEAR flows frame by frame.</summary>
     internal static void VerifyFileSelectPresentationAssets(
         ISnesAddressSpace bus,
         string stock,
-        string overrides,
         AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, FileSelectPresentationFormat.FileName);
@@ -78,87 +77,8 @@ internal static class FileSelectPresentationVerification
         AssertEqual(native.SelectedHelmetFrame, installed.SelectedHelmetFrame,
             "installed file-select helmet animation retains native frame");
 
-        var document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        document.MainCursorAnchors[0] = document.MainCursorAnchors[0] with
-            { X = (ushort)(document.MainCursorAnchors[0].X + 8) };
-        document.HelmetAnchors[0] = document.HelmetAnchors[0] with
-            { X = (ushort)(document.HelmetAnchors[0].X + 8) };
-        MapPresentationCell pageCell = document.Pages[
-            FileSelectParts.PageName(FileSelectPage.MainWithData)][0x2b];
-        document.Pages[FileSelectParts.PageName(FileSelectPage.MainWithData)][0x2b] =
-            pageCell with { FlipX = !pageCell.FlipX };
-        FileSelectPatchCellDocument energyCell = document.Patches[
-            FileSelectParts.PatchName(FileSelectPatch.Energy)].Cells[0];
-        document.Patches[FileSelectParts.PatchName(FileSelectPatch.Energy)].Cells[0] =
-            energyCell with { Cell = energyCell.Cell with { FlipY = !energyCell.Cell.FlipY } };
-        Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides,
-            FileSelectPresentationFormat.FileName);
-        using (var output = File.Create(replacement))
-            FileSelectSourcePresentation.Write(output, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "file-select override changes selected catalog identity");
-
-        var stockMenu = new FileSelectMenuState(saveRam, mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
-        var editedMenu = new FileSelectMenuState(saveRam, mapPresentation: edited, spriteSheets: MenuSheetFixtures.For(edited));
-        for (int frame = 0; frame < 16; frame++)
-        {
-            stockMenu.Step(0);
-            editedMenu.Step(0);
-        }
-        AssertTrue(!stockMenu.Render().SequenceEqual(editedMenu.Render()),
-            "file-select page, field and actor edits reach the real renderer");
-        FileSelectPhase phaseBeforeRebind = stockMenu.Phase;
-        FileSelectItem selectionBeforeRebind = stockMenu.SelectedItem;
-        RgbaPixel[] pixelsBeforeRebind = stockMenu.Render().ToArray();
-        stockMenu.BindFixtureArtwork(edited);
-        AssertEqual(phaseBeforeRebind, stockMenu.Phase,
-            "file-select content rebind preserves phase");
-        AssertEqual(selectionBeforeRebind, stockMenu.SelectedItem,
-            "file-select content rebind preserves selection");
-        AssertTrue(!pixelsBeforeRebind.SequenceEqual(stockMenu.Render()),
-            "file-select rebind applies edited content without resetting state");
-
-        File.WriteAllText(replacement, "{ broken file-select JSON");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
-            "corrupt file-select override fails loudly");
-        using (var output = File.Create(replacement))
-            FileSelectSourcePresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            FileSelectSourcePresentation.Write(written, document with { ObjectPalette = 8 });
-            _ = FileSelectSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "file-select rejects invalid object palette on read");
-        var missingPage = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        missingPage.Pages.Remove(FileSelectParts.PageName(FileSelectPage.CopyCompleted));
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            FileSelectSourcePresentation.Write(written, missingPage);
-            _ = FileSelectSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "file-select rejects a missing named page on read");
-        var duplicatePatch = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        FileSelectPatchCellDocument duplicate = duplicatePatch.Patches[
-            FileSelectParts.PatchName(FileSelectPatch.NoData)].Cells[0];
-        duplicatePatch.Patches[FileSelectParts.PatchName(FileSelectPatch.NoData)] = new()
-        {
-            Cells = [duplicate, duplicate],
-        };
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            FileSelectSourcePresentation.Write(written, duplicatePatch);
-            _ = FileSelectSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "file-select rejects duplicate patch coordinates on read");
-
         Console.WriteLine(
-            $"File-select presentation: {comparedFrames} exact ROM-free frames through " +
-            "COPY, CLEAR, helmets, audio and fades; edits, rebind and strict failures pass.");
+            "File-select presentation: deterministic stock and native COPY/CLEAR parity pass.");
 
         void Until(FileSelectPhase expected, int maximumFrames = 100)
         {

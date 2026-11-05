@@ -18,14 +18,10 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 
-/// <summary>Checks installed and edited reward-icon artwork through the reward jump's reveal and the ending shot.</summary>
+/// <summary>Checks installed reward-icon artwork through the reward jump's reveal and the ending shot.</summary>
 internal static class EndingRewardIconArtworkVerification
 {
-    /// <summary>How far into the reward jump the override checks rebind the icon, before the jump ends.</summary>
-    private const int OverrideRebindJumpFrame = 190;
-
-    /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the reward jump.</summary>
-    [PrivateInstallation("Edits ending reward icon files on a private copy to check that their overrides apply.")]
+    /// <summary>Compares retail pixels and VRAM through the reward jump and the icon's reveal.</summary>
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingFloorArtwork stock = installation.LoadEndingMode7Art();
@@ -45,29 +41,10 @@ internal static class EndingRewardIconArtworkVerification
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         installedScene.Stage.BindFloorArtwork(stock);
-        // Each override check rebinds a stock-bound scene partway through the reward jump. The fixture is deterministic,
-        // so those scenes advance alongside the stock scenes and wait there instead of replaying the ending alone.
-        string[] overrideNames = [EndingRewardIconArtworkFormat.MapFileName, EndingRewardIconArtworkFormat.CharacterFileName];
-        var overrideBuses = overrideNames.Select(_ => NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom))).ToArray();
-        var overrideAudio = overrideNames.Select(_ => new AudioQueues()).ToArray();
-        var overrideScenes = overrideAudio.Select(audio => CreateRetailEndingFixture(audio, 3, 0)).ToArray();
-        foreach (var scene in overrideScenes)
-            scene.Stage.BindFloorArtwork(stock);
-        int[] overrideJumpSteps = new int[overrideScenes.Length];
         int jumpFrames = 0;
         for (int frame = 0; frame < 60_000 &&
             nativeScene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
         {
-            for (int index = 0; index < overrideScenes.Length; index++)
-            {
-                bool jumping = overrideScenes[index].Stage.Phase == EndingCreditsPhase.PostCreditsJump;
-                if (jumping && overrideJumpSteps[index] == OverrideRebindJumpFrame)
-                    continue;
-                if (jumping)
-                    overrideJumpSteps[index]++;
-                overrideScenes[index].Step();
-                overrideAudio[index].AdvanceFrame(default);
-            }
             AssertEqual(nativeScene.Stage.Phase, installedScene.Stage.Phase,
                 $"reward icon installed/native phase at frame {frame}");
             if (nativeScene.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
@@ -103,115 +80,6 @@ internal static class EndingRewardIconArtworkVerification
                     EndingFloorCharacters.RewardIconOf(stock).Bytes.Span),
             "the revealed icon is the installed icon image");
 
-        Directory.CreateDirectory(installation.EndingMode7OverrideDirectory);
-        for (int overrideIndex = 0; overrideIndex < overrideNames.Length; overrideIndex++)
-        {
-            string name = overrideNames[overrideIndex];
-            string overridePath = Path.Combine(installation.EndingMode7OverrideDirectory, name);
-            try
-            {
-                if (name == EndingRewardIconArtworkFormat.MapFileName)
-                {
-                    using var output = File.Create(overridePath);
-                    EndingRewardIconArtwork.WriteMap(output, new EndingFloorMapDocument
-                    {
-                        Version = EndingFloorArtworkFormat.Version,
-                        Width = EndingRewardIconArtworkFormat.MapWidth,
-                        Height = EndingRewardIconArtworkFormat.MapHeight,
-                        Tiles = new int[EndingRewardIconArtworkFormat.MapBytes],
-                    });
-                }
-                else
-                {
-                    IndexedPngImage image;
-                    using (var input = File.OpenRead(Path.Combine(
-                               installation.EndingMode7Directory, name)))
-                        image = IndexedPng.Read(input, new(128, 128));
-                    Array.Fill(image.Pixels, (byte)0);
-                    using var output = File.Create(overridePath);
-                    IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                        image.Pixels, image.Colours);
-                }
-                EndingFloorArtwork edited = installation.LoadEndingMode7Art();
-                var sceneBus = overrideBuses[overrideIndex];
-                var sceneAudio = overrideAudio[overrideIndex];
-                var scene = overrideScenes[overrideIndex];
-                AssertEqual(OverrideRebindJumpFrame, overrideJumpSteps[overrideIndex],
-                    $"{name} override reaches the native reward jump");
-                AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
-                    $"{name} override fixture remains in the native reward jump");
-                LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                RgbColor[] beforeColours = EndingShownColours.Of(scene);
-                byte[] beforeVram = scene.ShownVram();
-                scene.Stage.BindFloorArtwork(edited);
-                // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
-                scene.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(edited));
-                LayeredScene rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                RgbColor[] reboundColours = EndingShownColours.Of(scene);
-                byte[] reboundVram = scene.ShownVram();
-                AssertTrue(scene.Stage.Phase == EndingCreditsPhase.PostCreditsJump &&
-                        beforeColours.SequenceEqual(reboundColours) &&
-                        scene.screen.RewardIconLoaded == !beforeVram.SequenceEqual(reboundVram),
-                    $"{name} rebind changes the floor exactly when the icon is revealed, without resetting the jump");
-                for (int frame = 0; frame < 400 &&
-                    scene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
-                {
-                    scene.Step();
-                    sceneAudio.AdvanceFrame(default);
-                }
-                AssertEqual(EndingCreditsPhase.PostCreditsShot, scene.Stage.Phase,
-                    $"{name} edited icon reaches the native shooting phase");
-                var shownScene = scene.ShownVram();
-                AssertTrue(shownScene
-                        [..EndingRewardIconArtworkFormat.ByteCount]
-                        .SequenceEqual(EndingFloorCharacters.RewardIconOf(edited).Bytes.Span),
-                    $"{name} supplies the revealed icon");
-                LayeredScene baseline = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
-                LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                AssertTrue(!DisplayRendering.Render(baseline)
-                        .SequenceEqual(
-                            DisplayRendering.Render(changed)),
-                    $"edited {name} changes visible Mode-7 reward-shot pixels");
-                AssertEqual(0, sceneBus.ForbiddenReadAttempts,
-                    $"edited {name} never rereads cartridge icon graphics");
-            }
-            finally
-            {
-                File.Delete(overridePath);
-            }
-        }
-        foreach (string name in new[]
-        {
-            EndingRewardIconArtworkFormat.MapFileName,
-            EndingRewardIconArtworkFormat.CharacterFileName,
-        })
-        {
-            string invalid = Path.Combine(installation.EndingMode7OverrideDirectory, name);
-            File.WriteAllBytes(invalid, [0]);
-            try
-            {
-                AssertThrows<InvalidDataException>(() => installation.LoadEndingMode7Art(),
-                    $"malformed reward icon override {name} fails loudly");
-            }
-            finally
-            {
-                File.Delete(invalid);
-            }
-        }
-        string userPng = Path.Combine(installation.EndingMode7OverrideDirectory,
-            EndingRewardIconArtworkFormat.CharacterFileName);
-        IndexedPngImage persistentImage;
-        using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory,
-                   EndingRewardIconArtworkFormat.CharacterFileName)))
-            persistentImage = IndexedPng.Read(input, new(128, 128));
-        persistentImage.Pixels[0] = (byte)(persistentImage.Pixels[0] ^ 1);
-        using (var output = File.Create(userPng))
-            IndexedPng.Write(output, new(persistentImage.Size.X, persistentImage.Size.Y),
-                persistentImage.Pixels, persistentImage.Colours);
-        byte[] selected = EndingFloorCharacters.RewardIconOf(installation.LoadEndingMode7Art()).Bytes.ToArray();
-        AssertTrue(EndingFloorCharacters.RewardIconOf(installation.LoadEndingMode7Art()).Bytes.Span.SequenceEqual(selected),
-            "the player's separately stored PNG override still applies over the restored stock map");
-        File.Delete(userPng);
-        Console.WriteLine("Reward icon: native VRAM/pixel parity through its reveal, mid-jump rebind and independently visible map/PNG edits pass.");
+        Console.WriteLine("Reward icon: native VRAM/pixel parity through its reveal passes.");
     }
 }

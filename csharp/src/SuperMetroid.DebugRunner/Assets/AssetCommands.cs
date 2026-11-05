@@ -49,28 +49,6 @@ if (args.Length == 3 && args[0].Equals("maps", StringComparison.OrdinalIgnoreCas
     return 0;
 }
 
-if (args.Length is 4 or 5 && args[0].Equals("audio-replace", StringComparison.OrdinalIgnoreCase))
-{
-    var installation = new GameInstallation(ResolveWorkspacePath(args[1], mustAlreadyExist: true));
-    string replacementPath = ResolveWorkspacePath(args[3], mustAlreadyExist: true);
-    long? loopStart = args.Length == 4 ? null : ParseLoopStart(args[4]);
-    AudioClipOverride installed = AudioAssetOverrideInstaller.Replace(installation, args[2], replacementPath, loopStart);
-    Console.WriteLine(
-        $"Installed {installed.Id} from {installed.File}, loop={installed.LoopStart?.ToString() ?? "none"}; restart the game to hear it.");
-    return 0;
-}
-
-if (args.Length == 2 && args[0].Equals("audio-override-init", StringComparison.OrdinalIgnoreCase))
-{
-    var installation = new GameInstallation(ResolveWorkspacePath(args[1], mustAlreadyExist: true));
-    string overrideDirectory = AudioAssetOverrideInstaller.Initialize(installation);
-    Console.WriteLine($"Audio clip override initialized at {overrideDirectory}");
-    Console.WriteLine(
-        "Use 'assets audio-replace <installed-app-data-directory> <clip-id> <wav> [none|loop-frame]' with a " +
-        "16-bit stereo WAV at 32,040 Hz, then restart the game.");
-    return 0;
-}
-
 if (args.Length == 3 && args[0].Equals("audio", StringComparison.OrdinalIgnoreCase))
 {
     string rawDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
@@ -102,10 +80,6 @@ if (args.Length != 2)
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets maps <rom-path> <map-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets <raw-assets-directory> <png-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets audio <raw-assets-directory> <audio-output-directory>");
-    Console.Error.WriteLine(
-        "  SuperMetroid.DebugRunner assets audio-replace <installed-app-data-directory> <clip-id> <wav> [none|loop-frame]");
-    Console.Error.WriteLine(
-        "  SuperMetroid.DebugRunner assets audio-override-init <installed-app-data-directory>");
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets room <raw-assets-directory> <room.png>");
     return 2;
 }
@@ -223,16 +197,6 @@ static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
     // A non-asset relative path keeps conventional repository-root fallback semantics only
     // when its current-directory interpretation did not exist.
     return Path.GetFullPath(Path.Combine(repositoryRoot, argument));
-}
-
-/// <summary>Parses a clip override's loop argument: <c>none</c>, or the frame it loops back to.</summary>
-static long? ParseLoopStart(string value)
-{
-    if (value.Equals("none", StringComparison.OrdinalIgnoreCase))
-        return null;
-    if (long.TryParse(value, out long frame) && frame >= 0)
-        return frame;
-    throw new ArgumentException($"Loop '{value}' must be 'none' or a non-negative frame index.");
 }
 
 /// <summary>Recognizes the repository-owned standalone-assets path segment in either slash style.</summary>

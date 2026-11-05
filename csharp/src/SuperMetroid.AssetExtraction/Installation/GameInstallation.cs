@@ -61,22 +61,18 @@ public sealed record GameInstallation(string Root)
                 "Extracted game content is incomplete or invalid.");
         return SuperMetroidAddressSpace.CreateWithoutCartridge();
     }
-    /// <summary>Stock audio files and manifests under the replaceable content tree.</summary>
+    /// <summary>Installed audio files and manifests, which the player edits in place.</summary>
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
-    /// <summary>Persistent editable audio content, outside the replaceable stock installation.</summary>
-    public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
-    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays, with the persistent clip override when one exists.</summary>
-    /// <exception cref="InvalidDataException">The stock clips or the override are invalid.</exception>
-    public InstalledClipAudioLibrary LoadAudioClips() => ClipAudioOverrides.Load(AudioDirectory, AudioOverrideDirectory);
-    /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
+    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays.</summary>
+    /// <exception cref="InvalidDataException">The installed clips are invalid.</exception>
+    public InstalledClipAudioLibrary LoadAudioClips() => InstalledAudioClips.Load(AudioDirectory);
+    /// <summary>Installed area-map artwork, exploration masks and menu presentation, which the player edits in place.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
-    /// <summary>Stock starting CGRAM and room-entry sprite palettes under the replaceable content tree.</summary>
+    /// <summary>Installed starting CGRAM and room-entry sprite palettes, which the player edits in place.</summary>
     public string GameplayBasePaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName);
-    /// <summary>Editable starting CGRAM and room-entry sprite colors survive stock rebuilds.</summary>
-    public string GameplayBasePaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.GameplayBasePaletteDirectoryName);
-    /// <summary>Validates stock starting palettes and loads any compatible user replacements for initial CGRAM and room-entry sprite colors.</summary>
+    /// <summary>Loads the installed initial CGRAM and room-entry sprite colors.</summary>
     public GameplayBasePalette LoadGameplayBasePalettes() =>
-        GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory, GameplayBasePaletteOverrideDirectory);
+        GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory);
     /// <summary>Stock decoded results of Samus's glitch reads; not editable, so there is no override directory.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
@@ -107,34 +103,26 @@ public sealed record GameInstallation(string Root)
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
     /// <summary>Loads the validated installed Samus body artwork.</summary>
     public InstalledSamusBodyArtwork LoadSamusBodyArt() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
-    /// <summary>Stock opening-cinematic artwork under the replaceable content tree.</summary>
+    /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>
-    public string IntroCinematicOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Loads validated opening-cinematic artwork, selecting compatible user PNG replacements where supplied.</summary>
+    /// <summary>Loads the installed opening-cinematic artwork.</summary>
     public IntroCinematicSourceArtwork LoadIntroCinematicArt() =>
-        IntroCinematicArtworkFiles.Load(IntroCinematicDirectory, IntroCinematicOverrideDirectory);
-    /// <summary>Stock ending Mode 7 scene artwork under the replaceable content tree.</summary>
+        IntroCinematicArtworkFiles.Load(IntroCinematicDirectory);
+    /// <summary>Installed ending Mode 7 scene artwork, which the player edits in place.</summary>
     public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);
-    /// <summary>Ending scene art edits remain outside replaceable stock content.</summary>
-    public string EndingMode7OverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingMode7DirectoryName);
-    /// <summary>Loads validated ending Mode 7 artwork and compatible scene replacements from the persistent override tree.</summary>
+    /// <summary>Loads the installed ending Mode 7 artwork.</summary>
     public EndingFloorArtwork LoadEndingMode7Art() =>
-        EndingMode7ArtworkFiles.Load(EndingMode7Directory, EndingMode7OverrideDirectory);
-    /// <summary>Stock ending sprite artwork under the replaceable content tree.</summary>
+        EndingMode7ArtworkFiles.Load(EndingMode7Directory);
+    /// <summary>Installed ending sprite artwork, which the player edits in place.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Ending OBJ edits remain outside replaceable stock content.</summary>
-    public string EndingObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Loads validated ending OBJ artwork and any compatible user replacements.</summary>
+    /// <summary>Loads the installed ending OBJ artwork.</summary>
     public EndingObjectSourceArtwork LoadEndingObjectArt() =>
-        EndingObjectArtworkFiles.Load(EndingObjectDirectory, EndingObjectOverrideDirectory);
-    /// <summary>Stock ending-scene color palettes under the replaceable content tree.</summary>
+        EndingObjectArtworkFiles.Load(EndingObjectDirectory);
+    /// <summary>Installed ending-scene color palettes, which the player edits in place.</summary>
     public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);
-    /// <summary>Ending color edits survive replacement of the stock installation.</summary>
-    public string EndingPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingPaletteDirectoryName);
-    /// <summary>Loads validated ending color palettes and compatible color replacements from the persistent override tree.</summary>
+    /// <summary>Loads the installed ending color palettes.</summary>
     public EndingPaletteSet LoadEndingPalettes() =>
-        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
+        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Loads each installed room palette as the player left it, keyed by its source identity.</summary>
@@ -299,11 +287,9 @@ public sealed record GameInstallation(string Root)
     public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
     /// <summary>Loads the validated installed enemy, boss and area artwork.</summary>
     public InstalledEnemyArtwork LoadEnemyTiles() => EnemyTileArtworkFiles.Load(EnemyTileDirectory);
-    /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
-    public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
-    /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
-    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
+    /// <summary>Loads the installed maps, exploration masks and menu presentation without a cartridge address space.</summary>
+    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory);
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation and

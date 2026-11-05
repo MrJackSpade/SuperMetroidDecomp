@@ -16,12 +16,12 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
-/// <summary>Checks editable Ceres Ridley Mode 7 zoom palettes and their runtime CGRAM binding.</summary>
+/// <summary>Checks installed Ceres Ridley Mode 7 zoom palettes and their runtime CGRAM binding.</summary>
 internal static class CeresRidleyMode7ColorsVerification
 {
-    /// <summary>Compares native zoom rows, all getaway frames, override repair, and source-read blocking.</summary>
-    internal static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
+    /// <summary>Compares native zoom rows, all getaway frames, and source-read blocking.</summary>
+    internal static void VerifyCeresRidleyMode7Colors(string stockDirectory,
+        AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
         CeresRidleyFloorColorCatalog native = CeresRidleyMode7ColorFile.Read(
@@ -50,21 +50,7 @@ internal static class CeresRidleyMode7ColorsVerification
                 File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyFloorColorFormat.FileName)),
                 ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Mode-7 colors are null.");
-        for (int row = 0; row < document.ZoomRows.Length; row++)
-        {
-            PaletteRgb5 previous = document.ZoomRows[row][1];
-            document.ZoomRows[row][1] = previous with
-            {
-                Blue = previous.Blue == 31 ? 30 : previous.Blue + 1,
-            };
-        }
-        string replacement = Path.Combine(overrideDirectory, CeresRidleyFloorColorFormat.FileName);
-        File.WriteAllBytes(replacement, CeresRidleyMode7ColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "Ceres Mode-7 color edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
-        runtime.Artwork.MapPresentation = edited;
         runtime.Artwork.MapPresentation = original;
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
@@ -77,10 +63,10 @@ internal static class CeresRidleyMode7ColorsVerification
             int row = LittleEndianBytes.HighByte(frame.Zoom);
             visited.Add(row);
             select(checked((ushort)frame.Zoom));
-            // The colours the encounter shows are the import's shades of the edited colours, laid as the getaway laid them (#1512).
-            RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, edited);
+            // The colours the encounter shows are the import's shades of the installed colours, laid as the getaway laid them (#1512).
+            RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, original);
             for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
-                AssertEqual(InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(edited).Resolve(row, color),
+                AssertEqual(InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(original).Resolve(row, color),
                     cgram[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }
@@ -97,20 +83,7 @@ internal static class CeresRidleyMode7ColorsVerification
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(document), writable: false)),
             "reading Ceres Mode-7 colors rejects invalid RGB5 values");
-        string replacementStock = Path.Combine(
-            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
-            "ceres-mode7-reextract");
-        byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        AreaMapPresentation repaired = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(rom, replacementStock, overrideDirectory);
-        AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
-            "stock re-extraction preserves Ceres Mode-7 override");
-        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
-            "stock re-extraction does not rewrite Ceres Mode-7 colors");
-        File.Delete(replacement);
-        AssertEqual(original.ContentIdentity,
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory).ContentIdentity,
-            "removing Ceres Mode-7 override restores stock identity");
-        Console.WriteLine("Ceres Mode-7 colors: 135 stock words and all 112 getaway frames match, with every source color guarded and override repair preserved.");
+        Console.WriteLine("Ceres Mode-7 colors: 135 stock words and all 112 getaway frames match, with every source color guarded.");
     }
 
     /// <summary>Forbids native color bytes while the installed getaway palette cycle runs.</summary>

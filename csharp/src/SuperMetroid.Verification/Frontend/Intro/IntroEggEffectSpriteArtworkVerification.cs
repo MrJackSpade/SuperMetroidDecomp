@@ -25,7 +25,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 internal static class IntroEggEffectSpriteArtworkVerification
 {
     /// <summary>Compares stock frames at visible and wrapped origins, then
-    /// checks live particles use editable art without rereading cartridge maps.</summary>
+    /// checks live particles draw the installed art without rereading cartridge maps.</summary>
     internal static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtwork stock, GameInstallation installation)
     {
@@ -59,19 +59,10 @@ internal static class IntroEggEffectSpriteArtworkVerification
             }
         }
 
-        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-        string name = IntroEggEffectSpriteFormat.FileName;
         IntroEggEffectSpriteDocument document =
             RequiredJson.Deserialize<IntroEggEffectSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
+                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroEggEffectSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        // The part inherits the draw's row, so a art edit cannot show (#1512); the next frame's character can.
-        document.Frames["fragment-0"] = document.Frames["fragment-0"]
-            .Select(part => part with { TileColumn = 6 }).ToArray();
-        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-        using (var output = File.Create(overridePath))
-            IntroEggEffectSpritePresentation.Write(output, document);
-        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroEggEffects);
         var fragment = new IntroEggParticle(index: 0, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
@@ -86,13 +77,6 @@ internal static class IntroEggEffectSpriteArtworkVerification
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed egg fragment preserves native live-actor OAM");
-        var editedOam = ScreenSpritesFixtures.Blank();
-        editedOam.BeginFrame();
-        fragment.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).EggEffectSprites));
-        editedOam.FinalizeFrame();
-        AssertTrue(!stockOam.ImageEquals(editedOam) &&
-                stockOam.LowTable.Slice(0, 2).SequenceEqual(editedOam.LowTable.Slice(0, 2)),
-            "egg-fragment art edit changes OAM palette without moving its particle");
 
         var slime = new IntroEggSlimeDrop(new(0x0070, 0x00b8), index: 0);
         for (int frame = 0; frame < 31; frame++)
@@ -104,30 +88,6 @@ internal static class IntroEggEffectSpriteArtworkVerification
             slimeOam.FinalizeFrame();
         }
 
-        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-        foreach (IntroCinematicState state in new[] { stockState, editedState })
-        {
-            state.SetupFirstIllustratedPage();
-            state.SetupMotherBrainFlashback();
-            state.SetupBabyDiscoveryCrossfade();
-            // The discovery fades in, and its sprites' shading follows the fade (#1512), so the fragment shows once lit.
-            for (int frame = 0; frame < 128 &&
-                state.Phase == IntroCinematicPhase.BabyDiscoveryCrossfade; frame++)
-                state.StepBabyDiscoveryCrossfade();
-            AssertEqual(IntroCinematicPhase.BabyDiscovery, state.Phase,
-                "egg fragment visual probe reached the lit gameplay palette");
-            var discovery = state.CurrentBabyDiscovery;
-            var particles = (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).eggParticles;
-            particles.Add(fragment);
-        }
-        RgbaPixel[] stockPixels = stockState.RenderArtwork();
-        RgbaPixel[] editedPixels = editedState.RenderArtwork();
-        AssertTrue(!stockPixels.SequenceEqual(editedPixels),
-            "egg-fragment override changes visible production discovery pixels");
-        stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
-            "restored egg-discovery scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production egg effects never reread eleven native spritemaps");
 
@@ -138,6 +98,5 @@ internal static class IntroEggEffectSpriteArtworkVerification
             IntroEggEffectSpritePresentation.Write(malformed, document);
             _ = IntroEggEffectSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
         }, "egg effect artwork rejects a missing named frame on read");
-        File.Delete(overridePath);
     }
 }

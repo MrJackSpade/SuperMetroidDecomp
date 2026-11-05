@@ -23,8 +23,8 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// verifies an edited egg composition reaches the rendered scene.</summary>
 internal static class IntroDiscoveryActorSpriteArtworkVerification
 {
-    /// <summary>Compares stock OAM at visible and wrapped origins, then loads an
-    /// override through production scene rendering without cartridge artwork reads.</summary>
+    /// <summary>Compares stock OAM at visible and wrapped origins, then renders the production
+    /// discovery scene without cartridge artwork reads.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtwork stock, GameInstallation installation)
     {
@@ -58,42 +58,23 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             }
         }
 
-        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-        string name = IntroDiscoveryActorSpriteFormat.FileName;
         IntroDiscoveryActorSpriteDocument document =
             RequiredJson.Deserialize<IntroDiscoveryActorSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
+                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroDiscoveryActorSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        document.Frames["egg-intact"] = document.Frames["egg-intact"]
-            .Select(part => part with { OffsetX = part.OffsetX + 1 }).ToArray();
-        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-        using (var output = File.Create(overridePath))
-            IntroDiscoveryActorSpritePresentation.Write(output, document);
-        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroDiscoveryActors);
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-        foreach (IntroCinematicState state in new[] { stockState, editedState })
-        {
-            state.SetupFirstIllustratedPage();
-            state.SetupMotherBrainFlashback();
-            state.SetupBabyDiscoveryCrossfade();
-            for (int frame = 0; frame < 128 &&
-                state.Phase == IntroCinematicPhase.BabyDiscoveryCrossfade; frame++)
-                state.StepBabyDiscoveryCrossfade();
-            AssertEqual(IntroCinematicPhase.BabyDiscovery, state.Phase,
-                "discovery actor visual probe reached the lit gameplay palette");
-            var discovery = state.CurrentBabyDiscovery;
-            (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
-        }
-        RgbaPixel[] stockPixels = stockState.RenderArtwork();
-        RgbaPixel[] editedPixels = editedState.RenderArtwork();
-        AssertTrue(!stockPixels.SequenceEqual(editedPixels),
-            "egg visual override changes visible production discovery pixels");
-        stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
-            "restored discovery scene rebinds selected egg and baby visual compositions");
+        stockState.SetupFirstIllustratedPage();
+        stockState.SetupMotherBrainFlashback();
+        stockState.SetupBabyDiscoveryCrossfade();
+        for (int frame = 0; frame < 128 &&
+            stockState.Phase == IntroCinematicPhase.BabyDiscoveryCrossfade; frame++)
+            stockState.StepBabyDiscoveryCrossfade();
+        AssertEqual(IntroCinematicPhase.BabyDiscovery, stockState.Phase,
+            "discovery actor visual probe reached the lit gameplay palette");
+        (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
+        _ = stockState.RenderArtwork();
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production discovery actors never reread twenty native spritemaps");
 
@@ -104,6 +85,5 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             IntroDiscoveryActorSpritePresentation.Write(malformed, document);
             _ = IntroDiscoveryActorSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
         }, "discovery actor artwork rejects a missing named frame on read");
-        File.Delete(overridePath);
     }
 }

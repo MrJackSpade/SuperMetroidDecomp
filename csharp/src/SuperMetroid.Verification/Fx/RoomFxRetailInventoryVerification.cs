@@ -274,9 +274,6 @@ internal static class RoomFxRetailInventoryVerification
                 expectedRecord,
                 RoomFxRomDataRecordTooling.YVelocityOffset);
 
-        var vram = new SnesVram();
-        var cgram = new RgbColor[SnesCgram.ColorCount];
-        SeedVisibleRoomFxPalette(cgram);
         var actualSession = CreateRetailFxSession(bus);
         var actual = RoomLayer3FxState.ForRoom(actualSession,
             room.State.Fx,
@@ -326,6 +323,10 @@ internal static class RoomFxRetailInventoryVerification
         if (!liquid)
             return audit;
 
+        // Only a liquid path draws its layer, so only a liquid path builds the VRAM and colours it is drawn from (#1532).
+        var vram = new SnesVram();
+        var cgram = new RgbColor[SnesCgram.ColorCount];
+        SeedVisibleRoomFxPalette(cgram);
         if (unchecked((short)expectedBase) < 0)
         {
             actual.PrimeViewport(new Position16<RoomPixels>(0, 0));

@@ -750,18 +750,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
-        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom, true));
-        return 0;
-    }
-
-    /// <summary>Checks final X-ray body frame composition after presentation selection.</summary>
-    [VerificationCommand("--lookup-stream-1-body-frame-final")]
-    internal static int LookupStream1BodyFrameFinalCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
-        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom, false, true));
+        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom));
         return 0;
     }
 

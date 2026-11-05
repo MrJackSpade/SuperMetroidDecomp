@@ -1,10 +1,12 @@
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -13,8 +15,8 @@ namespace SuperMetroid.Verification.Assets;
 /// <summary>
 /// Holds actors to the rule that one update publishes at most one frame per independently moving part (#1513), as
 /// <see cref="PublishedPartDraws"/> defines it, from deterministic fixtures and the draw contract rather than from play:
-/// Samus's body as one update of the installed body draws it, and every enemy frame the installed sheets picture in
-/// pieces, which the enemy draw list publishes from one slot as one draw per piece (<see cref="ExtendedFrameParts"/>).
+/// Samus's body as one update of the installed body draws it, and an enemy frame placed in several pieces as one update
+/// of the enemy draw list draws it.
 /// </summary>
 internal static class ActorPartDrawsVerification
 {
@@ -38,34 +40,41 @@ internal static class ActorPartDrawsVerification
     }
 
     /// <summary>
-    /// Every enemy whose installed sheets picture a frame in pieces publishes that frame as several draws from its one
-    /// slot in one update; lists each such enemy with its frames and their piece counts.
+    /// A walking space pirate showing an extended frame its compositions place in several pieces, drawn once through the
+    /// enemy draw list over its room graphics set's sheets: the slot publishes the frame as one whole picture.
     /// </summary>
     internal static void VerifyEnemyPartDraws()
     {
-        EnemyExtendedFramePlacementCatalog placements = InstalledFixtures.EnemyTiles.ExtendedFramePlacements
-            ?? throw new InvalidOperationException("Verification requires the installed extended frame placements.");
-        IReadOnlyDictionary<string, ExtendedFramePart> parts = ExtendedFrameParts.Of(placements);
-        var pieced = new SortedDictionary<EnemyDefinitionId, SortedSet<string>>();
-        int sheets = 0;
-        foreach ((EnemySheetKey key, SpriteSheet sheet) in InstalledFixtures.EnemySheets.sheets)
-        {
-            sheets++;
-            foreach (string name in sheet.frames.Keys)
-            {
-                // A frame's first piece names it once; its pictures at artwork steps or rots are drawn the same way.
-                if (!parts.TryGetValue(ExtendedFrameParts.PicturedFrame(name), out ExtendedFramePart part) || part.Component != 0)
-                    continue;
-                if (!pieced.TryGetValue(key.Enemy, out SortedSet<string>? frames))
-                    pieced.Add(key.Enemy, frames = new SortedSet<string>(StringComparer.Ordinal));
-                frames.Add($"{part.Frame} ({part.Components} pieces)");
-            }
-        }
-        AssertTrue(sheets > 0, "the installation holds enemy sheets");
-        AssertTrue(pieced.Count == 0,
-            $"{pieced.Count} enemies publish frames in several pieces from one slot in one update:{Environment.NewLine}"
-            + string.Join(Environment.NewLine, pieced.Select(entry => $"{entry.Key}: {string.Join(", ", entry.Value)}")));
-        Console.WriteLine($"Enemy part draws: the {sheets} installed enemy sheets picture every frame whole, one draw per slot.");
+        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+            { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        EnemyExtendedFrameCatalog compositions = artwork.Enemies.ExtendedFrames
+            ?? throw new InvalidOperationException("Verification requires the installed extended frames.");
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft;
+        enemies.GraphicsSet.LoadGraphicsSet(set);
+        EnemyFrameId frame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
+            .First(shown => compositions.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedDrawComponent> pieces) && pieces.Length > 1);
+        RoomEnemySlot pirate = enemies.SlotTable.Slots[0];
+        pirate.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
+        pirate.ExtraProperties = pirate.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
+        pirate.Frame = frame;
+        pirate.Position = pirate.Position.WithWhole(new(120, 110));
+        enemies.Drawing.Enqueue(0, pirate);
+
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
+        enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
+        sprites.FinalizeFrame();
+        AssertEqual(1, sprites.Draws.Length, $"the pirate showing {frame} publishes one draw");
+        IReadOnlyList<string> violations = PublishedPartDraws.Violations(sprites.Draws);
+        AssertTrue(violations.Count == 0,
+            $"the pirate showing {frame} publishes more than one frame for a moving part:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
+        var image = sprites.Draws[0] as ImageSpriteDraw
+            ?? throw new InvalidOperationException($"The pirate's draw is a {sprites.Draws[0].GetType().Name}, not a sheet frame.");
+        AssertTrue(ReferenceEquals(InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.PirateGreenWalking).Frame(EnemySheetDefinitions.FrameName(frame)), image.Image),
+            $"the pirate shows {frame} as its sheet's one whole picture");
+        Console.WriteLine($"Enemy part draws: a pirate showing {frame}, placed in several pieces, publishes it as one whole picture.");
     }
 
     /// <summary>Runs the actors' one-frame-per-part rule over Samus's body and the enemies' draw contract.</summary>

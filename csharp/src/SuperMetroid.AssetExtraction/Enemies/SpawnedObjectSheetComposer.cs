@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// its enemies spawn, over the set's OBJ page and in its colours, one sheet per owner the game names. A spawned object's
 /// parts count from its spawner's character index or from character zero, so each spawner's objects are composed at its
 /// own index, in its row, as the sheet of <see cref="SpawnedObjectOwner.Of"/> that spawner; every object the set can
-/// spawn is also composed at character zero, with the objects any room spawns, as its
+/// spawn is also composed at character zero, with the objects of the common spawners its rooms run, as its
 /// <see cref="SpawnedObjectOwner.Shared"/> sheet; and the pieces of Mother Brain's tank glass at the characters they
 /// draw from, as the <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/> sheet.
 /// </summary>
@@ -34,15 +34,17 @@ internal static class SpawnedObjectSheetComposer
     /// <summary>
     /// The spawned-object sheets of a set laid out as <paramref name="layout"/>, drawing <paramref name="drawn"/>, each enemy
     /// in the row <paramref name="rowOf"/> gives: the shared sheet, holding every spawner's objects at character zero with
-    /// those any room spawns, then each spawner's own sheet and Mother Brain's tank glass's.
+    /// those of the <paramref name="common"/> spawners the set's rooms run, then each spawner's own sheet and Mother Brain's
+    /// tank glass's.
     /// </summary>
     internal static IReadOnlyList<SpawnedObjectSheetPlan> Plans(GraphicsSetCharacterLayout layout, IReadOnlyList<EnemyDefinitionId> drawn,
-        Func<EnemyDefinitionId, int> rowOf)
+        Func<EnemyDefinitionId, int> rowOf, IReadOnlyList<CommonSpawnedObjects> common)
     {
         Ensure.NotNull(layout);
         Ensure.NotNull(drawn);
         Ensure.NotNull(rowOf);
-        var shared = new SpawnedObjectSheetPlan(SpawnedObjectOwner.Shared, 0, 0, 0, [], [], Anywhere: true, []);
+        Ensure.NotNull(common);
+        var shared = new SpawnedObjectSheetPlan(SpawnedObjectOwner.Shared, 0, 0, 0, [], [], common, []);
         // An enemy that spawns no objects with its own graphics hands its spawns the shared sheet.
         foreach (EnemyDefinitionId enemy in drawn.Where(enemy => !SpawnedObjectFrameDefinitions.ByEnemy.ContainsKey(enemy)).Distinct())
             shared.AlsoOwnedBy.Add(SpawnedObjectOwner.Of(enemy));
@@ -61,7 +63,7 @@ internal static class SpawnedObjectSheetComposer
             int palette = rowOf(enemy);
             // A projectile draws at its spawner's index's place in its page, a sprite object at the index itself.
             plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.Of(enemy), tileBase % ProjectilePageCharacters, tileBase, palette,
-                [enemy], [], Anywhere: false, []));
+                [enemy], [], [], []));
             // Mother Brain's tank glass draws from characters of its own, whatever its spawner's (#1435).
         }
         // Mother Brain's tank glass draws from characters of its own, whatever its spawner's (#1435), and holds only what
@@ -69,13 +71,14 @@ internal static class SpawnedObjectSheetComposer
         if (drawn.Contains(EnemyDefinitionId.MotherBrainBody) && SpawnedObjectFrameDefinitions.BySheet.ContainsKey(SpawnedObjectOwner.MotherBrainTankGlass))
             plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.MotherBrainTankGlass,
                 EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters,
-                rowOf(EnemyDefinitionId.MotherBrainBody), [EnemyDefinitionId.MotherBrainBody], [], Anywhere: false, []));
+                rowOf(EnemyDefinitionId.MotherBrainBody), [EnemyDefinitionId.MotherBrainBody], [], [], []));
         return plans;
     }
 
     /// <summary>
     /// What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>, pre-coloured in
-    /// the shared shades, its spawners' shades and, at character zero, the shades of the objects any room spawns (#1512). A
+    /// the shared shades, its spawners' shades and, on the shared sheet, the shades of the objects its enemies and its common
+    /// spawners spawn (#1512, #1513). A
     /// spawned object draws in its spawner's shading, so a spawner's effects on its own row, which <paramref name="rowOf"/>
     /// gives, hold on every sheet coloured in that row, the character-zero sheet among them. The sheet is coloured in the
     /// set's colours with each spawner's row holding the colours its frames first show in, as its spawner's are (#1513).
@@ -97,11 +100,23 @@ internal static class SpawnedObjectSheetComposer
             inkShades.AddRange(fixedInks);
             rowShades.AddRange(fixedRows);
         }
-        if (plan.Anywhere)
+        if (plan.Owner == SpawnedObjectOwner.Shared)
         {
-            (IReadOnlyList<SheetShade> anywhereInks, IReadOnlyList<SheetRowShade> anywhereRows) = shades.Anywhere();
-            inkShades.AddRange(anywhereInks);
-            rowShades.AddRange(anywhereRows);
+            // The objects an enemy spawns onto the shared sheet show the shades its fight lays over their rows, and a common
+            // spawner's objects those its code lays (#1513).
+            foreach (EnemyDefinitionId spawner in plan.SharedSpawners.Concat(plan.Spawners).Distinct())
+            {
+                (IReadOnlyList<SheetShade> spawnedInks, IReadOnlyList<SheetRowShade> spawnedRows) = shades.SpawnedBy(spawner);
+                inkShades.AddRange(spawnedInks);
+                rowShades.AddRange(spawnedRows);
+            }
+            foreach (CommonSpawnedObjects common in plan.Common)
+            {
+                (IReadOnlyList<SheetShade> commonInks, IReadOnlyList<SheetRowShade> commonRows) =
+                    shades.Common(CommonSpawners.Named(common.Spawner).Presence.Shades);
+                inkShades.AddRange(commonInks);
+                rowShades.AddRange(commonRows);
+            }
         }
         EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps
             ?? throw new InvalidDataException("Spawned-object sheets require the installed projectile compositions.");
@@ -123,7 +138,7 @@ internal static class SpawnedObjectSheetComposer
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), objectBase, 0),
                 Drawn(FrameDrawings.Of(frame)))))
-            .Concat(EncounterFrames(plan.Spawners, plan.Anywhere).Select(frame => characters.Pictures(
+            .Concat(EncounterFrames(plan.Spawners, plan.Owner == SpawnedObjectOwner.Shared).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), objectBase,
@@ -145,23 +160,24 @@ internal static class SpawnedObjectSheetComposer
 
     /// <summary>
     /// The frames the spawned-object sheet of <paramref name="owner"/> holding the objects of <paramref name="spawners"/> and,
-    /// on the shared sheet, the room-graphics spawns of <paramref name="sharedSpawners"/> holds.
+    /// on the shared sheet, the room-graphics spawns of <paramref name="sharedSpawners"/> and the objects of the
+    /// <paramref name="common"/> spawners holds.
     /// </summary>
     internal static IEnumerable<string> FrameNames(SpawnedObjectOwner owner, IEnumerable<EnemyDefinitionId> spawners,
-        IEnumerable<EnemyDefinitionId> sharedSpawners, bool anywhere)
+        IEnumerable<EnemyDefinitionId> sharedSpawners, IReadOnlyList<CommonSpawnedObjects> common)
     {
-        SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(owner, 0, 0, 0, [.. spawners], [.. sharedSpawners], anywhere, []));
+        SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(owner, 0, 0, 0, [.. spawners], [.. sharedSpawners], common, []));
         return spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
             .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName))
-            .Concat(EncounterFrames(spawners, anywhere).Select(EnemySheetDefinitions.EncounterFrameName));
+            .Concat(EncounterFrames(spawners, owner == SpawnedObjectOwner.Shared).Select(EnemySheetDefinitions.EncounterFrameName));
     }
 
     /// <summary>
     /// The frames the encounters of <paramref name="spawners"/> draw themselves at character zero, which the character-zero
-    /// sheet, the one holding the objects any room spawns, holds, each once in a stable order.
+    /// shared sheet holds, each once in a stable order.
     /// </summary>
-    private static IEnumerable<EnemyFrameId> EncounterFrames(IEnumerable<EnemyDefinitionId> spawners, bool anywhere) =>
-        anywhere ? spawners.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).SelectMany(enemy => EncounterFrameDefinitions.ByEnemy[enemy])
+    private static IEnumerable<EnemyFrameId> EncounterFrames(IEnumerable<EnemyDefinitionId> spawners, bool shared) =>
+        shared ? spawners.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).SelectMany(enemy => EncounterFrameDefinitions.ByEnemy[enemy])
             .Distinct().Order() : [];
 
     /// <summary>
@@ -179,8 +195,8 @@ internal static class SpawnedObjectSheetComposer
 
     /// <summary>
     /// Every object that draws from a plan's sheet, each once in a stable order: a sheet-specific owner's own objects; a
-    /// spawner's own-graphics spawns; on the shared sheet, the room-graphics spawns of the set's enemies and, when it says
-    /// so, the objects any room spawns.
+    /// spawner's own-graphics spawns; on the shared sheet, the room-graphics spawns of the set's enemies and the objects of
+    /// the common spawners its rooms run.
     /// </summary>
     private static SpawnedObjects Spawned(SpawnedObjectSheetPlan plan)
     {
@@ -188,8 +204,7 @@ internal static class SpawnedObjectSheetComposer
             ? [owned]
             : plan.Spawners.Where(SpawnedObjectFrameDefinitions.ByEnemy.ContainsKey).Select(enemy => SpawnedObjectFrameDefinitions.ByEnemy[enemy])
                 .Concat(plan.SharedSpawners.Select(enemy => SpawnedObjectFrameDefinitions.SharedByEnemy[enemy]));
-        if (plan.Anywhere)
-            sources = sources.Prepend(SpawnedObjectFrameDefinitions.Anywhere);
+        sources = plan.Common.Select(common => common.Objects).Concat(sources);
         return new SpawnedObjects([.. sources.SelectMany(spawned => spawned.Projectiles).Distinct().Order()],
             [.. sources.SelectMany(spawned => spawned.SpriteObjects).Distinct().Order()]);
     }

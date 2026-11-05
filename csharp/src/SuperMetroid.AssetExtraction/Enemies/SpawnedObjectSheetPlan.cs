@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -11,10 +12,14 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="SharedSpawners">
 /// On the shared sheet, the enemies drawn under the set whose spawns draw from the room's graphics, whose objects it holds.
 /// </param>
-/// <param name="Anywhere">Whether it also holds the objects any room spawns.</param>
+/// <param name="Common">
+/// On the shared sheet, the common spawners, code outside the enemy behaviours, that run in the set's rooms, whose objects it
+/// holds; none on any other sheet.
+/// </param>
 /// <param name="AlsoOwnedBy">
 /// The other owners the game names this sheet by: on the shared sheet, each enemy drawn under the set that has no
-/// spawned objects of its own, whose objects are those any room spawns.
+/// spawned objects of its own.
 /// </param>
 internal sealed record SpawnedObjectSheetPlan(SpawnedObjectOwner Owner, int ProjectileCharacters, int ObjectCharacters, int Palette,
-    List<EnemyDefinitionId> Spawners, List<EnemyDefinitionId> SharedSpawners, bool Anywhere, List<SpawnedObjectOwner> AlsoOwnedBy);
+    List<EnemyDefinitionId> Spawners, List<EnemyDefinitionId> SharedSpawners, IReadOnlyList<CommonSpawnedObjects> Common,
+    List<SpawnedObjectOwner> AlsoOwnedBy);

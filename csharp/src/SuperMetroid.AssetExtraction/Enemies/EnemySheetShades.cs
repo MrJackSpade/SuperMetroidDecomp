@@ -53,9 +53,6 @@ internal sealed class EnemySheetShades
     /// <summary>The colours the set's load leaves.</summary>
     private readonly LoadedSetColours colours;
 
-    /// <summary>The ink shades of the objects any room spawns, which a colouring may name, built when first needed.</summary>
-    private IReadOnlyList<SheetShade>? anywhereInks;
-
     /// <summary>Builds the shades of a set whose load leaves <paramref name="colours"/>.</summary>
     internal EnemySheetShades(EnemySheetInputs inputs, LoadedSetColours colours)
     {
@@ -142,13 +139,12 @@ internal sealed class EnemySheetShades
 
     /// <summary>
     /// The shade <paramref name="name"/> among <paramref name="enemy"/>'s effects: its own row's, its fixed ones and those
-    /// of the objects any room spawns.
+    /// of the objects it spawns.
     /// </summary>
     /// <exception cref="InvalidDataException">None of them is named so.</exception>
     private SheetShade EffectOf(EnemyDefinitionId enemy, PictureShade name)
     {
-        anywhereInks ??= Anywhere().Inks;
-        return OwnRow(enemy, colours.RowOf(enemy)).Concat(Fixed(enemy).Inks).Concat(anywhereInks)
+        return OwnRow(enemy, colours.RowOf(enemy)).Concat(Fixed(enemy).Inks).Concat(SpawnedBy(enemy).Inks)
             .FirstOrDefault(candidate => candidate.Shade == name)
             ?? throw new InvalidDataException($"{enemy}'s effects have no shade {name.Key} to colour its frames in.");
     }
@@ -350,22 +346,61 @@ internal sealed class EnemySheetShades
     }
 
     /// <summary>
-    /// The shades every character-zero spawned-object sheet takes, for the objects any room spawns there: the n00b tube's
-    /// cracks and the Ceres doors' looks, which the escape's falling tiles show.
+    /// The shades of the objects <paramref name="enemy"/> spawns (#1513): the colours the bosses' fights lay over their
+    /// objects' rows (Kraid's rocks, Botwoon's, Draygon's and Spore Spawn's sprites, Crocomire's wall and projectiles), and
+    /// the Ridleys' and Mother Brain's sprite colours, which their objects draw in; none for any other enemy.
     /// </summary>
-    internal SheetShadeSet Anywhere()
+    internal SheetShadeSet SpawnedBy(EnemyDefinitionId enemy)
     {
-        ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("n00b tube crack colours");
-        return new SheetShadeSet([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
-            Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)),
-            // A new game clears the enemy projectiles' last colour, the Ceres elevator concealer's solid pixels.
-            SheetShade.Run(CeresElevatorShades.ConcealerCleared,
-                EnemySheetRowDefinitions.EnemyProjectiles * LoadedSetColours.RowColours + CeresConcealerColour, [RgbColor.Black]),
-            .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses),
-            .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites((inputs.Maps is null ? null : InstalledAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps)), inputs.Bosses),
-            .. SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes)],
-            [.. CeresDoorLooks(), .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours)]);
+        IEnumerable<SheetShade> inks = SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses, enemy);
+        if (enemy is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion)
+            inks = inks.Concat(RidleySprites());
+        if (enemy is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
+            or EnemyDefinitionId.BabyMetroidCutscene)
+            inks = inks.Concat(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
+        return new SheetShadeSet([.. inks], SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours, enemy));
     }
+
+    /// <summary>
+    /// The shades the objects of a common spawner show on the shared sheet (#1513), as its presence names them: the n00b
+    /// tube's cracks, the Ceres elevator concealer's cleared colour, the Ceres doors' looks the escape's falling tiles show,
+    /// and Ridley's sprite colours.
+    /// </summary>
+    internal SheetShadeSet Common(IEnumerable<CommonSpawnerShades> named)
+    {
+        Ensure.NotNull(named);
+        var inks = new List<SheetShade>();
+        var rows = new List<SheetRowShade>();
+        foreach (CommonSpawnerShades shades in named)
+        {
+            switch (shades)
+            {
+                case CommonSpawnerShades.TubeCracks:
+                    ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("n00b tube crack colours");
+                    inks.Add(SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
+                        Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)));
+                    break;
+                case CommonSpawnerShades.CeresElevatorConcealer:
+                    // A new game clears the enemy projectiles' last colour, the Ceres elevator concealer's solid pixels.
+                    inks.Add(SheetShade.Run(CeresElevatorShades.ConcealerCleared,
+                        EnemySheetRowDefinitions.EnemyProjectiles * LoadedSetColours.RowColours + CeresConcealerColour, [RgbColor.Black]));
+                    break;
+                case CommonSpawnerShades.CeresDoorLooks:
+                    rows.AddRange(CeresDoorLooks());
+                    break;
+                case CommonSpawnerShades.RidleySprites:
+                    inks.AddRange(RidleySprites());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(named), shades, "Undefined common spawner shades.");
+            }
+        }
+        return new SheetShadeSet(inks, rows);
+    }
+
+    /// <summary>The Ridley encounters' sprite colours.</summary>
+    private IReadOnlyList<SheetShade> RidleySprites() =>
+        SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps is null ? null : InstalledAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps), inputs.Bosses);
 
     /// <summary>The enemy projectiles' colour the Ceres elevator concealer's solid pixels show.</summary>
     private const int CeresConcealerColour = 15;

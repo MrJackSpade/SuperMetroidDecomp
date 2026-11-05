@@ -298,8 +298,11 @@ public sealed class SamusBombProjectileSystem
             if (screenX < -48 || screenX >= 304 || ScreenConversions.IsOutsideSpriteRange(screenY))
                 continue;
 
-            SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(
-                slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")));
+            ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.");
+            // The empty composition draws nothing (#1513).
+            if (sprite.DrawsNothing)
+                continue;
+            SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(sprite));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slot.Index), image,
                 Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY), SpriteMirror.None));
         }

@@ -2,17 +2,21 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
 /// A boss's body layer as the boss draws it (#1466): the parts placed on it, each showing the cells no later part covers,
-/// so every cell shows the last part drawn over it. It starts with every cell showing the boss's blank. A boss that
+/// so every cell shows the last part drawn over it. It starts with every cell showing the boss's blank; a cell the blank
+/// shows draws nothing when the blank shows nothing (#1513). A boss that
 /// assembles a picture before showing it (Crocomire's melt, Mother Brain's staged body) keeps a second canvas and copies
 /// cells from it. The canvas names its parts; the installed sheet they are drawn from is bound when it is published.
 /// </summary>
 internal sealed class BossBodyCanvas
 {
+    /// <summary>What an error names a blank that shows nothing by.</summary>
+    private const string BlankName = "blank";
+
     /// <summary>The parts showing, each over cells no other covers.</summary>
     private readonly List<PlacedBossBodyPart> placements = [];
 
-    /// <summary>The name of the part the canvas clears with.</summary>
-    private readonly string blank;
+    /// <summary>The name of the part the canvas clears with, or null when the boss's blank shows nothing.</summary>
+    private readonly string? blank;
 
     /// <summary>The last published layer, until a part is placed or another sheet is bound.</summary>
     private BossBodyLayer? published;
@@ -28,7 +32,7 @@ internal sealed class BossBodyCanvas
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(rows);
         Owner = sheet.Owner;
         Rows = rows;
-        blank = sheet.Blank.Name;
+        blank = sheet.Blank?.Name;
         placements.Add(new PlacedBossBodyPart(blank, BossBodyFootprint.OfRows(0, rows)));
     }
 
@@ -64,14 +68,17 @@ internal sealed class BossBodyCanvas
             Place(placement.Part, placement.Shows.Within(cells));
     }
 
-    /// <summary>Places the part named <paramref name="part"/> over <paramref name="cells"/>, which no earlier part shows from then on.</summary>
+    /// <summary>
+    /// Places the part named <paramref name="part"/>, or nothing for a blank that shows nothing, over
+    /// <paramref name="cells"/>, which no earlier part shows from then on.
+    /// </summary>
     /// <exception cref="InvalidDataException">The cells leave the canvas.</exception>
-    private void Place(string part, BossBodyFootprint cells)
+    private void Place(string? part, BossBodyFootprint cells)
     {
         if (cells.IsEmpty)
             return;
         if (cells.End > Rows)
-            throw new InvalidDataException($"{Owner}'s body part {part} covers rows to {cells.End}, past the {Rows}-row canvas.");
+            throw new InvalidDataException($"{Owner}'s body part {part ?? BlankName} covers rows to {cells.End}, past the {Rows}-row canvas.");
         for (int index = placements.Count - 1; index >= 0; index--)
         {
             BossBodyFootprint left = placements[index].Shows.Without(cells);
@@ -97,7 +104,14 @@ internal sealed class BossBodyCanvas
             throw new InvalidDataException($"{Owner}'s body cannot be drawn from {sheet.Owner}'s sheet.");
         if (published is null || !ReferenceEquals(publishedFrom, sheet))
         {
-            published = new BossBodyLayer(Rows, [.. placements.Select(placement => new BossBodyPlacement(sheet.Part(placement.Part), placement.Shows))]);
+            // Cells cleared to a blank that shows nothing draw nothing.
+            var shown = new List<BossBodyPlacement>(placements.Count);
+            foreach (PlacedBossBodyPart placement in placements)
+            {
+                if (placement.Part is { } part)
+                    shown.Add(new BossBodyPlacement(sheet.Part(part), placement.Shows));
+            }
+            published = new BossBodyLayer(Rows, [.. shown]);
             publishedFrom = sheet;
         }
         return published;

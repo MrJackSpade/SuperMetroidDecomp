@@ -38,11 +38,15 @@ internal sealed class SpawnAnalysis
     /// <summary>What each behaviour shows and spawns, in behaviour order.</summary>
     public IReadOnlyList<BehaviourSpawns> Behaviours { get; private set; } = [];
 
-    /// <summary>The projectile frames code outside every behaviour's scope spawns, which every set's shared sheet holds.</summary>
-    public IReadOnlySet<string> AnywhereProjectileFrames { get; private set; } = new HashSet<string>();
+    /// <summary>
+    /// What each common spawner (code outside every behaviour, by <see cref="CoreModel.SpawnerKey"/>) spawns onto the shared
+    /// sheet of the sets whose rooms run it, with the families it spawns; spawners that spawn nothing drawn are left out.
+    /// </summary>
+    public IReadOnlyDictionary<string, Collected> Common { get; private set; } = new Dictionary<string, Collected>();
 
-    /// <summary>The room sprite-object kinds code outside every behaviour's scope spawns, which every set's shared sheet holds.</summary>
-    public IReadOnlySet<string> AnywhereSpriteObjects { get; private set; } = new HashSet<string>();
+    /// <summary>For each common spawner, the units its spawns were met in and the units outside it reaching them.</summary>
+    public IReadOnlyDictionary<string, (IReadOnlyList<Unit> Units, IReadOnlyList<Unit> ReachedFrom)> CommonSites { get; private set; } =
+        new Dictionary<string, (IReadOnlyList<Unit>, IReadOnlyList<Unit>)>();
 
     /// <summary>
     /// The projectile frames and sprite-object kinds each sheet-specific owner's sheet holds (as Mother Brain's tank glass),
@@ -87,8 +91,13 @@ internal sealed class SpawnAnalysis
             DefinitionFrameSplit frames = behaviour.Definitions.Count == 1
                 ? new DefinitionFrameSplit(new Dictionary<string, IReadOnlySet<string>> { [behaviour.Definitions[0]] = familyFrames }, [])
                 : new DefinitionFrames(model, scanner, behaviour, walk).Resolve(familyFrames);
+            // A behaviour whose parts share one frame table splits it by what each part's own programs show.
+            if (PartFrameConfiguration.All.SingleOrDefault(configuration => configuration.Behaviour == behaviour.Type.Name) is { } parts)
+                frames = frames with { Frames = new PartFrames(model, parts).Apply(behaviour, frames.Frames) };
             walks.Add((behaviour, walk, frames));
         }
+        if (PartFrameConfiguration.All.FirstOrDefault(configuration => model.Behaviours.All(b => b.Type.Name != configuration.Behaviour)) is { } unknown)
+            throw new InvalidDataException($"The part frame configuration names {unknown.Behaviour}, which is no enemy behaviour.");
 
         // The code outside every behaviour is every shared unit no behaviour or family reaches; it reaches shared code
         // the behaviours reach too, as the enemy deaths it runs for every enemy. A static data member of a type the walks
@@ -185,7 +194,6 @@ internal sealed class SpawnAnalysis
         if (unreadable.Count > 0)
             throw new InvalidDataException("Spawn graphics the generator cannot place on a sheet:\n" + string.Join('\n', unreadable));
         analysis.BySheet = sheets.Sheets.ToDictionary(pair => pair.Key, pair => analysis.WithFamilies(pair.Value), StringComparer.Ordinal);
-        Collected everywhere = sheets.Anywhere;
 
         var behaviours = new List<BehaviourSpawns>();
         foreach ((Behaviour behaviour, Walk walk, DefinitionFrameSplit frames) in walks)
@@ -196,9 +204,24 @@ internal sealed class SpawnAnalysis
                 sharedSpawns.ProjectileFrames, sharedSpawns.SpriteObjects, walk.ForeignEntries, frames.Notes));
         }
         analysis.Behaviours = behaviours;
-        Collected anywhereSpawns = analysis.WithFamilies(everywhere);
-        analysis.AnywhereProjectileFrames = anywhereSpawns.ProjectileFrames;
-        analysis.AnywhereSpriteObjects = anywhereSpawns.SpriteObjects;
+        var common = new Dictionary<string, Collected>(StringComparer.Ordinal);
+        foreach ((string spawner, Collected spawns) in sheets.Common)
+        {
+            Collected held = analysis.WithFamilies(spawns);
+            if (held.ProjectileFrames.Count > 0 || held.SpriteObjects.Count > 0)
+                common.Add(spawner, held);
+        }
+        analysis.Common = common;
+        analysis.CommonSites = common.Keys.ToDictionary(spawner => spawner, spawner =>
+        {
+            // A spawner's units are met only in the walk outside the behaviours, the one walk whose spawns resolve to it.
+            var units = new HashSet<Unit>(spawnWalks.SelectMany(walk => walk.SpawnerUnits.GetValueOrDefault(spawner) ?? []));
+            IReadOnlyList<Unit> from = [.. units.SelectMany(unit => anywhere.CallersOf(unit))
+                .Where(caller => !units.Contains(caller))
+                .Distinct().OrderBy(model.Describe, StringComparer.Ordinal)];
+            IReadOnlyList<Unit> sites = [.. units.OrderBy(model.Describe, StringComparer.Ordinal)];
+            return (sites, from);
+        }, StringComparer.Ordinal);
         analysis.AnywhereSpawners = [.. anywhere.Spawners.OrderBy(model.Describe, StringComparer.Ordinal)];
         return analysis;
     }
@@ -218,7 +241,13 @@ internal sealed class SpawnAnalysis
                     output.WriteLine($"{spawns.Behaviour.Family}: {note}");
             }
         }
-        output.WriteLine($"anywhere code: {string.Join(", ", AnywhereSpawners.Select(_model.Describe))}");
+        output.WriteLine($"code outside the behaviours naming spawns: {string.Join(", ", AnywhereSpawners.Select(_model.Describe))}");
+        foreach ((string spawner, (IReadOnlyList<Unit> units, IReadOnlyList<Unit> from)) in CommonSites.OrderBy(pair => pair.Key, StringComparer.Ordinal))
+        {
+            Collected held = Common[spawner];
+            output.WriteLine($"common spawner {spawner}: {held.ProjectileFrames.Count} projectile frames, {held.SpriteObjects.Count} sprite objects; "
+                + $"spawns in {string.Join(", ", units.Select(_model.Describe))}; reached from {string.Join(", ", from.Select(_model.Describe))}");
+        }
     }
 
     /// <summary>Roots a behaviour walk at the behaviour and every type only its code constructs.</summary>

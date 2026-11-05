@@ -1,93 +1,121 @@
 using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>
-/// Draws the independent scenes of one published frame at once (#1532): the first on the calling thread, each other on its
-/// own long-lived companion thread. <see cref="DisplayRendering"/> keeps one renderer per thread, so every thread draws
-/// with its own WARP device, and the companions live for the process so each keeps its renderer and its uploaded images
-/// from frame to frame. A published scene can still reach state its game goes on changing, so <see cref="Draw"/> returns
-/// only once every scene is drawn: the caller advances its game after the draws, exactly as when it drew them one by one,
-/// and every scene is drawn and compared as before.
+/// Draws a batch of independent items at once (#1532) on a fixed set of long-lived companion threads, each drawing with
+/// its own renderer: <see cref="DisplayRendering"/> keeps one renderer per thread, so every companion draws with its own
+/// WARP device, and the companions live for the process so each keeps its renderer and its uploaded images from batch to
+/// batch. The companions and their renderers are made once, as a shared fixture. Every item is drawn exactly as when the
+/// items were drawn one by one; <see cref="DrawEach"/> returns only once every item is drawn.
 /// </summary>
 internal static class ConcurrentSceneDrawing
 {
-    /// <summary>The companion threads made so far, in order; the scene after the first goes to the first companion.</summary>
-    private static readonly List<DrawingCompanion> companions = [];
+    /// <summary>
+    /// How many companions draw at once: a fixed bound, a quarter of the machine's processors, at least two and at most
+    /// six, so a long batch never makes more renderers than this.
+    /// </summary>
+    private static readonly int CompanionCount = Math.Clamp(Environment.ProcessorCount / 4, 2, 6);
 
     /// <summary>
-    /// The pixels each of <paramref name="scenes"/> shows, in order, drawn at once. Every draw has finished when this
-    /// returns or throws; a failing draw's own exception is rethrown, the earliest scene's first.
+    /// The companion threads, each with its renderer made, made on first use as one shared fixture: they and their
+    /// renderers live for the process, so their making is no cost of the check that first draws through them.
     /// </summary>
-    internal static RgbaPixel[][] Draw(ReadOnlySpan<LayeredScene> scenes)
+    private static readonly Lazy<DrawingCompanion[]> companions =
+        new(() => SharedFixtureTiming.Load("Fixture: scene drawing companions", MakeCompanions));
+
+    /// <summary>
+    /// What <paramref name="draw"/> makes of each of <paramref name="items"/>, in item order, the items drawn at once on
+    /// the companions, each companion taking the next item not yet taken. Every item has been drawn when this returns or
+    /// throws; a failing item's own exception is rethrown with its stack, the earliest item's first.
+    /// </summary>
+    /// <param name="items">The independent items to draw.</param>
+    /// <param name="draw">Draws one item on the companion that took it, with that companion's renderer.</param>
+    internal static TResult[] DrawEach<TItem, TResult>(IReadOnlyList<TItem> items, Func<TItem, TResult> draw)
     {
-        var pixels = new RgbaPixel[scenes.Length][];
-        if (scenes.IsEmpty)
-            return pixels;
-        var drawing = new Task<RgbaPixel[]>[scenes.Length];
-        for (int index = 1; index < scenes.Length; index++)
-            drawing[index] = Companion(index - 1).Draw(scenes[index]);
-        ExceptionDispatchInfo? failure = null;
-        try
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(draw);
+        var results = new TResult[items.Count];
+        if (items.Count == 0)
+            return results;
+        var failures = new ExceptionDispatchInfo?[items.Count];
+        DrawingCompanion[] drawing = companions.Value;
+        int taken = -1;
+        var running = new Task[Math.Min(drawing.Length, items.Count)];
+        for (int companion = 0; companion < running.Length; companion++)
         {
-            pixels[0] = DisplayRendering.Render(scenes[0]);
+            running[companion] = drawing[companion].Run(() =>
+            {
+                for (int index = Interlocked.Increment(ref taken); index < items.Count; index = Interlocked.Increment(ref taken))
+                {
+                    try
+                    {
+                        results[index] = draw(items[index]);
+                    }
+                    catch (Exception exception)
+                    {
+                        // Held, not handled: rethrown below, in item order, once every companion has finished.
+                        failures[index] = ExceptionDispatchInfo.Capture(exception);
+                    }
+                }
+            });
         }
-        catch (Exception exception)
-        {
-            // Held, not handled: it is rethrown below once no companion still reads the scenes.
-            failure = ExceptionDispatchInfo.Capture(exception);
-        }
-        for (int index = 1; index < scenes.Length; index++)
+        ExceptionDispatchInfo? stopped = null;
+        foreach (Task task in running)
         {
             try
             {
-                pixels[index] = drawing[index].GetAwaiter().GetResult();
+                task.GetAwaiter().GetResult();
             }
             catch (Exception exception)
             {
-                // Held, not handled: the first failure, in scene order, is rethrown once every draw has finished.
-                failure ??= ExceptionDispatchInfo.Capture(exception);
+                // Held, not handled: a companion's own failure is rethrown below once every companion has finished.
+                stopped ??= ExceptionDispatchInfo.Capture(exception);
             }
         }
-        failure?.Throw();
-        return pixels;
+        stopped?.Throw();
+        foreach (ExceptionDispatchInfo? failure in failures)
+            failure?.Throw();
+        return results;
     }
 
-    /// <summary>The companion at <paramref name="index"/>, made with every companion before it on first use.</summary>
-    private static DrawingCompanion Companion(int index)
+    /// <summary>Starts the companions and waits until each has made its renderer; a renderer's failure is rethrown here.</summary>
+    private static DrawingCompanion[] MakeCompanions()
     {
-        lock (companions)
-        {
-            while (companions.Count <= index)
-                companions.Add(new DrawingCompanion(companions.Count));
-            return companions[index];
-        }
+        var made = new DrawingCompanion[CompanionCount];
+        for (int number = 0; number < made.Length; number++)
+            made[number] = new DrawingCompanion(number);
+        foreach (DrawingCompanion companion in made)
+            companion.Ready.GetAwaiter().GetResult();
+        return made;
     }
 
-    /// <summary>One scene a companion draws, and where its pixels or its failure go.</summary>
-    /// <param name="Scene">The scene to draw.</param>
-    /// <param name="Drawn">Completed with the scene's pixels, or with the draw's exception.</param>
-    private readonly record struct SceneDraw(LayeredScene Scene, TaskCompletionSource<RgbaPixel[]> Drawn);
+    /// <summary>One piece of work a companion runs, and the task that completes when it has run or failed.</summary>
+    /// <param name="Work">The work to run.</param>
+    /// <param name="Done">Completed once the work has run, or with the work's exception.</param>
+    private readonly record struct CompanionWork(Action Work, TaskCompletionSource Done);
 
     /// <summary>
-    /// A background thread that draws the scenes given to it in order, with the renderer it makes on its first scene and
-    /// keeps for the process. A draw's exception completes that draw's task, which <see cref="Draw"/> rethrows on the
-    /// calling thread; none escapes the thread.
+    /// A background thread that makes its renderer, then runs the work given to it in order, for the life of the process.
+    /// A failure completes the task of the work that failed, which <see cref="DrawEach"/> rethrows on the calling thread;
+    /// none escapes the thread.
     /// </summary>
     private sealed class DrawingCompanion
     {
-        /// <summary>The scenes given to the companion and not yet drawn, in the order they were given.</summary>
-        private readonly BlockingCollection<SceneDraw> pending = new(new ConcurrentQueue<SceneDraw>());
+        /// <summary>The work given to the companion and not yet run, in the order it was given.</summary>
+        private readonly BlockingCollection<CompanionWork> pending = new(new ConcurrentQueue<CompanionWork>());
 
-        /// <summary>Starts the companion's thread.</summary>
+        /// <summary>Completed once the companion's renderer is made, or with the exception that stopped its making.</summary>
+        private readonly TaskCompletionSource ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        /// <summary>Starts the companion's thread, which makes its renderer before it runs any work.</summary>
         /// <param name="number">The companion's place among the companions, which names its thread.</param>
         internal DrawingCompanion(int number)
         {
-            var thread = new Thread(DrawPending)
+            var thread = new Thread(RunPending)
             {
                 IsBackground = true,
                 Name = $"Verification scene drawing {number}",
@@ -95,31 +123,44 @@ internal static class ConcurrentSceneDrawing
             thread.Start();
         }
 
-        /// <summary>Gives the companion <paramref name="scene"/> to draw; the task completes with its pixels.</summary>
-        internal Task<RgbaPixel[]> Draw(LayeredScene scene)
+        /// <summary>Completes once the companion's renderer is made.</summary>
+        internal Task Ready => ready.Task;
+
+        /// <summary>Gives the companion <paramref name="work"/> to run after the work given before it.</summary>
+        internal Task Run(Action work)
         {
-            var drawn = new TaskCompletionSource<RgbaPixel[]>(TaskCreationOptions.RunContinuationsAsynchronously);
-            pending.Add(new SceneDraw(scene, drawn));
-            return drawn.Task;
+            var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            pending.Add(new CompanionWork(work, done));
+            return done.Task;
         }
 
-        /// <summary>Draws each scene given to the companion, for the life of the process.</summary>
-        private void DrawPending()
+        /// <summary>Makes the thread's renderer, then runs each piece of work given to the companion.</summary>
+        private void RunPending()
         {
-            foreach (SceneDraw draw in pending.GetConsumingEnumerable())
+            try
             {
-                RgbaPixel[] pixels;
+                DisplayRendering.Prepare();
+            }
+            catch (Exception exception)
+            {
+                // Passed to the fixture's making, which rethrows it: a companion without a renderer draws nothing.
+                ready.SetException(exception);
+                return;
+            }
+            ready.SetResult();
+            foreach (CompanionWork work in pending.GetConsumingEnumerable())
+            {
                 try
                 {
-                    pixels = DisplayRendering.Render(draw.Scene);
+                    work.Work();
                 }
                 catch (Exception exception)
                 {
-                    // Passed to the caller, which rethrows it: a draw's failure fails the check that asked for it.
-                    draw.Drawn.SetException(exception);
+                    // Passed to the caller, which rethrows it: a failing draw fails the check that asked for it.
+                    work.Done.SetException(exception);
                     continue;
                 }
-                draw.Drawn.SetResult(pixels);
+                work.Done.SetResult();
             }
         }
     }

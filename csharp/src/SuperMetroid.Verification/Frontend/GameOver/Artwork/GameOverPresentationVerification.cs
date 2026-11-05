@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -42,7 +43,7 @@ internal static class GameOverPresentationVerification
                 "compiled Baby sequence reaches the same program step");
             AssertEqual(native.BabyFrame, installed.BabyFrame,
                 "compiled Baby sequence selects the same pose");
-            AssertTrue(native.Render().SequenceEqual(installed.Render()),
+            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
                 $"installed game-over frame {tick} matches cartridge pixels");
             comparedFrames++;
 

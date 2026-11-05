@@ -76,8 +76,7 @@ internal static class CeresFlightArtworkVerification
                 AssertTrue(compiled.Brightness == original.Brightness &&
                         compiledVram.SequenceEqual(originalVram) &&
                         compiled.Paint.Backdrop == original.Paint.Backdrop &&
-                        DisplayRendering.Render(compiled).SequenceEqual(
-                            DisplayRendering.Render(original)),
+                        ScenePixels.Same(compiled, original),
                     $"installed Ceres flight matches native pixels and PPU state at tick {tick}");
             }
             native.StepFrame();

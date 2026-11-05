@@ -30,7 +30,7 @@ internal static class MapStaticPalettesVerification
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
             AssertEqual(installed.World(AreaIds.At(area))[0], world.screen.Backdrop, "the selected area shows its world-map backdrop");
-            AssertTrue(nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "all six stock world selections render identical pixels");
+            AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(nativeWorld.BackgroundsScene(), world.BackgroundsScene()), "all six stock world selections render identical pixels");
         }
         Console.WriteLine("Static map palettes: all six native world selections and pause/file-select colors pass.");
     }

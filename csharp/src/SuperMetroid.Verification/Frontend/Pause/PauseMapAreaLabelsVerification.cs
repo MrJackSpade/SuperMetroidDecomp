@@ -16,6 +16,8 @@ using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks pause-map elevator destination labels and area headings against native OAM and VRAM words.</summary>
 internal static class PauseMapAreaLabelsVerification
@@ -54,7 +56,7 @@ internal static class PauseMapAreaLabelsVerification
             }
             int labelBytes = native.NextByteOffset;
             native.FinalizeFrame();
-            _ = pause.Render();
+            _ = pause.CaptureRenderSnapshot();
             var oam = pause.screen.Objects;
             AssertTrue(oam.LastFinalizedSpriteCount * 4 >= labelBytes, $"{area} pause emits all native destination label parts");
             int start = oam.LastFinalizedSpriteCount * 4 - labelBytes;
@@ -65,23 +67,19 @@ internal static class PauseMapAreaLabelsVerification
             AssertTrue(differs < 0, $"{area} destination spelling, order, coordinates and palette match raw ROM OAM" + (differs < 0 ? "" :
                 $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
-            pause.AdvanceAnimations(phase: PauseAnimationPhase.FadingOut); _ = pause.Render();
+            pause.AdvanceAnimations(phase: PauseAnimationPhase.FadingOut); _ = pause.CaptureRenderSnapshot();
             AssertLabels(0, "outer unpause fade-out");
-            var beforeRestore = pause.Render();
-            using (var stream = new MemoryStream())
-            {
-                DebuggerObjectGraphSerializer.Serialize(stream, pause);
-                stream.Position = 0;
-                pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(stream);
-                pause.BindFixtureArtwork(RetailPresentationFixture());
-            }
-            AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
-            pause.Step(ControllerButton.R, 0); _ = pause.Render();
+            LayeredScene beforeRestore = pause.CaptureRenderSnapshot();
+            // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+            pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
+            pause.BindFixtureArtwork(RetailPresentationFixture());
+            AssertTrue(ScenePixels.Same(beforeRestore, pause.CaptureRenderSnapshot()), "restoring preserves destination-label fade priority");
+            pause.Step(ControllerButton.R, 0); _ = pause.CaptureRenderSnapshot();
             AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
-            pause.Step(0, 0); _ = pause.Render();
+            pause.Step(0, 0); _ = pause.CaptureRenderSnapshot();
             AssertLabels(0, "map-to-equipment fade-out");
             for (int frame = 0; frame < 29; frame++) pause.Step(0, 0);
-            _ = pause.Render();
+            _ = pause.CaptureRenderSnapshot();
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment page reached");
             AssertTrue(pause.screen.Objects.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
             // Page input is accepted only once the equipment fade-in completes (#1266 cadence).
@@ -92,7 +90,7 @@ internal static class PauseMapAreaLabelsVerification
             }
             pause.Step(ControllerButton.L, 0);
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
-            _ = pause.Render();
+            _ = pause.CaptureRenderSnapshot();
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "map fade-in reached");
             AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
             void AssertLabels(int firstByte, string phase)

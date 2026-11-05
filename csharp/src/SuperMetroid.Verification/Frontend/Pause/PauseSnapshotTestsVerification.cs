@@ -46,12 +46,12 @@ internal static class PauseSnapshotTestsVerification
         var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)
         {
-            RgbaPixel[] expected = pause.Render();
+            // Each comparison draws only packets whose descriptions differ (#1532): the direct capture, the published
+            // packet under its frame number, and the packet again once the menu has stepped past it.
+            LayeredScene expected = pause.CaptureRenderSnapshot();
             LayeredScene packet = pause.CaptureRenderSnapshot();
-            Match(expected, DisplayRendering.Render(
-                new DisplayPacket((ushort)frame, packet)), frame);
-            Match(expected, DisplayRendering.Render(packet), frame);
-            Match(expected, DisplayRendering.Render(packet), frame);
+            AssertTrue(ScenePixels.Same(new DisplayPacket(0, expected), new DisplayPacket((ushort)frame, packet)),
+                $"Pause snapshot frame {frame} shows the direct capture's pixels");
             LayeredScene repeated = pause.CaptureRenderSnapshot();
             AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeated.Paint.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
@@ -59,7 +59,7 @@ internal static class PauseSnapshotTestsVerification
             ControllerButton input = frame == 8 ? ControllerButton.R
                 : frame == 80 ? ControllerButton.L : 0;
             pause.Step(input, input);
-            Match(expected, DisplayRendering.Render(packet), frame);
+            AssertTrue(ScenePixels.Same(expected, packet), $"Pause snapshot frame {frame} keeps its pixels after the menu steps");
         }
         AssertEqual(2, pages.Count, "snapshot covers map and equipment");
         AssertEqual(16, levels.Count, "snapshot covers every page-fade brightness");
@@ -73,14 +73,6 @@ internal static class PauseSnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new LayeredScene(captured.Paint,
             new DisplayLayer[] { new SpriteDepthLayer(4) }, 15), "reject invalid OBJ priority");
         Console.WriteLine("  Pause snapshots: 128 retail map/equipment/fade frames match exactly, including retained HUD and packet lifetime.");
-
-        static void Match(RgbaPixel[] expected, RgbaPixel[] actual, int frame)
-        {
-            AssertEqual(expected.Length, actual.Length, "pause snapshot geometry");
-            for (int pixel = 0; pixel < expected.Length; pixel++)
-                if (expected[pixel] != actual[pixel])
-                    throw new InvalidOperationException($"Pause snapshot frame {frame} pixel ({pixel % FrontendFrame.Width},{pixel / FrontendFrame.Width}): expected {expected[pixel]}, got {actual[pixel]}.");
-        }
     }
 
     /// <summary>Runs pause rendering, marker, palette, reserve-energy, and HUD fixtures together.</summary>

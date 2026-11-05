@@ -54,8 +54,7 @@ internal static class EndingRewardIconArtworkVerification
                 byte[] actualVram = installedScene.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actualColours.SequenceEqual(expectedColours) &&
-                        DisplayRendering.Render(actual).SequenceEqual(
-                            DisplayRendering.Render(expected)),
+                        ScenePixels.Same(actual, expected),
                     $"reward icon preserves native VRAM and pixels at jump frame {jumpFrames}");
             }
             nativeScene.Step();

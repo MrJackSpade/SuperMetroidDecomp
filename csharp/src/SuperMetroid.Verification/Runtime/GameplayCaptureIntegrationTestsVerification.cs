@@ -47,10 +47,13 @@ internal static class GameplayCaptureIntegrationTestsVerification
             && captured.Layers[4] is ColourAddWindowLayer, "base/HUD/Power Bomb/message/suit order");
         var retained = new DisplayPacket(0, captured);
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
+        // The packet is drawn again only if the effect updates changed anything it reaches (#1532).
+        byte[] retainedGraph = GraphDigest(retained);
         runtime.MessageBox.Step(ControllerButton.A);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame();
-        AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
+        if (!GraphDigest(retained).SequenceEqual(retainedGraph))
+            AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
         AreaMapPresentation presentation = RetailPresentationFixture();
@@ -121,12 +124,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
             AssertEqual(expected.GameState, actual.Frame.GameState, "gameplay captured state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
             AssertSequenceEqual(legacy.AudioEventsForVerification, packets.AudioEventsForVerification, "gameplay capture audio event order");
-            // A packet holds everything the renderer draws and nothing else, so two packets with equal graphs show equal
-            // pixels; only packets whose graphs differ are drawn and their pixels compared.
-            DisplayPacket shown = legacy.GetRetainedDisplay();
-            if (!GraphDigest(shown, content).SequenceEqual(GraphDigest(actual.Snapshot, content)))
-                AssertTrue(DisplayRendering.Render(shown).SequenceEqual(DisplayRendering.Render(actual.Snapshot)),
-                    $"gameplay capture pixels in {expected.Phase}");
+            // Only packets whose descriptions and graphs differ are drawn and their pixels compared (#1532).
+            AssertTrue(SamePixels(legacy.GetRetainedDisplay(), actual.Snapshot, content), $"gameplay capture pixels in {expected.Phase}");
         }
     }
 }

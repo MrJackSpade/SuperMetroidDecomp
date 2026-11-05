@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks pause equipment selector placement, animation, and restored-state rebinding.</summary>
@@ -33,8 +34,8 @@ internal static class PauseSelectorsVerification
             var native = Create(bus, catalog, anchor.Category, anchor.Item);
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
             AssertEqual(new CursorBeforeRestore(anchor.Category, anchor.Item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
-            // Every tick compares the complete render inputs; pixels are rasterized once per
-            // displayed selector frame, since identical inputs cannot render differently.
+            // Every tick compares the complete render inputs; the pixels are compared once per displayed selector frame,
+            // drawing the two frames only when their descriptions differ (#1532).
             int renderedFrame = -1;
             for (int tick = 0; tick < 100; tick++)
             {
@@ -49,12 +50,12 @@ internal static class PauseSelectorsVerification
                 if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
                 {
                     renderedFrame = pause.ItemSelectorAnimationState.Frame;
-                    AssertTrue(native.Render().SequenceEqual(pause.Render()), "all sixteen selectors match native pixels with pointer/art/position/timing reads forbidden");
+                    AssertTrue(ScenePixels.Same(nativeInputs, portInputs), "all sixteen selectors match native pixels with pointer/art/position/timing reads forbidden");
                 }
                 if (tick == 51)
                 {
-                    using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, pause); state.Position = 0;
-                    pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); pause.BindFixtureArtwork(catalog);
+                    // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+                    pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause); pause.BindFixtureArtwork(catalog);
                 }
             }
         }

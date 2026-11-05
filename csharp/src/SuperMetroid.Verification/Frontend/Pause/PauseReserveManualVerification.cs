@@ -83,10 +83,8 @@ internal static class PauseReserveManualVerification
                 AssertEqual(Math.Min(99, startingHealth + frame + 1), samus.Health, "manual energy progression");
                 if (frame == 0 && startingHealth == 20)
                 {
-                    using var state = new MemoryStream();
-                    DebuggerObjectGraphSerializer.Serialize(state, pause);
-                    state.Position = 0;
-                    var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
+                    // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+                    var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
                     AssertEqual((ushort)15, restored.ReserveTransferSoundDelay.RawValue, "debugger state preserves pending transfer delay");
                 }
             }

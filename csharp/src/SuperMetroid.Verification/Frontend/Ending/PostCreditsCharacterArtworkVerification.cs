@@ -46,8 +46,7 @@ internal static class PostCreditsCharacterArtworkVerification
                     byte[] actualVram = installed.ShownVram();
                     AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                             actualColours.SequenceEqual(expectedColours) &&
-                            DisplayRendering.Render(actual).SequenceEqual(
-                                DisplayRendering.Render(expected)),
+                            ScenePixels.Same(actual, expected),
                         $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Stage.Phase}");
                 }
                 native.Step();
@@ -83,8 +82,7 @@ internal static class PostCreditsCharacterArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actualColours.SequenceEqual(expectedColours) &&
-                        DisplayRendering.Render(actual).SequenceEqual(
-                            DisplayRendering.Render(expected)),
+                        ScenePixels.Same(actual, expected),
                     $"installed post-shot logo preserves native VRAM/pixels in {hours}h frame {frame}");
             }
             if (hours == 2)
@@ -106,8 +104,7 @@ internal static class PostCreditsCharacterArtworkVerification
                         byte[] actualVram = installed.ShownVram();
                         AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                                 actualColours.SequenceEqual(expectedColours) &&
-                                DisplayRendering.Render(actual).SequenceEqual(
-                                    DisplayRendering.Render(expected)),
+                                ScenePixels.Same(actual, expected),
                             $"installed logo pixels at frame {frame}");
                     }
                     native.Step();

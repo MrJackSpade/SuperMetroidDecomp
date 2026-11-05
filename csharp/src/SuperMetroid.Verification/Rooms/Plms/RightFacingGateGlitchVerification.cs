@@ -78,54 +78,72 @@ internal static class RightFacingGateGlitchVerification
         int gateY = residentGate.BlockIndex / original.Size.X * 16;
         int cameraX = gateX - 128;
         int cameraY = 0;
-        var actual = new List<string>();
-        // PLM setup only uploads into VRAM; nothing below reads it, so every position shares one image.
-        var populationVram = new SnesVram();
-        // One pristine level and one working level restored from it per position. The
-        // field-by-field check proves no state from the previous position survives.
-        RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.Terrain, original.Behaviors, original.BackgroundPlane.Blocks));
-        RoomLevelData pristine = NewLevel();
-        RoomLevelData level = NewLevel();
         // The authored population is an immutable import record, read from the cartridge once for every position.
         RoomPlmPopulation population = RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer);
         RoomPlmSystem unboundPlms = PlmFixtures.Unbound();
-        for (int x = gateX - 192; x < gateX; x++)
-        for (int y = gateY - 32; y <= gateY + 96; y++)
+        var areaIndex = runtime.Room.LoadedRoom.AreaIndex;
+        // Published once here, so no worker builds the room's lazily published background plane.
+        SuperMetroid.Core.Rooms.Backgrounds.RoomLevelPlane background = original.BackgroundPlane;
+        int firstX = gateX - 192;
+        var activationsByColumn = new List<string>[gateX - firstX];
+        // The shared installed fixtures every position's Samus, shots and bombs are built from load here, on the suite's
+        // own thread, as timed shared fixture loads; the workers then only read them.
+        SuperMetroid.Core.Compatibility.LaidOutProgramContinuation<SamusPoseId> animationContinuation = InstalledFixtures.AnimationContinuation;
+        _ = CreateProjectileFixture();
+        _ = CreateBombFixture();
+        // Each launch column runs on its own worker with its own levels and VRAM (#1532): a position reads only the
+        // immutable population, the installed definitions every fixture shares unchanged, and its own Samus, PLM, shot
+        // and bomb systems, so the columns are independent.
+        ParallelSweep.For(firstX, gateX, x =>
         {
-            level.RestoreFrom(pristine);
-            AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+            var columnActivations = new List<string>();
+            // PLM setup only uploads into VRAM; nothing below reads it, so every position of a column shares one image.
+            var populationVram = new SnesVram();
+            // One pristine level and one working level restored from it per position. The
+            // field-by-field check proves no state from the previous position survives.
+            RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.Terrain, original.Behaviors, background.Blocks));
+            RoomLevelData pristine = NewLevel();
+            RoomLevelData level = NewLevel();
+            for (int y = gateY - 32; y <= gateY + 96; y++)
             {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
-                PoseId = SamusPoseId.FacingRightNormalPose,
-                SelectedHudItem = HudItem.SuperMissile,
-                SuperMissiles = 10,
-                MaxSuperMissiles = 10,
-            };
-            // Loading binds a new PLM system to this position's level, so every position starts from the same unbound one.
-            RoomPlmSystem plms = unboundPlms;
-            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(populationVram), new SharedGameState(), runtime.Room.LoadedRoom.AreaIndex), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-            for (int warm = 0; warm < 2; warm++)
-                plms.Step(level);
-            plms.Gates.TakeDownwardGateProjectileRequests();
-
-            var shots = CreateProjectileFixture();
-            var bombs = CreateBombFixture();
-            for (int frame = 0; frame < 30; frame++)
-            {
-                ControllerButton input = frame == 0 ? ControllerButton.X : 0;
-                bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
-                var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
-                if (gate.LoopTimer != 0)
+                level.RestoreFrom(pristine);
+                AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
+                var samus = new SamusState(animationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
                 {
-                    SamusProjectileSlot shot = shots.Slots[0];
-                    actual.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
-                    break;
+                    Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
+                    PoseId = SamusPoseId.FacingRightNormalPose,
+                    SelectedHudItem = HudItem.SuperMissile,
+                    SuperMissiles = 10,
+                    MaxSuperMissiles = 10,
+                };
+                // Loading binds a new PLM system to this position's level, so every position starts from the same unbound one.
+                RoomPlmSystem plms = unboundPlms;
+                PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(populationVram), new SharedGameState(), areaIndex), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+                for (int warm = 0; warm < 2; warm++)
+                    plms.Step(level);
+                plms.Gates.TakeDownwardGateProjectileRequests();
+
+                var shots = CreateProjectileFixture();
+                var bombs = CreateBombFixture();
+                for (int frame = 0; frame < 30; frame++)
+                {
+                    ControllerButton input = frame == 0 ? ControllerButton.X : 0;
+                    bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                    shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
+                    var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
+                    if (gate.LoopTimer != 0)
+                    {
+                        SamusProjectileSlot shot = shots.Slots[0];
+                        columnActivations.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
+                        break;
+                    }
+                    plms.Step(level);
                 }
-                plms.Step(level);
             }
-        }
+            activationsByColumn[x - firstX] = columnActivations;
+        });
+        // Column by column and row by row within a column, the order the native matrix lists its positives in.
+        List<string> actual = [.. activationsByColumn.SelectMany(column => column)];
 
         AssertEqual(expected.Length, actual.Count,
             "Pink Brinstar right-gate native positive count; omitted matrix rows are negative controls");

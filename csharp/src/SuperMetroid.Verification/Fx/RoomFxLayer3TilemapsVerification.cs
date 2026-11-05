@@ -56,47 +56,18 @@ internal static class RoomFxLayer3TilemapsVerification
         Console.WriteLine("  Room-FX BG3 tilemaps: six complete native pages and five guarded installed loads pass.");
     }
 
-    /// <summary>Checks a lava tile edit reaches production VRAM and removing the override restores stock art.</summary>
-    internal static void VerifyRoomFxLayer3TilemapOverride(
-        string stock, string overrides, AreaMapPresentation baseline)
+    /// <summary>Checks that the room-FX BG3 tilemap codec rejects malformed documents.</summary>
+    internal static void VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(string stock)
     {
-        string path = Path.Combine(overrides, RoomFxLayer3TilemapFormat.FileName);
-        string stockPath = Path.Combine(stock, RoomFxLayer3TilemapFormat.FileName);
         RoomFxLayer3TilemapDocument document = JsonSerializer.Deserialize<RoomFxLayer3TilemapDocument>(
-            File.ReadAllBytes(stockPath), CamelCaseCaseInsensitiveJson) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
-        RoomBackgroundTilemapCell originalCell = document.Pages[nameof(RoomFxType.Lava)][0];
-        document.Pages[nameof(RoomFxType.Lava)][0] = originalCell with
-        {
-            TileColumn = (originalCell.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
-        };
-        using (var output = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
-            RoomFxLayer3Pages.Write(output, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
-            "room-FX BG3 edit changes installed content identity");
-        AssertTrue(!InstalledAreaMapPresentation.RoomFxPagesOf(edited).Resolve(RoomFxType.Lava).Span.SequenceEqual(
-            InstalledAreaMapPresentation.RoomFxPagesOf(baseline).Resolve(RoomFxType.Lava).Span),
-            "room-FX BG3 edit changes the selected tilemap words");
-        ushort[] plane = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
-            InstalledAreaMapPresentation.RoomFxPagesOf(edited), out CartridgeReadGuard guarded);
-        ushort editedWord = BitConverter.ToUInt16(
-            InstalledAreaMapPresentation.RoomFxPagesOf(edited).ResolveBytes(RoomFxType.Lava).AsSpan(0, sizeof(ushort)));
-        AssertEqual(editedWord, plane[Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns],
-            "edited lava tile cell reaches the room's BG3 plane");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "edited lava page loads without native art or pointer reads");
+            File.ReadAllBytes(Path.Combine(stock, RoomFxLayer3TilemapFormat.FileName)), CamelCaseCaseInsensitiveJson) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
         AssertThrows<InvalidDataException>(() =>
         {
-            document.Pages[nameof(RoomFxType.Lava)][0] = originalCell with { TileColumn = 32 };
+            document.Pages[nameof(RoomFxType.Lava)][0] = document.Pages[nameof(RoomFxType.Lava)][0] with { TileColumn = 32 };
             using var invalid = new MemoryStream();
             RoomFxLayer3Pages.Write(invalid, document);
             _ = RoomFxLayer3Pages.Load(new MemoryStream(invalid.ToArray(), writable: false));
         }, "invalid room-FX BG3 tile index fails loudly on read");
-        File.Delete(path);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
-            "removing room-FX BG3 override restores stock content identity");
-        Console.WriteLine("Room-FX BG3 override: edited lava tile reaches the BG3 plane and removal restores stock.");
     }
 
     /// <summary>

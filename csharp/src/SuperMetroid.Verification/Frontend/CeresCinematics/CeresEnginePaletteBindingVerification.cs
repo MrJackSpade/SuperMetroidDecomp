@@ -18,7 +18,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
-/// <summary>Checks that Ceres gunship engine colors remain bound after a debugger state restore and artwork replacement.</summary>
+/// <summary>Checks that Ceres gunship engine colors remain bound after a debugger state restore and artwork rebind.</summary>
 internal static class CeresEnginePaletteBindingVerification
 {
     /// <summary>
@@ -28,7 +28,7 @@ internal static class CeresEnginePaletteBindingVerification
     internal static void VerifyCeresEnginePaletteBinding(string installationRoot)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
-        AreaMapPresentation stock = MapPresentationFiles.Load(installation.MapDirectory, null);
+        AreaMapPresentation stock = MapPresentationFiles.Load(installation.MapDirectory);
         IntroCinematicArtwork artwork = installation.LoadIntroCinematicArt();
         InstalledSpriteSheets sheets = installation.LoadSpriteSheets();
         RgbColor[] nativeColors = [RgbColor.White, RgbColor.Black]; // Pinned $8D:C880/$C886, not runtime ROM reads.
@@ -56,62 +56,42 @@ internal static class CeresEnginePaletteBindingVerification
                 $"#1150 stock engine color and native one-frame cadence, tick {frame}");
         }
 
-        // Restore, then bind edited art through the same frontend entry point as the desktop
-        // host; an art replacement must change the next color, not restart the program's timer.
+        // Restore, then bind the installed art through the same frontend entry point as the desktop
+        // host; the rebind must keep the flicker's program and timer, not restart them.
         using var state = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(state, game);
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(state);
-        using var editsScratch = new TestScratchDirectory("ceres-engine-1150");
-        string edits = editsScratch.Root;
-        Directory.CreateDirectory(edits);
-        try
+        // Installed artwork is not saved state; the host rebinds all of it after a restore.
+        restored.BindArtwork(restored.Artwork with
         {
-            string paletteFile = Path.Combine(installation.MapDirectory, RoomPaletteFxPresentationFormat.FileName);
-            JsonObject document = RequiredJson.Parse(File.ReadAllText(paletteFile)).AsObject();
-            string key = document.Select(property => property.Key).Single(name =>
-                name.Equals(nameof(RoomPaletteFxPresentationDocument.CeresGunshipEngineLights), StringComparison.OrdinalIgnoreCase));
-            document[key] = new JsonArray(
-                new JsonArray(new JsonObject { ["red"] = 31, ["green"] = 0, ["blue"] = 0 }),
-                new JsonArray(new JsonObject { ["red"] = 0, ["green"] = 31, ["blue"] = 0 }));
-            File.WriteAllText(Path.Combine(edits, RoomPaletteFxPresentationFormat.FileName), document.ToJsonString());
-            AreaMapPresentation edited = MapPresentationFiles.Load(installation.MapDirectory, edits);
-            // Installed artwork is not saved state; the host rebinds all of it after a restore.
-            restored.BindArtwork(restored.Artwork with
-            {
-                MapPresentation = edited,
-                IntroCinematicArt = artwork,
-                SpriteSheets = sheets,
-            });
-            CeresDestructionCinematicState restoredScene = Scene(restored);
-            RgbColor[] replacementColors = [new(31, 0, 0), new(0, 31, 0)];
-            for (int frame = 0; frame < 4; frame++)
-            {
-                game.Step(0);
-                restored.Step(0);
-                AssertEqual(scene.EngineShading, restoredScene.EngineShading, "palette rebind preserves the flicker's record");
-                AssertEqual(replacementColors[frame % replacementColors.Length],
-                    EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(edited.RoomPaletteFx)),
-                    $"#1150 the edited installation's floor is pre-coloured in the edited colours, tick {frame}");
-                AssertEqual(scene.Phase, restoredScene.Phase, "palette rebind preserves cinematic phase");
-                AssertEqual(scene.Zoom, restoredScene.Zoom, "palette rebind preserves camera scale");
-                AssertEqual(scene.Background.X.Whole, restoredScene.Background.X.Whole, "palette rebind preserves camera X");
-                AssertEqual(scene.Background.Y.Whole, restoredScene.Background.Y.Whole, "palette rebind preserves camera Y");
-                AssertEqual(game.FrameNumber, restored.FrameNumber, "palette rebind preserves frame clock");
-            }
-
-            // Earlier debugger graphs can lack the lazily created palette owner.
-            // Its reconstruction must receive the rebound provider too.
-            restoredScene.PaletteFx = null;
+            MapPresentation = stock,
+            IntroCinematicArt = artwork,
+            SpriteSheets = sheets,
+        });
+        CeresDestructionCinematicState restoredScene = Scene(restored);
+        for (int frame = 0; frame < 4; frame++)
+        {
+            game.Step(0);
             restored.Step(0);
-            AssertEqual(replacementColors[0], EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(edited.RoomPaletteFx)),
-                "#1150 reconstructed palette owner shows the program's first record again");
+            AssertEqual(scene.EngineShading, restoredScene.EngineShading, "palette rebind preserves the flicker's record");
+            AssertEqual(EngineColour(scene, CinematicSheetFixtures.CeresFloor(stock.RoomPaletteFx)),
+                EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(stock.RoomPaletteFx)),
+                $"#1150 the restored scene shows the running scene's engine colour, tick {frame}");
+            AssertEqual(scene.Phase, restoredScene.Phase, "palette rebind preserves cinematic phase");
+            AssertEqual(scene.Zoom, restoredScene.Zoom, "palette rebind preserves camera scale");
+            AssertEqual(scene.Background.X.Whole, restoredScene.Background.X.Whole, "palette rebind preserves camera X");
+            AssertEqual(scene.Background.Y.Whole, restoredScene.Background.Y.Whole, "palette rebind preserves camera Y");
+            AssertEqual(game.FrameNumber, restored.FrameNumber, "palette rebind preserves frame clock");
         }
-        finally
-        {
-            Directory.Delete(edits, recursive: true);
-        }
-        Console.WriteLine("#1150: stock engine flicker record cadence, edited installation's floor shades, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
+
+        // Earlier debugger graphs can lack the lazily created palette owner.
+        // Its reconstruction must receive the rebound provider too.
+        restoredScene.PaletteFx = null;
+        restored.Step(0);
+        AssertEqual(nativeColors[0], EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(stock.RoomPaletteFx)),
+            "#1150 reconstructed palette owner shows the program's first record again");
+        Console.WriteLine("#1150: stock engine flicker record cadence, restored-state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass.");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
             (owner.Session.ScreenAs<CeresDestructionCinematicState>() ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));

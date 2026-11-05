@@ -66,7 +66,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays.</summary>
     /// <exception cref="InvalidDataException">The installed clips are invalid.</exception>
     public InstalledClipAudioLibrary LoadAudioClips() => InstalledAudioClips.Load(AudioDirectory);
-    /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
+    /// <summary>Installed area-map artwork, exploration masks and menu presentation, which the player edits in place.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     /// <summary>Installed starting CGRAM and room-entry sprite palettes, which the player edits in place.</summary>
     public string GameplayBasePaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName);
@@ -390,11 +390,8 @@ public sealed record GameInstallation(string Root)
     public InstalledEnemyArtwork LoadEnemyTiles() =>
         EnemyTileArtworkFiles.Load(EnemyTileDirectory, EnemyTileOverrideDirectory);
 
-    /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
-    public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
-
-    /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
-    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
+    /// <summary>Loads the installed maps, exploration masks and menu presentation without a cartridge address space.</summary>
+    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory);
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation and

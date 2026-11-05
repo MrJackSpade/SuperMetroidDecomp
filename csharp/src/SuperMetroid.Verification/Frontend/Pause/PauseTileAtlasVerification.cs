@@ -18,28 +18,15 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
-/// <summary>Checks pause UI tile artwork, page rendering, and PNG override isolation against native output.</summary>
+/// <summary>Checks pause UI tile artwork and page rendering against native output.</summary>
 internal static class PauseTileAtlasVerification
 {
-    /// <summary>Compares stock VRAM bytes, three-area menu transitions, live and captured edits, restore rebinding, and malformed resources.</summary>
-    internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
+    /// <summary>Compares stock VRAM bytes, three-area menu transitions and a restored equipment page.</summary>
+    internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         var vram = new SnesVram(); MapCharacterArtwork.Of(original).Pause.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormatConstants.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
-        Directory.CreateDirectory(overrides);
-        string stockPath = Path.Combine(stock, PauseTileAtlasFormat.FileName);
-        string path = Path.Combine(overrides, PauseTileAtlasFormat.FileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        IndexedPngImage image;
-        using (var input = File.OpenRead(stockPath)) image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
-        for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
-        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(original.ContentIdentity != edited.ContentIdentity, "pause-only PNG edit changes content identity");
-        var firstMap = new SnesVram(); var editedMap = new SnesVram();
-        MapCharacterArtwork.Of(original).Map.LoadTo(new VramRegion(firstMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort))); MapCharacterArtwork.Of(edited).Map.LoadTo(new VramRegion(editedMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
-        AssertTrue(firstMap.ImageEquals(editedMap), "pause UI override does not alter shared map characters");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {
             var system = new SharedGameState(); system.SetAreaMapAcquired(area);
@@ -57,37 +44,14 @@ internal static class PauseTileAtlasVerification
             }
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause PNG fixture returns to the map page");
             EnterPauseEquipment(pause);
-            AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "artwork edit fixture reaches equipment page");
+            AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause PNG fixture reaches equipment page");
             var before = pause.Render();
-            var selected = new Selected(pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams);
-            pause.BindFixtureArtwork(edited);
-            var after = pause.Render();
-            AssertTrue(!before.SequenceEqual(after), "pause UI PNG edit reaches actual equipment pixels immediately");
-            AssertTrue(after.SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited pause artwork reaches captured rendering");
-            AssertEqual(selected, new Selected(pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams), "artwork rebind preserves selection and equipment");
             using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, pause); captured.Position = 0;
             pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
             pause.BindFixtureArtwork(original);
-            AssertTrue(before.SequenceEqual(pause.Render()), "restored pause uses current PNG without changing animation phase");
+            AssertTrue(before.SequenceEqual(pause.Render()), "restored pause keeps its pixels and animation phase");
         }
-        File.WriteAllText(path, "invalid PNG");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt pause override is not silently replaced");
-        using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "pause PNG dimensions enforced");
-        image.Pixels[0] = 16;
-        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(17));
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "pause PNG indexes limited to native 4bpp range");
-        File.WriteAllBytes(path, stockBytes);
-        // This is isolated generated fixture stock, never an installed player file.
-        try
-        {
-            File.Delete(stockPath);
-            AssertThrows<IOException>(() => MapPresentationFiles.Load(stock, overrides), "override does not hide missing stock provenance");
-            File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "override does not hide corrupted stock provenance");
-        }
-        finally { File.WriteAllBytes(stockPath, stockBytes); }
-        Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions, immediate edited pixels, capture/restore, equipment isolation and strict resource failures pass.");
+        Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions and capture/restore pass.");
     }
 
 }

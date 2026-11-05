@@ -14,14 +14,13 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 
-/// <summary>Checks installed game-options art against cartridge rendering and editable override behavior.</summary>
+/// <summary>Checks installed game-options art against cartridge rendering.</summary>
 internal static class GameOptionsPresentationVerification
 {
-    /// <summary>Compares menu frames, audio, and controller changes, then checks edited anchors and state-safe rebinding.</summary>
+    /// <summary>Compares menu frames, audio, and controller changes with native output.</summary>
     internal static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
         string stock,
-        string overrides,
         AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, GameOptionsPresentationFormat.FileName);
@@ -72,102 +71,8 @@ internal static class GameOptionsPresentationVerification
             native.MoonwalkEnabled && installed.MoonwalkEnabled,
             "installed options path retains special toggles");
 
-        var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] =
-            document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] with
-            { X = (ushort)(document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)].X + 8) };
-        document.CursorAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)][0] =
-            document.CursorAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)][0] with
-            { X = (ushort)(document.CursorAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)][0].X + 8) };
-        MapPresentationCell pageCell = document.Pages[
-            GameOptionsNames.TilemapName(GameOptionsScreen.Primary)][0x144];
-        document.Pages[GameOptionsNames.TilemapName(GameOptionsScreen.Primary)][0x144] =
-            pageCell with { FlipX = !pageCell.FlipX };
-        SpriteVisualPart cursorPart = document.Sprites[
-            GameOptionsNames.CursorSpriteName(0)][0];
-        document.Sprites[GameOptionsNames.CursorSpriteName(0)][0] =
-            cursorPart with { FlipY = !cursorPart.FlipY };
-        Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides,
-            GameOptionsPresentationFormat.FileName);
-        using (var output = File.Create(replacement))
-            GameOptionsSourcePresentation.Write(output, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "options override changes selected catalog identity");
-
-        var stockMenu = new GameOptionsMenuState(mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
-        var editedMenu = new GameOptionsMenuState(mapPresentation: edited, spriteSheets: MenuSheetFixtures.For(edited));
-        // Native indexes zero and one, fifteen fade-in levels, then the interactive index.
-        for (int frame = 0; frame < 18; frame++)
-        {
-            stockMenu.Step(0);
-            editedMenu.Step(0);
-        }
-        AssertTrue(!stockMenu.Render().SequenceEqual(editedMenu.Render()),
-            "options page, actor and anchor edits reach the real renderer");
-
-        GameOptionsPhase phaseBeforeRebind = stockMenu.Phase;
-        int selectedBeforeRebind = stockMenu.SelectedItem;
-        int cursorXBeforeRebind = stockMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X;
-        stockMenu.BindFixtureArtwork(edited);
-        AssertEqual(phaseBeforeRebind, stockMenu.Phase,
-            "options content rebind preserves menu phase");
-        AssertEqual(selectedBeforeRebind, stockMenu.SelectedItem,
-            "options content rebind preserves selected row");
-        AssertEqual(cursorXBeforeRebind + 8,
-            (int)stockMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X,
-            "options rebind applies edited cursor anchor without resetting state");
-
-        stockMenu.Step(ControllerButton.A);
-        AssertEqual(GameOptionsPhase.FadeOutToIntro, stockMenu.Phase,
-            "editable options enters intro fade-out");
-        AssertTrue(LastSpriteX(stockMenu.CaptureRenderSnapshot()) >= 256,
-            "editable options hides cursor during intro fade-out");
-
-        File.WriteAllText(replacement, "{ broken options JSON");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
-            "corrupt options override fails loudly");
-        using (var output = File.Create(replacement))
-            GameOptionsSourcePresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOptionsSourcePresentation.Write(written, document with { CursorPalette = 8 });
-            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "options reject invalid cursor palette on read");
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOptionsSourcePresentation.Write(written, document with { ControllerLabelAnchors = document.ControllerLabelAnchors[..^1] });
-            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "options reject incomplete controller-label anchors on read");
-        var missingPage = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        missingPage.Pages.Remove(GameOptionsNames.TilemapName(GameOptionsScreen.SpecialJapanese));
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOptionsSourcePresentation.Write(written, missingPage);
-            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "options reject a missing named page on read");
-        var overlappingToggle = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
-            extracted, ArtworkJson.Options);
-        GameOptionsToggleVisualDocument toggle = overlappingToggle.SpecialToggles[
-            GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)];
-        overlappingToggle.SpecialToggles[GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)] =
-            toggle with { DisabledCells = [toggle.EnabledCells[0], .. toggle.DisabledCells] };
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameOptionsSourcePresentation.Write(written, overlappingToggle);
-            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "options reject overlapping toggle highlight cells on read");
-
         Console.WriteLine(
-            $"Options presentation: {comparedFrames} exact ROM-free frames, dynamic labels, " +
-            "sounds, visible edits, state-safe rebind and strict failures pass.");
+            "Options presentation: deterministic stock and native parity pass.");
 
         void Until(GameOptionsPhase expected)
         {

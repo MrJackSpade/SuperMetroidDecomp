@@ -123,65 +123,28 @@ internal static class EndingTextPresentationVerification
         return result;
     }
 
-    /// <summary>Checks deterministic text extraction and that an override changes catalog identity and fails loudly when corrupt.</summary>
+    /// <summary>Checks that the installed ending text is the deterministic cartridge extraction.</summary>
     internal static void VerifyEndingTextAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EndingTextDefinitions.FileName))),
             "installed ending text is the deterministic cartridge extraction");
-        Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
-        document["finalMessage"] = "TEST";
-        string replacement = Path.Combine(overrideDirectory, EndingTextDefinitions.FileName);
-        File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertEqual('T', edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].Character,
-            "catalog override changes installed ending text");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "ending-text override changes catalog content identity");
-        File.WriteAllText(replacement, "{ broken ending text");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt ending-text override fails loudly");
-        Console.WriteLine("Ending-text catalog: deterministic stock, override identity and corruption failure pass.");
+        Console.WriteLine("Ending-text catalog: deterministic stock passes.");
     }
 
-    /// <summary>Checks deterministic indexed-PNG extraction and that a pixel override changes installed VRAM bytes.</summary>
+    /// <summary>Checks that the installed ending font is the deterministic cartridge extraction.</summary>
     internal static void VerifyEndingFontAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EndingFontAtlasFormat.FileName))),
             "installed ending font is the deterministic cartridge extraction");
-        IndexedPngImage image = IndexedPng.Read(new MemoryStream(deterministic, writable: false),
-            new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height));
-        image.Pixels[0] ^= 1;
-        Directory.CreateDirectory(overrideDirectory);
-        string replacement = Path.Combine(overrideDirectory, EndingFontAtlasFormat.FileName);
-        using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertTrue(!EndingFontCharacters.Of(edited.EndingFont).Characters.Span.SequenceEqual(
-            EndingFontCharacters.Of(stockCatalog.EndingFont).Characters.Span),
-            "ending-font override changes installed VRAM bytes");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "ending-font override changes catalog content identity");
-        File.WriteAllText(replacement, "not a PNG");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt ending-font override fails loudly");
-        Console.WriteLine("Ending-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
+        Console.WriteLine("Ending-font catalog: deterministic stock passes.");
     }
 
     /// <summary>Forbids installed typewriter execution from rereading the bank-$8C text and panel source range.</summary>

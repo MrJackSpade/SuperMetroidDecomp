@@ -28,7 +28,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
+/// <summary>Verifies installer startup, upgrade and player-data preservation on a private installation copy.</summary>
 internal static class MapInstallationVerification
 {
     /// <summary>
@@ -115,204 +115,6 @@ internal static class MapInstallationVerification
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameExtractor.FileName), grappleSwing.ToJsonString());
         projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
-        Directory.CreateDirectory(installation.MapOverrideDirectory);
-        string paletteOverride = Path.Combine(installation.MapOverrideDirectory, MapStaticPalettesFormat.FileName);
-        var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStaticPalettesFormat.FileName)));
-        int oldRed = colors.Required("pause").Required(0).Required("red").GetValue<int>();
-        colors.Required("pause").Required(0)["red"] = (oldRed + 1) % 32;
-        File.WriteAllText(paletteOverride, colors.ToJsonString());
-        string roomFxArtworkOverride = Path.Combine(installation.MapOverrideDirectory,
-            RoomFxAnimatedTileAtlasFile.FileName);
-        using (var input = File.OpenRead(Path.Combine(installation.MapDirectory,
-                   RoomFxAnimatedTileAtlasFile.FileName)))
-        {
-            IndexedPngImage image = IndexedPng.Read(input,
-                new(RoomFxAnimatedTileAtlasFile.Width, RoomFxAnimatedTileAtlasFile.Height));
-            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % RoomFxAnimatedTileAtlasFile.ColorCount);
-            using var output = File.Create(roomFxArtworkOverride);
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        }
-        string roomFxTilemapOverride = Path.Combine(installation.MapOverrideDirectory,
-            RoomFxLayer3TilemapFormat.FileName);
-        var roomFxTilemaps = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, RoomFxLayer3TilemapFormat.FileName)));
-        int lavaTileColumn = roomFxTilemaps.Required("pages").Required("Lava").Required(0).Required("tileColumn").GetValue<int>();
-        roomFxTilemaps.Required("pages").Required("Lava").Required(0)["tileColumn"] =
-            (lavaTileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns;
-        File.WriteAllText(roomFxTilemapOverride, roomFxTilemaps.ToJsonString());
-        string roomFxBlendOverride = Path.Combine(installation.MapOverrideDirectory,
-            RoomFxPaletteBlendDefinitions.FileName);
-        var roomFxBlends = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)));
-        string lavaBlendKey = RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.Lava);
-        int lavaBlendRed = roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0).Required("red").GetValue<int>();
-        roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0)["red"] = (lavaBlendRed + 1) % 32;
-        File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());
-        string powerBombColorOverride = Path.Combine(installation.MapOverrideDirectory,
-            PowerBombFixedColorFile.FileName);
-        var powerBombColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, PowerBombFixedColorFile.FileName)));
-        int powerBombRed = powerBombColors.Required("preExplosion").Required(0).Required("red").GetValue<int>();
-        powerBombColors.Required("preExplosion").Required(0)["red"] = (powerBombRed + 1) % 32;
-        File.WriteAllText(powerBombColorOverride, powerBombColors.ToJsonString());
-        string samusVisorColorOverride = Path.Combine(installation.MapOverrideDirectory,
-            SamusVisorColorFile.FileName);
-        var samusVisorColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, SamusVisorColorFile.FileName)));
-        int visorRed = samusVisorColors.Required("colors").Required(3).Required("red").GetValue<int>();
-        samusVisorColors.Required("colors").Required(3)["red"] = (visorRed + 1) % 32;
-        File.WriteAllText(samusVisorColorOverride, samusVisorColors.ToJsonString());
-        string samusHurtColorOverride = Path.Combine(installation.MapOverrideDirectory,
-            SamusHurtColorFile.FileName);
-        var samusHurtColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, SamusHurtColorFile.FileName)));
-        int hurtRed = samusHurtColors.Required("hurt").Required(5).Required("red").GetValue<int>();
-        samusHurtColors.Required("hurt").Required(5)["red"] = (hurtRed + 1) % 32;
-        File.WriteAllText(samusHurtColorOverride, samusHurtColors.ToJsonString());
-        string samusHyperBeamColorOverride = Path.Combine(installation.MapOverrideDirectory,
-            SamusHyperBeamColorFormat.FileName);
-        var samusHyperBeamColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, SamusHyperBeamColorFormat.FileName)));
-        int hyperRed = samusHyperBeamColors.Required("frames").Required(4).Required(7).Required("red").GetValue<int>();
-        samusHyperBeamColors.Required("frames").Required(4).Required(7)["red"] = (hyperRed + 1) % 32;
-        File.WriteAllText(samusHyperBeamColorOverride, samusHyperBeamColors.ToJsonString());
-        string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
-        var stations = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)));
-        stations.Required("markers").Required("Brinstar.Missile.0")["x"] = 80;
-        File.WriteAllText(stationOverride, stations.ToJsonString());
-        string landmarkOverride = Path.Combine(installation.MapOverrideDirectory, MapLandmarkFormat.FileName);
-        var landmarks = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapLandmarkFormat.FileName)));
-        landmarks.Required("markers").Required("Boss.Phantoon")["x"] = 160;
-        File.WriteAllText(landmarkOverride, landmarks.ToJsonString());
-        string saveMarkerOverride = Path.Combine(installation.MapOverrideDirectory, MapSaveMarkerFormat.FileName);
-        var saveMarkers = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSaveMarkerFormat.FileName)));
-        saveMarkers.Required("markers").Required("Maridia.Save.0")["x"] = 104;
-        File.WriteAllText(saveMarkerOverride, saveMarkers.ToJsonString());
-        string arrowOverride = Path.Combine(installation.MapOverrideDirectory, MapArrowFormat.FileName);
-        var arrows = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapArrowFormat.FileName)));
-        arrows.Required("arrows").Required("Left")["x"] = 24;
-        File.WriteAllText(arrowOverride, arrows.ToJsonString());
-        string screenOverride = Path.Combine(installation.MapOverrideDirectory, MapScreenDefinitions.FileName);
-        var screens = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapScreenDefinitions.FileName)));
-        screens.Required("pages").Required(MapScreenDefinitions.WorldForeground.Name).Required(0)["flipX"] = true;
-        File.WriteAllText(screenOverride, screens.ToJsonString());
-        string backdropOverride = Path.Combine(installation.MapOverrideDirectory, PauseBackdropDefinitions.FileName);
-        var backdrops = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseBackdropDefinitions.FileName)));
-        backdrops.Required("areas").Required("Maridia").Required(170)["flipX"] = true;
-        backdrops.Required("buttons").Required(300)["flipX"] = true;
-        File.WriteAllText(backdropOverride, backdrops.ToJsonString());
-        string wireframeOverride = Path.Combine(installation.MapOverrideDirectory, PauseWireframeDefinitions.FileName);
-        var wireframes = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseWireframeDefinitions.FileName)));
-        wireframes.Required("frames").Required("PowerSuit").Required(0)["flipX"] = true;
-        File.WriteAllText(wireframeOverride, wireframes.ToJsonString());
-        string selectorOverride = Path.Combine(installation.MapOverrideDirectory, PauseSelectorFormat.FileName);
-        var selectors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseSelectorFormat.FileName)));
-        selectors.Required("anchors").Required("Beam.Charge")["x"] = 48;
-        File.WriteAllText(selectorOverride, selectors.ToJsonString());
-        string reserveOverride = Path.Combine(installation.MapOverrideDirectory, PauseReserveTankFormat.FileName);
-        var reserve = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseReserveTankFormat.FileName)));
-        reserve.Required("anchors").Required(0)["x"] = 40;
-        File.WriteAllText(reserveOverride, reserve.ToJsonString());
-        string reserveUiOverride = Path.Combine(installation.MapOverrideDirectory, PauseReserveUiDefinitions.FileName);
-        var reserveUi = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseReserveUiDefinitions.FileName)));
-        reserveUi.Required("digits").Required("cells").Required(5)["flipX"] = true;
-        File.WriteAllText(reserveUiOverride, reserveUi.ToJsonString());
-        string equipmentBaseOverride = Path.Combine(installation.MapOverrideDirectory, PauseEquipmentBaseDefinitions.FileName);
-        var equipmentBase = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentBaseDefinitions.FileName)));
-        equipmentBase.Required("cells").Required(194)["flipX"] = true;
-        File.WriteAllText(equipmentBaseOverride, equipmentBase.ToJsonString());
-        string equipmentLabelOverride = Path.Combine(installation.MapOverrideDirectory, PauseEquipmentLabelArtworkDefinitions.FileName);
-        var equipmentLabels = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentLabelArtworkDefinitions.FileName)));
-        equipmentLabels.Required("labels").Required("Beam.Charge").Required("cells").Required(0)["flipX"] = true;
-        File.WriteAllText(equipmentLabelOverride, equipmentLabels.ToJsonString());
-        string escapeTimerOverride = Path.Combine(installation.MapOverrideDirectory, EscapeTimerLayoutDefinitions.FileName);
-        var escapeTimer = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerLayoutDefinitions.FileName)));
-        escapeTimer.Required("anchors").Required("Minutes")["x"] = -27;
-        File.WriteAllText(escapeTimerOverride, escapeTimer.ToJsonString());
-        string escapeTimerTileOverride = Path.Combine(
-            installation.MapOverrideDirectory, EscapeTimerTileAtlasFormat.FileName);
-        using (var input = File.OpenRead(Path.Combine(
-            installation.MapDirectory, EscapeTimerTileAtlasFormat.FileName)))
-        {
-            var timerImage = IndexedPng.Read(input,
-                new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height));
-            timerImage.Pixels[0] ^= 1;
-            using var output = File.Create(escapeTimerTileOverride);
-            IndexedPng.Write(output, new(timerImage.Size.X, timerImage.Size.Y),
-                timerImage.Pixels, timerImage.Colours);
-        }
-        string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDocumentDefinitions.FileName);
-        var gameplayHud = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDocumentDefinitions.FileName)));
-        gameplayHud.Required("digits").Required("healthAnchor")["x"] = 4;
-        File.WriteAllText(gameplayHudOverride, gameplayHud.ToJsonString());
-        string gameOverOverride = Path.Combine(installation.MapOverrideDirectory, GameOverPresentationFormat.FileName);
-        var gameOver = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOverPresentationFormat.FileName)));
-        gameOver.Required("babyAnchor")["x"] = 132;
-        File.WriteAllText(gameOverOverride, gameOver.ToJsonString());
-        string gameOptionsOverride = Path.Combine(installation.MapOverrideDirectory, GameOptionsPresentationFormat.FileName);
-        var gameOptions = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationFormat.FileName)));
-        gameOptions.Required("cursorAnchors").Required(GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
-        File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
-        string fileSelectOverride = Path.Combine(installation.MapOverrideDirectory, FileSelectPresentationFormat.FileName);
-        var fileSelect = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationFormat.FileName)));
-        fileSelect.Required("mainCursorAnchors").Required(0)["x"] = 22;
-        File.WriteAllText(fileSelectOverride, fileSelect.ToJsonString());
-        string spriteOverride = Path.Combine(installation.MapOverrideDirectory, MapSpriteFormat.JsonFile);
-        var sprites = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)));
-        sprites.Required("frames").Required("Marker.Boss").Required(0)["offsetX"] = 12;
-        File.WriteAllText(spriteOverride, sprites.ToJsonString());
-        var artworkOverrides = new List<string> { escapeTimerTileOverride };
-        foreach (var atlas in new[] { new VerifyMapInstallationCase(WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16, WorldMapArtworkFormat.Width),
-            new VerifyMapInstallationCase(WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4, WorldMapArtworkFormat.Width),
-            new VerifyMapInstallationCase(MapSpriteFormat.PngFile, MapSpriteFormat.Height, 16, MapSpriteFormat.Width),
-            new VerifyMapInstallationCase(PauseTileAtlasFormat.FileName, MapTileAtlasFormat.Height, 16, MapTileAtlasFormat.Width) })
-        {
-            IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(installation.MapDirectory, atlas.First)))
-                image = IndexedPng.Read(input, new(checked((ushort)atlas.Width), checked((ushort)atlas.Second)));
-            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % atlas.Third);
-            string path = Path.Combine(installation.MapOverrideDirectory, atlas.First);
-            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            artworkOverrides.Add(path);
-        }
-        var edited = installation.LoadMaps();
-        AssertEqual(24, edited.Arrows.Get(SuperMetroid.Core.Frontend.Map.MapScrollDirection.Left).Position.X, "full installation consumes arrow override");
-        AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Progression.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
-        AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
-        AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
-        AssertTrue(GameOptionsSourcePresentation.Of(stock.GameOptions).ContentIdentity != GameOptionsSourcePresentation.Of(edited.GameOptions).ContentIdentity,
-            "full installation consumes options-menu override");
-        AssertTrue(FileSelectSourcePresentation.Of(stock.FileSelect).ContentIdentity != FileSelectSourcePresentation.Of(edited.FileSelect).ContentIdentity,
-            "full installation consumes file-select override");
-        AssertTrue(!EscapeTimerTilePageTransfers.Resolve(InstalledAreaMapPresentation.EscapeTimerTilesOf(stock), SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
-            EscapeTimerTilePageTransfers.Resolve(InstalledAreaMapPresentation.EscapeTimerTilesOf(edited), SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span),
-            "full installation consumes escape-timer artwork override");
-        AssertTrue(stock.RoomFxAnimatedTiles.TryResolve(
-                AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0)), 0x40,
-                out ReadOnlyMemory<byte> stockRoomFx) &&
-            edited.RoomFxAnimatedTiles.TryResolve(
-                AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0)), 0x40,
-                out ReadOnlyMemory<byte> editedRoomFx) &&
-            !stockRoomFx.Span.SequenceEqual(editedRoomFx.Span),
-            "full installation consumes room-FX animation artwork override");
-        AssertTrue(!SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(stock).Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span.SequenceEqual(
-            SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(edited).Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span),
-            "full installation consumes room-FX BG3 tilemap override");
-        AssertTrue(!stock.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava).SequenceEqual(
-            edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)),
-            "full installation consumes room-FX palette-blend override");
-        AssertTrue(stock.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
-            edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0),
-            "full installation consumes Power Bomb fixed-color override");
-        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(stock).Visor.Resolve(3) != InstalledAreaMapPresentation.SamusColoursOf(edited).Visor.Resolve(3),
-            "full installation consumes Samus visor color override");
-        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(stock).Hurt.Resolve(SamusHurtColorVariant.Hurt, 5) !=
-            InstalledAreaMapPresentation.SamusColoursOf(edited).Hurt.Resolve(SamusHurtColorVariant.Hurt, 5),
-            "full installation consumes Samus hurt color override");
-        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(stock).HyperBeam.Resolve(4, 7) !=
-            InstalledAreaMapPresentation.SamusColoursOf(edited).HyperBeam.Resolve(4, 7),
-            "full installation consumes Hyper Beam color override");
-        AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
         {
@@ -324,39 +126,12 @@ internal static class MapInstallationVerification
             [flareOverride] = File.ReadAllBytes(flareOverride),
             [flareCompositionOverride] = File.ReadAllBytes(flareCompositionOverride),
             [grappleOverride] = File.ReadAllBytes(grappleOverride),
-            [paletteOverride] = File.ReadAllBytes(paletteOverride),
-            [roomFxArtworkOverride] = File.ReadAllBytes(roomFxArtworkOverride),
-            [roomFxTilemapOverride] = File.ReadAllBytes(roomFxTilemapOverride),
-            [roomFxBlendOverride] = File.ReadAllBytes(roomFxBlendOverride),
-            [powerBombColorOverride] = File.ReadAllBytes(powerBombColorOverride),
-            [samusVisorColorOverride] = File.ReadAllBytes(samusVisorColorOverride),
-            [samusHurtColorOverride] = File.ReadAllBytes(samusHurtColorOverride),
-            [samusHyperBeamColorOverride] = File.ReadAllBytes(samusHyperBeamColorOverride),
-            [stationOverride] = File.ReadAllBytes(stationOverride),
-            [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
-            [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),
-            [arrowOverride] = File.ReadAllBytes(arrowOverride),
-            [screenOverride] = File.ReadAllBytes(screenOverride),
-            [backdropOverride] = File.ReadAllBytes(backdropOverride),
-            [wireframeOverride] = File.ReadAllBytes(wireframeOverride),
-            [selectorOverride] = File.ReadAllBytes(selectorOverride),
-            [reserveOverride] = File.ReadAllBytes(reserveOverride),
-            [reserveUiOverride] = File.ReadAllBytes(reserveUiOverride),
-            [equipmentBaseOverride] = File.ReadAllBytes(equipmentBaseOverride),
-            [equipmentLabelOverride] = File.ReadAllBytes(equipmentLabelOverride),
-            [escapeTimerOverride] = File.ReadAllBytes(escapeTimerOverride),
-            [gameplayHudOverride] = File.ReadAllBytes(gameplayHudOverride),
-            [gameOverOverride] = File.ReadAllBytes(gameOverOverride),
-            [gameOptionsOverride] = File.ReadAllBytes(gameOptionsOverride),
-            [fileSelectOverride] = File.ReadAllBytes(fileSelectOverride),
-            [spriteOverride] = File.ReadAllBytes(spriteOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.srm")] = "synthetic-legacy-sram-sentinel"u8.ToArray(),
             [Path.Combine(root, "debug-states", "SuperMetroid-debug-slot-0.smstate")] = "synthetic-state-sentinel"u8.ToArray(),
             [Path.Combine(root, "input-recordings", "session.inputs")] = new byte[] { 0, 1, 0, 2 }
         };
-        foreach (string path in artworkOverrides) preserved.Add(path, File.ReadAllBytes(path));
         foreach (var pair in preserved)
         {
             Directory.CreateDirectory((Path.GetDirectoryName(pair.Key) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(pair.Key).")));
@@ -384,7 +159,7 @@ internal static class MapInstallationVerification
         CheckPreserved();
         var repaired = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress())
             ?? throw new InvalidOperationException("Installation vanished during map upgrade.");
-        AssertEqual(edited.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade retains selected override identity");
+        AssertEqual(stock.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade reinstalls the same map presentation");
         AssertEqual(projectileEdited.SelectedSha256, repaired.LoadProjectiles().SelectedSha256, "full installer replacement preserves projectile override");
         AssertEqual(AreaMapCatalogFormat.Version, RequiredJson.Parse(File.ReadAllText(manifestPath)).Required("version").GetValue<int>(), "upgrade publishes current catalog version");
         CheckPreserved();
@@ -403,10 +178,6 @@ internal static class MapInstallationVerification
             throw new InvalidOperationException("Complete installation unexpectedly extracted again.")));
         AssertTrue(unchanged is not null, "complete installation fast path remains available");
         AssertTrue(sourceHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(sourceRom))), "full installer leaves original ROM unchanged");
-        File.WriteAllText(paletteOverride, "broken override");
-        _ = GameAssetInstaller.EnsureInstalled(root);
-        AssertThrows<InvalidDataException>(() => repaired.LoadMaps(), "startup preserves and reports invalid user override instead of repairing it");
-        AssertEqual("broken override", File.ReadAllText(paletteOverride), "installer never replaces broken user override");
         Console.WriteLine("Full installer: fresh import, cancelled upgrade, real version replacement, no-op restart and player/override preservation pass.");
 
         void MarkReceiptOutdated()

@@ -81,7 +81,7 @@ public static class SpriteSheetFiles
             Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<AreaMapPresentation>(() => MapPresentationFiles.Load(
-            Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
+            Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
         // The intro sheet is named from the stock intro compositions installed beside it.
         var intro = new Lazy<IntroCinematicArtwork>(() => IntroCinematicArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName)));

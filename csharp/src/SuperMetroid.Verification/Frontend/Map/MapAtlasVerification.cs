@@ -15,11 +15,11 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks installed map atlas bytes, editable PNG pixels, and both map-menu render paths.</summary>
+/// <summary>Checks installed map atlas bytes and the pause render path.</summary>
 internal static class MapAtlasVerification
 {
-    /// <summary>Compares stock tile bytes with ROM, then verifies override pixels, identity, rebind, and invalid asset handling.</summary>
-    internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
+    /// <summary>Compares stock tile bytes with ROM and the installed atlas's pause pixels with native.</summary>
+    internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus,
         AreaMapPresentation original, ImportedAreaMap[] rules)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount);
@@ -35,53 +35,6 @@ internal static class MapAtlasVerification
         var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         RgbaPixel[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(new(0, 0)).ToArray();
         AssertTrue(pauseBefore.SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
-        Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, MapTileAtlasFormat.FileName);
-        IndexedPngImage image;
-        using (var input = File.OpenRead(Path.Combine(stock, MapTileAtlasFormat.FileName)))
-            image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
-        for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % MapTileAtlasFormat.ColorCount);
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        byte[] replacementBytes = File.ReadAllBytes(replacement);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(original.ContentIdentity != edited.ContentIdentity, "PNG edit changes selected catalog identity");
-        MapCharacterArtwork.Of(edited).Map.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
-        byte[] planar = Enumerable.Range(0, source.Length).Select(vram.ReadByte).ToArray();
-        byte[] decoded = SnesGraphics.DecodePlanarTiles(planar, 4, MapTileAtlasFormat.TileColumns, out _);
-        AssertTrue(decoded.SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");
-        menu.BindFixtureArtwork(edited);
-        pause.BindFixtureArtwork(edited);
-        AssertTrue(!menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "PNG artwork changes rendered file-select map");
-        AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "PNG artwork changes rendered pause map");
-        bool InnerMapChanged(RgbaPixel[] before, RgbaPixel[] after) => Enumerable.Range(64, 96)
-            .Any(y => Enumerable.Range(64, 128).Any(x => before[y * 256 + x] != after[y * 256 + x]));
-        AssertTrue(InnerMapChanged(menuBefore, menu.RenderBackgrounds(new(0, 0))), "file-select artwork change reaches map interior, not only frame chrome");
-        AssertTrue(InnerMapChanged(pauseBefore, pause.Render()), "pause artwork change reaches map interior, not only frame chrome");
-        using var state = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, menu);
-        state.Position = 0;
-        menu = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(state);
-        menu.BindFixtureArtwork(original);
-        pause.BindFixtureArtwork(original);
-        AssertTrue(menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");
-        AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
-        string rebuilt = Path.Combine(overrides, "stock-rebuilt");
-        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "PNG override survives stock re-extraction");
-        AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(replacement)), "PNG override bytes never rewritten");
-        File.WriteAllText(replacement, "invalid PNG");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad PNG override fails without stock fallback");
-        AssertEqual("invalid PNG", File.ReadAllText(replacement), "bad PNG override retained for repair");
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "wrong native atlas dimensions rejected");
-        File.WriteAllBytes(replacement, replacementBytes);
-        var tooManyColors = SnesGraphics.DiagnosticPalette(17);
-        image.Pixels[0] = 16;
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, tooManyColors);
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "PNG index outside 4-bpp atlas rejected");
-        File.WriteAllBytes(replacement, replacementBytes);
-        string rebuiltAtlas = Path.Combine(rebuilt, MapTileAtlasFormat.FileName);
-        File.Delete(rebuiltAtlas);
-        AssertThrows<FileNotFoundException>(() => MapPresentationFiles.Load(rebuilt, overrides), "missing stock atlas rejected even with valid override");
-        Console.WriteLine("Map PNG atlas: exact stock bytes/pause pixels; PNG edits reach both rendered menus, rebind and survive stock replacement.");
+        Console.WriteLine("Map PNG atlas: exact stock bytes and pause pixels pass.");
     }
 }

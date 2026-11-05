@@ -65,8 +65,9 @@ internal static class SamusIsolationArtworkEdits
         T stock = compile(stockStream);
         JsonNode document = RequiredJson.Parse(File.ReadAllBytes(stockPath));
         RecolorRgb(document);
-        Directory.CreateDirectory(fixture.MapOverrideDirectory);
-        string editedPath = Path.Combine(fixture.MapOverrideDirectory, name);
+        // The edited document is compiled directly from a file beside the fixture's installation; nothing loads it.
+        string editedDirectory = Directory.CreateDirectory(Path.Combine(fixture.Root, "edited-colors")).FullName;
+        string editedPath = Path.Combine(editedDirectory, name);
         File.WriteAllText(editedPath, document.ToJsonString());
         using var editedStream = File.OpenRead(editedPath);
         return new StockEditedPair<T>(stock, compile(editedStream));

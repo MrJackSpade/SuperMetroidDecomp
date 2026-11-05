@@ -11,11 +11,15 @@ internal static class SamusUnreachablePoseDefinitions
     /// <summary>
     /// The unreachable poses, in the game's numbering: the glitch balls and their knockbacks (the knockback is chosen only
     /// for a glitch ball's movement), the posture transitions to and from them and their spring-ball item transitions,
-    /// the unused running, standing and crouch-transition records, the unused aerial records and their input lists, the
-    /// unused grapple drop records and the unused Draygon-held records.
+    /// the unused running, running-aimed-straight-up, standing and crouch-transition records, the unused aerial records and
+    /// their input lists, the unused grapple drop records and the unused Draygon-held records. No pose-input list, no-input
+    /// pose, program transition or outside path writes the running-aimed-straight-up records, whose tables pair the
+    /// standing aim-up top and tops facing other ways with running legs.
     /// </summary>
     internal static readonly SamusPoseId[] Poses =
     [
+        SamusPoseId.RunningAimUpRightPose,
+        SamusPoseId.RunningAimUpLeftPose,
         SamusPoseId.UnusedPose20,
         SamusPoseId.UnusedPose21,
         SamusPoseId.UnusedPose22,

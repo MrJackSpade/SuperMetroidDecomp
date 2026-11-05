@@ -128,16 +128,6 @@ internal static class EnemySpritemapDefinitions
     internal const int PreRipperFrameCount = 180;
     /// <summary>Revision 9 prefix before Owtch/Stoke frames.</summary>
     internal const int PreOwtchStokeFrameCount = 167;
-    /// <summary>Revision 8 retained frame count for older composition documents.</summary>
-    internal const int PreviousFrameCount = 145;
-    /// <summary>Revision 7 retained frame count for older composition documents.</summary>
-    internal const int PriorFrameCount = 101;
-    /// <summary>Revision 6 retained frame count for older composition documents.</summary>
-    internal const int EarlierFrameCount = 79;
-    /// <summary>Revision 5 retained frame count for older composition documents.</summary>
-    internal const int IntermediateFrameCount = 69;
-    /// <summary>Revision 4 retained frame count for the oldest accepted composition document.</summary>
-    internal const int LegacyFrameCount = 47;
     /// <summary>Installed document containing editable enemy composition frames and bindings.</summary>
     internal const string FileName = "enemy-compositions.json";
     /// <summary>The schema-ordered stock frame catalog used to validate and bind installed compositions.</summary>

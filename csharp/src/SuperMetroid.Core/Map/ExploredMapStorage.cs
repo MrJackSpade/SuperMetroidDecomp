@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Map;
 /// <remarks>
 /// Evidence: saving and loading the map copy each area's exploration byte by byte through a list of the
 /// bytes the area's map occupies, a byte being eight cells of a row; the save-map check compares the occupied runs with
-/// those lists. The stock topology decides it even when installed artwork overrides the picture.
+/// those lists. The stock topology decides it even when the player edits the installed map picture.
 /// </remarks>
 public static class ExploredMapStorage
 {

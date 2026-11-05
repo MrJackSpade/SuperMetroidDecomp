@@ -63,7 +63,7 @@ internal static class IntroContentIdentityVerification
                 .Contains(GameInstallationLayout.IntroCinematicDirectoryName, StringComparison.Ordinal),
                 edit + " identifies the opening bundle in compatibility warnings");
         }
-        foreach (string edit in new[] { "json-indent", "png-colors", "legacy-caret" })
+        foreach (string edit in new[] { "json-indent", "png-colors" })
             AssertEqual(baseline, CreateIntroIdentityFixture(edit).ContentIdentity,
                 edit + " preserves equivalent selected content");
         foreach (Type type in new[]
@@ -80,7 +80,7 @@ internal static class IntroContentIdentityVerification
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
                 type.Name + " adds no serialized derived-identity field");
         Console.WriteLine($"  Opening content: {edits.Count} independent bundle edits, all actor coordinates, " +
-            "canonical frames, legacy caret selection, encoding invariance and host warnings pass without a ROM.");
+            "canonical frames, encoding invariance and host warnings pass without a ROM.");
 
         // Place an opening-bundle digest into a host identity for compatibility-warning checks.
         static GameContentIdentity IntroIdentity(string digest) => GameContentIdentity.Create(
@@ -134,7 +134,7 @@ internal static class IntroContentIdentityVerification
         // Encode a complete editable palette document for one opening asset family.
         MemoryStream PaletteJson(string name) => Json(new { Version = 1, Colors = Colors(name) });
 
-        // Build semantic sprite frames, optionally reversing key insertion or using the legacy caret selection.
+        // Build semantic sprite frames, optionally reversing key insertion.
         MemoryStream Sprites(string family, IEnumerable<string> sourceNames, int version = 1)
         {
             var part = new SpriteVisualPart
@@ -146,14 +146,6 @@ internal static class IntroContentIdentityVerification
             var frames = new Dictionary<string, SpriteVisualPart[]>();
             foreach (string name in reverse ? names.Reverse() : names)
                 frames.Add(name, [part with { OffsetX = name == names[^1] && edit == family + "-sprites" ? 1 : 0 }]);
-            if (family == "caret" && edit == "legacy-caret")
-            {
-                // Only the first old frame is selected by the current loader. Unused blink-frame
-                // leftovers must not change the identity of the visible caret selection.
-                frames = IntroCaretSpriteDefinitions.PreviousFrameNames.Select((name, index) =>
-                    KeyValuePair.Create(name, new[] { part with { OffsetX = index } })).ToDictionary();
-                version = IntroCaretSpriteVersion.Previous.Revision;
-            }
             return Json(new { Version = version, Frames = frames });
         }
 

@@ -75,26 +75,17 @@ internal static class IntroScientistPartsVerification
             var expected = new OamBuffer(); expected.BeginFrame();
             IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, new(120, 72), 0x0c00);
             expected.FinalizeFrame();
-            foreach (int version in new[] { IntroCaretSpriteVersion.Previous.Revision, IntroCaretSpriteVersion.Current.Revision })
-            {
-                var frames = new Dictionary<string, SpriteVisualPart[]>();
-                if (version == IntroCaretSpriteVersion.Previous.Revision)
-                {
-                    foreach (string name in IntroCaretSpriteDefinitions.PreviousFrameNames) frames.Add(name, []);
-                    frames[IntroCaretSpriteDefinitions.PreviousFrameNames[0]] = visual;
-                }
-                else frames.Add("caret-visible", visual);
-                using var json = new MemoryStream();
-                IntroCaretSpritePresentation.Write(json, new() { Version = version, Frames = frames });
-                json.Position = 0;
-                var presentation = IntroCaretSpritePresentation.Load(json);
-                var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, 72), IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
-                actual.FinalizeFrame();
-                AssertTrue(expected.ImageEquals(actual)
-                    && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
-                    "both caret schema loaders preserve original and independently edited compositions");
-            }
+            var frames = new Dictionary<string, SpriteVisualPart[]> { ["caret-visible"] = visual };
+            using var json = new MemoryStream();
+            IntroCaretSpritePresentation.Write(json, new() { Version = IntroCaretSpriteVersion.Current.Revision, Frames = frames });
+            json.Position = 0;
+            var presentation = IntroCaretSpritePresentation.Load(json);
+            var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
+            CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, 72), IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+            actual.FinalizeFrame();
+            AssertTrue(expected.ImageEquals(actual)
+                && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
+                "the caret loader preserves the supplied composition");
         }
     }
 }

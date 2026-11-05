@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public static class EndingPaletteFiles
 {
     /// <summary>Published asset-file identities selected by semantic palette role.
-    /// Explicit cases preserve independently editable stock and override filenames.</summary>
+    /// Explicit cases keep each independently editable installed filename stable.</summary>
     public static string FileName(EndingPaletteId id) =>
         Ensure.Listed(EndingPaletteDefinitions.FileNames, id);
 

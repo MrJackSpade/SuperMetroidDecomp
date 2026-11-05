@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsFixturesVerification;
-using static SuperMetroid.Verification.Assets.PaletteJsonContractsLegacyVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Fx;

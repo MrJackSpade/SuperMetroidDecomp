@@ -13,17 +13,13 @@ public static class CeresRidleyColorFile
 {
     /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>
     /// <param name="json">JSON input read from its current position; the caller retains ownership of the stream.</param>
-    /// <param name="stockForLegacyOverride">Optional stock catalog required for versions one and two: supplies missing alarm colors and, for version one, missing Baby colors.</param>
     /// <returns>A catalog retaining independent supplied color edits while calculating unchanged shared paint and fade relationships.</returns>
-    public static CeresRidleyColorCatalog Read(Stream json,
-        CeresRidleyColorCatalog? stockForLegacyOverride = null)
+    public static CeresRidleyColorCatalog Read(Stream json)
     {
         Ensure.NotNull(json);
         CeresRidleyColorDocument document;
         document = JsonAssetDocument.Read<CeresRidleyColorDocument>(json, ArtworkJson.Options, "Ceres Ridley color");
-        var version = (CeresRidleyColorVersion)document.Version;
-        bool inheritsFromStock = version is CeresRidleyColorVersion.PreBaby or CeresRidleyColorVersion.PreAlarm;
-        if (!Enum.IsDefined(version) || inheritsFromStock && stockForLegacyOverride is null)
+        if (document.Version != CeresRidleyColorFormat.Version)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         RgbColor[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
             CeresRidleyPaletteDefinitions.BodyFadeColorCount, "body fade");
@@ -32,33 +28,18 @@ public static class CeresRidleyColorFile
             CeresRidleyPaletteDefinitions.EyeFadeColorCount, "eye fade");
         RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthBandCount,
             CeresRidleyPaletteDefinitions.HealthColorCount, "health");
-        // A legacy override predates the alarm (and, before version two, the Baby) colours; the
-        // version check above guarantees stock is supplied for the catalog to inherit them from.
-        RgbColor[][]? alarm = inheritsFromStock
-            ? null
-            : CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmStepCount,
-                CeresRidleyPaletteDefinitions.AlarmColorCount, "alarm");
+        RgbColor[][] alarm = CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmStepCount,
+            CeresRidleyPaletteDefinitions.AlarmColorCount, "alarm");
         RgbColor[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteDefinitions.RetreatBgColorCount, "retreat BG");
         RgbColor[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             "retreat shared");
-        CeresBabyShadeColours? baby = version switch
-        {
-            CeresRidleyColorVersion.PreBaby => null,
-            // Versions two and three stored the Baby's colours as the cartridge's ordered steps.
-            CeresRidleyColorVersion.PreAlarm or CeresRidleyColorVersion.BabySteps => CompileShades(
-                CeresBabyCartridgeShades.FromSteps(document.Baby
-                    ?? throw new InvalidDataException("Ceres Ridley Baby requires its colour steps."))),
-            CeresRidleyColorVersion.Current => document.Baby is not null
-                ? throw new InvalidDataException("Ceres Ridley colors name the Baby's colours by shade, not by step.")
-                : CompileShades(document.BabyShades
-                    ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades.")),
-            _ => throw new InvalidDataException("Ceres Ridley colors require the supported version."),
-        };
+        CeresBabyShadeColours baby = CompileShades(document.BabyShades
+            ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades."));
         return new CeresRidleyColorCatalog(CeresRidleyColorSelectionBuilder.Select(new CeresRidleySuppliedColors
         {
             Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,
             RetreatBg = retreatBg, RetreatShared = retreatShared, Baby = baby,
-        }, stockForLegacyOverride));
+        }));
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON.</summary>

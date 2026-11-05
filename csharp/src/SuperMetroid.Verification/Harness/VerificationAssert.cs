@@ -844,7 +844,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby OAM oracle revision");
         Suite(nameof(VerifyStream3BabySpriteReflection), () => VerifyStream3BabySpriteReflection(rom));
-        Console.WriteLine("Baby upper-body sharing: native OAM/order/hash, independent symmetric edits and legacy schemas pass; geometry/artwork remain required.");
+        Console.WriteLine("Baby upper-body sharing: native OAM/order/hash, independent symmetric edits pass; geometry/artwork remain required.");
         return 0;
     }
 

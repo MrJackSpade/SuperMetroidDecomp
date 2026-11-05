@@ -41,7 +41,7 @@ public static class RoomFxPaletteBlendDocumentRules
 
     /// <summary>
     /// The installed document's key for <paramref name="id"/>. The keys keep the names the installed file has always
-    /// used, so renaming or renumbering a blend never changes an installed or overridden key (#1415).
+    /// used, so renaming or renumbering a blend never changes an installed key (#1415).
     /// </summary>
     /// <param name="id">One of the eight blends exposed by <see cref="Ids"/>; <see cref="RoomFxPaletteBlend.None"/> clears the blend and has no resource key.</param>
     /// <exception cref="InvalidDataException">The blend is not one of the eight catalogued blends.</exception>

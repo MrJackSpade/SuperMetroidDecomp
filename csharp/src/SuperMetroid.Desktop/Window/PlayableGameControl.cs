@@ -80,8 +80,6 @@ public sealed class PlayableGameControl : UserControl
     internal SuperMetroidGame game;
     /// <summary>Host-owned PCM storage; the device copies each frame on submit.</summary>
     private readonly short[] audioFrame = new short[AudioSession.PcmSamplesPerFrame];
-    /// <summary>Optional selected audio override directory for this session.</summary>
-    private readonly string? installedAudioDirectory;
     /// <summary>Installation root holding player saves, recordings, and debugger states.</summary>
     private readonly string playerDataDirectory;
     /// <summary>Digest of selected installed content used for replay and state compatibility.</summary>
@@ -116,16 +114,13 @@ public sealed class PlayableGameControl : UserControl
     /// <param name="hostOptions">Host options retained through in-window restarts.</param>
     /// <param name="driver">A recorded timeline that drives the game and its input, or null for live play.</param>
     /// <param name="errorReporter">Recoverable error reporter, or null to fail at the first frame error.</param>
-    /// <param name="audioDirectory">An audio override directory, or null for the installation's audio.</param>
     internal PlayableGameControl(
         GameInstallation installation,
         HostOptions hostOptions,
         IHostFrameDriver? driver = null,
-        GitHubErrorReporter? errorReporter = null,
-        string? audioDirectory = null)
+        GitHubErrorReporter? errorReporter = null)
     {
         Ensure.NotNull(installation);
-        installedAudioDirectory = audioDirectory;
         playerDataDirectory = Path.GetFullPath(installation.Root);
         // The installed save basename is stable even when the private import copy
         // has been removed. It matches the basename used by previous releases.
@@ -234,18 +229,6 @@ public sealed class PlayableGameControl : UserControl
         SetPlaying(playing: true);
     }
 
-    /// <summary>Loads the clips of the selected audio directory, or the installation's.</summary>
-    private InstalledClipAudioLibrary LoadAudioAssets()
-    {
-        var installation = new GameInstallation(playerDataDirectory);
-        if (installedAudioDirectory is null || Path.GetFullPath(installedAudioDirectory).Equals(
-                Path.GetFullPath(installation.AudioDirectory), StringComparison.OrdinalIgnoreCase))
-        {
-            return installation.LoadAudioClips();
-        }
-        return InstalledAudioClips.Load(installedAudioDirectory);
-    }
-
     /// <summary>Starts a new display generation before resetting a software-rendered session.</summary>
     [MemberNotNull(nameof(addressSpace), nameof(game), nameof(stateStore))]
     private void Restart()
@@ -272,7 +255,7 @@ public sealed class PlayableGameControl : UserControl
         var installation = new GameInstallation(playerDataDirectory);
         addressSpace = installation.OpenRuntimeAddressSpace();
         mapPresentation = installation.LoadMaps();
-        InstalledClipAudioLibrary selectedAudioAssets = LoadAudioAssets();
+        InstalledClipAudioLibrary selectedAudioAssets = installation.LoadAudioClips();
         if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         projectilePresentation = installation.LoadProjectiles();

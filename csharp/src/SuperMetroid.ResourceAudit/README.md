@@ -97,7 +97,7 @@ points-to analysis. Property-only lookups, static factory lifecycle, raw texture
 access, reflection and differently named providers are outside that inventory. New resource
 domains need explicit adapters; this tool does not certify those by naming convention alone.
 The union of provider identities does not prove that a particular host installed the right
-provider instance, that an override file is complete, or that a resource has correct pixels.
+provider instance, that an edited installed file is complete, or that a resource has correct pixels.
 
 Generated selector tables can include native records which are not reachable through the
 translated runtime. An absent export is still a declaration mismatch, but reachability and
@@ -137,7 +137,7 @@ dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --nucle
 The ordinary-enemy check also accepts `Zebetite`, `WreckedShipGhost`, `Powamp`, `Spark`,
 or `Shitroid`, each targeting its already identified catalog omission.
 
-These constructed-data checks confirm selected compositions and legacy edit inheritance;
+These constructed-data checks confirm selected compositions;
 they do not execute gameplay or search for additional defects.
 
 The Crocomire skeleton check also confirms the identified thirteen-component collapse pose
@@ -154,6 +154,5 @@ and the separate title provider. They confirm the audit's identified contracts; 
 not explore gameplay or search for additional player bugs.
 
 `--work-robot-resource-check` confirms the specific #1156 laser omission with constructed
-art through the real catalog loader: all seven bindings, preserved schema-11 override
-edits, inherited new stock frames and rejection of incomplete old stock. It does not
+art through the real catalog loader: all seven bindings load with their compositions. It does not
 run an enemy, game frame or room.

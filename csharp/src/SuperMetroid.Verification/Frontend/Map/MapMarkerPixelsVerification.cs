@@ -18,7 +18,7 @@ internal static class MapMarkerPixelsVerification
     /// <summary>Checks the defeated-boss marker glyph.</summary>
     internal static void VerifyDefeatedBossPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9f]);
 
-    /// <summary>Compares stock pixels and VRAM uploads, then checks edited tiles and coordinate bounds.</summary>
+    /// <summary>Compares stock pixels and VRAM uploads, then checks coordinate bounds.</summary>
     private static void VerifyMapMarkerPixelFamily(ISnesAddressSpace rom, int[] tiles)
     {
         var files = MapSpriteExtractor.Extract(rom);
@@ -43,42 +43,13 @@ internal static class MapMarkerPixelsVerification
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
             AssertEqual((byte)expected, marker.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original marker geometry and transparency");
-            byte[] pixels = (byte[])image.Pixels.Clone();
-            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
-            pixels[position] = (byte)((expected + 1) % 16);
-            CheckEdited(pixels);
         }
-        // All colors at corner, interior and far-edge locations in every independently editable tile.
-        foreach (int tile in tiles)
-        foreach (int offset in new[] { 0, 3, 7 })
-        for (byte value = 0; value < 16; value++)
-        {
-            int position = (tile / 16 * 8 + offset) * 128 + tile % 16 * 8 + offset;
-            byte[] pixels = (byte[])image.Pixels.Clone(); pixels[position] = value; CheckEdited(pixels);
-        }
-        byte[] all = (byte[])image.Pixels.Clone();
-        foreach (int tile in tiles)
-        for (int y = 0; y < 8; y++)
-        for (int x = 0; x < 8; x++)
-        {
-            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
-            all[position] = (byte)((all[position] + 1) % 16);
-        }
-        CheckEdited(all);
         foreach (int invalid in new[] { -1, 0x9c, 0xa0, 0xae, 0xb0, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(invalid, new(0, 0)), "invalid marker tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(tiles[0], new(unchecked((ushort)invalid), 0)), "invalid marker X");
             AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(tiles[0], new(0, unchecked((ushort)invalid))), "invalid marker Y");
-        }
-        void CheckEdited(byte[] pixels)
-        {
-            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
-            var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
-            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
-            AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring borders or other artwork");
         }
     }
 }

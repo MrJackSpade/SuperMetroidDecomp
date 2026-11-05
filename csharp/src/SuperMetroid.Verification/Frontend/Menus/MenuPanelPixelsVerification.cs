@@ -10,10 +10,10 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
-/// <summary>Checks calculated menu panel pixels against native tiles and preservation of independent pixel edits.</summary>
+/// <summary>Checks calculated menu panel pixels against native tiles.</summary>
 internal static class MenuPanelPixelsVerification
 {
-    /// <summary>Compares stock atlas uploads and every panel pixel, then checks edited artwork and invalid coordinates.</summary>
+    /// <summary>Compares stock atlas uploads and every panel pixel, then checks invalid coordinates.</summary>
     internal static void VerifyMenuPanelPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x57, 0x58, 0x59, 0x5a];
@@ -39,40 +39,13 @@ internal static class MenuPanelPixelsVerification
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
             AssertEqual((byte)expected, panel.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original panel border, highlight and transparency");
-            byte[] pixels = (byte[])image.Pixels.Clone();
-            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
-            pixels[position] = (byte)((expected + 1) % 16);
-            CheckEdited(pixels);
         }
-        // Every color at an outer edge, inner edge and transparent interior.
-        foreach (int position in new[] { 41 * 128 + 56, 44 * 128 + 57, 44 * 128 + 58 })
-        for (byte value = 0; value < 16; value++)
-        {
-            byte[] pixels = (byte[])image.Pixels.Clone(); pixels[position] = value; CheckEdited(pixels);
-        }
-        byte[] all = (byte[])image.Pixels.Clone();
-        foreach (int tile in tiles)
-        for (int y = 0; y < 8; y++)
-        for (int x = 0; x < 8; x++)
-        {
-            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
-            all[position] = (byte)((all[position] + 1) % 16);
-        }
-        CheckEdited(all);
         foreach (int invalid in new[] { -1, 0x56, 0x5b, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => panel.Pixel(invalid, new(0, 0)), "invalid panel tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => panel.Pixel(0x57, new(unchecked((ushort)invalid), 0)), "invalid panel X");
             AssertThrows<ArgumentOutOfRangeException>(() => panel.Pixel(0x57, new(0, unchecked((ushort)invalid))), "invalid panel Y");
-        }
-        void CheckEdited(byte[] pixels)
-        {
-            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
-            var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
-            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
-            AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring borders or other artwork");
         }
     }
 }

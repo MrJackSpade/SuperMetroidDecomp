@@ -6,9 +6,18 @@ namespace SuperMetroid.Verification.Harness;
 internal static class SuiteTimingVerification
 {
     /// <summary>
-    /// The longest an outermost suite may run; one that runs longer fails, except the movie replays (#1532).
+    /// The longest an outermost suite may run in a solo run; one that runs longer fails, except the movie replays (#1532).
     /// </summary>
     private static readonly TimeSpan SuiteTimeLimit = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// Whether an outermost suite over <see cref="SuiteTimeLimit"/> fails. True for a solo run; a parallel worker only
+    /// reports its suites' times, which there measure contention with the other workers (owner ruling on #1532).
+    /// </summary>
+    private static bool suiteTimeLimitApplies = true;
+
+    /// <summary>Makes this process report its suites' times without failing a suite over the limit, as a parallel worker does.</summary>
+    internal static void ReportSuiteTimesOnly() => suiteTimeLimitApplies = false;
 
     /// <summary>A flag whose peak working set, or a suite whose allocation, exceeds this is marked over budget.</summary>
     internal const long MemoryBudgetBytes = 1L << 30;
@@ -57,7 +66,7 @@ internal static class SuiteTimingVerification
     /// propagates to its outermost suite, whose remaining steps depend on it; the outermost
     /// suite then writes the complete exception and records the failure so the run continues
     /// with the next suite. <c>Main</c> reports every recorded failure and exits nonzero.
-    /// An outermost suite other than a movie replay that runs longer than <see cref="SuiteTimeLimit"/> fails.
+    /// In a solo run, an outermost suite other than a movie replay that runs longer than <see cref="SuiteTimeLimit"/> fails.
     /// </summary>
     internal static void Suite(string name, Action body)
     {
@@ -94,7 +103,7 @@ internal static class SuiteTimingVerification
                 Collect();
             watch.Stop();
             TimeSpan charged = watch.Elapsed - (sharedFixtureLoadTime - fixtureLoadsBefore);
-            if (outermost && !failed && charged > SuiteTimeLimit && !FullRunSuitesVerification.MovieReplaySuites.Contains(name))
+            if (suiteTimeLimitApplies && outermost && !failed && charged > SuiteTimeLimit && !FullRunSuitesVerification.MovieReplaySuites.Contains(name))
             {
                 failedSuites.Add(name);
                 Console.Error.WriteLine($"FAIL {name}: ran {charged.TotalSeconds:0.00} s besides shared fixture loads, over the {SuiteTimeLimit.TotalSeconds:0} s suite limit");

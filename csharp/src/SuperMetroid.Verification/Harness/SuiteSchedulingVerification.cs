@@ -127,6 +127,9 @@ internal static class SuiteSchedulingVerification
         var error = new StringWriter(CultureInfo.InvariantCulture);
         Console.SetOut(TextWriter.Synchronized(output));
         Console.SetError(TextWriter.Synchronized(error));
+        // A worker shares the machine with every other worker, so its suites' times measure contention: it reports them
+        // and the time limit applies to solo runs only (owner ruling on #1532).
+        ReportSuiteTimesOnly();
         try
         {
             RunWorkerSuites(suites, protocol, output, error);

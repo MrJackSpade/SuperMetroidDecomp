@@ -24,6 +24,10 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 /// frame: a frame drawn without the legs or the top its rule shows fails. A half whose table holds no composition at the
 /// frame is drawn empty by the game too (the right-facing drained crouch's third frame is its curled top alone), and the
 /// one-figure rule vouches for such a frame.</item>
+/// <item><b>One selection.</b> Every part of a frame is the selection of the one pose and picture frame that draws it:
+/// both halves are drawn at that pose and frame, each composition is the one that pose half's table holds there, and
+/// each half picture is the one that frame itself selects. A frame pairing a top and a bottom of different poses or
+/// frames, or carrying a half picture another frame selected, fails.</item>
 /// </list>
 /// </summary>
 /// <remarks>
@@ -73,6 +77,7 @@ internal static class SamusBodyWholeFigureVerification
                 drawers.Add(key.Name, named);
             }
             named.Add(drawer);
+            findings.AddRange(ForeignSelections(drawn, key, spritemaps, body, drawer));
             if (sheet.ShowsNothing(key.Name))
                 continue;
             SpriteSheetFrame frame = sheet.Frame(key.Name);
@@ -100,6 +105,34 @@ internal static class SamusBodyWholeFigureVerification
             $"{findings.Count} Samus body sheet frames are not one whole Samus:{Environment.NewLine}{string.Join(Environment.NewLine, findings)}");
         Console.WriteLine($"Samus body whole figures: {drawers.Count} frames each show one whole Samus with every half their pose's own rule draws.");
     }
+
+    /// <summary>
+    /// The parts of <paramref name="key"/> that are not the selection of the pose and picture frame <paramref name="drawn"/>
+    /// draws: a bottom half drawn at another pose or frame than the top, a composition other than the one the pose half's
+    /// table holds at the frame, or a half picture other than the one the frame itself selects.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The pose's frame has no installed pictures.</exception>
+    private static IEnumerable<string> ForeignSelections(SamusBodyFrame drawn, SamusBodyFrameKey key,
+        SamusSpritemapSources spritemaps, InstalledSamusBodyArtwork body, string drawer)
+    {
+        SamusBodyHalfFrame top = drawn.Top;
+        if (drawn.Bottom is { } lower && (lower.Pose != top.Pose || lower.AnimationFrame != top.AnimationFrame))
+            yield return $"frame {key.Name} ({drawer}) draws its bottom half from {lower.Pose} frame {lower.AnimationFrame}";
+        if (key.Top != OwnComposition(spritemaps, top))
+            yield return $"frame {key.Name} ({drawer}) shows a top composition its pose's table does not hold at the frame";
+        SamusSpritemapId? ownBottom = drawn.Bottom is { } bottomHalf ? OwnComposition(spritemaps, bottomHalf) : null;
+        if (key.Bottom != ownBottom)
+            yield return $"frame {key.Name} ({drawer}) shows a bottom composition its pose's table does not hold at the frame";
+        SamusBodyFramePictures own = body.Frame(top.Pose, top.AnimationFrame);
+        if (key.TopPicture is { } topPicture && topPicture != own.Top)
+            yield return $"frame {key.Name} ({drawer}) shows top picture {topPicture.Ordinal}, not its frame's own {own.Top.Ordinal}";
+        if (key.BottomPicture is { } bottomPicture && bottomPicture != own.Bottom)
+            yield return $"frame {key.Name} ({drawer}) shows bottom picture {bottomPicture.Ordinal}, not one its frame selects";
+    }
+
+    /// <summary>The composition <paramref name="half"/>'s pose-half table holds at its frame, or none.</summary>
+    private static SamusSpritemapId? OwnComposition(SamusSpritemapSources spritemaps, SamusBodyHalfFrame half) =>
+        spritemaps.TryGetComposition(half, out SamusSpritemapId composition) ? composition : null;
 
     /// <summary>Runs the Samus body sheet's whole-Samus rule.</summary>
     [VerificationCommand("--samus-body-whole-figures")]

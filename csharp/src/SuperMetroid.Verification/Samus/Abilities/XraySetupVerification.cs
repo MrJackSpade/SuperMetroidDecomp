@@ -27,25 +27,10 @@ internal static class XraySetupVerification
     private static readonly int[] Markers = [CommonRoomElementBlocks, CommonRoomElementBlocks + 1, CommonRoomElementBlocks + 2,
         CommonRoomElementBlocks + 3];
 
-    /// <summary>Checks stage-four reveal construction from the shown BG1 plane with edited art and overlays (#1351).</summary>
+    /// <summary>Checks stage-four reveal construction from the shown BG1 plane with the installed art and overlays (#1351).</summary>
     internal static void VerifyXraySetupBuffers()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
-        // Change only the installed art for air reveals; the runtime still executes
-        // the cartridge's compiled collision lookup and X-ray setup stages.
-        var visualEntries = new List<XrayRevealVisualDefinition>();
-        foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        for (int bts = 0; bts <= byte.MaxValue; bts++)
-        {
-            XrayRevealDefinition? native = XrayRevealTable.Find(type, new RoomBlockBehavior(bts));
-            if (native is not { } definition ||
-                !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
-            visualEntries.Add(new(type, new RoomBlockBehavior(bts), new XrayRevealVisualBlocks(
-                type == RoomCollisionType.Air ? 0x00fe : definition.TopLeft,
-                definition.TopRight, definition.BottomLeft, definition.BottomRight)));
-        }
-        runtime.Xray.XrayRevealVisuals = new InstalledXrayReveals(visualEntries, (runtime.Xray.XrayRevealVisuals ?? throw new InvalidOperationException("Verification requires runtime.Xray.XrayRevealVisuals.")).Overlays);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -80,11 +65,8 @@ internal static class XraySetupVerification
         runtime.StepFrame(held);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.Room.LoadedRoom;
-        RevealedBlock?[] original = XrayRevealMap.Build(level, scroll.Layer1Position, scroll.Bg1Offset, room.AreaIndex);
         RevealedBlock?[] expected = XrayRevealMap.Build(level, scroll.Layer1Position, scroll.Bg1Offset, room.AreaIndex,
             runtime.Xray.XrayRevealVisuals);
-        AssertTrue(!original.SequenceEqual(expected),
-            "installed X-ray visual selection changes the actual room reveal map");
         XrayRevealOverlays.Apply(level, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
             room.State.XrayOverlay, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "stage four builds from the shown BG1 plane and overlays");

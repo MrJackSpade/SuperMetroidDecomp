@@ -20,8 +20,7 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>Checks extracted gunship sprite compositions, legacy override
-/// inheritance, and the first Landing Site fade-in draw.</summary>
+/// <summary>Checks extracted gunship sprite compositions and the first Landing Site fade-in draw.</summary>
 internal static class GunshipInstalledCompositionsVerification
 {
     /// <summary>

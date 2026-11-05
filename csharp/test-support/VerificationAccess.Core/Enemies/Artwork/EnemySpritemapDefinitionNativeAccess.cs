@@ -16,7 +16,7 @@ internal static class EnemySpritemapDefinitionNativeAccess
 
         /// <summary>
         /// The name composition documents gave the frame before frames were named for their meaning (#1465), its current
-        /// name when it kept it: the name an older document or override still uses.
+        /// name when it kept it.
         /// </summary>
         internal string LegacyName =>
             EnemyFrameLegacyNameDefinitions.OrdinaryCompositions.TryGetValue(definition.Frame, out string? ordinary) ? ordinary

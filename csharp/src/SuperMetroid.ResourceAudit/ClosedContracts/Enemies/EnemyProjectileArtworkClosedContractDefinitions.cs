@@ -1,9 +1,9 @@
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
-/// <summary>Validated direct/program projectile compositions, including complete legacy inheritance.</summary>
+/// <summary>Validated direct/program projectile compositions.</summary>
 internal static class EnemyProjectileArtworkClosedContractDefinitions
 {
-    /// <summary>Requires direct and instruction-selected enemy projectile frames, including inherited legacy frames, to resolve from installed artwork.</summary>
+    /// <summary>Requires direct and instruction-selected enemy projectile frames to resolve from installed artwork.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapCatalog", "installed-enemy-projectile-direct-and-program-frames",

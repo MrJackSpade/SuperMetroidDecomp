@@ -206,7 +206,7 @@ internal static class MotherBrainBodyPresentationVerification
         return 0;
     }
 
-    /// <summary>Runs the stock import and override checks through the verification dispatcher.</summary>
+    /// <summary>Runs the stock import checks through the verification dispatcher.</summary>
     [VerificationCommand("--mother-brain-body-stock-presentation")]
     internal static int MotherBrainBodyStockPresentationCommand()
     {

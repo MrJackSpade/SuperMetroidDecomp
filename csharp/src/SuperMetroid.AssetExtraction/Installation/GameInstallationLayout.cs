@@ -7,7 +7,7 @@ public static class GameInstallationLayout
     public const string ContentDirectoryName = "game";
     /// <summary>Private validated, unheadered ROM filename retained for asset extraction and repair.</summary>
     public const string RomFileName = "SuperMetroid.smc";
-    /// <summary>Content child directory for stock audio and its compatible override counterpart.</summary>
+    /// <summary>Content child directory for the installed audio.</summary>
     public const string AudioDirectoryName = "audio";
     /// <summary>Content child directory for area-map artwork and stock exploration masks.</summary>
     public const string MapDirectoryName = "maps";

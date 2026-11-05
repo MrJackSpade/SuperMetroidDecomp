@@ -9,7 +9,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
-/// <summary>Checks Bomb Torizo hand debris art from extraction through installed overrides.</summary>
+/// <summary>Checks Bomb Torizo hand debris art from extraction through the installed page.</summary>
 internal static class BombTorizoHandArtworkVerification
 {
     /// <summary>Confirms the installed debris page matches the cartridge.</summary>

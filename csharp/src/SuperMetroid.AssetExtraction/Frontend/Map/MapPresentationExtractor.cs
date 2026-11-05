@@ -28,7 +28,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Writes stock maps into fresh installation staging; never receives the user override directory.</summary>
+/// <summary>Writes stock maps into fresh installation staging.</summary>
 public static class MapPresentationExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
@@ -38,7 +38,7 @@ public static class MapPresentationExtractor
 
     /// <summary>Creates the complete stock map family in fresh staging, including area maps, reveal masks, character atlases, palettes, labels, markers, sprites, screens, and a provenance/hash manifest.</summary>
     /// <param name="bus">Supported-cartridge address space supplying every native map presentation source.</param>
-    /// <param name="directory">Destination stock directory; generated files use create-new semantics and are never user overrides.</param>
+    /// <param name="directory">Destination stock directory; generated files use create-new semantics.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the completed map manifest.</param>
     /// <param name="cancellationToken">Cancellation checked before importing each area; later presentation groups are not interrupted by this token.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256,

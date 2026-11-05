@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </remarks>
 internal sealed class RoomFxBlendColors
 {
-    /// <summary>First BG3 ink, with shared tint rules separated from user overrides.</summary>
+    /// <summary>First BG3 ink, with shared tint rules separated from supplied colours.</summary>
     internal readonly RoomFxPairColor primary;
-    /// <summary>Second BG3 ink, with shared tint rules separated from user overrides.</summary>
+    /// <summary>Second BG3 ink, with shared tint rules separated from supplied colours.</summary>
     internal readonly RoomFxPairColor secondary;
     /// <summary>Third ink only when it differs from the selector's calculated color.</summary>
     internal readonly RoomFxThirdColor? thirdOverride;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// The packed explored-map field of a legacy save image (#1322, #1475): bank $81's <c>SaveMap</c> and <c>LoadMap</c> copy
 /// each Zebes area's explored-map plane byte by byte through a list of the bytes the area's stock map occupies, in the
 /// plane's page-first order, the areas one after another; Ceres is not packed. The lists are calculated from stock map
-/// occupancy (<see cref="ExploredMapStorage.IsKept"/>), so installed artwork overrides never move a byte.
+/// occupancy (<see cref="ExploredMapStorage.IsKept"/>), so edits to the installed map artwork never move a byte.
 /// </summary>
 [EncodingOwner("legacy save image packed explored-map field")]
 public static class SaveRamMapPacking

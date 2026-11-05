@@ -15,7 +15,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses;
 
-/// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
+/// <summary>Checks boss BG2 resource requirements and display bindings.</summary>
 internal static class BossDisplayBindingsResourcesVerification
 {
     /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes.</summary>

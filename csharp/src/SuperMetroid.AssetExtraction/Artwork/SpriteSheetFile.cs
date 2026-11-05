@@ -74,8 +74,11 @@ public static class SpriteSheetFile
                 }),
         };
 
-    /// <summary>Cuts a manifest's frames from the sheet image.</summary>
-    /// <exception cref="InvalidDataException">The manifest lists no frames, a null frame, or places a frame off the image.</exception>
+    /// <summary>Cuts a manifest's frames from the sheet image and keeps the names of the frames that show nothing.</summary>
+    /// <exception cref="InvalidDataException">
+    /// The manifest lists no frames, a null frame, places a frame off the image, or names a frame that shows nothing twice,
+    /// as null, or as a pictured frame too.
+    /// </exception>
     internal static SpriteSheet CutFrames(SpriteSheetDocument document, string name, SpriteImage image)
     {
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
@@ -85,7 +88,17 @@ public static class SpriteSheetFile
             frames.Add(frameName, Cut(image, name, frameName, frame
                 ?? throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.")));
         }
-        return new SpriteSheet(image, frames);
+        var blanks = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string? blank in document.Blank ?? [])
+        {
+            if (blank is null)
+                throw new InvalidDataException($"Sprite sheet {name} names a null frame that shows nothing.");
+            if (frames.ContainsKey(blank))
+                throw new InvalidDataException($"Sprite sheet {name} frame {blank} is pictured and shows nothing.");
+            if (!blanks.Add(blank))
+                throw new InvalidDataException($"Sprite sheet {name} names frame {blank} as showing nothing twice.");
+        }
+        return new SpriteSheet(image, frames, blanks);
     }
 
     /// <summary>Cuts one frame from the sheet image.</summary>
@@ -104,10 +117,17 @@ public static class SpriteSheetFile
     /// <summary>The frame set the import checks a loaded sheet against.</summary>
     extension(SpriteSheet sheet)
     {
-        /// <summary>The names of the sheet's frames.</summary>
+        /// <summary>The names of the sheet's pictured frames.</summary>
         internal IEnumerable<string> FrameNames => sheet.frames.Keys;
 
-        /// <summary>Whether the sheet holds exactly the frames named <paramref name="names"/>.</summary>
-        public bool HoldsExactly(IEnumerable<string> names) => sheet.FrameNames.ToHashSet(StringComparer.Ordinal).SetEquals(names);
+        /// <summary>The names of the frames the sheet holds as showing nothing (#1513).</summary>
+        internal IEnumerable<string> BlankFrameNames => sheet.blanks;
+
+        /// <summary>
+        /// Whether the sheet holds exactly the frames named <paramref name="names"/>, each either pictured or as one that
+        /// shows nothing.
+        /// </summary>
+        public bool HoldsExactly(IEnumerable<string> names) =>
+            sheet.FrameNames.Concat(sheet.BlankFrameNames).ToHashSet(StringComparer.Ordinal).SetEquals(names);
     }
 }

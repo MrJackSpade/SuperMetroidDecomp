@@ -16,6 +16,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </param>
 /// <param name="Shades">The shades the sheet is pre-coloured in besides its standard colours, by ink (#1512).</param>
 /// <param name="RowShades">The shades the sheet is pre-coloured in as its draws show it in another palette row (#1512).</param>
+/// <param name="Blank">
+/// The names of the frames the family draws that show nothing, which the sheet holds without a picture (#1513); none of
+/// them is a frame of <paramref name="Frames"/>.
+/// </param>
 internal sealed record SpriteSheetSources(IReadOnlyList<SheetFrameSource> Frames, RgbColor[] SpriteColours,
     ScreenObjectSizes ObjectSizes, int PaletteBits = 0, bool PartsKeepOwnRows = false, IReadOnlyList<SheetShade>? Shades = null,
-    IReadOnlyList<SheetRowShade>? RowShades = null);
+    IReadOnlyList<SheetRowShade>? RowShades = null, IReadOnlyList<string>? Blank = null);

@@ -35,8 +35,9 @@ internal static class ProjectileSheetComposer
 
     /// <summary>
     /// Every frame projectile sheet <paramref name="sheet"/> holds: each composition its beam combination's projectiles
-    /// show through <paramref name="bindings"/>, each flare composition, each trail pose and the unshown trail. The empty
-    /// composition an invisible projectile shows draws nothing, so no sheet holds it.
+    /// show through <paramref name="bindings"/>, pictured or, when it inks no pixel over the combination's page, held as
+    /// showing nothing (#1513), each flare composition, each trail pose and the unshown trail. The empty composition an
+    /// invisible projectile shows draws nothing, so no sheet holds it.
     /// </summary>
     internal static IEnumerable<string> Frames(SpriteSheetId sheet, InstalledProjectileFrameBindings bindings) =>
         Compositions(Combination(sheet), bindings).Select(ProjectileSheetFrames.ProjectileFrame)
@@ -82,8 +83,18 @@ internal static class ProjectileSheetComposer
         SpriteArtwork page = new ProjectileObjectPages(basePage, projectiles.BeamTiles, projectiles.TrailTiles).For(beams);
 
         var frames = new List<SheetFrameSource>();
+        var blank = new List<string>();
         foreach (ProjectileSpriteId composition in Compositions(beams, projectiles.FrameBindings))
-            frames.Add(new(ProjectileSheetFrames.ProjectileFrame(composition), projectiles.Catalog.Frame(composition), page));
+        {
+            // A composition inking no pixel over the combination's page shows nothing: it has no picture, and the
+            // projectile showing it draws nothing (#1513). The glitched combinations' pages leave their shots' compositions
+            // without a character that inks anything.
+            var frame = new SheetFrameSource(ProjectileSheetFrames.ProjectileFrame(composition), projectiles.Catalog.Frame(composition), page);
+            if (frame.ShowsAnything())
+                frames.Add(frame);
+            else
+                blank.Add(frame.Name);
+        }
         foreach (ProjectileSpriteId composition in FlareCompositions)
         {
             int selector = checked((ushort)ChargeFlareSpriteSelection.Selectors.ToList().IndexOf(composition));
@@ -92,7 +103,7 @@ internal static class ProjectileSheetComposer
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
         frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, SpritePartFrames.SmallObject(default, 0), page));
-        return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
+        return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades, Blank: blank);
     }
 
     /// <summary>

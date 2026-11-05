@@ -29,18 +29,27 @@ internal static class CompiledEnemyDisplayAudit
     private static void SyntaxTreeGuard(string root, string path)
     {
         var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, path)));
-        MethodDeclarationSyntax method = tree.GetRoot().DescendantNodes()
-            .OfType<MethodDeclarationSyntax>().Single(item => item.Identifier.ValueText == "DrawLayers");
-        if (!HasNoOpBranch(method))
+        if (!HasNoOpBranch(Method(tree, "AdvanceLayers"), Method(tree, "DrawLayers")))
             throw new InvalidDataException("The compiled empty-OAM renderer contract changed; review the resource audit adapter.");
     }
 
-    /// <summary>Recognizes only the bare skip guarded by <c>frame == EnemyFrameId.Empty</c>, so a changed renderer contract fails the audit.</summary>
-    internal static bool HasNoOpBranch(MethodDeclarationSyntax method) =>
-        method.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
-            branch.Else is null && branch.Statement is ContinueStatementSyntax &&
-            branch.Condition is BinaryExpressionSyntax equality &&
-            equality.IsKind(SyntaxKind.EqualsExpression) &&
-            equality.Left.ToString() == "frame" &&
-            equality.Right.ToString() == "EnemyFrameId.Empty");
+    /// <summary>The one method named <paramref name="name"/> in <paramref name="tree"/>.</summary>
+    internal static MethodDeclarationSyntax Method(SyntaxTree tree, string name) => tree.GetRoot().DescendantNodes()
+        .OfType<MethodDeclarationSyntax>().Single(item => item.Identifier.ValueText == name);
+
+    /// <summary>
+    /// Recognizes only the reviewed no-op (#1513): <paramref name="prepares"/> marks each prepared draw pictured exactly when
+    /// its frame is not one <c>CommonEnemyEmptyFrames.DrawsNothing</c> names, and <paramref name="draws"/> publishes the sheet
+    /// picture only under a bare <c>if (draw.Pictured)</c>, so a changed renderer contract fails the audit.
+    /// </summary>
+    internal static bool HasNoOpBranch(MethodDeclarationSyntax prepares, MethodDeclarationSyntax draws) =>
+        prepares.DescendantNodes().OfType<ArgumentSyntax>().Any(argument =>
+            argument.NameColon?.Name.Identifier.ValueText == "Pictured" &&
+            argument.Expression is PrefixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.LogicalNotExpression } negation &&
+            negation.Operand is InvocationExpressionSyntax call &&
+            call.Expression.ToString() == "CommonEnemyEmptyFrames.DrawsNothing" &&
+            call.ArgumentList.Arguments.Count == 1 &&
+            call.ArgumentList.Arguments[0].ToString() == "frame") &&
+        draws.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
+            branch.Else is null && branch.Condition.ToString() == "draw.Pictured");
 }

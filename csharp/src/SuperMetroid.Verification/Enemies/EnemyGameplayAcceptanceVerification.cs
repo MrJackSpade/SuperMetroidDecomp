@@ -24,7 +24,7 @@ using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 
-/// <summary>Confirms the compiled enemy catalog closes its references and keeps editable enemy art outside gameplay state.</summary>
+/// <summary>Confirms the compiled enemy catalog closes its references and initializes linked populations.</summary>
 internal static class EnemyGameplayAcceptanceVerification
 {
     /// <summary>
@@ -44,7 +44,7 @@ internal static class EnemyGameplayAcceptanceVerification
         Suite(nameof(VerifyEnemyPopulationPresentationIsolation), () => VerifyEnemyPopulationPresentationIsolation());
         Suite(nameof(VerifyEnemyDrops), () => VerifyEnemyDrops());
         Console.WriteLine("Enemy gameplay acceptance: complete stock definitions, reference closure, " +
-            "vulnerability selection, linked population initialization and editable-art isolation pass.");
+            "vulnerability selection, linked population initialization pass.");
     }
 
     /// <summary>Resolves the vulnerabilities and drop chances of every primary and auxiliary enemy header.</summary>

@@ -21,8 +21,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// transfers and the resulting VRAM image.</summary>
 internal static class EnemyTileArtworkGunshipLiftoffVerification
 {
-    /// <summary>Compares transfer sources, destinations, and bytes, then checks
-    /// a selected pixel override reaches pending and legacy queued uploads.</summary>
+    /// <summary>Compares transfer sources, destinations, and bytes with the installed frames.</summary>
     internal static void VerifyInstalledGunshipLiftoffArtwork(
         SuperMetroidAddressSpace bus, InstalledEnemyArtwork stock)
     {

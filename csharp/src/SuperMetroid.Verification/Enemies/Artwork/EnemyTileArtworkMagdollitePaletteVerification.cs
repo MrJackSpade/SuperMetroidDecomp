@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Checks that Magdollite's extracted color cycle can be edited without changing its draw-hook cadence or reading cartridge data at runtime.
+/// Checks Magdollite's extracted color cycle, its draw-hook cadence and that runtime reads no cartridge data.
 /// </summary>
 internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
@@ -21,7 +21,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>
-    /// Compares installed RGB5 colors with the cartridge, then exercises an override through the room enemy draw hook and CGRAM.
+    /// Compares installed RGB5 colors with the cartridge, then exercises the room enemy draw hook.
     /// </summary>
     internal static void VerifyInstalledMagdollitePaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)

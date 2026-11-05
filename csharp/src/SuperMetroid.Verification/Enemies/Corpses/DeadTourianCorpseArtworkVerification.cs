@@ -22,7 +22,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 /// <summary>Checks installed Tourian corpse tile staging and OAM against independent retail layouts.</summary>
 internal static class DeadTourianCorpseArtworkVerification
 {
-    /// <summary>Compares all corpse initializer variants against native WRAM and confirms a sidehopper PNG edit reaches live staging.</summary>
+    /// <summary>Compares all corpse initializer variants against native WRAM.</summary>
     internal static void VerifyInstalledDeadTourianCorpseArtwork(InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyDeadTourianCorpseVisuals), () => VerifyDeadTourianCorpseVisuals(stock.Enemies));

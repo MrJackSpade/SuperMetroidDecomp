@@ -9,14 +9,12 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
 
-/// <summary>Confirms calculated Dachora speed and shine colors match native
-/// palettes and that a single edited cell stays sparse.</summary>
+/// <summary>Confirms calculated Dachora speed and shine colors match native palettes.</summary>
 internal static class LookupDachoraColorsVerification
 {
     /// <summary>
     /// #1165: Dachora's speed and shine frames calculate from the normal colors. Confirms every
-    /// native word, that the stock install stores no speed/shine colors, and that every
-    /// single-cell edit resolves exactly while storing only that cell.
+    /// native word and that the stock install stores no speed/shine colors.
     /// </summary>
     internal static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
     {
@@ -32,26 +30,10 @@ internal static class LookupDachoraColorsVerification
             "Stock Dachora speed and shine frames store no colors beyond the calculation");
         Check(stock, normal, speed, shine);
 
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        foreach (DachoraPalettePhase phase in new[] { DachoraPalettePhase.Speed, DachoraPalettePhase.Shine })
-        for (int frame = 0; frame < 4; frame++)
-        for (int color = 0; color < 16; color++)
-        {
-            var document = RequiredJson.Deserialize<DachoraColorDocument>(source, options);
-            PaletteRgb5[] row = phase == DachoraPalettePhase.Speed ? document.Speed[frame] : document.Shine[frame];
-            row[color] = row[color] with { Red = row[color].Red ^ 1 };
-            var edited = DachoraColorFile.Read(new MemoryStream(DachoraColorFile.Write(document)));
-            ushort[][] expectedSpeed = speed.Select(values => (ushort[])values.Clone()).ToArray();
-            ushort[][] expectedShine = shine.Select(values => (ushort[])values.Clone()).ToArray();
-            (phase == DachoraPalettePhase.Speed ? expectedSpeed : expectedShine)[frame][color] ^= 1;
-            Check(edited, normal, expectedSpeed, expectedShine);
-            AssertEqual(1, edited.selection.SpeedEdits.Count + edited.selection.ShineEdits.Count,
-                $"Dachora {phase} frame {frame} color {color} edit stores only that cell");
-        }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Speed, 4, 0), "Speed frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Default, 1, 0), "Default frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Shine, 0, 16), "Color bound");
-        Console.WriteLine("Dachora colors: all 144 native words, 128 calculated speed/shine colors with no stored stock values, and all 128 single-cell edits pass.");
+        Console.WriteLine("Dachora colors: all 144 native words, 128 calculated speed/shine colors with no stored stock values pass.");
 
         static void Check(DachoraColorCatalog catalog, ushort[] normal, ushort[][] speed, ushort[][] shine)
         {

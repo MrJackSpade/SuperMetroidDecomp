@@ -22,7 +22,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Checks isolated color edits through boss fade and hurt handlers,
+    /// <summary>Checks installed colors through boss fade and hurt handlers,
     /// with native source reads forbidden and malformed documents rejected.</summary>
     internal static void VerifyInstalledPhantoonColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)

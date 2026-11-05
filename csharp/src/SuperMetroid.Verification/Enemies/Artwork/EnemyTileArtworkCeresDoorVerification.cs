@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Ceres door tiles, color rows, and Mode 7 transfer frames.</summary>
 internal static class EnemyTileArtworkCeresDoorVerification
 {
-    /// <summary>Compares native VRAM and CGRAM, then checks independent PNG, palette, and Mode 7 edits.</summary>
+    /// <summary>Compares native VRAM and CGRAM with the installed door art.</summary>
     internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus, InstalledEnemyArtwork stock)
     {
         CeresDoorSourceArtwork door = stock.Areas.CeresDoor

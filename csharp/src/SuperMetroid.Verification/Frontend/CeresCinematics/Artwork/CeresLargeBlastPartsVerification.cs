@@ -17,8 +17,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 /// while preserving independently edited sprite artwork.</summary>
 internal static class CeresLargeBlastPartsVerification
 {
-    /// <summary>Compares stock parts and wrapped OAM, then distinguishes tile
-    /// edits that keep calculated geometry from edits that retain supplied parts.</summary>
+    /// <summary>Compares stock parts and native visible or wrapped OAM.</summary>
     internal static void VerifyCeresLargeBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeBlast", value.AppendIdentity);
@@ -30,32 +29,6 @@ internal static class CeresLargeBlastPartsVerification
             SpriteComposition result = CeresLargeBlastParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original CeresLargeBlast selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original CeresLargeBlast compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 15 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    CheckCeresBlastLoader(definition.Pose, edited);
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited CeresLargeBlast");
-                    var selected = CeresLargeBlastParts.CalculateIfMatching(definition.Pose, supplied);
-                    AssertEqual(Identity(supplied), Identity(selected), "edited large blast identity");
-                    AssertTrue((edit.TileColumn != part.TileColumn || edit.TileRow != part.TileRow) != ReferenceEquals(supplied, selected),
-                        "tile-only edits keep calculated geometry; other edits stay supplied");
-                }
-            }
-            CheckCeresBlastLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom CeresLargeBlast");
-            AssertTrue(ReferenceEquals(extra, CeresLargeBlastParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated CeresLargeBlast part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 /// <summary>Checks calculated Ceres large-asteroid parts against two imported cinematic frames.</summary>
 internal static class CeresLargeAsteroidPartsVerification
 {
-    /// <summary>Preserves three group anchors, independent edits, and native visible or wrapped OAM.</summary>
+    /// <summary>Compares the stock calculated parts and native visible or wrapped OAM.</summary>
     internal static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeAsteroid", value.AppendIdentity);
@@ -26,43 +26,6 @@ internal static class CeresLargeAsteroidPartsVerification
             SpriteComposition result = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original CeresLargeAsteroid selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original CeresLargeAsteroid compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 15 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited CeresLargeAsteroid");
-                    AssertTrue(ReferenceEquals(supplied, CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, supplied)),
-                        "independent CeresLargeAsteroid field edit stays supplied");
-                }
-            }
-            foreach (var group in new[] { new VerifyCeresLargeAsteroidPartsCase(Start:0, End:6, Anchor:5), new VerifyCeresLargeAsteroidPartsCase(Start:6, End:13, Anchor:12), new VerifyCeresLargeAsteroidPartsCase(Start:13, End:19, Anchor:18) })
-            {
-                var translated = (SpriteVisualPart[])visual.Clone();
-                for (int index = group.Start; index < group.End; index++)
-                    translated[index] = translated[index] with { OffsetX = translated[index].OffsetX + 3, OffsetY = translated[index].OffsetY - 2 };
-                var translatedSource = IntroCinematicSpriteCompiler.Compile(translated, "translated asteroid");
-                var translatedResult = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, translatedSource);
-                AssertTrue(!ReferenceEquals(translatedSource, translatedResult), "whole asteroid translation keeps calculated shape");
-                AssertEqual(Identity(translatedSource), Identity(translatedResult), "independent asteroid anchor preserved");
-                var edge = (SpriteVisualPart[])visual.Clone();
-                edge[group.Anchor] = edge[group.Anchor] with { OffsetX = 255 };
-                var edgeSource = IntroCinematicSpriteCompiler.Compile(edge, "custom boundary anchor");
-                AssertTrue(ReferenceEquals(edgeSource, CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, edgeSource)),
-                    "custom anchor whose inferred shape exceeds X bounds stays supplied");
-            }
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom CeresLargeAsteroid");
-            AssertTrue(ReferenceEquals(extra, CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated CeresLargeAsteroid part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

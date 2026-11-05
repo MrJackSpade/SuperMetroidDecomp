@@ -101,7 +101,7 @@ public sealed record GameInstallation(string Root)
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
     /// <summary>Validates and loads the installed common OBJ sheet for the shared character transfer.</summary>
     public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
-    /// <summary>Stock projectile artwork and presentation selectors under the replaceable content tree.</summary>
+    /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
@@ -378,10 +378,8 @@ public sealed record GameInstallation(string Root)
         XrayRevealVisualFiles.Load(XrayRevealVisualDirectory, XrayRevealVisualOverrideDirectory);
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
     public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
-    /// <summary>Persistent projectile artwork and presentation replacements, preserved during stock rebuilds.</summary>
-    public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Loads validated projectile presentation with compatible user artwork and visual-selector replacements.</summary>
-    public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
+    /// <summary>Loads the validated installed projectile presentation.</summary>
+    public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory);
     /// <summary>Ordinary enemy tile sheets; replacement PNGs survive stock-content rebuilds.</summary>
     public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
     /// <summary>Persistent ordinary-enemy PNG replacements, preserved during stock rebuilds.</summary>

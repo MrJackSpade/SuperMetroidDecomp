@@ -11,85 +11,22 @@ using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Checks a host's binding of installed projectile art at startup and with edited overrides.</summary>
+/// <summary>Checks a host's binding of installed projectile art at startup.</summary>
 internal static class ProjectileHostBindingVerification
 {
-    /// <summary>Verifies host binding on a private copy of the repository installation, which the override checks edit.</summary>
+    /// <summary>Verifies host binding on a private copy of the repository installation, into which the session writes its host options.</summary>
     public static int Run()
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        return Verify(copy.Installation);
-    }
-
-    /// <summary>Compares host catalogs with installed files at startup, after a restart with overrides, and with an invalid override.</summary>
-    private static int Verify(GameInstallation installation)
-    {
-        string root = installation.Root;
-        using (var session = new InstalledGameSession(root))
+        GameInstallation installation = copy.Installation;
+        InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
+        using (var session = new InstalledGameSession(installation.Root))
         {
-            CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
-            CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
-            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
+            CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, projectiles.FrameBindings);
+            CheckGrapple(session.Game.Artwork, projectiles.GrappleTiles);
+            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), projectiles.FlarePlacement);
         }
-        Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
-        string path = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
-        var document = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName)));
-        var part = (document.Required("frames").AsObject().First(p => (p.Value ?? throw new InvalidOperationException("Verification requires p.Value.")).AsArray().Count > 0).Value ?? throw new InvalidOperationException("Verification requires a non-empty frame.")).Required(0);
-        int x = part.Required("offsetX").GetValue<int>();
-        part["offsetX"] = x == 255 ? 254 : x + 1;
-        File.WriteAllText(path, document.ToJsonString());
-        string beamName = BeamTileAtlasDefinitions.FileName(0);
-        IndexedPngImage image;
-        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, beamName)))
-            image = IndexedPng.Read(input, new(64, 8));
-        image.Pixels[0] ^= 1;
-        using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, beamName)))
-            IndexedPng.Write(output, new(64, 8), image.Pixels, image.Colours);
-        var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteFile.FileName)));
-        colors.Required("palettes").Required(BeamPaletteFile.Key(0)).Required(0)["red"] = 17;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteFile.FileName), colors.ToJsonString());
-        var trails = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
-        trails.Required("frames").Required(ProjectileTrailVisualDefinitions.FrameNames[0])["flipX"] = true;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName), trails.ToJsonString());
-        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
-            image = IndexedPng.Read(input, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
-        image.Pixels[0] ^= 1;
-        using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var flare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementExtractor.FileName)));
-        flare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementExtractor.FileName), flare.ToJsonString());
-        var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteExtractor.FileName)));
-        flareComposition.Required("frames").Required(ChargeFlareSpriteSelection.Selectors[0].Name).Required(0)["offsetX"] = 17;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteExtractor.FileName), flareComposition.ToJsonString());
-        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
-            image = IndexedPng.Read(input, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
-        image.Pixels[0] ^= 1;
-        using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var grappleStyles = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)));
-        grappleStyles.Required("endpoint")["palette"] = 4;
-        foreach (var style in grappleStyles.Required("segments").AsArray().RequiredElements()) style["palette"] = 4;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName), grappleStyles.ToJsonString());
-        var grappleFlare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
-        var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameExtractor.FileName)));
-        grappleSwing.Required("frames")[0] = 17;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameExtractor.FileName), grappleSwing.ToJsonString());
-        using (var session = new InstalledGameSession(root))
-        {
-            CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
-            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
-        }
-        File.WriteAllText(path, "invalid override");
-        try
-        {
-            using var session = new InstalledGameSession(root);
-            throw new InvalidOperationException("Invalid installed override was silently accepted.");
-        }
-        catch (InvalidDataException) { }
-        Console.WriteLine("PASS installed projectile binding: startup, restart with override and invalid override rejection.");
+        Console.WriteLine("PASS installed projectile binding: the host binds the installed frame choices, flare placement and Grapple presentation at startup.");
         return 0;
     }
 

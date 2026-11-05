@@ -59,7 +59,7 @@ public sealed record GameContentIdentity(
         return Create(
             audio.ContentIdentity,
             maps.ContentIdentity,
-            projectiles.SelectedSha256,
+            projectiles.ContentSha256,
             typeof(SuperMetroidRuntime).Module.ModuleVersionId,
             additionalContentSha256);
     }

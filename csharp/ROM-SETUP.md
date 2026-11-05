@@ -1204,13 +1204,10 @@ palette filenames still encode source identities. Further required-reference,
 override-format compatibility and presentation-parity review remains tracked in
 #530 and #549; Core does not retain a runtime ROM fallback for that work.
 
-## Projectile composition and beam PNG overrides
+## Projectile composition and beam PNGs
 
 Installed hosts extract `game/projectiles/projectile-compositions.json` under the
-player-data root. To edit it, copy the complete file to
-`overrides/projectiles/projectile-compositions.json` under that same root. Do not
-edit the stock file or its manifest: stock hashes are checked and damaged stock
-is repaired during setup. External overrides survive stock repair/reinstallation.
+player-data root. Edit it in place; run the extractor again to restore the original.
 
 Each `sprite_XXXX` entry exposes part offsets, tile row/column, size, flips, palette
 index and priority. Keep every entry and the version field. These are compositions
@@ -1220,58 +1217,46 @@ covered by this composition file.
 
 `projectile-frame-bindings.json` in the same directory selects which existing
 `sprite_XXXX` composition each of the 805 timed beam, missile, Super Missile and
-bomb instruction frames draws. Copy it to `overrides/projectiles/` to change a
-visual frame choice. Keep all `frame_XXXX` entries and select only sprite IDs
-present in `projectile-compositions.json`; duration, trail cadence, collision
-radii, damage and instruction flow remain compiled gameplay data. The stock
-file is hash-checked, and edits are included in recorded content identity.
+bomb instruction frames draws. Keep all `frame_XXXX` entries and select only sprite
+IDs present in `projectile-compositions.json`; duration, trail cadence, collision
+radii, damage and instruction flow remain compiled gameplay data. Edits are included
+in recorded content identity.
 
-Trail appearance uses `projectile-trails.json` in the same stock/override
-directories. Copy the complete file before editing tile row/column, palette,
-priority or flips. Timing and trail movement are intentionally not editable.
-This selects existing trail graphics. To replace their pixels, copy
-`game/projectiles/projectile-trails.png` to `overrides/projectiles/` and edit
-its 96x8 indexed 4-bpp image. The first eight tiles are ice/wave trails and
-the last four are missile/Super Missile trails; their two VRAM destinations
-stay fixed. The Mother Brain intro flashback shares the selected projectile,
-explosion and trail compositions, including after loading a debugger state.
+Trail appearance uses `projectile-trails.json` in the same directory: tile
+row/column, palette, priority and flips. Timing and trail movement are intentionally
+not editable. This selects existing trail graphics; their pixels are in
+`game/projectiles/projectile-trails.png`, a 96x8 indexed 4-bpp image. The first eight
+tiles are ice/wave trails and the last four are missile/Super Missile trails; their
+two VRAM destinations stay fixed. The Mother Brain intro flashback shares the
+installed projectile, explosion and trail compositions, including after loading a
+debugger state.
 
 Beam sheets `beam-00-tiles.png` through `beam-0B-tiles.png` are also installed in
-`game/projectiles`. Copy any sheet to `overrides/projectiles` to replace that beam
-combination's artwork. Keep its 64x8 indexed format and pixel indices 0 through 15.
-PNG palette colors are diagnostic: gameplay uses the separately selected beam palette.
-These sheets do not replace missile, bomb, trail, flare or Grapple artwork.
-Missile and bomb pixels are part of the shared
+`game/projectiles`, one per beam combination. Keep each 64x8 indexed format and pixel
+indices 0 through 15. PNG palette colors are diagnostic: gameplay uses the separately
+installed beam palette. These sheets do not hold missile, bomb, trail, flare or
+Grapple artwork. Missile and bomb pixels are part of the shared
 `game/standard-objects/standard-object-characters.png` sheet; trail pixels use
 the separate PNG above, while Grapple endpoint/segment pixels use
-`game/projectiles/grapple-tiles.png`. Copy either PNG to its matching
-`overrides/` directory to replace it. Charge-flare and Grapple sprite
+`game/projectiles/grapple-tiles.png`. Charge-flare and Grapple sprite
 compositions and their visual placement rules are separately editable JSON in
 `game/projectiles/`; these edits do not alter projectile collision or motion.
 
-Copy `game/projectiles/beam-palettes.json` to `overrides/projectiles/beam-palettes.json`
-to edit ordinary beam colors. Keep all twelve selections and sixteen colors per
-selection; RGB components range from 0 to 31. Charge and Hyper animation colors
-are not controlled by this file. For the ten-frame Hyper Beam projectile palette
-cycle, copy `game/projectiles/hyper-beam-fx-colors.json` to
-`overrides/projectiles/hyper-beam-fx-colors.json` and edit its eight RGB5 colors
-per frame. This changes appearance only: the frame order, two-tick cadence and
-loop remain compiled cartridge behavior. Loading a state refreshes ordinary colors at the
-next accepted display update, but preserves an active Crystal Flash or Hyper
-palette. Crystal Flash completion restores the selected override normally.
+`game/projectiles/beam-palettes.json` holds the ordinary beam colors: twelve
+selections of sixteen colors each; RGB components range from 0 to 31. Charge and
+Hyper animation colors are not controlled by this file. The ten-frame Hyper Beam
+projectile palette cycle is `game/projectiles/hyper-beam-fx-colors.json`, eight RGB5
+colors per frame. This changes appearance only: the frame order, two-tick cadence and
+loop remain compiled cartridge behavior. Loading a state refreshes ordinary colors at
+the next accepted display update, but preserves an active Crystal Flash or Hyper
+palette.
 
 Restart to load edits. Loading a debugger state retains the current session's
-selected composition and beam catalogs rather than restoring old artwork from the state.
-Startup logs stock and selected hashes. Invalid overrides fail loudly; removing
-the override restores stock on restart. Projectile hash and codec failures identify
-the exact stock or selected override path, retaining the underlying exception.
-All required manifest fields must be present. A valid override cannot hide invalid
-stock, and a rejected edit is never silently replaced. Core rendering has no ROM
-fallback; explicit native image decoding remains import/reference tooling only.
-
-The guarded `--projectile-file-contracts <installation-root>` verifier checks these
-file boundaries using an already-extracted installation, without opening its ROM
-or advancing gameplay.
+composition and beam catalogs rather than restoring old artwork from the state.
+Startup logs the projectile content hash. An invalid file fails loudly with its path,
+retaining the underlying exception. All required manifest fields must be present.
+Core rendering has no ROM fallback; explicit native image decoding remains
+import/reference tooling only.
 
 ## Verified build
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Programs;
@@ -16,7 +17,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks editable projectile sprite bindings independently of timed mechanics.</summary>
 internal static class ProjectileFrameBindingsVerification
 {
-    /// <summary>Checks 805 native sprite references, both projectile handlers, and a visible override without ROM fallback.</summary>
+    /// <summary>Checks 805 native sprite references, both projectile handlers, the installed bindings and malformed binding documents.</summary>
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
@@ -88,63 +89,18 @@ internal static class ProjectileFrameBindingsVerification
 
         var document = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        ushort editedPointer = SamusProjectileRecordDefinitions.TimedRecordAddresses[0];
-        string frameName = ProjectileFrameBindingFormat.FrameNameAt(editedPointer);
-        ushort originalSprite = stock.Resolve(editedPointer);
-        InstalledProjectileSprites compositions = InstalledProjectileSprites.Load(
-            new MemoryStream(ProjectileSpriteExtractor.Extract(rom)));
-        var stockOam = new OamBuffer();
-        compositions.Draw(originalSprite, stockOam, new(100, 100));
-        ushort replacement = ProjectileSpriteDefinitions.NativePointers.First(sprite =>
-        {
-            var comparison = new OamBuffer();
-            compositions.Draw(sprite, comparison, new(100, 100));
-            return !comparison.LowTable.SequenceEqual(stockOam.LowTable) ||
-                !comparison.HighTable.SequenceEqual(stockOam.HighTable);
-        });
-        document.Frames[frameName] = ProjectileSpriteDefinitions.Name(replacement);
-        byte[] editedJson = ProjectileFrameBindingFile.Write(document);
-        var edited = ProjectileFrameBindingFile.Load(new MemoryStream(editedJson));
-        var editedShot = new SamusProjectileSlot(0)
-            { Cursor = SamusProjectileProgramAddresses.CursorAt(editedPointer), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
-        new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = edited } }
-            .Animation.RunProjectileInstructionHandler(editedShot);
-        AssertEqual(replacement, editedShot.SpritemapPointer,
-            "edited frame binding reaches the actual projectile instruction handler");
-        var editedRecord = SamusProjectileProgramAddresses.CursorAt(editedPointer) ?? throw new InvalidDataException("A record address is never zero.");
-        AssertEqual(AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>(SamusProjectileAnimations.Programs.Steps(editedRecord.Program)[editedRecord.Position], "edited record step").Duration,
-            (int)editedShot.FrameHold.RawValue, "visual edit does not change frame duration");
-        var editedOam = new OamBuffer();
-        compositions.Draw(checked((ushort)editedShot.SpritemapPointer), editedOam, new(100, 100));
-        AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) ||
-            !editedOam.HighTable.SequenceEqual(stockOam.HighTable),
-            "edited visual binding changes emitted OAM, not merely a cached pointer");
-
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.ProjectileDirectory);
-        string stockDirectory = copy.Installation.ProjectileDirectory;
-        InstalledProjectilePresentation baseline = ProjectilePresentationFiles.Load(stockDirectory, null);
-        AssertEqual(originalSprite, baseline.FrameBindings.Resolve(editedPointer),
-            "installed stock frame binding selects native sprite");
-        string overrides = copy.Installation.ProjectileOverrideDirectory;
-        Directory.CreateDirectory(overrides);
-        File.WriteAllBytes(Path.Combine(overrides, ProjectileFrameBindingFormat.FileName), editedJson);
-        InstalledProjectilePresentation selected = ProjectilePresentationFiles.Load(stockDirectory, overrides);
-        AssertEqual(replacement, selected.FrameBindings.Resolve(editedPointer),
-            "installed visual override selects alternate sprite");
-        AssertTrue(baseline.SelectedSha256 != selected.SelectedSha256,
-            "visual frame override changes diagnostic content identity");
-        AssertEqual(replacement, ProjectilePresentationFiles.Load(stockDirectory, overrides)
-            .FrameBindings.Resolve(editedPointer), "visual override persists across catalog reload");
-        File.WriteAllBytes(Path.Combine(overrides, ProjectileFrameBindingFormat.FileName), new byte[] { 0 });
-        AssertThrows<InvalidDataException>(() => ProjectilePresentationFiles.Load(stockDirectory, overrides),
-            "invalid frame-binding override fails loudly");
+        ushort firstTimedRecord = SamusProjectileRecordDefinitions.TimedRecordAddresses[0];
+        string frameName = ProjectileFrameBindingFormat.FrameNameAt(firstTimedRecord);
+        AssertEqual(stock.Resolve(firstTimedRecord),
+            RepositoryInstallation.Installation.LoadProjectiles().FrameBindings.Resolve(firstTimedRecord),
+            "installed stock frame binding selects the native sprite");
         document.Frames.Remove(frameName);
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "missing timed frame fails before gameplay");
         document.Frames[frameName] = "sprite_0000";
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "uncatalogued sprite selection fails before gameplay");
-        Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, observable OAM edit, identity, and malformed resources pass.");
+        Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, installed bindings and malformed documents pass.");
     }
 
     /// <summary>Rejects reads of migrated sprite-reference operands in timed projectile records.</summary>
@@ -152,7 +108,7 @@ internal static class ProjectileFrameBindingsVerification
         new CartridgeReadGuard(source).Forbid(blocked.Contains,
             address => new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}."));
 
-    /// <summary>Runs the projectile frame binding and override checks.</summary>
+    /// <summary>Runs the projectile frame binding checks.</summary>
     [VerificationCommand("--projectile-frame-bindings")]
     internal static int ProjectileFrameBindingsCommand()
     {

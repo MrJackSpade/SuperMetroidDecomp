@@ -28,7 +28,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
+/// <summary>Verifies that installed map overrides survive import, loading, and host startup.</summary>
 internal static class MapInstallationVerification
 {
     /// <summary>
@@ -54,67 +54,6 @@ internal static class MapInstallationVerification
                 "complete host startup does not open the installed ROM");
         }
         var stock = installation.LoadMaps();
-        var projectileStock = installation.LoadProjectiles();
-        Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
-        string projectileOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
-        var projectileDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName)));
-        var part = (projectileDocument.Required("frames").AsObject().First(pair => (pair.Value ?? throw new InvalidOperationException("Verification requires pair.Value.")).AsArray().Count > 0).Value ?? throw new InvalidOperationException("Verification requires a non-empty frame.")).Required(0);
-        int offset = part.Required("offsetX").GetValue<int>();
-        part["offsetX"] = offset == 255 ? 254 : offset + 1;
-        File.WriteAllText(projectileOverride, projectileDocument.ToJsonString());
-        string beamName = BeamTileAtlasDefinitions.FileName(0);
-        string beamOverride = Path.Combine(installation.ProjectileOverrideDirectory, beamName);
-        IndexedPngImage beamImage;
-        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, beamName)))
-            beamImage = IndexedPng.Read(input, new(BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height));
-        beamImage.Pixels[0] ^= 1;
-        using (var output = File.Create(beamOverride))
-            IndexedPng.Write(output, new(beamImage.Size.X, beamImage.Size.Y), beamImage.Pixels, beamImage.Colours);
-        string beamPaletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteFile.FileName);
-        var beamColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteFile.FileName)));
-        beamColors.Required("palettes").Required(BeamPaletteFile.Key(0)).Required(0)["red"] = 17;
-        File.WriteAllText(beamPaletteOverride, beamColors.ToJsonString());
-        string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
-        var trailDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
-        trailDocument.Required("frames").Required(ProjectileTrailVisualDefinitions.FrameNames[0])["flipX"] = true;
-        File.WriteAllText(trailOverride, trailDocument.ToJsonString());
-        string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
-        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
-        {
-            var trailImage = IndexedPng.Read(input, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
-            trailImage.Pixels[0] ^= 1;
-            using var output = File.Create(trailPngOverride);
-            IndexedPng.Write(output, new(trailImage.Size.X, trailImage.Size.Y), trailImage.Pixels, trailImage.Colours);
-        }
-        var projectileEdited = installation.LoadProjectiles();
-        string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementExtractor.FileName);
-        var flareDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementExtractor.FileName)));
-        flareDocument.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
-        File.WriteAllText(flareOverride, flareDocument.ToJsonString());
-        string flareCompositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteExtractor.FileName);
-        var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteExtractor.FileName)));
-        flareComposition.Required("frames").Required(ChargeFlareSpriteSelection.Selectors[0].Name).Required(0)["offsetX"] = 17;
-        File.WriteAllText(flareCompositionOverride, flareComposition.ToJsonString());
-        string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
-        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
-        {
-            var grappleImage = IndexedPng.Read(input, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
-            grappleImage.Pixels[0] ^= 1;
-            using var output = File.Create(grappleOverride);
-            IndexedPng.Write(output, new(grappleImage.Size.X, grappleImage.Size.Y), grappleImage.Pixels, grappleImage.Colours);
-        }
-        string grappleStyleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName);
-        var grappleStyle = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)));
-        grappleStyle.Required("endpoint")["palette"] = 4;
-        File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
-        var grappleFlare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
-        var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameExtractor.FileName)));
-        grappleSwing.Required("frames")[0] = 17;
-        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameExtractor.FileName), grappleSwing.ToJsonString());
-        projectileEdited = installation.LoadProjectiles();
-        AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
         string paletteOverride = Path.Combine(installation.MapOverrideDirectory, MapStaticPalettesFormat.FileName);
         var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStaticPalettesFormat.FileName)));
@@ -316,14 +255,6 @@ internal static class MapInstallationVerification
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
         {
-            [projectileOverride] = File.ReadAllBytes(projectileOverride),
-            [beamOverride] = File.ReadAllBytes(beamOverride),
-            [beamPaletteOverride] = File.ReadAllBytes(beamPaletteOverride),
-            [trailOverride] = File.ReadAllBytes(trailOverride),
-            [trailPngOverride] = File.ReadAllBytes(trailPngOverride),
-            [flareOverride] = File.ReadAllBytes(flareOverride),
-            [flareCompositionOverride] = File.ReadAllBytes(flareCompositionOverride),
-            [grappleOverride] = File.ReadAllBytes(grappleOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [roomFxArtworkOverride] = File.ReadAllBytes(roomFxArtworkOverride),
             [roomFxTilemapOverride] = File.ReadAllBytes(roomFxTilemapOverride),
@@ -385,7 +316,6 @@ internal static class MapInstallationVerification
         var repaired = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress())
             ?? throw new InvalidOperationException("Installation vanished during map upgrade.");
         AssertEqual(edited.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade retains selected override identity");
-        AssertEqual(projectileEdited.SelectedSha256, repaired.LoadProjectiles().SelectedSha256, "full installer replacement preserves projectile override");
         AssertEqual(AreaMapCatalogFormat.Version, RequiredJson.Parse(File.ReadAllText(manifestPath)).Required("version").GetValue<int>(), "upgrade publishes current catalog version");
         CheckPreserved();
         // An older installation whose map manifest is already current still upgrades the rest of its content.
@@ -395,9 +325,8 @@ internal static class MapInstallationVerification
         oldProjectileManifest.AsObject().Remove("beamHashes");
         File.WriteAllText(projectileManifestPath, oldProjectileManifest.ToJsonString());
         MarkReceiptOutdated();
-        var beamUpgrade = GameAssetInstaller.EnsureInstalled(root)
+        _ = GameAssetInstaller.EnsureInstalled(root)
             ?? throw new InvalidOperationException("Installation vanished during beam upgrade.");
-        AssertEqual(projectileEdited.SelectedSha256, beamUpgrade.LoadProjectiles().SelectedSha256, "composition-only upgrade retains beam and composition overrides");
         CheckPreserved();
         var unchanged = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress(_ =>
             throw new InvalidOperationException("Complete installation unexpectedly extracted again.")));

@@ -52,9 +52,9 @@ internal static class IntroCinematicArtworkVerification
     [PrivateInstallation("Corrupts and removes opening-scene stock files and BG pages on a private copy to check that missing and damaged stock fails where it is read.")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
-        // Corruption and repairs run on a private copy of the repository installation;
-        // ROM import itself is covered by the asset-import verification.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        // Corruption and repairs run on a private copy of the installation's opening-cinematic artwork, the only content
+        // the check edits or reads from the copy (#1532); ROM import itself is covered by the asset-import verification.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.IntroCinematicDirectory);
         string root = copy.Root;
         {
             GameInstallation installation = copy.Installation;
@@ -123,7 +123,7 @@ internal static class IntroCinematicArtworkVerification
 
             var native = CreateRetailIntroFixture();
             var completeInstalled = CreateRetailIntroFixture(
-                introFont: installation.LoadMaps().IntroFont,
+                introFont: InstalledFixtures.Maps.IntroFont,
                 characterArtwork: stock);
             LayeredScene completeNativeScene = native.CaptureTranslatedRenderSnapshot();
             LayeredScene completeInstalledScene = completeInstalled.CaptureTranslatedRenderSnapshot();

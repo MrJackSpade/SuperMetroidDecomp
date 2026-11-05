@@ -39,6 +39,6 @@ internal sealed record CommonSpawnerPresence
         if ((AnyEnemy && drawn.Count > 0) || Enemies.Any(drawn.Contains))
             return true;
         return states.Any(state => Mains.Contains(state.MainCallback) || Setups.Contains(state.SetupCallback)
-            || state.PlmPopulation.Placements.ToArray().Any(placement => Plms.Contains(placement.Header.Header)));
+            || state.PlmPopulation.Placements.Span.Any(placement => Plms.Contains(placement.Header.Header)));
     }
 }

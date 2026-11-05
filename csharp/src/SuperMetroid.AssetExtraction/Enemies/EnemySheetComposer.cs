@@ -247,7 +247,7 @@ internal static class EnemySheetComposer
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
         // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
-        IReadOnlyList<CommonSpawnedObjects> common = CommonSpawners.RunningIn(StatesOf(set), loaded.Drawn);
+        IReadOnlyList<CommonSpawnedObjects> common = CommonSpawnersOf(set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
             [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf, common).Select(plan =>
                 SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Shades, loaded.Colours.RowOf))]);
@@ -401,7 +401,7 @@ internal static class EnemySheetComposer
         foreach (EnemyFrameId frame in shown)
         {
             if (spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts))
-                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), [new EnemyExtendedDrawComponent(Offset16<SpritePixels>.Zero, parts)]);
+                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), (EnemyExtendedDrawComponent[])[new EnemyExtendedDrawComponent(Offset16<SpritePixels>.Zero, parts)]);
             else if (extended.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) && !components.IsEmpty)
                 yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), components);
         }

@@ -111,6 +111,9 @@ internal static class LoadedBeamProjectilePrograms
                     case AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.RepeatWhileCountingStep repeat:
                         pending.Enqueue(repeat.Target);
                         break;
+                    default:
+                        // A shown frame, a cue or a stop continues into no other list.
+                        break;
                 }
             }
         }

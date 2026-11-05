@@ -74,9 +74,20 @@ internal static class GraphDigestVerification
     /// <summary>Each content list indexed so far, with its graph.</summary>
     private static readonly List<(object[] Roots, BoundObjectGraph Graph)> boundGraphs = [];
 
-    /// <summary>Write-only stream that feeds serialized graph bytes directly into an incremental SHA-256 hash.</summary>
+    /// <summary>
+    /// Write-only stream that feeds serialized graph bytes into an incremental SHA-256 hash. The serializer writes a graph
+    /// as many writes of a few bytes each (a marker, a length, a name, one primitive), and every append to the hash is a
+    /// call into the platform's hash provider, so the bytes are gathered into a buffer and appended a buffer at a time
+    /// (#1532). The hash sees the same bytes in the same order, so the digest is unchanged.
+    /// </summary>
     internal sealed class HashingStream(IncrementalHash hash) : Stream
     {
+        /// <summary>Bytes written since the last append to the hash.</summary>
+        private readonly byte[] pending = new byte[64 * 1024];
+
+        /// <summary>How many bytes of <see cref="pending"/> are written.</summary>
+        private int pendingCount;
+
         /// <summary>Hashing accepts writes only.</summary>
         public override bool CanRead => false;
         /// <summary>Serialized bytes cannot be repositioned in the hash.</summary>
@@ -87,18 +98,47 @@ internal static class GraphDigestVerification
         public override long Length => throw new NotSupportedException();
         /// <summary>A streamed hash has no seekable position.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-        /// <summary>Hash updates are immediate and need no buffered flush.</summary>
-        public override void Flush() { }
+        /// <summary>Appends the buffered bytes to the hash.</summary>
+        public override void Flush()
+        {
+            if (pendingCount == 0)
+                return;
+            hash.AppendData(pending, 0, pendingCount);
+            pendingCount = 0;
+        }
         /// <summary>Rejects reads from the write-only digest stream.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
         /// <summary>Rejects repositioning serialized input within the digest.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
         /// <summary>Rejects changing a digest stream's length after bytes were hashed.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
-        /// <summary>Appends an array segment directly to the digest.</summary>
-        public override void Write(byte[] buffer, int offset, int count) => hash.AppendData(buffer, offset, count);
-        /// <summary>Appends a span directly to the digest.</summary>
-        public override void Write(ReadOnlySpan<byte> buffer) => hash.AppendData(buffer);
+        /// <summary>Appends an array segment to the digest.</summary>
+        public override void Write(byte[] buffer, int offset, int count) => Write(new ReadOnlySpan<byte>(buffer, offset, count));
+        /// <summary>Appends one byte to the digest.</summary>
+        public override void WriteByte(byte value) => Write(new ReadOnlySpan<byte>(in value));
+        /// <summary>Appends a span to the digest: gathered while it fits the buffer, appended directly when larger.</summary>
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length > pending.Length - pendingCount)
+            {
+                Flush();
+                if (buffer.Length >= pending.Length)
+                {
+                    hash.AppendData(buffer);
+                    return;
+                }
+            }
+            buffer.CopyTo(pending.AsSpan(pendingCount));
+            pendingCount += buffer.Length;
+        }
+
+        /// <summary>Appends what is still buffered before the stream closes, so the digest covers every byte written.</summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                Flush();
+            base.Dispose(disposing);
+        }
     }
     /// <summary>
     /// True when every instance field of two objects of one type holds equal state: arrays of

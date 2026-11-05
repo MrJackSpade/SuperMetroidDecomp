@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
@@ -22,13 +23,15 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 /// <summary>Checks installed Samus body, death, and arm-cannon artwork against retail selectors and rendering transfers.</summary>
 internal static class SamusBodyArtworkVerification
 {
-    /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
-    internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
+    /// <summary>Checks every extracted selector and split character transfer of the repository installation against retail.</summary>
+    internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus)
     {
-        SamusBodyCharacterArtwork stockCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory);
+        // The installation's body characters and death tiles are the shared Samus sheet inputs, loaded once per process
+        // with the sheets they compose (#1532).
+        SamusBodyCharacterArtwork stockCharacters = SamusBodySheetFixtures.Inputs.SamusBody;
         InstalledSamusBodyArtwork stock = stockCharacters.Body;
-        InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.Load(installation.SamusBodyDirectory);
-        SamusDeathTileAtlas stockDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory);
+        InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
+        SamusDeathTileAtlas stockDeathTiles = SamusBodySheetFixtures.Inputs.DeathTiles;
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)

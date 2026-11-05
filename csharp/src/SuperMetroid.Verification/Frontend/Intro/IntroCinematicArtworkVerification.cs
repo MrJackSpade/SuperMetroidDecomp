@@ -587,8 +587,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Runs the Samus body artwork checks against the repository installation.</summary>
     private static void VerifyInstalledSamusBodyArtwork() =>
-        VerifySamusBodyArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath),
-            RepositoryInstallation.Installation);
+        VerifySamusBodyArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath));
 
     /// <summary>Runs every suite of the installed intro, Ceres and ending artwork family in this process.</summary>
     [VerificationCommand("--intro-cinematic-artwork")]

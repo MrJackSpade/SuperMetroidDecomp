@@ -81,7 +81,7 @@ internal sealed class EscapeRoomEffects
             RoomMainCallback.SetScreenShakingAndGenerateRandomExplosions;
         bool light = main == RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal;
         bool medium = main == RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal;
-        if (!nonblank && !light && !medium && main != RoomMainCallback.GenerateRandomExplosionEveryFourthFrame)
+        if (!ZebesEscapeDefinitions.ExplosionRoomMains.Contains(main))
             return;
         if (light || medium)
         {

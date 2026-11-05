@@ -34,8 +34,11 @@ internal enum DestinationKind
     Own,
     /// <summary>The shared sheet of the graphics sets holding a behaviour's definitions.</summary>
     Shared,
-    /// <summary>Every set's shared sheet.</summary>
-    Anywhere,
+    /// <summary>
+    /// The shared sheet of every set whose rooms run a common spawner: code outside every behaviour, keyed by the spawner
+    /// (<see cref="CoreModel.SpawnerKey"/>), which the import places in the rooms whose data makes that code run.
+    /// </summary>
+    Common,
     /// <summary>A sheet-specific owner's sheet.</summary>
     Sheet,
 }
@@ -44,15 +47,16 @@ internal enum DestinationKind
 /// <param name="Kind">Which kind of sheet.</param>
 /// <param name="Behaviour">For <see cref="DestinationKind.Own"/> and <see cref="DestinationKind.Shared"/>, whose.</param>
 /// <param name="Sheet">For <see cref="DestinationKind.Sheet"/>, the owner property naming it.</param>
-internal readonly record struct Destination(DestinationKind Kind, INamedTypeSymbol? Behaviour = null, string? Sheet = null)
+/// <param name="Spawner">For <see cref="DestinationKind.Common"/>, the common spawner whose code spawns there.</param>
+internal readonly record struct Destination(DestinationKind Kind, INamedTypeSymbol? Behaviour = null, string? Sheet = null, string? Spawner = null)
 {
     /// <inheritdoc/>
     public bool Equals(Destination other) =>
-        Kind == other.Kind && SymbolEqualityComparer.Default.Equals(Behaviour, other.Behaviour) && Sheet == other.Sheet;
+        Kind == other.Kind && SymbolEqualityComparer.Default.Equals(Behaviour, other.Behaviour) && Sheet == other.Sheet && Spawner == other.Spawner;
 
     /// <inheritdoc/>
     public override int GetHashCode() =>
-        HashCode.Combine(Kind, Behaviour is null ? 0 : SymbolEqualityComparer.Default.GetHashCode(Behaviour), Sheet);
+        HashCode.Combine(Kind, Behaviour is null ? 0 : SymbolEqualityComparer.Default.GetHashCode(Behaviour), Sheet, Spawner);
 }
 
 /// <summary>Graphics whose sheet only other code decides: copied within a type's objects, or a method's parameter.</summary>
@@ -205,8 +209,25 @@ internal sealed class Walk
     /// </summary>
     private void RouteDataSpriteObjects()
     {
+        bool common = _behaviour is null && _family is null;
         foreach ((Unit unit, string kind) in _dataSpriteObjects)
         {
+            if (common)
+            {
+                // Outside every behaviour each spawner's objects exist only in its own rooms, so a kind carried by data goes
+                // to the open spawns whose code reads that data (the escape explosions' table to the escape explosion), not
+                // to every open spawn the walk met.
+                HashSet<Unit> readers = AncestorsOf(unit);
+                var reading = _openSpriteObjectSpawns.Where(open => readers.Contains(open.Unit)).ToList();
+                if (reading.Count == 0)
+                    Unreadable.Add($"{_model.Describe(unit)}: sprite object {kind} is carried by data no open spawn outside the behaviours reads");
+                foreach ((Unit spawning, SpawnCall call) in reading)
+                {
+                    foreach (SpawnTarget target in call.Targets)
+                        Collect(spawning, target)?.SpriteObjects.Add(kind);
+                }
+                continue;
+            }
             if (_openSpriteObjectSpawns.Count == 0)
             {
                 foreach (SpawnTarget target in ScanOf(unit).UnitTargets)
@@ -220,6 +241,22 @@ internal sealed class Walk
                     Collect(spawning, target)?.SpriteObjects.Add(kind);
             }
         }
+    }
+
+    /// <summary>Every unit that reaches <paramref name="unit"/> in this walk, directly or through others.</summary>
+    private HashSet<Unit> AncestorsOf(Unit unit)
+    {
+        var ancestors = new HashSet<Unit>();
+        var pending = new Stack<Unit>([unit]);
+        while (pending.Count > 0)
+        {
+            foreach (Unit caller in CallersOf(pending.Pop()))
+            {
+                if (ancestors.Add(caller))
+                    pending.Push(caller);
+            }
+        }
+        return ancestors;
     }
 
     /// <summary>
@@ -445,9 +482,9 @@ internal sealed class Walk
         switch (target.Source)
         {
             case GraphicsSource.Spawner:
-                return (scope is null ? new Destination(DestinationKind.Anywhere) : new Destination(DestinationKind.Own, scope), null);
+                return (scope is null ? CommonOf(unit) : new Destination(DestinationKind.Own, scope), null);
             case GraphicsSource.Shared:
-                return (scope is null ? new Destination(DestinationKind.Anywhere) : new Destination(DestinationKind.Shared, scope), null);
+                return (scope is null ? CommonOf(unit) : new Destination(DestinationKind.Shared, scope), null);
             case GraphicsSource.Sheet:
                 return (new Destination(DestinationKind.Sheet, Sheet: target.Sheet), null);
             case GraphicsSource.Inherited:
@@ -459,6 +496,28 @@ internal sealed class Walk
                 return (null, null);
         }
     }
+
+    /// <summary>
+    /// The common sheet of the spawner whose code <paramref name="unit"/> is, recording the unit under that spawner for the
+    /// report of where each spawner's code is reached from.
+    /// </summary>
+    private Destination CommonOf(Unit unit)
+    {
+        // A family walk's spawns are all its family's, whatever their graphics: they join the family's closure.
+        if (_family is not null)
+            return new Destination(DestinationKind.Common, Spawner: _family.ToDisplayString());
+        string spawner = _model.SpawnerKey(unit);
+        if (!SpawnerUnits.TryGetValue(spawner, out HashSet<Unit>? units))
+            SpawnerUnits.Add(spawner, units = []);
+        units.Add(unit);
+        return new Destination(DestinationKind.Common, Spawner: spawner);
+    }
+
+    /// <summary>The units each common spawner's spawns were met in.</summary>
+    public Dictionary<string, HashSet<Unit>> SpawnerUnits { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>The units reaching <paramref name="unit"/> directly in this walk.</summary>
+    public IReadOnlySet<Unit> CallersOf(Unit unit) => _callers.GetValueOrDefault(unit) ?? [];
 
     /// <summary>Everything <paramref name="unit"/>'s type's code spawns.</summary>
     private Collected Evidence(Unit unit) => Of(EvidenceByType, unit.Type);

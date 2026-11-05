@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>
@@ -35,4 +37,18 @@ public static class ZebesEscapeDefinitions
 
     /// <summary>The strong horizontal background shake the Landing Site shakes with during the escape.</summary>
     public const int LandingQuake = 6;
+
+    /// <summary>
+    /// The room mains of the escape rooms that set off random explosions: the outdoor rooms, whose explosions skip blank
+    /// tiles, the two rooms whose shaking turns diagonal, and the rooms exploding every fourth update. The escape room
+    /// effects run their explosions in exactly these rooms, and the import pictures the explosions only for them.
+    /// </summary>
+    public static IReadOnlySet<RoomMainCallback> ExplosionRoomMains { get; } = new HashSet<RoomMainCallback>
+    {
+        RoomMainCallback.ScrollingSkyLandZebesTimebombSet,
+        RoomMainCallback.SetScreenShakingAndGenerateRandomExplosions,
+        RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal,
+        RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal,
+        RoomMainCallback.GenerateRandomExplosionEveryFourthFrame,
+    };
 }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -17,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 9;
+    public const int ManifestVersion = 10;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -110,7 +111,9 @@ public static class EnemySheetFiles
                 SpriteSheet sheet = loaded[entry.Sheet];
                 Dictionary<string, FrameArtworkVariation[]> frameVariations = FrameVariations(manifest.SpawnedVariations, set, ownerName);
                 Dictionary<string, string> frameRots = RotFrames(manifest.SpawnedRotPictures, set, ownerName, setCorpses[set]);
-                if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(sheetOwner, spawners, sharedSpawners, entry.Anywhere).SelectMany(frame => PictureNames(frame,
+                CommonSpawnedObjects[] common =
+                    [.. entry.Common.Select(spawner => CommonSpawners.Named(spawner).Spawned)];
+                if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(sheetOwner, spawners, sharedSpawners, common).SelectMany(frame => PictureNames(frame,
                         frameVariations, frameRots, setCorpses[set]))))
                     throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
                 spawned.Add(new SpawnedObjectSheetKey(set, owner), new SpawnedObjectSheet(sheet));

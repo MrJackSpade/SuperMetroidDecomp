@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 
@@ -111,7 +112,7 @@ internal static class EnemySheetComposer
                         Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                         Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
                         SharedSpawners = [.. plan.SharedSpawners.Select(enemy => enemy.ToString())],
-                        Anywhere = plan.Anywhere,
+                        Common = [.. plan.Common.Select(common => common.Spawner)],
                     });
                     if (sheet.Variations.Count > 0)
                         baseVariations[owner] = Document(sheet.Variations);
@@ -245,8 +246,10 @@ internal static class EnemySheetComposer
     internal static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
+        // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
+        IReadOnlyList<CommonSpawnedObjects> common = CommonSpawners.RunningIn(StatesOf(set), loaded.Drawn);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
-            [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf).Select(plan =>
+            [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf, common).Select(plan =>
                 SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Shades, loaded.Colours.RowOf))]);
     }
 
@@ -295,19 +298,41 @@ internal static class EnemySheetComposer
         Ensure.NotNull(set);
         GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(set);
         LoadedSetColours colours = LoadedSetColours.Of(inputs, set);
+        EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
+        IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
+        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, set, corpses),
+            [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
+    }
+
+    /// <summary>The common spawners whose objects graphics set <paramref name="set"/>'s shared sheet holds: those its rooms run (#1513).</summary>
+    /// <exception cref="InvalidDataException">A common spawner has no presence.</exception>
+    internal static IReadOnlyList<CommonSpawnedObjects> CommonSpawnersOf(RoomEnemyGraphicsSetDefinition set)
+    {
+        Ensure.NotNull(set);
+        return CommonSpawners.RunningIn(StatesOf(set), DrawnUnder(set, GraphicsSetCharacterLayout.Of(set)));
+    }
+
+    /// <summary>
+    /// The enemies drawn under graphics set <paramref name="set"/> laid out as <paramref name="layout"/>: its members in
+    /// record order, then each enemy its rooms place without the set loading it, then the enemies those enemies'
+    /// encounters spawn.
+    /// </summary>
+    private static EnemyDefinitionId[] DrawnUnder(RoomEnemyGraphicsSetDefinition set, GraphicsSetCharacterLayout layout)
+    {
         List<EnemyDefinitionId> members = [.. layout.Members.Select(member => member.DefinitionId)];
-        IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
+        IEnumerable<EnemyDefinitionId> placed = StatesOf(set)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
             .Except(members).Distinct().Order();
         EnemyDefinitionId[] loaded = [.. members, .. placed];
         // An encounter's own spawns, such as Mother Brain's tubes and the Baby, draw under the set its spawner loads.
         EnemyDefinitionId[] spawned = [.. loaded.SelectMany(enemy => EncounterSpawnedEnemyDefinitions.BySpawner.GetValueOrDefault(enemy, []))
             .Except(loaded).Distinct().Order()];
-        EnemyDefinitionId[] drawn = [.. loaded, .. spawned];
-        IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
-        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, set, corpses),
-            [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
+        return [.. loaded, .. spawned];
     }
+
+    /// <summary>The room states that load graphics set <paramref name="set"/>.</summary>
+    private static RoomStateSettings[] StatesOf(RoomEnemyGraphicsSetDefinition set) =>
+        [.. RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)];
 
     /// <summary>
     /// The artwork sequences played under graphics set <paramref name="set"/> (#1513): each its members' encounters play,

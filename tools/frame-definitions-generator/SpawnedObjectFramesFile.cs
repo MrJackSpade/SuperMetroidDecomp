@@ -3,7 +3,7 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <summary>
 /// Writes SpawnedObjectFrameDefinitions.cs: the projectile frames and room sprite-object kinds each enemy definition
 /// spawns onto its own sheet and onto its sets' shared sheet, those a sheet-specific owner's sheet holds, and those code
-/// outside every behaviour spawns in any room.
+/// outside every behaviour spawns, by the common spawner whose code spawns it.
 /// </summary>
 internal static class SpawnedObjectFramesFile
 {
@@ -20,8 +20,8 @@ internal static class SpawnedObjectFramesFile
             "namespace SuperMetroid.AssetExtraction.Enemies.Artwork;",
             "",
             "/// <summary>",
-            "/// The projectile frames and room sprite-object kinds each enemy definition can spawn, and those any room can show",
-            "/// (#1392), which the pre-coloured spawned-object sheets hold, each on the sheet its spawn's graphics name (#1513).",
+            "/// The projectile frames and room sprite-object kinds each enemy definition can spawn, and those each common spawner (code",
+            "/// outside the enemy behaviours) spawns (#1392), which the pre-coloured spawned-object sheets hold, each on the sheet its spawn's graphics name (#1513).",
             $"/// Generated from the source by {GeneratedFile.GeneratorPath}; regenerate rather than edit.",
             "/// </summary>",
             "[ArchitectureReview(\"large\", \"Generated data: the projectile frames and sprite-object kinds each enemy definition spawns; "
@@ -56,12 +56,17 @@ internal static class SpawnedObjectFramesFile
             AddArray(lines, "RoomSpriteObjectKind", $"{sheet}SheetSpriteObjects",
                 SortedKinds(held.SpriteObjects), $"The room sprite objects <see cref=\"SpawnedObjectOwner.{sheet}\"/>'s sheet holds.");
         }
-        List<string> anywhereFrames = CoreModel.InDeclarationOrder(model.EnemyProjectileFrameId, analysis.AnywhereProjectileFrames);
-        List<string> anywhereKinds = SortedKinds(analysis.AnywhereSpriteObjects);
-        AddArray(lines, "EnemyProjectileFrameId", "AnywhereProjectiles", anywhereFrames,
-            "The projectile frames code outside the enemy behaviours spawns in any room.");
-        AddArray(lines, "RoomSpriteObjectKind", "AnywhereSpriteObjects", anywhereKinds,
-            "The room sprite objects code outside the enemy behaviours spawns in any room.");
+        var commonSpawners = analysis.Common.Keys.Order(StringComparer.Ordinal).ToList();
+        foreach (string spawner in commonSpawners)
+        {
+            Collected held = analysis.Common[spawner];
+            string name = Identifier(spawner);
+            AddArray(lines, "EnemyProjectileFrameId", $"Common{name}Projectiles",
+                CoreModel.InDeclarationOrder(model.EnemyProjectileFrameId, held.ProjectileFrames),
+                $"The projectile frames <c>{spawner}</c>'s code spawns onto the shared sheet of the sets whose rooms run it.");
+            AddArray(lines, "RoomSpriteObjectKind", $"Common{name}SpriteObjects",
+                SortedKinds(held.SpriteObjects), $"The room sprite objects <c>{spawner}</c>'s code spawns onto the shared sheet of the sets whose rooms run it.");
+        }
         lines.AddRange(
         [
             "    /// <summary>What each enemy definition can spawn onto its own spawned-object sheet.</summary>",
@@ -105,8 +110,21 @@ internal static class SpawnedObjectFramesFile
         [
             "        };",
             "",
-            "    /// <summary>What code outside the enemy behaviours spawns, in any room.</summary>",
-            "    internal static SpawnedObjects Anywhere { get; } = new(AnywhereProjectiles, AnywhereSpriteObjects);",
+            "    /// <summary>",
+            "    /// What each common spawner, code outside the enemy behaviours, spawns onto the shared sheet, by the spawner the import",
+            "    /// places in the rooms whose data runs it: a type's name, or <c>Type.Member</c> for a type whose members serve unrelated rooms.",
+            "    /// </summary>",
+            "    internal static IReadOnlyList<CommonSpawnedObjects> Common { get; } =",
+            "    [",
+        ]);
+        foreach (string spawner in commonSpawners)
+        {
+            string name = Identifier(spawner);
+            lines.Add($"        new(\"{spawner}\", new(Common{name}Projectiles, Common{name}SpriteObjects)),");
+        }
+        lines.AddRange(
+        [
+            "    ];",
             "}",
         ]);
 
@@ -115,8 +133,11 @@ internal static class SpawnedObjectFramesFile
             string.Join('\n', lines) + "\n",
             "spawned object frames current",
             $"wrote SpawnedObjectFrameDefinitions.cs: {spawning.Count} spawning behaviours, {sharing.Count} sharing behaviours, "
-                + $"{analysis.BySheet.Count} owner sheets, {anywhereFrames.Count} anywhere frames, {anywhereKinds.Count} anywhere kinds");
+                + $"{analysis.BySheet.Count} owner sheets, {commonSpawners.Count} common spawners");
     }
+
+    /// <summary>The identifier fragment a spawner's arrays are named by: its name without separators.</summary>
+    private static string Identifier(string spawner) => spawner.Replace(".", "", StringComparison.Ordinal);
 
     /// <summary>Sprite-object kinds in ordinal name order.</summary>
     private static List<string> SortedKinds(IEnumerable<string> kinds) => [.. kinds.Order(StringComparer.Ordinal)];

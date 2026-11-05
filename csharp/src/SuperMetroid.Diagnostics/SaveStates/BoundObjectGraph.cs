@@ -153,8 +153,33 @@ internal sealed class BoundObjectGraph
                 }
                 return;
             }
+            if (type.IsSZArray && ElementReferences(elementType) is { } elementHeld)
+            {
+                // A vector of values is read element by element through the references each element holds, without
+                // boxing an element or building a step until a capture names what it reaches (#1532).
+                object?[] values = HeldValues(elementHeld.Steps.Length);
+                for (int index = 0; index < array.Length; index++)
+                {
+                    elementHeld.Read(array, index, values);
+                    for (int leaf = 0; leaf < elementHeld.Steps.Length; leaf++)
+                        ReachHeld(values[leaf], value, elementHeld.Steps[leaf], index, pending);
+                }
+                Array.Clear(values, 0, elementHeld.Steps.Length);
+                return;
+            }
             foreach ((object child, string step) in Children(value))
                 Reach(child, new Origin(value, step), pending);
+            return;
+        }
+        if (!type.IsValueType && ObjectReferences(type) is { } held)
+        {
+            // An object holding values that hold references reads those references through the values, without boxing a
+            // value, each named by its whole step from the object, built once for its type (#1532).
+            object?[] values = HeldValues(held.Steps.Length);
+            held.Read(value, values);
+            for (int leaf = 0; leaf < held.Steps.Length; leaf++)
+                ReachHeld(values[leaf], value, held.Steps[leaf], element: -1, pending);
+            Array.Clear(values, 0, held.Steps.Length);
             return;
         }
         foreach ((FieldInfo field, string step) in ReferenceFields(type))
@@ -167,6 +192,34 @@ internal sealed class BoundObjectGraph
                 Reach(fieldValue, new Origin(value, step), pending);
         }
     }
+
+    /// <summary>
+    /// Indexes the value <paramref name="parent"/> holds at <paramref name="step"/>, within its element
+    /// <paramref name="element"/> when that is not negative: a reference is reached itself, and a value held where a
+    /// reference could be (a boxed value) is walked through to the references it holds.
+    /// </summary>
+    private void ReachHeld(object? held, object parent, string step, int element, Queue<object> pending)
+    {
+        if (held is null)
+            return;
+        if (held.GetType().IsValueType)
+            ReachThrough(held, parent, element < 0
+                ? step
+                : ElementStep + element.ToString(System.Globalization.CultureInfo.InvariantCulture) + StepSeparator + step, pending);
+        else
+            Reach(held, new Origin(parent, step, element), pending);
+    }
+
+    /// <summary>This graph's buffer for the references one object or element holds, with room for at least <paramref name="count"/>.</summary>
+    private object?[] HeldValues(int count)
+    {
+        if (heldValues.Length < count)
+            heldValues = new object?[count];
+        return heldValues;
+    }
+
+    /// <summary>The references the object or element being indexed holds, read into one buffer the walk reuses.</summary>
+    private object?[] heldValues = [];
 
     /// <summary>Indexes the references the value <paramref name="held"/> holds, each named through its step from <paramref name="parent"/>.</summary>
     private void ReachThrough(object held, object parent, string step, Queue<object> pending)
@@ -202,34 +255,41 @@ internal sealed class BoundObjectGraph
 
     /// <summary>The object <paramref name="path"/> names among the bound objects.</summary>
     /// <exception cref="InvalidDataException">The path names no object the host binds now.</exception>
-    internal object Resolve(string path)
-    {
-        if (resolved.TryGetValue(Ensure.NotNull(path), out object? known))
-            return known;
-        object value = ResolveSteps(path);
-        resolved.Add(path, value);
-        return value;
-    }
+    internal object Resolve(string path) => Resolved(Ensure.NotNull(path), path);
 
-    /// <summary>Each path a restore has resolved, with the object it names.</summary>
+    /// <summary>
+    /// Each path a restore has resolved, and each path leading to one, with the object it names: a path is resolved from
+    /// the object its parent path names, so paths sharing a prefix step through it once (#1532).
+    /// </summary>
     private readonly Dictionary<string, object> resolved = new(StringComparer.Ordinal);
 
-    /// <summary>The object <paramref name="path"/> names, found step by step from its root.</summary>
+    /// <summary>
+    /// The object <paramref name="path"/> names, <paramref name="named"/> or a path leading to it: its root, or the step
+    /// from the object its parent path names.
+    /// </summary>
+    /// <param name="path">The path resolved.</param>
+    /// <param name="named">The path the restore asked for, which a failure names.</param>
     /// <exception cref="InvalidDataException">The path names no object the host binds now.</exception>
-    private object ResolveSteps(string path)
+    private object Resolved(string path, string named)
     {
-        string[] steps = path.Split(StepSeparator);
-        if (!int.TryParse(steps[0], System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int root) ||
-            (uint)root >= (uint)roots.Length)
-            throw new InvalidDataException($"Debugger state names bound root '{steps[0]}', which the host does not bind.");
-        object? current = roots[root];
-        for (int index = 1; index < steps.Length; index++)
+        if (resolved.TryGetValue(path, out object? known))
+            return known;
+        int last = path.LastIndexOf(StepSeparator);
+        object value;
+        if (last < 0)
         {
-            current = current is null ? null : Step(current, steps[index]);
-            if (current is null)
-                throw new InvalidDataException($"Debugger state names bound object '{path}', which the content bound now does not hold.");
+            if (!int.TryParse(path, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int root) ||
+                (uint)root >= (uint)roots.Length)
+                throw new InvalidDataException($"Debugger state names bound root '{path}', which the host does not bind.");
+            value = roots[root];
         }
-        return current ?? throw new InvalidDataException($"Debugger state names bound object '{path}', which is null.");
+        else
+        {
+            value = Step(Resolved(path[..last], named), path[(last + 1)..])
+                ?? throw new InvalidDataException($"Debugger state names bound object '{named}', which the content bound now does not hold.");
+        }
+        resolved.Add(path, value);
+        return value;
     }
 
     /// <summary>Every object <paramref name="value"/> holds, with the step that reaches it; value types are walked through.</summary>
@@ -309,13 +369,15 @@ internal sealed class BoundObjectGraph
         }
         if (!step.Contains(FieldSeparator, StringComparison.Ordinal))
             throw new InvalidDataException($"Debugger state has a malformed bound step '{step}'.");
-        foreach ((FieldInfo field, string fieldStep) in ReferenceFields(current.GetType()))
-        {
-            if (string.Equals(fieldStep, step, StringComparison.Ordinal))
-                return field.GetValue(current);
-        }
-        return null;
+        return FieldSteps(current.GetType()).TryGetValue(step, out FieldInfo? field) ? field.GetValue(current) : null;
     }
+
+    /// <summary>Each type's fields that can hold a reference, by the step that names each.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<string, FieldInfo>> fieldSteps = new();
+
+    /// <summary>The fields of <paramref name="type"/> that can hold a reference, by the step that names each, looked up once per step.</summary>
+    private static Dictionary<string, FieldInfo> FieldSteps(Type type) => fieldSteps.GetOrAdd(type, static owner =>
+        ReferenceFields(owner).ToDictionary(entry => entry.Step, entry => entry.Field, StringComparer.Ordinal));
 
     /// <summary>
     /// A compiled reader of a <c>System.Collections.Generic</c> collection's version, which every change to it advances;
@@ -428,15 +490,118 @@ internal sealed class BoundObjectGraph
     }
 
     /// <summary>
-    /// Where an object was first reached: the object that holds it and the step from it. An element of an array of
-    /// references keeps its index, whose step is built only when a capture names it (#1532).
+    /// Where an object was first reached: the object that holds it and the step from it. An element of an array keeps its
+    /// index, whose step is built only when a capture names it (#1532).
     /// </summary>
     /// <param name="Parent">The holding object, or null for a root.</param>
-    /// <param name="Step">The step from the parent, or the root's number; null for an array element named by its index.</param>
-    /// <param name="Element">The element's index in its array when <paramref name="Step"/> is null.</param>
-    private readonly record struct Origin(object? Parent, string? Step, int Element = 0)
+    /// <param name="Step">
+    /// The step from the parent, or the root's number; within element <paramref name="Element"/> when that is not
+    /// negative, and null for the element itself.
+    /// </param>
+    /// <param name="Element">The element's index in its array, or negative when the step is not within an element.</param>
+    private readonly record struct Origin(object? Parent, string? Step, int Element = -1)
     {
         /// <summary>The step from the parent, as a path names it.</summary>
-        internal string Named => Step ?? ElementStep + Element.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        internal string Named => Element < 0
+            ? Step ?? throw new InvalidOperationException("A bound object's origin names neither a step nor an element.")
+            : Step is null
+                ? ElementStep + Element.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : ElementStep + Element.ToString(System.Globalization.CultureInfo.InvariantCulture) + StepSeparator + Step;
+    }
+
+    /// <summary>
+    /// The references values of one type hold, read in the order <see cref="Children"/> walks them: each field that can hold
+    /// a reference, a field holding a value that holds references walked through to that value's own (#1532). Each is
+    /// named by its whole step from the value; a reference read where a value could be held (a boxed value) is walked
+    /// through when indexed.
+    /// </summary>
+    /// <typeparam name="TRead">The reader's delegate type.</typeparam>
+    /// <param name="Steps">Each held reference's step from the value, in walk order.</param>
+    /// <param name="Read">Reads a value's held references into a buffer, in walk order.</param>
+    private sealed record HeldReferences<TRead>(string[] Steps, TRead Read) where TRead : Delegate;
+
+    /// <summary>Each reference type's held references, or null for a type none of whose fields holds a value holding references.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, HeldReferences<Action<object, object?[]>>?> objectReferences = new();
+
+    /// <summary>Each value element type's held references, or null for a nullable element type.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, HeldReferences<Action<Array, int, object?[]>>?> elementReferences = new();
+
+    /// <summary>
+    /// The references an object of <paramref name="type"/> holds through its fields, or null when no field holds a value
+    /// that holds references, whose fields the walk reads directly.
+    /// </summary>
+    private static HeldReferences<Action<object, object?[]>>? ObjectReferences(Type type) => objectReferences.GetOrAdd(type, static owner =>
+        ReferenceFields(owner).Any(entry => ThroughValue(entry.Field.FieldType)) ? CompileObjectReferences(owner) : null);
+
+    /// <summary>The references an element of a vector of <paramref name="elementType"/> holds, or null for a nullable element.</summary>
+    private static HeldReferences<Action<Array, int, object?[]>>? ElementReferences(Type elementType) => elementReferences.GetOrAdd(elementType,
+        static candidate => Nullable.GetUnderlyingType(candidate) is null ? CompileElementReferences(candidate) : null);
+
+    /// <summary>
+    /// Whether a field of <paramref name="fieldType"/> holds a value walked through to its own references: a value type
+    /// that can hold one. A nullable value is read as the value it boxes to, so it is walked through when indexed.
+    /// </summary>
+    private static bool ThroughValue(Type fieldType) =>
+        fieldType.IsValueType && Nullable.GetUnderlyingType(fieldType) is null && HoldsReferences(fieldType);
+
+    /// <summary>Compiles the reader of the references an object of the reference type <paramref name="type"/> holds.</summary>
+    [ReflectionAudit("the bound-object index reads the references an object holds through its values without boxing them")]
+    private static HeldReferences<Action<object, object?[]>> CompileObjectReferences(Type type)
+    {
+        var value = System.Linq.Expressions.Expression.Parameter(typeof(object), "value");
+        var buffer = System.Linq.Expressions.Expression.Parameter(typeof(object[]), "buffer");
+        var held = System.Linq.Expressions.Expression.Variable(type, "held");
+        var steps = new List<string>();
+        var body = new List<System.Linq.Expressions.Expression>
+        {
+            System.Linq.Expressions.Expression.Assign(held, System.Linq.Expressions.Expression.Convert(value, type)),
+        };
+        FlattenHeld(held, prefix: null, buffer, steps, body);
+        return new([.. steps], System.Linq.Expressions.Expression.Lambda<Action<object, object?[]>>(
+            System.Linq.Expressions.Expression.Block([held], body), value, buffer).Compile());
+    }
+
+    /// <summary>Compiles the reader of the references an element of a vector of the value type <paramref name="type"/> holds.</summary>
+    [ReflectionAudit("the bound-object index reads the references an array element holds without boxing the element")]
+    private static HeldReferences<Action<Array, int, object?[]>> CompileElementReferences(Type type)
+    {
+        var array = System.Linq.Expressions.Expression.Parameter(typeof(Array), "array");
+        var index = System.Linq.Expressions.Expression.Parameter(typeof(int), "index");
+        var buffer = System.Linq.Expressions.Expression.Parameter(typeof(object[]), "buffer");
+        var held = System.Linq.Expressions.Expression.Variable(type, "held");
+        var steps = new List<string>();
+        var body = new List<System.Linq.Expressions.Expression>
+        {
+            System.Linq.Expressions.Expression.Assign(held, System.Linq.Expressions.Expression.ArrayIndex(
+                System.Linq.Expressions.Expression.Convert(array, type.MakeArrayType()), index)),
+        };
+        FlattenHeld(held, prefix: null, buffer, steps, body);
+        return new([.. steps], System.Linq.Expressions.Expression.Lambda<Action<Array, int, object?[]>>(
+            System.Linq.Expressions.Expression.Block([held], body), array, index, buffer).Compile());
+    }
+
+    /// <summary>
+    /// Adds to <paramref name="body"/> a read into <paramref name="buffer"/> of each reference <paramref name="owner"/>
+    /// holds, in the order <see cref="Children"/> walks them, and each one's step to <paramref name="steps"/>: a field
+    /// holding a value that holds references is walked through to that value's fields.
+    /// </summary>
+    [ReflectionAudit("the bound-object index reads the references a value holds through its fields without boxing the value")]
+    private static void FlattenHeld(System.Linq.Expressions.Expression owner, string? prefix, System.Linq.Expressions.ParameterExpression buffer,
+        List<string> steps, List<System.Linq.Expressions.Expression> body)
+    {
+        foreach ((FieldInfo field, string step) in ReferenceFields(owner.Type))
+        {
+            string named = prefix is null ? step : prefix + StepSeparator + step;
+            System.Linq.Expressions.Expression read = System.Linq.Expressions.Expression.Field(owner, field);
+            if (ThroughValue(field.FieldType))
+            {
+                FlattenHeld(read, named, buffer, steps, body);
+                continue;
+            }
+            body.Add(System.Linq.Expressions.Expression.Assign(
+                System.Linq.Expressions.Expression.ArrayAccess(buffer, System.Linq.Expressions.Expression.Constant(steps.Count)),
+                System.Linq.Expressions.Expression.Convert(read, typeof(object))));
+            steps.Add(named);
+        }
     }
 }

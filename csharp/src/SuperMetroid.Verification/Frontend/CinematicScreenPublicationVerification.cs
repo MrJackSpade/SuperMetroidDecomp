@@ -6,7 +6,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -99,14 +98,12 @@ internal static class CinematicScreenPublicationVerification
         Console.WriteLine("  Cinematic screens: the rear view shows its map, and the flight, destruction and intro survive a debugger round trip.");
     }
 
-    /// <summary>A copy of <paramref name="state"/> through the debugger state serializer.</summary>
-    private static T RoundTrip<T>(T state) where T : class
-    {
-        using var stream = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(stream, state);
-        stream.Position = 0;
-        return DebuggerObjectGraphSerializer.Deserialize<T>(stream);
-    }
+    /// <summary>
+    /// A copy of <paramref name="state"/> through the debugger state serializer, captured and restored bound to the
+    /// installed content as a host's store binds it (#1532): what the state reaches of that content is named by path, as
+    /// a debugger state names it, rather than copied wholesale only to be rebound.
+    /// </summary>
+    private static T RoundTrip<T>(T state) where T : class => GraphDigestVerification.RoundTrip(state);
 
     /// <summary>Asserts that two captured frames show the same image, backdrop and sprite parts, the images their scenes composed.</summary>
     private static void AssertSameFrame(byte[] expectedVram, FramePaint expected, byte[] actualVram, FramePaint actual, string scene)

@@ -105,19 +105,20 @@ internal sealed class EnemyDrawList
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy {slot.DefinitionId} draws before showing a frame.");
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, frame, null, null));
+                    // The common empty frame is compiled definition data and draws nothing.
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, frame, Pictured: frame != EnemyFrameId.Empty));
                     continue;
                 }
 
                 if (slot.Frame is { } shown &&
-                    _room.Artwork?.ExtendedFramePlacements?.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedComponentPlacement> installed) == true)
+                    _room.Artwork?.ExtendedFrameDisplays?.TryGetDisplay(shown, out bool pictured) == true)
                 {
-                    // Resolve the sprite half and the body frame through one presentation binding. Validate the
-                    // composition before the body is drawn; physical selectors continue to belong to compiled animation
+                    // Resolve the sprite picture and the body frame through one presentation binding. Validate the
+                    // frame before the body is drawn; physical selectors continue to belong to compiled animation
                     // and collision programs.
-                    EnemyFrameId selected = _room.Artwork.ExtendedFramePlacements.GetDisplayFrame(shown);
+                    EnemyFrameId selected = _room.Artwork.ExtendedFrameDisplays.GetDisplayFrame(shown);
                     _instructions.DrawBossBodyFrame(slot, selected);
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, null, shown, installed));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, shown, pictured));
                     continue;
                 }
 
@@ -163,34 +164,12 @@ internal sealed class EnemyDrawList
                 // and wings), preserving both that drawing order and the enemy's normal layer queue.
                 if (slot.Entity is IEnemyDrawHooks drawHooks)
                     drawHooks.DrawBeforeBody(sprites, camera);
-                if (draw.Frame is { } frame)
-                {
-                    // The common empty frame is compiled definition data and draws nothing.
-                    if (frame == EnemyFrameId.Empty)
-                        continue;
-                    _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(frame),
+                // An ordinary or extended frame is one whole sheet picture placed at the enemy's origin. Collision still
+                // uses the original engine-owned extended hitbox records, never the picture.
+                if (draw.Pictured)
+                    _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
                         new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y),
                         (slot.Entity as IShowsCorpseRot)?.ShownRot) { Shading = draw.Shading });
-                    continue;
-                }
-
-                // This installed frame owns only where each component's sheet picture is placed.
-                // Collision still uses the original engine-owned extended hitbox records,
-                // never the editable JSON geometry.
-                ReadOnlySpan<EnemyExtendedComponentPlacement> components = (draw.Components ?? throw new InvalidOperationException(
-                    "An extended enemy draw was prepared without its components.")).Span;
-                for (int index = 0; index < components.Length; index++)
-                {
-                    EnemyExtendedComponentPlacement component = components[index];
-                    Position16<SpritePixels> componentOrigin = draw.Origin.ToSpritePosition() + component.Offset;
-                    if (!EnemyDrawRange.Contains(componentOrigin))
-                        continue;
-                    _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId,
-                        EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(
-                            "An extended enemy draw was prepared without its frame."), index),
-                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y),
-                        (slot.Entity as IShowsCorpseRot)?.ShownRot) { Shading = draw.Shading });
-                }
             }
 
             // EnemyGraphicsDrawnHook runs after the complete ordinary enemy queue. Mother
@@ -211,12 +190,11 @@ internal sealed class EnemyDrawList
 
     /// <param name="Origin">Its shaken screen origin.</param>
     /// <param name="Shading">The shading the common draw selected for this frame (#1512).</param>
-    /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
-    /// <param name="ExtendedFrame">The extended frame an extended enemy shows, which names its components' sheet frames; null for an ordinary enemy.</param>
-    /// <param name="Components">Where an extended enemy's installed components are placed; null for an ordinary enemy.</param>
+    /// <param name="Frame">The frame the enemy shows, which names its sheet picture.</param>
+    /// <param name="Pictured">Whether the frame has a sheet picture: the common empty frame, the shared empty extended
+    /// frame and an extended frame drawn only on the boss body layer have none.</param>
     private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot,
-        Position16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
-        ReadOnlyMemory<EnemyExtendedComponentPlacement>? Components);
+        Position16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured);
 
     /// <summary>
     /// Ports the palette selection, immediately before

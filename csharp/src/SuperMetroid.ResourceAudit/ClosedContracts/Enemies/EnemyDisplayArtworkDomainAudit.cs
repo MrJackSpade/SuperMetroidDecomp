@@ -14,7 +14,7 @@ internal static class EnemyDisplayArtworkDomainAudit
     {
         string type = operation.TargetMethod.ContainingType.ToDisplayString();
         if (operation.TargetMethod.Name != "TryGetDisplay" ||
-            type != typeof(EnemySpritemapCatalog).FullName && type != typeof(EnemyExtendedFramePlacementCatalog).FullName) return null;
+            type != typeof(EnemySpritemapCatalog).FullName && type != typeof(EnemyExtendedFrameDisplayCatalog).FullName) return null;
         if (ConsumerAudit.EnemyFrameKey(operation) is not { } name) return null;
         bool owned = type == typeof(EnemySpritemapCatalog).FullName
             ? EnemySpritemapDefinitions.Frames.Any(frame => frame.Frame.ToString() == name)

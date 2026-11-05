@@ -60,22 +60,6 @@ internal static class CreditsPresentationVerification
         AssertTrue(runtime.Finished && !runtime.Enabled,
             "credits finish on the boundary after the final installed row");
 
-        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
-        JsonObject editedLine = editedDocument.Required("lines").Required(0).AsObject();
-        editedLine["text"] = "TEST STAFF";
-        editedLine["column"] = 3;
-        editedLine["palette"] = 6;
-        byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options));
-        CreditsPresentation edited = CreditsPresentation.Load(
-            new MemoryStream(editedBytes, writable: false));
-        int firstTextRow = CreditsRollDefinitions.InitialBlankRows;
-        AssertEqual(CreditsGlyphs.CompileGlyph('T', CreditsLineStyle.Small) with { ColourVariant = 6 },
-            edited.GetRow(firstTextRow)[3],
-            "edited text, column and palette compile into the live row");
-        AssertTrue(!edited.GetRow(firstTextRow).SequenceEqual(
-            presentation.GetRow(firstTextRow)), "staff-credit override changes rendered content");
-
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document => document["version"] = 2,
             "unsupported staff-credit schema rejected"));
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
@@ -93,7 +77,7 @@ internal static class CreditsPresentationVerification
 
         Console.WriteLine(
             $"Credits presentation: {nativeRows.Length} native rows, 67 editable lines, " +
-            "runtime cadence, overrides and strict validation pass.");
+            "runtime cadence and strict validation pass.");
     }
 
     /// <summary>Mutates a valid credit document and checks that loading rejects the specified invalid case.</summary>

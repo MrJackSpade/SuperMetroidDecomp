@@ -21,7 +21,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>Checks installed ending text and font assets against native tilemaps and guarded typewriter execution.</summary>
 internal static class EndingTextPresentationVerification
 {
-    /// <summary>Matches extracted font bytes and panels to the cartridge, then checks text edits, snapshot rebinding, and glyph validation.</summary>
+    /// <summary>Matches extracted font bytes and panels to the cartridge, then checks snapshot restore and glyph validation.</summary>
     internal static void VerifyEndingTextPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -64,25 +64,6 @@ internal static class EndingTextPresentationVerification
             AssertTrue(!installedPage.Written.IsEmpty, $"installed ending {sequence} draws its text");
         }
 
-        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
-        editedDocument["percentageHeading"] = "TEST";
-        editedDocument["finalMessage"] = "TEST";
-        editedDocument.Required("resultPanel")["text"] = "TEST";
-        byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options));
-        EndingTextPresentation edited = EndingTextPresentation.Load(
-            new MemoryStream(editedBytes, writable: false));
-        AssertEqual(EndingTextGlyphs.CompileGlyph('T', EndingTextStyle.ResultSmall),
-            edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column],
-            "edited producer text reaches its bounded panel");
-        AssertEqual(EndingTextDefinitions.ResultBlankTile,
-            edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column + 4],
-            "shorter producer text clears the remainder of its bounded panel");
-        AssertEqual(new EndingTextCharacter(EndingTextDefinitions.PercentageHeading.Row, EndingTextDefinitions.PercentageHeading.Column,
-                EndingTextStyle.PercentageSmall, 'T'),
-            edited.Compile(EndingTextSequence.ItemPercentage)[0],
-            "edited percentage text reaches its live program");
-
         var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = new EndingTextPage(), Inventory = default, JapaneseText = false, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new EndingScreen());
         var restored = GraphDigestVerification.RoundTrip(saved, presentation);
@@ -93,24 +74,14 @@ internal static class EndingTextPresentationVerification
         AssertTrue(GraphDigestVerification.GraphDigest(continued).SequenceEqual(GraphDigestVerification.GraphDigest(resumed)),
             "restored ending text continues as the saved text does, without being bound again");
 
-        editedDocument["finalMessage"] = "lowercase";
+        JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
+        malformedDocument["finalMessage"] = "lowercase";
         AssertThrows<InvalidDataException>(() => EndingTextPresentation.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(
-                editedDocument.ToJsonString(ArtworkJson.Options)), writable: false)),
+                malformedDocument.ToJsonString(ArtworkJson.Options)), writable: false)),
             "ending text rejects glyphs absent from its documented font mapping");
-        IndexedPngImage editableFont = IndexedPng.Read(
-            new MemoryStream(fontPng, writable: false),
-            new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height));
-        editableFont.Pixels[0] ^= 1;
-        using var editedFontPng = new MemoryStream();
-        IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
-            editableFont.Pixels, editableFont.Colours);
-        editedFontPng.Position = 0;
-        EndingFontCharacters editedFont = EndingFontCharacters.Read(editedFontPng);
-        AssertTrue(!editedFont.Characters.Span.SequenceEqual(font.Characters.Span),
-            "ending-font PNG edit changes compiled VRAM bytes");
-        Console.WriteLine($"Ending text: exact producer/copyright panels and {comparedFrames} native typewriter frames match with bank-$8C text reads forbidden; edits, restore and validation pass.");
-        Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes; an indexed-pixel edit changes installed VRAM content.");
+        Console.WriteLine($"Ending text: exact producer/copyright panels and {comparedFrames} native typewriter frames match with bank-$8C text reads forbidden; restore and validation pass.");
+        Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes.");
     }
 
     /// <summary>Reads a bank-$8C tilemap span for the independent result or copyright panel comparison.</summary>

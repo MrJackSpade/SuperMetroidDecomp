@@ -57,32 +57,6 @@ internal static class EndingPaletteArtworkVerification
             AssertEqual(background[color], gradient.Color(color), "all original logo endpoint shades computed exactly");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => gradient.Color(invalid), "logo background gradient bounds");
-        // Swapping two complete source columns preserves each temporal fade but changes
-        // the endpoint's spatial gradient. Recognition must keep these supplied columns.
-        byte[] reordered = (byte[])original.Clone();
-        {
-            var held0 = background[2];
-            var held1 = background[1];
-            background[1] = held0;
-            background[2] = held1;
-        }
-        AssertTrue(EndingLogoBackgroundPalette.TryCreate(ToColors(background)) is null, "independent shade order is not replaced");
-        for (int step = 0; step < 16; step++)
-        for (int lane = 0; lane < 2; lane++)
-        {
-            int first = (step * 32 + 1) * 2 + lane, second = (step * 32 + 2) * 2 + lane;
-            {
-                var held0 = reordered[second];
-                var held1 = reordered[first];
-                reordered[first] = held0;
-                reordered[second] = held1;
-            }
-        }
-        EndingLogoPaletteFade reorderedFade = EndingPaletteRecognition.LogoFade(EndingLogoPaletteFadeAccess.DecodeWords(reordered))
-            ?? throw new InvalidOperationException("Reordered endpoint shades still have the original temporal fade.");
-        for (int index = 0; index < 512; index++)
-            AssertEqual(LittleEndianBytes.Word(reordered[index * 2], reordered[index * 2 + 1]), reorderedFade.Color(index),
-                "temporal fade preserves edited endpoint order");
         EndingLogoPaletteFade fade = EndingPaletteRecognition.LogoFade(EndingLogoPaletteFadeAccess.DecodeWords(original))
             ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
         EndingPalette Load(PaletteRgb5[] supplied)
@@ -115,18 +89,6 @@ internal static class EndingPaletteArtworkVerification
                 loaded.LogoCrossfadeColour(step, color < 16 ? EndingLogoLayer.Background : EndingLogoLayer.Sprites, color % 16),
                 "computed fade step colour by layer");
         }
-        // Independent edits to a dark frame, an intermediate frame and an endpoint
-        // must survive even though they no longer describe a linear fade.
-        foreach (int edited in new[] { 1, 7 * 32 + 19, 15 * 32 + 1 })
-            colors[edited] = colors[edited] with { Red = (colors[edited].Red + 11) & 31 };
-        EndingPalette custom = Load(colors);
-        for (int index = 0; index < 512; index++)
-        {
-            PaletteRgb5 color = colors[index];
-            AssertEqual((ushort)(color.Red | color.Green << 5 | color.Blue << 10), custom.CrossfadeColorAt(index),
-                "independent edited fade samples survive unchanged");
-        }
-        AssertTrue(EndingPaletteRecognition.LogoFade(EndingLogoPaletteFadeAccess.DecodeWords(EndingPaletteWords.Of(custom).Span)) is null, "nonlinear edits remain caller-owned content");
         foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");

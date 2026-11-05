@@ -20,7 +20,7 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Checks ending completion-text OAM and live replacement in the actual credits scene.</summary>
+/// <summary>Checks ending completion-text OAM against the cartridge and rejection of a missing frame.</summary>
 internal static class EndingCompletionTextSpriteArtworkVerification
 {
     /// <summary>Compares every installed completion frame at on-screen and wrapped off-screen anchors.</summary>

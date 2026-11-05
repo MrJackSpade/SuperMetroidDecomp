@@ -203,6 +203,8 @@ internal static class DebuggerObjectGraphSerializer
                 case TypeCode.DateTime: writer.Write(((DateTime)value).ToBinary()); return;
                 case TypeCode.Empty or TypeCode.Object or TypeCode.DBNull or TypeCode.String:
                     break;
+                default:
+                    throw new NotSupportedException($"Debugger state primitive {type.FullName} has an unknown type code.");
             }
             if (type == typeof(TimeSpan)) writer.Write(((TimeSpan)value).Ticks);
             else if (type == typeof(Guid)) writer.Write(((Guid)value).ToByteArray());
@@ -442,42 +444,58 @@ internal static class DebuggerObjectGraphSerializer
         /// <summary>The enum.</summary>
         private readonly Type type;
 
-        /// <summary>The underlying integer type's code.</summary>
-        private readonly TypeCode code;
+        /// <summary>How many bytes the underlying integer stores.</summary>
+        private readonly IntegerWidth width;
+
+        /// <summary>Whether the underlying integer is signed.</summary>
+        private readonly bool signed;
 
         /// <summary>Each member's encoded name, by its bits zero-extended from the underlying integer's width.</summary>
         private readonly System.Collections.Concurrent.ConcurrentDictionary<ulong, byte[]> names = new();
 
-        /// <summary>The names of <paramref name="enumType"/>.</summary>
-        private EnumNames(Type enumType, TypeCode underlying)
+        /// <summary>The names of <paramref name="enumType"/>, whose underlying integer is <paramref name="width"/> wide.</summary>
+        private EnumNames(Type enumType, IntegerWidth width, bool signed)
         {
             type = enumType;
-            code = underlying;
+            this.width = width;
+            this.signed = signed;
         }
 
         /// <summary>The names of <paramref name="enumType"/>, or null when its underlying type is not an integer.</summary>
         internal static EnumNames? For(Type enumType) => enums.GetOrAdd(enumType, static candidate =>
-            Type.GetTypeCode(candidate) is TypeCode.SByte or TypeCode.Byte or TypeCode.Int16 or TypeCode.UInt16 or
-                TypeCode.Int32 or TypeCode.UInt32 or TypeCode.Int64 or TypeCode.UInt64
-                ? new EnumNames(candidate, Type.GetTypeCode(candidate))
-                : null);
+            Type.GetTypeCode(candidate) switch
+            {
+                TypeCode.SByte => new EnumNames(candidate, IntegerWidth.One, signed: true),
+                TypeCode.Byte => new EnumNames(candidate, IntegerWidth.One, signed: false),
+                TypeCode.Int16 => new EnumNames(candidate, IntegerWidth.Two, signed: true),
+                TypeCode.UInt16 => new EnumNames(candidate, IntegerWidth.Two, signed: false),
+                TypeCode.Int32 => new EnumNames(candidate, IntegerWidth.Four, signed: true),
+                TypeCode.UInt32 => new EnumNames(candidate, IntegerWidth.Four, signed: false),
+                TypeCode.Int64 => new EnumNames(candidate, IntegerWidth.Eight, signed: true),
+                TypeCode.UInt64 => new EnumNames(candidate, IntegerWidth.Eight, signed: false),
+                TypeCode.Empty or TypeCode.Object or TypeCode.DBNull or TypeCode.Boolean or TypeCode.Char or
+                    TypeCode.Single or TypeCode.Double or TypeCode.Decimal or TypeCode.DateTime or TypeCode.String => null,
+                _ => throw new NotSupportedException($"Enum {candidate.FullName} has an unknown underlying type code."),
+            });
 
         /// <summary>The unsigned integer type as wide as the enum's underlying type, which its bits are read as.</summary>
-        internal Type BitsType => code switch
+        internal Type BitsType => width switch
         {
-            TypeCode.SByte or TypeCode.Byte => typeof(byte),
-            TypeCode.Int16 or TypeCode.UInt16 => typeof(ushort),
-            TypeCode.Int32 or TypeCode.UInt32 => typeof(uint),
-            _ => typeof(ulong),
+            IntegerWidth.One => typeof(byte),
+            IntegerWidth.Two => typeof(ushort),
+            IntegerWidth.Four => typeof(uint),
+            IntegerWidth.Eight => typeof(ulong),
+            _ => throw new InvalidOperationException($"Enum {type.FullName} has no storage width."),
         };
 
         /// <summary>The bits of element <paramref name="index"/> of an array of the enum whose storage starts at <paramref name="storage"/>.</summary>
-        internal ulong Bits(ref byte storage, int index) => code switch
+        internal ulong Bits(ref byte storage, int index) => width switch
         {
-            TypeCode.SByte or TypeCode.Byte => Unsafe.Add(ref storage, index),
-            TypeCode.Int16 or TypeCode.UInt16 => Unsafe.ReadUnaligned<ushort>(ref Unsafe.Add(ref storage, (nint)index * sizeof(ushort))),
-            TypeCode.Int32 or TypeCode.UInt32 => Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref storage, (nint)index * sizeof(uint))),
-            _ => Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref storage, (nint)index * sizeof(ulong))),
+            IntegerWidth.One => Unsafe.Add(ref storage, index),
+            IntegerWidth.Two => Unsafe.ReadUnaligned<ushort>(ref Unsafe.Add(ref storage, index * sizeof(ushort))),
+            IntegerWidth.Four => Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref storage, index * sizeof(uint))),
+            IntegerWidth.Eight => Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref storage, index * sizeof(ulong))),
+            _ => throw new InvalidOperationException($"Enum {type.FullName} has no storage width."),
         };
 
         /// <summary>The encoded name of the member whose bits are <paramref name="bits"/>.</summary>
@@ -486,16 +504,32 @@ internal static class DebuggerObjectGraphSerializer
         /// <summary>The encoded name <see cref="Enum.ToString()"/> gives the member whose bits are <paramref name="bits"/>.</summary>
         private byte[] Name(ulong bits)
         {
-            object member = code switch
+            object member = !signed ? Enum.ToObject(type, bits) : width switch
             {
-                TypeCode.SByte => Enum.ToObject(type, (long)unchecked((sbyte)(byte)bits)),
-                TypeCode.Int16 => Enum.ToObject(type, (long)unchecked((short)(ushort)bits)),
-                TypeCode.Int32 => Enum.ToObject(type, (long)unchecked((int)(uint)bits)),
-                TypeCode.Int64 => Enum.ToObject(type, unchecked((long)bits)),
-                _ => Enum.ToObject(type, bits),
+                IntegerWidth.One => Enum.ToObject(type, (long)unchecked((sbyte)(byte)bits)),
+                IntegerWidth.Two => Enum.ToObject(type, (long)unchecked((short)(ushort)bits)),
+                IntegerWidth.Four => Enum.ToObject(type, (long)unchecked((int)(uint)bits)),
+                IntegerWidth.Eight => Enum.ToObject(type, unchecked((long)bits)),
+                _ => throw new InvalidOperationException($"Enum {type.FullName} has no storage width."),
             };
             return Encoded(member.ToString() ?? throw new InvalidOperationException($"Enum {type.FullName} has no name."));
         }
+    }
+
+    /// <summary>How many bytes an enum's underlying integer stores.</summary>
+    private enum IntegerWidth
+    {
+        /// <summary>One byte: <see cref="byte"/> or <see cref="sbyte"/>.</summary>
+        One,
+
+        /// <summary>Two bytes: <see cref="ushort"/> or <see cref="short"/>.</summary>
+        Two,
+
+        /// <summary>Four bytes: <see cref="uint"/> or <see cref="int"/>.</summary>
+        Four,
+
+        /// <summary>Eight bytes: <see cref="ulong"/> or <see cref="long"/>.</summary>
+        Eight,
     }
 
     /// <summary>
@@ -602,7 +636,7 @@ internal static class DebuggerObjectGraphSerializer
         }
 
         /// <summary>The write of the constant bytes <paramref name="bytes"/> to <paramref name="output"/>.</summary>
-        private static System.Linq.Expressions.Expression WriteBytes(System.Linq.Expressions.ParameterExpression output, byte[] bytes) =>
+        private static System.Linq.Expressions.MethodCallExpression WriteBytes(System.Linq.Expressions.ParameterExpression output, byte[] bytes) =>
             System.Linq.Expressions.Expression.Call(output, WriterOverload(typeof(byte[])), System.Linq.Expressions.Expression.Constant(bytes));
 
         /// <summary>The <see cref="BinaryWriter"/> overload that writes one <paramref name="type"/>.</summary>

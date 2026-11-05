@@ -12,6 +12,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Verification.Harness;
+using System.Runtime.InteropServices;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>
@@ -71,33 +73,52 @@ internal static class CrystalFlashVisualsVerification
         ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
     }
 
-    /// <summary>Draws one frame's captured scenes and decides whether its body and color window show any pixel.</summary>
+    /// <summary>
+    /// Draws one frame's captured scenes and decides whether its body and color window show any pixel. The scenes are
+    /// independent, so the ones the frame needs drawn are drawn at once, each on its own thread with its own renderer
+    /// (<see cref="ConcurrentSceneDrawing"/>); every draw finishes before this returns, so the runtime advances only after
+    /// the frame it published is drawn.
+    /// </summary>
     internal static VerifyCrystalFlashVisualFrameResult Visibility(CrystalFlashFrameScenes frame)
     {
         ArgumentNullException.ThrowIfNull(frame);
         // Two scenes that describe the same frame show the same pixels, so they are drawn only when their descriptions
         // differ: a frame whose Samus draws carry no shading her beam inks take shows no body without drawing either.
-        bool bodyVisible = !ScenePixels.SameDescription(new DisplayPacket(0, frame.BeamsDark), new DisplayPacket(0, frame.BeamsLight))
-            && BodyRegionDiffers(frame);
-        bool windowVisible = false;
-        if (frame.WithoutWindow is { } scene &&
-            !ScenePixels.SameDescription(new DisplayPacket(0, frame.Shown), new DisplayPacket(0, scene)))
+        bool drawsBody = !ScenePixels.SameDescription(new DisplayPacket(0, frame.BeamsDark), new DisplayPacket(0, frame.BeamsLight));
+        // The shown frame is drawn only to compare it with the frame without the color window, while one shows.
+        LayeredScene? withoutWindow = frame.WithoutWindow is { } scene &&
+            !ScenePixels.SameDescription(new DisplayPacket(0, frame.Shown), new DisplayPacket(0, scene)) ? scene : null;
+        var drawn = new List<LayeredScene>(4);
+        if (drawsBody)
         {
-            // The shown frame is drawn only to compare it with the frame without the color window, while one shows.
-            RgbaPixel[] pixels = DisplayRendering.Render(frame.Shown);
-            RgbaPixel[] withoutWindow = DisplayRendering.Render(scene);
-            AssertTrue(pixels.AsSpan(0, 32 * 256).SequenceEqual(withoutWindow.AsSpan(0, 32 * 256)),
+            drawn.Add(frame.BeamsDark);
+            drawn.Add(frame.BeamsLight);
+        }
+        if (withoutWindow is not null)
+        {
+            drawn.Add(frame.Shown);
+            drawn.Add(withoutWindow);
+        }
+        RgbaPixel[][] pixels = ConcurrentSceneDrawing.Draw(CollectionsMarshal.AsSpan(drawn));
+        bool bodyVisible = drawsBody && BodyRegionDiffers(frame, pixels[0], pixels[1]);
+        bool windowVisible = false;
+        if (withoutWindow is not null)
+        {
+            int shownIndex = drawsBody ? 2 : 0;
+            RgbaPixel[] shown = pixels[shownIndex], withoutWindowPixels = pixels[shownIndex + 1];
+            AssertTrue(shown.AsSpan(0, 32 * 256).SequenceEqual(withoutWindowPixels.AsSpan(0, 32 * 256)),
                 $"Crystal Flash window preserves HUD pixels at frame {frame.Elapsed}");
-            windowVisible = !pixels.SequenceEqual(withoutWindow);
+            windowVisible = !shown.SequenceEqual(withoutWindowPixels);
         }
         return new VerifyCrystalFlashVisualFrameResult(bodyVisible, windowVisible);
     }
 
-    /// <summary>Whether any pixel of the region around Samus differs between her beam inks in the two whiteout shades.</summary>
-    private static bool BodyRegionDiffers(CrystalFlashFrameScenes frame)
+    /// <summary>
+    /// Whether any pixel of the region around Samus differs between <paramref name="beamsDark"/> and
+    /// <paramref name="beamsLight"/>, the frame drawn with her beam inks in the two whiteout shades.
+    /// </summary>
+    private static bool BodyRegionDiffers(CrystalFlashFrameScenes frame, RgbaPixel[] beamsDark, RgbaPixel[] beamsLight)
     {
-        RgbaPixel[] beamsDark = DisplayRendering.Render(frame.BeamsDark);
-        RgbaPixel[] beamsLight = DisplayRendering.Render(frame.BeamsLight);
         int centerX = frame.CenterX, centerY = frame.CenterY;
         return Enumerable.Range(centerY - 32, 64)
             .Any(y => Enumerable.Range(centerX - 32, 64)

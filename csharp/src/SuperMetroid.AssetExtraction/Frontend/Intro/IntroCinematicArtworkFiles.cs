@@ -19,7 +19,7 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
-/// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
+/// <summary>Installs and loads the opening-scene PNGs and tilemap JSON.</summary>
 public static class IntroCinematicArtworkFiles
 {
     /// <summary>Manifest revision for the complete opening and Ceres artwork resource set.</summary>
@@ -29,7 +29,7 @@ public static class IntroCinematicArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
     /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
-    /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, and palette representation. Scene timing and dispatch remain compiled, and player overrides are not read or modified.</remarks>
+    /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, and palette representation. Scene timing and dispatch remain compiled.</remarks>
     /// <exception cref="InvalidDataException">Native artwork, geometry, or palettes fail validation.</exception>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
@@ -381,11 +381,11 @@ public static class IntroCinematicArtworkFiles
         }
     }
 
-    /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
-    public static IntroCinematicSourceArtwork Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks the manifest's provenance and coverage, then loads every installed file as installed.</summary>
+    public static IntroCinematicSourceArtwork Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, IntroCinematicArtworkFormat.ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, IntroCinematicArtworkFormat.ManifestFileName);
         IntroCinematicArtworkManifest manifest;
         try
         {
@@ -411,20 +411,20 @@ public static class IntroCinematicArtworkFiles
 
         RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
         {
-            (string selectedPath, byte[] selected) = ReadSelected(name);
+            (string installedPath, byte[] selected) = ReadInstalled(name);
             try
             {
                 return RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false), nativeByteCount);
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid intro PNG {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid intro PNG {installedPath}: {error.Message}", error);
             }
         }
 
         RoomBackgroundTilemapAtlas LoadPage(string name)
         {
-            (string selectedPath, byte[] selected) = ReadSelected(name);
+            (string installedPath, byte[] selected) = ReadInstalled(name);
             try
             {
                 return RoomBackgroundTilemapAtlas.Load(new MemoryStream(selected, writable: false),
@@ -432,18 +432,18 @@ public static class IntroCinematicArtworkFiles
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid intro tilemap {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid intro tilemap {installedPath}: {error.Message}", error);
             }
         }
 
         CeresFlightArtwork LoadCeresFlight()
         {
-            (string mode7Path, byte[] mode7) = ReadSelected(CeresFlightArtworkFileFormat.FloorFileName);
-            (string mapPath, byte[] map) = ReadSelected(CeresFlightArtworkFileFormat.MapFileName);
-            (string objectPath, byte[] objects) = ReadSelected(CeresFlightArtworkFileFormat.ObjectFileName);
-            (string palettePath, byte[] palette) = ReadSelected(CeresFlightPaletteFormat.FileName);
-            (string spritesPath, byte[] sprites) = ReadSelected(CeresFlightSpriteFormat.FileName);
-            (string actorsPath, byte[] actors) = ReadSelected(CeresFlightActorLayoutFormat.FileName);
+            (string mode7Path, byte[] mode7) = ReadInstalled(CeresFlightArtworkFileFormat.FloorFileName);
+            (string mapPath, byte[] map) = ReadInstalled(CeresFlightArtworkFileFormat.MapFileName);
+            (string objectPath, byte[] objects) = ReadInstalled(CeresFlightArtworkFileFormat.ObjectFileName);
+            (string palettePath, byte[] palette) = ReadInstalled(CeresFlightPaletteFormat.FileName);
+            (string spritesPath, byte[] sprites) = ReadInstalled(CeresFlightSpriteFormat.FileName);
+            (string actorsPath, byte[] actors) = ReadInstalled(CeresFlightActorLayoutFormat.FileName);
             try
             {
                 return CeresFlightCharacters.Read(
@@ -463,7 +463,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroCinematicPalette LoadPalette()
         {
-            (string path, byte[] selected) = ReadSelected(IntroCinematicPaletteFile.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroCinematicPaletteFile.FileName);
             try
             {
                 return IntroCinematicPaletteFile.Read(new MemoryStream(selected, writable: false));
@@ -476,7 +476,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroFinalLineTilemap LoadFinalLine()
         {
-            (string path, byte[] selected) = ReadSelected(IntroFinalLineTilemapFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroFinalLineTilemapFormat.FileName);
             try
             {
                 return IntroFinalLineTilemap.Load(new MemoryStream(selected, writable: false));
@@ -489,7 +489,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroEyeTilemapPresentation LoadEyeFrames()
         {
-            (string path, byte[] selected) = ReadSelected(IntroEyeTilemapFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroEyeTilemapFormat.FileName);
             try
             {
                 return IntroEyeTilemapPresentation.Load(new MemoryStream(selected, writable: false));
@@ -502,7 +502,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroCaretSpritePresentation LoadCaretSprites()
         {
-            (string path, byte[] selected) = ReadSelected(IntroCaretSpriteFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroCaretSpriteFormat.FileName);
             try
             {
                 return IntroCaretSpritePresentation.Load(new MemoryStream(selected, writable: false));
@@ -515,7 +515,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroMotherBrainSpritePresentation LoadMotherBrainSprites()
         {
-            (string path, byte[] selected) = ReadSelected(IntroMotherBrainSpriteFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroMotherBrainSpriteFormat.FileName);
             try
             {
                 return IntroMotherBrainSpritePresentation.Load(
@@ -530,7 +530,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroMotherBrainExplosionSpritePresentation LoadMotherBrainExplosionSprites()
         {
-            (string path, byte[] selected) = ReadSelected(
+            (string path, byte[] selected) = ReadInstalled(
                 IntroMotherBrainExplosionSpriteFormat.FileName);
             try
             {
@@ -546,7 +546,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroRinkaSpritePresentation LoadRinkaSprites()
         {
-            (string path, byte[] selected) = ReadSelected(IntroRinkaSpriteFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroRinkaSpriteFormat.FileName);
             try
             {
                 return IntroRinkaSpritePresentation.Load(
@@ -561,7 +561,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroEggEffectSpritePresentation LoadEggEffectSprites()
         {
-            (string path, byte[] selected) = ReadSelected(IntroEggEffectSpriteFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroEggEffectSpriteFormat.FileName);
             try
             {
                 return IntroEggEffectSpritePresentation.Load(
@@ -576,7 +576,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroDiscoveryActorSpritePresentation LoadDiscoveryActorSprites()
         {
-            (string path, byte[] selected) = ReadSelected(
+            (string path, byte[] selected) = ReadInstalled(
                 IntroDiscoveryActorSpriteFormat.FileName);
             try
             {
@@ -592,7 +592,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroScientistSpritePresentation LoadScientistSprites()
         {
-            (string path, byte[] selected) = ReadSelected(IntroScientistSpriteFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(IntroScientistSpriteFormat.FileName);
             try
             {
                 return IntroScientistSpritePresentation.Load(
@@ -607,9 +607,9 @@ public static class IntroCinematicArtworkFiles
 
         CeresDestructionArtwork LoadCeresDestruction()
         {
-            (string actorsPath, byte[] actors) = ReadSelected(CeresRevealActorLayoutFormat.FileName);
+            (string actorsPath, byte[] actors) = ReadInstalled(CeresRevealActorLayoutFormat.FileName);
             (string destructionActorsPath, byte[] destructionActors) =
-                ReadSelected(CeresDestructionActorLayoutFormat.FileName);
+                ReadInstalled(CeresDestructionActorLayoutFormat.FileName);
             try
             {
                 return CeresDestructionArtworkFile.Read(
@@ -626,7 +626,7 @@ public static class IntroCinematicArtworkFiles
 
         CeresDestructionMaps LoadCeresDestructionMaps()
         {
-            (string path, byte[] selected) = ReadSelected(CeresDestructionMapFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(CeresDestructionMapFormat.FileName);
             try
             {
                 return CeresDestructionMaps.Load(new MemoryStream(selected, writable: false));
@@ -639,8 +639,8 @@ public static class IntroCinematicArtworkFiles
 
         ZebesRevealArtwork LoadZebesReveal()
         {
-            (string mapPath, byte[] map) = ReadSelected(ZebesRevealArtworkFormat.MapFileName);
-            (string pngPath, byte[] png) = ReadSelected(ZebesRevealArtworkFormat.CharacterFileName);
+            (string mapPath, byte[] map) = ReadInstalled(ZebesRevealArtworkFormat.MapFileName);
+            (string pngPath, byte[] png) = ReadInstalled(ZebesRevealArtworkFormat.CharacterFileName);
             try
             {
                 return ZebesRevealArtwork.Load(new MemoryStream(map, writable: false),
@@ -654,7 +654,7 @@ public static class IntroCinematicArtworkFiles
 
         CeresDestructionSpritePresentation LoadCeresDestructionSprites()
         {
-            (string path, byte[] selected) = ReadSelected(CeresDestructionSpriteFormat.FileName);
+            (string path, byte[] selected) = ReadInstalled(CeresDestructionSpriteFormat.FileName);
             try
             {
                 return CeresDestructionSpritePresentation.Load(new MemoryStream(selected, writable: false));
@@ -665,14 +665,10 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
-        SelectedArtworkFile ReadSelected(string name)
+        SelectedArtworkFile ReadInstalled(string name)
         {
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
-            return new SelectedArtworkFile(selectedPath, selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath));
+            string installedPath = Path.Combine(directory, name);
+            return new SelectedArtworkFile(installedPath, File.ReadAllBytes(installedPath));
         }
     }
 

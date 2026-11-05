@@ -54,77 +54,21 @@ internal static class EndingRewardSpriteArtworkVerification
         }
     }
 
-    /// <summary>Edits idle, gesture, and jump art and checks visible changes without sprite-ROM rereads.</summary>
-    internal static void VerifyEndingRewardVisualOverride(GameInstallation installation,
-        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
+    /// <summary>Checks that a reward sprite document missing named frames is rejected on read.</summary>
+    internal static void VerifyEndingRewardSpritesRejectMissingFrame(GameInstallation installation)
     {
-        string name = EndingRewardSpriteFormat.FileName;
-        string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
-        string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
-        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingRewardSpriteDocument document =
             JsonSerializer.Deserialize<EndingRewardSpriteDocument>(
-                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingRewardSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending reward sprite JSON is empty.");
-        string[] editedNames =
-            ["suitless-idle-upper", "suitless-hair-1", "suitless-jumping"];
-        foreach (string frameName in editedNames)
-            document.Frames[frameName] = document.Frames[frameName]
-                .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();
-        try
+        document.Frames.Remove("suitless-idle-upper");
+        document.Frames.Remove("suitless-hair-1");
+        document.Frames.Remove("suitless-jumping");
+        AssertThrows<InvalidDataException>(() =>
         {
-            using (var output = File.Create(overridePath))
-                EndingRewardSpritePresentation.Write(output, document);
-            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
-            var audio = new AudioQueues();
-            var scene = CreateRetailEndingFixture(audio, 2, 0);
-            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            scene.Stage.BindFloorArtwork(installation.LoadEndingMode7Art());
-            AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsReward, 60000, 150),
-                "edited suitless idle frame changes live OAM and visible reward pixels");
-            AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsGesture, 2000, 400),
-                "edited suitless hair frame changes live gesture OAM and pixels");
-            AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsJump, 2000, 300),
-                "edited suitless jump frame changes live flight OAM and pixels");
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                "reward art rebind never rereads installed bank-$8C sprite maps");
-            foreach (string frameName in editedNames)
-                document.Frames.Remove(frameName);
-            AssertThrows<InvalidDataException>(() =>
-            {
-                using var invalid = new MemoryStream();
-                EndingRewardSpritePresentation.Write(invalid, document);
-                _ = EndingRewardSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
-            }, "ending reward sprites reject missing named art on read");
-
-            bool FindVisibleEdit(EndingCreditsPhase target, int arrivalLimit, int visibleLimit)
-            {
-                for (int frame = 0; frame < arrivalLimit && scene.Stage.Phase != target; frame++)
-                {
-                    scene.Step();
-                    audio.AdvanceFrame(default);
-                }
-                AssertEqual(target, scene.Stage.Phase,
-                    $"reward sprite edit reaches {target}");
-                for (int frame = 0; frame < visibleLimit && scene.Stage.Phase == target; frame++)
-                {
-                    scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-                    LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
-                    LayeredScene after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    if (!before.Paint.SpriteParts().SequenceEqual(after.Paint.SpriteParts()) &&
-                        !DisplayRendering.Render(before).SequenceEqual(
-                            DisplayRendering.Render(after)))
-                        return true;
-                    scene.Step();
-                    audio.AdvanceFrame(default);
-                }
-                return false;
-            }
-        }
-        finally
-        {
-            File.Delete(overridePath);
-        }
+            using var invalid = new MemoryStream();
+            EndingRewardSpritePresentation.Write(invalid, document);
+            _ = EndingRewardSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "ending reward sprites reject missing named art on read");
     }
 }

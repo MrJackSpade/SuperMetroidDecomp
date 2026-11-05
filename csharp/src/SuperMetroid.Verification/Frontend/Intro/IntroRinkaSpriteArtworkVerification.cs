@@ -35,7 +35,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             new(actor.WholePosition.X, y), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(actor.Colouring), 0).PaletteBits,
             originIsOnScreen: y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit);
     }
-    /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
+    /// <summary>Compares installed Rinka OAM with native art, live actors included, without rereading cartridge maps.</summary>
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtwork stock, GameInstallation installation)
     {
@@ -68,18 +68,9 @@ internal static class IntroRinkaSpriteArtworkVerification
             }
         }
 
-        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-        string name = IntroRinkaSpriteFormat.FileName;
         IntroRinkaSpriteDocument document = RequiredJson.Deserialize<IntroRinkaSpriteDocument>(
-            File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
+            File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroRinkaSpriteFormat.FileName)),
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        // The parts inherit the draw's row, so a palette edit cannot show (#1512); the next frame's character can.
-        document.Frames["rinka-0"] = document.Frames["rinka-0"]
-            .Select(part => part with { TileColumn = 7 }).ToArray();
-        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-        using (var output = File.Create(overridePath))
-            IntroRinkaSpritePresentation.Write(output, document);
-        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroRinkas);
         var rinkas = new IntroRinkaSystem();
@@ -99,45 +90,6 @@ internal static class IntroRinkaSpriteArtworkVerification
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed intro Rinkas preserve native live-actor OAM placement and attributes");
-        var editedOam = ScreenSpritesFixtures.Blank();
-        editedOam.BeginFrame();
-        rinkas.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).RinkaSprites));
-        editedOam.FinalizeFrame();
-        AssertTrue(!stockOam.ImageEquals(editedOam),
-            "intro Rinka art edit changes live OAM without moving actors");
-        for (int part = 0; part < stockOam.LastFinalizedSpriteCount; part++)
-            AssertTrue(stockOam.LowTable.Slice(part * 4, 2)
-                    .SequenceEqual(editedOam.LowTable.Slice(part * 4, 2)),
-                $"intro Rinka art edit preserves native part {part} X/Y");
-
-        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-        foreach (IntroCinematicState state in new[] { stockState, editedState })
-        {
-            state.SetupFirstIllustratedPage();
-            state.SetupMotherBrainFlashback();
-        }
-        // The flashback fades in from black, and the Rinkas' shading follows the fade (#1512): the scenes step together
-        // through the flashback, showing the Rinkas in each, until the edited art shows. The Rinkas are shown only for
-        // each look, so the scenes step as they would without them.
-        RgbaPixel[] stockPixels, editedPixels;
-        int steps = 0;
-        while (true)
-        {
-            stockPixels = WithRinkas(stockState);
-            editedPixels = WithRinkas(editedState);
-            if (!stockPixels.SequenceEqual(editedPixels) || stockState.CurrentFlashbackMotherBrain is null)
-                break;
-            stockState.Step(default);
-            editedState.Step(default);
-            steps++;
-        }
-        AssertTrue(!stockPixels.SequenceEqual(editedPixels),
-            $"intro Rinka override changes visible production flashback pixels ({steps} flashback steps)");
-        stockState.FlashbackRinkas = rinkas;
-        stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
-            "restored intro Rinka scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro Rinkas never reread the three native compositions");
 
@@ -148,15 +100,5 @@ internal static class IntroRinkaSpriteArtworkVerification
             IntroRinkaSpritePresentation.Write(malformed, document);
             _ = IntroRinkaSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
         }, "intro Rinka artwork rejects a missing named frame on read");
-        File.Delete(overridePath);
-
-        RgbaPixel[] WithRinkas(IntroCinematicState state)
-        {
-            var shown = state.FlashbackRinkas;
-            state.FlashbackRinkas = rinkas;
-            RgbaPixel[] pixels = state.RenderArtwork();
-            state.FlashbackRinkas = shown;
-            return pixels;
-        }
     }
 }

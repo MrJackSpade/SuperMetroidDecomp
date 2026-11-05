@@ -16,7 +16,7 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Checks ending logo OAM and presentation overrides against native spritemaps.</summary>
+/// <summary>Checks ending logo OAM against native spritemaps.</summary>
 internal static class EndingLogoSpriteArtworkVerification
 {
     /// <summary>Compares every installed logo frame at visible and wrapped origins with native OAM.</summary>
@@ -50,36 +50,19 @@ internal static class EndingLogoSpriteArtworkVerification
         }
     }
 
-    /// <summary>Loads a moved circle frame from an override and verifies that missing named art is rejected.</summary>
-    internal static EndingObjectArtwork LoadEditedEndingLogoArtwork(
-        GameInstallation installation)
+    /// <summary>Checks that a logo sprite document missing a named frame is rejected on read.</summary>
+    internal static void VerifyEndingLogoSpritesRejectMissingFrame(GameInstallation installation)
     {
-        string name = EndingLogoSpriteFormat.FileName;
-        string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
-        string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
-        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
-        EndingLogoSpriteDocument document = JsonSerializer.Deserialize<EndingLogoSpriteDocument>(
-            File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+        EndingLogoSpriteDocument document =
+            JsonSerializer.Deserialize<EndingLogoSpriteDocument>(
+                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingLogoSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending logo sprite JSON is empty.");
-        document.Frames["circle-right-3"] = document.Frames["circle-right-3"]
-            .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();
-        try
+        document.Frames.Remove("circle-right-3");
+        AssertThrows<InvalidDataException>(() =>
         {
-            using (var output = File.Create(overridePath))
-                EndingLogoSpritePresentation.Write(output, document);
-            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
-            document.Frames.Remove("circle-right-3");
-            AssertThrows<InvalidDataException>(() =>
-            {
-                using var invalid = new MemoryStream();
-                EndingLogoSpritePresentation.Write(invalid, document);
-                _ = EndingLogoSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
-            }, "ending logo sprites reject missing named art on read");
-            return edited;
-        }
-        finally
-        {
-            File.Delete(overridePath);
-        }
+            using var invalid = new MemoryStream();
+            EndingLogoSpritePresentation.Write(invalid, document);
+            _ = EndingLogoSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "ending logo sprites reject missing named art on read");
     }
 }

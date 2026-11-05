@@ -57,10 +57,11 @@ internal static void VerifyCeresDestructionCinematic()
     WriteRepeatedCompressedChunks(rom, CeresCinematicSourceDefinitions.CeresTilemaps,
         [0x11, 0x22, 0x33, 0x44]);
     byte[] maps = DecompressSyntheticCeresTilemaps(rom);
-    using var overrideRootScratch = new TestScratchDirectory("ceres-timeline");
-    string overrideRoot = overrideRootScratch.Root;
-    Directory.CreateDirectory(overrideRoot);
-    using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFileFormat.MapFileName)))
+    // The synthetic maps are written over a scratch copy of the installed opening-cinematic files.
+    using var introScratch = new TestScratchDirectory("ceres-timeline");
+    string introDirectory = introScratch.Root;
+    PrivateInstallationCopy.CopyInstallation(RepositoryInstallation.Installation.IntroCinematicDirectory, introDirectory);
+    using (var stream = File.Create(Path.Combine(introDirectory, CeresFlightArtworkFileFormat.MapFileName)))
         CeresFlightCharacters.WriteMap(stream, new CeresFlightMapDocument
         {
             Version = CeresFlightArtworkFileFormat.Version,
@@ -69,7 +70,7 @@ internal static void VerifyCeresDestructionCinematic()
             FrontTiles = maps.AsSpan(0, 0x300).SelectToArray(value => (int)value),
             RearTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
         });
-    using (var stream = File.Create(Path.Combine(overrideRoot, CeresDestructionMapFormat.FileName)))
+    using (var stream = File.Create(Path.Combine(introDirectory, CeresDestructionMapFormat.FileName)))
         CeresDestructionMaps.Write(stream, new CeresDestructionMapDocument
         {
             Version = CeresDestructionMapFormat.Version,
@@ -78,8 +79,7 @@ internal static void VerifyCeresDestructionCinematic()
             Views = Enumerable.Range(0, 3).Select(index => maps.AsSpan(0x600 + index * 0x300, 0x300)
                 .SelectToArray(value => (int)value)).ToArray(),
         });
-    var artwork = IntroCinematicArtworkFiles.Load(
-        RepositoryInstallation.Installation.IntroCinematicDirectory, overrideRoot);
+    var artwork = IntroCinematicArtworkFiles.Load(introDirectory);
     var presentation = RetailPresentationFixture();
     var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         spriteSheets: CinematicSheetFixtures.WithIntro(artwork));

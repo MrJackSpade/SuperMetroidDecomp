@@ -55,68 +55,19 @@ internal static class EndingCompletionTextSpriteArtworkVerification
         }
     }
 
-    /// <summary>Edits operation text art and checks its live pixel change without rereading sprite ROM.</summary>
-    internal static void VerifyEndingCompletionTextVisualOverride(GameInstallation installation,
-        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
+    /// <summary>Checks that a completion text sprite document missing a named frame is rejected on read.</summary>
+    internal static void VerifyEndingCompletionTextSpritesRejectMissingFrame(GameInstallation installation)
     {
-        string name = EndingCompletionTextSpriteFormat.FileName;
-        string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
-        string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
-        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingCompletionTextSpriteDocument document =
             JsonSerializer.Deserialize<EndingCompletionTextSpriteDocument>(
-                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingCompletionTextSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending completion text sprite JSON is empty.");
-        document.Frames["operation-14"] = document.Frames["operation-14"]
-            .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();
-        try
+        document.Frames.Remove("operation-14");
+        AssertThrows<InvalidDataException>(() =>
         {
-            using (var output = File.Create(overridePath))
-                EndingCompletionTextSpritePresentation.Write(output, document);
-            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
-            var audio = new AudioQueues();
-            var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            for (int frame = 0; frame < 12000 &&
-                scene.Stage.Phase != EndingCreditsPhase.OperationSuccessfulText; frame++)
-            {
-                scene.Step();
-                audio.AdvanceFrame(default);
-            }
-            AssertEqual(EndingCreditsPhase.OperationSuccessfulText, scene.Stage.Phase,
-                "ending completion sprite edit reaches its actual scene");
-            bool visible = false;
-            for (int frame = 0; frame < 1500 &&
-                scene.Stage.Phase == EndingCreditsPhase.OperationSuccessfulText && !visible; frame++)
-            {
-                scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-                LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
-                LayeredScene after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                visible = !before.Paint.SpriteParts().SequenceEqual(after.Paint.SpriteParts()) &&
-                    !DisplayRendering.Render(before).SequenceEqual(
-                        DisplayRendering.Render(after));
-                if (!visible)
-                {
-                    scene.Step();
-                    audio.AdvanceFrame(default);
-                }
-            }
-            AssertTrue(visible,
-                "edited completion text shifts live OAM and visible ending pixels");
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                "completion text rebind never rereads installed bank-$8C sprite maps");
-            document.Frames.Remove("operation-14");
-            AssertThrows<InvalidDataException>(() =>
-            {
-                using var invalid = new MemoryStream();
-                EndingCompletionTextSpritePresentation.Write(invalid, document);
-                _ = EndingCompletionTextSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
-            }, "ending completion text sprites reject missing named art on read");
-        }
-        finally
-        {
-            File.Delete(overridePath);
-        }
+            using var invalid = new MemoryStream();
+            EndingCompletionTextSpritePresentation.Write(invalid, document);
+            _ = EndingCompletionTextSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "ending completion text sprites reject missing named art on read");
     }
 }

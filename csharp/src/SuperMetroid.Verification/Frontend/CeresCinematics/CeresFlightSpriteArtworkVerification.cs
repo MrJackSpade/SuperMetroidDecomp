@@ -21,11 +21,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
-/// <summary>Checks Ceres flight sprites against native OAM and verifies editable composition behavior.</summary>
+/// <summary>Checks Ceres flight sprites against native OAM and the sprite codec's missing-frame rejection.</summary>
 internal static class CeresFlightSpriteArtworkVerification
 {
-    /// <summary>Compares six retail frames, tests a visible star offset edit, and verifies rebind, validation, and stock repair.</summary>
-    [PrivateInstallation("Edits Ceres flight sprite files on a private copy to check that their overrides apply.")]
+    /// <summary>Compares six retail frames with native OAM and checks that a document missing a frame is rejected.</summary>
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtwork stock)
     {
@@ -54,46 +53,10 @@ internal static class CeresFlightSpriteArtworkVerification
             }
         }
 
-        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-        string name = CeresFlightSpriteFormat.FileName;
-        string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
-        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
+        string stockPath = Path.Combine(installation.IntroCinematicDirectory, CeresFlightSpriteFormat.FileName);
         CeresFlightSpriteDocument document = JsonSerializer.Deserialize<CeresFlightSpriteDocument>(
             File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock Ceres flight sprites are empty.");
-        document.Frames["stars"] = document.Frames["stars"]
-            .Select(part => part with { OffsetX = part.OffsetX + 16 }).ToArray();
-        using (var output = File.Create(overridePath))
-            CeresFlightSpritePresentation.Write(output, document);
-
-        CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var stockFlight = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
-        var editedFlight = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
-        for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
-        {
-            stockFlight.StepFrame();
-            editedFlight.StepFrame();
-        }
-        LayeredScene original = stockFlight.CaptureRenderSnapshot();
-        byte[] originalVram = stockFlight.ShownVram();
-        LayeredScene replacement = editedFlight.CaptureRenderSnapshot();
-        byte[] replacementVram = editedFlight.ShownVram();
-        AssertEqual(IntroCeresFlightPhase.FlyingIntoCamera, editedFlight.Phase,
-            "Ceres star edit reaches the visible front approach");
-        AssertTrue(originalVram.SequenceEqual(replacementVram) &&
-                original.Paint.Backdrop == replacement.Paint.Backdrop &&
-                SceneShownColours.Same(SceneShownColours.Of(original), SceneShownColours.Of(replacement)),
-            "Ceres sprite composition edit does not change characters or palette");
-        AssertTrue(!original.Paint.SpriteParts().SequenceEqual(replacement.Paint.SpriteParts()) &&
-                !DisplayRendering.Render(original).SequenceEqual(
-                    DisplayRendering.Render(replacement)),
-            "Ceres star composition edit changes production OAM and visible pixels");
-
-        stockFlight.BindFixtureFlightArtwork(edited);
-        AssertTrue(stockFlight.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
-                replacement.Paint.SpriteParts()),
-            "restored Ceres flight rebinds the selected actor composition without restarting");
-
         document.Frames.Remove("stars");
         AssertThrows<InvalidDataException>(() =>
         {
@@ -102,15 +65,6 @@ internal static class CeresFlightSpriteArtworkVerification
             _ = CeresFlightSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
         }, "Ceres flight sprites reject a missing named frame on read");
 
-        CeresFlightArtwork repairedArtwork = installation.LoadIntroCinematicArt().CeresFlight;
-        var repairedFlight = new IntroCeresFlightState(new AudioQueues(),
-            repairedArtwork, sheets: CinematicSheetFixtures.WithFlight(repairedArtwork));
-        for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
-            repairedFlight.StepFrame();
-        AssertTrue(repairedFlight.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
-                replacement.Paint.SpriteParts()),
-            "Ceres sprite override still applies over the restored stock sprites");
-        File.Delete(overridePath);
-        Console.WriteLine("  Ceres flight sprites: six native OAM frames, visible edit, rebind, strict validation, and damaged-stock rejection pass.");
+        Console.WriteLine("  Ceres flight sprites: six native OAM frames and strict validation pass.");
     }
 }

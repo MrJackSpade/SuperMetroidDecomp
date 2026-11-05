@@ -113,34 +113,26 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads validated Samus body artwork and compatible replacement PNGs and selectors from the persistent override tree.</summary>
     public InstalledSamusBodyArtwork LoadSamusBodyArt() =>
         SamusBodyArtworkFiles.Load(SamusBodyDirectory, SamusBodyOverrideDirectory);
-    /// <summary>Stock opening-cinematic artwork under the replaceable content tree.</summary>
+    /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>
-    public string IntroCinematicOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Loads validated opening-cinematic artwork, selecting compatible user PNG replacements where supplied.</summary>
+    /// <summary>Loads the installed opening-cinematic artwork.</summary>
     public IntroCinematicSourceArtwork LoadIntroCinematicArt() =>
-        IntroCinematicArtworkFiles.Load(IntroCinematicDirectory, IntroCinematicOverrideDirectory);
-    /// <summary>Stock ending Mode 7 scene artwork under the replaceable content tree.</summary>
+        IntroCinematicArtworkFiles.Load(IntroCinematicDirectory);
+    /// <summary>Installed ending Mode 7 scene artwork, which the player edits in place.</summary>
     public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);
-    /// <summary>Ending scene art edits remain outside replaceable stock content.</summary>
-    public string EndingMode7OverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingMode7DirectoryName);
-    /// <summary>Loads validated ending Mode 7 artwork and compatible scene replacements from the persistent override tree.</summary>
+    /// <summary>Loads the installed ending Mode 7 artwork.</summary>
     public EndingFloorArtwork LoadEndingMode7Art() =>
-        EndingMode7ArtworkFiles.Load(EndingMode7Directory, EndingMode7OverrideDirectory);
-    /// <summary>Stock ending sprite artwork under the replaceable content tree.</summary>
+        EndingMode7ArtworkFiles.Load(EndingMode7Directory);
+    /// <summary>Installed ending sprite artwork, which the player edits in place.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Ending OBJ edits remain outside replaceable stock content.</summary>
-    public string EndingObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Loads validated ending OBJ artwork and any compatible user replacements.</summary>
+    /// <summary>Loads the installed ending OBJ artwork.</summary>
     public EndingObjectSourceArtwork LoadEndingObjectArt() =>
-        EndingObjectArtworkFiles.Load(EndingObjectDirectory, EndingObjectOverrideDirectory);
-    /// <summary>Stock ending-scene color palettes under the replaceable content tree.</summary>
+        EndingObjectArtworkFiles.Load(EndingObjectDirectory);
+    /// <summary>Installed ending-scene color palettes, which the player edits in place.</summary>
     public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);
-    /// <summary>Ending color edits survive replacement of the stock installation.</summary>
-    public string EndingPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingPaletteDirectoryName);
-    /// <summary>Loads validated ending color palettes and compatible color replacements from the persistent override tree.</summary>
+    /// <summary>Loads the installed ending color palettes.</summary>
     public EndingPaletteSet LoadEndingPalettes() =>
-        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
+        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Persistent RGB5 room palette replacements, preserved when stock content is rebuilt.</summary>
@@ -397,6 +389,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads validated enemy, boss and area artwork and compatible replacement PNGs from the persistent override tree.</summary>
     public InstalledEnemyArtwork LoadEnemyTiles() =>
         EnemyTileArtworkFiles.Load(EnemyTileDirectory, EnemyTileOverrideDirectory);
+
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 

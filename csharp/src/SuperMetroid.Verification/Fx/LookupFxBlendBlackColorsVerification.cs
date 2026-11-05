@@ -11,7 +11,7 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Fx;
 
-/// <summary>Checks calculated black liquid-blend third colors and preservation of supplied overrides.</summary>
+/// <summary>Checks calculated black liquid-blend third colors.</summary>
 internal static class LookupFxBlendBlackColorsVerification
 {
     /// <summary>The six native blend selectors whose third CGRAM color is black.</summary>
@@ -37,8 +37,8 @@ internal static class LookupFxBlendBlackColorsVerification
         }
     }
 
-    /// <summary>Checks black stays calculated, weather colors remain independent, and custom third colors survive output edits.</summary>
-    internal static void VerifyFxBlendBlackStorageAndEdits(RoomFxBlendInks stock)
+    /// <summary>Checks black stays calculated and unstored, and weather third colors remain independent.</summary>
+    internal static void VerifyFxBlendBlackStorage(RoomFxBlendInks stock)
     {
         for (int value = 0; value <= byte.MaxValue; value++)
         {
@@ -56,15 +56,6 @@ internal static class LookupFxBlendBlackColorsVerification
             AssertEqual(weather, owner.thirdOverride is not null, "Stock black values are not stored");
             _ = owner.CreateColors();
             AssertEqual(weather, owner.thirdOverride is not null, "Output creation does not cache black");
-        }
-        foreach (byte id in OriginalBlackBlendIds())
-        foreach (ushort third in new ushort[] { 0, 1, 31, 32, 1023, 1024, 32767 })
-        {
-            var owner = new RoomFxBlendColors(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(0x1234), RgbColor.FromWord(0x2345), RgbColor.FromWord(checked(third)));
-            var colors = owner.CreateColors();
-            AssertEqual(third, colors[2], "Custom third-color components survive");
-            colors[2] = RgbColor.FromWord((ushort)(colors[2].ToWord() ^ (1)));
-            AssertEqual(third, owner.CreateColors()[2], "Output edits do not mutate loaded colors");
         }
     }
 

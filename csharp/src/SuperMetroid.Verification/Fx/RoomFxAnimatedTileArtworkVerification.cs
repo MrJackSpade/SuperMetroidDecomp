@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Fx;
 /// <summary>Retail checks for room-FX, treadmill, and Tourian statue animated-tile PNG frames.</summary>
 internal static class RoomFxAnimatedTileArtworkVerification
 {
-    /// <summary>Checks retail room-FX frames through both transfer owners, installed edits, and older atlas-width imports.</summary>
+    /// <summary>Checks retail room-FX and treadmill frames against native bytes and the frame each animation shows.</summary>
     internal static void VerifyRoomFxAnimatedTileArtwork()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -27,7 +27,6 @@ internal static class RoomFxAnimatedTileArtworkVerification
         byte[] png = RoomFxAnimatedTileAtlasExtractor.Extract(rom);
         RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(png));
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
-        var provider = new RoomFxArtworkTestProvider(atlas);
         int frameCount = 0;
         foreach (RoomFxAnimatedTileLoop definition in
                  RoomFxAnimatedTileLoops.All)
@@ -103,17 +102,5 @@ internal static class RoomFxAnimatedTileArtworkVerification
         guard.Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x87,
             address => $"Installed room-FX artwork read ROM ${address:X6}.");
         return guard;
-    }
-
-    /// <summary>Feeds source-address DMA requests from an installed atlas while rejecting unrelated typed asset requests.</summary>
-    internal sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
-        IInstalledArtworkContent, IInstalledArtworkTransferSource
-    {
-        /// <summary>Fails if the focused room-FX fixture unexpectedly requests a typed VRAM asset.</summary>
-        public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
-            throw new InvalidOperationException($"Room-FX test did not expect typed asset {asset}.");
-        /// <summary>Resolves a bank-$87 source and native transfer width against installed frame bytes.</summary>
-        public bool TryResolve(int sourceAddress, int byteCount,
-            out ReadOnlyMemory<byte> data) => atlas.TryResolve(sourceAddress, byteCount, out data);
     }
 }

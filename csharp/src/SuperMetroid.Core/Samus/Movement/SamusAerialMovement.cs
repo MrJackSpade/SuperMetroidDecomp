@@ -59,9 +59,9 @@ public static class SamusAerialMovement
 
     /// <summary>
     /// Applies the Speed Booster jump bonus: when Speed Booster is equipped, the
-    /// fractional extra-X word is added directly to Y subspeed and half the whole extra-X
-    /// word is added to Y speed. These are independent 16-bit additions; the fractional
-    /// overflow deliberately does not carry into the whole word.
+    /// extra run speed's fraction is added directly to the vertical speed's fraction and half its whole pixels to the
+    /// vertical speed's whole pixels. The two additions are independent: a fraction sum that passes a whole pixel keeps
+    /// only its remainder and never raises the whole speed.
     /// </summary>
     public static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
     {
@@ -69,10 +69,16 @@ public static class SamusAerialMovement
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             return;
 
-        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(
-            samus.Kinematics.YSpeed.Whole + (samus.HorizontalSpeed.ExtraRunSpeed.Whole >> 1)), WordWrap.Unsigned(
-            samus.Kinematics.YSpeed.Fraction + samus.HorizontalSpeed.ExtraRunSpeed.Fraction));
+        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(
+            samus.Kinematics.YSpeed.Whole + (samus.HorizontalSpeed.ExtraRunSpeed.Whole >> 1),
+            (samus.Kinematics.YSpeed.Fraction + samus.HorizontalSpeed.ExtraRunSpeed.Fraction) % PixelFractionSteps);
     }
+
+    /// <summary>The steps of a speed's fraction of a pixel; a fraction sum past them keeps only its remainder.</summary>
+    private const int PixelFractionSteps = 65536;
+
+    /// <summary>The whole pixels the space-jump window reads within a cycle of 256; the speed's higher pixels drop out.</summary>
+    private const int SpaceJumpWindowWholeCycle = 256;
 
     /// <summary>
     /// Ports <c>Determine_Samus_YAcceleration</c>. The three adjacent
@@ -394,7 +400,7 @@ public static class SamusAerialMovement
 
         // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && WordWrap.Signed(samus.Kinematics.YSpeed.Whole) < 0)
+        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
         {
             samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -457,7 +463,7 @@ public static class SamusAerialMovement
         // before the common vertical routine can turn the negative word into moonfall-like
         // motion. An ordinary walk-off already enters with direction two.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            WordWrap.Signed(samus.Kinematics.YSpeed.Whole) < 0)
+            SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
         {
             samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -468,8 +474,8 @@ public static class SamusAerialMovement
         // Aimed falling poses have their own lists and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
-            WordWrap.Signed(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FastFallAnimationSpeed) >= 0 &&
-            WordWrap.Signed(samus.AnimationFrame - SamusMovementDefinitions.FastFallAnimationFrame) < 0)
+            SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&
+            samus.AnimationFrame < SamusMovementDefinitions.FastFallAnimationFrame)
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, SamusMovementDefinitions.FastFallAnimationFrame,
                 SamusMovementDefinitions.FastFallAnimationTimer);
         return result;
@@ -506,7 +512,7 @@ public static class SamusAerialMovement
         // Treats a signed-negative upward whole speed as the apex-wrap
         // sentinel. It clears the complete magnitude, flips downward, and installs normal
         // movement, but deliberately continues the remainder of this final special frame.
-        if (state.YDirection == SamusVerticalDirection.Up && WordWrap.Signed(state.YSpeed.Whole) < 0)
+        if (state.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole))
         {
             state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
@@ -696,7 +702,7 @@ public static class SamusAerialMovement
             return;
 
         bool jumpHeld = (controllerInput & ControllerButton.A) != ControllerButton.None;
-        bool speedUnderflowed = WordWrap.Signed(state.YSpeed.Whole) < 0;
+        bool speedUnderflowed = SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole);
         if (!jumpHeld || speedUnderflowed)
         {
             state.YSpeed = default;
@@ -794,11 +800,10 @@ public static class SamusAerialMovement
             return false;
         }
 
-        // The game reads a deliberately unaligned word inside Y speed: the high
-        // byte of Y subspeed followed by the low byte of whole Y speed. In host terms that
-        // is the magnitude converted from 16.16 to 8.8 without rounding.
-        int fallingVelocity8_8 = WordWrap.Unsigned(EightEight.FromSixteenSixteen(
-            samus.Kinematics.YSpeed.Whole, samus.Kinematics.YSpeed.Fraction));
+        // The window reads the falling speed as an 8.8 velocity without rounding, its whole pixels taken within
+        // their 256-pixel cycle.
+        int fallingVelocity8_8 = EightEight.FromSixteenSixteen(
+            samus.Kinematics.YSpeed.Whole % SpaceJumpWindowWholeCycle, samus.Kinematics.YSpeed.Fraction);
         // The remembered medium is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
@@ -806,9 +811,7 @@ public static class SamusAerialMovement
             SamusLiquidMedium.Air
                 ? 128
                 : 640;
-        bool atOrAboveMinimum = WordWrap.Signed(fallingVelocity8_8 - minimumVelocity) >= 0;
-        bool belowMaximum = WordWrap.Signed(fallingVelocity8_8 - 1280) < 0;
-        if (!atOrAboveMinimum || !belowMaximum ||
+        if (fallingVelocity8_8 < minimumVelocity || fallingVelocity8_8 >= 1280 ||
             (controllerNewInput & ControllerButton.A) == ControllerButton.None)
         {
             return false;
@@ -839,7 +842,7 @@ public static class SamusAerialMovement
     /// <summary>Splits a 16.16 vertical magnitude back into Samus's independent words.</summary>
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
     {
-        state.YSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(speed)), WordWrap.Unsigned(speed));
+        state.YSpeed = UnsignedSixteenSixteen.FromRaw(speed);
     }
 
 }

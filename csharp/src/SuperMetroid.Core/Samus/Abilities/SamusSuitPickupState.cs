@@ -259,15 +259,16 @@ public sealed class SamusSuitPickupState
     /// <summary>Moves the beam's left and right endpoints apart uniformly before curved widening begins.</summary>
     private void StepUniformWidening()
     {
-        int amount = WordWrap.LowByte(EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
-        // Window columns are eight bits wide: both edges wrap within the screen row.
-        int left = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) - amount);
-        int right = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) + amount);
+        // The widening speed stays a few pixels per update, so the edges stay inside the screen row: the left one
+        // stops below 97 long before it would pass zero.
+        int amount = EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
+        int left = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) - amount;
+        int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) + amount;
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.Column, _lightBeamLeft, _lightBeamRight, 0);
 
-        if (WordWrap.SignedLowByte(left - 97) < 0)
+        if (left < 97)
         {
             Stage = SamusSuitPickupStage.CurvedWidening;
             SetLightBeamEdges(SuitPickupBeamDefinitions.CurvedWideningStart);
@@ -279,13 +280,13 @@ public sealed class SamusSuitPickupState
     {
         AdvanceColorTowardWhite();
 
-        int amount = WordWrap.LowByte(EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        int amount = EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
         int oldLeft = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X);
-        int left = WordWrap.LowByte(oldLeft - amount);
+        int left = oldLeft - amount;
         int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X);
         // The zero test shares the negative-result clamp. Exact zero must also
         // force the right endpoint to 255 or the reveal is delayed by a frame.
-        if (left == 0 || WordWrap.SignedLowByte(oldLeft - amount) < 0)
+        if (left <= 0)
         {
             left = 0;
             right = byte.MaxValue;
@@ -293,7 +294,7 @@ public sealed class SamusSuitPickupState
         else
         {
             int widenedRight = right + amount;
-            right = widenedRight > byte.MaxValue ? byte.MaxValue : WordWrap.LowByte(widenedRight);
+            right = Math.Min(widenedRight, byte.MaxValue);
         }
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
@@ -305,7 +306,7 @@ public sealed class SamusSuitPickupState
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.
-            LightBeamWideningVelocity = WideningVelocity(WordWrap.Unsigned(LightBeamWideningVelocity.X.RawValue / 2));
+            LightBeamWideningVelocity = WideningVelocity(LightBeamWideningVelocity.X.RawValue / 2);
             _lightBeamScanlines = 0;
         }
     }
@@ -343,11 +344,9 @@ public sealed class SamusSuitPickupState
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 
-        int decelerated = WordWrap.Unsigned(
-            LightBeamWideningVelocity.X.RawValue - SuitPickupBeamDefinitions.ShrinkingDeceleration);
-        LightBeamWideningVelocity = WideningVelocity(decelerated);
-        if (WordWrap.Signed(decelerated - SuitPickupBeamDefinitions.MinimumShrinkingSpeed) < 0)
-            LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.MinimumShrinkingSpeed);
+        // The speed never falls below its minimum, so one deceleration stays far above zero.
+        int decelerated = LightBeamWideningVelocity.X.RawValue - SuitPickupBeamDefinitions.ShrinkingDeceleration;
+        LightBeamWideningVelocity = WideningVelocity(Math.Max(decelerated, SuitPickupBeamDefinitions.MinimumShrinkingSpeed));
         if (_lightBeamScanlines >= 128)
         {
             Stage = SamusSuitPickupStage.LightBeamDissipates;
@@ -358,13 +357,14 @@ public sealed class SamusSuitPickupState
     /// <summary>Closes the single remaining center scanline until the threshold ends the effect.</summary>
     private void StepLightBeamDissipates()
     {
-        // Window columns are eight bits wide: the starting left column 255 wraps to 7 on the first call.
-        int left = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) + 8);
-        int right = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) - 8);
+        // The edges are screen columns that wrap around the row: the starting left column 255 wraps to 7 on the first
+        // call, which keeps the line closing until the left edge climbs back past 112.
+        int left = WrappedColumn(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) + 8);
+        int right = WrappedColumn(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) - 8);
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
-        if (WordWrap.SignedLowByte(left - 112) >= 0)
+        if (left is >= 112 and < 240)
             Stage = SamusSuitPickupStage.Finish;
     }
 
@@ -392,6 +392,12 @@ public sealed class SamusSuitPickupState
 
     /// <summary>The screen position of window column <paramref name="column"/>; only X is meaningful.</summary>
     private static Position16<ScreenPixels> ScreenColumn(int column) => Position16<ScreenPixels>.Of(column, 0);
+
+    /// <summary>The columns of a screen row, which a beam edge moved past either end wraps around.</summary>
+    private const int RowColumns = 256;
+
+    /// <summary>The screen column <paramref name="column"/> wraps to within the row.</summary>
+    private static int WrappedColumn(int column) => (column % RowColumns + RowColumns) % RowColumns;
 
     /// <summary>A horizontal unsigned 8.8 speed from its raw word; the vertical axis is unused.</summary>
     private static EightEightVector<ScreenPixels> WideningVelocity(int speed) =>

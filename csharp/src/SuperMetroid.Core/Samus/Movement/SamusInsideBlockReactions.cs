@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>Body-overlap scroll, conveyor and sand reactions from BlockInsideDetection.</summary>
 public static class SamusInsideBlockReactions
 {
+    /// <summary>Half a pixel in fraction steps: quicksand keeps only the part of the base speed's fraction below it.</summary>
+    private const int HalfPixelFraction = 32768;
+
     /// <summary>Samples bottom, center, and top in order.</summary>
     internal static void PrepareFrame(RoomLevelData level, SamusState samus,
         AreaId area, bool areaBossDefeated = false, ISamusRoomPlms? plms = null)
@@ -73,7 +76,7 @@ public static class SamusInsideBlockReactions
                     speed.SpeedBoostCounter = default;
                     speed.EchoSoundFlag = 0;
                     speed.ExtraRunSpeed = default;
-                    speed.BaseSpeed = new UnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & WordWrap.Unsigned(short.MaxValue));
+                    speed.BaseSpeed = new UnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction % HalfPixelFraction);
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
                         QuicksandReactions.SurfacePhysics(
@@ -91,7 +94,7 @@ public static class SamusInsideBlockReactions
                             SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
                             // The original compares the middle words of the 16.16 speed and limit, then
                             // replaces the speed's whole pixels and fraction with the limit's.
-                            if (WordWrap.Unsigned(EightEight.WholeOf(body.VerticalSpeedFixed)) > EightEight.WholeOf(limit.RawValue))
+                            if (EightEight.WholeOf(body.VerticalSpeedFixed) > EightEight.WholeOf(limit.RawValue))
                             {
                                 body.YSpeed = new UnsignedSixteenSixteen(limit.WholeWord, limit.Fraction);
                             }

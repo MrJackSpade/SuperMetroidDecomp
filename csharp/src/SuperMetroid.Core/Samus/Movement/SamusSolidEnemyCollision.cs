@@ -173,7 +173,6 @@ public static class SamusSolidEnemyCollision
         // The add carries the fractional overflow into the whole word before the
         // nonzero-fraction increment performs its outward pixel rounding.
         int fractionSum = target.Fraction + reach.Fraction;
-        int fraction = WordWrap.Unsigned(fractionSum);
         // After an overflow the increment's zero test reads the whole target, so it
         // tests that word rather than the fraction and a second increment follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
@@ -182,7 +181,7 @@ public static class SamusSolidEnemyCollision
             if (whole != 0)
                 whole = WrappingCounter.IncrementWord(whole);
         }
-        else if (fraction != 0)
+        else if (fractionSum != 0)
         {
             whole = WrappingCounter.IncrementWord(whole);
         }
@@ -199,10 +198,7 @@ public static class SamusSolidEnemyCollision
     {
         // Obtains a 16-bit absolute center delta by negating it. This
         // intentionally leaves 32768 unchanged, matching the two's-complement edge.
-        int signedDelta = CoordinateAxis.Wrap(secondPosition - firstPosition);
-        int absoluteDelta = WordWrap.Signed(signedDelta) >= 0
-            ? signedDelta
-            : WordWrap.Unsigned(~signedDelta + 1);
+        int absoluteDelta = CoordinateAxis.Distance(secondPosition, firstPosition);
 
         // The assembly subtracts the enemy radius first. Borrow means overlap immediately;
         // otherwise an unsigned comparison accepts only a remainder smaller than Samus's radius.

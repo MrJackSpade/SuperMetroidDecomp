@@ -32,9 +32,9 @@ public static class XrayRevealExtensions
             int coordinate = CoordinateAxis.Wrap((vertical ? y : x) + step);
             if (CoordinateAxis.AsSigned(coordinate) < 0) return XrayRevealDefinitions.BlankMetatile;
             if (vertical) y = coordinate; else x = coordinate;
-            // The block lookup multiplies only Y's low byte by the room width; X is then added, so it may legitimately
-            // spill into the next row.
-            block = level.GetPlmCollisionBlockByIndex(CoordinateAxis.Wrap(WordWrap.LowByte(y) * level.Size.X + x));
+            // The block lookup takes Y's row within the scan cycle; X is then added, so it may legitimately spill into
+            // the next row.
+            block = level.GetPlmCollisionBlockByIndex(CoordinateAxis.Wrap(BlockScanCycle.RowStart(y, level.Size.X) + x));
             step = block.Behavior.Value;
             if (block.CollisionType == RoomCollisionType.VerticalExtension)
             {

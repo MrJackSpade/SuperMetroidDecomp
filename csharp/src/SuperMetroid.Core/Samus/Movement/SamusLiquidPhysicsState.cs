@@ -441,11 +441,10 @@ public sealed class SamusLiquidPhysicsState
                 priority: SoundRequestPriority.Normal);
         }
 
-        // A nonzero whole speed passing a signed comparison against five is a hard
-        // landing. Anything else, including a whole speed of 32773 or more, falls to the
-        // sub-speed test: with no sub-speed it returns before both sound and graphics, and
-        // otherwise it is a soft landing.
-        bool hardLanding = impactYSpeed.Whole != 0 && WordWrap.Signed(impactYSpeed.Whole - 5) >= 0;
+        // A nonzero whole speed that reads as reaching five is a hard landing. Anything else, including a whole
+        // speed of 32773 or more, falls to the sub-speed test: with no sub-speed it returns before both sound and
+        // graphics, and otherwise it is a soft landing.
+        bool hardLanding = impactYSpeed.Whole != 0 && SamusSpeedMagnitude.IsAtLeast(impactYSpeed.Whole, 5);
         if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
 
@@ -584,7 +583,7 @@ public sealed class SamusLiquidPhysicsState
         int leftSeparation = type == SamusAtmosphericEffectType.FootstepSplash ? 7 : 16;
         int firstX = CoordinateAxis.Wrap(samus.Position.X.Whole + rightOffset);
         int secondX = CoordinateAxis.Wrap(firstX - leftSeparation);
-        int y = type == SamusAtmosphericEffectType.FootstepSplash ? WordWrap.Unsigned(bottom - 4) : bottom;
+        int y = type == SamusAtmosphericEffectType.FootstepSplash ? CoordinateAxis.Wrap(bottom - 4) : bottom;
 
         // Landing owns effect slots two and three, not the running-foot
         // slots zero/one. Both begin immediately on frame zero with timer three.
@@ -624,19 +623,19 @@ public sealed class SamusLiquidPhysicsState
                 : 0;
         if (divisorShift != 0)
         {
-            // The game reads an overlapping word: fractional high byte followed by
-            // whole-damage low byte. Shifting that 8.8 quantity and splitting it back is not
-            // equivalent to independently shifting both 16-bit words when a carry crosses.
-            int overlappingDamage = EightEight.FromSixteenSixteen(WordWrap.LowByte(appliedDamage), appliedSubDamage);
-            overlappingDamage = WordWrap.Unsigned(overlappingDamage >> divisorShift);
+            // The suit divides the damage as one 8.8 amount: the whole damage within its 256-point cycle and the
+            // fraction's top part. Shifting that amount and splitting it back is not equivalent to shifting the whole
+            // and fractional damage independently when a carry crosses.
+            int overlappingDamage = EightEight.FromSixteenSixteen(appliedDamage % SuitDividedWholeDamageCycle, appliedSubDamage);
+            overlappingDamage >>= divisorShift;
             appliedSubDamage = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlappingDamage));
             appliedDamage = EightEight.WholeOf(overlappingDamage);
         }
 
-        // Deliberately jumps to the crash handler if the signed whole
-        // word is negative. Reachable environmental rates never do this; throwing retains
-        // the corruption/overflow guard instead of converting it into plausible damage.
-        if (WordWrap.Signed(appliedDamage) < 0)
+        // The game stops at its crash handler when the whole damage passes the largest amount it applies.
+        // Reachable environmental rates never do this; throwing retains the overflow guard instead of converting it
+        // into plausible damage.
+        if (appliedDamage > LargestPeriodicWholeDamage)
             throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
 
         samus.TakeFractionalEnergyDamage(appliedSubDamage, appliedDamage);
@@ -644,6 +643,12 @@ public sealed class SamusLiquidPhysicsState
         PeriodicSubDamage = 0;
         PeriodicDamage = 0;
     }
+
+    /// <summary>The whole damage points a suit's division reads within a cycle of 256; higher points drop out.</summary>
+    private const int SuitDividedWholeDamageCycle = 256;
+
+    /// <summary>The largest whole periodic damage the game applies; more sends it to its crash handler.</summary>
+    private const int LargestPeriodicWholeDamage = 32767;
 
     /// <summary>
     /// Adds one 16.16 periodic-damage contribution to the periodic damage.
@@ -678,10 +683,10 @@ public sealed class SamusLiquidPhysicsState
 
         AtmosphericEffects.SetSlot(
             0, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
-            new(CoordinateAxis.Wrap(samus.Position.X.Whole + 4), WordWrap.Unsigned(bottom - 4)));
+            new(CoordinateAxis.Wrap(samus.Position.X.Whole + 4), CoordinateAxis.Wrap(bottom - 4)));
         AtmosphericEffects.SetSlot(
             1, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
-            new(CoordinateAxis.Wrap(samus.Position.X.Whole - 3), WordWrap.Unsigned(bottom - 4)));
+            new(CoordinateAxis.Wrap(samus.Position.X.Whole - 3), CoordinateAxis.Wrap(bottom - 4)));
     }
 
     /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and particle slot two is free.</summary>
@@ -691,7 +696,7 @@ public sealed class SamusLiquidPhysicsState
         int frameCounter,
         SharedRandom random)
     {
-        int mouthY = WordWrap.Unsigned(top - 24);
+        int mouthY = CoordinateAxis.Wrap(top - 24);
         if (CoordinateAxis.Difference(mouthY, FxYPosition) < 0 ||
             (frameCounter & 127) != 0 ||
             !AtmosphericEffects.Slots[2].IsEmpty)
@@ -701,7 +706,7 @@ public sealed class SamusLiquidPhysicsState
 
         AtmosphericEffects.SetSlot(
             2, SamusAtmosphericEffectType.Bubbles, animationFrame: 0, animationTimer: 3,
-            new(samus.Position.X.Whole, WordWrap.Unsigned(top + 6)));
+            new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + 6)));
         int sample = random.Generate();
         QueueSound((sample & 1) != 0 ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, priority: SoundRequestPriority.Normal);
     }

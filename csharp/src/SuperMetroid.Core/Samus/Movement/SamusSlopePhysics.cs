@@ -57,8 +57,7 @@ public static class SamusSlopePhysics
         }
         else
         {
-            int truncated = CoordinateAxis.Wrap(EightEight.WholeOf(displacement));
-            int magnitude = WordWrap.Unsigned(-truncated);
+            int magnitude = -EightEight.WholeOf(displacement);
             return unchecked(-(int)((uint)magnitude * multiplier));
         }
     }

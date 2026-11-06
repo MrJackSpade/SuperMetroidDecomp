@@ -191,7 +191,7 @@ internal static class NativeEnemyFamilyStateImport
                     draygonRecord.IntroFrames = words.B;
                     break;
                 case DraygonNativeWords.SharedValue.BurialWait:
-                    draygonRecord.BurialWait = WrappingCountdown.FromRaw(words.B);
+                    draygonRecord.BurialWait = words.B;
                     break;
                 case DraygonNativeWords.SharedValue.SwoopEntry:
                     draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;

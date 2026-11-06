@@ -82,7 +82,7 @@ internal sealed class DraygonGoop
             state.Function = direction == HorizontalDirection.Right
                 ? DraygonAiFunction.GoopRightTail
                 : DraygonAiFunction.GoopLeftTail;
-            state.GoopCounter = WrappingCountdown.Start(16);
+            state.GoopCounter = 16;
             return;
         }
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
@@ -107,8 +107,7 @@ internal sealed class DraygonGoop
         int random = _room.Random.Read();
         if ((random & 15) == 0)
         {
-            state.GoopCounter = state.GoopCounter.Decrement().Remaining;
-            if (state.GoopCounter.IsZero)
+            if (--state.GoopCounter == 0)
             {
                 FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
                 return;
@@ -318,10 +317,8 @@ internal sealed class DraygonGoop
 
         DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
         goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + attached.StackPosition * 4 - 12)));
-        // The attachment lifetime counts down (DEC then BNE): the goop falls off when it reaches zero.
-        CountdownStep lifetime = attached.Lifetime.Decrement();
-        attached.Lifetime = lifetime.Remaining;
-        if (lifetime.IsZero)
+        // The attachment lifetime counts down: the goop falls off when it reaches zero.
+        if (--attached.Lifetime == 0)
             RemoveAttachedDraygonGoop(goop, samus);
     }
 

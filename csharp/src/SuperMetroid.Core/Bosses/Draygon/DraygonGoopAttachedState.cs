@@ -13,5 +13,5 @@ internal sealed class DraygonGoopAttachedState(int stackPosition) : EnemyProject
     internal int StackPosition { get; } = Ensure.AtLeastZero(stackPosition);
 
     /// <summary>The blob's remaining time stuck; it falls off on the update this reaches zero.</summary>
-    internal WrappingCountdown Lifetime { get; set; } = WrappingCountdown.Start(AttachedLifetime);
+    internal int Lifetime { get; set; } = AttachedLifetime;
 }

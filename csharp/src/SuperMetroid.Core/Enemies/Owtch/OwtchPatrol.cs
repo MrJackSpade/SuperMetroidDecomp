@@ -5,7 +5,7 @@ internal static class OwtchPatrol
 {
     /// <summary>The patrol distance patrol selector <paramref name="index"/> selects.</summary>
     /// <exception cref="InvalidDataException"><paramref name="index"/> is eight or more.</exception>
-    internal static ushort TravelDistance(int index)
+    internal static int TravelDistance(int index)
     {
         if (index >= OwtchMovementDefinitions.TravelDistances.Length)
             throw new InvalidDataException(
@@ -15,7 +15,7 @@ internal static class OwtchPatrol
 
     /// <summary>The underground wait burial selector <paramref name="index"/> selects.</summary>
     /// <exception cref="InvalidDataException"><paramref name="index"/> is six or more.</exception>
-    internal static ushort UndergroundTimer(int index)
+    internal static int UndergroundTimer(int index)
     {
         if (index >= OwtchMovementDefinitions.UndergroundTimers.Length)
             throw new InvalidDataException(

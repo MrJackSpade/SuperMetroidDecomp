@@ -16,7 +16,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
         {
             ushort random = unchecked((ushort)(selector << 9));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + selector * 2)),
-                NorfairLavaJumpDefinitions.InitialVerticalVelocity(random),
+                NorfairLavaJumps.InitialVerticalVelocity(random).RawValue,
                 $"Norfair lava jumper velocity {selector}");
         }
 

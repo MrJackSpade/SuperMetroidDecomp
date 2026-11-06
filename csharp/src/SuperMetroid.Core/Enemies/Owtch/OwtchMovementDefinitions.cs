@@ -7,11 +7,10 @@ internal static class OwtchMovementDefinitions
     /// <summary>The patrol distance, 16*(index+1), for patrol selector 0..7.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against all eight authored words.
-    /// The high byte of parameter two selects an undoubled index;
-    /// the game doubles it for word access, then adds/subtracts the distance with word
-    /// wrap. Callers retain that wrapping.
+    /// Parameter two's high byte selects the distance; the initializer adds and subtracts it from the spawn
+    /// position, wrapping at the room coordinate range as every room position does.
     /// </remarks>
-    internal static readonly ushort[] TravelDistances = [16, 32, 48, 64, 80, 96, 112, 128];
+    internal static readonly int[] TravelDistances = [16, 32, 48, 64, 80, 96, 112, 128];
 
     /// <summary>The underground wait, 32*(index+1), for NTSC burial selector 0..5.</summary>
     /// <remarks>
@@ -21,7 +20,7 @@ internal static class OwtchMovementDefinitions
     /// sinking. Its shorter six-entry bound is independent of the patrol domain;
     /// this is not the PAL timer contract and no input clamping is permitted.
     /// </remarks>
-    internal static readonly ushort[] UndergroundTimers = [32, 64, 96, 128, 160, 192];
+    internal static readonly int[] UndergroundTimers = [32, 64, 96, 128, 160, 192];
 
     /// <summary>The random bit that sends a surfacing Owtch right rather than left: bit eight.</summary>
     internal static readonly RandomSampleField MoveRightChoice = new(8, 1);

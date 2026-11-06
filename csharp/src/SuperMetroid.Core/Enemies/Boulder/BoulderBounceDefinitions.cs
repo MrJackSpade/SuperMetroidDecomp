@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 public static class BoulderBounceDefinitions
 {
     /// <summary>
-    /// 0, 4096, 6144, indexed by the remaining bounce count. The bounce
-    /// routine indexes from table+2 with (remainingBounces-1)*2, so the last impact reads the first zero word before
-    /// the counter underflows into rolling.
+    /// The 8.8 bounce speed clock each impact restarts from, indexed by the remaining bounce count: the last impact
+    /// installs the leading zero before the counter passes below zero into rolling.
     /// </summary>
     /// <remarks>
     /// #625 / #647 retained table: all three words are
@@ -16,5 +15,5 @@ public static class BoulderBounceDefinitions
     /// VerifyCompiledBoulderBounces exercises each real floor collision, the
     /// zero-to-minus-one handoff, and both invalid counter boundaries.
     /// </remarks>
-    internal static readonly ushort[] SpeedIndices = [0, 4096, 6144];
+    internal static readonly int[] SpeedIndices = [0, 4096, 6144];
 }

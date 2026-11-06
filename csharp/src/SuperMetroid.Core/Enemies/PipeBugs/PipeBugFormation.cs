@@ -5,7 +5,7 @@ internal static class PipeBugFormation
 {
     /// <summary>The release counter of formation slot <paramref name="member"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="member"/> is outside the five slots.</exception>
-    internal static ushort NorfairStaggerTarget(int member) =>
+    internal static int NorfairStaggerTarget(int member) =>
         (uint)member < (uint)PipeBugDefinitions.NorfairStaggerTargets.Length
             ? PipeBugDefinitions.NorfairStaggerTargets[member]
             : throw new ArgumentOutOfRangeException(nameof(member));

@@ -271,8 +271,8 @@ internal sealed class AcceptedFrameBoundary
             image = background.Resolve(appearance, latched.Scene.FxType == RoomFxType.TourianEntranceStatue
                 ? background.Image.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
         }
-        // A boss body shows each part's picture for the frame its animation selected (#1466).
-        ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames, BossBodyExtent(latched.Bosses));
+        // A boss body shows each part's whole picture (#1466, #1513).
+        ShownBossBody? shownBody = latched.Bosses.Body?.Show(BossBodyExtent(latched.Bosses));
         // Pictures written over the background draw from the written picture sheet's frames for the inputs they depend on (#1466).
         RoomOverlayPictures? writtenOverBackground = scope.WrittenOverBackground is { } overlay
             ? new RoomOverlayPictures((scope.BackgroundWrittenPictures ?? throw new InvalidDataException(

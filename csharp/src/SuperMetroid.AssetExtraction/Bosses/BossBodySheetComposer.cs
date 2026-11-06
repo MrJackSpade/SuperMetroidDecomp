@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -109,13 +110,37 @@ internal static class BossBodySheetComposer
             case BossBodyOwner.Crocomire:
                 CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(owner);
                 return [.. EnemyFrames((bosses.CrocomireBg2Frames ?? throw Missing(owner)).Writes),
-                    .. Enum.GetValues<CrocomireMeltingIllustration>().Select(image => BossBodyFrameSource.Written(
-                        CrocomireMeltingFrameNames.Of(image), BossBodySourceDefinitions.CrocomireMeltFirstCell, melting.Tilemap(image)))];
+                    .. Enum.GetValues<CrocomireMeltingIllustration>().SelectMany(image => CrocomireMeltStates(melting, image))];
             case BossBodyOwner.MotherBrain:
                 return EnemyFrames((bosses.MotherBrainBodyBg2Frames ?? throw Missing(owner)).Writes);
             default:
                 throw new InvalidDataException($"Undefined boss body owner {owner}.");
         }
+    }
+
+    /// <summary>
+    /// Each state of Crocomire's melt image <paramref name="image"/> as his body shows it, whole (#1513): the image before
+    /// its dissolve erases a column and after each erase, every band of its characters at the dissolve step the band was
+    /// last shown at (<see cref="CrocomireMelting.BandStepAfter"/>). The updates in which the image's bands are first shown,
+    /// one an update, show the unerased image whole; his body frames are replaced by the image before any band is shown, so
+    /// no body frame is pictured under a band.
+    /// </summary>
+    private static List<BossBodyFrameSource> CrocomireMeltStates(CrocomireMeltingArtwork melting, CrocomireMeltingIllustration image)
+    {
+        int bands = CrocomireMelting.BandCount(image);
+        var states = new List<BossBodyFrameSource>();
+        for (int erased = 0; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
+        {
+            var selected = new Dictionary<ArtworkAnimation, ArtworkFrame>();
+            for (int band = 0; band < bands; band++)
+            {
+                selected.Add(CrocomireMelting.MeltBandAnimation(band), CrocomireMelting.MeltBandFrame(
+                    new CrocomireMeltBandPicture(image, CrocomireMelting.BandStepAfter(image, band, erased)), band));
+            }
+            states.Add(BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image, erased), BossBodySourceDefinitions.CrocomireMeltFirstCell,
+                melting.Tilemap(image)) with { Selected = selected });
+        }
+        return states;
     }
 
     /// <summary>
@@ -168,8 +193,23 @@ internal static class BossBodySheetComposer
         return written.Keys.OrderBy(frame => frame.ToString(), StringComparer.Ordinal)
             .Select(frame => new BossBodyFrameSource(BossBodyFrameNames.Of(frame), Whole(frame)));
 
-        // The frame's cells written over the whole frame it is drawn over.
+        // The frame's cells written over the whole frame it is drawn over, with the part that fills its gap written over them.
         SortedDictionary<int, BackgroundTile> Whole(EnemyFrameId frame)
+        {
+            SortedDictionary<int, BackgroundTile> cells = Beneath(frame);
+            if (BossBodySourceDefinitions.FramesPicturedWith.TryGetValue(frame, out EnemyFrameId filling))
+            {
+                if (!written.ContainsKey(filling))
+                    throw new InvalidDataException($"Body frame {frame} is pictured with {filling}, which its boss's frames do not hold.");
+                cells = new SortedDictionary<int, BackgroundTile>(cells);
+                foreach ((int cell, BackgroundTile tile) in Whole(filling))
+                    cells[cell] = tile;
+            }
+            return cells;
+        }
+
+        // The frame's cells written over the whole frame it is drawn over.
+        SortedDictionary<int, BackgroundTile> Beneath(EnemyFrameId frame)
         {
             if (!BossBodySourceDefinitions.FramesDrawnOver.TryGetValue(frame, out EnemyFrameId beneath))
                 return written[frame];

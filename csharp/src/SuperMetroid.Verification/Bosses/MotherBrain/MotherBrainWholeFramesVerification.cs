@@ -51,6 +51,12 @@ internal static class MotherBrainWholeFramesVerification
         IReadOnlyList<FrameArtworkVariation> variations = sheets.Variations(set, enemy, name);
         if (variations.SingleOrDefault(variation => variation.Sequence == EncounterArtworkSequence.MotherBrainPages) is not { } pages)
         {
+            // A frame her completing pages never write shows nothing: its characters hold another family's artwork (#1513).
+            if (sheets.ShowsNothing(set, enemy, name))
+            {
+                AssertEqual(0, variations.Count, $"{frame}, which shows nothing, follows no artwork sequence");
+                return 1;
+            }
             // Her completing pages leave every character the frame reads as her room's load does, so its loaded picture is
             // its whole picture and the sheet holds that one.
             AssertEqual(0, variations.Count, $"{frame} follows no artwork sequence once its pages leave it as loaded");

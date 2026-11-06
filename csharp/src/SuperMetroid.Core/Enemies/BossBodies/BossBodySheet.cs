@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
 /// One boss's installed body sheet (#1466, #1515): every frame it shows on its body, each one whole pre-coloured picture
-/// placed on the body's area, with the pictures of the pixels room animations paint.
+/// placed on the body's area; each state a room animation gives a frame is a whole frame of its own (#1513).
 /// </summary>
 public sealed class BossBodySheet
 {

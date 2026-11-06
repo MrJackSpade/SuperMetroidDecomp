@@ -266,9 +266,28 @@ internal static class EnemySheetComposer
         LoadedGraphicsSet loaded = Load(inputs, set);
         // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
         IReadOnlyList<CommonSpawnedObjects> common = CommonSpawnersOf(set);
+        // A spawned-object sheet with no picture to show is not installed (#1513): nothing draws from it.
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
             [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf, common).Select(plan =>
-                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Shades, loaded.Colours.RowOf))]);
+                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Shades, loaded.Colours.RowOf))
+                .Where(source => ShowsPictures(source.Sources.Frames.Count, source.BlankPictures, $"{set.Name} spawned {source.Plan.Owner}"))]);
+    }
+
+    /// <summary>
+    /// Whether a sheet of <paramref name="pictures"/> pictures holds any (#1513). A sheet with none shows nothing and is
+    /// not installed: its owner draws nothing from it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The sheet holds no picture but names frames that show nothing, which the game would look up on a sheet that is not installed.
+    /// </exception>
+    private static bool ShowsPictures(int pictures, IReadOnlySet<string> blank, string sheet)
+    {
+        if (pictures > 0)
+            return true;
+        if (blank.Count > 0)
+            throw new InvalidDataException(
+                $"Sheet {sheet} holds no picture, only frames that show nothing ({string.Join(", ", blank.Order(StringComparer.Ordinal))}); it would not be installed for them.");
+        return false;
     }
 
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>
@@ -301,6 +320,9 @@ internal static class EnemySheetComposer
                     corpses.Add(picture, corpse);
                 blank.UnionWith(framePictures.Blank);
             }
+            // An enemy whose frames compose no picture, as one its room draws only on a background, has no sheet (#1513).
+            if (!ShowsPictures(frames.Count, blank, $"{enemy}"))
+                continue;
             yield return new EnemySheetSource(enemy, new SpriteSheetSources(frames, colours,
                 ObjectSelectionCodec.GameplaySizes, paletteBits,
                 Shades: [.. loaded.Shades.OwnRow(enemy, paletteBits), .. fixedShades],

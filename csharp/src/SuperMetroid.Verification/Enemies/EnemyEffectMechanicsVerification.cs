@@ -87,6 +87,10 @@ internal static class EnemyEffectMechanicsVerification
                     fixture.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
                 if (call <= CrocomireMeltingDefinitions.ColumnCount)
                     AssertEqual(CrocomireEffectFixture.MeltBandFrame(new CrocomireMeltBandPicture(pass, call), (call - 1) % bands), fixture.MeltBand((call - 1) % bands), "each step shows the next band");
+                // His body shows the whole melt image as the step leaves it (#1513).
+                string meltState = CrocomireMeltingFrameNames.Of(pass, Math.Min(call, CrocomireMeltingDefinitions.ColumnCount));
+                AssertTrue(fixture.Enemies.Presentation.RequireBossBody().Publish().Frames.Any(frame => frame.Name == meltState),
+                    $"melt dissolve call {call} shows his body as {meltState}");
             }
             fixture.Call(c => c.Melting.FinishCrocomireMeltingPass);
         }

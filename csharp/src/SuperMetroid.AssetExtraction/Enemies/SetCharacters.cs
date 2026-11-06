@@ -96,6 +96,11 @@ internal sealed class SetCharacters
             {
                 // A frame whose artwork a run of pages completes shows that one state wherever it is drawn (#1513).
                 int? complete = EncounterArtworkSources.CompletionStep(sequence.Sequence, completing);
+                // A frame its completing pages never write reads only what the room's load leaves there, another family's
+                // artwork: it has none of its own to show, so it shows nothing (#1513), as Mother Brain's initial body frame,
+                // drawn only while her body is hidden, reads the head artwork her room loads where her legs never land.
+                if (complete is int last && !Writes(sequence, completing, last, read))
+                    return new FramePictures(name, [], [], [name]);
                 int? whole = complete is int step && Shown(afterStep[sequence.Sequence][step], read) != loaded ? step : null;
                 if (whole is not null)
                 {
@@ -189,6 +194,27 @@ internal sealed class SetCharacters
                         $"Frame {name} shows another step's picture of {variation.Sequence} at step {step}, which leaves {corpse.Name}'s characters covered otherwise.");
             }
         }
+    }
+
+    /// <summary>
+    /// Whether the run of <paramref name="completing"/>'s pages in <paramref name="sequence"/> that ends at step
+    /// <paramref name="last"/> copies over any character whose first table byte <paramref name="read"/> names.
+    /// </summary>
+    private static bool Writes(EncounterArtworkSteps sequence, EncounterArtworkSource completing, int last, int[] read)
+    {
+        int first = last;
+        while (first > 0 && EncounterArtworkSources.Of(sequence.Sequence, first - 1) == completing)
+            first--;
+        for (int step = first; step <= last; step++)
+        {
+            foreach (EncounterArtworkUpload upload in sequence.Steps[step])
+            {
+                int end = upload.FirstByte + upload.Characters.Length;
+                if (read.Any(character => character < end && character + SpriteArtwork.CharacterByteCount > upload.FirstByte))
+                    return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>Whether every character <paramref name="read"/> names holds only blank bytes in <paramref name="characters"/>.</summary>

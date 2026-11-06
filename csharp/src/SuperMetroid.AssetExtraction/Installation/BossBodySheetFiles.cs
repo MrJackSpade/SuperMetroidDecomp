@@ -11,8 +11,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Installs the pre-assembled boss body sheets (#1466, #1515): each boss's sheet as an image, palette map and frames, the
-/// manifest naming each frame's whole picture, where it lies on the body's area, the rectangles it covers and its
-/// animations' pictures, and the provenance of their hashes. A player edits a sheet's installed files in place.
+/// manifest naming each frame's whole picture, where it lies on the body's area and the rectangles it covers, and the
+/// provenance of their hashes. A player edits a sheet's installed files in place.
 /// </summary>
 public static class BossBodySheetFiles
 {
@@ -23,10 +23,10 @@ public static class BossBodySheetFiles
     public const string ManifestFileName = "boss-bodies.json";
 
     /// <summary>
-    /// The manifest's schema revision: 3 names each frame's one whole picture, placed on the body's area with the
-    /// rectangles it covers, and its animations' pictures, with no cell footprints or blank (#1515).
+    /// The manifest's schema revision: 4 names each frame's one whole picture, placed on the body's area with the
+    /// rectangles it covers, with no cell footprints, blank (#1515) or pieces of pictures laid over a frame (#1513).
     /// </summary>
-    private const int ManifestVersion = 3;
+    private const int ManifestVersion = 4;
 
     /// <summary>Composes and writes every boss's body sheet.</summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
@@ -74,9 +74,7 @@ public static class BossBodySheetFiles
     }
 
     /// <summary>The manifest entry of <paramref name="frame"/>.</summary>
-    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner, [.. frame.Covers.Select(Area)],
-        [.. frame.Overlays.Select(overlay => new OverlayDocument(overlay.Animation.Name, overlay.Corner, [.. overlay.Covers.Select(Area)],
-            new Dictionary<string, string>(overlay.Pictures, StringComparer.Ordinal)))]);
+    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner, [.. frame.Covers.Select(Area)]);
 
     /// <summary>
     /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its pictures cut from
@@ -88,17 +86,7 @@ public static class BossBodySheetFiles
         if (document?.Corner is null || document.Covers is null || document.Covers.Length == 0)
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete or covers nothing.");
         return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), document.Corner.Value,
-            Rectangles(document.Covers, manifestPath), [.. (document.Overlays ?? []).Select(overlay => Overlay(sheet, name, overlay, manifestPath))]);
-    }
-
-    /// <summary>The overlay <paramref name="document"/> of frame <paramref name="frame"/> describes, its pictures cut from <paramref name="sheet"/>.</summary>
-    /// <exception cref="InvalidDataException">The entry is missing or incomplete.</exception>
-    private static BossBodyOverlay Overlay(SpriteSheet sheet, string frame, OverlayDocument? document, string manifestPath)
-    {
-        if (document?.Animation is null || document.Corner is null || document.Covers is null || document.Pictures is null)
-            throw new InvalidDataException($"Boss body manifest {manifestPath} frame {frame} has an incomplete overlay.");
-        return new BossBodyOverlay(new ArtworkAnimation(document.Animation), document.Corner.Value, Rectangles(document.Covers, manifestPath),
-            document.Pictures.ToDictionary(entry => entry.Key, entry => sheet.Frame(entry.Value), StringComparer.Ordinal));
+            Rectangles(document.Covers, manifestPath));
     }
 
     /// <summary>The manifest entry of <paramref name="rectangle"/>.</summary>
@@ -121,19 +109,11 @@ public static class BossBodySheetFiles
     /// <param name="Frames">Each frame, by frame name.</param>
     private sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
 
-    /// <summary>One frame: its whole picture, where it lies, what it covers, and its animations' pictures.</summary>
+    /// <summary>One frame: its whole picture, where it lies and what it covers.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Corner">The body pixel its picture's top-left corner lies on.</param>
     /// <param name="Covers">The rectangles of the body it covers.</param>
-    /// <param name="Overlays">The pixels each room animation paints.</param>
-    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner, AreaDocument?[]? Covers, OverlayDocument?[]? Overlays);
-
-    /// <summary>The pixels of a frame one room animation paints.</summary>
-    /// <param name="Animation">The animation's name.</param>
-    /// <param name="Corner">The body pixel each picture's top-left corner lies on.</param>
-    /// <param name="Covers">The rectangles of the body it paints.</param>
-    /// <param name="Pictures">The sheet frame picturing them over each frame of the animation, by frame name.</param>
-    private sealed record OverlayDocument(string? Animation, Position16<BackgroundPixels>? Corner, AreaDocument?[]? Covers, Dictionary<string, string>? Pictures);
+    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner, AreaDocument?[]? Covers);
 
     /// <summary>A rectangle of the body.</summary>
     /// <param name="Corner">The body pixel of its top-left corner.</param>

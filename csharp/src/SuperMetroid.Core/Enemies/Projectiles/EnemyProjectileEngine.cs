@@ -363,9 +363,8 @@ internal sealed class EnemyProjectileEngine
                 projectile.Frame is not { } frame)
                 continue;
 
+            // Every placement is published wherever it lies; the display clips it to the view (#1520).
             Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
-            if (CoordinateAxis.Wrap(screen.X + 128) >= 512 || CoordinateAxis.Wrap(screen.Y + 128) >= 512)
-                continue;
 
             // The blank frame, and the program frames showing the empty spritemap, draw nothing (#1513).
             if (!EnemyProjectileEmptyFrames.DrawsNothing(frame))

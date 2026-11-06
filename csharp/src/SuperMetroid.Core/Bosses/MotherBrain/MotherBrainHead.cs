@@ -129,10 +129,7 @@ internal sealed class MotherBrainHead
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
-        // The caller must cull before the nine-bit sprite coordinate loses world-space bits.
-        // Otherwise a brain half a room to the left reappears in the approach hallway.
-        if (CoordinateAxis.AsSigned(head.Position.X.Whole + brainShake.X +
-                MotherBrainDrawData.BrainLeftCullMargin - camera.X) >= 0)
+        // The brain is published wherever it lies; the display clips it to the view (#1520).
         DrawMotherBrainWorldSpritemap(
             sprites,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain),

@@ -294,9 +294,10 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "shine timer overrides odd-frame invincibility blink");
 
-    // Give every synthetic spritemap index used below one visible OBJ. Top and bottom base
-    // indices are both zero, so finalized OAM count becomes a direct witness: one means the
-    // top-only branch, two means the native bottom selector accepted that pose/frame.
+    // Give every synthetic spritemap index used below one visible OBJ. Top and bottom base indices are both zero, so a
+    // split body's picture is the top-only picture: the body sheet lays that picture out once (#1513), and its OAM part
+    // count no longer tells the halves apart. The drawn body frame is the witness: a bottom half means the lower-half
+    // dispatcher accepted that pose and frame, none means the top-only branch.
     SeedBodyHalfRoutingSpritemaps(bus);
 
     // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
@@ -324,7 +325,7 @@ internal static void VerifySamusRenderingSlice()
         WriteSamusTileAnimationPointer(bus, pose, 0xe100);
         WriteSamusSpritemapBases(bus, pose, top: 0, bottom: 0);
     }
-    foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in routingCases)
+    foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedHalves, string name) in routingCases)
     {
         AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         samus.Pose = pose;
@@ -333,7 +334,9 @@ internal static void VerifySamusRenderingSlice()
         BindSyntheticSamusRendering(bus, samus);
         samus.Presentation.Draw(samus, oamFrame, cameraPosition: samus.Position.Whole);
         oam = oamFrame.FinalizeAsOam();
-        AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
+        AssertTrue(oam.LastFinalizedSpriteCount > 0, $"{name} draws the body");
+        SamusBodyFrame drawn = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException($"{name} published no body frame.");
+        AssertEqual(expectedHalves, drawn.Bottom is null ? 1 : 2, name);
     }
 
     // `$90:864E` contains exactly 28 bottom-half handlers, and the complete retail

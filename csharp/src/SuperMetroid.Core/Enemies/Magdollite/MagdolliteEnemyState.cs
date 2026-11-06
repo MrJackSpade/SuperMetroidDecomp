@@ -67,13 +67,13 @@ public sealed class MagdolliteEnemyState
     public WrappingCountdown AttackTimer { get; internal set; }
 
     /// <summary>
-    /// Signed 16.16 downward velocity in room pixels per update, from the population's linear speed record; the falling
-    /// arm consumes the head's copy.
+    /// Signed 16.16 downward velocity in room pixels per update, the spawn settings' speed; the falling arm consumes
+    /// the head's copy.
     /// </summary>
     public SignedSixteenSixteen DownwardVelocity { get; internal set; }
     /// <summary>
-    /// Signed 16.16 upward velocity in room pixels per update: the speed record's separately authored negative half,
-    /// not a negation; the rising arm consumes the head's copy.
+    /// Signed 16.16 upward velocity in room pixels per update: the spawn settings' speed, negated; the rising arm
+    /// consumes the head's copy.
     /// </summary>
     public SignedSixteenSixteen UpwardVelocity { get; internal set; }
     /// <summary>FinishedGrowingFlag, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>

@@ -67,10 +67,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformPrograms.SelectProgram(
             isKamer, axis: Axis.Horizontal, state.XMovement));
 
-        // The spawn settings name the linear-speed row the platform moves at.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(settings.SpeedIndex);
-        state.RightSpeed = speeds.Positive;
-        state.LeftSpeed = speeds.Negative;
+        // The spawn settings name the speed the platform moves at.
+        state.RightSpeed = settings.Speed;
+        state.LeftSpeed = SignedSixteenSixteen.Zero - settings.Speed;
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
@@ -78,7 +77,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyStillArtInstalled = false;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
         state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = settings.MaximumYSpeedIndex;
+        state.MaximumYSpeedTableIndex = settings.VerticalAccelerationUpdates;
     }
 
     /// <summary>Runs the Tripper and Kamer's main AI.</summary>

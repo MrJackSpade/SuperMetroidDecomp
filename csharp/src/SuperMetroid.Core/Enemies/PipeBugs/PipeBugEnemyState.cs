@@ -73,7 +73,7 @@ public sealed class PipeBugEnemyState
     /// when a decrement reaches zero.
     /// </summary>
     public WrappingCountdown RespawnDelay { get; internal set; }
-    /// <summary>The row of the shared linear speed table this Norfair bug flies at.</summary>
+    /// <summary>The speed, and its negation, this Norfair bug flies at: the spawn settings' speed.</summary>
     public EnemyLinearSpeedRow FlightSpeeds { get; internal set; }
     /// <summary>The point at which a Norfair member's initial rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
     public Position16<RoomPixels> RiseEnd { get; internal set; }
@@ -81,9 +81,9 @@ public sealed class PipeBugEnemyState
     public int StaggerTarget { get; internal set; }
     /// <summary>Gets the function selected for this Norfair member after rising.</summary>
     public PipeBugEnemyFunction NorfairPostRiseFunction { get; internal set; }
-    /// <summary>A yellow Pipe Bug's signed 16.16 rightward flight velocity in room pixels per update.</summary>
+    /// <summary>A yellow Pipe Bug's signed 16.16 rightward flight velocity in room pixels per update: the spawn settings' speed.</summary>
     public SignedSixteenSixteen PositiveVelocity { get; internal set; }
-    /// <summary>A yellow Pipe Bug's leftward flight velocity: the separately authored negative record, not a negation.</summary>
+    /// <summary>A yellow Pipe Bug's leftward flight velocity: the spawn settings' speed, negated.</summary>
     public SignedSixteenSixteen NegativeVelocity { get; internal set; }
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
     public WrappingCountdown EmergenceDelay { get; internal set; }

@@ -19,10 +19,10 @@ public sealed class PlatformEnemyState
     /// </summary>
     public Position16<RoomPixels> RestingHeight { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling right, from the positive half of the platform's linear-speed record.</summary>
+    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling right: the spawn settings' speed.</summary>
     public SignedSixteenSixteen RightSpeed { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling left, from the negative half of the platform's linear-speed record.</summary>
+    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling left: the spawn settings' speed, negated.</summary>
     public SignedSixteenSixteen LeftSpeed { get; internal set; }
 
     /// <summary>
@@ -44,7 +44,7 @@ public sealed class PlatformEnemyState
     /// <summary>Whether vertically-still art has been installed for the current vertical phase.</summary>
     public bool VerticallyStillArtInstalled { get; internal set; }
 
-    /// <summary>The inclusive cap on <see cref="YSpeedTableIndex"/>, from population parameter 2's high byte (0 through 255).</summary>
+    /// <summary>The inclusive cap on <see cref="YSpeedTableIndex"/>: the spawn settings' vertical acceleration updates.</summary>
     public int MaximumYSpeedTableIndex { get; internal set; }
 
     /// <summary>The previous actor update's rider-selected vertical movement; a change restarts the acceleration.</summary>

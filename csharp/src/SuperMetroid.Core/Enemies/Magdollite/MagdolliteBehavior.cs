@@ -77,10 +77,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {state.Part}.");
         }
 
-        // The spawn settings name the linear-speed row Magdollite rises and sinks at.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<MagdolliteSpawnSettings>().SpeedIndex);
-        state.DownwardVelocity = speeds.Positive;
-        state.UpwardVelocity = speeds.Negative;
+        // The spawn settings name the speed Magdollite rises and sinks at.
+        SignedSixteenSixteen speed = slot.SpawnSettings<MagdolliteSpawnSettings>().Speed;
+        state.DownwardVelocity = speed;
+        state.UpwardVelocity = SignedSixteenSixteen.Zero - speed;
 
         // Every one of the three initializers installs the same global graphics-drawn hook.
         // Retail's last Magdollite record therefore resets this clock to eight and selects
@@ -295,7 +295,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         // The arm reads the velocity of the slot before it: the preceding head owns the
-        // population speed parameter. The arm's own parameter is zero in retail.
+        // placement's speed. The arm's own speed is zero in retail.
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
         state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);

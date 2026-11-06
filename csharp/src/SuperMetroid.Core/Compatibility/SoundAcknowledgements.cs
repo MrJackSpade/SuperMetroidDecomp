@@ -26,10 +26,6 @@ public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<Soun
     public SoundAcknowledgements(ImmutableArray<TLibrary> libraries, Func<TLibrary, SoundAcknowledgement<TSound>> acknowledgementOf) =>
         byLibrary = new PerSoundLibrary<TLibrary, SoundAcknowledgement<TSound>>(libraries, acknowledgementOf);
 
-    /// <summary><paramref name="library"/> acknowledging <paramref name="sound"/>, or nothing for none; every other library acknowledges nothing.</summary>
-    public static SoundAcknowledgements<TLibrary, TSound> Of(TLibrary library, TSound? sound) =>
-        new([library], _ => SoundAcknowledgement<TSound>.Of(sound));
-
     /// <summary>The acknowledgement of <paramref name="library"/>; nothing for a library left unlisted.</summary>
     public SoundAcknowledgement<TSound> this[TLibrary library] => byLibrary[library];
 

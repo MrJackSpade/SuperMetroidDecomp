@@ -43,7 +43,7 @@ internal static class SoundQueueReturnVerification
             SoundEffectId? acknowledgement = null;
             for (int frame = 0; frame < 256; frame++)
             {
-                foreach (var command in queue.AdvanceFrame(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>.Of(SoundEffectLibrary.Library3, acknowledgement)))
+                foreach (var command in queue.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Library3], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement))))
                 {
                     if (command == new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library3)) acknowledgement = null;
                     else if (command == new AudioRequest.RequestSound(Library3Sound.CrocomireAcidDamage))

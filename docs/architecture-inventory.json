@@ -56507,7 +56507,7 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.ClockedSoundAcceptance\u003CTSound\u003E",
+      "type": "SuperMetroid.Core.Compatibility.ClockedSoundAcceptance\u003CTLibrary, TSound\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -56721,7 +56721,7 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.ISoundAcceptanceTiming\u003CTSound\u003E",
+      "type": "SuperMetroid.Core.Compatibility.ISoundAcceptanceTiming\u003CTLibrary, TSound\u003E",
       "kind": "interface",
       "scope": "product",
       "assemblies": [
@@ -56771,6 +56771,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.KraidMouthHitBound.Family",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KraidMouthHitBound.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.KraidMouthHitBound.Hit",
@@ -56920,6 +56933,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.PerSoundLibrary\u003CTLibrary, TValue\u003E",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/PerSoundLibrary.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.PostureAdmissionBeyondTransitions\u003CTPose\u003E",
@@ -57227,7 +57253,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.SoundAcceptanceClock\u003CTSound\u003E",
+      "type": "SuperMetroid.Core.Compatibility.SoundAcceptanceClock\u003CTLibrary, TSound\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -57253,7 +57279,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.SoundAcknowledgements\u003CTSound\u003E",
+      "type": "SuperMetroid.Core.Compatibility.SoundAcknowledgements\u003CTLibrary, TSound\u003E",
       "kind": "struct",
       "scope": "product",
       "assemblies": [
@@ -57266,7 +57292,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.SoundClockStep\u003CTSound\u003E",
+      "type": "SuperMetroid.Core.Compatibility.SoundClockStep\u003CTLibrary, TSound\u003E",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
@@ -57344,7 +57370,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.SoundRequestChecks\u003CTSound\u003E",
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestChecks\u003CTLibrary, TSound\u003E",
       "kind": "struct",
       "scope": "product",
       "assemblies": [

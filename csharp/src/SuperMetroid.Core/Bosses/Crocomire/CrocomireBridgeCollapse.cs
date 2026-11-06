@@ -57,8 +57,8 @@ internal sealed class CrocomireBridgeCollapse
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.BridgeFragmentsSpawned = 0;
-        death.AcidSmokeTimer = WrappingCountdown.Start(1);
-        death.AcidSoundTimer = WrappingCountdown.Start(1);
+        death.AcidSmokeTimer = 1;
+        death.AcidSoundTimer = 1;
 
         PublishCrocomireBridgeCollapsePlms();
 
@@ -188,21 +188,20 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireAcidSoundTimer()
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (death.AcidSoundTimer.IsZero)
+        if (death.AcidSoundTimer == 0)
             return;
-        death.AcidSoundTimer = death.AcidSoundTimer.Decrement().Remaining;
-        if (!death.AcidSoundTimer.IsZero)
+        if (--death.AcidSoundTimer != 0)
             return;
-        death.AcidSoundTimer = WrappingCountdown.Start(32);
+        death.AcidSoundTimer = 32;
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.AcidBurn);
     }
 
     /// <summary>Holds the submerged skeleton for its authored delay before rising begins.</summary>
     internal static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
-        if (!state.DeathPhaseDelay.IsZero)
+        if (state.DeathPhaseDelay != 0)
         {
-            state.DeathPhaseDelay = state.DeathPhaseDelay.Decrement().Remaining;
+            state.DeathPhaseDelay--;
             return;
         }
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
@@ -220,7 +219,7 @@ internal sealed class CrocomireBridgeCollapse
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 280) >= 0)
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-            state.DeathPhaseDelay = WrappingCountdown.Start(48);
+            state.DeathPhaseDelay = 48;
             // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
             state.VerticalAcceleration = 0;
             return;

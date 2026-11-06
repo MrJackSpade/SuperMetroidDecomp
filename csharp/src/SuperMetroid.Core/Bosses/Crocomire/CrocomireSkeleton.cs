@@ -78,7 +78,7 @@ internal sealed class CrocomireSkeleton
 
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.RumbleYOffset = 0;
-        death.RumbleCooldown = WrappingCountdown.Start(10);
+        death.RumbleCooldown = 10;
         death.RumbleDelta = 1;
         state.FightFlags = 0;
         body.Radius = body.Radius.WithY(56);
@@ -91,7 +91,7 @@ internal sealed class CrocomireSkeleton
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (CrocomireRumble.IsComplete(state.RumbleStep))
         {
-            state.DeathPhaseDelay = WrappingCountdown.Start(128);
+            state.DeathPhaseDelay = 128;
             state.Colours.ShowWallSpikes();
             state.Body.Shading = state.Colours.OverSprites(EnemyShades.HitFlashed);
             if (state.Tongue is { } spikedTongue)
@@ -106,16 +106,16 @@ internal sealed class CrocomireSkeleton
         {
             if (target < 0)
             {
-                if (!death.RumbleCooldown.IsZero)
+                if (death.RumbleCooldown != 0)
                 {
-                    death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
+                    death.RumbleCooldown--;
                     // Repeat the oscillation: back to its return target.
                     state.RumbleStep--;
                     _access.RequestCrocomireSound(CrocomireSoundDefinitions.WallRumble);
                     return;
                 }
 
-                death.RumbleCooldown = WrappingCountdown.FromRaw(definition.Cooldown);
+                death.RumbleCooldown = definition.Cooldown;
                 death.RumbleDelta = definition.Delta;
             }
             state.RumbleStep++;
@@ -131,16 +131,16 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireSkeletonTileLoadAndWallBreak(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (!state.DeathPhaseDelay.IsZero)
+        if (state.DeathPhaseDelay != 0)
         {
-            state.DeathPhaseDelay = state.DeathPhaseDelay.Decrement().Remaining;
+            state.DeathPhaseDelay--;
             ShowNextCrocomireSkeletonChunk(death);
             return;
         }
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
-        death.RumbleCooldown = WrappingCountdown.Start(80);
+        death.RumbleCooldown = 80;
         state.SkeletonVelocity = SignedSixteenSixteen.Zero;
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.CreateInvisibleWall);
@@ -169,10 +169,9 @@ internal sealed class CrocomireSkeleton
                 state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
 
-        if (death.RumbleCooldown.IsZero)
+        if (death.RumbleCooldown == 0)
             return;
-        death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
-        if (!death.RumbleCooldown.IsZero)
+        if (--death.RumbleCooldown != 0)
             return;
         state.SkeletonVelocity = state.SkeletonVelocity.WithFraction(0);
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFalling);

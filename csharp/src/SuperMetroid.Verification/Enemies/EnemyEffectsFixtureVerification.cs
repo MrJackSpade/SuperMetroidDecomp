@@ -67,7 +67,7 @@ internal static class EnemyEffectsFixtureVerification
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
             Effect = BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
-            Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
+            Effect.AcidSmokeTimer = 1;
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;

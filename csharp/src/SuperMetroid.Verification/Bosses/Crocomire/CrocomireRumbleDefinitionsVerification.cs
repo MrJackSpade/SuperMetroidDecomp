@@ -88,7 +88,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         var death = new CrocomireDeathState
         {
             RumbleYOffset = 0,
-            RumbleCooldown = WrappingCountdown.Start(10),
+            RumbleCooldown = 10,
             RumbleDelta = 1,
         };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -103,7 +103,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         // comparisons read back as words.
         ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(state.RumbleStep));
         ushort referenceY = unchecked((ushort)death.RumbleYOffset);
-        ushort referenceCooldown = death.RumbleCooldown.RawValue;
+        ushort referenceCooldown = checked((ushort)death.RumbleCooldown);
         ushort referenceDelta = checked((ushort)death.RumbleDelta);
         // The native dispatcher indexes its table by even byte offset; the state stores the phase in table order.
         ushort referenceDeathIndex = (ushort)((ushort)state.DeathSequenceIndex * 2);
@@ -133,7 +133,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             // the rumble ends at the next step; production loads no next phase there, so the comparison stops once the marker is loaded.
             if (referenceDelta != 0x8080)
             {
-                AssertEqual(referenceCooldown, death.RumbleCooldown.RawValue,
+                AssertEqual(referenceCooldown, death.RumbleCooldown,
                     $"Crocomire rumble frame {frames} cooldown");
                 AssertEqual(referenceDelta, death.RumbleDelta,
                     $"Crocomire rumble frame {frames} delta");
@@ -143,7 +143,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         }
 
         AssertTrue(frames < 2048, "Crocomire rumble production sequence terminates");
-        AssertEqual((ushort)0x0080, state.DeathPhaseDelay.RawValue,
+        AssertEqual(0x0080, state.DeathPhaseDelay,
             "Crocomire rumble production terminator handoff");
 
         // The termination loads the wall spikes' colours, which the import pre-colours his sprites in (#1512).

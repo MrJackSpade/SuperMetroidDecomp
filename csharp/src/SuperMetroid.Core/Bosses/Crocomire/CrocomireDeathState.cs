@@ -14,11 +14,11 @@ public sealed class CrocomireDeathState
     /// </summary>
     public int BridgeFragmentsSpawned { get; internal set; }
 
-    /// <summary>Six-frame acid smoke cadence.</summary>
-    public WrappingCountdown AcidSmokeTimer { get; internal set; }
+    /// <summary>Frames until the next acid smoke, on a six-frame cadence.</summary>
+    public int AcidSmokeTimer { get; internal set; }
 
-    /// <summary>Thirty-two-frame acid damage sound cadence.</summary>
-    public WrappingCountdown AcidSoundTimer { get; internal set; }
+    /// <summary>Frames until the next acid damage sound, on a thirty-two-frame cadence; zero once the sounds stop.</summary>
+    public int AcidSoundTimer { get; internal set; }
 
     /// <summary>One-shot dust latch for the 1536 bridge approach threshold.</summary>
     public bool BridgeDustAt1536Spawned { get; internal set; }
@@ -79,8 +79,8 @@ public sealed class CrocomireDeathState
     /// <summary>Signed vertical offset in pixels the hidden-wall rumble adds to the foreground scroll.</summary>
     public int RumbleYOffset { get; internal set; }
 
-    /// <summary>Countdown consumed by negative rumble-table entries.</summary>
-    public WrappingCountdown RumbleCooldown { get; internal set; }
+    /// <summary>Oscillations left before the rumble moves on, consumed by negative rumble-table entries; it stops at zero.</summary>
+    public int RumbleCooldown { get; internal set; }
 
     /// <summary>Pixels per frame the rumble offset moves toward its target, loaded from each completed negative target.</summary>
     public int RumbleDelta { get; internal set; }

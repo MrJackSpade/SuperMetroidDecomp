@@ -764,7 +764,7 @@ internal static void VerifySamusDeathSequence()
     SamusMovementType deathSourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
     samus.DeathSequence.Begin(
         samus,
-        layer1: new(0x03e0, 0x0400));
+        cameraPosition: new(0x03e0, 0x0400));
     AssertEqual(SamusMovementType.Standing, deathSourceMovementType, "death source standing type");
     AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.Pose, "death selects right pose");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
@@ -840,7 +840,7 @@ internal static void VerifySamusDeathSequence()
     morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
     morphedLeft.PoseHistory.PreviousMovement = SamusMovementType.MorphBallGround;
     morphedLeft.DeathSequence.Begin(
-        morphedLeft, layer1: new(0, 0));
+        morphedLeft, cameraPosition: new(0, 0));
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.Pose, "left Morph death selects D8");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
     AssertEqual(SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.LastDifferentMovement, "left death shifts prior metadata");
@@ -853,7 +853,7 @@ internal static void VerifySamusDeathSequence()
     SamusPoseMetadata.RefreshCollisionRadii(spinning);
     SamusPresentation.InitializeAnimation(spinning);
     spinning.DeathSequence.Begin(
-        spinning, layer1: new(0, 0));
+        spinning, cameraPosition: new(0, 0));
     AssertTrue(spinning.DeathSequence.SpinJumpSoundRequested, "spin death requests sound $32");
     AssertTrue(spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
         "spin-death sound is consumable exactly once");

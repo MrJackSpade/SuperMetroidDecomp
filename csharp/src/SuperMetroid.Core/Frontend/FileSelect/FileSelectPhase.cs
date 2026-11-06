@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <summary>File-select phases, including combined data-management steps and explicit frame-wait continuations.</summary>
 public enum FileSelectPhase
 {
-    /// <summary>Brighten the initialized main screen until its brightness reaches 15.</summary>
+    /// <summary>Brighten the initialized screen until its brightness reaches 15.</summary>
     FadeIn,
     /// <summary>Accept slot, Copy, Clear and Exit navigation; data-management items are skipped when all slots are empty.</summary>
     Main,
-    /// <summary>Fade the main screen to black, then initialize the selected Copy or Clear page.</summary>
+    /// <summary>Fade the screen to black, then initialize the selected Copy or Clear page.</summary>
     FadeOutToDataManagement,
     /// <summary>Brighten the newly built Copy, Clear or main page; covers both the submenu and the return-to-main fade-ins.</summary>
     FadeInFromDataManagement,
@@ -37,10 +37,10 @@ public enum FileSelectPhase
     EnterBlankScreen,
     /// <summary>Continuation of initialization after its frame wait; the next update advances to background loading without another per-update random advance.</summary>
     EnterBlankScreenAfterFrameWait,
-    /// <summary>Represent the Zebes/starfield BG2 transfer stage; installed graphics were loaded atomically by construction.</summary>
+    /// <summary>Represent the Zebes and starfield background's loading stage; installed graphics were loaded atomically by construction.</summary>
     LoadBackground,
     /// <summary>Set both fade timings to one and unblank the display, then wait out one update.</summary>
     InitializeMain,
-    /// <summary>Continuation of the screen setup after its frame wait; advance to main-screen fade-in without another per-update random advance.</summary>
+    /// <summary>Continuation of the screen setup after its frame wait; advance to the screen's fade-in without another per-update random advance.</summary>
     InitializeMainAfterFrameWait,
 }

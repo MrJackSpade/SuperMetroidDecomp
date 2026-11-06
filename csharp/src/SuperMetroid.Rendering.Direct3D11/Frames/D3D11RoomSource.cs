@@ -5,15 +5,15 @@ internal enum D3D11RoomSource : uint
 {
     /// <summary>Nothing: a pass that draws no layer.</summary>
     None = 0,
-    /// <summary>The room's layer 1: a door's source screen, words written over it, then its level plane.</summary>
-    Layer1 = 1,
-    /// <summary>The room's layer-2 plane.</summary>
-    Layer2 = 2,
+    /// <summary>The room's foreground: a door's source screen, pictures written over it, then its level plane.</summary>
+    Foreground = 1,
+    /// <summary>The room's background plane.</summary>
+    Background = 2,
     /// <summary>The scrolling sky's rows (#1347).</summary>
     Sky = 3,
-    /// <summary>Layer 3: the room effect (#1348).</summary>
+    /// <summary>The effect overlay: the room's liquid, fog or haze (#1348).</summary>
     FxOverlay = 4,
-    /// <summary>A boss body's tilemap, which layer 2 shows (#1352).</summary>
+    /// <summary>A boss body, which the background shows (#1352).</summary>
     BossBody = 6,
     /// <summary>The X-ray reveal's blocks, drawn from block pictures (#1392).</summary>
     XrayReveal = 7,

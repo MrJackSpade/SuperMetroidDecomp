@@ -26,7 +26,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Provides the body, eye, mouth, and tentacle slots.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies body palettes and BG2 tilemap changes.</summary>
+    /// <summary>Applies body palettes and the background tilemap changes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Phantoon's entrance: the starting flames and its wavy fade-in.</summary>
     internal PhantoonOpening Opening { get; }
@@ -66,7 +66,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int PhantoonIntroAmplitudeDelta = 64;
     /// <summary>Wave amplitude at which the intro advances to the next phase.</summary>
     internal const int PhantoonIntroMaximumAmplitude = 3072;
-    /// <summary>Per-update phase increment for the wavy BG2 distortion.</summary>
+    /// <summary>Per-update phase increment for the wavy background distortion.</summary>
     internal const int PhantoonWavyPhaseDelta = 8;
 
     /// <summary>Ports <c>InitAI_PhantoonBody</c>.</summary>

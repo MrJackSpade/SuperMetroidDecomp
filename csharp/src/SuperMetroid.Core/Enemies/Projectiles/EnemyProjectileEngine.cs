@@ -304,7 +304,7 @@ internal sealed class EnemyProjectileEngine
     /// so they are drawn over her.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    /// <param name="camera">Camera position in whole room pixels.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawEnemyProjectilesInFrontOfSamus(
         SpriteFrameBuffer sprites,
@@ -325,7 +325,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Draws the projectiles behind Samus. The game draws them after Samus, so she is drawn over them.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    /// <param name="camera">Camera position in whole room pixels.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawEnemyProjectilesBehindSamus(
         SpriteFrameBuffer sprites,

@@ -34,14 +34,14 @@ internal sealed class GameplayDisplayState
 
     /// <summary>
     /// Door setup shows the elevator shaft's floor before the room is exposed, or removes it,
-    /// scrolled with the latched layer-1 scroll. A getaway floor already latched stays, as it takes
+    /// scrolled with the latched foreground scroll. A getaway floor already latched stays, as it takes
     /// precedence over the shaft's. Later room-main changes reach the display only through the frame latch.
     /// </summary>
     /// <param name="transform">The shaft's transform, or null to remove the floor.</param>
     internal void PublishDoorElevatorFloor(TurningFloorTransform? transform) =>
         Latched = Latched with
         {
-            PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } getaway ? getaway
+            PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.RoomBackground } getaway ? getaway
                 : transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, Latched.Scrolls.ForegroundScroll)
                 : null,
         };

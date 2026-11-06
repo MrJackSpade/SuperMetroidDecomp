@@ -6,7 +6,7 @@ internal enum CeresEscapePageList
     /// <summary>No list: the self-destruct has not begun its warning.</summary>
     None,
 
-    /// <summary>The timer-sprite list: the escape timer's and the warning text's pages over the OBJ characters.</summary>
+    /// <summary>The timer-sprite list: the escape timer's and the warning text's pages over the sprite characters.</summary>
     Objects,
 
     /// <summary>The background list, whose pages land in characters the Ridley arena does not show.</summary>

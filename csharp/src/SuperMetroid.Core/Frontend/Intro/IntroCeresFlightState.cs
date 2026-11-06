@@ -6,14 +6,14 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Initial Mode 7 leg of Samus's flight toward Ceres station.</summary>
+/// <summary>Initial turning-floor leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
     internal readonly AudioQueues audio;
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
+    /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed flight artwork the frame is drawn from, rebound whenever the game is bound to its installed content.</summary>
     internal CeresFlightArtwork? Artwork { get; private set; }
@@ -200,7 +200,7 @@ internal sealed class IntroCeresFlightState
             // over the station it names.
             layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(
                 floorSheets ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."),
-                CaptionLettersShown, JapaneseCaptionShown), new Position16<TilePlanePixels>(0, 0)));
+                CaptionLettersShown, JapaneseCaptionShown), new Position16<PlanePixels>(0, 0)));
         }
         else
         {
@@ -257,7 +257,7 @@ internal sealed class IntroCeresFlightState
             })
             .ToArray();
 
-        // CGADSUB=$31 adds the fixed colour to BG1, sprites, and backdrop. The flash begins at
+        // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at
         // white and removes one five-bit component step per frame until black.
         flashIntensity = 31;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
@@ -277,14 +277,13 @@ internal sealed class IntroCeresFlightState
         return actor;
     }
 
-    /// <summary>Fades fixed color and enlarges the rear-view Mode 7 image until the title begins.</summary>
+    /// <summary>Fades fixed color and enlarges the rear-view turning image until the title begins.</summary>
     private void StepFlyingTowardCeres()
     {
-        // The fixed-colour flash fades by one component step per frame, clamped at zero
-        // (the selector-only register values $20/$40/$80).
+        // The fixed-colour flash fades by one component step per frame, clamped at zero.
         flashIntensity = Math.Max(0, flashIntensity - 1);
 
-        // The rear view drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
+        // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: +16 until 3072, then +32 until 8192.
         background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SixteenSixteen.FromWhole(1) / 8));
         if (zoom < 3072)
@@ -295,10 +294,10 @@ internal sealed class IntroCeresFlightState
             SetupSpaceColonyTitle();
     }
 
-    /// <summary>Switches to the Mode 1 caption and writes its first glyph.</summary>
+    /// <summary>Switches to the caption page and writes its first glyph.</summary>
     private void SetupSpaceColonyTitle()
     {
-        // The title switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
+        // The title replaces the turning image with the caption page
         // and starts the caption's background text object. The rear-view cinematic actors are not
         // deleted, so Ceres and both asteroid layers remain behind the title text.
         CaptionLettersShown = 0;
@@ -392,11 +391,11 @@ internal sealed class IntroCeresFlightState
         actor.Position = actor.Position.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(actor.Position.X, fixedDelta));
     }
 
-    /// <summary>Accelerates the front stars and both Mode 7 scroll offsets along the same diagonal.</summary>
+    /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
         // The star field adds 128/256 to a signed 8.8 speed, then applies that same growing delta to
-        // the star actor and both Mode 7 offsets. This is why the ship rush feels diagonal.
+        // the star actor and both turning-floor offsets. This is why the ship rush feels diagonal.
         if (stars.FrameBehavior !=
             CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)
         {

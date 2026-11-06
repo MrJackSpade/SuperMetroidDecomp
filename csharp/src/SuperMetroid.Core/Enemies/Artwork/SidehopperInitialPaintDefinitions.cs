@@ -21,7 +21,7 @@ internal static class SidehopperInitialPaintDefinitions
     /// <summary>Brown mouth/claw shadow.</summary>
     internal static readonly RgbColor ClawDark = new(17, 6, 0);
     /// <summary>Standalone target ink0 copied by EF92-EF9B;
-    /// OBJ ink0 is transparent. This does not cover shifted auxiliary visible ink1.</summary>
+    /// Sprite ink 0 is transparent. This does not cover shifted auxiliary visible ink1.</summary>
     internal static readonly RgbColor TransparentSlot = new(0, 0, 14);
     /// <summary>Saturated-yellow paired head features.</summary>
     internal static readonly RgbColor HeadYellow = new(31, 31, 0);

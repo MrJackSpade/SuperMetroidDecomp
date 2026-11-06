@@ -28,7 +28,7 @@ internal sealed class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;
-    /// <summary>Captures the foreground and the background scroll registers visible with the frame boundary.</summary>
+    /// <summary>Captures the foreground's and the background's scrolls visible with the frame boundary.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains the frame-boundary display latch.</summary>
     private readonly GameplayDisplayState _display;
@@ -42,7 +42,7 @@ internal sealed class AcceptedFrameBoundary
     /// runtime's first room, when no enemy is displayed.
     /// </summary>
     private IEnemyDisplaySources? Displays => _room.Enemies?.DisplaySources;
-    /// <summary>The main-screen layers latched with the accepted frame.</summary>
+    /// <summary>The layers shown, latched with the accepted frame.</summary>
     private readonly GameplayScreenLayers _screenLayers;
     /// <summary>Sprite frame the update finalized for the next frame boundary.</summary>
     private readonly SpriteFrameBuffer _sprites;
@@ -124,7 +124,7 @@ internal sealed class AcceptedFrameBoundary
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
         var displayScroll = new GameplayRenderSnapshot(
-            _backgroundScroll.Layer1Position,
+            _backgroundScroll.ForegroundPosition,
             _backgroundScroll.ForegroundScroll,
             _backgroundScroll.BackgroundScroll,
             // Before the first room no enemy earthquake shakes the room.
@@ -161,7 +161,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room's part of the scene: the room's blending, and the sky's layer-2 map and vertical scroll.
+    /// The room's part of the scene: the room's blending, and the sky's background map and vertical scroll.
     /// </summary>
     private GameplayLatchedScene CaptureScene()
     {
@@ -181,10 +181,10 @@ internal sealed class AcceptedFrameBoundary
     /// room main computes it), otherwise the elevator shaft's while the shaft has its transform. The
     /// shaft's transform exists exactly while the room was entered through the shaft's door.
     /// </summary>
-    /// <param name="layer1Scroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>
-    private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> layer1Scroll) =>
+    /// <param name="foregroundScroll">The foreground's scroll this frame shows, which scrolls the shaft's floor.</param>
+    private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> foregroundScroll) =>
         CeresRidleyGetaway.FloorTransform(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
-        : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, layer1Scroll)
+        : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, foregroundScroll)
         : null;
 
     /// <summary>
@@ -208,7 +208,7 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The room backgrounds this frame boundary displays (#1346): foreground from the level plane through the foreground offset, background from the
-    /// layer-2 plane when that layer streams (otherwise background shows the tilemap its owner loaded), the source screen of a
+    /// background plane when that layer streams (otherwise the background shows the tilemap its owner loaded), the source screen of a
     /// door's opening scroll, and the room's foreground overlay. The planes are shared until gameplay changes level data.
     /// </summary>
     private RoomBackgrounds? CaptureRoomBackgrounds()
@@ -217,12 +217,12 @@ internal sealed class AcceptedFrameBoundary
         if (_room.Scope is not { } scope)
             return null;
         RoomLevelData level = scope.LevelData;
-        Layer2ScrollModes layer2 = _backgroundScroll.Layer2Scroll;
+        BackgroundScrollModes backgroundModes = _backgroundScroll.BackgroundScrollModes;
         // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsBgPlaneOffset(), null),
-            layer2.Horizontal.Streams || layer2.Vertical.Streams
-                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsBgPlaneOffset(), null)
+            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsPlaneOffset(), null),
+            backgroundModes.Horizontal.Streams || backgroundModes.Vertical.Streams
+                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsPlaneOffset(), null)
                 : null,
             null,
             _room.DoorSourceBackground,
@@ -262,7 +262,7 @@ internal sealed class AcceptedFrameBoundary
             sky = new SkyPictures(skyImage.Resolve(appearance, skyImage.Image.PagesInOneColumn), scrollingSky.Variant);
         }
         // Where background shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
-        // streaming layer-2 plane, the sky's rows or a boss body that owns background.
+        // streaming background plane, the sky's rows or a boss body that owns the background.
         RoomBackgroundImagePlane? image = null;
         if (rooms.Background is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
         {
@@ -289,7 +289,7 @@ internal sealed class AcceptedFrameBoundary
             Rooms = rooms with
             {
                 Foreground = rooms.Foreground with { Pictures = pictures },
-                Background = rooms.Background is { } bg2 ? bg2 with { Pictures = pictures } : null,
+                Background = rooms.Background is { } shownBackground ? shownBackground with { Pictures = pictures } : null,
                 BackgroundImage = image,
                 Sky = sky,
                 WrittenOverBackground = writtenOverBackground,

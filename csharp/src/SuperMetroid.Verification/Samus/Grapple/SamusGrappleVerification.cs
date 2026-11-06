@@ -662,7 +662,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var grappleFlareOamFrame = new SpriteFrameBuffer();
     grappleFlareOamFrame.BeginFrame();
     AssertTrue(SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
-            samus, grappleFlareOamFrame, layer1: new(100, 50), InstalledFixtures.ProjectileArtwork()),
+            samus, grappleFlareOamFrame, cameraPosition: new(100, 50), InstalledFixtures.ProjectileArtwork()),
         "connected grapple flare passes unsigned screen-Y gate");
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(1, samus.Grapple.FlareCounter,
@@ -690,7 +690,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     SamusGrappleBeamDrawing.DrawConnectedBeam(
         samus.Grapple,
         grappleOamFrame,
-        layer1: new(100, 50),
+        cameraPosition: new(100, 50),
         InstalledFixtures.GrappleSheet);
     OamBuffer grappleOam = grappleOamFrame.FinalizeAsOam();
 
@@ -742,7 +742,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     SamusGrappleBeamDrawing.DrawConnectedBeam(
         zeroLengthGrapple,
         zeroLengthOamFrame,
-        layer1: new(100, 50),
+        cameraPosition: new(100, 50),
         InstalledFixtures.GrappleSheet);
     OamBuffer zeroLengthOam = zeroLengthOamFrame.FinalizeAsOam();
     AssertEqual(2, zeroLengthGrapple.FlareCounter,

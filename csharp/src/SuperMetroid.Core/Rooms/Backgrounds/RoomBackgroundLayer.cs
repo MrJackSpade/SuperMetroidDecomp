@@ -12,6 +12,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// The pre-coloured picture each of the plane's blocks shows (#1392); null until the frame boundary that latched the plane
 /// resolves them.
 /// </param>
-public sealed record RoomBackgroundLayer(RoomBlockCells Blocks, Offset16<TilePlanePixels> ScrollOffset, RoomBlockPictureTable? Pictures)
+public sealed record RoomBackgroundLayer(RoomBlockCells Blocks, Offset16<PlanePixels> ScrollOffset, RoomBlockPictureTable? Pictures)
 {
 }

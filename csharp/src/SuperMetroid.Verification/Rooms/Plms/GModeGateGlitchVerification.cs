@@ -121,7 +121,7 @@ internal static class GModeGateGlitchVerification
 
             ControllerButton input = frame == 0 ? ControllerButton.X : 0;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
-            shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
+            shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, cameraPosition: new(0, 224), sharedProjectiles: bombs);
 
             SamusProjectileSlot shot = shots.Slots[0];
             if (!shot.Type.IsNone && shot.Position.X.Whole < 112 && passedGateFrame < 0)

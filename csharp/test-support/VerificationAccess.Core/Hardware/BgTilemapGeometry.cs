@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// A background tilemap's geometry as BGnSC selects it (#223): one, two (horizontal or vertical) or four
-/// 32×32-character screens. Each screen is a contiguous <see cref="ScreenGeometry.TilemapScreenCellCount"/>-word
+/// 32×32-character screens. Each screen is a contiguous <see cref="SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount"/>-word
 /// block stored row by row; screens are ordered left to right, then top to bottom.
 /// </summary>
 [EncodingOwner("background tilemap screen layout")]
@@ -14,9 +14,9 @@ public readonly record struct BgTilemapGeometry
     public BgTilemapGeometry(Extent16<TilemapCells> sizeInCharacters)
     {
         int widthInCharacters = sizeInCharacters.X, heightInCharacters = sizeInCharacters.Y;
-        if (widthInCharacters is not (ScreenGeometry.TilemapScreenWidthInTiles or 2 * ScreenGeometry.TilemapScreenWidthInTiles))
+        if (widthInCharacters is not (SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles or 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles))
             throw new ArgumentOutOfRangeException(nameof(widthInCharacters), widthInCharacters, "A BGSC tilemap is one or two screens wide.");
-        if (heightInCharacters is not (ScreenGeometry.TilemapScreenWidthInTiles or 2 * ScreenGeometry.TilemapScreenWidthInTiles))
+        if (heightInCharacters is not (SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles or 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles))
             throw new ArgumentOutOfRangeException(nameof(heightInCharacters), heightInCharacters, "A BGSC tilemap is one or two screens tall.");
         SizeInCharacters = sizeInCharacters;
     }
@@ -39,11 +39,11 @@ public readonly record struct BgTilemapGeometry
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int EntryWordAddress(int tilemapBaseWord, Position16<TilemapCells> character)
     {
-        const int screenSize = ScreenGeometry.TilemapScreenWidthInTiles;
+        const int screenSize = SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles;
         int characterX = character.X, characterY = character.Y;
         int screensPerRow = SizeInCharacters.X / screenSize;
         int screen = characterY / screenSize * screensPerRow + characterX / screenSize;
         int withinScreen = characterY % screenSize * screenSize + characterX % screenSize;
-        return SnesVramAddressing.WrapWord(tilemapBaseWord + screen * ScreenGeometry.TilemapScreenCellCount + withinScreen);
+        return SnesVramAddressing.WrapWord(tilemapBaseWord + screen * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount + withinScreen);
     }
 }

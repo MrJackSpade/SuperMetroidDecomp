@@ -9,9 +9,9 @@ public enum XrayBeamPhase
     Widening = 1,
     /// <summary>State two, <c>HandleXrayScope_State2_FullBeam</c>; held dash permits aiming, with Up taking priority over Down, and releasing dash starts restoration.</summary>
     Full = 2,
-    /// <summary>State three, <c>HandleXrayScope_State3_DeactivateBeam_RestoreBG2_FirstHalf</c>; waits for artwork queue room to restore the first saved background half.</summary>
+    /// <summary>State three: the beam is deactivating; waits for artwork queue room to restore the first saved background half.</summary>
     RestoreFirstHalf = 3,
-    /// <summary>State four, <c>HandleXrayScope_State4_DeactivateBeam_RestoreBG2_SecondHalf</c>; waits for artwork queue room to restore the second saved background half before cleanup.</summary>
+    /// <summary>State four: the beam is still deactivating; waits for artwork queue room to restore the second saved background half before cleanup.</summary>
     RestoreSecondHalf = 4,
     /// <summary>State five, <c>HandleXrayScope_State5_DeactivateBeam_Finish</c>; restores controls and subsystem enables only while shared time is frozen, otherwise the stranded object remains active.</summary>
     Finish = 5,

@@ -302,7 +302,7 @@ public sealed class SamusProjectileSystem
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The controller words Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
-    /// <param name="layer1">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
+    /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
     /// Bomb-slot owner carrying the shared projectile cooldown. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
@@ -310,7 +310,7 @@ public sealed class SamusProjectileSystem
     /// </param>
     /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; existing ordinary slots still run when this is false, subject to live X-ray freeze.</param>
     /// <param name="producerSoundSuppressed">Optional captured sound-suppression decision at production; null uses the shared Power Bomb owner's current active state.</param>
-    public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> layer1, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled = true, bool? producerSoundSuppressed = null)
+    public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled = true, bool? producerSoundSuppressed = null)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -399,7 +399,7 @@ public sealed class SamusProjectileSystem
 
             if (slot.FrameBehavior == SamusProjectileFrameBehavior.ShinesparkEcho)
             {
-                Shinespark.StepShinesparkEcho(samus, slot, layer1);
+                Shinespark.StepShinesparkEcho(samus, slot, cameraPosition);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or
@@ -409,12 +409,12 @@ public sealed class SamusProjectileSystem
             {
                 SoundEffectId? comboSound = null;
                 if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward)
-                    comboSound = Combos.StepIceCombo(samus, slot, sharedProjectiles, layer1);
+                    comboSound = Combos.StepIceCombo(samus, slot, sharedProjectiles, cameraPosition);
                 else if (slot.FrameBehavior == SamusProjectileFrameBehavior.WaveCombo)
                     comboSound = Combos.StepWaveCombo(samus, slot, sharedProjectiles);
                 else if (slot.FrameBehavior == SamusProjectileFrameBehavior.PlasmaCombo)
-                    Combos.StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
-                else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, layer1.Y);
+                    Combos.StepPlasmaCombo(samus, slot, sharedProjectiles, cameraPosition);
+                else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, cameraPosition.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound is SoundEffectId sound)
                     (comboSounds ??= []).Add(new SoundRequest(
@@ -426,7 +426,7 @@ public sealed class SamusProjectileSystem
                 collisionStartedExplosion |= Motion.RunNoWaveBeamFrameBehavior(
                     terrain.Level,
                     slot,
-                    layer1,
+                    cameraPosition,
                     terrain.Plms,
                     sharedProjectiles.PowerBombExplosion);
             }
@@ -434,11 +434,11 @@ public sealed class SamusProjectileSystem
                 SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail or
                 SamusProjectileFrameBehavior.WaveBeamFourFrameTrail)
             {
-                Motion.RunWaveBeamFrameBehavior(terrain.Level, slot, layer1, terrain.Plms);
+                Motion.RunWaveBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.Plms);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.HyperBeam)
             {
-                Motion.RunHyperBeamFrameBehavior(terrain.Level, slot, layer1, terrain.Plms);
+                Motion.RunHyperBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.Plms);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.Missile)
             {
@@ -446,7 +446,7 @@ public sealed class SamusProjectileSystem
                     terrain.Level,
                     samus,
                     slot,
-                    layer1,
+                    cameraPosition,
                     sharedProjectiles,
                     terrain.Plms);
             }
@@ -456,7 +456,7 @@ public sealed class SamusProjectileSystem
                     terrain.Level,
                     samus,
                     slot,
-                    layer1,
+                    cameraPosition,
                     sharedProjectiles,
                     terrain.Plms);
             }
@@ -577,7 +577,7 @@ public sealed class SamusProjectileSystem
     public void DrawChargeFlare(
         SpriteFrameBuffer sprites,
         SamusState samus,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ChargeFlareComponents components,
         TurningFloorTransform? turningFloor,
         ChargeFlareArtwork artwork)
@@ -585,13 +585,13 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
         foreach (int component in components.DrawOrder)
-            Animation.DrawFlareComponent(sprites, samus, layer1, component, turningFloor, artwork);
+            Animation.DrawFlareComponent(sprites, samus, cameraPosition, component, turningFloor, artwork);
     }
 
     /// <summary>Draws the live ordinary-projectile subset after Samus.</summary>
     public void DrawLiveProjectiles(
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         int frameCounter,
         ProjectileDrawArtwork artwork)
     {
@@ -623,7 +623,7 @@ public sealed class SamusProjectileSystem
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (slot.Sprite is not null)
                 ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
-                    slot, layer1, horizontalMargin: null, artwork);
+                    slot, cameraPosition, horizontalMargin: null, artwork);
         }
     }
 
@@ -648,18 +648,18 @@ public sealed class SamusProjectileSystem
 
     /// <summary>Publishes every live trail side, in the advance's slot and side order.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="layer1">Whole-pixel room camera origin subtracted from trail coordinates.</param>
+    /// <param name="cameraPosition">Whole-pixel room camera origin subtracted from trail coordinates.</param>
     /// <param name="objects">The projectile sheet the trail poses are drawn from.</param>
     public void DrawTrails(
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork objects)
     {
         Ensure.NotNull(sprites);
         foreach (SamusProjectileTrailSlot slot in SlotTable.TrailsInUpdateOrder)
         {
-            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, layer1, direction: HorizontalDirection.Left, objects);
-            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, layer1, direction: HorizontalDirection.Right, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, cameraPosition, direction: HorizontalDirection.Left, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, cameraPosition, direction: HorizontalDirection.Right, objects);
         }
     }
 
@@ -668,7 +668,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     public void DrawExplosions(
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(sprites);
@@ -682,7 +682,7 @@ public sealed class SamusProjectileSystem
                 continue;
 
             ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
-                slot, layer1, horizontalMargin: 48, artwork);
+                slot, cameraPosition, horizontalMargin: 48, artwork);
         }
     }
 

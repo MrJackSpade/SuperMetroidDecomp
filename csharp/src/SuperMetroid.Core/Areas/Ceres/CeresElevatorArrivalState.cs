@@ -32,7 +32,7 @@ public sealed class CeresElevatorArrivalState
         Ensure.NotNull(samus);
 
         // SpawnEprojWithGfx first copies enemy slot zero's tile/palette word. The shared
-        // initializer then clears it, so both actors use room-loaded OBJ tiles and the
+        // initializer then clears it, so both actors use room-loaded sprite tiles and the
         // palettes authored by their spritemaps. Retaining the transient word is
         // what previously made the level-data concealer teal until touchdown.
         pad = LoadProjectile(
@@ -101,7 +101,7 @@ public sealed class CeresElevatorArrivalState
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the loaded graphics set's sheets.</param>
-    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    /// <param name="camera">Camera position in whole room pixels.</param>
     internal void Draw(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);

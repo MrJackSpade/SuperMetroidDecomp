@@ -153,21 +153,21 @@ public sealed class D3D11FrameRenderer : IDisposable
         renderedDisplay = packet;
     }
 
-    /// <summary>Selects layered, Mode 7, or solid-color composition and submits its compute passes.</summary>
+    /// <summary>Selects layered, turning-floor or solid-color composition and submits its compute passes.</summary>
     private unsafe void RenderCore(DisplayPacket packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
-        if (packet.Floor is { } mode7)
+        if (packet.Floor is { } turningFloor)
         {
             // A turning-floor frame is a frontend screen's: its floor, its sprites in front of it, then its gradient.
-            if (mode7.Paint.Gameplay is not null)
+            if (turningFloor.Paint.Gameplay is not null)
                 throw new NotSupportedException("A turning-floor frame shows a frontend screen, not gameplay.");
             var operations = new List<DisplayLayer>();
-            if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
-            operations.Add(new SpritesLayer(mode7.Paint.SpriteDraws));
-            if (mode7.Gradient is { } gradient) operations.Add(gradient);
-            DrawLayers(packet, new LayeredScene(new FramePaint(mode7.Paint.Backdrop),
-                operations.ToArray(), mode7.Brightness));
+            if (turningFloor.Background is { } background && turningFloor.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
+            operations.Add(new SpritesLayer(turningFloor.Paint.SpriteDraws));
+            if (turningFloor.Gradient is { } gradient) operations.Add(gradient);
+            DrawLayers(packet, new LayeredScene(new FramePaint(turningFloor.Paint.Backdrop),
+                operations.ToArray(), turningFloor.Brightness));
             return;
         }
         RgbaPixel color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
@@ -312,7 +312,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[9] = BlendWord(layer.Blend);
         data[10] = (uint)layer.Blend.Colour.Red; data[11] = (uint)layer.Blend.Colour.Green; data[12] = (uint)layer.Blend.Colour.Blue;
         // The foreground is always the room's; the background is what the room publishes for it (#1403).
-        data[14] = D3D11RoomSources.Layer2Of(layer.Gameplay.Rooms);
+        data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Gameplay.Rooms);
         // What lies behind what blends: nothing (the blend's colour), the overlay, the background or both.
         D3D11BlendBehind? behind = (layer.BackgroundBehind, layer.OverlayBehind is not null) switch
         {
@@ -456,7 +456,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(),
+                        RoomSource = D3D11RoomSource.Background, Scroll = floor.Scroll.AsPlaneScroll(),
                         DrawnPart = Tiles(shown == GameplayLayer.BackgroundFrontTiles), FirstScanline = (uint)floorStart,
                     });
                     break;
@@ -509,8 +509,8 @@ public sealed class D3D11FrameRenderer : IDisposable
                         if ((shownLayers & ScreenLayers.Foreground) != 0)
                             DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                             {
-                                RoomSource = D3D11RoomSource.Layer1,
-                                Scroll = r.ForegroundScroll.AsBgPlaneScroll(),
+                                RoomSource = D3D11RoomSource.Foreground,
+                                Scroll = r.ForegroundScroll.AsPlaneScroll(),
                                 DrawnPart = Tiles(shown == GameplayLayer.ForegroundFrontTiles), FirstScanline = (uint)first, EndScanline = (uint)end,
                             });
                         break;
@@ -532,7 +532,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
         data[7] = Tiles(frontTiles); data[8] = 1; data[15] = 1;
-        data[14] = D3D11RoomSources.Layer2Of(layer.Rooms);
+        data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Rooms);
         data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
         // Header word 27 is the mosaic's block size (zero elsewhere).
         data[27] = (uint)r.BackgroundPixelation.Size;
@@ -542,7 +542,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Packs the room's layer-2 scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
+    /// Packs the room's background scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
     /// the background pixel the view shows at the screen's top on every line (#1514).
     /// </summary>
     private static void PackBackgroundScrolls(uint[] data, GameplaySceneLayer layer)
@@ -644,7 +644,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 hud = hud is null || ReferenceEquals(hud, shownHud.Hud) ? shownHud.Hud
                     : throw new InvalidOperationException("A frame shows two different HUDs.");
         }
-        // The gameplay base layer publishes the room backgrounds; a Mode-7 floor band shows the room's layer-2 plane.
+        // The gameplay base layer publishes the room backgrounds; a turning floor's band shows the room's background plane.
         RoomBackgrounds? rooms = scene.Layers.IsEmpty ? null : scene.Layers[0] switch
         {
             GameplaySceneLayer ordinary => ordinary.Rooms,
@@ -657,18 +657,18 @@ public sealed class D3D11FrameRenderer : IDisposable
         AffineFloor? floorMap = null;
         // A gameplay room's turning floor shows the room's shading; a frontend screen's the shading its floor names (#1512).
         D3D11PictureColouring floorColouring = D3D11PictureColouring.OwnShading;
-        // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
+        // A frame shows one turning floor, which every floor dispatch draws from the room buffer (#1403).
         AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
-            : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
+            : throw new InvalidOperationException("A frame shows two different turning floors.");
         List<PicturedPlane> planes = framePlanes;
         planes.Clear();
         List<PictureGrid> grids = frameGrids;
         grids.Clear();
         foreach (DisplayLayer layer in scene.Layers)
         {
-            if (layer is TurningFloorLayer frontendMode7)
+            if (layer is TurningFloorLayer frontendFloor)
             {
-                floorMap = SameFloor(floorMap, frontendMode7.Floor);
+                floorMap = SameFloor(floorMap, frontendFloor.Floor);
                 floorColouring = D3D11PictureColouring.OwnShading;
             }
             if (layer is PictureGridLayer { Grid: { } grid } && !grids.Contains(grid))
@@ -679,10 +679,10 @@ public sealed class D3D11FrameRenderer : IDisposable
                 if (!planes.Contains(plane))
                     planes.Add(plane);
             }
-            if (layer is TurningRoomLayer mode7)
+            if (layer is TurningRoomLayer turningRoom)
             {
-                floor = mode7.Floor?.Room ?? floor;
-                floorMap = SameFloor(floorMap, mode7.Map);
+                floor = turningRoom.Floor?.Room ?? floor;
+                floorMap = SameFloor(floorMap, turningRoom.Map);
                 floorColouring = D3D11PictureColouring.Room;
             }
             else if (layer is OverlayBlendLayer math)
@@ -766,8 +766,9 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case TurningRoomLayer gameplay:
                     DispatchFloorRoom(gameplay);
                     break;
-                case TurningFloorLayer mode7:
-                    DispatchFloor(mode7.Transform, subtractSprites: mode7.SubtractsSprites, addLayer1: mode7.AddsForeground);
+                case TurningFloorLayer turning:
+                    DispatchFloor(turning.Transform, blend: turning.AddsForeground ? FloorColorBlend.AddForeground
+                        : turning.SubtractsSprites ? FloorColorBlend.SubtractSprites : FloorColorBlend.None);
                     break;
                 case SpritesLayer sprites:
                     // The layer's sprites over what lies behind them, or glowing over it; a tint brightens those that blend (#1514).
@@ -936,10 +937,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>
     /// Uploads the frame's floor (#1514): the matrix that turns each screen pixel's distance from the floor's centre into a
     /// distance across the floor, built from the floor's angle and scale, then the centre, the scroll, what shows outside
-    /// the floor, and optional color math. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
+    /// the floor, and how the floor blends. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
     /// </summary>
     private unsafe void DispatchFloor(FloorView view, int firstScanline = 0, int endScanline = 224,
-        bool subtractSprites = false, bool addLayer1 = false)
+        FloorColorBlend blend = FloorColorBlend.None)
     {
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Floor;
@@ -956,11 +957,27 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => throw new ArgumentOutOfRangeException(nameof(view), view.Outside, "Unknown floor overflow."),
         };
         data[25] = firstScanline; data[26] = endScanline;
-        data[27] = (int)(addLayer1 ? FloorColorBlend.AddForeground
-            : subtractSprites ? FloorColorBlend.SubtractSprites : FloorColorBlend.None);
+        data[27] = (int)FloorBlendWord(blend);
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
+
+    /// <summary>Tiles.hlsl's word for a floor drawn without blending.</summary>
+    private const uint FloorBlendsNot = 0;
+    /// <summary>Tiles.hlsl's word for a floor that subtracts the frontmost sprite.</summary>
+    private const uint FloorSubtractsSprites = 1;
+    /// <summary>Tiles.hlsl's word for a floor that adds its own colour over itself and the blending sprites.</summary>
+    private const uint FloorAddsOwnColour = 2;
+
+    /// <summary>The word Tiles.hlsl tests for how a floor blends (#1514).</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="blend"/> is not a defined floor blend.</exception>
+    private static uint FloorBlendWord(FloorColorBlend blend) => blend switch
+    {
+        FloorColorBlend.None => FloorBlendsNot,
+        FloorColorBlend.SubtractSprites => FloorSubtractsSprites,
+        FloorColorBlend.AddForeground => FloorAddsOwnColour,
+        _ => throw new InvalidOperationException($"Undefined floor blend {blend}."),
+    };
 
     /// <summary>ScreenGradient.hlsl's bit for a stop changing the floor and the backdrop where no sprite shows.</summary>
     private const uint GradientChangesFloorAndBackdrop = 1;

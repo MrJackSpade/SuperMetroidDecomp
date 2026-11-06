@@ -34,7 +34,7 @@ internal sealed record RoomScope
     /// <summary>The room's foreground/BTS/background allocation, shared by rendering and collision.</summary>
     public required RoomLevelData LevelData { get; init; }
 
-    /// <summary>The room's layer-1 scroll-boundary camera.</summary>
+    /// <summary>The room's foreground scroll-boundary camera.</summary>
     public required ScrollBoundaryCamera Camera { get; init; }
 
     /// <summary>

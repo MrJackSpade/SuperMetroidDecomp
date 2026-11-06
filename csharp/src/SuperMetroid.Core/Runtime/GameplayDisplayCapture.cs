@@ -33,7 +33,7 @@ public static class GameplayDisplayCapture
             layers[0] = CaptureFirefleaDarkness(latched.FixedColors.Shared, basis);
         if (!doorOwnsDisplay)
         {
-            // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
+            // The rainbow beam's blend hides the effect overlay. Its fixed
             // color window replaces room liquid/fog blending while the beam owns the per-line effects.
             MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
             if (rainbow?.Active != true && latched.RoomFxOverlay is { } fx)
@@ -41,13 +41,13 @@ public static class GameplayDisplayCapture
                 if (fx.Type == RoomFxType.Spores)
                 {
                     if (layers[0] is not GameplaySceneLayer ordinary)
-                        throw new NotSupportedException("Spore FX requires an ordinary Mode-1 gameplay base.");
+                        throw new NotSupportedException("Spore FX requires an ordinary gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureSpores(ordinary, fx);
                 }
                 else if (fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
                 {
                     if (layers[0] is not GameplaySceneLayer ordinary)
-                        throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
+                        throw new NotSupportedException("Waterfall FX requires an ordinary gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureWaterfall(ordinary, fx);
                 }
                 else AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(fx, FxOverlay(latched)));
@@ -55,13 +55,13 @@ public static class GameplayDisplayCapture
             if (live.CeresHaze is { } haze)
                 AddLayer(GameplayEffectCapture.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.RoomFxPaletteBlends));
             if (latched.MorphBallEyeBeam is { } eye)
-                AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, scrolls.Layer1Position));
+                AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, scrolls.ForegroundPosition));
             if (rainbow is { } beam)
                 AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door's scroll. Message glyphs precede the suit's final color window.
-        AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.Layer1Position));
+        AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.ForegroundPosition));
         AddLayer(live.MessageBox);
         AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(frame)));
         return new(basis.Paint, layers.ToArray(), basis.Brightness);
@@ -71,9 +71,9 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>
-    /// Captures the ordinary Mode-1 base only: the room and the HUD's layer. Room color math, windows, messages and
+    /// Captures the ordinary base only: the room and the HUD's layer. Room blends, windows, messages and
     /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
-    /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
+    /// Turning-floor rooms are rejected rather than silently drawn as an ordinary room.
     /// </summary>
     public static LayeredScene CaptureOrdinaryBase(GameplayDisplayFrame frame)
     {
@@ -81,7 +81,7 @@ public static class GameplayDisplayCapture
         GameplayDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
         if (latched.ShowsPerspectiveFloor)
-            throw new InvalidOperationException("Ordinary base capture cannot represent a Mode-7 scene.");
+            throw new InvalidOperationException("Ordinary base capture cannot represent a turning-floor scene.");
 
         GameplayRenderSnapshot scrolls = latched.Scrolls;
         GameplayLatchedScene scene = latched.Scene;
@@ -92,10 +92,10 @@ public static class GameplayDisplayCapture
         // water waves then displace.
         Position16<BackgroundPixels> backgroundScroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.BackgroundScroll) + shake.Background;
         if (live.TourianStatuesEnabled)
-            // The statues' descent supplies BG2's vertical scroll per line after the
+            // The statues' descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
-            // scroll. Type 13 also gives the statue OBJ zero quake displacement.
-            backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset));
+            // scroll. Type 13 also gives the statue sprites zero quake displacement.
+            backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset));
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
@@ -109,7 +109,7 @@ public static class GameplayDisplayCapture
         Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
         // Draygon's body shows only on the band of lines around it, placed against the frame's camera (#1354, #1468).
         ScreenLineBand backgroundLines = bosses.DraygonBody is { } draygon
-            ? DraygonBodyBand.ShownLines(draygon, scrolls.Layer1Position) : ScreenLineBand.Gameplay;
+            ? DraygonBodyBand.ShownLines(draygon, scrolls.ForegroundPosition) : ScreenLineBand.Gameplay;
         Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
         ScreenLayers displayedLayers = latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
@@ -131,7 +131,7 @@ public static class GameplayDisplayCapture
         // Crocomire's melt owns the background's vertical scroll while it shows on his body layer; otherwise lava's does.
         LineScroll? backgroundVertical = crocomireBody is null ? lavaY
             : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
-        // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
+        // A sky room shows the sky's rows on the background (#1347); a boss shows its body layer there while it owns it (#1352,
         // #1353), its pictures placed where they show on the body's area (#1466, #1514).
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
@@ -210,7 +210,7 @@ public static class GameplayDisplayCapture
         });
     }
 
-    /// <summary>Captures the latched perspective floor and the HUD's layer, adding the layer-2 band below the floor during Ridley's getaway.</summary>
+    /// <summary>Captures the latched perspective floor and the HUD's layer, adding the background band below the floor during Ridley's getaway.</summary>
     private static LayeredScene CapturePerspectiveFloorBase(GameplayDisplayFrame frame)
     {
         GameplayDisplayLatch latched = frame.Latched;
@@ -218,19 +218,19 @@ public static class GameplayDisplayCapture
         RoomShakeFrameResult shake = scrolls.RoomShake;
         PerspectiveFloor perspective = latched.PerspectiveFloor
             ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
-        // Room shake moves the floor with layer 1, wrapping as a sixteen-bit scroll.
+        // Room shake moves the floor with the foreground, wrapping as a sixteen-bit scroll.
         FloorView transform = perspective.Transform with
         {
             Scroll = new Offset16<FloorPixels>(
                 CoordinateAxis.AsSigned(perspective.Transform.Scroll.X + shake.Foreground.X),
                 CoordinateAxis.AsSigned(perspective.Transform.Scroll.Y + shake.Foreground.Y)),
         };
-        TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
+        TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.BackgroundScroll + shake.Background,
-                latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
+                latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its background plane below the turning floor."))
             : null;
         var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
-                ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
+                ?? throw new InvalidOperationException("A turning-floor gameplay frame shows a Ceres room's floor.")), ScreenGeometry.GameplayHudHeightPixels, floor);
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 
@@ -323,7 +323,7 @@ public static class GameplayDisplayCapture
         // phase closes the beam's window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
-        ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.Layer1Position);
+        ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
         {
             Blended = XrayRoomDisplayRules.Blended(mode),

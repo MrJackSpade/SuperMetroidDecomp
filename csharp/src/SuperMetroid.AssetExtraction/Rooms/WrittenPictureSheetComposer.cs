@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Pre-assembles and pre-colours the pictures written over each tileset's rooms (#1392, #1466): each picture a writer writes
-/// over BG1 or BG2 (a Ceres warning page, a typed glyph) or BG3 shows (an effect's page, the cleared cell), composed from
+/// over BG1 or BG2 (a Ceres warning page, a typed glyph) or BG3 shows (an effect's page), composed from
 /// the tile words the cartridge would write for it, coloured with the tileset's standard palette over the characters the
 /// room has loaded, and pictured again for each value of the appearance inputs that reach any of its characters, named by
 /// <see cref="AppearancePictureNames"/>; with the inputs each picture depends on. BG3's sheet also pictures each of the
@@ -30,12 +30,6 @@ internal static class WrittenPictureSheetComposer
 {
     /// <summary>Tiles across the tilemaps pictures are written into.</summary>
     private const int SheetTiles = 32;
-
-    /// <summary>
-    /// The name of the effect overlay sheet's picture of the cell the cartridge clears the effect area to. The game shows
-    /// nothing where no effect's page lies (#1514) and reads no such picture.
-    /// </summary>
-    internal const string ClearedPicture = "Cleared";
 
     /// <summary>
     /// Tiles across the widest sheet the installation can hold, which pictures are packed into: a BG3 sheet pictures each
@@ -61,7 +55,7 @@ internal static class WrittenPictureSheetComposer
 
     /// <summary>
     /// Composes the sheet of the BG3 pictures a room of <paramref name="tileset"/> shows: each of the HUD's images as its own
-    /// frame (#1466), the cleared cell, and the page of each room effect its rooms run, over the HUD's characters, and again
+    /// frame (#1466) and the page of each room effect its rooms run, over the HUD's characters, and again
     /// for each frame its rooms' effects animate over BG3's characters (#1406).
     /// </summary>
     /// <exception cref="InvalidDataException">
@@ -73,8 +67,8 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
         HudSheetLayout hud = HudImageSheet.Layout(GameplayHudArtwork.Of(inputs.Maps.GameplayHud), HudImageSheet.Maps(inputs.Maps));
-        List<WrittenSubject> subjects = [new WrittenSubject(ClearedPicture, [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(Layer3ClearedCellDefinitions.ClearedCell)))]),
-            .. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPlane.EffectPagePicture(type),
+        // The game shows nothing where no effect's page lies (#1514), so the cell the effect area is cleared to is not pictured.
+        List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPlane.EffectPagePicture(type),
                 Rows(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
         return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),

@@ -259,7 +259,7 @@ public enum DoorSetupCode
     DoorASM_Scroll_18_Blue_19_Red = 81,
 
     /// <summary>
-    /// <c>DoorASM_ToCeresElevatorShaft</c>; selects Mode 7 and installs
+    /// <c>DoorASM_ToCeresElevatorShaft</c>; selects the turning floor and installs
     /// the shaft's initial matrix and center.
     /// </summary>
     DoorASM_ToCeresElevatorShaft = 82,

@@ -87,9 +87,10 @@ internal static class MessageSnapshotTestsVerification
                 _ = new DisplayPacket(0, new LayeredScene(memory, [layer], 15));
             }
         }
-        SpriteSheetFrame wrongSize = RepositoryInstallation.Installation.LoadRoomBlockSheets().FxOverlayPictures.Values.First()
-            .Sheet.Frame(SuperMetroid.AssetExtraction.Rooms.WrittenPictureSheetComposer.ClearedPicture);
-        AssertThrows<ArgumentException>(() => new MessageBoxLayer(wrongSize, 1), "an image of no whole message rows rejected");
+        SpriteSheetFrame wrongSize = SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(new Random(32108),
+            [.. Enumerable.Range(0, 256).Select(index => RgbColor.FromWord((ushort)(index * 101 & 32767)))],
+            GameplayMessageBoxDefinitions.Layout.MinimumRows - 1);
+        AssertThrows<ArgumentException>(() => new MessageBoxLayer(wrongSize, 1), "an image of too few message rows rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => MessageBoxLayer.Of(GameplayMessageArtwork.Forms().First(), 25, messages),
             "invalid reveal radius rejected");
         Console.WriteLine($"  Message snapshots: {samples} retail/glyph-window captures and ownership checks agree.");

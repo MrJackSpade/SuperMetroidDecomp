@@ -206,7 +206,7 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        deathSamus.DeathSequence.Begin(deathSamus, layer1: new(0, 0));
+        deathSamus.DeathSequence.Begin(deathSamus, cameraPosition: new(0, 0));
         var deathCgram = new SamusColours();
         for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
             frame++)

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted each time a rising liquid's or the Tourian statues' earthquake rumble is queued and its next delay is
-/// reloaded, during the room's layer-3 effect step; fixed at power-on for the session and injected into every gameplay
+/// reloaded, during the room's overlay effect step; fixed at power-on for the session and injected into every gameplay
 /// runtime it creates. Evidence: <c>DetermineNumberOfDemoSets</c> ($80:8261) returns the carry of comparing the marker
 /// field with the completion signature word by word from the last (set when no slot is valid), <c>MainGameLoop</c>
 /// ($82:8948) brackets every pass with <c>PHP</c>/<c>PLP</c> so it keeps that carry, and the rumble's delay reload at

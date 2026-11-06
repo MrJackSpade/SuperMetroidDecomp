@@ -31,8 +31,8 @@ public sealed record ShadeInks
     /// <summary>The colour each ink shows.</summary>
     public ImmutableArray<RgbColor> Colours { get; }
 
-    /// <summary>Whether a draw showing the shade takes part in colour math over every part, as the import installs it.</summary>
-    public bool TakesColourMath { get; init; }
+    /// <summary>Whether a draw showing the shade blends over every part, as the import installs it.</summary>
+    public bool Blends { get; init; }
 
     /// <summary>Lays the shade over <paramref name="inks"/>, one colour per ink of its picture.</summary>
     /// <exception cref="InvalidDataException">The shade recolours an ink the picture does not have.</exception>

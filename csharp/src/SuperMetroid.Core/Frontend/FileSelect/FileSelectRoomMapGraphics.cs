@@ -8,7 +8,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Room-select BG1 map and BG2 frame.</summary>
+/// <summary>Room-select map and its frame.</summary>
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
@@ -26,7 +26,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
     internal SharedGameState MapSystem => icons.MapSystem;
 
-    /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu display owner, without choosing a load station or advancing menu timing.</summary>
+    /// <summary>Installs one area's revealed map and fixed frame into a separate menu display owner, without choosing a load station or advancing menu timing.</summary>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
@@ -104,12 +104,12 @@ public sealed class FileSelectRoomMapGraphics
         PlacedPlanePicture[] framePictures = pictures.ShowsNothing(roomFrame) ? []
             : [new PlacedPlanePicture(pictures.Frame(roomFrame), default, PictureShading.Standard)];
         var frame = new PicturedPlane(MenuScreen.PageSize, [.. framePictures]);
-        var frameScroll = new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
+        var frameScroll = new Position16<PlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         // The room map scrolls through its frame's opening, the frame's border around it (#1514): each picture is drawn
         // whole, and the per-tile priority tiers that once interleaved the two are a presentation quirk the port does not keep.
         layers.Add(new PicturedPlaneLayer(frame, frameScroll));
         if (content != RoomMapContent.FrameOnly)
-            layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsBgPlaneScroll()) { Window = MapFrameOpening.Window(frameScroll) });
+            layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsPlaneScroll()) { Window = MapFrameOpening.Window(frameScroll) });
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);

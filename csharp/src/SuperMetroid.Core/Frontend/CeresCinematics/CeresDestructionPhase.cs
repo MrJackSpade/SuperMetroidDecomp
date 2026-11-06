@@ -15,11 +15,11 @@ internal enum CeresDestructionPhase
     HoldAfterExplosion,
     /// <summary>Darkens Ceres before Zebes reveal or the state-$25 game-over exit.</summary>
     FadeOutCeres,
-    /// <summary>Transfers the planet-reveal Mode-1 art on the following dispatcher call.</summary>
+    /// <summary>Transfers the planet-reveal art on the following dispatcher call.</summary>
     FlyToZebesInitial,
     /// <summary>Raises planet-scene brightness while reducing its mosaic.</summary>
     FadeInZebes,
-    /// <summary>Finishes mosaic reduction before creating the Mode-7 planet actors.</summary>
+    /// <summary>Finishes mosaic reduction before creating the turning-floor planet actors.</summary>
     RemoveZebesMosaic,
     /// <summary>Waits for the title actor's instruction to start the camera approach.</summary>
     PlanetZebesTitle,
@@ -27,9 +27,9 @@ internal enum CeresDestructionPhase
     FlyingTowardZebesA,
     /// <summary>Rotates and scales the approach until camera X passes the negative threshold.</summary>
     FlyingTowardZebesB,
-    /// <summary>Changes pan direction, scales farther, and removes BG1 before the hold.</summary>
+    /// <summary>Changes pan direction, scales farther, and hides the turning floor before the hold.</summary>
     FlyingTowardZebesC,
-    /// <summary>Holds the close planet scene while OBJ actors continue.</summary>
+    /// <summary>Holds the close planet scene while sprite actors continue.</summary>
     HoldCloseZebes,
     /// <summary>Slides planet and stars upward until the completion star exits.</summary>
     SlideZebesSceneAway,

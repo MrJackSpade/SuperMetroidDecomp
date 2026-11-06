@@ -3,15 +3,15 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
-/// The shades the import pre-colours Crocomire's sheets in (#1512): his body's fight colours and hurt flash on layer 2,
+/// The shades the import pre-colours Crocomire's sheets in (#1512): his body's fight colours and hurt flash on the background,
 /// the wall and projectile colours his fight loads, and his skeleton's arm and the wall spikes as he dies.
 /// </summary>
 public static class CrocomireShades
 {
-    /// <summary>His body's and head's fight colours on layer 2.</summary>
+    /// <summary>His body's and head's fight colours on the background.</summary>
     public static PictureShade FightBody { get; } = new("crocomire-fight-body", 0);
 
-    /// <summary>His body's and head's hurt flash on layer 2: white.</summary>
+    /// <summary>His body's and head's hurt flash on the background: white.</summary>
     public static PictureShade BodyHurt { get; } = new("crocomire-body-hurt", 0);
 
     /// <summary>The wall's colours, which the collapsing bridge's fragments also draw in.</summary>

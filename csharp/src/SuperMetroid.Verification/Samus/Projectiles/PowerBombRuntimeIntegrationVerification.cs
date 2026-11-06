@@ -58,7 +58,7 @@ internal static class PowerBombRuntimeIntegrationVerification
 
         GameplayRenderSnapshot ppu = runtime.Display.DisplayedGameplayScrolls;
         ColourAddWindowLayer expected = GameplayEffectCapture.CapturePowerBombGlow(
-                PowerBombRenderSnapshot.Capture(explosion), ppu.Layer1Position)
+                PowerBombRenderSnapshot.Capture(explosion), ppu.ForegroundPosition)
             ?? throw new InvalidOperationException("The active Power Bomb captured no window.");
         AssertTrue(!expected.Window.IsClosed,
             "Power Bomb fixture produces a visible first-flash oval");

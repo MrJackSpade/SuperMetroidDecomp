@@ -151,7 +151,7 @@ internal static class ChargeFlarePlacementVerification
     }
     /// <summary>Invokes the renderer's private flare component path with explicit compiled pose metadata.</summary>
     internal delegate void FlareMetadataDraw(SpriteFrameBuffer sprites, SamusState samus,
-        Position16<RoomPixels> layer1, int component, TurningFloorTransform? transform,
+        Position16<RoomPixels> cameraPosition, int component, TurningFloorTransform? transform,
         ChargeFlareArtwork artwork, ChargeFlarePose pose);
 
     /// <summary>Confirms stock flare offsets flow through actor drawing and artwork rebinding.</summary>

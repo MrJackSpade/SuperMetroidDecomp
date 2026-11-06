@@ -8,18 +8,18 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no tilemap: foreground from the room's
-/// level plane, background from its layer-2 plane when that layer streams, the source room's screen during a door's opening
+/// level plane, background from its background plane when that layer streams, the source room's screen during a door's opening
 /// scroll, and words a room actor wrote over the foreground. A null <see cref="Background"/> leaves background to the sky's rows, a boss body
 /// that owns background (#1352), or the tilemap its owner loaded (a library background or the X-ray reveal) until that
 /// owner gets its own layer.
 /// </summary>
 /// <param name="Foreground">The room's level plane on the foreground.</param>
-/// <param name="Background">The room's layer-2 plane on the background, or null when background shows a loaded tilemap.</param>
+/// <param name="Background">The room's background plane on the background, or null when the background shows a loaded tilemap.</param>
 /// <param name="FxOverlay">The room effect's page on the effect overlay (#1348, #1514), as its picture (#1403); null until the frame boundary that latched it resolves it. The HUD is its own layer (#1466).</param>
 /// <param name="DoorSource">The source room's foreground screen during a door's opening scroll, or null.</param>
 /// <param name="WrittenOverForeground">Words a room actor wrote over the foreground, or null.</param>
 /// <param name="Sky">
-/// The scrolling sky on the background when the room has no layer-2 plane, drawn from its image (#1347, #1403); null without a sky,
+/// The scrolling sky on the background when the room has no background plane, drawn from its image (#1347, #1403); null without a sky,
 /// and until the frame boundary that latched the room resolves its pictures.
 /// </param>
 /// <param name="WrittenOverBackground">Words a room actor wrote over the background, or null (#1348).</param>

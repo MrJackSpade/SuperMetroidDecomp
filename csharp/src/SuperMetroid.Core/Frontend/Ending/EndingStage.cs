@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+/// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingStage
 {
@@ -37,20 +37,20 @@ internal sealed class EndingStage
     [IntegerQuantity("screen brightness level, zero through fifteen")]
     internal int Brightness { get; set; }
 
-    /// <summary>Mode-7 translation; only X uses a subpixel because the game's Y has no fractional word.</summary>
+    /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fractional word.</summary>
     internal FixedPosition<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
-    /// Mode-7 scale in 8.8 units (256 is unity), initially the identity. Every scene starts it at an authored
+    /// Turning-floor scale in 8.8 units (256 is unity), initially the identity. Every scene starts it at an authored
     /// scale and moves it by a few units per call toward a bound it stops at, so it stays positive and small.
     /// </summary>
     internal int FloorZoom { get; set; } = EndingMotionDefinitions.IdentityScale;
 
-    /// <summary>Mode-7 byte-angle shared by the escape and planet scenes.</summary>
+    /// <summary>Turning-floor byte-angle shared by the escape and planet scenes.</summary>
     internal RotationAngle FloorAngle { get; set; }
 
     /// <summary>Scroll of the post-credits text map; only the vertical axis moves, during the item-percentage scroll-down.</summary>
-    internal Position16<TilePlanePixels> PostCreditsScroll { get; set; }
+    internal Position16<PlanePixels> PostCreditsScroll { get; set; }
 
     /// <summary>Reloadable object character art for clouds, explosion and reward actors.</summary>
     internal EndingObjectArtwork? ObjectArtwork { get; set; }
@@ -72,11 +72,11 @@ internal sealed class EndingStage
             "Ending font requires installed presentation assets.");
     }
 
-    /// <summary>Clears the display and installs the selected ending scene's Mode-7 map and characters.</summary>
+    /// <summary>Clears the display and installs the selected ending scene's turning-floor map and characters.</summary>
     internal void LoadFloor(EndingFloorSceneId scene)
     {
         _ = FloorArtwork ?? throw new InvalidOperationException(
-            "Ending Mode-7 scene requires installed artwork.");
+            "Ending turning-floor scene requires installed artwork.");
         screen.Clear();
         screen.LoadFloor(scene);
     }
@@ -271,7 +271,7 @@ internal sealed class EndingStage
     /// <summary>The ending's installed font.</summary>
     internal EndingFontAtlas? EndingFont { get; private set; }
 
-    /// <summary>The ending's installed Mode 7 artwork.</summary>
+    /// <summary>The ending's installed turning-floor artwork.</summary>
     internal EndingFloorArtwork? FloorArtwork { get; private set; }
 
     /// <summary>The ending's installed palettes.</summary>

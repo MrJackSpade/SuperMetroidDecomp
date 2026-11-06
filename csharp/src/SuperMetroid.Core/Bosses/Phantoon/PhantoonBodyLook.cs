@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// One of the settled colourings Phantoon's body shows on layer 2 (#1512): black as his fight starts, a health band's
+/// One of the settled colourings Phantoon's body shows on the background (#1512): black as his fight starts, a health band's
 /// colours, the white hurt flash, or his faded-out colours. His fades run from one to another.
 /// </summary>
 /// <param name="Kind">Which colouring.</param>

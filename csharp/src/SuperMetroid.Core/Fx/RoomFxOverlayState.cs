@@ -52,7 +52,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// only X is set. The fall is <see cref="RainFallVelocity"/>.
     /// </summary>
     private Offset16<OverlaySubpixels> rainWindVelocity;
-    /// <summary>Previous layer-one camera point, used to make rain follow camera movement.</summary>
+    /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>How many tide-phase units make one full turn of the negative-cosine lookup.</summary>
     private const int TidePhasePeriod = 65536;
@@ -139,7 +139,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
     public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
 
-    /// <summary>Live effect overlay scroll-register shadows (the effect overlay's scroll).</summary>
+    /// <summary>The effect overlay's live scroll.</summary>
     public Position16<OverlayPixels> Scroll { get; private set; }
 
     /// <summary>Whether the translated effect supplies a gameplay-region effect overlay plane.</summary>
@@ -377,7 +377,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         }
 
-        // Fog anchors to layer one and moves its texture by -$40/+50 in 8.8.
+        // Fog anchors to the foreground and moves its texture by -$40/+50 in 8.8.
         Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
         drift = new(WordWrap.Signed(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity),
             WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity));

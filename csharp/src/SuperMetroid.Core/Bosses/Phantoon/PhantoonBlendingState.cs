@@ -15,16 +15,16 @@ public sealed class PhantoonBlendingState
     private int _setupCalls;
     /// <summary>Permanent deletion state after the mouth's control removes this owner.</summary>
     private bool _deleted;
-    /// <summary>Current effect-pass result: room default, $04 with BG2 hidden, or $1A with BG2 added on the subscreen; not necessarily the displayed result.</summary>
+    /// <summary>Current effect-pass result: the room default, the background hidden, or the background blended over what lies behind it; not necessarily the displayed result.</summary>
     public LayerBlendingConfiguration Configuration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
     /// <summary>Configuration copied at the last display latch and consumed by rendering, unaffected by subsequent <see cref="Step"/> calls until latched again.</summary>
     public LayerBlendingConfiguration DisplayedConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
-    /// <summary>The BG2 mosaic block size in screen pixels latched for display, before this frame's enemy AI changes it; one means no quantization.</summary>
+    /// <summary>The background mosaic block size in screen pixels latched for display, before this frame's enemy AI changes it; one means no quantization.</summary>
     public int DisplayedMosaicBlockSize { get; private set; } = 1;
 
     /// <summary>
     /// Advances one ordinary-gameplay effect pass, resetting to the room default even during the two setup calls or after deletion.
-    /// Thereafter semi-transparency takes precedence; otherwise the mouth's <see cref="PhantoonLayerControl"/> hides BG2, hides it and permanently deletes this owner, or leaves the room default.
+    /// Thereafter semi-transparency takes precedence; otherwise the mouth's <see cref="PhantoonLayerControl"/> hides the background, hides it and permanently deletes this owner, or leaves the room default.
     /// </summary>
     /// <param name="boss">Encounter state read without mutation or retention; its mouth must exist when the active, non-semitransparent branch reads its control byte.</param>
     /// <param name="roomDefault">This pass's room blending configuration, not the previous pass's result.</param>
@@ -47,8 +47,8 @@ public sealed class PhantoonBlendingState
         }
     }
 
-    /// <summary>Copies live blending and the supplied BG2 mosaic size to displayed state at the display latch, without advancing the effect.</summary>
-    /// <param name="mosaicBlockSize">BG2 mosaic block size in screen pixels, 1..16; one disables quantization.</param>
+    /// <summary>Copies live blending and the supplied background mosaic size to displayed state at the display latch, without advancing the effect.</summary>
+    /// <param name="mosaicBlockSize">Background mosaic block size in screen pixels, 1..16; one disables quantization.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="mosaicBlockSize"/> is outside 1..16.</exception>
     public void LatchDisplay(int mosaicBlockSize = 1)
     {

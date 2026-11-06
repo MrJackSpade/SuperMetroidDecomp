@@ -150,7 +150,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
 
         // Title setup expands the four artwork streams; the title binds that
-        // artwork and its capture places the Mode 7 planes, OBJ characters and Baby page.
+        // artwork and its capture places the turning-floor planes, sprite characters and Baby page.
         objects = new ScreenSprites();
         ResetConsolePaletteFx();
 
@@ -494,7 +494,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
     }
 
-    /// <summary>Starts a title card's instruction list with OBJ visible and Mode 7 BG1 hidden.</summary>
+    /// <summary>Starts a title card's instruction list with its sprites shown and the turning floor hidden.</summary>
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;
@@ -513,7 +513,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         floorBackgroundEnabled = false;
     }
 
-    /// <summary>Installs the logo, gradient, copyright colors, and identity Mode 7 scene used after a skip.</summary>
+    /// <summary>Installs the logo, gradient, copyright colors, and identity turning-floor scene used after a skip.</summary>
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
@@ -547,7 +547,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         babyFrameTimer = TitleSequenceDefinitions.Timing.BabyFrameDuration;
     }
 
-    /// <summary>Installs a compiled Mode 7 scene's position and scale while clearing the previous text sprite.</summary>
+    /// <summary>Installs a compiled turning-floor scene's position and scale while clearing the previous text sprite.</summary>
     private void ApplyScene(TitleFloorSceneDefinition definition)
     {
         Phase = definition.Phase;

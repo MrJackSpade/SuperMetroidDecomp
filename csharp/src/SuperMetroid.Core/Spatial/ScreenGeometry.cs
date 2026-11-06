@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Spatial;
 
-/// <summary>The game screen's geometry: its size, the HUD band across its top, and the tiles and tilemap screens backgrounds are laid out in.</summary>
+/// <summary>The game screen's geometry: its size, the HUD band across its top, and the tiles backgrounds are laid out in.</summary>
 /// <remarks>
 /// Only screen-wide sizes live here. Dimensions belonging to one animation, temporary buffer, or algorithm remain beside
 /// that code even when their numeric value happens to match one of these constants.
@@ -29,10 +29,4 @@ public static class ScreenGeometry
 
     /// <summary>Pixels on either axis of one background tile.</summary>
     public const int BackgroundTileSizePixels = 8;
-
-    /// <summary>Tiles on either axis of one tilemap screen.</summary>
-    public const int TilemapScreenWidthInTiles = 32;
-
-    /// <summary>Cells in one 32-by-32 tilemap screen.</summary>
-    public const int TilemapScreenCellCount = TilemapScreenWidthInTiles * TilemapScreenWidthInTiles;
 }

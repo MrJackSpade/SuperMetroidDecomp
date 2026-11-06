@@ -203,7 +203,7 @@ internal sealed class GameplayActorDrawing
             // the arm-cannon cover state above advances every frame. Odd frames return
             // immediately. Even frames call the fatal/no-animation body renderer, which
             // deliberately bypasses ordinary invincibility flicker and every auxiliary
-            // Samus layer: atmosphere, charge flare, cannon OBJ, speed/shinespark
+            // Samus layer: atmosphere, charge flare, cannon sprite, speed/shinespark
             // echoes, and grapple graphics. Projectile drawing remains in the shared
             // tail below, exactly as `DrawSamusAndProjectiles` does after this handler.
             bool elevatorOwnsSamusDrawing =
@@ -399,7 +399,7 @@ internal sealed class GameplayActorDrawing
             // run, so the body must use the same final camera as the appendage sprites above.
             // Placing it during enemy AI instead detaches the torso whenever scrolling
             // changes the camera between AI and drawing (especially during a grab). The
-            // placement is Draygon's own published body position (#1354), not BG2's registers.
+            // placement is Draygon's own published body position (#1354), not the background's scroll.
             draygon.BodyLayerPlacement = new Position16<BackgroundPixels>(
                 CoordinateAxis.Wrap(draygon.BodyGraphicsDisplacement.X + _room.Camera.PixelPosition.X -
                     draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin),
@@ -411,7 +411,7 @@ internal sealed class GameplayActorDrawing
         {
             // CeresRidley_Main installs his graphics-drawn hook as EnemyGraphicsDrawnHook. It runs
             // after every ordinary enemy layer and is the only producer of the Baby
-            // Metroid OBJ (plus the arena-door overlay). Keeping this after layer seven
+            // Metroid sprite (plus the arena-door overlay). Keeping this after layer seven
             // preserves the hook's actual sprite position instead of inventing a Baby slot.
             room.Enemies.Ceres.DrawCeresRidleyPostEnemyHook(
                 _sprites,
@@ -422,7 +422,7 @@ internal sealed class GameplayActorDrawing
     /// <summary>
     /// Most recent beam-charge/post-shot body-palette branch. This remains
     /// distinct from the global Hyper Beam projectile palette object above: it owns Samus's
-    /// OBJ palette four rather than projectile OBJ palette six.
+    /// sprite palette four rather than projectile sprite palette six.
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; internal set; }
 

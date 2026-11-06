@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Plane">The plane's pictures.</param>
 /// <param name="Scroll">The plane's scroll in pixels, before the plane repeats.</param>
-public sealed record PicturedPlaneLayer(PicturedPlane Plane, Position16<TilePlanePixels> Scroll) : DisplayLayer
+public sealed record PicturedPlaneLayer(PicturedPlane Plane, Position16<PlanePixels> Scroll) : DisplayLayer
 {
     /// <summary>The plane's pictures.</summary>
     public PicturedPlane Plane

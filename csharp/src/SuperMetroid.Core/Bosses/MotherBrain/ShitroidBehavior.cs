@@ -55,7 +55,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Single slot-zero actor's private velocity, palette, and cutscene state.</summary>
     internal ShitroidEnemyState? Shitroid { get; private set; }
-    /// <summary>Layer-one camera used by the offscreen acceleration and wall sequence.</summary>
+    /// <summary>Camera used by the offscreen acceleration and wall sequence.</summary>
     private Position16<RoomPixels> _shitroidCamera;
 
     /// <summary>
@@ -350,16 +350,16 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the entrance after layer-one X crosses 513, locking scroll and creating invisible walls.</summary>
+    /// <summary>Starts the entrance after the camera X crosses 513, locking scroll and creating invisible walls.</summary>
     private void WaitForShitroidCamera(ShitroidEnemyState state)
     {
         if (CoordinateAxis.Difference(_shitroidCamera.X, 513) >= 0)
             return;
 
-        // Writes layer1_x_pos directly and zero-extends scroll bytes zero and two
+        // Writes the camera's X directly and zero-extends scroll bytes zero and two
         // into their adjacent bytes. The paired calls below preserve the observable four
         // byte scroll array without pretending that this is ordinary camera tracking.
-        _frameResults.LayerOneXOverride = 512;
+        _frameResults.CameraXOverride = 512;
         SetShitroidScrollPair(RoomScrollState.RedBoundary);
         QueueShitroidWallPlms(PlmHeaderId.CreateBabyMetroidInvisibleWall);
         state.Function = ShitroidAiFunction.BeginEntranceDelay;
@@ -554,7 +554,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Position.Y.Whole, target.Y, state.Velocity.Y, divisor));
     }
 
-    /// <summary>Tests the Baby Metroid's asymmetric flight window against the current layer-one camera.</summary>
+    /// <summary>Tests the Baby Metroid's asymmetric flight window against the current camera.</summary>
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)
     {
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0)

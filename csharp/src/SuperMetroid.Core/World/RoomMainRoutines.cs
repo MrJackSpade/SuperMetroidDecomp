@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class RoomMainRoutines
 {
-    /// <summary>The foreground scroll registers adjusted during Crocomire's hidden-wall rumble.</summary>
+    /// <summary>The layer scrolls adjusted during Crocomire's hidden-wall rumble.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Samus state consulted for X-ray animation suspension.</summary>
     private readonly SamusFrameState _player;
@@ -44,7 +44,7 @@ internal sealed class RoomMainRoutines
         var death = room.Enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's comeback room callback has no death state.");
         _backgroundScroll.SetForegroundVerticalScroll(CoordinateAxis.Wrap(
-            _backgroundScroll.Layer1Position.Y + _backgroundScroll.ForegroundOffset.Y + death.RumbleYOffset));
+            _backgroundScroll.ForegroundPosition.Y + _backgroundScroll.ForegroundOffset.Y + death.RumbleYOffset));
     }
 
     /// <summary>

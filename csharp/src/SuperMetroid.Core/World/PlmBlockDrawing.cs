@@ -98,7 +98,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     /// <remarks>The catalog is shared by reference. Null uses the clear blocks' own appearance.</remarks>
     public InstalledRoomPlmBotwoonWallVisuals? BotwoonWallVisuals => _visuals.RoomPlmBotwoonWallVisuals;
 
-    /// <summary>Gets or replaces Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared crumble draw.</summary>
+    /// <summary>Gets or replaces Kraid ceiling/spike PLM artwork, distinct from the boss's private background body maps and from elevatube owners of the shared crumble draw.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
     public InstalledRoomPlmKraidVisuals? KraidVisuals => _visuals.RoomPlmKraidVisuals;
 

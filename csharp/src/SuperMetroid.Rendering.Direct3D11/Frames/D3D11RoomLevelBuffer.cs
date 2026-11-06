@@ -15,10 +15,10 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The frame's room backgrounds packed for Tiles.hlsl at register t3 (#1346): a header of three plane records (layers 1
-/// and 2 and a door's source room), the door window, the layer-1 overlay, sky, effect overlay and layer-2 overlay offsets; then each plane's
+/// and 2 and a door's source room), the door window, the foreground overlay, sky, effect overlay and the background overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
-/// colours (#1392), the layer-1 and layer-2 overlays' pictures (#1348, #1403), the sky's rows (#1347), the effect overlay's placed picture (#1514),
-/// a Mode 7 floor (#1349, #1403), a boss body's placed pictures (#1352, #1466, #1514) and the HUD's placed pictures (#1466).
+/// colours (#1392), the foreground and the background overlays' pictures (#1348, #1403), the sky's rows (#1347), the effect overlay's placed picture (#1514),
+/// a turning floor (#1349, #1403), a boss body's placed pictures (#1352, #1466, #1514) and the HUD's placed pictures (#1466).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
 /// </summary>
@@ -34,8 +34,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PictureHeaderWords = 3;
     /// <summary>Plane slots: layers 1 and 2 and a door's source room.</summary>
     private const int PlaneSlots = 3;
-    /// <summary>Header words: the plane records, the door window origin, and the offsets of the layer-1 overlay, the sky rows,
-    /// the effect overlay, the layer-2 overlay and the other tables.</summary>
+    /// <summary>Header words: the plane records, the door window origin, and the offsets of the foreground overlay, the sky rows,
+    /// the effect overlay, the background overlay and the other tables.</summary>
     private const int HeaderWords = PlaneSlots * RecordWords + 12;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
@@ -55,12 +55,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Words of the effect overlay's record.</summary>
     private const int FxOverlayWords = 5;
     /// <summary>Header word of the pictures written over the background, laid out as <see cref="OverlayWord"/>'s, or zero without any (#1348).</summary>
-    private const int Bg2OverlayWord = FxOverlayWord + 1;
+    private const int WrittenOverBackgroundWord = FxOverlayWord + 1;
     /// <summary>
     /// Header word of the perspective floor's pictures' colour slots, one word each in the order the floor image numbers
     /// its pictures, or zero without a floor (#1408, #1467).
     /// </summary>
-    private const int FloorSheetsWord = Bg2OverlayWord + 1;
+    private const int FloorSheetsWord = WrittenOverBackgroundWord + 1;
     /// <summary>
     /// Header word of a boss body's pieces (#1352, #1466, #1514), or zero without one: the count of pieces, the area the
     /// body covers, x below y, then four words each: its picture's offset, the body pixel its rectangle's top-left corner
@@ -78,9 +78,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, the area its
     /// pages cover, x below y (#1514), then each 16x16 cell's picture offset, zero where the image shows.
     /// </summary>
-    private const int Bg2ImageWord = XrayRevealWord + 1;
-    /// <summary>Header word of the scrolling sky's image, laid out as <see cref="Bg2ImageWord"/>'s, or zero without one (#1392).</summary>
-    private const int SkyImageWord = Bg2ImageWord + 1;
+    private const int LibraryBackgroundImageWord = XrayRevealWord + 1;
+    /// <summary>Header word of the scrolling sky's image, laid out as <see cref="LibraryBackgroundImageWord"/>'s, or zero without one (#1392).</summary>
+    private const int SkyImageWord = LibraryBackgroundImageWord + 1;
     /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
     private const int MessagePictureWord = SkyImageWord + 1;
     /// <summary>
@@ -162,16 +162,16 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs the frame's room planes against the image texture's places; false when they match the last packing and the
     /// texture has kept every picture where it was.
     /// </summary>
-    /// <param name="frame">The planes, overlays, layer 3, floor, boss body, X-ray reveal and HUD the frame shows.</param>
+    /// <param name="frame">The planes, overlays, effect overlay, floor, boss body, X-ray reveal and HUD the frame shows.</param>
     /// <param name="images">The image texture, holding every picture <see cref="Collect"/> named.</param>
     internal bool Pack(RoomLevelLayers frame, D3D11ImageAtlas images)
     {
-        RoomBackgroundLayer? bg1 = frame.Foreground, bg2 = frame.Background;
+        RoomBackgroundLayer? foreground = frame.Foreground, background = frame.Background;
         RoomDoorBackground? door = frame.Door;
         RoomOverlayPictures? writtenOverForeground = frame.WrittenOverForeground, writtenOverBackground = frame.WrittenOverBackground;
         SkyPictures? sky = frame.Sky;
         OverlayPicture? fxOverlay = frame.FxOverlay;
-        AffineFloor? mode7 = frame.Floor;
+        AffineFloor? turningFloor = frame.Floor;
         ShownBossBody? bossBody = frame.BossBody;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.BackgroundImage, skyImage = sky?.Image;
@@ -184,14 +184,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread. It colours no
         // picture either, so the last room's colour slots go: the scene's colours are packed for none of its images, and a
         // later frame showing that room again packs it afresh.
-        if (bg1 is null && bg2 is null && sky is null && fxOverlay is null && mode7 is null && reveal is null && image is null
+        if (foreground is null && background is null && sky is null && fxOverlay is null && turningFloor is null && reveal is null && image is null
             && message is null && hud is null && pictured.IsEmpty && grids.IsEmpty)
         {
             colourSlots.Clear();
             packed = null;
             return false;
         }
-        RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
+        RoomBackgroundLayer?[] planes = [foreground, background, door?.SourceRoom];
         int words = HeaderWords;
         planeTables.Clear();
         foreach (PicturedPlane plane in pictured)
@@ -255,9 +255,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int skyOffset = sky is null ? 0 : words;
         if (sky is not null)
             words += SkyPictures.Bands;
-        int floorOffset = mode7 is null ? 0 : words;
-        if (mode7 is not null)
-            words += mode7.Pictures.Length;
+        int floorOffset = turningFloor is null ? 0 : words;
+        if (turningFloor is not null)
+            words += turningFloor.Pictures.Length;
         // Each picture's header once for each way it is coloured, and each image and how it is coloured once as a colour
         // slot (#1408): a picture two groups show, as a block of one tileset in both rooms of a door, shows each group's
         // shading (#1512).
@@ -275,8 +275,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             }
         }
         // The floor image draws from its pictures directly, so they hold colour slots but no place in the image texture.
-        foreach (SpriteSheetFrame sheet in mode7?.Pictures ?? [])
-            slots.TryAdd(new D3D11ColourSlot(sheet.Sheet, frame.FloorColouring, mode7!.Shading), slots.Count);
+        foreach (SpriteSheetFrame sheet in turningFloor?.Pictures ?? [])
+            slots.TryAdd(new D3D11ColourSlot(sheet.Sheet, frame.FloorColouring, turningFloor!.Shading), slots.Count);
         if (words > Upload.Length)
         {
             Dispose();
@@ -319,7 +319,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackPlane(upload, plane, offset, pictureWords);
         foreach ((PictureGrid grid, int offset) in gridTables)
             PackGrid(upload, grid, offset, pictureWords);
-        upload[Bg2ImageWord] = (uint)imageOffset;
+        upload[LibraryBackgroundImageWord] = (uint)imageOffset;
         upload[SkyImageWord] = (uint)skyImageOffset;
         foreach ((RoomBackgroundImagePlane? plane, int offset) in new[] { (image, imageOffset), (skyImage, skyImageOffset) })
         {
@@ -338,14 +338,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (sky is not null)
             for (int band = 0; band < SkyPictures.Bands; band++)
                 upload[skyOffset + band] = sky.BandsShown[band] ? 1u : 0u;
-        upload[Bg2OverlayWord] = (uint)backgroundWrittenOffset;
+        upload[WrittenOverBackgroundWord] = (uint)backgroundWrittenOffset;
         PackWritten(upload, writtenOverBackground, backgroundWrittenOffset, pictureWords);
         upload[FloorSheetsWord] = (uint)floorOffset;
-        if (mode7 is not null)
+        if (turningFloor is not null)
         {
-            ImmutableArray<SpriteSheetFrame> sheets = mode7.Pictures;
+            ImmutableArray<SpriteSheetFrame> sheets = turningFloor.Pictures;
             for (int sheet = 0; sheet < sheets.Length; sheet++)
-                upload[floorOffset + sheet] = (uint)slots[new D3D11ColourSlot(sheets[sheet].Sheet, frame.FloorColouring, mode7.Shading)];
+                upload[floorOffset + sheet] = (uint)slots[new D3D11ColourSlot(sheets[sheet].Sheet, frame.FloorColouring, turningFloor.Shading)];
         }
         upload[XrayRevealWord] = (uint)revealOffset;
         if (reveal is not null)

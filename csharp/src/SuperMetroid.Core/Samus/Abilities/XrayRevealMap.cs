@@ -17,26 +17,26 @@ public static class XrayRevealMap
     /// overlays are applied afterwards by their respective owners, as on the game.
     /// </summary>
     /// <param name="level">The room whose blocks the reveal resolves and whose foreground plane the base copy reads.</param>
-    /// <param name="layer1Position">Layer one's position, which selects the revealed blocks.</param>
+    /// <param name="foregroundPosition">Camera position, which selects the revealed blocks.</param>
     /// <param name="foregroundOffset">
-    /// The foreground's scroll less layer one's position. The base copy reads the foreground plane's block at each revealed
+    /// The foreground's scroll less camera position. The base copy reads the foreground plane's block at each revealed
     /// block's scrolled position (#1351), from the block holding the screen's left and top edges onwards; a block beyond
     /// the room shows nothing.
     /// </param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
     /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
     /// <returns>The revealed blocks, row by row, <see cref="XrayRevealLayout.Columns"/> to a row; null beyond the room.</returns>
-    public static RevealedBlock?[] Build(RoomLevelData level, Position16<RoomPixels> layer1Position,
+    public static RevealedBlock?[] Build(RoomLevelData level, Position16<RoomPixels> foregroundPosition,
         Offset16<RoomPixels> foregroundOffset, AreaId area, InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
         RoomBlockCells foreground = level.ForegroundPlane.Cells;
-        Position16<RoomPixels> foregroundScroll = layer1Position + foregroundOffset;
+        Position16<RoomPixels> foregroundScroll = foregroundPosition + foregroundOffset;
         var result = new RevealedBlock?[XrayRevealLayout.Cells];
         for (int row = 0; row < XrayRevealLayout.Rows; row++)
         for (int col = 0; col < XrayRevealLayout.Columns; col++)
             Place(col, row, Copied(col, row));
-        int firstBlock = WordWrap.LowByte(layer1Position.Y >> 4) * level.Size.X + (layer1Position.X >> 4);
+        int firstBlock = WordWrap.LowByte(foregroundPosition.Y >> 4) * level.Size.X + (foregroundPosition.X >> 4);
         for (int row = 0; row < XrayRevealLayout.Rows; row++)
         {
             int first = firstBlock + row * level.Size.X;
@@ -104,11 +104,11 @@ public static class XrayRevealMap
     /// The foreground pixel the revealed area's first block lies on: the top-left corner of the block the foreground's
     /// scroll lies in, so every revealed block lies over the room's own.
     /// </summary>
-    /// <param name="layer1Position">Layer one's position.</param>
-    /// <param name="foregroundOffset">The foreground's scroll less layer one's position.</param>
-    public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> layer1Position, Offset16<RoomPixels> foregroundOffset)
+    /// <param name="foregroundPosition">Camera position.</param>
+    /// <param name="foregroundOffset">The foreground's scroll less camera position.</param>
+    public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> foregroundPosition, Offset16<RoomPixels> foregroundOffset)
     {
-        Position16<RoomPixels> foregroundScroll = layer1Position + foregroundOffset;
+        Position16<RoomPixels> foregroundScroll = foregroundPosition + foregroundOffset;
         return new(CoordinateAxis.Wrap(foregroundScroll.X >> 4 << 4), CoordinateAxis.Wrap(foregroundScroll.Y >> 4 << 4));
     }
 

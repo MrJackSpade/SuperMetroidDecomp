@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed record RoomEnemyFrame
 {
-    /// <summary>Layer-one camera position (viewport top-left) in whole room pixels.</summary>
+    /// <summary>Camera position (viewport top-left) in whole room pixels.</summary>
     public required Position16<RoomPixels> Camera { get; init; }
 
     /// <summary>Whether time-freeze gating suppresses actor AI and instructions; this does not suppress every timer, palette hook, or frame publication.</summary>

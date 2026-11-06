@@ -18,7 +18,7 @@ internal static class EndingLogoDefinitions
     /// <summary>The logo actors in allocation order.</summary>
     internal static readonly EndingLogoActorKind[] ActorKinds =
         [EndingLogoActorKind.UpperS, EndingLogoActorKind.LowerS, EndingLogoActorKind.UpperCircle, EndingLogoActorKind.LowerCircle];
-    /// <summary>E504 sets both layer-one camera coordinates to $100; the actors draw at their world centers minus it.</summary>
+    /// <summary>E504 sets both camera coordinates to $100; the actors draw at their world centers minus it.</summary>
     public static Offset16<ScreenPixels> Camera => new(256, 256);
     /// <summary>F18F/F1A8 initialize the S-half motion scratch word to eight.</summary>
     public const int InitialSpeed = 8;

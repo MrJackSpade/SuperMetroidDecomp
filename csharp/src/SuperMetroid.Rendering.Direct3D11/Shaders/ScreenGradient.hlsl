@@ -1,6 +1,6 @@
 // Shares Tiles.hlsl's resources and the sprite layer, but compiles a separate entry point.
 // Keeping this operation in Tiles.Main changed FXC /O3 output for unrelated
-// BG add/subtract dispatches; the color-window and native-title tests cover both.
+// layer add/subtract dispatches; the color-window and native-title tests cover both.
 #include "Tiles.hlsl"
 
 // A gradient (ScreenGradientLayer, #1468) draws the lines FirstScanline up to EndScanline. Its stops are the first

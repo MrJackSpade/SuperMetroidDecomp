@@ -17,9 +17,9 @@ internal static class ChargeFlareDrawAccess
         /// Advances the flare, publishes the components it shows from the installed projectile sheet, and returns the
         /// OAM image those draws stand for.
         /// </summary>
-        internal OamBuffer ChargeFlareOam(SamusState samus, Position16<RoomPixels> layer1,
+        internal OamBuffer ChargeFlareOam(SamusState samus, Position16<RoomPixels> cameraPosition,
             ChargeFlarePlacements? placement, TurningFloorTransform? turningFloor = null) =>
-            SpriteFrameBuffer.DrawnOam(frame => system.DrawChargeFlare(frame, samus, layer1,
+            SpriteFrameBuffer.DrawnOam(frame => system.DrawChargeFlare(frame, samus, cameraPosition,
                 system.AdvanceChargeFlare(samus), turningFloor,
                 new ChargeFlareArtwork { Placement = placement, Objects = InstalledFixtures.ProjectileArtwork() }));
     }

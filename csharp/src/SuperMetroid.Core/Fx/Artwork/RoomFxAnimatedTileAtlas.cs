@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
 /// The installed two-bit characters of the simple room-FX, Tourian statue and Wrecked Ship treadmill frames (#1409),
-/// compiled by the import pipeline. They remain bytes here because the Tourian statue's OBJ character source resolves them.
+/// compiled by the import pipeline. They remain bytes here because the Tourian statue's sprite character source resolves them.
 /// </summary>
 public sealed class RoomFxAnimatedTileAtlas
 {

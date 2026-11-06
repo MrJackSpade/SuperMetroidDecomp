@@ -180,7 +180,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         projectile.State = new AnchoredProjectileState(position);
     }
 
-    /// <summary>Tracks the BG2 statue's vertical displacement and publishes the base decoration's completion latch.</summary>
+    /// <summary>Tracks the background statue's vertical displacement and publishes the base decoration's completion latch.</summary>
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
         if (projectile.FrameBehavior == EnemyProjectileFrameBehavior.TourianStatueRevealFollow &&
@@ -192,9 +192,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
         projectile.Position = projectile.Position.WithWholeX(anchor.X);
 
-        // The statue base adds the layer-one Y position and subtracts the reveal effect's layer-one Y plus displacement.
-        // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.
-        // This keeps all sprite pieces attached to the descending BG2 statue artwork.
+        // The statue base adds the camera Y position and subtracts the reveal effect's camera Y plus displacement.
+        // The camera terms cancel here; ordinary sprite drawing subtracts the camera once.
+        // This keeps all sprite pieces attached to the descending background statue artwork.
         projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - TourianEntranceStatueVerticalOffset);
     }
 

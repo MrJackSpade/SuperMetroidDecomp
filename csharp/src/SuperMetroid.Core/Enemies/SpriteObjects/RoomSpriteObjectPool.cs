@@ -133,7 +133,7 @@ internal sealed class RoomSpriteObjectPool
 
     /// <summary>Draws every visible object, in processing order.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    /// <param name="camera">Camera position in whole room pixels.</param>
     internal void DrawRoomSpriteObjects(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         foreach (RoomSpriteObjectSlot slot in InProcessingOrder)

@@ -717,7 +717,7 @@ internal static class CollectiblesVerification
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
-        pickup.Begin(samus, layer1: new(0x0100, 0x0200),
+        pickup.Begin(samus, cameraPosition: new(0x0100, 0x0200),
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");
         AssertTrue(samus.Control.AlphaLocked, "suit transformation locks Samus input");

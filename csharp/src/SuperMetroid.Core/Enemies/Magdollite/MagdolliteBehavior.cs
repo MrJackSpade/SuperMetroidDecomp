@@ -84,7 +84,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every one of the three initializers installs the same global graphics-drawn hook.
         // Retail's last Magdollite record therefore resets this clock to eight and selects
-        // its OBJ palette. Model the resulting singleton hook, not nine independent cycles. Every Magdollite part shows the
+        // its sprite palette. Model the resulting singleton hook, not nine independent cycles. Every Magdollite part shows the
         // glow; the game's hook recolours the last record's palette, which other enemies sharing it also showed (#1512).
         MagdollitePaletteAnimationInstalled = true;
         slot.Shading = MagdolliteGlow;

@@ -6,13 +6,13 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
+/// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingArtwork
 {
     /// <summary>The ending's screen: its palette, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

@@ -6,7 +6,7 @@ public static class RoomDoorTransitions
     /// <summary>The door-transition style a room's header names.</summary>
     extension(RoomHeaderDefinition room)
     {
-        /// <summary>Whether door transitions into or out of this room hide BG1 below the HUD and show the objects alone.</summary>
+        /// <summary>Whether door transitions into or out of this room hide the foreground below the HUD and show the objects alone.</summary>
         public bool UsesIsolatedDoorTransition => room.DoorTransition == RoomDoorTransitionStyle.ObjectsOnly;
     }
 }

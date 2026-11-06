@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class CrateriaLightningPaletteFxColorDefinitions
 {
-    /// <summary>The Landing Site program whose flash colors target BG palette 5.</summary>
+    /// <summary>The Landing Site program whose flash colors target background palette 5.</summary>
     private static readonly CrateriaLightningPaletteFxColorDefinition Surface =
         new()
         {

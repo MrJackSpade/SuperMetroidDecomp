@@ -14,7 +14,7 @@ internal sealed class DeathSequenceRunner
 {
     /// <summary>Provides installed death palettes and explosion sprite compositions.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Supplies the active Samus Mode-7 transform during death drawing.</summary>
+    /// <summary>Supplies the active Samus turning-floor transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one frame boundary before each isolated death-state frame.</summary>
     private readonly AcceptedFrameBoundary _frameBoundary;
@@ -22,7 +22,7 @@ internal sealed class DeathSequenceRunner
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Owns Samus and records the last death-sequence step result.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies the active layer-1 camera for death drawing.</summary>
+    /// <summary>Supplies the active camera for death drawing.</summary>
     private readonly ActiveRoomState _room;
 
     /// <summary>Binds the death-state renderer and runtime services supplied by the gameplay host.</summary>
@@ -46,7 +46,7 @@ internal sealed class DeathSequenceRunner
         if (_player.Samus is null || _room.Camera is null || !_player.GroundedSamusMovementEnabled)
         {
             throw new InvalidOperationException(
-                "Death sequence requires initialized gameplay Samus and a layer-1 camera.");
+                "Death sequence requires initialized gameplay Samus and a room camera.");
         }
 
         SamusDeathSequenceStartResult result = _player.Samus.DeathSequence.Begin(

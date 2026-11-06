@@ -10,6 +10,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </remarks>
 public static class BeamPaletteDefinitions
 {
-    /// <summary>Sixteen colors copied by the beam loader, covering all entries of OBJ palette 6, including color zero.</summary>
+    /// <summary>Sixteen colors copied by the beam loader, covering all entries of sprite palette 6, including color zero.</summary>
     public const int ColorCount = 16;
 }

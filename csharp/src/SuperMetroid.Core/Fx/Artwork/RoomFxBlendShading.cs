@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>Names the shade of each palette blend a room-FX record selects (#1512).</summary>
 public static class RoomFxBlendShading
 {
-    /// <summary>The shade the layer-3 pictures show under <paramref name="blend"/>.</summary>
+    /// <summary>The shade the effect overlay pictures show under <paramref name="blend"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The blend is undefined.</exception>
     public static PictureShade Of(RoomFxPaletteBlend blend) => blend switch
     {

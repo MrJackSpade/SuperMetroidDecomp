@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// </summary>
 /// <remarks>
 /// <c>Duration</c> is the number of demo frames the scene plays before the attract sequence moves on.
-/// <c>CameraPosition</c> is the initial BG1 camera top-left; <c>SamusOffset</c> places Samus relative to
+/// <c>CameraPosition</c> is the initial camera top-left; <c>SamusOffset</c> places Samus relative to
 /// the camera, X from the screen's horizontal centre and Y from its top.
 /// </remarks>
 public sealed record AttractDemoScene(

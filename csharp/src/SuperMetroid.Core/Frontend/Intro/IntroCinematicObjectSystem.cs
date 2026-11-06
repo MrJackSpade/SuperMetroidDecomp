@@ -178,7 +178,7 @@ internal sealed class IntroCinematicObjectSystem
             StepInstalledNarration();
         textGlow?.Step(text);
 
-        // UpdateCinematicBgTilemap uploads the staging map's visible rows to the narration plane each update; showing
+        // The game shows the staging map's visible rows on the narration plane each update; showing
         // them now matches what the next displayed frame shows.
         text.Publish();
     }

@@ -7,16 +7,16 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>The room layers a Direct3D 11 level buffer last uploaded.</summary>
-/// <param name="Foreground">The room's layer-1 plane, or null.</param>
-/// <param name="Background">The room's layer-2 plane, or null.</param>
+/// <param name="Foreground">The room's foreground plane, or null.</param>
+/// <param name="Background">The room's background plane, or null.</param>
 /// <param name="Door">The door.</param>
 /// <param name="WrittenOverForeground">What room actors wrote over the foreground, or null (#1403).</param>
 /// <param name="Sky">The scrolling sky drawn from its image, or null (#1347, #1403).</param>
 /// <param name="FxOverlay">What the room effect's overlay shows, placed where it shows, or null (#1514).</param>
-/// <param name="WrittenOverBackground">What room actors wrote over layer 2, or null (#1403).</param>
+/// <param name="WrittenOverBackground">What room actors wrote over the background, or null (#1403).</param>
 /// <param name="Floor">The turning floor map, or null.</param>
 /// <param name="BossBody">The boss body layer shown, or null.</param>
-/// <param name="XrayReveal">The X-ray reveal layer 2 shows, or null (#1392).</param>
+/// <param name="XrayReveal">The X-ray reveal the background shows, or null (#1392).</param>
 /// <param name="BackgroundImage">The room's library background drawn from its image, or null (#1392).</param>
 /// <param name="MessagePicture">The image of the message box the frame shows, or null (#1392).</param>
 /// <param name="Hud">The HUD's placed pictures the frame draws, or null (#1466).</param>

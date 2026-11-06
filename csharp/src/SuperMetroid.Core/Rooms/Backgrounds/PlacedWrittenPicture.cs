@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 /// <param name="Picture">The picture's frame for the values the room's appearance inputs take now.</param>
 /// <param name="Corner">The layer pixel, from the layer's top-left, the picture's corner lies on.</param>
-public readonly record struct PlacedWrittenPicture(SpriteSheetFrame Picture, Position16<TilePlanePixels> Corner);
+public readonly record struct PlacedWrittenPicture(SpriteSheetFrame Picture, Position16<PlanePixels> Corner);

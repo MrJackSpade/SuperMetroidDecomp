@@ -7,7 +7,7 @@ public enum RoomDoorTransitionStyle
     Standard,
 
     /// <summary>
-    /// The transition hides BG1 below the HUD and shows the objects alone, as it does when either adjacent room asks
+    /// The transition hides the foreground below the HUD and shows the objects alone, as it does when either adjacent room asks
     /// for it.
     /// </summary>
     ObjectsOnly,

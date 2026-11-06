@@ -7,7 +7,7 @@ public enum AttractDemoRoomSetup
     ChargeBeamScroll,
     /// <summary>The room is left as loaded.</summary>
     NoOp,
-    /// <summary>The Landing Site shows its scrolling sky's tall layer-2 map.</summary>
+    /// <summary>The Landing Site shows its scrolling sky's tall background map.</summary>
     LandingSiteSky,
     /// <summary>Kraid's body waits before its next action.</summary>
     KraidTimer,

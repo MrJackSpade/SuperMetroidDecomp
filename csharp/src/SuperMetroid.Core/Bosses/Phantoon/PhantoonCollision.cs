@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal static class PhantoonCollision
 {
     /// <summary>The collision components of Phantoon frame <paramref name="frame"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Phantoon's BG2 frames.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Phantoon's background frames.</exception>
     internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components)
             ? components

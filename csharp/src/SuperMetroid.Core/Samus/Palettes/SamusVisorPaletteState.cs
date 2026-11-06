@@ -51,7 +51,7 @@ public sealed class SamusVisorPaletteState
 
         // Every other room resets the animation on every call. Besides disabling the animation,
         // this primes an immediate color write on the first call after entering a backdrop-
-        // color-math room: countdown one expires before the shade is consulted.
+        // blending room: countdown one expires before the shade is consulted.
         if (!layerBlendingDefaultConfig.AnimatesVisor())
         {
             Timer = ResetTimer;

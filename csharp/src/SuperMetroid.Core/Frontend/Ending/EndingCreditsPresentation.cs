@@ -26,7 +26,7 @@ internal static class EndingCreditsPresentation
             bool crossfading = ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted;
             if (crossfading)
                 layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo,
-                    ending.screen.LogoShown), Position16<TilePlanePixels>.Zero));
+                    ending.screen.LogoShown), Position16<PlanePixels>.Zero));
             // While the logo's picture fades in, its sprites glow over it. The logo is drawn from the shooting scene's
             // sheet, which holds it.
             layers.Add(Sprites(ending, EndingObjectSheet.RewardFalling, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));
@@ -127,13 +127,13 @@ internal static class EndingCreditsPresentation
         ? EndingMotionDefinitions.AtmosphericFloorCenter
         : EndingMotionDefinitions.FloorCenter;
 
-    /// <summary>Whether the phase displays post-credit BG; the armored reward uses OBJ alone.</summary>
+    /// <summary>Whether the phase shows the post-credits background; the armored reward shows sprites alone.</summary>
     private static bool PostCreditsBackgroundEnabled(EndingCreditsState ending) => ending.Stage.Phase != EndingCreditsPhase.PostCreditsBlank
         && ending.Stage.Phase != EndingCreditsPhase.PostCreditsFadeIn
         && ending.Stage.Phase != EndingCreditsPhase.PostCreditsGesture
         && ending.Stage.Phase != EndingCreditsPhase.PostCreditsJump
         && !(ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward == EndingReward.Armored);
-    /// <summary>Whether to use the waiting scene's BG2 map and character base.</summary>
+    /// <summary>Whether to show the waiting scene's background.</summary>
     private static bool UsesWaitingBackground(EndingCreditsState ending) => !EndingCreditsPhaseGroups.FromWaitingSamus.Contains(ending.Stage.Phase)
         || ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward;
     /// <summary>Whether the scene's sprites glow over the background and the sky: during the explosion's crossfade, the shooting stars and an unarmoured reward.</summary>

@@ -22,7 +22,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>The room's layer-3 FX.</summary>
+    /// <summary>The room's effect overlay FX.</summary>
     private readonly IRoomFxMotion? _roomFx;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>
     private readonly IPlmDrawing _drawing;

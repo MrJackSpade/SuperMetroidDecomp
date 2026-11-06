@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <remarks>
 /// Mother Brain's body movement is not performed by her AI function. The AI installs one of
 /// the body programs (<see cref="MotherBrainBodyProgram"/>); the enemy instruction stage later advances
-/// that program and its cues mutate body position, pose, BG2 alignment, footsteps,
+/// that program and its cues mutate body position, pose, the background's alignment, footsteps,
 /// and the displayed extended spritemap. Keeping that second processing stage explicit is
 /// essential: replacing a requested walk with a direct X adjustment would skip roughly ninety
 /// visible animation frames and would change when the AI observes pose zero again.

@@ -16,8 +16,8 @@ internal sealed record GameplayRuntimeStart
     /// <summary>What the session keeps across runtimes: its clock, random word, floor residue and power-on rumble delay.</summary>
     public required GameplaySessionCarryover Carryover { get; init; }
 
-    /// <summary>The menu's retained layer-1 position, published to the new runtime.</summary>
-    public required MenuLayer1Retention Layer1 { get; init; }
+    /// <summary>The menu's retained camera position, published to the new runtime.</summary>
+    public required MenuCameraRetention MenuCamera { get; init; }
 
     /// <summary>The installed catalogs; the runtime loads their initial palette and binds every catalog.</summary>
     public required GameArtwork Artwork { get; init; }

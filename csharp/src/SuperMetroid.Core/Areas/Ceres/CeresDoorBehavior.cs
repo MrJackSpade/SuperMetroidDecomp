@@ -187,7 +187,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
 
             case CeresDoorFunction.RidleyEscapeFloorWall:
                 // Ridley's room overlay begins hidden. Ridley's escape reveals it in the doors' escaping colours
-                // (#1512); the actor remains present so later Mode-7 drawing
+                // (#1512); the actor remains present so later turning-floor drawing
                 // can retain the priority relationship with Samus and Ridley.
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
@@ -257,7 +257,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         {
             // The 49th call underflows zero to -1. The door hides, returns
             // it to the perpetual elevator-animation function, and publishes its destruction so the
-            // room's Mode-7 controller begins the rotation after Ridley's escape.
+            // room's turning-floor controller begins the rotation after Ridley's escape.
             slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
             state.Function = CeresDoorFunction.ElevatorAnimation;
             if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
@@ -293,7 +293,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         _audio.QueueEnemySound(Library2Sound.BigExplosion, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Cycles door colors and the room's Mode-7 elevator frame from slot zero's frame counter.</summary>
+    /// <summary>Cycles door colors and the room's turning-floor elevator frame from slot zero's frame counter.</summary>
     internal void RunCeresDoorPaletteAnimation()
     {
         // The door's palette cycle selects six colors by frame-counter bits 3..5. The enemy
@@ -303,8 +303,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
 
         // AnimateCeresElevatorPlatform does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door
-        // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
-        // queue made the moving OBJ pad flash correctly, then left the landed floor platform
+        // actor keeps alternating these four turning-floor tilemap bytes forever. Omitting this
+        // queue made the moving sprite pad flash correctly, then left the landed floor platform
         // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
         _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(CeresFloorAnimation.PlatformFrame((frame & 2) >> 1)));
 

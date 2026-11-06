@@ -24,7 +24,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly AttractDemoSession _attractSession;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>The session's Mode 7 transfer residue, which a demo's Samus reads.</summary>
+    /// <summary>The session's turning-floor transfer residue, which a demo's Samus reads.</summary>
     private readonly EnemySession _enemySession;
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
@@ -191,9 +191,9 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
                 // The shared land-sky loader has already selected the same vertical
-                // BG2 page layout. Require that owner rather than writing a dummy mirror.
+                // background page layout. Require that owner rather than writing a dummy mirror.
                 if (_room.ScrollingSky is null)
-                    throw new InvalidDataException("Landing Site demo requires the scrolling-sky BG2 owner.");
+                    throw new InvalidDataException("Landing Site demo requires the scrolling sky's background owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
                 enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoDefinitions.KraidFunctionTimer);

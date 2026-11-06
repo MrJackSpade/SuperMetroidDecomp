@@ -143,7 +143,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.LoadBackground:
-                // File select queues the Zebes/stars BG2 tilemap.
+                // File select loads the Zebes and stars background.
                 Phase = FileSelectPhase.InitializeMain;
                 break;
 
@@ -226,7 +226,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         ScreenSprites sprites = screen.Objects;
         sprites.BeginFrame();
-        bool mainScreen = IsMainScreenPhase;
+        bool mainPage = IsMainPagePhase;
         FileSelectPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "File-select sprites require installed menu presentation assets.")).FileSelect;
         FileSelectBorder borderName = IsCopyPhase
@@ -238,7 +238,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         presentation.DrawBorder(sprites, sheet, borderName);
         if (ShouldDrawSelectionMissile)
             FileSelectPresentation.DrawCursor(sprites, sheet, missile.Frame, GetSelectionMissilePosition(presentation));
-        for (int slot = 0; mainScreen && slot < 3; slot++)
+        for (int slot = 0; mainPage && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
             // still drawn. Resetting to the first frame during the fade produces
@@ -312,7 +312,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private bool HasAnySave => saveSlots.Any(slot => slot is not null);
 
     /// <summary>Chooses main-page border, helmets, and missile coordinates, including fades.</summary>
-    private bool IsMainScreenPhase => !showDataManagementScreen;
+    private bool IsMainPagePhase => !showDataManagementScreen;
 
     /// <summary>Chooses the Copy border while its submenu remains visible.</summary>
     private bool IsCopyPhase =>
@@ -684,7 +684,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Places the cursor on the active main, slot, or confirmation row at the installed presentation's anchor.</summary>
     private Position16<SpritePixels> GetSelectionMissilePosition(FileSelectPresentation presentation)
     {
-        FileSelectCursorPage page = IsMainScreenPhase ? FileSelectCursorPage.Main
+        FileSelectCursorPage page = IsMainPagePhase ? FileSelectCursorPage.Main
             : Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm ? FileSelectCursorPage.Confirmation
             : FileSelectCursorPage.DataManagement;
         int row = page switch

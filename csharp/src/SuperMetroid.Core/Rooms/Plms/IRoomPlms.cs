@@ -21,7 +21,7 @@ internal interface IRoomPlms
     /// <summary>Queues sound requests emitted by room object instructions.</summary>
     PlmSoundQueue Sounds { get; }
 
-    /// <summary>Turns PLM draw-list commands into level changes and BG tilemap updates.</summary>
+    /// <summary>Turns PLM draw-list commands into level changes and background picture updates.</summary>
     IPlmDrawing Drawing { get; }
 
     /// <summary>Handles collectible item reveals, pickup, and persistence.</summary>

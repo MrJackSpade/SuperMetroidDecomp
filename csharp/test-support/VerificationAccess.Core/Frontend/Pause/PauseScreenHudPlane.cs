@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static class PauseScreenHudPlane
 {
     /// <summary>Cells in the pause screen's two BG3 screens.</summary>
-    private const int PlaneCells = 2 * ScreenGeometry.TilemapScreenCellCount;
+    private const int PlaneCells = 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount;
 
     /// <summary>The pause screen's HUD plane.</summary>
     extension(PauseScreen screen)

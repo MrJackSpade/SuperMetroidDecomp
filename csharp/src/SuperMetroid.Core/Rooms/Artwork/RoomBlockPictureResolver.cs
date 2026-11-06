@@ -16,7 +16,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <summary>The foreground plane whose used blocks <see cref="used"/> holds.</summary>
     private RoomLevelPlane? foregroundPlane;
 
-    /// <summary>The layer-2 plane whose used blocks <see cref="used"/> holds, or null.</summary>
+    /// <summary>The background plane whose used blocks <see cref="used"/> holds, or null.</summary>
     private RoomLevelPlane? backgroundPlane;
 
     /// <summary>The artwork the blocks in <see cref="used"/> were resolved over.</summary>
@@ -42,7 +42,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// while the room's appearance inputs take the values <paramref name="appearance"/> reads.
     /// </summary>
     /// <param name="foreground">The room's foreground plane.</param>
-    /// <param name="background">The room's layer-2 plane, which shows the same tileset's blocks, or null when background shows none.</param>
+    /// <param name="background">The room's background plane, which shows the same tileset's blocks, or null when background shows none.</param>
     /// <param name="blockArtwork">The artwork the room's blocks show.</param>
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
     /// <param name="alsoShown">Further blocks the frame shows, as the X-ray reveal's blocks; none when empty.</param>

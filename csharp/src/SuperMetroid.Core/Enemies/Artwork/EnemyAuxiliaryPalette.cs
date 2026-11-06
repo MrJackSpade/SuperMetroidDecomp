@@ -7,8 +7,8 @@ public enum EnemyAuxiliaryPalette
     FaceBlock,
     /// <summary>Six draining stages followed by corpse paint; each supplied stage omits color zero and updates palette colours 145..159.</summary>
     DeadSidehopper,
-    /// <summary>Eight sixteen-color body health bands from low to high health, copied to OBJ palette 1; the runtime clamps the highest range to band seven.</summary>
+    /// <summary>Eight sixteen-color body health bands from low to high health, copied to sprite palette 1; the runtime clamps the highest range to band seven.</summary>
     GoldenTorizoBody,
-    /// <summary>Eight sixteen-color belly health bands paired with the body bands, copied to OBJ palette 2 using the same runtime health selector.</summary>
+    /// <summary>Eight sixteen-color belly health bands paired with the body bands, copied to sprite palette 2 using the same runtime health selector.</summary>
     GoldenTorizoBelly,
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public enum RoomFxPaletteBlend
 {
-    /// <summary>Selection zero clears the layer-3 blend color instead of loading a resource.</summary>
+    /// <summary>Selection zero clears the effect overlay blend color instead of loading a resource.</summary>
     None = 0,
     /// <summary>FX-record selector $02, used primarily for lava/acid.</summary>
     Lava = 1,

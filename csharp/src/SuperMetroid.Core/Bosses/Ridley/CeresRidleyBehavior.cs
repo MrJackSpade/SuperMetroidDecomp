@@ -28,7 +28,7 @@ internal sealed class CeresRidleyBehavior
     /// <summary>What Ceres Ridley's body does to Samus and what Samus's weapons do to Ceres Ridley.</summary>
     internal CeresRidleyHits Hits { get; }
 
-    /// <summary>Ceres Ridley's Mode 7 getaway and the station's self-destruct countdown that follows.</summary>
+    /// <summary>Ceres Ridley's turning-floor getaway and the station's self-destruct countdown that follows.</summary>
     internal CeresRidleyGetaway Getaway { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;

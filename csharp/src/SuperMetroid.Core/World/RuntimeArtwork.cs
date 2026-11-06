@@ -28,7 +28,7 @@ internal sealed class RuntimeArtwork
     private readonly HudState _hud;
     /// <summary>Receives Samus palette, grapple, and tile-art bindings.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Receives animated tile, layer-three map, and blend-color catalogs for every room's FX.</summary>
+    /// <summary>Receives animated tile, effect overlay map, and blend-color catalogs for every room's FX.</summary>
     private readonly RoomFxSession _roomFx;
 
     /// <summary>

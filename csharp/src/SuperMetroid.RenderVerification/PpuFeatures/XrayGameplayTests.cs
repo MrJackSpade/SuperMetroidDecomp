@@ -151,8 +151,8 @@ internal static class XrayGameplayTests
                 (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Foreground) | (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Background)
                     | (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Sprites));
             // Every fifth frame's planes draw from block pictures (#1392).
-            var gameplay = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(),
-                    frame % 2 == 0 ? registers.BackgroundScroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
+            var gameplay = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsPlaneScroll(),
+                    frame % 2 == 0 ? registers.BackgroundScroll.AsPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
                     pictureColours: frame % 5 == 0 ? colors : null),
                 // Layer 2's line scrolls are random described shapes (#1468): a sampled wave across, bands down.
                 new BackgroundLineScrolls
@@ -190,7 +190,7 @@ internal static class XrayGameplayTests
             var registers = new GameplaySceneView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
                 new Position16<BackgroundPixels>(Fine(), Fine()),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(), pictureColours: colors);
+            SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsPlaneScroll(), pictureColours: colors);
             var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
             var lines = RandomWindow(random);
             var layer = new GameplayBlendLayer(gameplay, lines, true, RandomBlend(random), null);

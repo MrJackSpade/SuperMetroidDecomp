@@ -43,7 +43,7 @@ internal sealed class PhantoonPresentation
         state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
     }
 
-    /// <summary>Changes BG2 wave amplitude toward its current phase target.</summary>
+    /// <summary>Changes the background wave's amplitude toward its current phase target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
         PhantoonPartState mouth,
         int delta,

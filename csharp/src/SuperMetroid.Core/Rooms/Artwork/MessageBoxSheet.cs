@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured gameplay message boxes of one tileset's rooms (#1392, #1466): one image of each form a
 /// message takes (each button a panel can name, each save choice), named by the frame name of the form it shows and
-/// coloured with the tileset's standard BG3 colours and the two colours a message box installs.
+/// coloured with the tileset's standard effect overlay colours and the two colours a message box installs.
 /// </summary>
 public sealed class MessageBoxSheet
 {
@@ -14,13 +14,13 @@ public sealed class MessageBoxSheet
     private readonly Dictionary<string, SpriteSheetFrame> pictures = new(StringComparer.Ordinal);
 
     /// <summary>Keeps <paramref name="tileset"/>'s message box images.</summary>
-    /// <exception cref="InvalidDataException">The sheet is not coloured as BG3's characters are.</exception>
+    /// <exception cref="InvalidDataException">The sheet is not coloured as the effect overlay's characters are.</exception>
     public MessageBoxSheet(TilesetDefinition tileset, SpriteSheet sheet)
     {
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         if (sheet.Image.Colours != SpriteImageColours.TwoBppBackground)
-            throw new InvalidDataException($"{Name} is not coloured as BG3's characters are.");
+            throw new InvalidDataException($"{Name} is not coloured as the effect overlay's characters are.");
     }
 
     /// <summary>The tileset whose rooms show the messages.</summary>

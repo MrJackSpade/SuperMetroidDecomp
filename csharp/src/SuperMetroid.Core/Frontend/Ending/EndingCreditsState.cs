@@ -81,13 +81,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>Zebes exploding in the ending: the finale and burst displays and the crossfade between them.</summary>
     internal EndingZebesExplosion Explosion { get; }
 
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     internal EndingStage Stage { get; }
 
     /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
     internal EndingFlyaway Flyaway { get; }
 
-    /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
     internal EndingArtwork InstalledArtwork { get; }
 
     /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>
@@ -340,7 +340,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                         break;
                     }
                     // The reward step replaces the idle actors with the gesture animations.
-                    // BG1/BG2 are disabled during this OBJ-only animation.
+                    // The backgrounds are hidden during this sprite-only animation.
                     sprites.Clear();
                     CurrentRewardGesture = new EndingRewardGesture(Stage.EndingReward);
                     Stage.Phase = EndingCreditsPhase.PostCreditsGesture;
@@ -407,10 +407,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentageScrollDown:
-                // Function 148 moves BG1 down two pixels per call from zero through -80.
-                // The software renderer applies the equivalent scroll while preserving the
-                // already-built tilemap until the final object is spawned.
-                Stage.PostCreditsScroll -= new Offset16<TilePlanePixels>(0, 2);
+                // Function 148 moves the text page down two pixels per call from zero through -80,
+                // preserving the already-built page until the final object is spawned.
+                Stage.PostCreditsScroll -= new Offset16<PlanePixels>(0, 2);
                 if (--Stage.PhaseTimer <= 0)
                 {
                     InstalledArtwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = CreditsRoll.PostCreditsTextTilemap, Presentation = InstalledArtwork.EndingText, InstalledSequence = InstalledArtwork.EndingText is null ? null : EndingTextSequence.FinalMessage }));
@@ -436,7 +435,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             (colours, record) => screen.Colours.PaletteFx(colours, record, PaletteFxBackdrop(colours, record, paletteFxColours)));
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
-        // The ending follows cinematic actors even while a text-only main screen hides sprites.
+        // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-initialized records when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
@@ -458,7 +457,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             : throw new InvalidDataException($"Palette-FX record {record.Record}'s first colour has no installed definition.");
     }
 
-    /// <summary>Rotates Mode 7 every other cinematic call while applying the current zoom delta.</summary>
+    /// <summary>Rotates the turning floor every other cinematic call while applying the current zoom delta.</summary>
     private void StepAtmosphericTransform(int scaleDelta)
     {
         // Func111/114 run during both fades as well as the fully visible interval.
@@ -476,7 +475,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         CinematicSpriteProgram.ClearTimeDigit9,
     ];
 
-    /// <summary>Whether the explosion currently uses its dedicated color-math composition.</summary>
+    /// <summary>Whether the explosion currently uses its dedicated glow composition.</summary>
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 
@@ -506,7 +505,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         ];
         return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
 
-        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Position16<TilePlanePixels>.Zero);
+        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Position16<PlanePixels>.Zero);
     }
 
     /// <summary>One screen of cells, the size of every whole-screen ending picture.</summary>
@@ -520,7 +519,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <paramref name="loaded"/>, otherwise nothing (#1467, #1512).
     /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, bool loaded) => loaded
-        ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<TilePlanePixels>.Zero, screen.Colours.Shading)])
+        ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<PlanePixels>.Zero, screen.Colours.Shading)])
         : PicturedPlane.Empty(ScreenCells);
 
     /// <summary>
@@ -533,7 +532,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         if (!screen.ExplosionMapsLoaded)
             return PicturedPlane.Empty(ScreenCells);
         int height = ScreenCells.Y * ScreenGeometry.BackgroundTileSizePixels;
-        var corner = new Position16<TilePlanePixels>(0, height - EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
+        var corner = new Position16<PlanePixels>(0, height - EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
         return new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
             EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.Shading)]);
     }
@@ -543,7 +542,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
     /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane, once the post-credits art is loaded (#1467), in the ending's colours (#1512).</summary>
     internal PicturedPlane WaitingPlane(Extent16<TilemapCells> size) => new(size, screen.PostCreditsArtLoaded
-        ? [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<TilePlanePixels>.Zero,
+        ? [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<PlanePixels>.Zero,
             screen.Colours.Shading)]
         : []);
 
@@ -577,7 +576,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         void Place(ImmutableArray<WrittenPicture> text, int firstRow)
         {
             foreach (WrittenPicture shown in text)
-                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<TilePlanePixels>(
+                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<PlanePixels>(
                     shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
                     (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels), shading));
         }
@@ -590,7 +589,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private LayeredScene CaptureExplosionBurst()
     {
         EndingObjectSheet sheet = EndingCreditsPresentation.CurrentEscapeObjectSheet(this);
-        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap), Position16<TilePlanePixels>.Zero);
+        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap), Position16<PlanePixels>.Zero);
         SpritesLayer debris = EndingCreditsPresentation.Sprites(this, sheet, EndingSpriteLayer.Actors);
         DisplayLayer[] layers =
         [

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class XrayReveal
 {
-    /// <summary>Supplies layer one's position and the foreground's offset, which place the reveal.</summary>
+    /// <summary>Supplies the camera position and the foreground's offset, which place the reveal.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies the active room, its level data and its area.</summary>
     private readonly ActiveRoomState _room;
@@ -41,11 +41,11 @@ internal sealed class XrayReveal
         Ensure.NotNull(plms);
         var room = _room.ActiveRoom ?? throw new InvalidOperationException("The X-ray reveals no room.");
         var level = _room.LevelData ?? throw new InvalidOperationException("The X-ray reveals a room with no level data.");
-        Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
-        RevealedBlock?[] blocks = XrayRevealMap.Build(level, layer1, _backgroundScroll.ForegroundOffset,
+        Position16<RoomPixels> foregroundPosition = _backgroundScroll.ForegroundPosition;
+        RevealedBlock?[] blocks = XrayRevealMap.Build(level, foregroundPosition, _backgroundScroll.ForegroundOffset,
             room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, blocks, plms.CollectiblePlms.Collectibles, _system,
-            room.State.XrayOverlay, layer1, XrayRevealVisuals);
-        return new(XrayRevealMap.OriginOf(layer1, _backgroundScroll.ForegroundOffset), [.. blocks]);
+            room.State.XrayOverlay, foregroundPosition, XrayRevealVisuals);
+        return new(XrayRevealMap.OriginOf(foregroundPosition, _backgroundScroll.ForegroundOffset), [.. blocks]);
     }
 }

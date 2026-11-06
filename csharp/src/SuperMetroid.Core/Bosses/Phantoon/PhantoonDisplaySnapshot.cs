@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// configuration, and the body layer's mosaic size. Later passes cannot change them. His fades show through the body
 /// palette the frame's colour snapshot carries, which is exact palette state.
 /// </summary>
-/// <param name="Wave">The active wave rippling BG2, or null when the wave channel is inactive.</param>
-/// <param name="Configuration">Latched blend configuration: room default, BG2 hidden, or BG2 semitransparent.</param>
-/// <param name="MosaicBlockSize">BG2 mosaic block size in screen pixels latched for display, 1..16; one means no quantization.</param>
+/// <param name="Wave">The active wave rippling the background, or null when the wave channel is inactive.</param>
+/// <param name="Configuration">Latched blend configuration: the room default, the background hidden, or the background semitransparent.</param>
+/// <param name="MosaicBlockSize">Background mosaic block size in screen pixels latched for display, 1..16; one means no quantization.</param>
 public sealed record PhantoonDisplaySnapshot(
     PhantoonWave? Wave,
     LayerBlendingConfiguration Configuration,

@@ -14,7 +14,7 @@ internal sealed record PhantoonDeathDependencies
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Applies body palettes and BG2 tilemap changes.</summary>
+    /// <summary>Applies body palettes and the background tilemap changes.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>

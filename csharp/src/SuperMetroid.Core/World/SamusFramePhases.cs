@@ -370,7 +370,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         {
             // The bomb half above has already decremented the shared projectile cooldown.
             // The humanoid handler then dispatches the HUD producer before the same
-            // HandleProjectile pass. Passing the live layer-1 position also gives
+            // HandleProjectile pass. Passing the live camera position also gives
             // the projectile deletion check its exact off-screen deletion window.
             // A malformed callback-table entry (SpaceTime) stores raw bytes straight
             // into 's progression owners during this pass, so later

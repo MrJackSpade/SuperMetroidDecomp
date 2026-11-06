@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The scrolling sky as an accepted frame shows it: layer 2's vertical scroll, which follows the camera
-/// (it copies layer one's). The bands' horizontal scrolls are read while the frame is drawn and are not part of this latch.
+/// The scrolling sky as an accepted frame shows it: the background's vertical scroll, which follows the camera
+/// (it copies the foreground's). The bands' horizontal scrolls are read while the frame is drawn and are not part of this latch.
 /// </summary>
 /// <param name="BackgroundScroll">
-/// The layer-2 scroll the sky latches. Only <see cref="Position16{TSpace}.Y"/> is the sky's: the
-/// layer-one Y it copies, kept with its sixteen-bit wrap. X is zero because the sky never sets a
+/// The background scroll the sky latches. Only <see cref="Position16{TSpace}.Y"/> is the sky's: the
+/// camera Y it copies, kept with its sixteen-bit wrap. X is zero because the sky never sets a
 /// uniform horizontal scroll; its bands scroll instead.
 /// </param>
 public readonly record struct LatchedScrollingSky(Position16<BackgroundPixels> BackgroundScroll)

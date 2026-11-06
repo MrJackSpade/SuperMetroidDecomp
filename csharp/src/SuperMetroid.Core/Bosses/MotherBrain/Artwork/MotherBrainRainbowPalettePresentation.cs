@@ -45,7 +45,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>
-    /// Set_RainbowBeam_ColorMathSubscreenBackdropColor.table:
+    /// The rainbow beam's backdrop glow colours:
     /// five linear hue legs sampled every other word. The blue-to-magenta leg
     /// delays red by one step and adds a one-step green tint in its upper half.
     /// Falling green/blue changes its rounding bias after local step eight.

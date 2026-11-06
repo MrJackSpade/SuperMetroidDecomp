@@ -16,7 +16,7 @@ internal sealed class PhantoonDeath
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Applies body palettes and BG2 tilemap changes.</summary>
+    /// <summary>Applies body palettes and the background tilemap changes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -111,7 +111,7 @@ internal sealed class PhantoonDeath
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BeginFinalWavyDeath;
     }
 
-    /// <summary>Starts the distorted BG2 and mosaic stages after the fatal swoop.</summary>
+    /// <summary>Starts the distorted background and mosaic stages after the fatal swoop.</summary>
     internal void BeginPhantoonWavyMosaicDeath(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -126,7 +126,7 @@ internal sealed class PhantoonDeath
         state.Parts[state.Eye.SlotIndex].DeathMosaicFinished = false;
         state.MosaicBlockSize = PhantoonDeathDefinitions.InitialMosaicSize;
 
-        // The body remains the BG2 producer. Eye/tentacle/mouth become invisible and ignore
+        // The body remains the background producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as the death step does.
         EnemyProperties hiddenPartProperties = body.Properties.Replace(
             EnemyProperties.RunsAnimationScript,
@@ -172,7 +172,7 @@ internal sealed class PhantoonDeath
     }
 
 
-    /// <summary>Clears the visible enemy BG2 page and starts the 60-frame power delay.</summary>
+    /// <summary>Clears the visible enemy background page and starts the 60-frame power delay.</summary>
     internal void ClearPhantoonDeathGraphics(
         RoomEnemySlot body,
         PhantoonEnemyState state)

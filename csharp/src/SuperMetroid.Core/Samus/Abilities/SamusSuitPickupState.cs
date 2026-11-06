@@ -94,7 +94,7 @@ public sealed class SamusSuitPickupState
     /// </summary>
     public void Begin(
         SamusState samus,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         SamusSuitPickupKind kind,
         bool soundSuppressed = false)
     {
@@ -143,7 +143,7 @@ public sealed class SamusSuitPickupState
 
         // The game writes whole positions but leaves fractional words untouched. These are
         // fixed screen coordinates, not a room-specific item-location approximation.
-        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(layer1.X + 120), CoordinateAxis.Wrap(layer1.Y + 136)));
+        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(cameraPosition.X + 120), CoordinateAxis.Wrap(cameraPosition.Y + 136)));
         // The pickup stores the same words as the previous position, so this frame's
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);

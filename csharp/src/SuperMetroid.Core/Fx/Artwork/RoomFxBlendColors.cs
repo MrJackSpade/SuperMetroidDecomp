@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>Loaded artwork inks with calculated components separated from arbitrary edits.</summary>
 /// <remarks>
 /// Native89:AA02+selector supplies primary/secondary/background inks copied by89:AB5E
-/// to BG3 palette25..27. The remaining24 independent channels specify each theme's
+/// to the effect overlay's palette 25..27. The remaining24 independent channels specify each theme's
 /// chosen hue/brightness, not samples of time or distance. Index interpolation or
 /// fitted color transforms would merely recite those choices as code. Their specific
 /// artistic-content/nonsense dispositions are in roomFxIndependentInkReview in the
@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </remarks>
 internal sealed class RoomFxBlendColors
 {
-    /// <summary>First BG3 ink, with shared tint rules separated from supplied colours.</summary>
+    /// <summary>First effect overlay ink, with shared tint rules separated from supplied colours.</summary>
     internal readonly RoomFxPairColor primary;
-    /// <summary>Second BG3 ink, with shared tint rules separated from supplied colours.</summary>
+    /// <summary>Second effect overlay ink, with shared tint rules separated from supplied colours.</summary>
     internal readonly RoomFxPairColor secondary;
     /// <summary>Third ink only when it differs from the selector's calculated color.</summary>
     internal readonly RoomFxThirdColor? thirdOverride;

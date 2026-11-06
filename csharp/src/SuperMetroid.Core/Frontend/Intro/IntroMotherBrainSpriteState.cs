@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The definition's initializer fixes the actor at (56,111) in her own colouring and
 /// priority three. Its animation cycles four authored spritemaps at
 /// sixteen frames apiece. The actor also retains the hit counter, eight-frame palette
-/// flash, and the 128-frame exploding state and BG1 screen shake.
+/// flash, and the 128-frame exploding state and the room picture's shake.
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
@@ -57,9 +57,9 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>True once the fourth hit switches this actor to its exploding behaviour.</summary>
     public bool ExplosionStarted { get; private set; }
 
-    /// <summary>The flashback room's BG1 scroll, shaken vertically while Mother Brain explodes.</summary>
+    /// <summary>The flashback room picture's scroll, shaken vertically while Mother Brain explodes.</summary>
     public Position16<RoomPixels> Background { get; private set; } =
-        new(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll);
+        new(0, IntroCinematicState.GameplayFlashbackVerticalScroll);
 
     /// <summary>True when the exploding behaviour switches the actor to its page-two animation.</summary>
     public bool PageTwoRequested { get; private set; }
@@ -150,7 +150,7 @@ internal sealed class IntroMotherBrainSpriteState
         PageTwoRequested = true;
     });
 
-    /// <summary>Alternates BG1 scroll by four pixels from the inherited flashback offset.</summary>
+    /// <summary>Alternates the room picture's scroll by four pixels from the inherited flashback offset.</summary>
     private void ApplyScreenShake(int cinematicFrameCounter)
     {
         // The shake adds four on even cinematic frames and subtracts four on odd frames.

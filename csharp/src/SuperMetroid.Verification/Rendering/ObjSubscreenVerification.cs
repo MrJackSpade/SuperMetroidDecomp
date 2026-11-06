@@ -137,7 +137,7 @@ internal static class ObjSubscreenVerification
             var shown = new SpritesLayer(sprites.SpriteDraws);
             var masked = new DisplayPacket(0, new LayeredScene(new FramePaint(sprites.Backdrop),
                 new DisplayLayer[] { shown, new AddedPicturedPlaneLayer(Plane(0x7000),
-                    new PicturedPlaneLayer(Plane(0x6800), new Position16<TilePlanePixels>(0, 0)), shown) }, 15));
+                    new PicturedPlaneLayer(Plane(0x6800), new Position16<PlanePixels>(0, 0)), shown) }, 15));
             var pixels = DisplayRendering.Render(masked);
             AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "a glow over a plane does not add to the backdrop");
             AssertEqual(palette == 4 ? new RgbaPixel(0, 255, 255) : new RgbaPixel(0, 255, 0), pixels[8 * 256 + 8],

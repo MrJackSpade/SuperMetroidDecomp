@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// The shades and colour effects its screen shows it in (#1512); <see cref="PictureShading.Standard"/> where the screen
 /// shows no effect on it.
 /// </param>
-public readonly record struct PlacedPlanePicture(SpriteSheetFrame Picture, Position16<TilePlanePixels> Corner, PictureShading Shading)
+public readonly record struct PlacedPlanePicture(SpriteSheetFrame Picture, Position16<PlanePixels> Corner, PictureShading Shading)
 {
     /// <summary>
     /// <paramref name="picture"/> placed at cell <paramref name="cell"/> of a plane <paramref name="plane"/> cells in size,

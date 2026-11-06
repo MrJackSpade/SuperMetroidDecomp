@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The Maridia glass tube (N00b tube) PLM: its crack and shatter, earthquake, layer-3 FX and projectile spawns.</summary>
+/// <summary>The Maridia glass tube (N00b tube) PLM: its crack and shatter, earthquake, effect overlay FX and projectile spawns.</summary>
 [RoomLifetime]
 internal sealed class NoobTubePlms
 {
@@ -12,7 +12,7 @@ internal sealed class NoobTubePlms
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
-    /// <summary>The room's layer-3 FX.</summary>
+    /// <summary>The room's effect overlay FX.</summary>
     private readonly IRoomWaterPhysics? _waterPhysics;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter? _earthquake;

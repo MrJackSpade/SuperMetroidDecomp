@@ -40,7 +40,7 @@ internal static class SamusDeathFrameSelectionVerification
             });
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
-            samus.DeathSequence.Begin(samus, layer1: new(0, 0));
+            samus.DeathSequence.Begin(samus, cameraPosition: new(0, 0));
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusDeath);
             HorizontalDirection facing = facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right;
             var samusColours = new SamusColours();

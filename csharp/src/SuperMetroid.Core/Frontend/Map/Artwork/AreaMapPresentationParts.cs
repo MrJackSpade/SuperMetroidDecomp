@@ -91,7 +91,7 @@ internal sealed record AreaMapPresentationParts
     public required EndingFontAtlas EndingFont { get; init; }
 
 
-    /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
+    /// <summary>Title turning-floor characters and tilemap, sprite characters, and Baby character artwork selected from their extracted files.</summary>
     public required TitleGraphicsPresentation TitleGraphics { get; init; }
 
     /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>
@@ -112,10 +112,10 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes.</summary>
     public required MotherBrainRoomColorPresentation MotherBrainRoomColors { get; init; }
 
-    /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
+    /// <summary>Selected animated room-FX character artwork, separate from effect overlay pages and palette blending.</summary>
     public required RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; init; }
 
-    /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
+    /// <summary>Selected room-FX palette-blend presentation, separate from effect overlay page geometry and animated character bytes.</summary>
     public required RoomFxBlendInks RoomFxPaletteBlends { get; init; }
 
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>

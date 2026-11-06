@@ -56,7 +56,7 @@ internal static class MotherBrainGlitchMechanicsVerification
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
             baby.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0xff00), new SignedEightEight(0));
             var motherBrain = new MotherBrainRainbowBeamAttackSequence();
-            baby.Step(samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
+            baby.Step(samus, motherBrain, HeadOf(motherBrain), cameraPosition: Position16<RoomPixels>.Zero);
             return baby.Velocity.X.RawValue;
         }
         // Samus's X radius is five for every humanoid pose.

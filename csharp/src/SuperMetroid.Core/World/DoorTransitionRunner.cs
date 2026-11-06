@@ -91,7 +91,7 @@ internal sealed class DoorTransitionRunner
                 if (!door.EntersCeresElevatorShaft || _display.ActiveTurningFloor is null)
                 {
                     throw new InvalidDataException(
-                        "Ceres elevator door setup reached dispatch without its Mode-7 transform.");
+                        "Ceres elevator door setup reached dispatch without its turning-floor transform.");
                 }
                 return;
 

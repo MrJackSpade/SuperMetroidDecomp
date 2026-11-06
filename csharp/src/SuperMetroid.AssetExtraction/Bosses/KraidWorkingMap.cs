@@ -37,7 +37,7 @@ internal static class KraidWorkingMap
             working[KraidWorkingMapDefinitions.LowerPageFirstCell + cell] = working[cell] with { HighPriority = false };
         for (int cell = 0; cell < KraidWorkingMapDefinitions.PageCells; cell++)
             working[cell] = upper[cell] with { HighPriority = false };
-        working.AsSpan(KraidWorkingMapDefinitions.BlankRowFirstCell, ScreenGeometry.TilemapScreenWidthInTiles)
+        working.AsSpan(KraidWorkingMapDefinitions.BlankRowFirstCell, SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles)
             .Fill(KraidWorkingMapDefinitions.BlankTile);
         return working;
     }

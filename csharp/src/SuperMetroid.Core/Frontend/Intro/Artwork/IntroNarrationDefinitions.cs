@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Fixed layout limits and typing cadence of the opening narration.</summary>
 public static class IntroNarrationDefinitions
 {
-    /// <summary>Zero-based BG tilemap column at which every narration line begins: column one.</summary>
+    /// <summary>Zero-based page column at which every narration line begins: column one.</summary>
     public const int FirstColumn = 1;
     /// <summary>Maximum glyph count per line, 29, occupying tile columns one through 29 including spaces.</summary>
     public const int MaximumColumns = 29;
-    /// <summary>First permitted text row in BG tile cells, four; presentation lines use even rows with two-row spacing.</summary>
+    /// <summary>First permitted text row in page cells, four; presentation lines use even rows with two-row spacing.</summary>
     public const int FirstTextRow = 4;
     /// <summary>Five cinematic background-object updates between character records, including spaces; independent of host elapsed time.</summary>
     public const int CharacterDelayFrames = 5;

@@ -35,7 +35,7 @@ public static class IntroScenePictures
         Ensure.NotNull(shading);
         placed.Add(new(sheet.Frame(Portrait), default, shading));
         if (eye is { } frame)
-            placed.Add(new(sheet.Frame(Eye(frame)), new Position16<TilePlanePixels>(
+            placed.Add(new(sheet.Frame(Eye(frame)), new Position16<PlanePixels>(
                 IntroEyeAnimationDefinitions.PortraitCell.X * ScreenGeometry.BackgroundTileSizePixels,
                 IntroEyeAnimationDefinitions.PortraitCell.Y * ScreenGeometry.BackgroundTileSizePixels), shading));
         return Plane(placed.ToImmutable());

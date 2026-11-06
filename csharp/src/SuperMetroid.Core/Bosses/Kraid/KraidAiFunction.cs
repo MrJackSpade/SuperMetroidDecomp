@@ -103,7 +103,7 @@ public enum KraidAiFunction
     DeathFadeInBackground,
     /// <summary>The terminal death entry for a Kraid that was alive when this encounter loaded.</summary>
     DeathFinishedWasAlive,
-    /// <summary>The already-defeated terminal entry, also invalidating BG1 column-streaming position.</summary>
+    /// <summary>The already-defeated terminal entry, also invalidating the foreground's column-streaming position.</summary>
     DeathFinishedWasDead,
     /// <summary>Restricts Samus to the room's first screen while waiting for the rise.</summary>
     RestrictSamusToFirstScreen,

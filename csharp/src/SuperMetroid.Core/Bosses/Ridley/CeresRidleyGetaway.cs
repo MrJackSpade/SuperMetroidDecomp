@@ -13,7 +13,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ceres Ridley's Mode 7 getaway and the station's self-destruct countdown that follows.</summary>
+/// <summary>Ceres Ridley's turning-floor getaway and the station's self-destruct countdown that follows.</summary>
 [RoomLifetime]
 internal sealed class CeresRidleyGetaway
 {
@@ -23,7 +23,7 @@ internal sealed class CeresRidleyGetaway
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
+    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
     private readonly EnemyPresentation _presentation;
@@ -179,7 +179,7 @@ internal sealed class CeresRidleyGetaway
             return;
         }
         throw new InvalidOperationException(
-            $"Ceres Ridley Mode 7 zoom step {zoomStep} is not in the installed palette catalog.");
+            $"Ceres Ridley turning-floor zoom step {zoomStep} is not in the installed palette catalog.");
     }
 
     /// <summary>
@@ -286,13 +286,13 @@ internal sealed class CeresRidleyGetaway
         }
     }
 
-    /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's BG1.</summary>
+    /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's foreground.</summary>
     internal void DrawCeresEmergencyText()
     {
         DrawCeresOverlay(CeresEscapeOverlayTilemapDefinitions.Emergency);
     }
 
-    /// <summary>Writes the picture of one warning page over the room's BG1 at its overlay cell (#1466).</summary>
+    /// <summary>Writes the picture of one warning page over the room's foreground at its overlay cell (#1466).</summary>
     private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page) =>
         _room.Services.WriteForegroundPicture(new WrittenPicture(page.Picture, page.Cell));
 
@@ -318,7 +318,7 @@ internal sealed class CeresRidleyGetaway
         return state.CeresEscapePages.IsFinished;
     }
 
-    /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's BG1.</summary>
+    /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's foreground.</summary>
     internal void DrawCeresJapaneseOverlay()
     {
         foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.Japanese)
@@ -331,7 +331,7 @@ internal sealed class CeresRidleyGetaway
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
-        // The Ceres program types over the room's BG1 (#1348).
+        // The Ceres program types over the room's foreground (#1348).
         if (glyph is { } typed)
             _room.Services.WriteForegroundPicture(new WrittenPicture(typed.Picture, typed.Cell));
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;

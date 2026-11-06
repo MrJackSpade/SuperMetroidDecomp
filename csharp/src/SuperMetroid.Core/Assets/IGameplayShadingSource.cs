@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// An owner of a colour effect gameplay's background pictures show (#1512): a room's palette effects, its layer-3
+/// An owner of a colour effect gameplay's background pictures show (#1512): a room's palette effects, its effect overlay
 /// effect's colours, a door's fade or a boss's colours. It holds the effect as typed state and, as a frame is published,
 /// names the shades and effects that state shows.
 /// </summary>

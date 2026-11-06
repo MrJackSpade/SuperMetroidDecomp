@@ -17,9 +17,9 @@ internal sealed class EndingCreditsRoll
     private readonly List<EndingSprite> sprites ;
     /// <summary>The post-credits staging page.</summary>
     private readonly EndingTextPage postCreditsPage;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -76,8 +76,8 @@ internal sealed class EndingCreditsRoll
     /// <summary>Replaces the producer result rows with the copyright panel and starts its authored hold.</summary>
     internal void ShowRewardCopyright()
     {
-        // Func135 removes the producer panel and shows the copyright panel in rows twelve and thirteen. BG1 alone is
-        // visible until Func137 ends.
+        // Func135 removes the producer panel and shows the copyright panel in rows twelve and thirteen. The text page alone is
+        // shown until Func137 ends.
         _ = _artwork.EndingText ?? throw new InvalidOperationException("Ending copyright requires installed text assets.");
         postCreditsPage.Erase(EndingPictureNames.ResultPanel);
         postCreditsPage.Write(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell);
@@ -123,12 +123,12 @@ internal sealed class EndingCreditsRoll
     internal void BeginPostCreditsWhiteFlash()
     {
         CurrentPostShot = null;
-        // E48A restores the shooting palette and selects BG1SC=$4E: the final
+        // E48A restores the shooting palette and shows the final text page: the final
         // text map is two screens tall, not the credits' single-screen map.
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         PostCreditsTextTilemap = EndingTextScreen.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
-        _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;
+        _stage.PostCreditsScroll = Position16<PlanePixels>.Zero;
         // E48A clears the copyright's two rows.
         postCreditsPage.Erase(EndingPictureNames.CopyrightPanel);
         UploadPostCreditsTilemap();

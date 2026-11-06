@@ -36,7 +36,7 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
     public required EnemySession EnemySession { get; init; }
 
-    /// <summary>The main-screen layers the accepted frame latches.</summary>
+    /// <summary>The shown layers the accepted frame latches.</summary>
     public required GameplayScreenLayers ScreenLayers { get; init; }
 
 

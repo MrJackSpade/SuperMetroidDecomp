@@ -11,7 +11,7 @@ public static class MapScreenConversions
         Position16<MapPixels>.Wrapped(tile.X * PixelsPerTile, tile.Y * PixelsPerTile);
 
     /// <summary>
-    /// The screen position of a map-plane pixel under the map's BG scroll (<c>position - scroll</c>),
+    /// The screen position of a map-plane pixel under the map's scroll (<c>position - scroll</c>),
     /// wrapping each axis at sixteen bits exactly as the game's sprite origins do.
     /// </summary>
     public static Position16<ScreenPixels> ToScreen(this Position16<MapPixels> position, Position16<MapPixels> scroll) =>

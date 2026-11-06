@@ -11,15 +11,15 @@ internal static class EndingPostShotDefinitions
     public static readonly SoundEffectId ShotSound = Library1Sound.ChargedPlasmaWave;
     /// <summary>F604 queues the shot through the max-fifteen entry point.</summary>
     public static SoundRequestPriority ShotSoundLimit { get; } = SoundRequestPriority.Essential;
-    /// <summary>Func126's post-credits Mode-7 horizontal origin.</summary>
+    /// <summary>Func126's post-credits turning-floor horizontal origin.</summary>
     public const int CenterX = 104;
-    /// <summary>Func126's post-credits Mode-7 vertical origin.</summary>
+    /// <summary>Func126's post-credits turning-floor vertical origin.</summary>
     public const int CenterY = 112;
-    /// <summary>F604's post-shot BG horizontal offset.</summary>
+    /// <summary>F604's post-shot background horizontal offset.</summary>
     public const int OffsetX = -4;
-    /// <summary>F604's post-shot BG vertical offset.</summary>
+    /// <summary>F604's post-shot background vertical offset.</summary>
     public const int OffsetY = -8;
-    /// <summary>Func126 initializes the reward Mode-7 scale to nine times unity.</summary>
+    /// <summary>Func126 initializes the reward turning-floor scale to nine times unity.</summary>
     public const int InitialScale = 2304;
     /// <summary>Func139 reduces scale by $40 per frame.</summary>
     public const int ScaleStep = 64;
@@ -31,6 +31,6 @@ internal static class EndingPostShotDefinitions
     public const int SamusFadeDelay = 16;
     /// <summary>Shared cinematic palette fades run thirty-two component steps.</summary>
     public const int FadeFrames = 32;
-    /// <summary>Func141 waits 180 calls before switching to the white-flash Mode-1 display.</summary>
+    /// <summary>Func141 waits 180 calls before switching to the white-flash display.</summary>
     public const int HoldFrames = 180;
 }

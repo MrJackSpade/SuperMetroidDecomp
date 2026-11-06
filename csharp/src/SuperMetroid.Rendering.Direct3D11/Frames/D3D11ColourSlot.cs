@@ -13,11 +13,11 @@ internal enum D3D11PictureColouring
     DoorSourceRoom,
     /// <summary>In the shading of the HUD's pictures.</summary>
     Hud,
-    /// <summary>In the shading of the room effect's layer-3 pages.</summary>
+    /// <summary>In the shading of the room effect's effect overlay pages.</summary>
     FxOverlay,
     /// <summary>In the shading of the message box's pictures.</summary>
     MessageBox,
-    /// <summary>In the shading of the boss body on layer 2.</summary>
+    /// <summary>In the shading of the boss body on the background.</summary>
     BossBody,
 }
 

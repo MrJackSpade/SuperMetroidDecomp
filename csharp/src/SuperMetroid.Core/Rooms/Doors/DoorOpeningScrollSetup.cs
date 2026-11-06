@@ -16,7 +16,7 @@ internal sealed record DoorOpeningScrollSetup
     public required Position16<RoomPixels> CameraPosition { get; init; }
 
     /// <summary>The second background layer's position as the scroll carries it.</summary>
-    public required Position16<BackgroundPixels> Layer2Position { get; init; }
+    public required Position16<BackgroundPixels> BackgroundPosition { get; init; }
 
     /// <summary>Samus's 16.16 position as the scroll carries her.</summary>
     public required FixedPosition<RoomPixels> SamusPosition { get; init; }
@@ -25,7 +25,7 @@ internal sealed record DoorOpeningScrollSetup
     public required Position16<RoomPixels> FinalCameraPosition { get; init; }
 
     /// <summary>The second background layer's position at the scroll's end.</summary>
-    public required Position16<BackgroundPixels> FinalLayer2Position { get; init; }
+    public required Position16<BackgroundPixels> FinalBackgroundPosition { get; init; }
 
     /// <summary>Samus's position at the scroll's end.</summary>
     public required FixedPosition<RoomPixels> FinalSamusPosition { get; init; }

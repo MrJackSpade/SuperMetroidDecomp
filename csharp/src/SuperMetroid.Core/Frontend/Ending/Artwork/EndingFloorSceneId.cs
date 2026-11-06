@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>The three mutually exclusive Mode-7 ending backdrops.</summary>
+/// <summary>The three mutually exclusive turning-floor ending backdrops.</summary>
 public enum EndingFloorSceneId
 {
     /// <summary>Zebes zooming out during the first escape backdrop.</summary>

@@ -267,7 +267,7 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public void Draw(
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(sprites);
@@ -275,8 +275,8 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBombProjectileSlot slot in InUpdateOrder)
         {
             // Power bombs and normal bombs both use the same projectile
-            // timed-spritemap interpreter. The large power-bomb flash itself is a per-line
-            // color-math window and is composed separately from the sprites.
+            // timed-spritemap interpreter. The large power-bomb flash itself is a glowing
+            // window and is composed separately from the sprites.
             SamusProjectileFamily family = slot.Type.Family;
             if (slot.Cursor is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
@@ -284,7 +284,7 @@ public sealed class SamusBombProjectileSystem
 
             // The projectile draw suppresses power bombs as soon as their shared
             // projectile-variable word reaches zero. The fuse publishes that zero on
-            // the detonation frame, so the small placed-bomb OBJ must disappear exactly
+            // the detonation frame, so the small placed-bomb sprite must disappear exactly
             // when the large explosion effect begins. Normal bomb explosions keep
             // drawing their spritemaps with a zero BombTimer and are unaffected.
             if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer.IsZero)
@@ -293,8 +293,8 @@ public sealed class SamusBombProjectileSystem
             // The bomb draw admits X in [-48,304). Y is admitted only when the high byte of
             // the wrapped room-relative word is zero, i.e. [0,255]. The screen itself clips the
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
-            int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
-            int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - layer1.Y);
+            int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
+            int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
             if (screenX < -48 || screenX >= 304 || ScreenConversions.IsOutsideSpriteRange(screenY))
                 continue;
 

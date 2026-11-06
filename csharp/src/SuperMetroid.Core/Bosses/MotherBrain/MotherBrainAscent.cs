@@ -61,7 +61,7 @@ internal sealed class MotherBrainAscent
     internal void SetupMotherBrainPhaseTwoBrain(
         MotherBrainEnemyState state)
     {
-        // `$34` is the room's verified Mother Brain phase-two color-math configuration.
+        // The room's verified Mother Brain phase-two blend.
         state.LayerBlendingDefaultConfig = LayerBlendingConfiguration.MotherBrainPhaseTwo;
         _room.Services.MotherBrain.SetLayerBlendingDefault(state.LayerBlendingDefaultConfig);
         state.BrainFunction = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
@@ -101,8 +101,8 @@ internal sealed class MotherBrainAscent
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        // The display installs a fixed per-scanline main-screen table that prevents the newly
-        // loaded leg sprites from appearing over the floor. The renderer consumes this
+        // The display hides the newly loaded leg sprites below a fixed line so they do not
+        // appear over the floor. The renderer consumes this
         // typed lifetime rather than pretending it is a body-visibility flag.
         state.RisingFloorClipActive = true;
         state.Head.Properties = state.Head.Properties.With(EnemyProperties.Invisible);

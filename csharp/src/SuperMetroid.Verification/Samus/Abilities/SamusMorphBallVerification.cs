@@ -618,7 +618,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(0xad45, bombs.Slots[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
     ProjectileDrawArtwork bombArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
-        DrawnEntries(frame => bombs.Draw(frame, layer1: new(0, 0), bombArtwork)),
+        DrawnEntries(frame => bombs.Draw(frame, cameraPosition: new(0, 0), bombArtwork)),
         new SpriteSource(SpriteSourceKind.SamusBomb, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(bombs.Slots[0].SpritemapPointer)), bombArtwork,
         new Position16<ScreenPixels>(bombs.Slots[0].Position.X.Whole, bombs.Slots[0].Position.Y.Whole), "Bomb");
     AssertEqual(4, bombs.Slots[0].Radius.X, "first instruction publishes ROM X radius");
@@ -899,7 +899,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertTrue(powerBombs.Slots[0].InstructionPointer >= 0x9fa3,
         "power-bomb timer fifteen enters retail fast list");
     OamBuffer armedPowerBombOam = SpriteFrameBuffer.DrawnOam(frame =>
-        powerBombs.Draw(frame, layer1: new(0, 0), InstalledFixtures.ProjectileArtwork()));
+        powerBombs.Draw(frame, cameraPosition: new(0, 0), InstalledFixtures.ProjectileArtwork()));
     AssertTrue(armedPowerBombOam.LastFinalizedSpriteCount > 0,
         "armed Power Bomb draws its fast-list spritemap before detonation");
 
@@ -920,7 +920,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         (powerBombFuse.SoundRequests ?? throw new InvalidOperationException("Verification requires powerBombFuse.SoundRequests.")).Single(),
         "power-bomb spawn queues cartridge library-one explosion sound");
     OamBuffer detonatedPowerBombOam = SpriteFrameBuffer.DrawnOam(frame =>
-        powerBombs.Draw(frame, layer1: new(0, 0), InstalledFixtures.ProjectileArtwork()));
+        powerBombs.Draw(frame, cameraPosition: new(0, 0), InstalledFixtures.ProjectileArtwork()));
     AssertEqual(0, detonatedPowerBombOam.LastFinalizedSpriteCount,
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 

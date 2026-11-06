@@ -43,7 +43,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
         for (int index = 0; index < frames.Length; index++)
         {
             Position16<TilemapCells> cell = overlay.Pictures[index].Cell;
-            placed.Add(new PlacedWrittenPicture(frames[index], new Position16<TilePlanePixels>(cell.X * cellPixels, cell.Y * cellPixels)));
+            placed.Add(new PlacedWrittenPicture(frames[index], new Position16<PlanePixels>(cell.X * cellPixels, cell.Y * cellPixels)));
         }
         source = overlay;
         shown = frames;

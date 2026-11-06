@@ -39,8 +39,8 @@ internal static class XrayTilemapVerification
         }
         RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         // Layer one, and BG1 with it, half a block into the room's second block: the camera's block is block 33.
-        Position16<RoomPixels> layer1 = new(24, 24);
-        RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, layer1, default, area);
+        Position16<RoomPixels> cameraPosition = new(24, 24);
+        RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, default, area);
         RevealedBlock? Cell(RevealedBlock?[] map, int column, int row) => map[row * XrayRevealLayout.Columns + column];
         // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy.
         void Set(int index, RoomCollisionType type, int behavior)
@@ -58,11 +58,11 @@ internal static class XrayTilemapVerification
                 Copied(1 + cell % XrayRevealLayout.Columns, 1 + cell / XrayRevealLayout.Columns)),
             "every cell copies the BG1 block at its scrolled position");
         // With layer one at the room's right edge the seventeenth column lies beyond the room, where the foreground shows nothing.
-        layer1 = new(RoomSide * 16 - 256 + 8, 24);
+        cameraPosition = new(RoomSide * 16 - 256 + 8, 24);
         RevealedBlock?[] rightEdge = Build();
         AssertEqual(Copied(RoomSide - 1, 1), Cell(rightEdge, 15, 0), "the room's last column is copied");
         AssertEqual(null, Cell(rightEdge, 16, 0), "a cell beyond the room's right edge shows nothing");
-        layer1 = new(24, 24);
+        cameraPosition = new(24, 24);
         Set(33, RoomCollisionType.ShootableBlock, 3);
         Set(34, RoomCollisionType.HorizontalExtension, 0xff);
         Set(65, RoomCollisionType.VerticalExtension, 0xff);

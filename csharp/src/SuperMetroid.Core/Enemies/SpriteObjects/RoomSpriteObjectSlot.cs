@@ -21,7 +21,7 @@ public sealed class RoomSpriteObjectSlot
     public bool IsActive => Cursor is not null;
 
     /// <summary>
-    /// The 16.16 room position, converted to screen coordinates by subtracting the layer-one camera when drawn. Most
+    /// The 16.16 room position, converted to screen coordinates by subtracting the camera when drawn. Most
     /// sprite objects move only in whole pixels and leave the fractions zero; Draygon's six burial Evirs move by
     /// fractional speeds, so discarding the fractions visibly changes their fan-in.
     /// </summary>

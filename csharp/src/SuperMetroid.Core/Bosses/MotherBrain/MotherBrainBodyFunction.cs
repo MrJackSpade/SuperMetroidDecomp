@@ -22,19 +22,19 @@ public enum MotherBrainBodyFunction
     FakeDeathDescentFadeToGray,
     /// <summary>Runs the independent tube sequence and dust/explosion cadence until the falling main tube starts ascent.</summary>
     FakeDeathDescentCollapseTubes,
-    /// <summary>Requests BG1 room-mutation PLMs for rows 2/3, then selects the next pair for the following body update.</summary>
+    /// <summary>Requests foreground room-mutation PLMs for rows 2/3, then selects the next pair for the following body update.</summary>
     FakeDeathAscentDrawRows2And3,
-    /// <summary>Requests the row-4/5 BG1 mutation pair and advances to rows 6/7.</summary>
+    /// <summary>Requests the row-4/5 foreground mutation pair and advances to rows 6/7.</summary>
     FakeDeathAscentDrawRows4And5,
-    /// <summary>Requests the row-6/7 BG1 mutation pair and advances to rows 8/9.</summary>
+    /// <summary>Requests the row-6/7 foreground mutation pair and advances to rows 8/9.</summary>
     FakeDeathAscentDrawRows6And7,
-    /// <summary>Requests the row-8/9 BG1 mutation pair and advances to rows $A/$B.</summary>
+    /// <summary>Requests the row-8/9 foreground mutation pair and advances to rows $A/$B.</summary>
     FakeDeathAscentDrawRows8And9,
-    /// <summary>Requests the row-$A/$B BG1 mutation pair and advances to rows $C/$D.</summary>
+    /// <summary>Requests the row-$A/$B foreground mutation pair and advances to rows $C/$D.</summary>
     FakeDeathAscentDrawRowsAAndB,
-    /// <summary>Requests the final BG1 row pair and hands off to phase-two graphics setup.</summary>
+    /// <summary>Requests the final foreground row pair and hands off to phase-two graphics setup.</summary>
     FakeDeathAscentDrawRowsCAndD,
-    /// <summary>Installs attack/back-leg colors, enables the unpause hook, and transfers the prepared enemy BG2 tilemap.</summary>
+    /// <summary>Installs attack/back-leg colors, enables the unpause hook, and transfers the prepared enemy background tilemap.</summary>
     FakeDeathAscentSetupPhase2Graphics,
     /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the 128-count suspense wait.</summary>
     FakeDeathAscentSetupPhase2Brain,
@@ -44,11 +44,11 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentPrepareForRising,
     /// <summary>Processes one leg-tile transfer per call and decrements the suspense timer on the same call that finishes the list.</summary>
     FakeDeathAscentLoadLegTiles,
-    /// <summary>Waits for the $100 timer's signed underflow before placing the hidden body/BG2 and enabling its hitboxes.</summary>
+    /// <summary>Waits for the $100 timer's signed underflow before placing the hidden body/background and enabling its hitboxes.</summary>
     FakeDeathAscentContinuePausing,
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
     FakeDeathAscentStartMusicAndEarthquake,
-    /// <summary>Every fourth frame of the frame counter raises the body two pixels with dust and matching BG2 scroll, then ends the floor-clipping effect and starts uncrouching.</summary>
+    /// <summary>Every fourth frame of the frame counter raises the body two pixels with dust and matching background scroll, then ends the floor-clipping effect and starts uncrouching.</summary>
     FakeDeathAscentRaiseMotherBrain,
     /// <summary>Waits for body bytecode to publish the standing pose before initializing grey-palette restoration.</summary>
     FakeDeathAscentWaitUntilUncrouched,

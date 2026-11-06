@@ -442,7 +442,7 @@ public sealed class SamusState
     public SamusArmCannonState ArmCannon { get; } = new();
 
     /// <summary>
-    /// Packed five-call visor color cycle used only by backdrop-color-math rooms.
+    /// Packed five-call visor color cycle used only by backdrop-blending rooms.
     /// </summary>
     public SamusVisorPaletteState VisorPalette { get; } = new();
 

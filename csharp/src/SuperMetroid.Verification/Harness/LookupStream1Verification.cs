@@ -811,7 +811,7 @@ internal static class LookupStream1Verification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.Presentation.BodyFrames.BindBodyFixture(stock);
-            samus.Presentation.Draw(samus, new SpriteFrameBuffer(), layer1: new(0, 0));
+            samus.Presentation.Draw(samus, new SpriteFrameBuffer(), cameraPosition: new(0, 0));
             // The game subtracts a word whose high byte the drawn position never shows; the body sits by the low byte (#1500).
             AssertEqual(unchecked((ushort)(128 - landing[index])), samus.Presentation.SpritemapPosition.Y, "Actual rendering places every landing frame by its own byte");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");

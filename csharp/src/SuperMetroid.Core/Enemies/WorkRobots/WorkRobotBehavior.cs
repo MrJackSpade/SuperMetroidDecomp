@@ -475,7 +475,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Graphics = default;
 
         // Preserve the original laser viewport bug. Its final Y comparison omits
-        // `CMP Layer1YPosition`, so lasers only request sound while their owner's absolute
+        // the camera's Y, so lasers only request sound while their owner's absolute
         // top edge is above scanline 224, even when a lower room row is on screen.
         bool horizontallyVisible =
             CoordinateAxis.AsSigned(robot.Position.X.Whole + robot.Radius.X - camera.X) >= 0 &&

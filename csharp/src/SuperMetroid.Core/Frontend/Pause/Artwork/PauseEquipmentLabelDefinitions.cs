@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// <summary>The pause equipment labels' page layout and widths the game reads; their artwork is the import's (#1467).</summary>
 public static class PauseEquipmentLabelDefinitions
 {
-    /// <summary>Equipment-page tilemap width in eight-pixel BG tile cells; each row contains 32 little-endian sixteen-bit tile words.</summary>
+    /// <summary>Equipment-page tilemap width in eight-pixel tile cells; each row contains 32 little-endian sixteen-bit tile words.</summary>
     public const int TilemapColumns = 32;
     /// <summary>Five tile words in an ordinary beam label and in the displayed Hyper patch, including the leading inventory marker cell.</summary>
     public const int BeamWords = 5;

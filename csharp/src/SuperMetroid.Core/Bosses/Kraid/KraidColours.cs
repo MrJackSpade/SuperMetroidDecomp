@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Kraid's colours (#1512): the health band, or the hurt flash, his body and sprite parts show, the death colours his body
-/// shows with his arm drawn into them, and his eyes' glow. His body on layer 2 and his parts show the import's shade of
+/// shows with his arm drawn into them, and his eyes' glow. His body on the background and his parts show the import's shade of
 /// them; his eyes show the glow's colours over his band's.
 /// </summary>
 internal sealed class KraidColours : IGameplayShadingSource

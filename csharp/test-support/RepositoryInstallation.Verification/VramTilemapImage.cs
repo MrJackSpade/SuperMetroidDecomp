@@ -17,7 +17,7 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class VramTilemapImage
 {
     /// <summary>Cells along each side of one screen of a tilemap; a larger map keeps whole screens one after another.</summary>
-    private const int ScreenCells = ScreenGeometry.TilemapScreenWidthInTiles;
+    private const int ScreenCells = SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles;
 
     /// <summary>Pixels along a cell's side.</summary>
     private const int CellPixels = ScreenGeometry.BackgroundTileSizePixels;
@@ -53,7 +53,7 @@ internal static class VramTilemapImage
     /// </summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image, or the tilemap does not fill the map.</exception>
     internal static RgbaPixel[] Draw(ReadOnlySpan<BackgroundTile> rows, Extent16<TilemapCells> size, ReadOnlySpan<byte> image, int characterWord,
-        TileInkDepth depth, ReadOnlySpan<RgbColor> colours, Position16<TilePlanePixels> scroll, bool? priority, RgbColor backdrop)
+        TileInkDepth depth, ReadOnlySpan<RgbColor> colours, Position16<PlanePixels> scroll, bool? priority, RgbColor backdrop)
     {
         Ensure.LengthEqual(image, SnesVram.ByteCount);
         Ensure.LengthEqual(rows, size.X * size.Y);

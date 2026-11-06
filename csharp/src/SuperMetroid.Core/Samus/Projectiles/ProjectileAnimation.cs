@@ -63,12 +63,12 @@ internal sealed class ProjectileAnimation
         SpriteFrameBuffer sprites,
         SpriteSource source,
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         int? horizontalMargin,
         ProjectileDrawArtwork artwork)
     {
-        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
-        int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - layer1.Y);
+        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
+        int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
             ScreenConversions.IsOutsideSpriteRange(screenY))
         {
@@ -127,17 +127,17 @@ internal sealed class ProjectileAnimation
     /// Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component. Only a pose
     /// that disables shooting draws no flare; a turning pose's restriction selects its authored turn row (#1504).
     /// </summary>
-    internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
+    internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
     {
         int direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (direction == SamusPoseAimDefinitions.ShootingDisabled)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = WordWrap.LowByte(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = WordWrap.LowByte(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
     }
 
-    /// <summary>Applies pose muzzle offsets after optional Ceres Mode-7 center transform, then draws the installed component frame.</summary>
-    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
+    /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
+    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
@@ -153,8 +153,8 @@ internal sealed class ProjectileAnimation
         Position16<RoomPixels> renderPoint = turningFloor is { } transform
             ? transform.Transform(samusPosition)
             : samusPosition;
-        int screenX = CoordinateAxis.Wrap(renderPoint.X + xOffset - layer1.X);
-        int screenY = CoordinateAxis.Wrap(renderPoint.Y + yOffset - pose.PoseYOffset - layer1.Y);
+        int screenX = CoordinateAxis.Wrap(renderPoint.X + xOffset - cameraPosition.X);
+        int screenY = CoordinateAxis.Wrap(renderPoint.Y + yOffset - pose.PoseYOffset - cameraPosition.Y);
 
         // The flare draw clips only by the origin's Y high byte. The shared loader
         // deliberately allows individual entries to wrap, matching charge sparks near an

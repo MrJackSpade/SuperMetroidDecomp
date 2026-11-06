@@ -110,7 +110,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
     /// <summary>Binds the installed opening font when the game is bound to its installed content.</summary>
     public void BindIntroFont(IntroFontAtlas? value) => IntroFont = value;
-    /// <summary>Binds the installed BG and OBJ pixels when the game is bound to its installed content.</summary>
+    /// <summary>Binds the installed background and sprite pictures when the game is bound to its installed content.</summary>
     public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
         CharacterArtwork = value;
@@ -123,16 +123,16 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// BG1VOFS inherited by both gameplay flashbacks from the first illustrated page.
+    /// The room picture's vertical scroll both gameplay flashbacks inherit from the first illustrated page.
     /// Their actor coordinates remain screen-relative and are not shifted with the background.
     /// </summary>
-    internal const int GameplayFlashbackBg1VerticalScroll = 8;
+    internal const int GameplayFlashbackVerticalScroll = 8;
 
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
     private readonly AudioQueues? audio;
     /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
     internal readonly IntroNarrationText narrationText = new();
-    /// <summary>The cinematic actors' sprite entries over the intro OBJ page (#1358).</summary>
+    /// <summary>The cinematic actors' sprite entries over the intro sprite page (#1358).</summary>
     internal readonly ScreenSprites objectSprites;
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
@@ -222,7 +222,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </param>
     /// <param name="audio">Optional audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
-    /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
+    /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
@@ -483,7 +483,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     NarrationFinished = true;
                     // The Ceres approach immediately replaces the narration display setup with the
-                    // Ceres Mode 7 scene. Give that scene its own display, colour, and
+                    // Ceres turning-floor scene. Give that scene its own display, colour, and
                     // brightness owner: the narration has just deliberately reached
                     // a blanked screen, while the approach restores full brightness only after
                     // the fourteen-frame delayed music command has completed.
@@ -594,7 +594,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // It remains alive and will be restored by the next text-page setup.
         Objects.PlaceCaretOffScreen();
 
-        // The discovery setup changes BG1SC to $50. The corresponding 32x32 visual map was already
+        // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
         // loaded by the initial artwork decompression; the room's block data below is gameplay
         // collision data and must never be expanded as a visual block map.
         CurrentFlashbackSamus = new SamusState(samusOverreads.AnimationContinuation, UnauthoredBoostCadence)
@@ -616,13 +616,13 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackSamus.Presentation.PrimeGraphics(CurrentFlashbackSamus);
         // The next displayed frame shows the freshly selected top and bottom definitions;
         // apply them now so the first rendered
-        // flashback frame names initialized OBJ characters rather than stale intro art.
+        // flashback frame names initialized sprite characters rather than stale intro art.
         CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
         FlashbackMotherBrainExplosions = null;
         FlashbackRinkas = new IntroRinkaSystem();
 
         // The flashback's collision room is built from its own terrain blocks, so the
-        // visual BG1 screen never stands in for the collision contract.
+        // visual room page never stands in for the collision contract.
         CurrentFlashbackLevel = CreateMotherBrainLevel();
         flashbackProjectiles.Reset();
         CurrentFlashbackDemoInput = new DemoInputState();
@@ -680,7 +680,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepPageTwoCrossfade()
     {
         // The reverse crossfade is the exact inverse of the earlier transition: text/portrait ranges
-        // fade in while Mother Brain gameplay, projectile, and OBJ ranges fade out.
+        // fade in while Mother Brain gameplay, projectile, and sprite ranges fade out.
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageTwoText);
     }
 
@@ -703,7 +703,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         Objects.PlaceCaretOffScreen();
 
-        // The discovery setup selects BG1SC=$54 (the second authored room page), declares a
+        // The discovery setup shows the second authored room page, declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
         CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
@@ -739,8 +739,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!crossfadeCounter.IsNegative)
             return;
 
-        // The crossfade's end leaves TM=$15 and clears the English text region after the final fade
-        // update. BG1SC already points at $54, so the SR388 room becomes the sole BG1 page.
+        // The crossfade's end clears the English text region after the final fade update. The
+        // second room page is already shown, so the SR388 room becomes the sole room page.
         ClearVisibleNarrationText();
         Phase = IntroCinematicPhase.BabyDiscovery;
     }
@@ -766,14 +766,14 @@ public sealed class IntroCinematicState : IFrontendScreen
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageThreeText);
     }
 
-    /// <summary>Starts the first laboratory scene with its rightward BG1 pan and separate scientist fade timer.</summary>
+    /// <summary>Starts the first laboratory scene with its rightward page pan and separate scientist fade timer.</summary>
     internal void SetupBabyMetroidDelivery()
     {
         // Scientist crossfades use the sibling setup, which performs
         // the same off-screen caret move before changing the visible layer configuration.
         Objects.PlaceCaretOffScreen();
 
-        // The delivery setup selects BG1SC=$58, starts it 32 pixels right with vertical scroll eight,
+        // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight,
         // seeds IntroCrossFadeTimer, and spawns the delivered baby before configuring the
         // scientist palette transition. Its tilemap is already in the intro's artwork.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
@@ -792,7 +792,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Fades page-three text and portrait ranges into the delivery laboratory palette.</summary>
     internal void StepBabyMetroidDeliveryCrossfade()
     {
-        // The scientist crossfade fades the portrait/text ranges away while bringing in laboratory BG/sprite
+        // The scientist crossfade fades the portrait/text ranges away while bringing in laboratory background and sprite
         // palettes. Only CinematicFunctionTimer is decremented on this direction.
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
     }
@@ -831,7 +831,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepPageFourCrossfade()
     {
         // The scientist-specific inverse: text/portrait colors fade in as the
-        // laboratory BG and its nine OBJ colors fade out. It consumes the alternate counter.
+        // laboratory background and its nine sprite colors fade out. It consumes the alternate counter.
         StepScientistToTextCrossfade(IntroCinematicPhase.PageFourText);
     }
 
@@ -849,12 +849,12 @@ public sealed class IntroCinematicState : IFrontendScreen
             Phase = completedPhase;
     }
 
-    /// <summary>Starts the second laboratory scene on its vertically offset BG1 page.</summary>
+    /// <summary>Starts the second laboratory scene on its vertically offset page.</summary>
     private void SetupBabyMetroidExamination()
     {
         Objects.PlaceCaretOffScreen();
 
-        // The examination setup selects BG1SC=$5C, starts the page at Y=-24, and spawns the examined baby.
+        // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
         paletteFader = new CinematicPaletteFader();
@@ -913,7 +913,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running
         // the real owner is still required for missile admission timing.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, layer1: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
             audio?.QueueSound(
@@ -1102,7 +1102,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // cinematic objects; once deleting Mother Brain clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, layer1: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
+            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, cameraPosition: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
             // The flashback's artwork holds the power beam's characters whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(projectileSheets, EquippedBeams: 0);
             flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates), projectileArtwork);
@@ -1131,7 +1131,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         return sprites;
     }
 
-    /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing OBJ data.</summary>
+    /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing sprite data.</summary>
     internal SpriteFrameBuffer PrepareBabyDiscoverySprites()
     {
         var sprites = new SpriteFrameBuffer();
@@ -1156,10 +1156,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// <summary>Draws Samus in screen-relative coordinates as the demo brings her in from the right.</summary>
     private void DrawBabyDiscoverySamus(SpriteFrameBuffer sprites)
     {
-        // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
+        // This cinematic deliberately keeps the camera's X at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
-        // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, layer1: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
+        // second room page shows different art, not a hidden +$100 camera coordinate.
+        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
@@ -1271,13 +1271,13 @@ level, samus, FrameCounterWord(elapsedUpdates));
             sprites = PrepareMotherBrainSprites();
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, paletteFader.SceneShading),
                 (CurrentFlashbackMotherBrain?.Background ??
-                    new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll());
+                    new Position16<RoomPixels>(0, GameplayFlashbackVerticalScroll)).AsPlaneScroll());
         }
         else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
         {
             sprites = PrepareBabyDiscoverySprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, paletteFader.SceneShading), new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, paletteFader.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
             IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
@@ -1285,7 +1285,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             sprites = PrepareScientistSprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), paletteFader.SceneShading), ScientistCutscene.Background.AsBgPlaneScroll());
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), paletteFader.SceneShading), ScientistCutscene.Background.AsPlaneScroll());
         }
         else if (CurrentObjects is null)
         {
@@ -1298,10 +1298,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
         else
         {
             sprites = PrepareIllustratedPageSprites();
-            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, paletteFader.SceneShading), new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, paletteFader.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
 
-        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), new(0, GameplayFlashbackBg1VerticalScroll));
+        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), new(0, GameplayFlashbackVerticalScroll));
         // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
         // and sprite is drawn whole at its layer's place; the per-tile and per-sprite-part priority tiers that once
         // interleaved them are a presentation quirk the port does not keep.
@@ -1356,7 +1356,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>The scene plane showing <paramref name="pictures"/> at the selected scroll (#1467).</summary>
-    private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<TilePlanePixels> scroll) => new(pictures, scroll);
+    private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<PlanePixels> scroll) => new(pictures, scroll);
 
     /// <summary>The installed sheets the scene pictures are drawn from.</summary>
     private InstalledSpriteSheets SceneSheets =>

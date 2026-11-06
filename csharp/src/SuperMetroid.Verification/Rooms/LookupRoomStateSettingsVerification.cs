@@ -120,9 +120,9 @@ internal static class LookupRoomStateSettingsVerification
     /// <summary>Checks the enemy graphics-set pointer paired with each population.</summary>
     private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet), "EnemyTilesetPointer");
     /// <summary>Checks horizontal layer-two scroll configuration in every room state.</summary>
-    private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Horizontal, "Layer2ScrollX");
+    private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundScrollModes.Horizontal, "Layer2ScrollX");
     /// <summary>Checks vertical layer-two scroll configuration in every room state.</summary>
-    private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Vertical, "Layer2ScrollY");
+    private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundScrollModes.Vertical, "Layer2ScrollY");
     /// <summary>Checks the room-scroll data pointer in each native state.</summary>
     private static void VerifyRoomStateScrollPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.ScrollPointer, "ScrollPointer");
     /// <summary>Checks X-ray overlay pointers and the complete nonzero overlay-source view.</summary>

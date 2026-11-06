@@ -168,11 +168,11 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.PirateMagentaNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.PirateRedNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.PirateSilverNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.Spark] = words => new SparkSpawnSettings(InitialState: Bits(words.Parameter1, 0, 16), BaseFunctionTime: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.Spark] = words => new SparkSpawnSettings(Start: SparkStart(Bits(words.Parameter1, 0, 16)), BaseFunctionTime: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Stoke] = words => new StokeSpawnSettings(Direction: Bits(words.Parameter1, 0, 16) switch { 0 => StokeDirection.Left, 1 => StokeDirection.Right, var other => throw Unmapped("Direction", other) }, Speed: LinearSpeed(Bits(words.Parameter2, 0, 16))),
         [EnemyDefinitionId.Waver] = words => new WaverSpawnSettings(Facing: Bits(words.Parameter1, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }),
-        [EnemyDefinitionId.Robot] = words => new WorkRobotSpawnSettings(Pose: Bits(words.Parameter1, 0, 16)),
-        [EnemyDefinitionId.RobotNoPower] = words => new WorkRobotSpawnSettings(Pose: Bits(words.Parameter1, 0, 16)),
+        [EnemyDefinitionId.Robot] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
+        [EnemyDefinitionId.RobotNoPower] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
         [EnemyDefinitionId.YappingMaw] = words => new YappingMawSpawnSettings(ActivationDistance: Bits(words.Parameter1, 0, 16), Attack: Bits(words.Parameter2, 0, 16) switch { 0 => VerticalDirection.Down, _ => VerticalDirection.Up }),
         [EnemyDefinitionId.Yard] = words => new YardSpawnSettings(Direction: Bits(words.Initialization, 0, 16) switch { 0 => YardDirection.UpsideRightMovingUp, 1 => YardDirection.UpsideRightMovingDown, 2 => YardDirection.UpsideLeftMovingUp, 3 => YardDirection.UpsideLeftMovingDown, 4 => YardDirection.UpsideDownMovingLeft, 5 => YardDirection.UpsideDownMovingRight, 6 => YardDirection.UpsideUpMovingLeft, 7 => YardDirection.UpsideUpMovingRight, var other => throw Unmapped("Direction", other) }, SpeedIndex: Bits(words.Parameter1, 0, 16)),
     };
@@ -241,10 +241,10 @@ internal static class EnemySpawnSettingsCodec
         WalkingSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWalking, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WalkingSpacePirateParameterFlags.StartsFacingRight) != 0) ? 1 << 0 : 0) | (((s.Options & WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.PatrolReach, 0, 16))),
         WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WallSpacePirateParameterFlags.StartsOnRightWall) != 0) ? 1 << 0 : 0) | (((s.Options & WallSpacePirateParameterFlags.SlowJumpAndLaser) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.JumpSpan, 0, 16))),
         NinjaSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldNinja, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0) ? 1 << 0 : 0)), Parameter2: Place(s.PostDistance, 0, 16))),
-        SparkSpawnSettings s => Checked(EnemyDefinitionId.Spark, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.InitialState, 0, 16), Parameter2: Place(s.BaseFunctionTime, 0, 16))),
+        SparkSpawnSettings s => Checked(EnemyDefinitionId.Spark, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Position(SparkStarts, s.Start, "Spark start"), Parameter2: Place(s.BaseFunctionTime, 0, 16))),
         StokeSpawnSettings s => Checked(EnemyDefinitionId.Stoke, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Direction switch { StokeDirection.Left => 0, StokeDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: Place(LinearSpeedRecord(s.Speed), 0, 16))),
         WaverSpawnSettings s => Checked(EnemyDefinitionId.Waver, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Facing switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
-        WorkRobotSpawnSettings s => Checked(EnemyDefinitionId.Robot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.Pose, 0, 16), Parameter2: 0)),
+        WorkRobotSpawnSettings s => Checked(EnemyDefinitionId.Robot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Position(WorkRobotPoses, s.Pose, "Work Robot pose"), Parameter2: 0)),
         YappingMawSpawnSettings s => Checked(EnemyDefinitionId.YappingMaw, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.ActivationDistance, 0, 16), Parameter2: ((s.Attack switch { VerticalDirection.Down => 0, VerticalDirection.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0))),
         YardSpawnSettings s => Checked(EnemyDefinitionId.Yard, settings, new PopulationWords(Initialization: ((s.Direction switch { YardDirection.UpsideRightMovingUp => 0, YardDirection.UpsideRightMovingDown => 1, YardDirection.UpsideLeftMovingUp => 2, YardDirection.UpsideLeftMovingDown => 3, YardDirection.UpsideDownMovingLeft => 4, YardDirection.UpsideDownMovingRight => 5, YardDirection.UpsideUpMovingLeft => 6, YardDirection.UpsideUpMovingRight => 7, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.SpeedIndex, 0, 16), Parameter2: 0)),
         _ when settings == EnemySpawnSettings.None => default,
@@ -344,6 +344,33 @@ internal static class EnemySpawnSettingsCodec
     /// <summary>The position in the chain of a Shaktool segment.</summary>
     private static int ShaktoolSegmentPosition(ShaktoolSegmentDefinition segment) =>
         Position(ShaktoolSegmentDefinitions.Segments, segment, "Shaktool segment");
+
+    /// <summary>The three starts a Spark's first parameter selects, in its order; it reads a selection past them from the data after the table.</summary>
+    private static readonly SparkMovementDefinition[] SparkStarts =
+        [SparkMovementDefinitions.AlwaysActive, SparkMovementDefinitions.Intermittent, SparkMovementDefinitions.Emitter];
+
+    /// <summary>The Spark start a first parameter selects.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="selector"/> is past the three authored starts.</exception>
+    private static SparkMovementDefinition SparkStart(int selector) => selector < SparkStarts.Length
+        ? SparkStarts[selector]
+        : throw Unmapped("Start", selector);
+
+    /// <summary>The three unpowered poses a Work Robot's first parameter selects, in its order.</summary>
+    private static readonly WorkRobotProgram[] WorkRobotPoses =
+        [WorkRobotProgram.NoPowerNeutral, WorkRobotProgram.NoPowerLeaningLeft, WorkRobotProgram.NoPowerLeaningRight];
+
+    /// <summary>
+    /// The unpowered pose a Work Robot's first parameter selects. The initializer's range check sends a negative or
+    /// fourth-or-later selection to the first pose; it admits the fourth, which reads the robot's own code as a pose and
+    /// which no retail placement uses, so it fails.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="selector"/> is the fourth pose.</exception>
+    private static WorkRobotProgram WorkRobotPose(int selector) => Signed(selector) switch
+    {
+        < 0 or > 3 => WorkRobotPoses[0],
+        3 => throw new InvalidDataException("Work Robot pose 3 reads past the three authored poses into the robot's code."),
+        var pose => WorkRobotPoses[pose],
+    };
 
     /// <summary>The position of <paramref name="value"/> in <paramref name="order"/>.</summary>
     /// <exception cref="ArgumentException"><paramref name="value"/> is not in the order.</exception>

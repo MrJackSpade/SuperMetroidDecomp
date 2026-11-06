@@ -63,7 +63,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new SparkEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        SparkMovementDefinition definition = SparkStarts.InitialState(slot.SpawnSettings<SparkSpawnSettings>().InitialState);
+        SparkMovementDefinition definition = slot.SpawnSettings<SparkSpawnSettings>().Start;
         state.Function = definition.Function;
         state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
         SetSparkFunctionTimer(state, additionalTime: 0);

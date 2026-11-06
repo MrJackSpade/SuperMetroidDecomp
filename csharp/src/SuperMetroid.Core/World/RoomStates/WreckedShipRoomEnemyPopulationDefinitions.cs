@@ -20,7 +20,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     [
         new(nameof(RoomEnemyPopulationDefinitions.SpongeBath1),
         [
-            new(EnemyDefinitionId.Bull, new(240, 136), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BullSpawnSettings(IntervalsIndex: 3, MaximumSpeedIndex: 3)),
+            new(EnemyDefinitionId.Bull, new(240, 136), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: 1791)),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETank1),
         [
@@ -361,8 +361,8 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Robot, new(376, 128), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: 0)),
             new(EnemyDefinitionId.Robot, new(704, 128), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: 0)),
-            new(EnemyDefinitionId.Bull, new(224, 120), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BullSpawnSettings(IntervalsIndex: 3, MaximumSpeedIndex: 3)),
-            new(EnemyDefinitionId.Bull, new(528, 117), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BullSpawnSettings(IntervalsIndex: 3, MaximumSpeedIndex: 3)),
+            new(EnemyDefinitionId.Bull, new(224, 120), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: 1791)),
+            new(EnemyDefinitionId.Bull, new(528, 117), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: 1791)),
             new(EnemyDefinitionId.Spark, new(160, 80), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(InitialState: 1, BaseFunctionTime: 128)),
             new(EnemyDefinitionId.Spark, new(288, 80), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(InitialState: 1, BaseFunctionTime: 16)),
             new(EnemyDefinitionId.Spark, new(464, 80), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(InitialState: 1, BaseFunctionTime: 160)),

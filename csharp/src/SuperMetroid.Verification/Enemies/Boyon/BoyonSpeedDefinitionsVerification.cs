@@ -28,10 +28,8 @@ internal static class BoyonSpeedDefinitionsVerification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286ef + height * 2)), initialized.JumpHeight, "Boyon real initialized height without bus");
             }
         }
-        actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 8);
-        AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected multiplier unchanged");
-        actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 0x900);
-        AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected height unchanged");
+        AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 8), "Boyon import rejects the multiplier past its table");
+        AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 0x900), "Boyon import rejects the height past its table");
         Func<BoyonEnemyState, int> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
         var state = new BoyonEnemyState();
         for (int index = 0; index <= ushort.MaxValue; index++)
@@ -41,8 +39,8 @@ internal static class BoyonSpeedDefinitionsVerification
             state.SpeedTableIndex = (ushort)index;
             for (int multiplier = 0; multiplier < 256; multiplier++)
             {
-                // Exercise every effective hardware input, with nonzero discarded high bytes.
-                state.SpeedMultiplier = (ushort)(0xa500 | multiplier);
+                // Exercise every multiplier the multiply takes.
+                state.SpeedMultiplier = multiplier;
                 AssertEqual((ushort)(sample * multiplier), multiply(state), "Boyon real byte-width multiply without bus");
             }
         }

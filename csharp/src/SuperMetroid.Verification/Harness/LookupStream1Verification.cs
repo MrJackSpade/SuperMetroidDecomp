@@ -1203,7 +1203,7 @@ internal static class LookupStream1Verification
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1EnemyMovementRomByte(rom, address), LookupStream1EnemyMovementRomByte(rom, address + 1));
         for (ushort index = 0; index < 13; index++)
         {
-            var intervals = BullMotion.Intervals(index);
+            BullSpeedIntervals intervals = ((BullSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Bull, PopulationWords.Parameters(index, 0))).Intervals;
             AssertEqual(Word(0xa8d895 + 4 * index), intervals.Acceleration, "stream1 Bull acceleration interval");
             AssertEqual(Word(0xa8d897 + 4 * index), intervals.Deceleration, "stream1 Bull deceleration interval");
         }
@@ -1211,7 +1211,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xa8d871 + 2 * direction), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
             AssertThrows<InvalidDataException>(() => BullMotion.ShotAngle(invalid), "stream1 Bull invalid direction");
-        AssertThrows<InvalidDataException>(() => BullMotion.Intervals(13), "stream1 Bull invalid interval");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Bull, PopulationWords.Parameters(13, 0)), "stream1 Bull invalid interval");
         for (byte index = 0; index < 6; index++)
             AssertEqual(Word(0xa29f36 + 2 * index), CacatacTravelDistance(index), "stream1 Cacatac patrol blocks");
         foreach (byte invalid in new byte[] { 6, byte.MaxValue })

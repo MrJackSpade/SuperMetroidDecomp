@@ -1791,13 +1791,20 @@ internal static class LookupStream3Verification
         {
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + 2 * pattern));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + 2 * pattern));
-            AssertEqual(new ChootPatternDefinition(ChootNativeWords.ChootFallingPaths.Decode(pointer, "Choot falling path"), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer))),
-                ChootFalls.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
+            ChootFallingPath fallingPath = DecodedChootFallingPath(pattern);
+            AssertEqual(ChootNativeWords.ChootFallingPaths.Decode(pointer, "Choot falling path"), fallingPath,
+                "stream 3 Choot pattern identity");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)), ChootFalls.LoopYDistance(fallingPath),
+                "stream 3 Choot loop advance");
         }
-        foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChootFalls.ForIndex(invalid),
-                "stream 3 Choot rejects alias and invalid patterns");
+        foreach (int invalid in new[] { 5, 6, byte.MaxValue })
+            AssertThrows<InvalidDataException>(() => DecodedChootFallingPath(invalid),
+                "stream 3 Choot import rejects alias and invalid patterns");
     }
+
+    /// <summary>The falling path the import decodes from a Choot's pattern selector, the first parameter's high byte.</summary>
+    private static ChootFallingPath DecodedChootFallingPath(int pattern) =>
+        ((ChootSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Choot, PopulationWords.Parameters(pattern << 8, 0))).FallingPath;
 
     /// <summary>Checks pickup and death animation dispatch plus Fireflea instruction words against native tables.</summary>
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)

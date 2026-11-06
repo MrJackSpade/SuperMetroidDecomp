@@ -433,10 +433,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.AlphaPowerBomb),
         [
-            new(EnemyDefinitionId.Boyon, new(600, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplierIndex: 3, JumpHeightIndex: 0, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(616, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplierIndex: 3, JumpHeightIndex: 0, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(504, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplierIndex: 3, JumpHeightIndex: 0, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(520, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplierIndex: 3, JumpHeightIndex: 0, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(600, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 12288, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(616, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 12288, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(504, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 12288, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(520, 168), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 12288, TriggerDistance: 32)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.KraidEyeDoor),
         [

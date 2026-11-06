@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -17,20 +18,21 @@ internal static class ChootPatternDefinitionsVerification
 
         for (ushort patternIndex = 0; patternIndex < 5; patternIndex++)
         {
-            ChootPatternDefinition definition = ChootFalls.ForIndex(patternIndex);
+            ChootFallingPath fallingPath = DecodedFallingPath(patternIndex);
+            int loopYDistance = ChootFalls.LoopYDistance(fallingPath);
             ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + patternIndex * 2));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + patternIndex * 2));
-            AssertEqual(nativePointer, ChootNativeWords.ChootFallingPaths.Word(definition.FallingPath),
+            AssertEqual(nativePointer, ChootNativeWords.ChootFallingPaths.Word(fallingPath),
                 $"Choot pattern pointer {patternIndex}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)),
-                definition.FallingPatternYDistance,
+                loopYDistance,
                 $"Choot pattern distance {patternIndex}");
 
-            int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(definition.FallingPath);
+            int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(fallingPath);
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex]; frameIndex++)
             {
                 ChootFallingPathPoint point = ChootFalls.At(
-                    definition.FallingPath,
+                    fallingPath,
                     frameIndex);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
                     unchecked((ushort)point.Offset.X),
@@ -42,7 +44,7 @@ internal static class ChootPatternDefinitionsVerification
 
             AssertThrows<InvalidDataException>(
                 () => ChootFalls.At(
-                    definition.FallingPath,
+                    fallingPath,
                     frameCounts[patternIndex]),
                 $"Choot path {patternIndex} rejects its first post-terminator frame");
 
@@ -58,10 +60,10 @@ internal static class ChootPatternDefinitionsVerification
 
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
-                    loopCount * (LittleEndianBytes.LowByte(definition.FallingPatternYDistance))));
-                AssertEqual<ChootFallingPath?>(definition.FallingPath, state.FallingPath,
+                    loopCount * (LittleEndianBytes.LowByte(loopYDistance))));
+                AssertEqual<ChootFallingPath?>(fallingPath, state.FallingPath,
                     $"Choot production pattern {patternIndex}/{loopCount}");
-                AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
+                AssertEqual(loopYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
                 AssertEqual(slot.Position.X.Whole, state.InitialFallingPosition.X,
                     $"Choot production initial falling X {patternIndex}/{loopCount}");
@@ -85,7 +87,7 @@ internal static class ChootPatternDefinitionsVerification
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
                 ChootFallingPathPoint point = ChootFalls.At(
-                    definition.FallingPath,
+                    fallingPath,
                     frameIndex);
                 runFall(fallSlot, fallState);
                 AssertEqual(unchecked((ushort)(0x4000 + point.Offset.X)),
@@ -104,7 +106,7 @@ internal static class ChootPatternDefinitionsVerification
                 $"Choot production loop cursor reset {patternIndex}");
             AssertEqual((ushort)0, fallState.FallingPatternLoopCounter.RawValue,
                 $"Choot production loop counter {patternIndex}");
-            AssertEqual(unchecked((ushort)(0x5000 + definition.FallingPatternYDistance)),
+            AssertEqual(unchecked((ushort)(0x5000 + loopYDistance)),
                 fallState.FallingOrigin.Y,
                 $"Choot production loop Y advance {patternIndex}");
 
@@ -121,11 +123,11 @@ internal static class ChootPatternDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ChootFalls.ForIndex(5),
-            "sixth Choot pointer-table alias is not an authored pattern");
+            () => DecodedFallingPath(5),
+            "the import rejects the sixth Choot pointer-table alias, which is not an authored pattern");
         AssertThrows<InvalidDataException>(
-            () => ChootFalls.ForIndex(ushort.MaxValue),
-            "restored Choot pattern index does not wrap into the catalog");
+            () => DecodedFallingPath(byte.MaxValue),
+            "the import rejects a Choot pattern selector that does not wrap into the catalog");
         AssertThrows<InvalidDataException>(
             () => ChootFallingPathDefinitionsConstants.At(0xffff, 0),
             "restored Choot falling pointer does not read arbitrary bank-A2 data");
@@ -133,6 +135,10 @@ internal static class ChootPatternDefinitionsVerification
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }
 
+
+    /// <summary>The falling path the import decodes from a Choot's pattern selector, the first parameter's high byte.</summary>
+    private static ChootFallingPath DecodedFallingPath(int patternIndex) =>
+        ((ChootSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Choot, PopulationWords.Parameters(patternIndex << 8, 0))).FallingPath;
 
     /// <summary>Runs the Choot pattern definition verification suite.</summary>
     [VerificationCommand("--choot-pattern-definitions")]

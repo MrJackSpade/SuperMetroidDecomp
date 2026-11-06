@@ -26,13 +26,9 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ChootEnemyFunction.WaitingForSamus;
         state.SpawnPosition = slot.Position.Whole;
 
-        // Parameter one's high byte selects one of five genuine pattern streams. The sixth
-        // pattern selector points back into the pattern list and is documented garbage; no
-        // retail population selects it, so expose corrupt/high parameters as invalid data.
-        int patternIndex = slot.SpawnSettings<ChootSpawnSettings>().PatternIndex;
-        ChootPatternDefinition pattern = ChootFalls.ForIndex(patternIndex);
-        state.FallingPath = pattern.FallingPath;
-        state.FallingPatternYDistance = pattern.FallingPatternYDistance;
+        ChootFallingPath fallingPath = slot.SpawnSettings<ChootSpawnSettings>().FallingPath;
+        state.FallingPath = fallingPath;
+        state.FallingPatternYDistance = ChootFalls.LoopYDistance(fallingPath);
 
         // The multiply consumes only the loop count's low byte; the authored loop advance is
         // already below 256. Retail loop counts are nonzero.

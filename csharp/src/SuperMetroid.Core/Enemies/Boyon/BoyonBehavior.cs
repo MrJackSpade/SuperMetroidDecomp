@@ -51,14 +51,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeBoyon(RoomEnemySlot slot)
     {
         BoyonSpawnSettings settings = slot.SpawnSettings<BoyonSpawnSettings>();
-        int multiplierIndex = settings.SpeedMultiplierIndex;
-        int jumpHeightIndex = settings.JumpHeightIndex;
-        if (multiplierIndex >= 8 || jumpHeightIndex >= 9)
-        {
-            throw new InvalidDataException(
-                $"Boyon speed multiplier {multiplierIndex} or jump height {jumpHeightIndex} indexes beyond its " +
-                "eight multipliers or nine jump heights.");
-        }
 
         // Initialization writes the ordinary empty frame before selecting the
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
@@ -68,8 +60,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoyonEnemyState
         {
             BounceMovement = BoyonBounceMovement.Rising,
-            SpeedMultiplier = BoyonBounceCurve.InitialMultiplier(multiplierIndex),
-            JumpHeight = BoyonBounceCurve.InitialHeight(jumpHeightIndex),
+            SpeedMultiplier = settings.SpeedMultiplier,
+            JumpHeight = settings.JumpHeight,
             DistanceAccumulator = 0,
             SpeedTableIndex = 0,
             Bouncing = false,
@@ -195,8 +187,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Recreates the 8×8 unsigned multiply for the current curve index. Values after
-    /// the stored table use the explicit saturated byte rather than reading past the table.
+    /// The curve sample at the current index scaled by the multiplier. Indexes after the stored curve use the explicit
+    /// saturated sample rather than reading past it.
     /// </summary>
     internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
         BoyonBounceCurve.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);

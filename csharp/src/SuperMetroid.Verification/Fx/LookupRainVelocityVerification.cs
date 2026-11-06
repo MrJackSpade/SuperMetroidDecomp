@@ -11,7 +11,7 @@ internal static class LookupRainVelocityVerification
     internal static void VerifyRainHorizontalVelocity(SuperMetroidAddressSpace rom)
     {
         for (int selection = 0; selection < 4; selection++)
-            AssertEqual((int)unchecked((short)ReadVerificationWord(rom, 0x88d992 + 2 * selection)),
+            AssertEqual(unchecked((short)ReadVerificationWord(rom, 0x88d992 + 2 * selection)),
                 AtmosphereDrift.RainHorizontalVelocity(selection), "Rain signed 8.8 velocity");
         for (int random = 0; random <= ushort.MaxValue; random++)
         {

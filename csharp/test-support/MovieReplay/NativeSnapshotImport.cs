@@ -107,7 +107,7 @@ internal static class NativeSnapshotImport
                 ? default
                 : PaletteFxNativeProgramOracle.CursorAt(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            paletteSlot.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2));
+            paletteSlot.FrameHold = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2);
             paletteSlot.Timer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
         }
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);

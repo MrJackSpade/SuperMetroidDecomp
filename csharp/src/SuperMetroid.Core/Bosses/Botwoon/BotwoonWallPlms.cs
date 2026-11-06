@@ -36,7 +36,7 @@ internal sealed class BotwoonWallPlms(PlmSlotTable slotTable)
         slot.Header = plm;
         slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new BotwoonWallPlmAnimation(program));
-        slot.FrameHold = WrappingCountdown.FromRaw(firstStepDelay);
+        slot.FrameHold = firstStepDelay;
         return true;
     }
 }

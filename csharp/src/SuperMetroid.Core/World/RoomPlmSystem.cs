@@ -199,8 +199,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
             if (!slot.Active)
                 continue;
 
-            slot.FrameHold = slot.FrameHold.Decrement().Remaining;
-            if (!slot.FrameHold.IsZero)
+            if (--slot.FrameHold != 0)
                 continue;
 
             (slot.Animation ?? throw new InvalidOperationException(

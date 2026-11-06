@@ -162,12 +162,12 @@ internal static class RoomPlmSystemAccess
             if (active.Length != 1)
                 throw new InvalidOperationException("Program probe requires exactly one active PLM slot.");
             start.StartOn(active[0]);
-            active[0].FrameHold = WrappingCountdown.Start(1);
+            active[0].FrameHold = 1;
         }
 
         /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
         internal ushort MotherBrainGlassFrameHold => MotherBrainGlassSlot(self) is { } slot
-            ? slot.FrameHold.RawValue
+            ? checked((ushort)slot.FrameHold)
             : (ushort)0;
 
         /// <summary>
@@ -213,7 +213,7 @@ internal static class RoomPlmSystemAccess
                     BlockIndex: entry.Slot.BlockIndex,
                     RoomArgument: entry.Slot.NativeRoomArgument,
                     FrameBehavior: PlmFrameBehaviorNativeRoutines.Of(entry.Slot.FrameBehavior),
-                    FrameHold: entry.Slot.FrameHold.RawValue,
+                    FrameHold: checked((ushort)entry.Slot.FrameHold),
                     LoopTimer: entry.Slot.LoopTimer.RawValue,
                     ProjectileHit: entry.Slot.ProjectileHit,
                     Animation: entry.Slot.Animation)),
@@ -354,7 +354,7 @@ internal static class RoomPlmSystemAccess
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.BlockIndex = blockIndex;
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.FrameHold = 1;
             slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
 
             if (areaDependent)

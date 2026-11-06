@@ -50,7 +50,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             if (!scroll.Triggered)
             {
                 scroll.Triggered = true;
-                slot.FrameHold = WrappingCountdown.Start(1);
+                slot.FrameHold = 1;
             }
             return true;
         }

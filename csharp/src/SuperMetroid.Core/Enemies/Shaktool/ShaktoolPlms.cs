@@ -34,7 +34,7 @@ internal sealed class ShaktoolPlms
         slot.Header = PlmHeaderId.ShaktoolsRoom;
         slot.BlockIndex = 0;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ShaktoolRoomController));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
             scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
         return true;

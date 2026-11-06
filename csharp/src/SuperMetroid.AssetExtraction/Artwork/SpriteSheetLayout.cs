@@ -13,9 +13,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// pre-assembled picture of a frame that is drawn as it is. Frames whose parts read the same characters at the same
 /// places are composed once; each composed frame is cropped to its parts, and frames whose crops ink the same picture,
 /// whatever origin each is drawn from, share one rectangle, so each picture is held and painted once however many frames
-/// show it (#1513). The pictures are packed in rows no wider than <see cref="MaximumWidth"/>, or, for a sheet that would
-/// then be taller than an artwork image can be, the narrowest doubling of it within that bound that keeps the sheet
-/// within it too. A frame with no parts is an empty frame. Its <see cref="Identity"/> covers everything painting reads,
+/// show it (#1513). The pictures are packed as <see cref="SheetPacking"/> packs a sheet's pictures. A frame with no parts is an empty frame. Its <see cref="Identity"/> covers everything painting reads,
 /// so two layouts with one identity paint the same sheet and the second need not be painted (#1490); the pictures are
 /// composed and packed only when the sheet's size or paint is first asked for.
 /// </summary>
@@ -23,9 +21,6 @@ internal sealed class SpriteSheetLayout
 {
     /// <summary>Colours in one sprite palette row.</summary>
     private const int RowColours = 16;
-
-    /// <summary>The widest a sheet that fits is packed; a frame that would cross it starts a new row of frames.</summary>
-    private const int MaximumWidth = 1024;
 
     /// <summary>What the sheet composes.</summary>
     private readonly SpriteSheetSources sources;
@@ -126,14 +121,8 @@ internal sealed class SpriteSheetLayout
         }
         Extent16<ImagePixels>[] sizes = [.. distinct.Select(shown => shown.Bounds.Size)];
         var corners = new Position16<ImagePixels>[sizes.Length];
-        for (int rowWidth = MaximumWidth; ; rowWidth *= 2)
-        {
-            if (rowWidth > RgbaPng.MaximumDimension)
-                throw new InvalidDataException(
-                    $"Sheet {sources.Frames[0].Name}'s {sources.Frames.Count} frames do not fit in a {RgbaPng.MaximumDimension}-pixel square image.");
-            if (Pack(sizes, corners, rowWidth) is { } packed)
-                return new LaidPictures(packed, composed, pictureOf, [.. distinct], corners);
-        }
+        Extent16<ImagePixels> packed = SheetPacking.Pack(sizes, corners, $"Sheet {sources.Frames[0].Name}'s {sources.Frames.Count} frames");
+        return new LaidPictures(packed, composed, pictureOf, [.. distinct], corners);
     }
 
     /// <summary>
@@ -475,35 +464,6 @@ internal sealed class SpriteSheetLayout
         int rowBytes = part.Size.X / SpriteArtwork.CharacterPixels * SpriteArtwork.CharacterByteCount;
         for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
             writer.Write(characters.Characters.Slice((part.Character + row * SpriteArtwork.CharactersPerRow) * SpriteArtwork.CharacterByteCount, rowBytes));
-    }
-
-    /// <summary>
-    /// Packs the pictures of <paramref name="sizes"/> in order in rows no wider than <paramref name="rowWidth"/>, a picture
-    /// that would cross it starting a new row, writing each one's corner, and gives the sheet's size, or none when the rows
-    /// would be taller than an artwork image can be.
-    /// </summary>
-    private static Extent16<ImagePixels>? Pack(Extent16<ImagePixels>[] sizes, Position16<ImagePixels>[] corners, int rowWidth)
-    {
-        int width = 1, x = 0, y = 0, rowHeight = 0;
-        for (int index = 0; index < sizes.Length; index++)
-        {
-            Extent16<ImagePixels> size = sizes[index];
-            if (size.X == 0)
-                continue;
-            if (x > 0 && x + size.X > rowWidth)
-            {
-                y += rowHeight;
-                x = 0;
-                rowHeight = 0;
-            }
-            if (y + size.Y > RgbaPng.MaximumDimension)
-                return null;
-            corners[index] = new(checked((ushort)x), checked((ushort)y));
-            x += size.X;
-            rowHeight = Math.Max(rowHeight, size.Y);
-            width = Math.Max(width, x);
-        }
-        return new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)Math.Max(1, y + rowHeight)));
     }
 
     /// <summary>The rectangle a frame's parts cover, relative to its origin; empty for a frame with no parts.</summary>

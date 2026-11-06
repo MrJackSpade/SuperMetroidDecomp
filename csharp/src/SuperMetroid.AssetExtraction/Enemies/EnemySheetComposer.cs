@@ -30,14 +30,18 @@ internal static class EnemySheetComposer
     /// <summary>
     /// Every graphics set's sheets, each distinct sheet once. Every sheet is laid out first, and sheets whose layouts
     /// share an identity paint alike, so each distinct layout is painted and encoded once, in parallel, each worker on
-    /// its own reused canvas (#1490). The sheets are then named in set order: a layout that paints the same files as an
-    /// earlier one takes its name, as composing and comparing every sheet in turn would.
+    /// its own reused canvas (#1490). The spawned-object sheets' common art is then held once (#1513): each distinct
+    /// spawned-object layout keeps the pictures particular to it, and a picture several hold is held on a common sheet of its
+    /// colouring (<see cref="SpawnedObjectSheetSharing"/>). The sheets are then named in set order: a sheet that has the
+    /// same files as an earlier one takes its name, as composing and comparing every sheet in turn would.
     /// </summary>
     internal static EnemySheetComposition Compose(EnemySheetInputs inputs)
     {
         Ensure.NotNull(inputs);
         var layouts = new List<SpriteSheetLayout>();
         var layoutOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var spawnedLayouts = new List<SpriteSheetLayout>();
+        var spawnedLayoutOf = new Dictionary<string, int>(StringComparer.Ordinal);
         var laidSets = new List<LaidGraphicsSet>();
         // Each set's sheets are sourced and laid out in parallel (#1530); the distinct layouts are then kept in set order,
         // so which set first lays a shared sheet, and so the sheets' order, stays the same on every install.
@@ -56,7 +60,7 @@ internal static class EnemySheetComposer
             laidSets.Add(new LaidGraphicsSet(drawnSets[index].Name,
                 [.. laid.Sources.Enemies.Select((source, sheet) => new LaidEnemySheet(source.Enemy, Laid(laid.Enemies[sheet], layouts, layoutOf),
                     source.Variations, source.CorpsePictures, source.BlankPictures))],
-                [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], layouts, layoutOf),
+                [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], spawnedLayouts, spawnedLayoutOf),
                     source.Variations, source.CorpsePictures, source.BlankPictures))]));
         }
         var encoded = new EncodedSpriteSheet[layouts.Count];
@@ -65,7 +69,8 @@ internal static class EnemySheetComposer
             encoded[index] = encoder.Encode(layouts[index]);
             return encoder;
         }, encoder => encoder.Dispose());
-        var names = new SheetNames(encoded);
+        SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
+        var names = new SheetNames();
         var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
         var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
         var variations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>>(StringComparer.Ordinal);
@@ -83,7 +88,7 @@ internal static class EnemySheetComposer
             foreach (LaidEnemySheet sheet in set.Enemies)
             {
                 EnemyDefinitionId enemy = sheet.Enemy;
-                string name = names.Of(sheet.Layout, enemy.ToString());
+                string name = names.Of(encoded[sheet.Layout], enemy.ToString());
                 // A set that lists an enemy twice loads it once into each record's row; both must show alike.
                 if (members.TryGetValue(enemy.ToString(), out string? listed) && listed != name)
                     throw new InvalidDataException($"Enemy graphics set {set.Name} colours {enemy} two ways.");
@@ -109,13 +114,25 @@ internal static class EnemySheetComposer
             foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
                 SpawnedObjectSheetPlan plan = sheet.Plan;
-                string name = names.Of(sheet.Layout, $"Spawned-{SpawnedObjectOwnerNames.Name(plan.Owner)}");
+                SpawnedSheetShare share = shared.Shares[sheet.Layout];
+                // The pictures particular to the sheet are on its own sheet, and each common one on the common sheet of its
+                // colouring (#1513).
+                string? own = share.Own is { } ownSheet ? names.Of(ownSheet, $"Spawned-{SpawnedObjectOwnerNames.Name(plan.Owner)}") : null;
+                var commonPictures = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+                foreach ((string picture, int commonSheet) in share.Common.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                {
+                    string commonName = names.Of(shared.Common[commonSheet], "Spawned-Common");
+                    if (!commonPictures.TryGetValue(commonName, out List<string>? held))
+                        commonPictures.Add(commonName, held = []);
+                    held.Add(picture);
+                }
                 // Every owner the game names the sheet by finds it under its own name.
                 foreach (string owner in plan.AlsoOwnedBy.Prepend(plan.Owner).Select(SpawnedObjectOwnerNames.Name))
                 {
                     bases.Add(owner, new SpawnedObjectSheetDocument
                     {
-                        Sheet = name,
+                        Sheet = own,
+                        CommonPictures = commonPictures,
                         Palette = plan.Palette,
                         Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                         Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
@@ -193,7 +210,7 @@ internal static class EnemySheetComposer
 
     /// <summary>One spawned-object sheet under a graphics set.</summary>
     /// <param name="Plan">The tile base, palette and spawners of the objects it draws.</param>
-    /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
+    /// <param name="Layout">The index of the distinct spawned-object layout its sheet paints.</param>
     /// <param name="Variations">How each frame encounter artwork sequences change follows them.</param>
     /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
     /// <param name="BlankPictures">The frames' pictures that show nothing.</param>
@@ -201,25 +218,14 @@ internal static class EnemySheetComposer
         IReadOnlyDictionary<string, CorpsePictureLayout> CorpsePictures, IReadOnlySet<string> BlankPictures);
 
     /// <summary>
-    /// Names the distinct sheets in the order they are first asked for: a layout whose files are the same as an earlier
-    /// named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for the enemy and a
-    /// spawned-object sheet for its tile base.
+    /// Names the distinct sheets in the order they are first asked for: a sheet whose files are the same as an earlier
+    /// named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for the enemy, a
+    /// spawned-object sheet's own pictures for its owner and a common sheet of spawned-object pictures as common (#1513).
     /// </summary>
     private sealed class SheetNames
     {
-        /// <summary>Starts naming the distinct layouts' sheets.</summary>
-        /// <param name="encoded">Each distinct layout's encoded files.</param>
-        internal SheetNames(EncodedSpriteSheet[] encoded)
-        {
-            this.encoded = encoded;
-            names = new string?[encoded.Length];
-        }
-
-        /// <summary>Each distinct layout's encoded files.</summary>
-        private readonly EncodedSpriteSheet[] encoded;
-
-        /// <summary>The name each layout's sheet was given, or null before it is asked for.</summary>
-        private readonly string?[] names;
+        /// <summary>The name each encoded sheet was given.</summary>
+        private readonly Dictionary<EncodedSpriteSheet, string> names = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>The name of the sheet with each fingerprint.</summary>
         private readonly Dictionary<string, string> distinct = new(StringComparer.Ordinal);
@@ -230,21 +236,21 @@ internal static class EnemySheetComposer
         /// <summary>Each distinct sheet by installed name, in the order they were named.</summary>
         internal Dictionary<string, EncodedSpriteSheet> Sheets { get; } = new(StringComparer.Ordinal);
 
-        /// <summary>The installed name of the sheet layout <paramref name="layout"/> paints, owned by <paramref name="owner"/> when it is new.</summary>
-        internal string Of(int layout, string owner)
+        /// <summary>The installed name of <paramref name="sheet"/>, owned by <paramref name="owner"/> when it is new.</summary>
+        internal string Of(EncodedSpriteSheet sheet, string owner)
         {
-            if (names[layout] is string known)
+            if (names.TryGetValue(sheet, out string? known))
                 return known;
-            string key = Fingerprint(encoded[layout]);
+            string key = Fingerprint(sheet);
             if (!distinct.TryGetValue(key, out string? name))
             {
                 int ordinal = ordinals.GetValueOrDefault(owner);
                 ordinals[owner] = ordinal + 1;
                 name = $"{owner}.{ordinal}";
                 distinct.Add(key, name);
-                Sheets.Add(name, encoded[layout]);
+                Sheets.Add(name, sheet);
             }
-            names[layout] = name;
+            names.Add(sheet, name);
             return name;
         }
 

@@ -1,10 +1,20 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>One spawned-object sheet in the enemy sheet manifest (#1392).</summary>
+/// <summary>
+/// One owner's spawned-object pictures in the enemy sheet manifest (#1392, #1513): the installed sheet of the pictures
+/// particular to its graphics set, and the common sheets holding its other pictures, each of which every set that draws it
+/// reads.
+/// </summary>
 internal sealed record SpawnedObjectSheetDocument
 {
-    /// <summary>The installed sheet name.</summary>
-    public required string Sheet { get; init; }
+    /// <summary>The installed sheet of the pictures no other spawned-object sheet holds; null when every picture is common.</summary>
+    public required string? Sheet { get; init; }
+
+    /// <summary>
+    /// The installed common sheets the owner's other pictures are held on, by sheet name, each with the names of the
+    /// pictures drawn from it (#1513). A picture is held on one sheet only.
+    /// </summary>
+    public required Dictionary<string, List<string>> CommonPictures { get; init; }
 
     /// <summary>The palette row its frames were coloured in.</summary>
     public required int Palette { get; init; }

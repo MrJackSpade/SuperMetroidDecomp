@@ -200,7 +200,8 @@ internal static class EnemySheetFixtures
                          IReadOnlyDictionary<string, CorpsePictureLayout> frameCorpses, IReadOnlySet<string> shownNothing) in setSources.Spawned)
             {
                 string name = $"Spawned-{plan.Owner}-{owner}";
-                var sheet = new Lazy<SpawnedObjectSheet>(() => new SpawnedObjectSheet(Load(sources, name)));
+                // A fixture's set holds each of its spawned objects' pictures on its own sheet: none is common to another set.
+                var sheet = new Lazy<SpawnedObjectSheet>(() => new SpawnedObjectSheet(Load(sources, name), new Dictionary<string, SpriteSheet>()));
                 foreach (SpawnedObjectOwner spawnedOwner in plan.AlsoOwnedBy.Prepend(plan.Owner))
                 {
                     spawned[spawnedOwner] = sheet;

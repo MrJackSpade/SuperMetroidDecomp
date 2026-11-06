@@ -29,14 +29,12 @@ internal static class IntroSheetShades
     }
 
     /// <summary>
-    /// The intro sprite sheet's shades over <paramref name="sprites"/>: each colouring over the inks of
-    /// <paramref name="frameInk"/>'s group, and every sprite group at every level below full over the own-palette parts'
-    /// inks and over each colouring's frame inks.
+    /// The intro sprite sheet's shades over <paramref name="sprites"/> (#1513): each colouring over its own sprite set's inks,
+    /// which every frame it draws is coloured in, and every sprite group at every level below full over its inks, both as
+    /// its own shade and as each colouring's, whose frames show the group's inks where their set holds them.
     /// </summary>
-    /// <param name="sprites">The opening's installed sprite colours, at the inks own-palette parts colour them at.</param>
-    /// <param name="frameInk">The first ink of the group a frame's palette-inheriting parts are coloured in.</param>
-    /// <exception cref="InvalidDataException">A faded sprite group lies in the frame inks' group, where own-palette parts cannot be told from inheriting ones.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(IReadOnlyList<RgbColor> sprites, int frameInk)
+    /// <param name="sprites">The opening's installed sprite colours, at the inks every frame colours them at.</param>
+    internal static IReadOnlyList<SheetShade> Sprites(IReadOnlyList<RgbColor> sprites)
     {
         Ensure.NotNull(sprites);
         var shades = new List<SheetShade>();
@@ -44,14 +42,12 @@ internal static class IntroSheetShades
         foreach (IntroSpriteColouring colouring in colourings)
         {
             int set = IntroSheetInks.SpriteSet(colouring);
-            shades.Add(SheetShade.DrawnRun(IntroShades.Drawn(colouring), frameInk,
+            shades.Add(SheetShade.DrawnRun(IntroShades.Drawn(colouring), set * IntroSheetInks.SetColours,
                 [.. sprites.Skip(set * IntroSheetInks.SetColours).Take(IntroSheetInks.SetColours)], set));
         }
         foreach (IntroSpriteFade group in Enum.GetValues<IntroSpriteFade>())
         {
             int[] colours = [.. IntroSheetInks.Sprite(group)];
-            if (colours.Any(colour => colour / IntroSheetInks.SetColours == frameInk / IntroSheetInks.SetColours))
-                throw new InvalidDataException($"The opening's {group} sprite colours lie in the frame inks' group.");
             for (int level = 0; level < CinematicPaletteFader.Levels; level++)
             {
                 shades.Add(new SheetShade(IntroShades.Faded(group, level), colours, Faded(colours.Select(colour => sprites[colour]), level)));
@@ -59,8 +55,7 @@ internal static class IntroSheetShades
                 {
                     int set = IntroSheetInks.SpriteSet(colouring);
                     int[] drawn = [.. colours.Where(colour => colour / IntroSheetInks.SetColours == set)];
-                    shades.Add(new SheetShade(IntroShades.Faded(group, level, IntroShades.Drawn(colouring)),
-                        [.. drawn.Select(colour => frameInk + colour % IntroSheetInks.SetColours)],
+                    shades.Add(new SheetShade(IntroShades.Faded(group, level, IntroShades.Drawn(colouring)), drawn,
                         Faded(drawn.Select(colour => sprites[colour]), level)));
                 }
             }

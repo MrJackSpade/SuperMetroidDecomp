@@ -52,13 +52,14 @@ internal static class CeresSheetInks
             new InkRange(EngineFirst, EngineEnd), Ensure.NotNull(colours));
 
     /// <summary>
-    /// The drawn shade of every Ceres actor colouring: its sprite set's colours from <paramref name="sprites"/> over the
-    /// frame group's inks from <paramref name="frameInk"/>, which a frame's palette-inheriting parts are coloured in.
+    /// The drawn shade of every Ceres actor colouring (#1513): its sprite set's colours from <paramref name="sprites"/> over
+    /// that set's own inks, which every frame the colouring draws is coloured in, so the shade shows each such frame as the
+    /// sheet pictures it and carries whether its draws take part in colour math.
     /// </summary>
-    internal static IReadOnlyList<SheetShade> DrawnShades(RgbColor[] sprites, int frameInk)
+    internal static IReadOnlyList<SheetShade> DrawnShades(RgbColor[] sprites)
     {
         Ensure.NotNull(sprites);
-        return [.. Enum.GetValues<CeresSpriteColouring>().Select(colouring => SheetShade.DrawnRun(CeresShades.Drawn(colouring), frameInk,
-            sprites.AsSpan(SpriteSet(colouring) * SetColours, SetColours), SpriteSet(colouring)))];
+        return [.. Enum.GetValues<CeresSpriteColouring>().Select(colouring => SheetShade.DrawnRun(CeresShades.Drawn(colouring),
+            SpriteSet(colouring) * SetColours, sprites.AsSpan(SpriteSet(colouring) * SetColours, SetColours), SpriteSet(colouring)))];
     }
 }

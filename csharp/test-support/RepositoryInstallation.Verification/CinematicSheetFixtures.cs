@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -156,9 +157,31 @@ internal static class CinematicSheetFixtures
         return drawers.GetValue(presentation, key =>
         {
             var frames = (ICinematicSpriteFrames)key;
-            return new CinematicSpriteSheet(Load(IntroSpriteSheetComposer.Sources([frames], InstalledFixtures.IntroArtwork),
+            return new CinematicSpriteSheet(Load(DrawerSources(frames),
                 $"cinematic-fixture-{frames.Family}-{RuntimeHelpers.GetHashCode(key):X8}"), frames.Family);
         });
+    }
+
+    /// <summary>
+    /// A sheet of any cinematic family's <paramref name="frames"/> over the installed intro OBJ page in the opening's colours
+    /// and shades: an opening family's as the intro sheet composes it, in its colouring's sprite set (#1513); a Ceres or
+    /// ending family's with its palette-inheriting parts in the frame colour group, as the opening defines no colouring for
+    /// it. The OAM comparisons such a sheet serves read each draw's palette row from the draw's drawn shade
+    /// (<see cref="DrawnShadeRows"/>), never from the picture's inks.
+    /// </summary>
+    private static SpriteSheetSources DrawerSources(ICinematicSpriteFrames frames)
+    {
+        IntroCinematicArtwork intro = InstalledFixtures.IntroArtwork;
+        if (frames.Family is CinematicSpriteFamily.IntroDiscoveryActor or CinematicSpriteFamily.IntroEggEffect or CinematicSpriteFamily.IntroRinka
+            or CinematicSpriteFamily.IntroScientist or CinematicSpriteFamily.IntroMotherBrain or CinematicSpriteFamily.IntroMotherBrainExplosion
+            or CinematicSpriteFamily.IntroCaret)
+        {
+            return IntroSpriteSheetComposer.Sources([frames], intro);
+        }
+        ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
+        RgbColor[] sprites = [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours];
+        return new SpriteSheetSources([.. IntroSpriteSheetComposer.Frames([frames], IntroObjectPage.Of(intro), sizes)], sprites, sizes,
+            PartsKeepOwnRows: true) { Shades = IntroSheetShades.Sprites(sprites) };
     }
 
     /// <summary>Composes, loads and registers one fixture sheet under a name of its own.</summary>

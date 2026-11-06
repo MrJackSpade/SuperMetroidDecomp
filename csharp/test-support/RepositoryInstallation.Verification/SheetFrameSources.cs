@@ -21,7 +21,18 @@ internal static class SheetFrameSources
     {
         Ensure.NotNull(sheet);
         Ensure.NotNull(composed);
-        Add(sources.Value, sheet, composed);
+        Add(sources.Value, sheet.Frame, composed);
+    }
+
+    /// <summary>
+    /// Pairs the frames a graphics set's spawned-object pictures for one owner hold with what they were composed from: each
+    /// from the set's own sheet or the common sheet holding it (#1513).
+    /// </summary>
+    internal static void Register(SuperMetroid.Core.Enemies.Artwork.SpawnedObjectSheet sheet, SpriteSheetSources composed)
+    {
+        Ensure.NotNull(sheet);
+        Ensure.NotNull(composed);
+        Add(sources.Value, sheet.Frame, composed);
     }
 
     /// <summary>
@@ -39,16 +50,17 @@ internal static class SheetFrameSources
     }
 
     /// <summary>
-    /// Pairs each of <paramref name="sheet"/>'s frames with what it was composed from. Frames whose pictures the sheet lays
-    /// out once share one rectangle, the first frame's composition standing for all of them over their own pages, which
-    /// show the same picture; the others' differing compositions are kept, since over another page they may not.
+    /// Pairs each frame <paramref name="composed"/> composes, whose picture <paramref name="pictureOf"/> finds, with what it
+    /// was composed from. Frames whose pictures a sheet lays out once share one rectangle, the first frame's composition
+    /// standing for all of them over their own pages, which show the same picture; the others' differing compositions are
+    /// kept, since over another page they may not.
     /// </summary>
-    private static void Add(System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> target, SpriteSheet sheet,
+    private static void Add(System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> target, Func<string, SpriteSheetFrame> pictureOf,
         SpriteSheetSources composed)
     {
         foreach (SheetFrameSource frame in composed.Frames)
         {
-            SpriteSheetFrame image = sheet.Frame(frame.Name);
+            SpriteSheetFrame image = pictureOf(frame.Name);
             var source = new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows,
                 composed.ObjectSizes);
             FrameKey key = Key(image);
@@ -185,7 +197,7 @@ internal static class SheetFrameSources
             foreach ((SuperMetroid.Core.Enemies.EnemyDefinitionId enemy, SpriteSheetSources composed, _, _, _) in setSources.Enemies)
                 Register(InstalledFixtures.EnemySheets.For(set.Name, enemy), composed);
             foreach ((SuperMetroid.AssetExtraction.Enemies.SpawnedObjectSheetPlan plan, SpriteSheetSources composed, _, _, _) in setSources.Spawned)
-                Register(InstalledFixtures.EnemySheets.Spawned(set.Name, plan.Owner).Sheet, composed);
+                Register(InstalledFixtures.EnemySheets.Spawned(set.Name, plan.Owner), composed);
         }
         return true;
     }));
@@ -199,7 +211,7 @@ internal static class SheetFrameSources
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(SpriteSheetSourceCatalogConstants.ComposesFromSpriteParts))
         {
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
-            Add(result, InstalledFixtures.SpriteSheets.Get(id), catalog.For(id));
+            Add(result, InstalledFixtures.SpriteSheets.Get(id).Frame, catalog.For(id));
         }
         return result;
     }

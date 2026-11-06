@@ -113,9 +113,9 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>
-    /// Publishes one spawned object's frame from the loaded graphics set's sheet of the owner its graphics name (#1392,
-    /// #1513), under the shading the object carries (#1512), through a rotting corpse's <paramref name="rows"/> when the
-    /// frame shows the corpse (#1531).
+    /// Publishes one spawned object's frame from the loaded graphics set's pictures of the owner its graphics name (#1392,
+    /// #1513), the set's own sheet or the common sheet holding the picture, under the shading the object carries (#1512),
+    /// through a rotting corpse's <paramref name="rows"/> when the frame shows the corpse (#1531).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The object shown.</param>
@@ -123,7 +123,10 @@ internal sealed class EnemyPresentation
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="graphics">Whose spawned-object sheet the object draws from, and the shading it shows its picture in.</param>
     /// <param name="rows">The rows of the rotting corpse the frame shows, as its rot has left them; none for one that shows none.</param>
-    /// <exception cref="InvalidDataException">The set has no sheet for that owner, or a rotting corpse's frame is not as its rows say.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The set has no pictures for that owner, none of its sheets holds the picture, or a rotting corpse's frame is not as its
+    /// rows say.
+    /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
         SpriteGraphics graphics, CorpseRotRows? rows = null)
     {
@@ -134,7 +137,7 @@ internal sealed class EnemyPresentation
         // nothing then (#1513).
         if (Sheets.SpawnedShowsNothing(LoadedSet, owner, picture))
             return;
-        SpriteSheetFrame image = sheet.Sheet.Frame(picture);
+        SpriteSheetFrame image = sheet.Frame(picture);
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
         {
             Shading = graphics.Shading,

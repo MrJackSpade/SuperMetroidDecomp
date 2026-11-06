@@ -120,7 +120,7 @@ internal static class RoomBlockUploads
     /// The collectibles that load their own graphics into a collectible slot which <paramref name="state"/>'s population
     /// places, each once: the only collectibles a room of its tileset shows on the slots' blocks (#1513).
     /// </summary>
-    private static IEnumerable<InWorldCollectibleKind> CollectiblesPlacedIn(RoomStateSettings state)
+    private static HashSet<InWorldCollectibleKind> CollectiblesPlacedIn(RoomStateSettings state)
     {
         var placed = new HashSet<InWorldCollectibleKind>();
         foreach (RoomPlmPlacement placement in state.PlmPopulation.Placements.Span)

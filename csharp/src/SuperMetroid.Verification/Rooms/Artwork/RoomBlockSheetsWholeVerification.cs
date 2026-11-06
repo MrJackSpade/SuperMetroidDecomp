@@ -39,8 +39,8 @@ internal static class RoomBlockSheetsWholeVerification
     {
         InstalledRoomArtwork artwork = RepositoryInstallation.Installation.LoadRoomBlockSheets();
         InstalledRoomPlmCollectibleVisuals visuals = RepositoryInstallation.Installation.LoadRoomPlmCollectibleVisuals();
-        IReadOnlyDictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>> placed = CollectiblesPlaced();
-        IReadOnlyDictionary<int, int> collectibleBlocks = CollectibleBlocks(visuals);
+        var placed = CollectiblesPlaced();
+        var collectibleBlocks = CollectibleBlocks(visuals);
         var failures = new List<string>();
         int blocks = 0, collectiblePictures = 0;
         foreach (KeyValuePair<TilesetDefinition, RoomBlockSheet> entry in artwork.Sheets.OrderBy(entry => RoomBlockSheet.NameOf(entry.Key), StringComparer.Ordinal))
@@ -107,7 +107,7 @@ internal static class RoomBlockSheetsWholeVerification
     /// cell pictured over a collectible's graphics, or a collectible no room of the tileset places.
     /// </summary>
     private static void CheckPictureNames(string name, RoomBlockSheet sheet, HashSet<InWorldCollectibleKind> kinds,
-        IReadOnlyDictionary<int, int> collectibleBlocks, List<string> failures)
+        Dictionary<int, int> collectibleBlocks, List<string> failures)
     {
         string[] shown = [.. kinds.Select(CollectibleSlotAppearance.ValueOf)];
         int foreign = 0, unplaced = 0;
@@ -138,7 +138,7 @@ internal static class RoomBlockSheetsWholeVerification
     /// The collectibles that load their own graphics each tileset's rooms place, by tileset: those every retail room state
     /// of the tileset's population sets up.
     /// </summary>
-    private static IReadOnlyDictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>> CollectiblesPlaced()
+    private static Dictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>> CollectiblesPlaced()
     {
         var placed = new Dictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>>();
         foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
@@ -164,7 +164,7 @@ internal static class RoomBlockSheetsWholeVerification
     /// The blocks a collectible that loads its own graphics draws where it lies, each with its graphics slot, as the
     /// installed collectible visuals draw each slot's two frames.
     /// </summary>
-    private static IReadOnlyDictionary<int, int> CollectibleBlocks(InstalledRoomPlmCollectibleVisuals visuals)
+    private static Dictionary<int, int> CollectibleBlocks(InstalledRoomPlmCollectibleVisuals visuals)
     {
         InWorldCollectibleKind any = Enum.GetValues<InWorldCollectibleKind>().First(CollectiblePlms.UsesDynamicGraphics);
         var blocks = new Dictionary<int, int>();

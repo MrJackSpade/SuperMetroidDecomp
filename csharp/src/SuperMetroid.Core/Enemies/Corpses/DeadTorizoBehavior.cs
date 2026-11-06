@@ -166,7 +166,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             int verticalOverlap = CoordinateAxis.Wrap(
                 kinematics.Radius.Y + verticalReach - verticalDistance);
-            if (WordWrap.Signed(verticalOverlap) < 0)
+            if (CoordinateAxis.AsSigned(verticalOverlap) < 0)
                 continue;
 
             int horizontalDistance;
@@ -202,7 +202,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FinishedEntryCount++;
         int random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(WordWrap.Unsigned(CorpseDustDefinitions.TorizoSpread.Of(random) + 272), 188),
+            new(CorpseDustDefinitions.TorizoSpread.Of(random) + 272, 188),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)
@@ -216,12 +216,10 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void MoveWithEightEightVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
     {
-        FixedCoordinate x = new FixedCoordinate(slot.Position.X.Whole, slot.Position.X.Fraction)
-            .AddEightEightToHighFraction(velocity.X.RawValue);
+        FixedCoordinate x = slot.Position.X.MovedBy(velocity.X);
         slot.Position = slot.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
-        FixedCoordinate y = new FixedCoordinate(slot.Position.Y.Whole, slot.Position.Y.Fraction)
-            .AddEightEightToHighFraction(velocity.Y.RawValue);
+        FixedCoordinate y = slot.Position.Y.MovedBy(velocity.Y);
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 

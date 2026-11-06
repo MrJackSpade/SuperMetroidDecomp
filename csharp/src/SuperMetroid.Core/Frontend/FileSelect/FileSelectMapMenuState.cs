@@ -246,13 +246,23 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
         Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
-        int top = WordWrap.LowByte(topLeft.Y);
-        int bottom = Math.Min(ScreenGeometry.ScreenHeightPixels, top + Math.Max(1, WordWrap.LowByte(bottomRight.Y - topLeft.Y)));
-        int left = WordWrap.LowByte(topLeft.X), right = WordWrap.LowByte(bottomRight.X);
+        int top = WithinWindowBand(topLeft.Y);
+        int bottom = Math.Min(ScreenGeometry.ScreenHeightPixels, top + Math.Max(1, WithinWindowBand(bottomRight.Y - topLeft.Y)));
+        int left = WithinWindowBand(topLeft.X), right = WithinWindowBand(bottomRight.X);
         // A window whose edges have crossed, or that covers no line, shows none of the room: the area scene shows whole.
         if (left > right || top >= bottom) return areaScene;
         return Insert(areaScene, roomScene, left, top, right + 1, bottom);
     }
+
+    /// <summary>
+    /// A window edge or extent within the 256-pixel band the window's edges are kept to on each axis: an edge moved
+    /// past either end of the band continues from the other.
+    /// </summary>
+    /// <param name="coordinate">The edge or extent, which may lie outside the band.</param>
+    private static int WithinWindowBand(int coordinate) => CoordinateAxis.Wrap(coordinate) % WindowBandPixels;
+
+    /// <summary>The span of the band a window's edges are kept to on each axis.</summary>
+    private const int WindowBandPixels = 256;
 
     /// <summary>Overlays an inner scene inside half-open screen bounds while retaining the basis scene's display memory and brightness.</summary>
     private static LayeredScene Insert(LayeredScene basis, LayeredScene inside,

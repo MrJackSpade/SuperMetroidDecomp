@@ -94,9 +94,10 @@ internal sealed class TourianUnlockBehavior
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
-        int angle = WordWrap.LowByte((_room.Random.Generate() & 63) - 32);
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedNegativeCosineWord(angle + 64)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(4 * Trigonometry.SignedNegativeCosineWord(angle)));
+        // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
+        ByteAngle angle = ByteAngle.Wrapped((_room.Random.Generate() & 63) - 32);
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedNegativeCosineWord(angle.RawValue + 64)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(4 * Trigonometry.SignedNegativeCosineWord(angle.RawValue)));
     }
 
     /// <summary>Holds a splash at the water surface.</summary>

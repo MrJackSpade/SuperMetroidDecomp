@@ -138,8 +138,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies the separate-word complement and fractional increment, including its missing carry.</summary>
     private static SignedSixteenSixteen NegateWithoutFractionCarry(SignedSixteenSixteen axis) =>
-        SignedSixteenSixteen.FromParts(
-            CoordinateAxis.AsSigned(~axis.WholeWord), WordWrap.Unsigned(~axis.Fraction + 1));
+        axis.ComplementedWholeNegatedFraction();
 
     /// <summary>Advances Multiviola's typed animation.</summary>
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>

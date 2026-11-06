@@ -16,7 +16,7 @@ public static class BoyonBounceCurve
     /// every low-byte multiplier through the real production calculation.
     /// </remarks>
     public static int Sample(int index) => index < StoredSampleCount
-        ? WordWrap.LowByte(index * (index + 1) / 2)
+        ? index * (index + 1) / 2
         : byte.MaxValue;
 
     /// <summary>The sample at <paramref name="index"/> scaled by <paramref name="multiplier"/>, 0 through 255; the product is 0 through 65025.</summary>

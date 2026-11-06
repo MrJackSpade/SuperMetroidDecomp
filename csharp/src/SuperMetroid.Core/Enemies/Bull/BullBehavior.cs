@@ -110,7 +110,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         RotationAngle.NormalizeTableIndex(EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ReinterpretAsTableAngle().RawValue - EnemyByteAngleDefinitions.QuarterTurn);
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle().RawValue - EnemyByteAngleDefinitions.QuarterTurn);
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)
@@ -142,15 +142,12 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
 
-        // The off-target test subtracts the two byte angles as 16-bit words. Its sign extension
-        // only sets the high byte when bit seven is set and never clears a borrowed high byte, so a
-        // negative difference with bit seven clear (e.g. 0xFF10) stays large. The test then
-        // takes the absolute value and compares it against 0x30 by sign.
-        int difference = WordWrap.Unsigned(state.AngleToSamus.TableIndex - state.Angle);
-        difference = EnemyMath.SignExtendLowByte(difference);
-        if (EnemyMath.IsNegative16(difference))
-            difference = WordWrap.Unsigned(-difference);
-        if (WordWrap.Signed(difference - 48) < 0)
+        // The off-target test measures the turn from the heading to Samus's bearing. A turn of a half turn or more
+        // the positive way counts the short way round, but a turn of more than a half turn the negative way counts the
+        // long way: the game's sign extension leaves that difference large. A turn of 48 units or more is off target.
+        int turn = state.AngleToSamus.TableIndex - state.Angle;
+        int measuredTurn = turn >= ByteAngle.HalfTurn.RawValue ? RotationAngle.TableUnitsPerTurn - turn : Math.Abs(turn);
+        if (measuredTurn < 48)
             return;
 
         state.Function = BullEnemyFunction.Decelerating;
@@ -162,11 +159,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         slot.Position = slot.Position.WithX(AddBullComponent(
             slot.Position.X,
-            ReadBullSignedSine(unchecked(new ByteAngle(WordWrap.LowByte(state.Angle + EnemyByteAngleDefinitions.QuarterTurn)))),
+            ReadBullSignedSine(ByteAngle.Wrapped(state.Angle + EnemyByteAngleDefinitions.QuarterTurn)),
             state.Speed));
         slot.Position = slot.Position.WithY(AddBullComponent(
             slot.Position.Y,
-            ReadBullSignedSine(unchecked(new ByteAngle(WordWrap.LowByte(state.Angle)))),
+            ReadBullSignedSine(new ByteAngle(state.Angle)),
             state.Speed));
     }
 
@@ -184,23 +181,19 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // unsigned 8.8 speed, and keeps the 24-bit result as a 16.16 displacement. Negative
         // components use the Bull's own negation, whose zero-fraction path is deliberately one subpixel more
         // negative than a conventional two's-complement negation.
-        int magnitude = WordWrap.Unsigned(Math.Abs(sine));
-        int sineHighByte = UnsignedEightEight.Whole(magnitude);
-        uint product = (uint)sineHighByte * (uint)speed;
-        int fraction = WordWrap.Unsigned(product);
-        int whole = FixedCoordinate.WholeOf(unchecked((int)product));
-        if (sine < 0 && (whole != 0 || fraction != 0))
+        // The high byte is below 128 and the speed below 65536, so the product fits a 16.16 displacement.
+        int sineHighByte = UnsignedEightEight.Whole(Math.Abs(sine));
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(sineHighByte * Ensure.BetweenInclusive(0, ushort.MaxValue, speed));
+        if (sine < 0 && displacement != SignedSixteenSixteen.Zero)
         {
-            if (fraction == 0)
-                fraction = RoomPixelMasks.LastFraction;
-            else
-                fraction = WordWrap.Unsigned(-fraction);
-            whole = WordWrap.Unsigned(~whole);
+            // A displacement with no fraction reverses one subpixel further than its true reversal.
+            displacement = SignedSixteenSixteen.Zero - displacement -
+                SignedSixteenSixteen.FromRaw(displacement.Fraction == 0 ? 1 : 0);
         }
 
         // The displacement moves the position as one 16.16 value: a fraction that passes a whole pixel moves the whole
         // position by one more, and the whole position wraps at its width.
-        return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), fraction).AddTo(position.Whole, position.Fraction);
+        return position.MovedBy(displacement);
     }
 
     /// <summary>Runs the no-damage tail of the Bull's shot reaction.</summary>

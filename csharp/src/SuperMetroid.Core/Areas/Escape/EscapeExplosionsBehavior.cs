@@ -29,7 +29,7 @@ internal sealed class EscapeExplosionsBehavior
         // Preserve the game's unchanged-X branch, not the upstream C port's bugfix.
         if (choice < 8)
         {
-            inheritedX = WordWrap.Unsigned(choice);
+            inheritedX = choice;
             if (ZebesEscapeExplosions.ForIndex(choice).SoundEffect is SoundEffectId sound)
                 _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
         }

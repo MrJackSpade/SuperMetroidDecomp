@@ -976,9 +976,9 @@ internal sealed class EnemyCollision
             return false;
 
         int biasedYDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - enemy.Position.Y.Whole);
-        if (WordWrap.Signed(biasedYDifference) >= 0)
+        if (CoordinateAxis.AsSigned(biasedYDifference) >= 0)
             return false;
-        int yDistance = WordWrap.Unsigned(-biasedYDifference);
+        int yDistance = CoordinateAxis.Wrap(-biasedYDifference);
         int verticalGap = CoordinateAxis.Wrap(yDistance - samus.Kinematics.Radius.Y);
         return yDistance < samus.Kinematics.Radius.Y || verticalGap <= enemy.Radius.Y;
     }

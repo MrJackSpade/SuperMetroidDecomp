@@ -4,45 +4,59 @@ namespace SuperMetroid.Core.Spatial;
 [EncodingOwner("16.16 fixed-point coordinate")]
 public readonly record struct FixedCoordinate
 {
-    /// <summary>The position with a whole word and a fraction word that must each be 0 through 65535.</summary>
-    /// <param name="whole">The unsigned whole-position word, wrapping at the native sixteen-bit boundary.</param>
-    /// <param name="fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
+    /// <summary>The position at <paramref name="whole"/> pixels and <paramref name="fraction"/> 65536ths, each 0 through 65535.</summary>
+    /// <param name="whole">The whole pixel, 0 through 65535; the coordinate range wraps past either end.</param>
+    /// <param name="fraction">The fraction of a pixel, in 65536ths.</param>
     public FixedCoordinate(int whole, int fraction)
     {
         Whole = checked((ushort)whole);
         Fraction = checked((ushort)fraction);
     }
 
-    /// <summary>The unsigned whole-position word, wrapping at the native sixteen-bit boundary.</summary>
+    /// <summary>The whole pixel, 0 through 65535; the coordinate range wraps past either end.</summary>
     [IntegerQuantity("whole-pixel coordinate")]
     public ushort Whole { get; init; }
 
-    /// <summary>The unsigned fractional-position word representing fractions of one pixel.</summary>
+    /// <summary>The fraction of a pixel, in 65536ths, 0 through 65535.</summary>
     public ushort Fraction { get; init; }
 
-    /// <summary>The position with a whole word and a fraction word that must each be 0 through 65535.</summary>
+    /// <summary>The position at <paramref name="whole"/> pixels and <paramref name="fraction"/> 65536ths, each 0 through 65535.</summary>
     public static FixedCoordinate Of(int whole, int fraction) => new(whole, fraction);
 
-    /// <summary>The whole-pixel word of a native 16.16 value: its upper sixteen bits, whatever its sign.</summary>
-    public static ushort WholeOf(int rawValue) => unchecked((ushort)(rawValue >> 16));
+    /// <summary>
+    /// The whole pixel, 0 through 65535, of a position counted in 65536ths of a pixel (<see cref="Subpixels"/>), whatever
+    /// the count's sign. Kept for the Samus and boss callers and for checks that read a recorded count; gameplay in other
+    /// areas moves positions with <see cref="MovedBy(SignedSixteenSixteen)"/>.
+    /// </summary>
+    public static ushort WholeOf(int subpixels) => unchecked((ushort)(subpixels >> 16));
 
-    /// <summary>Splits one native 32-bit position (whole word high, fraction word low).</summary>
-    public static FixedCoordinate FromRaw(uint rawValue) =>
-        new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
+    /// <summary>
+    /// The position <paramref name="subpixels"/> 65536ths of a pixel from the origin, around the wrapping coordinate range.
+    /// Kept for checks that state a recorded position as one count; gameplay builds positions from their whole pixel and
+    /// fraction.
+    /// </summary>
+    public static FixedCoordinate FromRaw(uint subpixels) =>
+        new(unchecked((ushort)(subpixels >> 16)), unchecked((ushort)subpixels));
 
-    /// <summary>The native 32-bit position: the whole word high and the fraction word low.</summary>
-    public uint RawValue => ((uint)Whole << 16) | Fraction;
+    /// <summary>
+    /// The position counted in 65536ths of a pixel from the origin. Kept for the Samus collision callers and for checks
+    /// that compare a recorded position as one count; gameplay elsewhere reads <see cref="Whole"/> and <see cref="Fraction"/>.
+    /// </summary>
+    public uint RawValue => Subpixels;
 
-    /// <summary>Replaces only the whole word, 0 through 65535, as cartridge routines that store one half do.</summary>
+    /// <summary>The position counted in 65536ths of a pixel from the origin: the whole pixel times 65536 plus the fraction.</summary>
+    private uint Subpixels => ((uint)Whole << 16) | Fraction;
+
+    /// <summary>Replaces only the whole pixel, 0 through 65535, keeping the fraction.</summary>
     public FixedCoordinate WithWhole(int whole) => this with { Whole = checked((ushort)whole) };
 
     /// <summary>
-    /// Replaces only the whole word with a computed coordinate, which wraps at sixteen bits
-    /// (<see cref="CoordinateAxis.Wrap"/>), as cartridge routines that store one half of a moved position do.
+    /// Replaces only the whole pixel with a computed coordinate, which wraps around the coordinate range
+    /// (<see cref="CoordinateAxis.Wrap"/>), keeping the fraction.
     /// </summary>
     public FixedCoordinate WithWrappedWhole(int whole) => WithWhole(CoordinateAxis.Wrap(whole));
 
-    /// <summary>Replaces only the fractional word, 0 through 65535, as cartridge routines that store one half do.</summary>
+    /// <summary>Replaces only the fraction, 0 through 65535 65536ths of a pixel, keeping the whole pixel.</summary>
     public FixedCoordinate WithFraction(int fraction) => this with { Fraction = checked((ushort)fraction) };
 
     /// <summary>
@@ -51,20 +65,19 @@ public readonly record struct FixedCoordinate
     /// other, exactly as the game's 16.16 movers place it.
     /// </summary>
     public FixedCoordinate MovedBy(SignedSixteenSixteen displacement) =>
-        FromRaw(unchecked(RawValue + (uint)displacement.RawValue));
+        FromRaw(unchecked(Subpixels + (uint)displacement.RawValue));
 
     /// <summary>
-    /// Adds a signed 8.8 velocity the way the cartridge's split-byte movers do: with 8-bit A, the velocity's fraction
-    /// byte adds into the fraction word's high byte only, leaving its low byte untouched, and the byte carry plus the
-    /// sign-extended whole byte advance the whole word. A 16.16 addition would place the fraction 256 times too low.
+    /// This position moved by a signed 8.8 velocity, in 256ths of a pixel: the velocity's fraction lands in the upper
+    /// half of the position's fraction, so the 256ths below it are left as they were, and its carry and whole pixels move
+    /// the whole pixel, which wraps around the coordinate range.
     /// </summary>
-    /// <param name="velocity">The signed 8.8 velocity's raw word, 0 through 65535.</param>
-    public FixedCoordinate AddEightEightToHighFraction(int velocity)
-    {
-        ushort word = checked((ushort)velocity);
-        int fractionSum = (Fraction >> 8) + unchecked((byte)word);
-        return new(
-            unchecked((ushort)(Whole + unchecked((sbyte)(word >> 8)) + (fractionSum >> 8))),
-            unchecked((ushort)((Fraction & 0xff) | (fractionSum & 0xff) << 8)));
-    }
+    public FixedCoordinate MovedBy(SignedEightEight velocity) => MovedBy(velocity.ToSixteenSixteenDelta());
+
+    /// <summary>
+    /// <see cref="MovedBy(SignedEightEight)"/> for a velocity given as its raw value, 0 through 65535; kept for the boss
+    /// callers that still hold the raw value.
+    /// </summary>
+    /// <param name="velocity">The signed 8.8 velocity's raw value, 0 through 65535.</param>
+    public FixedCoordinate AddEightEightToHighFraction(int velocity) => MovedBy(new SignedEightEight(velocity));
 }

@@ -131,9 +131,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The +3 bias requires Samus's center to remain above the enemy center. After taking
         // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
         int yDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - slot.Position.Y.Whole);
-        if (WordWrap.Signed(yDifference) >= 0)
+        if (CoordinateAxis.AsSigned(yDifference) >= 0)
             return false;
-        int yDistance = WordWrap.Unsigned(-yDifference);
+        int yDistance = CoordinateAxis.Wrap(-yDifference);
         if (yDistance < samus.Kinematics.Radius.Y)
             return true;
         int yRemainder = CoordinateAxis.Wrap(yDistance - samus.Kinematics.Radius.Y);
@@ -238,7 +238,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
         int xDelta = CoordinateAxis.Wrap(slot.Position.X.Whole - preHorizontalX);
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(WordWrap.Signed(xDelta), 0);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xDelta), 0);
 
         int preVerticalY = slot.Position.Y.Whole;
         int displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive;
@@ -251,7 +251,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
         int yDelta = CoordinateAxis.Wrap(slot.Position.Y.Whole - preVerticalY);
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, WordWrap.Signed(yDelta));
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(yDelta));
     }
 
     /// <summary>

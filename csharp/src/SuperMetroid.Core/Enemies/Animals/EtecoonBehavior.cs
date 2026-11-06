@@ -252,7 +252,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 EtecoonIsWithinX(slot, samus, EtecoonNearbyDistance))
             {
                 int direction = DetermineEtecoonDirectionToSamus(slot, samus);
-                if (WordWrap.Signed(direction - 5) < 0)
+                if (direction < 5)
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookRightAtSamusAndRunLeft);
                     state.Head(side: HorizontalDirection.Left);
@@ -560,10 +560,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Four teaching hops are counted. Then clears only the count, keeping the
-        // heading used by the airborne states. The count wraps at 256 and is compared by the
-        // sign of its difference from four, as the game compares it.
-        state.TeachingHops = WordWrap.LowByte(state.TeachingHops + 1);
-        bool fewerThanFourTeachingJumps = WordWrap.Signed(state.TeachingHops * 256 - 1024) < 0;
+        // heading used by the airborne states. The count is cleared on reaching four, so it never leaves 0 through 4.
+        state.TeachingHops++;
+        bool fewerThanFourTeachingJumps = state.TeachingHops < 4;
         if (!fewerThanFourTeachingJumps)
         {
             // The route counter is cleared once complete before testing route two.
@@ -673,7 +672,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         int displacement = state.Velocity.Y.RawValue;
-        if (WordWrap.Signed(state.Velocity.Y.WholeWord - 5) < 0)
+        if (state.Velocity.Y.WholePixels < 5)
         {
             AddEtecoonFixed(
                 state,
@@ -690,7 +689,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int fractionIncrement)
     {
         SignedSixteenSixteen increment =
-            SignedSixteenSixteen.FromParts(WordWrap.Signed(wholeIncrement), fractionIncrement);
+            SignedSixteenSixteen.FromParts(wholeIncrement, fractionIncrement);
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 

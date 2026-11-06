@@ -183,7 +183,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int wallProbe = Shift8AddMagnitude(state.Velocity.X.RawValue, 1);
+        int wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -204,7 +204,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
+        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);
             return;
@@ -221,7 +221,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y.RawValue, 1);
+        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
         if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -242,7 +242,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
+        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);
             return;
@@ -333,7 +333,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Sets the next function but still executes this attached movement
         // call. Falling displacement begins on the following AI frame.
         TriggerCrawlerEarthquakeFall(state);
-        int wallProbe = Shift8AddMagnitude(state.Velocity.X.RawValue, 1);
+        int wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -349,7 +349,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
+        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);
             return;
@@ -368,7 +368,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y.RawValue, 1);
+        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
         if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -387,7 +387,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
+        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);
             return;
@@ -497,7 +497,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             int slopeShape = block.Behavior.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {
-                return CrawlerSlopes.Scale(velocity.X.RawValue, slopeShape);
+                return CrawlerSlopes.Scale(velocity.X, slopeShape);
             }
         }
         return SixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
@@ -508,15 +508,13 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
     /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
-    internal static int Shift8AddMagnitude(int velocity, int wholePixels)
+    internal static int Shift8AddMagnitude(SignedEightEight velocity, int wholePixels)
     {
-        int signedVelocity = WordWrap.Signed(velocity);
+        int signedVelocity = velocity.SignedRawValue;
         int bias = SixteenSixteen.FromWhole(wholePixels);
         return unchecked((SixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
     }
 
-    /// <summary>Reverses a 16-bit velocity word with wraparound semantics.</summary>
-    internal static int Negate16(int value) => WordWrap.Unsigned(-value);
 
     /// <summary>Ports Sciser's initializer wrapper.</summary>
     internal static void InitializeSciserAi(RoomEnemySlot slot) =>

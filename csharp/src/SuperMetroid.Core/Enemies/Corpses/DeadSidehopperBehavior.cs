@@ -294,7 +294,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         int velocity)
     {
         FixedCoordinate current = axis == Axis.Horizontal ? slot.Position.X : slot.Position.Y;
-        FixedCoordinate moved = current.AddEightEightToHighFraction(Ensure.BetweenInclusive(0, ushort.MaxValue, velocity));
+        FixedCoordinate moved = current.MovedBy(new SignedEightEight(velocity));
         if (axis == Axis.Horizontal)
         {
             slot.Position = slot.Position.WithX(moved);

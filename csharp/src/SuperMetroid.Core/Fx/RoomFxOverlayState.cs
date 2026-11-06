@@ -252,7 +252,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
             rainWindVelocity = new Offset16<OverlaySubpixels>(
-                WordWrap.Signed(AtmosphereDrift.RainHorizontalVelocity((source.RandomNumber >> 2) & 3)), 0);
+                AtmosphereDrift.RainHorizontalVelocity((source.RandomNumber >> 2) & 3), 0);
         }
     }
 
@@ -373,14 +373,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             // Spores sample each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
             Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
-            drift = drift.WithY(WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity));
+            drift = Offset16<OverlaySubpixels>.Wrapped(drift.X, drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity);
             return;
         }
 
         // Fog anchors to the foreground and moves its texture by -$40/+50 in 8.8.
         Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
-        drift = new(WordWrap.Signed(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity),
-            WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity));
+        drift = Offset16<OverlaySubpixels>.Wrapped(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity,
+            drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity);
     }
 
     /// <summary>
@@ -671,13 +671,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         int velocity = YVelocity.SignedRawValue;
         int delta = SixteenSixteen.FromEightEight(velocity);
-        uint fixedPosition = unchecked(BaseY.RawValue + (uint)delta);
-        int candidate = FixedCoordinate.WholeOf(unchecked((int)fixedPosition));
-        BaseY = FixedCoordinate.FromRaw(fixedPosition);
+        BaseY = BaseY.MovedBy(SignedSixteenSixteen.FromRaw(delta));
+        int candidate = BaseY.Whole;
 
+        // A surface moved past the top of the room reads as above it: rising, it stops at the room's last row;
+        // falling, at its first.
         if (velocity >= 0)
         {
-            if (WordWrap.Signed(candidate) < 0)
+            if (CoordinateAxis.AsSigned(candidate) < 0)
                 candidate = ushort.MaxValue;
             BaseY = BaseY.WithWhole(candidate);
             if (candidate <= TargetSurface.Y)
@@ -685,7 +686,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else
         {
-            if (WordWrap.Signed(candidate) < 0)
+            if (CoordinateAxis.AsSigned(candidate) < 0)
                 candidate = 0;
             BaseY = BaseY.WithWhole(candidate);
             if (candidate > TargetSurface.Y)
@@ -736,8 +737,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Adds signed fixed-point tide displacement to the base liquid surface.</summary>
     private int ComputeTidalYPosition()
     {
-        uint baseFixed = BaseY.RawValue;
-        return FixedCoordinate.WholeOf(unchecked((int)(baseFixed + (uint)TideFixedOffset)));
+        return BaseY.MovedBy(SignedSixteenSixteen.FromRaw(TideFixedOffset)).Whole;
     }
 
     /// <summary>Whether the FX options select vertical background displacement for lava or acid.</summary>
@@ -755,9 +755,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return 0;
         int relative = CoordinateAxis.Difference(surfaceY, cameraY);
         if (relative <= 0)
-            return WordWrap.Unsigned(((relative ^ 31) & 31) | 256);
+            return ((relative ^ 31) & 31) | 256;
+        // A surface below the camera's top scrolls the overlay up from the last line of its 256-line band.
         return relative < 256
-            ? WordWrap.LowByte(~relative)
+            ? 255 - relative
             : 0;
     }
 
@@ -810,7 +811,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>Water's surface drift each frame its <see cref="RoomLiquidOptions.SurfaceDrift"/> option is set.</summary>
     private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
-        new(WordWrap.Signed(WaterWaveDefinitions.HorizontalSubscrollVelocity), 0);
+        new(WaterWaveDefinitions.HorizontalSubscrollVelocity, 0);
 
     /// <summary>The mutually exclusive callbacks installed in the rise-function word.</summary>
     private enum LiquidRisePhase

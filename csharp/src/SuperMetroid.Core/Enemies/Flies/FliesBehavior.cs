@@ -111,10 +111,10 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         int angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ReinterpretAsTableAngle().RawValue;
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle().RawValue;
         state.Velocity = new(
-            WordWrap.Signed(ReadSignedSineCosine(angle + 64) * 2),
-            WordWrap.Signed(ReadSignedSineCosine(angle) * 4));
+            ReadSignedSineCosine(angle + 64) * 2,
+            ReadSignedSineCosine(angle) * 4);
         state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
         state.Function = FlyEnemyFunction.AttackSamus;
     }

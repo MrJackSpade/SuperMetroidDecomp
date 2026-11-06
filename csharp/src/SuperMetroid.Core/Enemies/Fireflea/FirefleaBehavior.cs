@@ -48,10 +48,10 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Center = slot.Position.Whole;
             state.Angle = settings.InitialAngle.ToAngle();
 
-            // The initializer passes the complete 8.8 angle word to an eight-bit routine,
-            // which reads its low byte. That is the retail missing-division bug; main AI
-            // begins using the high byte on frame one and corrects the position immediately.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ReinterpretFractionAsTableAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius)));
+            // The initializer places the Fireflea at the circle's zero angle whatever its initial angle: it reads the
+            // angle's fraction, which a spawned angle never has. The main AI places it at its initial angle on its
+            // first update.
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(new ByteAngle(0), Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius)));
             return;
         }
 
@@ -130,8 +130,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void AdvanceFirefleaDarknessLevel()
     {
-        int next = WordWrap.Unsigned(_roomStatus.FirefleaDarknessLevel + 2);
-        if (WordWrap.Signed(next - 14) < 0)
+        int next = _roomStatus.FirefleaDarknessLevel + 2;
+        if (next < 14)
             _roomStatus.FirefleaDarknessLevel = next;
     }
 

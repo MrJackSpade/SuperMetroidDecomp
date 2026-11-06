@@ -27,7 +27,7 @@ internal abstract class EnemyProjectileAnimation
             projectile.FrameHold = WrappingCountdown.Start(0);
             return;
         }
-        projectile.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
+        projectile.FrameHold = WrappingCountdown.FromRaw(duration);
         projectile.Frame = frame;
     }
 

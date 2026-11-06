@@ -31,7 +31,7 @@ public static class ChozoCarry
         if (local == 1)
             return -25;
         int bob = local is >= 4 and < 12 ? 2 - Math.Abs(2 - local % 4) : 0;
-        return WordWrap.Signed(-23 - bob);
+        return -23 - bob;
     }
     /// <summary>One of 32 velocity/X-joint/Y-joint records, selected by its record number.</summary>
     /// <remarks>
@@ -51,6 +51,6 @@ public static class ChozoCarry
         int local = index % 16;
         int sign = index < 16 ? -1 : 1;
         int x = local == 0 ? 28 : local == 1 ? 30 : 32;
-        return new(WordWrap.Signed(sign * Magnitude(local)), new(CoordinateAxis.AsSigned(sign * x), SamusYOffset(local)));
+        return new(sign * Magnitude(local), new(CoordinateAxis.AsSigned(sign * x), SamusYOffset(local)));
     }
 }

@@ -157,7 +157,7 @@ internal static class StationPlmDraws
         private protected override int BlocksPerRun => 2;
 
         /// <inheritdoc/>
-        private protected override int RunY(int run) => run < 5 ? WordWrap.SignedLowByte(-run - 1) : 0;
+        private protected override int RunY(int run) => run < 5 ? -run - 1 : 0;
 
         /// <inheritdoc/>
         private protected override RoomTerrainBlock Block(int run, int cell)

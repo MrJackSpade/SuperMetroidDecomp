@@ -478,12 +478,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             break;
         }
 
-        // Every map word below keeps its sixteen-bit wrap where it is computed; the signed
-        // tests read those words as the game's branches do.
-        int minimumX = WordWrap.Unsigned(left * 8 - (area == AreaId.Maridia ? 24 : 0));
-        int maximumX = WordWrap.Unsigned(right * 8);
-        int minimumY = WordWrap.Unsigned(top * 8);
-        int maximumY = WordWrap.Unsigned(bottom * 8);
+        // Every map coordinate below wraps where it is computed, as every coordinate does; the signed
+        // tests read those coordinates as offsets, as the game's branches do.
+        int minimumX = CoordinateAxis.Wrap(left * 8 - (area == AreaId.Maridia ? 24 : 0));
+        int maximumX = right * 8;
+        int minimumY = top * 8;
+        int maximumY = bottom * 8;
         CurrentMapScrollBounds = new PauseMapScroll(new(CoordinateAxis.Wrap(minimumX), CoordinateAxis.Wrap(minimumY)), new(CoordinateAxis.Wrap(maximumX), CoordinateAxis.Wrap(maximumY)));
 
         // The pause map's scroll setup uses wrapping 16-bit arithmetic throughout. These local
@@ -509,17 +509,17 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         int verticalMiddle = CoordinateAxis.Wrap(
             minimumY + CoordinateAxis.Wrap(maximumY - minimumY) / 2 + 16);
-        int verticalCenterOffset = WordWrap.Unsigned((128 - verticalMiddle) & ~7);
+        int verticalCenterOffset = CoordinateAxis.Wrap((128 - verticalMiddle) & ~7);
         int vertical = CoordinateAxis.Wrap(-verticalCenterOffset);
         int playerMapY = CoordinateAxis.Wrap(player.Y + verticalCenterOffset);
-        int distanceFromTopClamp = WordWrap.Signed(64 - playerMapY);
+        int distanceFromTopClamp = CoordinateAxis.AsSigned(64 - playerMapY);
         if (distanceFromTopClamp >= 0)
         {
             vertical = CoordinateAxis.Wrap(vertical - distanceFromTopClamp);
-            if (WordWrap.Signed(vertical + 40) < 0)
-                vertical = WordWrap.Unsigned(-40);
+            if (CoordinateAxis.AsSigned(vertical + 40) < 0)
+                vertical = CoordinateAxis.Wrap(-40);
         }
-        MapScrollPosition = new(WordWrap.Unsigned(horizontal), WordWrap.Unsigned(vertical));
+        MapScrollPosition = new(horizontal, vertical);
     }
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>

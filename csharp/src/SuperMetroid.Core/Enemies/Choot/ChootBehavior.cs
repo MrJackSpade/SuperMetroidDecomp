@@ -159,13 +159,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static int CalculateInitialChootYSpeedTableIndex(int jumpHeight)
     {
         int tableIndex = 0;
-        uint accumulatedDistance = 0;
+        FixedCoordinate accumulatedDistance = default;
         for (int iteration = 0; iteration < 128; iteration++)
         {
             tableIndex += 2;
-            accumulatedDistance = unchecked(accumulatedDistance +
-                (uint)EnemyQuadraticSpeeds.Row(tableIndex).Positive);
-            int wholeDistance = FixedCoordinate.WholeOf(unchecked((int)accumulatedDistance));
+            accumulatedDistance = accumulatedDistance.MovedBy(
+                SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(tableIndex).Positive));
+            int wholeDistance = accumulatedDistance.Whole;
             if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
                 return tableIndex;
         }

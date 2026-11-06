@@ -427,7 +427,7 @@ internal sealed class IntroBabyDiscoveryState
             positiveLimit: 640,
             negativeLimit: -640));
         // A baby moving left draws over Samus; otherwise Samus draws first.
-        SamusDisplay = WordWrap.SignedLowByte(EightEight.WholeOf(BabyVelocity.X.RawValue)) < 0
+        SamusDisplay = BabyVelocity.X.SignedRawValue < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
@@ -450,12 +450,12 @@ internal sealed class IntroBabyDiscoveryState
         int positiveLimit,
         int negativeLimit)
     {
-        int velocity = WordWrap.Signed(current.RawValue);
+        int velocity = current.SignedRawValue;
         if (CoordinateAxis.Difference(target, position) >= 0)
             velocity = Math.Min(positiveLimit, velocity + 32);
         else
             velocity = Math.Max(negativeLimit, velocity - 32);
-        return new(WordWrap.Unsigned(velocity));
+        return SignedEightEight.FromSignedRaw(velocity);
     }
 
     /// <summary>Integrates one 8.8 velocity component into the actor's subpixel position.</summary>

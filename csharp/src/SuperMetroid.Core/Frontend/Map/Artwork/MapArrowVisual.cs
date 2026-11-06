@@ -14,7 +14,7 @@ public sealed class MapArrowVisual
         PhaseCount = durations.Length;
         for (int phase = 0; phase < durations.Length; phase++)
             if (durations[phase] != MenuSelectorTiming.Duration(phase))
-                (durationOverrides ??= new()).Add(phase, WordWrap.LowByte(durations[phase]));
+                (durationOverrides ??= new()).Add(phase, durations[phase]);
     }
     /// <summary>Screen-pixel anchor used when composing this direction's sprite.</summary>
     public Position16<SpritePixels> Position { get; }

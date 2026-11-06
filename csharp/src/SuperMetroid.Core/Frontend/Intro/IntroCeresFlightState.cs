@@ -26,7 +26,7 @@ internal sealed class IntroCeresFlightState
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
-    private FixedPosition<FloorPixels> background = new(new(WordWrap.Unsigned(-72), 0), new(WordWrap.Unsigned(-104), 0));
+    private FixedPosition<FloorPixels> background = new(new(CoordinateAxis.Wrap(-72), 0), new(CoordinateAxis.Wrap(-104), 0));
     /// <summary>
     /// The floor's zoom in 256ths of a floor pixel per screen pixel: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
     /// for the front approach, then grown by 16 below 3072 and by 32 below 8192 for the rear view, ending at 8192.
@@ -237,7 +237,7 @@ internal sealed class IntroCeresFlightState
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
-        background = new(new(WordWrap.Unsigned(-32), 0), new(WordWrap.Unsigned(-128), 0));
+        background = new(new(CoordinateAxis.Wrap(-32), 0), new(CoordinateAxis.Wrap(-128), 0));
         angle = RotationAngle.FromTableIndex(32);
 
         // These five slots are the exact spawn order. Their visual animations
@@ -371,7 +371,7 @@ internal sealed class IntroCeresFlightState
                     $"{actor.FrameBehavior}.");
             }
             if (definition.WrapX)
-                AddWrappedX(actor, WordWrap.Unsigned(definition.HorizontalDelta));
+                AddWrappedX(actor, definition.HorizontalDelta);
             else
                 AddSignedX(actor, definition.HorizontalDelta);
             actor.Step();
@@ -379,9 +379,11 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Adds a fractional X delta and wraps the actor within the 512-pixel span.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
+    private static void AddWrappedX(IntroDiscoverySprite actor, int horizontalDelta)
     {
-        FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        // The wrapping star field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
+        // whose fraction is the rest of a pixel, carries the actor right instead.
+        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, SignedSixteenSixteen.FromRaw(horizontalDelta).Fraction);
         actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % 512)));
     }
 
@@ -403,8 +405,8 @@ internal sealed class IntroCeresFlightState
                 $"Ceres front stars name invalid pre-instruction " +
                 $"{stars.FrameBehavior}.");
         }
-        stars.GeneralTimer = WordWrap.Unsigned(stars.GeneralTimer +
-            CeresFlightActorDefinitions.FrontStarAcceleration);
+        stars.GeneralTimer = SignedEightEight.Wrapped(stars.GeneralTimer +
+            CeresFlightActorDefinitions.FrontStarAcceleration).RawValue;
         var velocity = new SignedEightEight(stars.GeneralTimer);
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),

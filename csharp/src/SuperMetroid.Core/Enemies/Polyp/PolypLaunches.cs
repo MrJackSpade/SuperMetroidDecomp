@@ -9,8 +9,8 @@ public static class PolypLaunches
     public static int Cooldown(int random) => Cooldowns[CooldownSelector.Of(random)];
 
     /// <summary>Uses RNG bits 1..4 to select quadratic speed indices 28 through 43.</summary>
-    public static int InitialYIndex(int random) => WordWrap.Unsigned(FirstInitialYIndex + LaunchSelector.Of(random));
+    public static int InitialYIndex(int random) => FirstInitialYIndex + LaunchSelector.Of(random);
 
-    /// <summary>Preserves the sign grouping and sixteen-bit representation.</summary>
-    public static int XVelocity(int random) => WordWrap.Unsigned(XVelocities[LaunchSelector.Of(random)]);
+    /// <summary>The selected signed 8.8 horizontal velocity, as the raw value the rock's velocity holds.</summary>
+    public static int XVelocity(int random) => SignedEightEight.FromSignedRaw(XVelocities[LaunchSelector.Of(random)]).RawValue;
 }

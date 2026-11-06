@@ -102,8 +102,7 @@ internal sealed class EndingRewardJump
     private void Move(IntroDiscoverySprite actor)
     {
         Velocity = unchecked(Velocity + EndingRewardJumpDefinitions.Gravity);
-        uint position = unchecked(IntroCinematicMotion.Packed(actor.Position.Y) + (uint)Velocity);
-        actor.Position = actor.Position.WithY(IntroCinematicMotion.Unpacked(position));
+        actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(Velocity)));
     }
 
     /// <summary>Handles launch, head placement, and the shoot event the jump programs publish.</summary>
@@ -115,10 +114,10 @@ internal sealed class EndingRewardJump
                 Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return;
             case CinematicSpriteCueKind.PrepareHead:
-                RequireHead().WholePosition = new(WordWrap.Unsigned(helmeted ? 118 : 120), 120);
+                RequireHead().WholePosition = new(helmeted ? 118 : 120, 120);
                 return;
             case CinematicSpriteCueKind.LaunchHead:
-                RequireHead().WholePosition = new(WordWrap.Unsigned(helmeted ? 120 : 121), WordWrap.Unsigned(helmeted ? 114 : 116));
+                RequireHead().WholePosition = new(helmeted ? 120 : 121, helmeted ? 114 : 116);
                 return;
             case ShootCue:
                 body.SetColouring(EndingShades.Drawn(ShootingColouring));

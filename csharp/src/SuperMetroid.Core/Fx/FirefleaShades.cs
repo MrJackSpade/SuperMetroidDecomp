@@ -20,7 +20,7 @@ internal static class FirefleaShades
                 $"Fireflea flashing index {index} is outside the {FlashCount}-entry flash cycle.");
         }
 
-        return WordWrap.LowByte(6 - Math.Abs(index - 6));
+        return 6 - Math.Abs(index - 6);
     }
 
     /// <summary>Returns the capped six-step darkness shade level, plus the level read past the ramp at offset 12.</summary>
@@ -37,6 +37,6 @@ internal static class FirefleaShades
                 $"Fireflea darkness byte offset {byteOffset} is outside the retail 0-through-12 even domain.");
         }
 
-        return byteOffset == 12 ? PastRampShadeLevel : WordWrap.LowByte(Math.Min(3 * byteOffset, 25));
+        return byteOffset == 12 ? PastRampShadeLevel : Math.Min(3 * byteOffset, 25);
     }
 }

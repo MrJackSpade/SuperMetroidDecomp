@@ -178,7 +178,7 @@ internal sealed class IntroRinkaSystem
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             program: IntroRinkaDefinitions.RinkaActor.Program)
         {
-            GeneralTimer = WordWrap.Unsigned(parameter),
+            GeneralTimer = parameter,
         };
         rinka.InstallFrameBehavior(
             IntroRinkaDefinitions.RinkaActor.FrameBehavior);

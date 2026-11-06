@@ -115,11 +115,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
     {
-        int difference = CoordinateAxis.Wrap(samusCoordinate - enemyCoordinate);
-        int magnitude = EnemyMath.IsNegative16(difference)
-            ? WordWrap.Unsigned(-difference)
-            : difference;
-        return WordWrap.Signed(magnitude - PolypProximity) < 0;
+        return CoordinateAxis.Distance(samusCoordinate, enemyCoordinate) < PolypProximity;
     }
 
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
@@ -241,16 +237,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         int tableIndex,
         EnemySpeedSign sign)
     {
+        // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
         int speed = EnemyQuadraticSpeeds.Row(tableIndex).Toward(sign);
-        int fraction = SixteenSixteen.FractionOf(speed);
-        // Both fractions are words, so their sum fits an int; a sum past the word carries into the whole pixel.
-        int fractionalSum = projectile.Position.Y.Fraction + fraction;
-        projectile.Position = projectile.Position.WithFractionY(WordWrap.Unsigned(fractionalSum));
-        if (fractionalSum > ushort.MaxValue)
-            projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);
-
-        int whole = WordWrap.Unsigned(SixteenSixteen.WholeOf(speed));
-        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + whole);
+        projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(speed)));
     }
 
     /// <summary>Moves the rock with the game's split signed-8.8 horizontal addition.</summary>

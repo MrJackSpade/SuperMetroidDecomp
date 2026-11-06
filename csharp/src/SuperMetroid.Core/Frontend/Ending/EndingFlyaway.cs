@@ -49,7 +49,7 @@ internal sealed class EndingFlyaway
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(WordWrap.Unsigned(-72)), new(WordWrap.Unsigned(-104), 0));
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWrappedWhole(-72), new(CoordinateAxis.Wrap(-104), 0));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialScale;
         _stage.FloorAngle = RotationAngle.NormalizeTableIndex(-112);
         _stage.PhaseTimer = 192;

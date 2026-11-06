@@ -98,7 +98,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 // than performing an unsigned branch; ordinary room parameters are small,
                 // but the distinction remains visible at the 32768 wrap boundary.
                 state.CooldownTimer = WrappingCounter.IncrementWord(state.CooldownTimer);
-                if (WordWrap.Signed(state.CooldownTimer - state.CooldownTime) < 0)
+                if (WrappingCounter.IsBehind(state.CooldownTimer, state.CooldownTime))
                     return;
 
                 state.ShowsActiveAnimation = true;

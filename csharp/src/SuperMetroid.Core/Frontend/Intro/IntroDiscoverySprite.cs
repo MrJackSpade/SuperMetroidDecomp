@@ -149,7 +149,7 @@ internal sealed class IntroDiscoverySprite
         switch (advance)
         {
             case AnimationProgramAdvance<CinematicSpritePose>.Show shown:
-                frameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                frameHold = WrappingCountdown.FromRaw(shown.Duration);
                 Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CinematicSpritePose>.Hold:

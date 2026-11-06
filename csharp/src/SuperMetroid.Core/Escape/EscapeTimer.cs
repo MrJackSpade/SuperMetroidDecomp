@@ -93,7 +93,7 @@ public sealed class EscapeTimer
     public void Clear()
     {
         int centre = EightEight.FromWhole(ClearedPixel);
-        Position = new(WordWrap.Unsigned(centre), WordWrap.Unsigned(centre));
+        Position = new(centre, centre);
         _startupFrames = 0;
         _pendingDuration = 0;
         RemainingCentiseconds = 0;

@@ -116,8 +116,8 @@ public sealed class FileSelectMapScroll
         return true;
     }
 
-    /// <summary>Preserves sixteen-bit wrap in map-scroll arithmetic.</summary>
-    private static int Wrap(int value) => WordWrap.Unsigned(value);
-    /// <summary>Interprets wrapped boundary differences as signed sixteen-bit words.</summary>
-    private static int Signed(int value) => WordWrap.Signed(value);
+    /// <summary>A computed map coordinate, which wraps past either end of the map space as every coordinate does.</summary>
+    private static int Wrap(int value) => CoordinateAxis.Wrap(value);
+    /// <summary>A map coordinate or boundary difference read as a signed offset, as the scroll's sign tests read it.</summary>
+    private static int Signed(int value) => CoordinateAxis.AsSigned(value);
 }

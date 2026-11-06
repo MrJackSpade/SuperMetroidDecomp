@@ -40,7 +40,7 @@ public readonly record struct RoomBlockBehavior(int Value)
     private const int LowSevenBits = HighBit - 1;
 
     /// <summary>Signed block displacement used by horizontal and vertical extensions, -128 through 127.</summary>
-    public int ExtensionOffset => WordWrap.SignedLowByte(Value);
+    public int ExtensionOffset => RoomBlockBehaviorCodec.ReadExtensionOffset(this);
 
     /// <summary>The slope's shape: the low five bits, an index into the slope-shape tables.</summary>
     public int SlopeShape => Value & SlopeShapeBits;

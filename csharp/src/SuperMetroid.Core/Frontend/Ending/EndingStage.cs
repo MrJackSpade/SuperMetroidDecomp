@@ -148,10 +148,9 @@ internal sealed class EndingStage
         switch (wrapper.Role)
         {
             case EndingSpriteRole.AnimalEscape:
-                uint y = IntroCinematicMotion.Packed(sprite.Position.Y) + EndingAnimalEscapeDefinitions.YFractionVelocity;
                 sprite.Position = new(
                     sprite.Position.X.WithWhole(CoordinateAxis.Wrap(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity)),
-                    IntroCinematicMotion.Unpacked(y));
+                    IntroCinematicMotion.AddFraction(sprite.Position.Y, EndingAnimalEscapeDefinitions.YFractionVelocity));
                 if (sprite.Position.X.Whole >= EndingAnimalEscapeDefinitions.DeleteX)
                     sprite.Delete();
                 break;
@@ -213,12 +212,13 @@ internal sealed class EndingStage
                 }
                 break;
             case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
-                int velocity = unchecked((int)(SixteenSixteen.Compose(sprite.GeneralTimer, sprite.Position.Y.Fraction))) - 32;
-                sprite.GeneralTimer = WordWrap.Unsigned(SixteenSixteen.WholeOf(velocity));
-                uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
+                // The velocity's whole pixels live in the timer and its fraction in the Y subposition.
+                SignedSixteenSixteen velocity = SignedSixteenSixteen.FromParts(
+                    CoordinateAxis.AsSigned(sprite.GeneralTimer), sprite.Position.Y.Fraction) - SignedSixteenSixteen.FromRaw(32);
+                sprite.GeneralTimer = velocity.WholeWord;
                 sprite.Position = new(
-                    IntroCinematicMotion.Unpacked(position),
-                    sprite.Position.Y.WithFraction(WordWrap.Unsigned(velocity)));
+                    sprite.Position.X.MovedBy(velocity),
+                    sprite.Position.Y.WithFraction(velocity.Fraction));
                 break;
             case CinematicSpriteFrameBehavior.NoOp:
             case CinematicSpriteFrameBehavior.MetroidEgg:

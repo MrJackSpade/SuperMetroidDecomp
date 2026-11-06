@@ -110,7 +110,7 @@ internal sealed class DownwardGateBehavior
             ResumeDownwardGate(projectile);
             accumulated = 0;
         }
-        projectile.GeneralTimer = WordWrap.Unsigned(accumulated);
+        projectile.GeneralTimer = accumulated;
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 

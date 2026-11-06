@@ -284,7 +284,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // Masking to a byte, subtracting 64 and masking again creates an unsigned byte delta; the later
         // trigonometry reads only the heading's low byte, which the turn wraps within.
         int randomLow = SharedRandomState.LowerByte(_room.Random.Generate());
-        int angleDelta = WordWrap.LowByte(randomLow - EnemyByteAngleDefinitions.QuarterTurn);
+        int angleDelta = ByteAngle.Wrapped(randomLow - EnemyByteAngleDefinitions.QuarterTurn).RawValue;
         state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = WrappingCountdown.Start(SbugMovementSegmentFrames);
@@ -323,9 +323,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Negates pixel and subpixel words separately, retaining the game's fractional error.</summary>
     private static SignedSixteenSixteen NegateSbugWordsIndependently(SignedSixteenSixteen value) =>
-        SignedSixteenSixteen.FromParts(
-            CoordinateAxis.AsSigned(-value.WholeWord),
-            WordWrap.Unsigned(-value.Fraction));
+        value.NegatedWordsSeparately();
 
     /// <summary>Applies unsigned quarter-wave magnitudes with signs from the original angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
@@ -335,14 +333,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         ByteAngle initialAngle = state.InitialAngle.ToByteAngle();
         bool subtractX = initialAngle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn).IsInSecondHalf;
         bool subtractY = initialAngle.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn).IsInSecondHalf;
-        slot.Position = slot.Position.WithX(AddRawSbugVelocity(
-            slot.Position.X,
-            state.ForwardXVelocity.RawValue,
-            subtractX));
-        slot.Position = slot.Position.WithY(AddRawSbugVelocity(
-            slot.Position.Y,
-            state.ForwardYVelocity.RawValue,
-            subtractY));
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(ForwardDisplacement(state.ForwardXVelocity, subtractX)));
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(ForwardDisplacement(state.ForwardYVelocity, subtractY)));
     }
 
     /// <summary>Adds both signed 16.16 custom velocity words to the actor position.</summary>
@@ -351,27 +343,18 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen xVelocity,
         SignedSixteenSixteen yVelocity)
     {
-        slot.Position = slot.Position.WithX(AddRawSbugVelocity(
-            slot.Position.X,
-            unchecked((uint)xVelocity.RawValue),
-            subtract: false));
-        slot.Position = slot.Position.WithY(AddRawSbugVelocity(
-            slot.Position.Y,
-            unchecked((uint)yVelocity.RawValue),
-            subtract: false));
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(xVelocity));
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(yVelocity));
     }
 
-    /// <summary>Adds or subtracts one raw 16.16 displacement with word wrapping.</summary>
-    private static FixedCoordinate AddRawSbugVelocity(
-        FixedCoordinate position,
-        uint velocity,
-        bool subtract)
+    /// <summary>
+    /// A forward speed as the displacement it moves the Sbug by, along its axis or, when <paramref name="against"/>,
+    /// against it; a speed of 32768 pixels or more reads as the other way, as the game's 16.16 addition does.
+    /// </summary>
+    private static SignedSixteenSixteen ForwardDisplacement(UnsignedSixteenSixteen speed, bool against)
     {
-        uint fixedPosition = position.RawValue;
-        fixedPosition = subtract
-            ? unchecked(fixedPosition - velocity)
-            : unchecked(fixedPosition + velocity);
-        return FixedCoordinate.FromRaw(fixedPosition);
+        SignedSixteenSixteen along = SignedSixteenSixteen.FromRaw(unchecked((int)speed.RawValue));
+        return against ? SignedSixteenSixteen.Zero - along : along;
     }
 
     /// <summary>Multiplies a quarter-wave table value by population speed into unsigned 16.16 words.</summary>
@@ -407,15 +390,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         ByteAngle tableAngle = angle.AddTableUnits(phase);
         int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);
-        int product = WordWrap.Unsigned(sineMagnitude * speed);
-        int pixel = EightEight.WholeOf(product);
-        int subpixel = WordWrap.Unsigned(SixteenSixteen.FromEightEight(product));
-        if (tableAngle.IsInSecondHalf)
-        {
-            pixel = CoordinateAxis.Wrap(-pixel);
-            subpixel = CoordinateAxis.Wrap(-subpixel);
-        }
-        return SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(pixel), subpixel);
+        // Every authored speed is below five, so the product of the two bytes stays below 65,536.
+        SignedSixteenSixteen product = SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(sineMagnitude * speed));
+        return tableAngle.IsInSecondHalf ? product.NegatedWordsSeparately() : product;
     }
 
     /// <summary>Quantizes a heading to one of the eight facing loops, after rotating it back by the game's quantization offset.</summary>

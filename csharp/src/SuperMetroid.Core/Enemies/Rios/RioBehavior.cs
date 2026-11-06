@@ -188,7 +188,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 ByteAngle angle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ReinterpretAsTableAngle();
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
                 state.Velocity = state.Velocity.WithX(new SignedEightEight(ReadRioSignedSineCosineSample(
                     angle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn))));
                 state.Velocity = state.Velocity.WithY(new SignedEightEight(ReadRioSignedSineCosineSample(angle)));
@@ -245,7 +245,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
     internal static int ReadRioSignedSineCosineSample(ByteAngle angle) =>
-        WordWrap.Unsigned(Trigonometry.SignedSine(angle));
+        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle)).RawValue;
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>
     private static void RequireRioLevel([NotNull] RoomLevelData? level)

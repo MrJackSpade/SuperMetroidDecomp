@@ -25,10 +25,14 @@ public readonly record struct Bearing
     public ByteAngle ToTableAngle() => ByteAngle.Wrapped(ByteAngle.QuarterTurn.RawValue - RawValue);
 
     /// <summary>
-    /// The bearing's byte read unconverted as a table angle, as several cartridge routines do. The direction this names
-    /// is the bearing mirrored about the diagonal, so routines that call this read sine as X and cosine as Y.
+    /// The table angle of the same number of units: the bearing's direction mirrored across the line between up and
+    /// right, since the bearing counts clockwise from up and the table angle the other way from right. Aim routines that
+    /// take this angle read its sine as X and its cosine as Y, which turns the mirror back into the bearing's direction.
     /// </summary>
-    public ByteAngle ReinterpretAsTableAngle() => new(RawValue);
+    public ByteAngle ToMirroredTableAngle() => new(RawValue);
+
+    /// <summary>The same as <see cref="ToMirroredTableAngle"/>; kept for the boss aim routines until they take that name.</summary>
+    public ByteAngle ReinterpretAsTableAngle() => ToMirroredTableAngle();
 
     /// <inheritdoc />
     public override string ToString() => $"${RawValue:X2}";

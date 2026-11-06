@@ -229,9 +229,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // change; starting the host knockback state and trying to undo its pose would
             // introduce side effects the game never reaches.
             int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? WordWrap.Unsigned(slot.Definition.Damage >> 2)
+                ? slot.Definition.Damage >> 2
                 : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? WordWrap.Unsigned(slot.Definition.Damage >> 1)
+                    ? slot.Definition.Damage >> 1
                     : slot.Definition.Damage;
             samus.Health = samus.Health <= damage
                 ? 0

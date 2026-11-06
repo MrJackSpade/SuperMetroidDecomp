@@ -1316,7 +1316,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// The shared Samus systems' frame-counter word after <paramref name="elapsedUpdates"/> updates: its low sixteen
     /// bits, which return to zero every 65536 updates exactly as the game's sixteen-bit counter does.
     /// </summary>
-    internal static int FrameCounterWord(int elapsedUpdates) => WordWrap.Unsigned(elapsedUpdates);
+    internal static int FrameCounterWord(int elapsedUpdates) => Ensure.AtLeastZero(elapsedUpdates) % FrameClock.CounterPeriod;
 
     /// <summary>
     /// The colour the opening shows where nothing is drawn (#1512): the installed backdrop at the narration's level, as the

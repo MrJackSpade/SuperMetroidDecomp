@@ -23,12 +23,12 @@ internal readonly record struct DoorCameraAlignmentState(
     {
         bool alignsX = RoomLoader.DoorTransitionAlignsX(direction);
         int coordinate = alignsX ? camera.X : camera.Y;
-        int lowByte = WordWrap.LowByte(coordinate);
-        if (lowByte == 0)
+        int withinScreen = RoomGridConversions.OffsetWithinScreen(coordinate);
+        if (withinScreen == 0)
             return new DoorCameraAlignmentState(camera, Completed: true);
 
         // A coordinate past the middle of its 256-pixel screen moves on to the next screen; one before it moves back.
-        int step = lowByte >= 128 ? 1 : -1;
+        int step = withinScreen >= 128 ? 1 : -1;
         Offset16<RoomPixels> movement = alignsX ? new(step, 0) : new(0, step);
         return new DoorCameraAlignmentState(camera + movement, Completed: false);
     }

@@ -140,7 +140,7 @@ public sealed class KiHunterEnemyState
     public bool HasLostWings { get; internal set; }
 
     /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's word does.</summary>
-    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WordWrap.Unsigned(DetachedSpeedAccumulator + step);
+    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WrappingCounter.AddWord(DetachedSpeedAccumulator, step);
 
     /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

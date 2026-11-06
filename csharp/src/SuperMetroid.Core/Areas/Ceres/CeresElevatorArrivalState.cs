@@ -142,7 +142,7 @@ public sealed class CeresElevatorArrivalState
         switch (advance)
         {
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Show shown:
-                projectile.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                projectile.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 projectile.Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Stop:

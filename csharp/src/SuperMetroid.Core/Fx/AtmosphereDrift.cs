@@ -16,6 +16,6 @@ public static class AtmosphereDrift
         if ((uint)selection >= 4)
             throw new ArgumentOutOfRangeException(nameof(selection));
         int speed = EightEight.FromWhole(6 - (selection & 2));
-        return WordWrap.Unsigned((selection & 1) == 0 ? -speed : speed);
+        return (selection & 1) == 0 ? -speed : speed;
     }
 }

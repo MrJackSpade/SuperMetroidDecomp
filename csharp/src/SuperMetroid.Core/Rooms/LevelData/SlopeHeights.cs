@@ -38,7 +38,7 @@ public static class SlopeHeights
             27 or 28 => EncodeSteepHeight(32 - 16 * (shape - 27) - 2 * column),
             _ => EncodeSteepHeight(48 - 16 * (shape - 29) - 3 * column),
         };
-        return WordWrap.LowByte(height);
+        return height;
     }
 
     /// <summary>Preserves the encoded twenty-height overhang above a full block while clipping negative steep-slope heights to zero.</summary>

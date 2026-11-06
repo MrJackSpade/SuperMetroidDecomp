@@ -20,14 +20,14 @@ using SuperMetroid.Core.World;
 internal static class CeresDoorQuakeDefinitionsVerification
 {
 
-    /// <summary>Compares four native offsets, timer aliases, real OAM phases, and the native overlay records.</summary>
+    /// <summary>Compares the four authored offset words, timer aliases, real OAM phases, and the native overlay records.</summary>
     internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;
 
         for (ushort phase = 0; phase < 4; phase++)
         {
-            sbyte expected = unchecked((sbyte)rom.ReadCartridgeByte(sourceAddress + phase));
+            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + phase * 2));
             AssertEqual(expected, CeresDoorQuake.XOffset(phase),
                 $"Ceres private door quake phase {phase}");
         }
@@ -35,7 +35,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
             AssertEqual(
-                unchecked((sbyte)rom.ReadCartridgeByte(sourceAddress + (timer & 3))),
+                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + timer % 4 * 2)),
                 CeresDoorQuake.XOffset((ushort)timer),
                 $"Ceres private door quake timer ${timer:X4}");
         }
@@ -59,7 +59,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         enemies.TileArtwork = SpawnedObjectFixtures.InstalledTilesWith(installed);
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        short[] expectedOffsets = [0, 0, -4, -1];
+        short[] expectedOffsets = [0, -4, -1, 3];
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
         {
@@ -91,14 +91,14 @@ internal static class CeresDoorQuakeDefinitionsVerification
                 $"Ceres private overlay record {index} matches native OAM with ROM frame reads forbidden");
 
         Console.WriteLine(
-            "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and the installed private overlay pass with source reads forbidden.");
+            "Ceres door quake definitions: all four authored offset words, 65,536 timer aliases, four real OAM phases, and the installed private overlay pass with source reads forbidden.");
     }
 
     /// <summary>Forbids converted quake-table reads and optionally native overlay spritemap reads.</summary>
     internal static CartridgeReadGuard NewCeresDoorQuakeReadGuard(
         ISnesAddressSpace source, bool blockOverlay = false) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa6a321 and < 0xa6a325 ||
+            .Forbid(address => address is >= 0xa6a321 and < 0xa6a329 ||
                     (blockOverlay && address is >= 0xa6a329 and < 0xa6a353),
                 address => $"Ceres private door draw attempted migrated source read ${address:X6}.");
 

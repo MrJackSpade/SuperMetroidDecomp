@@ -1624,7 +1624,7 @@ internal static class LookupStream5Verification
         }
     }
 
-    /// <summary>Checks the Ceres door quake's byte-indexed offsets against original ROM words.</summary>
+    /// <summary>Checks the Ceres door quake's offsets against the authored ROM words.</summary>
     internal static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
@@ -1651,16 +1651,16 @@ internal static class LookupStream5Verification
             door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(phase);
             var actual = new OamBuffer(); actual.BeginFrame();
             actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(camera, 0))); actual.FinalizeFrame();
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase);
-            AssertEqual(native & 0x1ff, CeresDoorQuake.XOffset(phase) & 0x1ff,
-                "Native overlapping high byte retains the same ninth coordinate bit");
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase * 2);
+            AssertEqual((int)unchecked((short)native), CeresDoorQuake.XOffset(phase),
+                "Quake offset is the authored word of its phase");
             var expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitionsConstants.Bank, Pointer = CeresDoorFrameDefinitionsConstants.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 2, priority: 0).PaletteBits, BaseTileIndex = 0 });
             expected.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
-                $"Byte-decoded quake preserves actual low/high OAM through coordinate wrap (x {x}, camera {camera}, phase {phase}: {expected.FirstDifference(actual)})");
+                $"Authored quake preserves actual low/high OAM through coordinate wrap (x {x}, camera {camera}, phase {phase}: {expected.FirstDifference(actual)})");
         }
-        Console.WriteLine("Ceres quake byte decoding:56 actual wrapped low/high OAM frames match full native overlapping-word reads.");
+        Console.WriteLine("Ceres quake decoding: 56 actual wrapped low/high OAM frames match the authored offset words.");
     }
 
     /// <summary>Checks the Ceres flight scene's transferred colors and CGRAM destinations.</summary>

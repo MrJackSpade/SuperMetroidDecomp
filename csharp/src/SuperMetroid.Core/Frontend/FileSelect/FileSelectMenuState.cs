@@ -143,7 +143,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.LoadBackground:
-                // File select queues the Zebes/stars BG2 tilemap.
+                // File select loads the Zebes and stars background.
                 Phase = FileSelectPhase.InitializeMain;
                 break;
 

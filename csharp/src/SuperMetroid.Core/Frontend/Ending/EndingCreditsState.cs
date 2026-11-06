@@ -340,7 +340,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                         break;
                     }
                     // The reward step replaces the idle actors with the gesture animations.
-                    // BG1/BG2 are disabled during this OBJ-only animation.
+                    // The backgrounds are hidden during this sprite-only animation.
                     sprites.Clear();
                     CurrentRewardGesture = new EndingRewardGesture(Stage.EndingReward);
                     Stage.Phase = EndingCreditsPhase.PostCreditsGesture;
@@ -407,9 +407,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentageScrollDown:
-                // Function 148 moves BG1 down two pixels per call from zero through -80.
-                // The software renderer applies the equivalent scroll while preserving the
-                // already-built tilemap until the final object is spawned.
+                // Function 148 moves the text page down two pixels per call from zero through -80,
+                // preserving the already-built page until the final object is spawned.
                 Stage.PostCreditsScroll -= new Offset16<PlanePixels>(0, 2);
                 if (--Stage.PhaseTimer <= 0)
                 {
@@ -436,7 +435,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             (colours, record) => screen.Colours.PaletteFx(colours, record, PaletteFxBackdrop(colours, record, paletteFxColours)));
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
-        // The ending follows cinematic actors even while a text-only main screen hides sprites.
+        // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-initialized records when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
@@ -476,7 +475,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         CinematicSpriteProgram.ClearTimeDigit9,
     ];
 
-    /// <summary>Whether the explosion currently uses its dedicated color-math composition.</summary>
+    /// <summary>Whether the explosion currently uses its dedicated glow composition.</summary>
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 

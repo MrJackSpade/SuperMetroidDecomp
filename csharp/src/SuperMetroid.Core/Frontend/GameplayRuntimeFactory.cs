@@ -11,7 +11,7 @@ internal static class GameplayRuntimeFactory
 {
     /// <summary>
     /// Constructs a runtime over the session's random-number word and performs the start handoff in the game's
-    /// order: the menu's layer-1 position, then the artwork, then a selected game's menu choices.
+    /// order: the menu's camera position, then the artwork, then a selected game's menu choices.
     /// </summary>
     /// <param name="start">The handoff; a selected game must carry its options and an attract demo must not.</param>
     /// <returns>The bound runtime, with no room selected.</returns>

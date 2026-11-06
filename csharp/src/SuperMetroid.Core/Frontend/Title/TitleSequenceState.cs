@@ -494,7 +494,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
     }
 
-    /// <summary>Starts a title card's instruction list with OBJ visible and Mode 7 BG1 hidden.</summary>
+    /// <summary>Starts a title card's instruction list with its sprites shown and the turning floor hidden.</summary>
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;

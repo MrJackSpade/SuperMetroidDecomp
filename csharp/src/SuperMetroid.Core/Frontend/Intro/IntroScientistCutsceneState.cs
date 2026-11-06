@@ -27,7 +27,7 @@ internal sealed class IntroScientistCutsceneState
         Background = delivery ? new(32, 8) : new(0, WordWrap.Unsigned(-24));
     }
 
-    /// <summary>The laboratory page's BG1 scroll.</summary>
+    /// <summary>The laboratory page's scroll.</summary>
     public Position16<RoomPixels> Background { get; private set; }
 
     /// <summary>

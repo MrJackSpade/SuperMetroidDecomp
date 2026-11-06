@@ -110,7 +110,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
     /// <summary>Binds the installed opening font when the game is bound to its installed content.</summary>
     public void BindIntroFont(IntroFontAtlas? value) => IntroFont = value;
-    /// <summary>Binds the installed BG and OBJ pixels when the game is bound to its installed content.</summary>
+    /// <summary>Binds the installed background and sprite pictures when the game is bound to its installed content.</summary>
     public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
         CharacterArtwork = value;
@@ -123,7 +123,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// BG1VOFS inherited by both gameplay flashbacks from the first illustrated page.
+    /// The room picture's vertical scroll both gameplay flashbacks inherit from the first illustrated page.
     /// Their actor coordinates remain screen-relative and are not shifted with the background.
     /// </summary>
     internal const int GameplayFlashbackVerticalScroll = 8;
@@ -222,7 +222,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </param>
     /// <param name="audio">Optional audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
-    /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
+    /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
@@ -594,7 +594,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // It remains alive and will be restored by the next text-page setup.
         Objects.PlaceCaretOffScreen();
 
-        // The discovery setup changes BG1SC to $50. The corresponding 32x32 visual map was already
+        // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
         // loaded by the initial artwork decompression; the room's block data below is gameplay
         // collision data and must never be expanded as a visual block map.
         CurrentFlashbackSamus = new SamusState(samusOverreads.AnimationContinuation, UnauthoredBoostCadence)
@@ -622,7 +622,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackRinkas = new IntroRinkaSystem();
 
         // The flashback's collision room is built from its own terrain blocks, so the
-        // visual BG1 screen never stands in for the collision contract.
+        // visual room page never stands in for the collision contract.
         CurrentFlashbackLevel = CreateMotherBrainLevel();
         flashbackProjectiles.Reset();
         CurrentFlashbackDemoInput = new DemoInputState();
@@ -703,7 +703,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         Objects.PlaceCaretOffScreen();
 
-        // The discovery setup selects BG1SC=$54 (the second authored room page), declares a
+        // The discovery setup shows the second authored room page, declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
         CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
@@ -739,8 +739,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!crossfadeCounter.IsNegative)
             return;
 
-        // The crossfade's end leaves TM=$15 and clears the English text region after the final fade
-        // update. BG1SC already points at $54, so the SR388 room becomes the sole BG1 page.
+        // The crossfade's end clears the English text region after the final fade update. The
+        // second room page is already shown, so the SR388 room becomes the sole room page.
         ClearVisibleNarrationText();
         Phase = IntroCinematicPhase.BabyDiscovery;
     }
@@ -766,14 +766,14 @@ public sealed class IntroCinematicState : IFrontendScreen
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageThreeText);
     }
 
-    /// <summary>Starts the first laboratory scene with its rightward BG1 pan and separate scientist fade timer.</summary>
+    /// <summary>Starts the first laboratory scene with its rightward page pan and separate scientist fade timer.</summary>
     internal void SetupBabyMetroidDelivery()
     {
         // Scientist crossfades use the sibling setup, which performs
         // the same off-screen caret move before changing the visible layer configuration.
         Objects.PlaceCaretOffScreen();
 
-        // The delivery setup selects BG1SC=$58, starts it 32 pixels right with vertical scroll eight,
+        // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight,
         // seeds IntroCrossFadeTimer, and spawns the delivered baby before configuring the
         // scientist palette transition. Its tilemap is already in the intro's artwork.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
@@ -792,7 +792,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Fades page-three text and portrait ranges into the delivery laboratory palette.</summary>
     internal void StepBabyMetroidDeliveryCrossfade()
     {
-        // The scientist crossfade fades the portrait/text ranges away while bringing in laboratory BG/sprite
+        // The scientist crossfade fades the portrait/text ranges away while bringing in laboratory background and sprite
         // palettes. Only CinematicFunctionTimer is decremented on this direction.
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
     }
@@ -831,7 +831,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepPageFourCrossfade()
     {
         // The scientist-specific inverse: text/portrait colors fade in as the
-        // laboratory BG and its nine OBJ colors fade out. It consumes the alternate counter.
+        // laboratory background and its nine sprite colors fade out. It consumes the alternate counter.
         StepScientistToTextCrossfade(IntroCinematicPhase.PageFourText);
     }
 
@@ -849,12 +849,12 @@ public sealed class IntroCinematicState : IFrontendScreen
             Phase = completedPhase;
     }
 
-    /// <summary>Starts the second laboratory scene on its vertically offset BG1 page.</summary>
+    /// <summary>Starts the second laboratory scene on its vertically offset page.</summary>
     private void SetupBabyMetroidExamination()
     {
         Objects.PlaceCaretOffScreen();
 
-        // The examination setup selects BG1SC=$5C, starts the page at Y=-24, and spawns the examined baby.
+        // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
         paletteFader = new CinematicPaletteFader();
@@ -1156,9 +1156,9 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// <summary>Draws Samus in screen-relative coordinates as the demo brings her in from the right.</summary>
     private void DrawBabyDiscoverySamus(SpriteFrameBuffer sprites)
     {
-        // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
+        // This cinematic deliberately keeps the camera's X at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
-        // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
+        // second room page shows different art, not a hidden +$100 camera coordinate.
         BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
     }
 

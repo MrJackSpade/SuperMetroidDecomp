@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// Immutable physical terrain of the SR388 discovery room. This 32-by-12 authored
-/// region is distinct from the visible BG page; the final four 32-block rows of
+/// region is distinct from the visible room picture; the final four 32-block rows of
 /// the declared room are empty.
 /// </summary>
 internal static class IntroBabyDiscoveryCollisionDefinitions

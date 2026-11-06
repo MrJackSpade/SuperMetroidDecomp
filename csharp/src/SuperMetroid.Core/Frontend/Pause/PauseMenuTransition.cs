@@ -13,8 +13,8 @@ internal enum PauseMenuTransition
     EquipmentToMapFadeOut,
     /// <summary>Brighten the restored map page.</summary>
     EquipmentToMapFadeIn,
-    /// <summary>Swap map BG1 for equipment BG1 while the screen is black.</summary>
+    /// <summary>Swap the map page for the equipment page while the screen is black.</summary>
     MapToEquipmentLoad,
-    /// <summary>Restore map BG1 after the equipment page has faded out.</summary>
+    /// <summary>Restore the map page after the equipment page has faded out.</summary>
     EquipmentToMapLoad,
 }

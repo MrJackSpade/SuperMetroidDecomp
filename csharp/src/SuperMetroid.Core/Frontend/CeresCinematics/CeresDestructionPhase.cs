@@ -27,7 +27,7 @@ internal enum CeresDestructionPhase
     FlyingTowardZebesA,
     /// <summary>Rotates and scales the approach until camera X passes the negative threshold.</summary>
     FlyingTowardZebesB,
-    /// <summary>Changes pan direction, scales farther, and removes BG1 before the hold.</summary>
+    /// <summary>Changes pan direction, scales farther, and hides the turning floor before the hold.</summary>
     FlyingTowardZebesC,
     /// <summary>Holds the close planet scene while OBJ actors continue.</summary>
     HoldCloseZebes,

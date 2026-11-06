@@ -76,8 +76,8 @@ internal sealed class EndingCreditsRoll
     /// <summary>Replaces the producer result rows with the copyright panel and starts its authored hold.</summary>
     internal void ShowRewardCopyright()
     {
-        // Func135 removes the producer panel and shows the copyright panel in rows twelve and thirteen. BG1 alone is
-        // visible until Func137 ends.
+        // Func135 removes the producer panel and shows the copyright panel in rows twelve and thirteen. The text page alone is
+        // shown until Func137 ends.
         _ = _artwork.EndingText ?? throw new InvalidOperationException("Ending copyright requires installed text assets.");
         postCreditsPage.Erase(EndingPictureNames.ResultPanel);
         postCreditsPage.Write(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell);
@@ -123,7 +123,7 @@ internal sealed class EndingCreditsRoll
     internal void BeginPostCreditsWhiteFlash()
     {
         CurrentPostShot = null;
-        // E48A restores the shooting palette and selects BG1SC=$4E: the final
+        // E48A restores the shooting palette and shows the final text page: the final
         // text map is two screens tall, not the credits' single-screen map.
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         PostCreditsTextTilemap = EndingTextScreen.FinalText;

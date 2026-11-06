@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// second subtitle appears. English text spawns none of them and leaves the timer at zero.
 /// </summary>
 /// <remarks>
-/// Game state $1E runs <c>Handle_Mode7Objects</c> after the cinematic sprite
-/// objects and before the BG objects whose page instructions spawn these subtitles, so an
+/// The intro runs its floor objects after the cinematic sprite
+/// objects and before the background objects whose page instructions spawn these subtitles, so an
 /// object first runs on the frame after its spawn. Slots are searched and processed from
 /// index two down to zero.
 /// </remarks>
@@ -99,7 +99,7 @@ internal sealed class IntroJapaneseSubtitles
     {
         /// <summary>First record of a page's first-subtitle list: load the text, then a one-frame transfer record.</summary>
         LoadFirstSubtitle,
-        /// <summary>After the transfer record: enable cinematic BG tilemap updates and delete.</summary>
+        /// <summary>After the transfer record: enable the cinematic page's updates and delete.</summary>
         FinishFirstSubtitle,
         /// <summary>The second-subtitle list's one-frame transfer loop, whose pre-instruction watches for a press.</summary>
         AwaitSecondSubtitleInput,

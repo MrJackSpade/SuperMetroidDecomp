@@ -84,7 +84,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal PauseEquipmentCategory SelectedCategory { get; private set; }
     /// <summary>Selected item index within the current equipment category.</summary>
     internal int SelectedItem { get; private set; }
-    /// <summary>Current BG1 map scroll in map pixels.</summary>
+    /// <summary>Current map scroll in map pixels.</summary>
     private Position16<MapPixels> mapScrollPosition;
     /// <summary>The map screen's scroll position.</summary>
     internal Position16<MapPixels> MapScrollPosition { get => mapScrollPosition; set => mapScrollPosition = value; }
@@ -141,17 +141,17 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         BindSpriteSheets(entry.SpriteSheets);
         if (entry.GameplayHud is not null)
         {
-            // Pause setup moves the HUD layer's tilemap but never loads a replacement
-            // tilemap. The four-row gameplay HUD already resident there is
+            // Pause setup moves the HUD's layer but never loads a replacement
+            // HUD. The four-row gameplay HUD already resident there is
             // intentionally retained. A fresh host-side display object used to discard that
-            // state, removing the entire energy/ammo HUD from pause and exposing map BG1
-            // pixels in the area that its BG3 plane normally covers. Pause keeps the HUD's
+            // state, removing the entire energy/ammo HUD from pause and exposing map
+            // pixels in the area that the HUD normally covers. Pause keeps the HUD's
             // images gameplay displayed (#1351, #1466) and draws them under its palette.
             screen.RetainHud(entry.GameplayHud);
         }
 
-        // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
-        // the end of setup, which blanks every BG3 row beneath the four HUD rows. Pause draws
+        // Pause setup ends by clearing the effect overlay
+        // beneath the four HUD rows. Pause draws
         // only the HUD's own layer (PauseScreen.RetainedHudPictures), so every otherwise-empty map
         // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
 
@@ -426,7 +426,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// Translates <c>Load_EquipmentScreen_ReserveHealth_Tilemap</c>.
     /// The game displays current reserve supply, not maximum normal Energy Tank
     /// capacity. It leaves the authored template untouched until at least one Reserve Tank
-    /// exists, then writes hundreds, tens, and ones as three consecutive BG1 words.
+    /// exists, then writes hundreds, tens, and ones as three consecutive map cells.
     /// </summary>
     private void WriteReserveSupplyDigits()
     {
@@ -438,7 +438,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Writes the pause wireframe for Samus's equipped suit and boots over the page.</summary>
     private void WriteSamusWireframe() => Equipment = Equipment.WithWireframe(PauseEquipmentRules.WireframeKind(samus.EquippedItems));
 
-    /// <summary>Builds the area map from installed presentation and exploration bits into BG1.</summary>
+    /// <summary>Builds the area map from installed presentation and exploration bits into the map page.</summary>
     [MemberNotNull(nameof(ShownMap))]
     private void LoadPauseMapTilemap()
     {
@@ -867,7 +867,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
         // rerun controls or rebuild equipment: that would erase the game's same-frame label overruns.
         // Preserve the live scroll position and transition timing. Only refresh
-        // BG1 when it currently contains the map; the equipment page shares that layer.
+        // the map page when it is shown; the equipment page shares its layer.
         if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
     }
 

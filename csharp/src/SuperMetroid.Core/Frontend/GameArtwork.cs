@@ -155,7 +155,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }
 
-    /// <summary>The bosses' melts, BG2 frames, corpse characters and colors.</summary>
+    /// <summary>The bosses' melts, background body frames, corpse characters and colors.</summary>
     public BossArtworkCatalog? BossArtwork { get; init; }
 
     /// <summary>Every boss's pre-assembled body frames (#1466).</summary>

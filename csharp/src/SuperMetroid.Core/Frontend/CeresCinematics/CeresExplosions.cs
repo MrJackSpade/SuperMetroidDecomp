@@ -60,7 +60,7 @@ internal static class CeresExplosions
     /// +16, -16, +16, -16, 0 for i=0..4, matching the
     /// original data. The outer
     /// four follow 16*(1-2*(i&amp;1)); the fifth is the center blast at zero.
-    /// Each blast starts at Mode 7 origin X minus BG1 X, then
+    /// Each blast starts at the floor's centre X minus its scroll X, then
     /// adds this signed offset with sixteen-bit wrap. The bounded
     /// parity-and-center rule expresses the geometry without extending
     /// into the adjacent Y table.
@@ -70,7 +70,7 @@ internal static class CeresExplosions
     /// original data. For the outer
     /// four, Y is the negative of the matching X offset when i&lt;2, then
     /// equals X when i=2..3; the fifth is the center at zero. Initializer
-    /// Each blast starts at Mode 7 origin Y minus BG1 Y before adding this
+    /// Each blast starts at the floor's centre Y minus its scroll Y before adding this
     /// signed value with sixteen-bit wrap. Together the bounded X/Y
     /// selectors describe four corners and a center without extrapolating
     /// into the following pre-instruction bytes.
@@ -107,14 +107,14 @@ internal static class CeresExplosions
     /// +8, +12, -8, -12 for i=0..3, matching
     /// the original data. Their magnitude is
     /// 8+4*(i&amp;1), positive for i&lt;2 and negative otherwise.
-    /// Each initializer adds this X after Mode 7 origin X minus BG1 X
+    /// Each initializer adds this X after the floor's centre X minus its scroll X
     /// with sixteen-bit wrap. The bounded sign/magnitude rule exactly
     /// covers the four spawned actors, without reading adjacent Y words.
     ///
     /// Issues #625 and #999: the separate signed Y offsets are
     /// -4, +8, -10, +12 for i=0..3, matching
     /// the original data. Each initializer adds Y
-    /// after Mode 7 origin Y minus BG1 Y with sixteen-bit wrap.
+    /// after the floor's centre Y minus its scroll Y with sixteen-bit wrap.
     /// These particular vertical placements are retained spatial choreography; see
     /// FinalBurstHeights for the narrowly scoped nonsense disposition under #1165.
     /// </remarks>

@@ -358,8 +358,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 }
                 else
                 {
-                    // The game disables the ship's BG1 plane before the hold, not
-                    // when the later pan starts. Planet and star OBJ remain enabled.
+                    // The game hides the ship's turning floor before the hold, not
+                    // when the later pan starts. The planet and star sprites stay shown.
                     shownLayers = ScreenLayers.Sprites;
                     phaseTimer = CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;

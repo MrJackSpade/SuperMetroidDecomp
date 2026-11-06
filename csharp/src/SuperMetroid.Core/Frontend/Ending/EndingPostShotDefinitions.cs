@@ -15,9 +15,9 @@ internal static class EndingPostShotDefinitions
     public const int CenterX = 104;
     /// <summary>Func126's post-credits Mode-7 vertical origin.</summary>
     public const int CenterY = 112;
-    /// <summary>F604's post-shot BG horizontal offset.</summary>
+    /// <summary>F604's post-shot background horizontal offset.</summary>
     public const int OffsetX = -4;
-    /// <summary>F604's post-shot BG vertical offset.</summary>
+    /// <summary>F604's post-shot background vertical offset.</summary>
     public const int OffsetY = -8;
     /// <summary>Func126 initializes the reward Mode-7 scale to nine times unity.</summary>
     public const int InitialScale = 2304;

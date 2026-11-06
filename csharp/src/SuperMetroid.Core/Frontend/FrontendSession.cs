@@ -42,7 +42,7 @@ internal sealed class FrontendSession
 
     /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
     internal readonly ScreenFadeTimer screenFade = new();
-    /// <summary>The menu's retained layer-1 position, handed to and from each gameplay runtime.</summary>
+    /// <summary>The menu's retained camera position, handed to and from each gameplay runtime.</summary>
     internal readonly MenuCameraRetention menuCamera = new();
 
     /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
@@ -611,7 +611,7 @@ internal sealed class FrontendSession
     internal SharedRandom Random { get; }
     /// <summary>A soft reset discards every gameplay owner; the menu owners keep the random generator and the frame clock.</summary>
     internal void DiscardRuntime() => runtime = null;
-    /// <summary>Transfers the layer-one position back to the frontend before dropping gameplay state.</summary>
+    /// <summary>Transfers the camera position back to the frontend before dropping gameplay state.</summary>
     internal void ReleaseRuntime()
     {
         // File-map selection may release when no runtime was ever created.

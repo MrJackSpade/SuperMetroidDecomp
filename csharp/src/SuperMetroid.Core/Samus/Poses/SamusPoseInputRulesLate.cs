@@ -17,10 +17,10 @@ internal static class SamusPoseInputRulesLate
         SpringBallFallingLeftPoseList => MatchSpringBallFallingRightPoseList(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
         SpringBallJumpRightPoseList => MatchSpringBallJumpRightPoseList(held, newlyPressed),
         SpringBallJumpLeftPoseList => MatchSpringBallJumpLeftPoseList(held, newlyPressed),
-        UnusedPose63List => MatchUnusedPose63List(held),
-        UnusedPose64List => MatchUnusedPose64List(held),
-        UnusedPose65List => MatchUnusedPose65List(held),
-        UnusedPose66List => MatchUnusedPose66List(held),
+        CompactAirborneRightPoseList => MatchCompactAirborneRightPoseList(held),
+        CompactAirborneLeftPoseList => MatchCompactAirborneLeftPoseList(held),
+        CompactAirborneFallingRightPoseList => MatchCompactAirborneFallingRightPoseList(held),
+        CompactAirborneFallingLeftPoseList => MatchCompactAirborneFallingLeftPoseList(held),
         WallJumpRightPoseList => MatchWallJumpRightPoseList(held, newlyPressed),
         WallJumpLeftPoseList => MatchWallJumpRightPoseList(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
         RanIntoWallRightPoseList => MatchRanIntoWallRightPoseList(held, newlyPressed),
@@ -41,7 +41,7 @@ internal static class SamusPoseInputRulesLate
         ShinesparkWindupLeftPoseList => MatchShinesparkWindupRightPoseList(MirrorButtons(held)).Mirrored(),
         FallingAimDownRightPoseList => MatchFallingAimDownRightPoseList(held, newlyPressed),
         FallingAimDownLeftPoseList => MatchFallingAimDownRightPoseList(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        UnusedPoseDfList => MatchUnusedPoseDfList(newlyPressed),
+        DraygonHeldBallLeftPoseList => MatchDraygonHeldBallLeftPoseList(newlyPressed),
         DraygonGrabbedNeutralLeftPoseList => MatchDraygonGrabbedNeutralLeftPoseList(held),
         DraygonGrabbedNeutralRightPoseList => MatchDraygonGrabbedNeutralRightPoseList(held),
         MovingRightGunExtendedPoseList => MatchMovingRightGunExtendedPoseList(held, newlyPressed),
@@ -78,9 +78,8 @@ internal static class SamusPoseInputRulesLate
             SamusPoseInputList.MorphBallMovingRightPoseList or
             SamusPoseInputList.MorphBallMovingLeftPoseList or
             SamusPoseInputList.MorphBallGroundLeftPoseList or
-            SamusPoseInputList.UnusedPose20List or
-            SamusPoseInputList.UnusedPose23List or
-            SamusPoseInputList.UnusedPose42List or
+            SamusPoseInputList.GlitchBallRightPoseList or
+            SamusPoseInputList.GlitchBallLeftPoseList or
             SamusPoseInputList.CrouchingRightPoseList or
             SamusPoseInputList.CrouchingLeftPoseList or
             SamusPoseInputList.FallingRightPoseList or
@@ -89,16 +88,10 @@ internal static class SamusPoseInputRulesLate
             SamusPoseInputList.MorphBallFallingLeftPoseList or
             SamusPoseInputList.UnusedKnockbackRightPoseList or
             SamusPoseInputList.UnusedKnockbackLeftPoseList or
-            SamusPoseInputList.UnusedPose45List or
-            SamusPoseInputList.UnusedPose46List or
-            SamusPoseInputList.UnusedPose47List or
-            SamusPoseInputList.UnusedPose48List or
             SamusPoseInputList.MoonwalkFacingLeftPoseList or
             SamusPoseInputList.MoonwalkFacingRightPoseList or
             SamusPoseInputList.KnockbackRightPoseList or
-            SamusPoseInputList.KnockbackLeftPoseList or
-            SamusPoseInputList.UnusedPose5BList or
-            SamusPoseInputList.UnusedPose5CList => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
+            SamusPoseInputList.KnockbackLeftPoseList => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
         _ => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
     };
 
@@ -170,26 +163,26 @@ internal static class SamusPoseInputRulesLate
 
 
     /// <summary>UNUSED_TransitionTable_63_91A990: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose63List(ControllerButton held)
+    private static SamusPoseInputMatch MatchCompactAirborneRightPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>UNUSED_TransitionTable_64_91A998: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose64List(ControllerButton held)
+    private static SamusPoseInputMatch MatchCompactAirborneLeftPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>UNUSED_TransitionTable_65_91A9A0: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose65List(ControllerButton held)
+    private static SamusPoseInputMatch MatchCompactAirborneFallingRightPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
         if (Has(held, AimUp))
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown))
@@ -197,17 +190,17 @@ internal static class SamusPoseInputRulesLate
         if (Has(held, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Jump))
-            return Accept(SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
         if (Has(held, Right))
-            return Accept(SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>UNUSED_TransitionTable_66_91A9C6: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose66List(ControllerButton held)
+    private static SamusPoseInputMatch MatchCompactAirborneFallingLeftPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
         if (Has(held, AimUp))
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
@@ -215,9 +208,9 @@ internal static class SamusPoseInputRulesLate
         if (Has(held, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
         if (Has(held, Jump))
-            return Accept(SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
         if (Has(held, Left))
-            return Accept(SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -513,10 +506,10 @@ internal static class SamusPoseInputRulesLate
 
 
     /// <summary>UNUSED_TransitionTable_DF_91AE10: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPoseDfList(ControllerButton newlyPressed)
+    private static SamusPoseInputMatch MatchDraygonHeldBallLeftPoseList(ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnusedPoseDe);
+            return Accept(SamusPoseId.DraygonHeldStandingUpLeftPose);
         return new(null, HasConditions: true);
     }
 

@@ -43,6 +43,7 @@ internal static class SamusHudDefinitionsVerification
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         foreach (bool active in new[] { false, true })
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             if (pose < NonFiringTransitionNumber)
                 AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
                         FirstTransitionNumber) == 0,
@@ -65,6 +66,7 @@ internal static class SamusHudDefinitionsVerification
             foreach (ushort turn in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 if (rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != movement) continue;
+                if (!SamusPoseNumbering.NamesPose(pose)) continue;
                 metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
                 if (locked) samus.Control.LockHandlers(); else samus.Control.Unlock();
                 samus.SelectedHudItem = HudItems.Decode(selected); setTurn(samus, turn);
@@ -81,6 +83,7 @@ internal static class SamusHudDefinitionsVerification
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         foreach (ushort turn in new ushort[] { 0, 1 })
         {
+            if (!SamusPoseNumbering.NamesPose(poseIndex)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
             byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
@@ -106,7 +109,7 @@ internal static class SamusHudDefinitionsVerification
             () => SamusHudObservations.PostureAdmitsWeapons(
                 SamusPoseId.DrainedCrouchingRightPose, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
             "posture observation rejects the native prefiltered range");
-        Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
+        Console.WriteLine("Samus HUD definitions: 28 handler words, every bounded posture-index observation, transition case, native-pose Grapple admission case and real charge-preservation case of the records that name a pose pass with policy reads forbidden.");
     }
 
     /// <summary>Runs the Samus HUD definition checks against the pinned cartridge revision.</summary>

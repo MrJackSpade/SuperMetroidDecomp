@@ -43,7 +43,7 @@ internal static class GrappleFlarePlacementVerification
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         int locked = 0;
-        var authoredPoses = Enumerable.Range(0, 253)
+        var authoredPoses = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose)
             .Select(pose => new
             {
                 Pose = SamusPoseNumbering.FromNumber(pose),

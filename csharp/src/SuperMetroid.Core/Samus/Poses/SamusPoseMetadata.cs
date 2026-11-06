@@ -538,8 +538,8 @@ internal static class SamusPoseMetadata
     /// <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513).
     /// </summary>
     internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
-        [.. Enumerable.Range(0, SamusPoseNumbering.RecordCount).Select(SamusPoseNumbering.FromNumber)
-            .Except(SamusUnreachablePoseDefinitions.Poses)];
+        [.. Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose)
+            .Select(SamusPoseNumbering.FromNumber).Except(SamusUnreachablePoseDefinitions.Poses)];
 
     /// <summary>True for the four drained bodies $E8-$EB that Mother Brain's controllers install.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is

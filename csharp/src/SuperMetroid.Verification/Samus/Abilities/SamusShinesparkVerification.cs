@@ -534,6 +534,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         int checkedPoses = 0;
         for (int number = 0; number <= byte.MaxValue; number++)
         {
+            if (!SamusPoseNumbering.NamesPose(number)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
             bool crashPose = number is >= 0xc9 and <= 0xce;
             bool drainedPose = pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose;

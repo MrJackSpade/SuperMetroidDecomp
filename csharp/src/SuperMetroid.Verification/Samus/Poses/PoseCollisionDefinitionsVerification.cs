@@ -15,6 +15,7 @@ internal static class PoseCollisionDefinitionsVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             ushort expected = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 6);
             AssertEqual(expected, SamusPoseMetadata.ReadPoseYRadius(SamusPoseNumbering.FromNumber(pose)),

@@ -10,56 +10,37 @@ internal static class SamusUnreachablePoseDefinitions
 {
     /// <summary>
     /// The unreachable poses, in the game's numbering: the glitch balls and their knockbacks (the knockback is chosen only
-    /// for a glitch ball's movement), the posture transitions to and from them and their spring-ball item transitions,
-    /// the unused running, running-aimed-straight-up, standing and crouch-transition records, the unused aerial records and
-    /// their input lists, the unused grapple drop records and the unused Draygon-held records. No pose-input list, no-input
-    /// pose, program transition or outside path writes the running-aimed-straight-up records, whose tables pair the
-    /// standing aim-up top and tops facing other ways with running legs.
+    /// for a glitch ball's movement), the posture transitions to them and the instant morphing transitions, the
+    /// running-aimed-straight-up records, the compact airborne records, the grapple airborne records and the Draygon-held
+    /// records. No pose-input list, no-input pose, program transition or outside path writes the running-aimed-straight-up
+    /// records, whose tables pair the standing aim-up top and tops facing other ways with running legs. The records of
+    /// the poses no path reaches in any way have no pose at all (#1517): these keep theirs because their programs are laid
+    /// out after reachable ones, and an animation read past a program's end reads them.
     /// </summary>
     internal static readonly SamusPoseId[] Poses =
     [
         SamusPoseId.RunningAimUpRightPose,
         SamusPoseId.RunningAimUpLeftPose,
-        SamusPoseId.UnusedPose20,
-        SamusPoseId.UnusedPose21,
-        SamusPoseId.UnusedPose22,
-        SamusPoseId.UnusedPose23,
-        SamusPoseId.UnusedPose24,
+        SamusPoseId.GlitchBallRightPose,
         SamusPoseId.UnusedKnockbackRightPose,
         SamusPoseId.UnusedKnockbackLeftPose,
-        SamusPoseId.UnusedPose39,
-        SamusPoseId.UnusedPose3A,
-        SamusPoseId.UnusedPose3F,
-        SamusPoseId.UnusedPose40,
-        SamusPoseId.UnusedPose42,
-        SamusPoseId.UnusedPose45,
-        SamusPoseId.UnusedPose46,
-        SamusPoseId.UnusedPose47,
-        SamusPoseId.UnusedPose48,
-        SamusPoseId.UnusedPose5B,
-        SamusPoseId.UnusedPose5C,
-        SamusPoseId.UnusedPose5D,
-        SamusPoseId.UnusedPose5E,
-        SamusPoseId.UnusedPose5F,
-        SamusPoseId.UnusedPose60,
-        SamusPoseId.UnusedPose61,
-        SamusPoseId.UnusedPose62,
-        SamusPoseId.UnusedPose63,
-        SamusPoseId.UnusedPose64,
-        SamusPoseId.UnusedPose65,
-        SamusPoseId.UnusedPose66,
-        SamusPoseId.UnusedPoseAC,
-        SamusPoseId.UnusedPoseAD,
-        SamusPoseId.UnusedPoseAE,
-        SamusPoseId.UnusedPoseAF,
-        SamusPoseId.UnusedPoseB0,
-        SamusPoseId.UnusedPoseB1,
-        SamusPoseId.UnusedPoseC5,
-        SamusPoseId.UnusedPoseC6,
-        SamusPoseId.UnusedPoseDb,
-        SamusPoseId.UnusedPoseDc,
-        SamusPoseId.UnusedPoseDd,
-        SamusPoseId.UnusedPoseDe,
-        SamusPoseId.UnusedPoseDf,
+        SamusPoseId.GlitchBallMorphingRightPose,
+        SamusPoseId.GlitchBallMorphingLeftPose,
+        SamusPoseId.InstantMorphingRightPose,
+        SamusPoseId.InstantMorphingLeftPose,
+        SamusPoseId.GlitchBallLeftPose,
+        SamusPoseId.CompactAirborneRightPose,
+        SamusPoseId.CompactAirborneLeftPose,
+        SamusPoseId.CompactAirborneFallingRightPose,
+        SamusPoseId.CompactAirborneFallingLeftPose,
+        SamusPoseId.GrappleAirborneGunExtendedRightPose,
+        SamusPoseId.GrappleAirborneAimDownRightPose,
+        SamusPoseId.GrappleAirborneAimDiagonalDownRightPose,
+        SamusPoseId.DraygonGrabbingLeftPose,
+        SamusPoseId.CompactMorphingRightPose,
+        SamusPoseId.DraygonHeldMorphingLeftPose,
+        SamusPoseId.CompactStandingUpRightPose,
+        SamusPoseId.DraygonHeldStandingUpLeftPose,
+        SamusPoseId.DraygonHeldBallLeftPose,
     ];
 }

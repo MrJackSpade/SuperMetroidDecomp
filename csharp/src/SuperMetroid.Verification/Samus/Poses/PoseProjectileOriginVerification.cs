@@ -38,6 +38,7 @@ internal static class PoseProjectileOriginVerification
         var artwork = SignedByteClasses.Select(art => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat((int)unchecked((sbyte)art), InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity)).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             byte expected = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
             AssertEqual(expected, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)),
                 "Every byte-valued correction is compiled, including three adjacent-code indexes");
@@ -48,7 +49,7 @@ internal static class PoseProjectileOriginVerification
         {
             int art = SignedByteClasses[artIndex];
             samus.Presentation.BodyFrames.BindArtwork(artwork[artIndex]);
-            for (int pose = 0; pose <= 0xfc; pose++)
+            foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
             for (byte direction = 0; direction < 10; direction++)
             {
                 guardedPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);

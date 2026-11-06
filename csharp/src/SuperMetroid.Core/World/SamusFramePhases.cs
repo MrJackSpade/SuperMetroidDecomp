@@ -968,8 +968,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusPoseId.AdjacentCodePoseFD:
             case SamusPoseId.AdjacentCodePoseFE:
             case SamusPoseId.AdjacentCodePoseFF:
-            case SamusPoseId.UnusedPose65:
-            case SamusPoseId.UnusedPose66:
+            case SamusPoseId.CompactAirborneFallingRightPose:
+            case SamusPoseId.CompactAirborneFallingLeftPose:
             case SamusPoseId.ShinesparkWindupRightPose:
             case SamusPoseId.ShinesparkWindupLeftPose:
             case SamusPoseId.ShinesparkHorizontalRightPose:
@@ -986,11 +986,11 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusPoseId.DeathSequenceLeftPose:
             case SamusPoseId.XrayingCrouchingRightPose:
             case SamusPoseId.XrayingCrouchingLeftPose:
-            case SamusPoseId.UnusedPoseDb:
-            case SamusPoseId.UnusedPoseDc:
-            case SamusPoseId.UnusedPoseDd:
-            case SamusPoseId.UnusedPoseDe:
-            case SamusPoseId.UnusedPoseDf:
+            case SamusPoseId.CompactMorphingRightPose:
+            case SamusPoseId.DraygonHeldMorphingLeftPose:
+            case SamusPoseId.CompactStandingUpRightPose:
+            case SamusPoseId.DraygonHeldStandingUpLeftPose:
+            case SamusPoseId.DraygonHeldBallLeftPose:
             case SamusPoseId.DrainedCrouchingRightPose:
             case SamusPoseId.DrainedCrouchingLeftPose:
             case SamusPoseId.DrainedStandingRightPose:
@@ -1009,38 +1009,18 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusPoseId.GrappleWallContactRightPose:
             case SamusPoseId.UnusedKnockbackRightPose:
             case SamusPoseId.UnusedKnockbackLeftPose:
-            case SamusPoseId.UnusedPose20:
-            case SamusPoseId.UnusedPose21:
-            case SamusPoseId.UnusedPose22:
-            case SamusPoseId.UnusedPose23:
-            case SamusPoseId.UnusedPose24:
-            case SamusPoseId.UnusedPose39:
-            case SamusPoseId.UnusedPose3A:
-            case SamusPoseId.UnusedPose3F:
-            case SamusPoseId.UnusedPose40:
-            case SamusPoseId.UnusedPose42:
-            case SamusPoseId.UnusedPose45:
-            case SamusPoseId.UnusedPose46:
-            case SamusPoseId.UnusedPose47:
-            case SamusPoseId.UnusedPose48:
-            case SamusPoseId.UnusedPose5B:
-            case SamusPoseId.UnusedPose5C:
-            case SamusPoseId.UnusedPose5D:
-            case SamusPoseId.UnusedPose5E:
-            case SamusPoseId.UnusedPose5F:
-            case SamusPoseId.UnusedPose60:
-            case SamusPoseId.UnusedPose61:
-            case SamusPoseId.UnusedPose62:
-            case SamusPoseId.UnusedPose63:
-            case SamusPoseId.UnusedPose64:
-            case SamusPoseId.UnusedPoseAC:
-            case SamusPoseId.UnusedPoseAD:
-            case SamusPoseId.UnusedPoseAE:
-            case SamusPoseId.UnusedPoseAF:
-            case SamusPoseId.UnusedPoseB0:
-            case SamusPoseId.UnusedPoseB1:
-            case SamusPoseId.UnusedPoseC5:
-            case SamusPoseId.UnusedPoseC6:
+            case SamusPoseId.GlitchBallRightPose:
+            case SamusPoseId.GlitchBallMorphingRightPose:
+            case SamusPoseId.GlitchBallMorphingLeftPose:
+            case SamusPoseId.InstantMorphingRightPose:
+            case SamusPoseId.InstantMorphingLeftPose:
+            case SamusPoseId.GlitchBallLeftPose:
+            case SamusPoseId.CompactAirborneRightPose:
+            case SamusPoseId.CompactAirborneLeftPose:
+            case SamusPoseId.GrappleAirborneGunExtendedRightPose:
+            case SamusPoseId.GrappleAirborneAimDownRightPose:
+            case SamusPoseId.GrappleAirborneAimDiagonalDownRightPose:
+            case SamusPoseId.DraygonGrabbingLeftPose:
             default:
                 // Every pose reachable from the translated retail input, animation,
                 // enemy-grab, death, drained, grapple, Morph Ball, and shinespark

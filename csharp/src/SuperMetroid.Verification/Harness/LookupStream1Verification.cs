@@ -997,6 +997,7 @@ internal static class LookupStream1Verification
     {
         for (int pose = 0; pose < 256; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             // The admission's answer is whether the byte it reads for the pose is zero; the decoded service must agree with
             // the cartridge's flags and the code stored around them for every pose.
             if (pose < 0xDB)
@@ -1013,7 +1014,7 @@ internal static class LookupStream1Verification
                     $"HUD actual admission {pose:X2}, Grapple={grapple}");
             }
         }
-        Console.WriteLine("HUD posture: twelve real flags plus207 bounded instruction bytes, all512 admission branches and rejection domain match native.");
+        Console.WriteLine("HUD posture: twelve real flags plus the bounded instruction bytes and every admission branch of the poses and rejection domain match native.");
     }
 
     /// <summary>Reads native HUD posture observation bytes.</summary>
@@ -1124,6 +1125,7 @@ internal static class LookupStream1Verification
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             AssertEqual(LookupStream1RomByte(rom, 0x91b629 + pose * 8), SamusPoseRecordCodec.FacingByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose facing case");
             AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseRecordCodecTooling.MovementByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose raw movement case");
             AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), SamusPoseNumbering.Number(SamusPoseDispatch.ReadNoInputPose(SamusPoseNumbering.FromNumber(pose))), "Native named-pose no-input case");
@@ -2457,7 +2459,7 @@ internal static class LookupStream1Verification
         // These exact native selectors include the known physical cross-group windows.
         var guard = NewCartridgeReadGuard(rom);
         int transfers = 0;
-        foreach (var selected in new VerifyLookupStream1BodyTransfersCase[] { new VerifyLookupStream1BodyTransfersCase(SamusPoseId.FacingRightNormalPose, 0), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 6), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 7), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose66, 8), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.DeathSequenceLeftPose, 0) })
+        foreach (var selected in new VerifyLookupStream1BodyTransfersCase[] { new VerifyLookupStream1BodyTransfersCase(SamusPoseId.FacingRightNormalPose, 0), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.CompactAirborneFallingRightPose, 6), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.CompactAirborneFallingRightPose, 7), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.CompactAirborneFallingLeftPose, 8), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.DeathSequenceLeftPose, 0) })
         {
             var state = new SamusBodyFrameState(); state.BindArtwork(body);
             state.Select(selected.Pose, selected.Phase);

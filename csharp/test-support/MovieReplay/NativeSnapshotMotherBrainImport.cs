@@ -241,9 +241,9 @@ internal static class NativeSnapshotMotherBrainImport
         word == 0 ? 0 : MotherBrainLegLoadListConstants.IndexOf(word);
 
     /// <summary>
-    /// The phase-two transition shows her staged body screen and she owns her body layer from then on (#1356, #1466). A
-    /// snapshot taken after the transition never ran it in the port, so the layer starts as the staged screen: the
-    /// installed body frame whose words it holds, drawn over her blank.
+    /// The phase-two transition reveals her body and her room shows it from then on (#1356, #1466, #1515). A snapshot
+    /// taken after the transition never ran it in the port, so her body starts shown, showing the installed body frame
+    /// whose words the staged screen holds, or nothing.
     /// </summary>
     /// <exception cref="InvalidDataException">The staged screen is not one installed body frame over her blank.</exception>
     private static void ImportMotherBrainBodyImage(SuperMetroidRuntime runtime, MotherBrainEnemyState state, Func<int, ushort> W)
@@ -257,18 +257,18 @@ internal static class NativeSnapshotMotherBrainImport
             MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray);
         if (!transferred)
             return;
-        var screen = new ushort[MotherBrainBodyDefinitions.ShownCells];
+        var screen = new ushort[BossBodySourceDefinitions.ScreenRows * BossBodySourceDefinitions.LayerColumns];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
         BossBodySheets sheets = runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("The runtime installs no boss body sheets.");
         BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The runtime installs no boss artwork.");
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
-        var image = new BossBodyCanvas(sheet, BossBodyDefinitions.SharedBodyRows);
+        var image = new BossBodyParts();
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses.Sources, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
-            image.Draw(sheet.Frame(staged.Name));
-        if (!BossBodyWords.Of(image.Publish(sheets), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
+            image.Show(state.Body.SlotIndex, sheet.Frame(staged.Name));
+        if (!BossBodyWords.Of(image.Publish(), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
             throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
         runtime.Enemies.Presentation.AttachBossBody(image);
     }

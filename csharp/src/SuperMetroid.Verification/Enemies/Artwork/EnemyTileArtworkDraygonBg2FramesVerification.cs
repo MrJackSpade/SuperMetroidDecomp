@@ -83,9 +83,10 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     $"Draygon {frame.Name} write {index} preserves tile words");
             }
             writeCount += native.Count;
-            AssertTrue(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer, true)
-                    .SequenceEqual(DrawDraygonBg2(stock, frame.Pointer, true)),
-                $"Draygon {frame.Name} stock VRAM matches native without cartridge reads");
+            // A frame the cartridge writes over another is shown whole (#1515): every word the cartridge writes matches.
+            AssertTrue(ShowsWrittenWords(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer, true),
+                    DrawDraygonBg2(stock, frame.Pointer, true)),
+                $"Draygon {frame.Name} stock VRAM shows the native words without cartridge reads");
         }
         AssertEqual(34, DraygonBg2FrameDefinitions.Frames.Length,
             "all selected Draygon BG2 frame identities are installed");
@@ -190,6 +191,17 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
     }
 
+    /// <summary>Whether <paramref name="shown"/> holds every tilemap word <paramref name="native"/> writes, a nonzero word.</summary>
+    private static bool ShowsWrittenWords(byte[] native, byte[] shown)
+    {
+        for (int index = 0; index + 1 < native.Length; index += 2)
+        {
+            if ((native[index] != 0 || native[index + 1] != 0) && (native[index] != shown[index] || native[index + 1] != shown[index + 1]))
+                return false;
+        }
+        return true;
+    }
+
     /// <summary>Draws one selected Draygon frame through the enemy layer producer and captures its resulting VRAM bytes.</summary>
     private static byte[] DrawDraygonBg2(InstalledEnemyArtwork art,
         ushort pointer, bool newInstructionFrame)
@@ -197,8 +209,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // His fight attaches the body layer his body frames draw on.
-        BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Draygon);
+        // His fight attaches the body his body frames show on.
+        BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets);
         enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
@@ -211,6 +223,6 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
-        return BossBodyCanvasFixtures.AsVram(image, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
+        return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Draygon, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
     }
 }

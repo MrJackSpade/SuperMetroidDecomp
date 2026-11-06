@@ -167,7 +167,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         return characters;
     }
 
-    /// <summary>Loads one installed BG2 melt tilemap and compares its working copy and shown words with native words.</summary>
+    /// <summary>Loads one installed BG2 melt tilemap and compares the words his shown body shows with native words (#1515).</summary>
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork artwork,
         CrocomireMeltingIllustration source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
@@ -177,9 +177,8 @@ internal static class CrocomireMeltingDefinitionsVerification
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // Crocomire's initialization attaches the body canvases his melt is drawn on (#1355, #1466).
-        BossBodySheets sheets = InstalledFixtures.BossBodySheets;
-        CrocomireDeathState death = BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
+        // Crocomire's initialization attaches the body his melt image shows on (#1355, #1466, #1515).
+        _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
@@ -193,9 +192,11 @@ internal static class CrocomireMeltingDefinitionsVerification
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
-        ushort[] working = BossBodyWords.Of(death.WorkingBody!.Publish(sheets), BossBodyOwner.Crocomire, artwork.Bosses);
-        ushort[] shown = BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(sheets), BossBodyOwner.Crocomire, artwork.Bosses);
-        ushort[] result = working[32..(32 + CrocomireMeltingArtworkFormat.TilemapCellCount)];
+        // His body shows the melt image alone, in place of his body frame.
+        ushort[] shown = BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.Crocomire, artwork.Bosses);
+        AssertEqual(1, enemies.Presentation.RequireBossBody().Publish().Frames.Length,
+            $"installed Crocomire tilemap ${sourceAddress:X6} shows only the melt image");
+        ushort[] result = shown[32..(32 + CrocomireMeltingArtworkFormat.TilemapCellCount)];
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;
@@ -203,8 +204,6 @@ internal static class CrocomireMeltingDefinitionsVerification
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");
-            AssertEqual(result[index], shown[32 + index],
-                $"installed Crocomire tilemap ${sourceAddress:X6} shown word {index}");
         }
         return result;
     }

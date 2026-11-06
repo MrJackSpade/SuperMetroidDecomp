@@ -56,6 +56,7 @@ internal sealed class KraidDeath
     private static void HideKraidBody(KraidEnemyState state)
     {
         state.BodyAppearance = KraidBodyAppearance.Hidden;
+        state.ShowBody();
         state.ShowsBodyLayer = true;
     }
 
@@ -78,6 +79,7 @@ internal sealed class KraidDeath
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathShowUpperBody;
                     state.HurtFrameTimer = WrappingCountdown.Start(1);
                     state.HurtFrame = 1;
+                    state.ShowBody();
                 }
                 return;
 
@@ -89,6 +91,7 @@ internal sealed class KraidDeath
                     state.Parts[_slotTable.Slots[lintSlot].SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
                     state.Parts[_slotTable.Slots[lintSlot].SlotIndex].FunctionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
                 }
+                state.ShowBody();
                 return;
 
             case KraidAiFunction.DeathShowLowerBody:

@@ -187,8 +187,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // His fight attaches the body layer his body frames draw on.
-        BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Phantoon);
+        // His fight attaches the body his body frames show on.
+        BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets);
         enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
@@ -201,6 +201,6 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
-        return BossBodyCanvasFixtures.AsVram(image, enemies, PhantoonBg2FrameDefinitions.VramBase, vram.Bytes.Length);
+        return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Phantoon, enemies, PhantoonBg2FrameDefinitions.VramBase, vram.Bytes.Length);
     }
 }

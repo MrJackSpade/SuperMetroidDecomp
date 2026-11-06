@@ -339,7 +339,7 @@ internal static class CrocomireStateQuantitiesVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Access.Crocomire = state;
-        // Crocomire's initialisation attaches the body layer his sink clears rows of (#1446, #1466).
+        // Crocomire's initialisation attaches the body his sink hides (#1446, #1466, #1515).
         _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;

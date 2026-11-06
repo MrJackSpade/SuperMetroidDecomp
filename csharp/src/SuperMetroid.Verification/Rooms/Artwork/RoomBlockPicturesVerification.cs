@@ -240,8 +240,8 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
-    /// Loads boss room <paramref name="room"/> and checks every still picture of <paramref name="owner"/>'s body sheet paints,
-    /// at each cell its part covers, the tile word its frame writes there over the room's characters as it loads.
+    /// Loads boss room <paramref name="room"/> and checks every whole frame picture of <paramref name="owner"/>'s body sheet
+    /// paints, at each cell its frame writes, the tile word written there over the room's characters as it loads (#1515).
     /// </summary>
     private static void CheckBody(RoomHeaderDefinition room, BossBodyOwner owner)
     {
@@ -250,34 +250,30 @@ internal static class RoomBlockPicturesVerification
         BossBodySheet sheet = (runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("No boss body sheets are installed.")).Of(owner);
         BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
-        int parts = 0;
+        int frames = 0;
         foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses.Sources, owner))
         {
-            foreach (BossBodyPart part in sheet.Frame(frame.Name).Parts)
+            BossBodyFrame shown = sheet.Frame(frame.Name);
+            foreach ((int cell, BackgroundTile tile) in frame.Cells)
             {
-                foreach ((int cell, BackgroundTile tile) in frame.Cells)
+                Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(cell);
+                var word = new SnesBgTilemapWord(tile.PackedWord);
+                for (int y = 0; y < CharacterPixels; y++)
+                for (int x = 0; x < CharacterPixels; x++)
                 {
-                    int row = cell / BossBodyDefinitions.ColumnCount, column = cell % BossBodyDefinitions.ColumnCount;
-                    if (!part.Footprint.Covers(row, column))
-                        continue;
-                    var word = new SnesBgTilemapWord(tile.PackedWord);
-                    for (int y = 0; y < CharacterPixels; y++)
-                    for (int x = 0; x < CharacterPixels; x++)
-                    {
-                        // A part that clears its cells has no picture: the tile its frame writes there paints nothing (#1513).
-                        if (part.Picture is { } picture)
-                            AssertPaintsTile($"{owner} {part.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
-                                new Position16<ImagePixels>((ushort)(column * CharacterPixels + x), (ushort)((row - part.Top) * CharacterPixels + y)));
-                        else
-                            AssertTrue(TileColour(vram, word, x, y) == 0,
-                                $"{owner} {part.Name} clears cell {cell}, where tile ${word.Raw:X4} paints pixel ({x}, {y})");
-                    }
+                    // A frame that paints nothing has no picture: the tile it writes there paints nothing (#1513).
+                    if (shown.Picture is { } picture)
+                        AssertPaintsTile($"{owner} {shown.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
+                            new Position16<ImagePixels>(at.X - shown.Corner.X + x, at.Y - shown.Corner.Y + y));
+                    else
+                        AssertTrue(TileColour(vram, word, x, y) == 0,
+                            $"{owner} {shown.Name} clears cell {cell}, where tile ${word.Raw:X4} paints pixel ({x}, {y})");
                 }
-                parts++;
             }
+            frames++;
         }
-        AssertTrue(parts > 0, $"{room.Name}'s boss draws frames");
-        Console.WriteLine($"Boss body pictures: {owner}'s sheet pictured {parts} parts over {room.Name} as it loads.");
+        AssertTrue(frames > 0, $"{room.Name}'s boss draws frames");
+        Console.WriteLine($"Boss body pictures: {owner}'s sheet pictured {frames} whole frames over {room.Name} as it loads.");
     }
 
     /// <summary>

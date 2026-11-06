@@ -37,11 +37,11 @@ internal sealed class KraidBodyLayer
         if (_access.Kraid is not { ShowsBodyLayer: true } state)
             return null;
         BossBodySheet sheet = _bossArtwork.Body(BossBodyOwner.Kraid);
-        if (shown is not { } cached || cached.Appearance != state.BodyAppearance || cached.Head != state.DisplayedHeadFrame
+        KraidBodyAppearance appearance = state.BodyShown ? state.BodyAppearance : KraidBodyAppearance.Hidden;
+        if (shown is not { } cached || cached.Appearance != appearance || cached.Head != state.DisplayedHeadFrame
             || !ReferenceEquals(cached.Sheet, sheet))
         {
-            shown = cached = new KraidShownBody(state.BodyAppearance, state.DisplayedHeadFrame, sheet,
-                Draw(state.BodyAppearance, state.DisplayedHeadFrame, sheet));
+            shown = cached = new KraidShownBody(appearance, state.DisplayedHeadFrame, sheet, Draw(appearance, state.DisplayedHeadFrame, sheet));
         }
         return cached.Layer;
     }

@@ -39,15 +39,14 @@ internal static class MotherBrainTankBackgroundVerification
         // whatever Mother Brain's initialization stages for her own BG2.
         AssertTrue(RoomShowsPipeBackground(), "Mother Brain's room shows both pages of the actual pipe-room background");
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires state.");
-        BossBodySheets sheets = runtime.Enemies.BossArtworkBinding.BodySheets
-            ?? throw new InvalidOperationException("The retail runtime installs boss body sheets.");
-        AssertTrue(Staged().All(word => word == 0x0338), "Initializer stages her body on a canvas showing only her blank");
+        BossBodyParts image = runtime.Enemies.Presentation.RequireBossBody();
+        AssertTrue(!image.IsShown && Words(image.Publish(), runtime).All(word => word == 0x0338),
+            "Initializer attaches her body showing nothing, which her room does not show yet");
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
-        // Since #1356 she owns her body layer from the transition: it carries the staged page, and the room's pipe
-        // background stays untouched.
-        BossBodyCanvas image = runtime.Enemies.Presentation.RequireBossBody();
-        AssertTrue(Words(image.Publish(sheets), runtime)[..0x400].All(word => word == 0x0338),
-            "Phase-two setup attaches the staged first page as Mother Brain's body layer"); 
+        // Since #1356 her room shows her body from the transition (#1515), and the room's pipe background stays untouched.
+        AssertTrue(image.IsShown && ReferenceEquals(image, runtime.Enemies.Presentation.RequireBossBody())
+                && Words(image.Publish(), runtime)[..0x400].All(word => word == 0x0338),
+            "Phase-two setup reveals Mother Brain's body as it stands");
         AssertTrue(RoomShowsPipeBackground(), "Phase-two setup leaves the room's library background as loaded");
         var artwork = runtime.Enemies.BossArtwork;
         AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).Sources.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
@@ -55,20 +54,13 @@ internal static class MotherBrainTankBackgroundVerification
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
         runtime.Enemies.Instructions.DrawBossBodyFrame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapCellCount).ToArray();
-        ushort[] staged = Staged();
         foreach (var write in writes.Span)
-        {
             write.Words.CopyTo(expectedImage.AsSpan(write.FirstCell));
-            for (int index = 0; index < write.Tiles.Length; index++)
-                AssertEqual(write.Tiles.Span[index].PackedWord, staged[write.FirstCell + index],
-                    "Body frame draws on her staged body as well as the shown body layer");
-        }
-        AssertTrue(Words(image.Publish(sheets), runtime).SequenceEqual(expectedImage),
-            "The crouched body frame draws exactly its authored BG2 words on the body layer");
+        AssertTrue(Words(image.Publish(), runtime).SequenceEqual(expectedImage),
+            "The crouched body frame shows exactly its authored BG2 words on her body");
         AssertTrue(RoomShowsPipeBackground(), "The body frame leaves the room's library background as loaded");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
-        ushort[] Staged() => Words((state.StagedBody ?? throw new InvalidOperationException("Mother Brain stages her body.")).Publish(sheets), runtime);
         bool RoomShowsPipeBackground() => runtime.Room.Scope is { BackgroundImage: { } shown } scope
             && scope.Room.State.Background == LibraryBackgroundProgramDefinitions.Get(0xe48a).Background
             && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, null, scope.Assets.Tileset);

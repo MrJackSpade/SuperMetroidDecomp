@@ -174,6 +174,7 @@ internal sealed class KraidRise
                 _slotTable.Slots[1].Properties = _slotTable.Slots[1].Properties.Without(
                     EnemyProperties.IgnoreSamusCollision);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowShowLowerBodyInFront;
+                state.ShowBody();
                 return;
 
             case KraidAiFunction.GrowShowLowerBodyInFront:
@@ -331,8 +332,8 @@ internal sealed class KraidRise
             case KraidAiFunction.RaiseKraidThroughFloor:
                 RestrictSamusToKraidFirstScreen(samus);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseShowLowerBody;
-                // His body shows behind the room's sprites from here, as he rises through the floor (#1515).
-                state.BodyAppearance = KraidBodyAppearance.BehindSprites;
+                // His body shows from here, as he rises through the floor (#1515).
+                state.ShowBody();
                 return;
 
             case KraidAiFunction.RaiseShowLowerBody:

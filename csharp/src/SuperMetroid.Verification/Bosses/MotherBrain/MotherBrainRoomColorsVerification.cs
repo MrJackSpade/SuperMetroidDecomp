@@ -118,14 +118,14 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>
-    /// Mother Brain's state in <paramref name="enemies"/>' first slot, her body staged on a cleared canvas over the installed
-    /// sheets as her room's entry stages it, which her phase-two transition shows.
+    /// Mother Brain's state in <paramref name="enemies"/>' first slot, with the body her room's entry attaches, not shown
+    /// until her phase-two transition reveals it (#1515).
     /// </summary>
-    private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies) =>
-        new(enemies.SlotTable.Slots[0])
-        {
-            StagedBody = new BossBodyCanvas(BossBodySheetFixtures.Stock.Sheets.Of(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows),
-        };
+    private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies)
+    {
+        enemies.Presentation.AttachBossBody(new BossBodyParts(shown: false));
+        return new(enemies.SlotTable.Slots[0]);
+    }
 
     /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>
     private static RoomEnemySystem CreateEnemy()

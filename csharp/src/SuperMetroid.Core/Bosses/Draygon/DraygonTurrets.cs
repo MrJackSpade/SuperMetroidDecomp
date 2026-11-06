@@ -26,9 +26,9 @@ internal sealed class DraygonTurrets
     internal void ObserveDraygonTurretCadence(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        if ((frameCounterLow & 63) != 0)
+        if ((frameCounter & 63) != 0)
             return;
 
         // The turret cadence tests the frame counter, then advances the room RNG even when the

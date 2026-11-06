@@ -33,12 +33,12 @@ internal sealed class PhantoonOpening
             return;
 
         state.StartingFlameRequests++;
-        if (SpawnPhantoonStartingFlame(body, WordWrap.LowByte(state.Parts[body.SlotIndex].StartingFlameIndex)))
+        if (SpawnPhantoonStartingFlame(body, state.Parts[body.SlotIndex].StartingFlameIndex))
             state.StartingFlamesSpawned++;
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(30);
         state.Parts[body.SlotIndex].StartingFlameIndex = WrappingCounter.IncrementWord(state.Parts[body.SlotIndex].StartingFlameIndex);
-        if (WordWrap.Signed(state.Parts[body.SlotIndex].StartingFlameIndex - 8) < 0)
+        if (state.Parts[body.SlotIndex].StartingFlameIndex < 8)
             return;
 
         state.Parts[body.SlotIndex].StartingFlameIndex = 0;
@@ -116,7 +116,7 @@ internal sealed class PhantoonOpening
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.StartingFlame));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-        var orbit = new PhantoonOrbitingFlameState(new ByteAngle(WordWrap.LowByte(directionIndex * 32)));
+        var orbit = new PhantoonOrbitingFlameState(new ByteAngle(directionIndex * 32));
         flame.State = orbit;
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: 48);
         flame.FrameBehavior = PhantoonBehavior.PhantoonStartingFlameWaitingFrameBehavior;

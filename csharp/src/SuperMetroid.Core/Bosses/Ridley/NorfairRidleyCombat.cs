@@ -366,7 +366,7 @@ internal sealed class NorfairRidleyCombat
         state.Velocity = state.Velocity.WithY(definition.Velocity.Y);
         SignedEightEight horizontal = definition.Velocity.X;
         state.Velocity = state.Velocity.WithX(state.Velocity.X.SignedRawValue < 0
-            ? SignedEightEight.FromSignedRaw(WordWrap.Signed(-horizontal.SignedRawValue))
+            ? horizontal.Negated()
             : horizontal);
     }
 

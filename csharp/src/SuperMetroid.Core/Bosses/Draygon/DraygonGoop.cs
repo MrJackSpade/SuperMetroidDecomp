@@ -40,12 +40,12 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
         // Only the rightward setup calls HandleFiringWallTurret; the leftward setup omits it.
         // That asymmetry changes the random seed and is therefore material.
         if (direction == HorizontalDirection.Right)
-            _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+            _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideReset.X, 384));
@@ -70,9 +70,9 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot position a goop pass without Samus.");
@@ -93,11 +93,11 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
         // The right-facing function calls the turret handler; the left-facing copy does not.
         if (direction == HorizontalDirection.Right)
-            _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+            _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (samus?.XSpeedDivisor != 0)
         {
             state.Function = DraygonAiFunction.TryGrabSamus;
@@ -181,8 +181,8 @@ internal sealed class DraygonGoop
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>
     internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
     {
-        state.Body.Position = state.Body.Position.WithWholeY(WordWrap.Unsigned(
-            384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.ToByteAngle(), 32)));
+        state.Body.Position = state.Body.Position.WithWholeY(
+            384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.ToByteAngle(), 32));
         state.GoopYOscillationAngle = state.GoopYOscillationAngle.AddTableUnits(1);
         DraygonMovement.MoveDraygonHorizontally(state, movingRight);
     }
@@ -286,8 +286,8 @@ internal sealed class DraygonGoop
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
-        int nextDivisor = WordWrap.Unsigned(samus.XSpeedDivisor + 1);
-        if (WordWrap.Signed(nextDivisor - 6) >= 0)
+        int nextDivisor = samus.XSpeedDivisor + 1;
+        if (nextDivisor >= 6)
             return;
 
         samus.XSpeedDivisor = nextDivisor;
@@ -333,7 +333,7 @@ internal sealed class DraygonGoop
         goop.Clear();
         samus.XSpeedDivisor = samus.XSpeedDivisor == 0
             ? 0
-            : WordWrap.Unsigned(samus.XSpeedDivisor - 1);
+            : samus.XSpeedDivisor - 1;
     }
 
     /// <summary>

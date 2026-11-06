@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public static class RidleyMovementTargets
 {
     /// <summary>Descending pogo uses quarter-arena points in reverse facing order.</summary>
-    public static int DescendingPogoX(RidleyFacing facing) => WordWrap.Unsigned(256 - AscendingPogoX(facing));
+    public static int DescendingPogoX(RidleyFacing facing) => 256 - AscendingPogoX(facing);
 
     /// <summary>Ascending pogo uses successive 64-pixel quarter-arena points.</summary>
     public static int AscendingPogoX(RidleyFacing facing) => facing switch
@@ -46,14 +46,14 @@ public static class RidleyMovementTargets
     public static int HoverDivisorIndexes(int stage)
     {
         ValidateStage(stage);
-        return WordWrap.Unsigned(4 + 2 * stage + 2 * Math.Min(stage, 1));
+        return 4 + 2 * stage + 2 * Math.Min(stage, 1);
     }
 
     /// <summary>Grab divisor indexes double-plus-one until the final cap of ten.</summary>
     public static int GrabDivisorIndexes(int stage)
     {
         ValidateStage(stage);
-        return WordWrap.Unsigned(Math.Min(10, (1 << (stage + 1)) - 1));
+        return Math.Min(10, (1 << (stage + 1)) - 1);
     }
 
     /// <summary>Limits health-stage selection to the four entries represented by the movement tables.</summary>

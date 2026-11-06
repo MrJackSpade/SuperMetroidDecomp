@@ -46,7 +46,9 @@ internal sealed class NorfairRidleyMovement
     /// <summary>
     /// Accelerates one axis toward the target: while reversing, the reversal boost and then the reversal acceleration
     /// each start a fresh run of steps, the second continuing into two distance steps; otherwise one distance step.
-    /// Within a run a step that crosses zero makes the next one a unit larger (<see cref="SeekingVelocityRun"/>).
+    /// Within a run a step that crosses zero makes the next one a unit larger (<see cref="SeekingVelocityRun"/>). The
+    /// velocity stays within a few thousand units of rest (each call clamps it to five pixels and a step is at most the
+    /// arena's height), so the clamps compare signed velocities.
     /// </summary>
     /// <param name="axisVelocity">The axis velocity.</param>
     /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
@@ -77,7 +79,7 @@ internal sealed class NorfairRidleyMovement
             }
             run.Lower(step);
             SignedEightEight lowered = run.Velocity;
-            return WordWrap.Signed(lowered.RawValue - RidleyInertiaDefinitions.MinimumVelocity.RawValue) < 0
+            return lowered.SignedRawValue < RidleyInertiaDefinitions.MinimumVelocity.SignedRawValue
                 ? RidleyInertiaDefinitions.MinimumVelocity
                 : lowered;
         }
@@ -91,7 +93,7 @@ internal sealed class NorfairRidleyMovement
         }
         run.Raise(step);
         SignedEightEight raised = run.Velocity;
-        return WordWrap.Signed(raised.RawValue - RidleyInertiaDefinitions.MaximumVelocity.RawValue) >= 0
+        return raised.SignedRawValue >= RidleyInertiaDefinitions.MaximumVelocity.SignedRawValue
             ? RidleyInertiaDefinitions.MaximumVelocity
             : raised;
     }

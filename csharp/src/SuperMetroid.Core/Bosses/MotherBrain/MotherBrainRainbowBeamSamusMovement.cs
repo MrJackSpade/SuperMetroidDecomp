@@ -78,7 +78,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // semantics instead of introducing a host integer comparison with different wraps.
         int difference = CoordinateAxis.Difference(124, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
-            samus, cameraCheckpoint, SignedEightEight.FromSignedRaw(WordWrap.Signed(difference >= 0 ? 64 : -64)));
+            samus, cameraCheckpoint, SignedEightEight.FromSignedRaw(difference >= 0 ? 64 : -64));
 
         return CreateResult(
             before,
@@ -107,10 +107,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
-        // ADC wraps to 16 bits and BMI examines the resulting sign bit. As soon as
-        // the negative speed crosses into zero or above it is clamped to exact zero.
-        int acceleratedX = WordWrap.Signed(CustomVelocity.X.SignedRawValue + 2);
-        CustomVelocity = CustomVelocity.WithX(SignedEightEight.FromSignedRaw(CoordinateAxis.AsSigned(Math.Min(acceleratedX, 0))));
+        // The leftward speed slows by two units each update; as soon as it reaches zero or above it is
+        // clamped to exact zero.
+        int acceleratedX = CustomVelocity.X.SignedRawValue + 2;
+        CustomVelocity = CustomVelocity.WithX(SignedEightEight.FromSignedRaw(Math.Min(acceleratedX, 0)));
         MoveHorizontallyTowardWall(samus, cameraCheckpoint, CustomVelocity.X);
 
         CustomVelocity += new EightEightVector<RoomPixels>(0, 24);

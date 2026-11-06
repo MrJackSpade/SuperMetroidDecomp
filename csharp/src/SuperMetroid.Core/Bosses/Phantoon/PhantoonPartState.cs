@@ -53,9 +53,6 @@ public sealed class PhantoonPartState
     /// <summary>Whether the body's starting flames are still orbiting.</summary>
     public bool StartingFlamesActive { get; internal set; }
 
-    /// <summary>The body's figure-eight speed fraction in 65536ths of a path entry per update.</summary>
-    public int SpeedFraction { get; internal set => field = InRecordRange(value); }
-
     /// <summary>The eye's shot marker, chosen when the eye is hit.</summary>
     public int ShotMarker { get; internal set => field = InRecordRange(value); }
 
@@ -65,8 +62,11 @@ public sealed class PhantoonPartState
     /// <summary>The mouth's updates before its next casual flame.</summary>
     public WrappingCountdown CasualFlameHold { get; internal set; }
 
-    /// <summary>The body's figure-eight speed in whole path entries per update, as the original game stores it.</summary>
-    public int SpeedWhole { get; internal set => field = InRecordRange(value); }
+    /// <summary>
+    /// The body's figure-eight speed in path entries per update: zero or more forward, zero or less while the eye runs
+    /// the path backwards, and never more than seven entries from rest.
+    /// </summary>
+    public SignedSixteenSixteen FigureEightSpeed { get; internal set; }
 
     /// <summary>Whether the eye's figure-eight runs the path backwards.</summary>
     public bool FigureEightReversed { get; internal set; }
@@ -190,11 +190,10 @@ public sealed class PhantoonPartState
         SwoopRequested = false;
         CasualFlamePattern = 0;
         StartingFlamesActive = false;
-        SpeedFraction = 0;
         ShotMarker = 0;
         RoundDamage = 0;
         CasualFlameHold = WrappingCountdown.Start(0);
-        SpeedWhole = 0;
+        FigureEightSpeed = SignedSixteenSixteen.Zero;
         FigureEightReversed = false;
         DyingFadeCycles = 0;
         _casualFlameCount = 0;

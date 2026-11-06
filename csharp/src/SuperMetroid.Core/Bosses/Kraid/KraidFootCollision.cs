@@ -11,14 +11,14 @@ internal static class KraidFootCollision
     internal static int FirstX(int frame)
     {
         CheckFrame(frame);
-        return WordWrap.Signed(8 - 2 * Math.Min(frame, 34 - frame));
+        return 8 - 2 * Math.Min(frame, 34 - frame);
     }
 
     /// <summary>The fixed component rises, turns at pose A/B, then descends and holds.</summary>
     internal static int FirstY(int frame)
     {
         CheckFrame(frame);
-        return WordWrap.Signed(frame < 10 ? 40 - frame : frame == 10 ? 29 : frame < 18 ? 28 + 2 * (frame - 11) : 40);
+        return frame < 10 ? 40 - frame : frame == 10 ? 29 : frame < 18 ? 28 + 2 * (frame - 11) : 40;
     }
 
     /// <summary>Moving-foot horizontal placement within poses0,1,2,3 and the return sequence.</summary>
@@ -28,7 +28,7 @@ internal static class KraidFootCollision
     internal static int SecondX(int frame)
     {
         CheckFrame(frame);
-        return WordWrap.Signed(frame switch
+        return frame switch
         {
             < 5 => -2 * frame,
             < 10 => 5 - 2 * (frame - 5),
@@ -38,14 +38,14 @@ internal static class KraidFootCollision
             < 23 => 6 + 2 * (frame - 21),
             < 31 => -7 + 2 * (frame - 23),
             _ => -6 + 2 * (frame - 31),
-        });
+        };
     }
 
     /// <summary>Moving-foot vertical placement: rise, raised pose2, descent, then pose-specific holds.</summary>
     internal static int SecondY(int frame)
     {
         CheckFrame(frame);
-        return WordWrap.Signed(frame switch
+        return frame switch
         {
             < 5 => -frame,
             < 10 => -15 - (frame - 5),
@@ -55,7 +55,7 @@ internal static class KraidFootCollision
             < 23 => -15,
             < 31 => -10,
             _ => 0,
-        });
+        };
     }
 
     /// <summary>Rejects an extended foot-frame index outside the authored walk sequence.</summary>

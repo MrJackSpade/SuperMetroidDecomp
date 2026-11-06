@@ -217,7 +217,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWrappedWholeY(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                new ByteAngle(WordWrap.LowByte(2 * (state.Angle.TableIndex - RotationAngle.QuarterTurn.TableIndex))),
+                ByteAngle.Wrapped(2 * (state.Angle.TableIndex - RotationAngle.QuarterTurn.TableIndex)),
                 CoordinateAxis.Wrap(state.MaximumXRadius - 16)));
 
         // The phase advances by the signed delta and wraps around the turn.
@@ -261,7 +261,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(
-                new(WordWrap.Unsigned(random % 64 + 96), WordWrap.Unsigned(SharedRandomState.UpperByte(random) % 16 + 480)),
+                new(random % 64 + 96, SharedRandomState.UpperByte(random) % 16 + 480),
                 RoomSpriteObjectKind.DustCloud,
                 graphics: default);
         }
@@ -638,7 +638,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int index = 0; index < 16; index++)
         {
             int random = _room.Random.Generate();
-            Position16<RoomPixels> drop = new(WordWrap.Unsigned(random % 128 + 64), WordWrap.Unsigned(SharedRandomState.UpperByte(random) % 64 + 528));
+            Position16<RoomPixels> drop = new(random % 128 + 64, SharedRandomState.UpperByte(random) % 64 + 528);
             SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(drop, EnemyDefinitionId.SporeSpawn);
         }

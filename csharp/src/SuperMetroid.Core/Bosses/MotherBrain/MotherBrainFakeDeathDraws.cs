@@ -33,7 +33,7 @@ internal static class MotherBrainFakeDeathDraws
         internal int NextX(int run)
         {
             Count(run);
-            return run + 1 == RunCount ? 0 : WordWrap.SignedLowByte(Side == 0 ? 1 : Side);
+            return run + 1 == RunCount ? 0 : Side == 0 ? 1 : Side;
         }
         /// <summary>The solid fill row's cell, or a tube interior cleared between its restored endpoints.</summary>
         internal RoomTerrainBlock BlockAt(int run, int block)

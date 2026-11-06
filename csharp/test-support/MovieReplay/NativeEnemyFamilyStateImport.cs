@@ -115,8 +115,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoonPartRecord.PathCursor = words.A;
                 phantoonPartRecord.ExplosionPass = words.A;
                 phantoonPartRecord.StartingFlamesActive = words.B != 0;
-                phantoonPartRecord.SpeedFraction = words.B;
-                phantoonPartRecord.SpeedWhole = words.C;
+                phantoonPartRecord.FigureEightSpeed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
                 phantoonPartRecord.SpeedPhase = words.D;
                 phantoonPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
                 if (words.F != 0)
@@ -130,7 +129,7 @@ internal static class NativeEnemyFamilyStateImport
             // each part reads only its own, so each is imported from the words.
             kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
             kraidPartRecord.HeadTimer = WrappingCountdown.FromRaw(words.C);
-            kraidPartRecord.LintXOffset = words.C;
+            kraidPartRecord.LintXOffset = CoordinateAxis.AsSigned(words.C);
             kraidPartRecord.LintTravel = words.B;
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
             if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
@@ -206,7 +205,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
         {
             draygonEyeRecord.Function = words.A == 0 ? null : DraygonNativeWords.EyeFunctions.Decode(words.A, "recorded DraygonEyeFunction");
-            draygonEyeRecord.LookAngle = words.F;
+            // The game compares only the look angle's low byte, the bearing it stored.
+            draygonEyeRecord.LookAngle = words.F & byte.MaxValue;
         }
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {

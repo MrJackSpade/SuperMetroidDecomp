@@ -29,8 +29,7 @@ internal static class PhantoonPathVerification
         for (int index = 0; index < 534; index++)
         {
             bodyWords.PathCursor = (ushort)index;
-            bodyWords.SpeedFraction = 0x8000;
-            bodyWords.SpeedWhole = unchecked((ushort)(reverse ? -speed : speed));
+            bodyWords.FigureEightSpeed = SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000);
             bodyWords.SpeedPhase = 1;
             body.Position = new(new(origin, 0x1234), new(origin, 0x5678));
             eyeWords.FigureEightReversed = reverse;
@@ -51,7 +50,7 @@ internal static class PhantoonPathVerification
             AssertEqual(unchecked((ushort)x), body.Position.X.Whole, "Real Phantoon exact world X across path steps");
             AssertEqual(unchecked((ushort)y), body.Position.Y.Whole, "Real Phantoon exact world Y across path steps");
             AssertEqual((ushort)cursor, bodyWords.PathCursor, "Real Phantoon path cursor wraps at both ends");
-            AssertEqual(unchecked((ushort)(reverse ? -count : count)), bodyWords.SpeedWhole, "Real Phantoon whole speed determining path steps");
+            AssertEqual(unchecked((ushort)(reverse ? -count : count)), bodyWords.FigureEightSpeed.WholeWord, "Real Phantoon whole speed determining path steps");
             AssertEqual((ushort)0x1234, body.Position.X.Fraction, "Discrete path leaves fractional X intact");
             AssertEqual((ushort)0x5678, body.Position.Y.Fraction, "Discrete path leaves fractional Y intact");
         }

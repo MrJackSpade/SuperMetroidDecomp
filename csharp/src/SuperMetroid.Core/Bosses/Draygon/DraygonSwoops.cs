@@ -30,9 +30,9 @@ internal sealed class DraygonSwoops
     internal void SetupDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
 
@@ -82,10 +82,10 @@ internal sealed class DraygonSwoops
     internal void DescendDraygonSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow,
+        int frameCounter,
         DraygonBehavior.DraygonSwoopSide side)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
         int entry = state.SwoopEntry;
@@ -106,9 +106,9 @@ internal sealed class DraygonSwoops
     internal void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         RoomEnemySlot body = state.Body;
         int frameCount = state.SwoopPathEntryCount;
         if (frameCount == 0)
@@ -126,10 +126,10 @@ internal sealed class DraygonSwoops
     internal void AscendDraygonSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow,
+        int frameCounter,
         DraygonBehavior.DraygonSwoopSide side)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (side.Direction != HorizontalDirection.Right)
             _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
@@ -173,9 +173,9 @@ internal sealed class DraygonSwoops
     internal void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
         int frameCount = state.SwoopPathEntryCount;
@@ -195,9 +195,9 @@ internal sealed class DraygonSwoops
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         RoomEnemySlot body = state.Body;
         int frameCount = state.SwoopPathEntryCount;
         if (frameCount == 0)
@@ -229,9 +229,9 @@ internal sealed class DraygonSwoops
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 4);
         if (CoordinateAxis.AsSigned(body.Position.Y.Whole) >= 0)

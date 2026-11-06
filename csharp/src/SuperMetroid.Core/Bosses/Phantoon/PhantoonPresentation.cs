@@ -51,17 +51,16 @@ internal sealed class PhantoonPresentation
     {
         if (mouth.WaveAmplitudeShrinking)
         {
-            int previous = mouth.WaveAmplitude;
-            mouth.WaveAmplitude = WordWrap.Unsigned(mouth.WaveAmplitude - delta);
-            if (previous < delta)
+            if (mouth.WaveAmplitude < delta)
             {
                 mouth.WaveAmplitude = 0;
                 return true;
             }
+            mouth.WaveAmplitude -= delta;
             return false;
         }
 
-        mouth.WaveAmplitude = WordWrap.Unsigned(mouth.WaveAmplitude + delta);
+        mouth.WaveAmplitude += delta;
         if (mouth.WaveAmplitude >= maximum)
             mouth.WaveAmplitude = maximum;
         return false;

@@ -8,7 +8,7 @@ internal static class DraygonBurialEvirs
 {
     /// <summary>
     /// The burial subspeeds are the absolute unit-circle components scaled by 65,535
-    /// and truncated. The spawn positions use the same six angles on the radius508
+    /// and truncated; the six angles all lie in the upper half of the circle, so the vertical one is positive. The spawn positions use the same six angles on the radius508
     /// circle, floor to pixels, then wrap signed X into the word. The angle
     /// selects the movement signs; its unused zero padding is not state.
     /// </summary>
@@ -22,7 +22,7 @@ internal static class DraygonBurialEvirs
         return new(
             FixedVector<RoomPixels>.FromWords(
                 0, (int)Math.Floor(ushort.MaxValue * Math.Abs(x)),
-                0, WordWrap.Unsigned((int)Math.Floor(ushort.MaxValue * y))),
+                0, (int)Math.Floor(ushort.MaxValue * y)),
             new Position16<RoomPixels>(
                 CoordinateAxis.Wrap((int)Math.Floor(CenterX + Radius * x)),
                 CoordinateAxis.Wrap((int)Math.Floor(CenterY - Radius * y))),

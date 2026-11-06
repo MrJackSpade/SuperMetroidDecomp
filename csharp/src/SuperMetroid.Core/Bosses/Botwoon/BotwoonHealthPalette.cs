@@ -8,13 +8,12 @@ internal static class BotwoonHealthPalette
 
     /// <summary>
     /// Returns whether the current health is below the threshold of palette phase <paramref name="phase"/>, zero
-    /// through seven. The signed subtraction matches the original game's comparison.
+    /// through seven.
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165 against the NTSC J/U v1.0 release:
-    /// threshold(i)=375*(8-i), i=0..7. Subtract in sixteen bits and interpret the
-    /// result as signed, matching the game's signed compare. All ushort health values remain
-    /// supported, including wrapped differences. Phase 8 is caller-owned completion,
+    /// threshold(i)=375*(8-i), i=0..7. Botwoon's health never exceeds its 3000 at spawn, so the
+    /// game's signed comparison of the difference is the plain comparison. Phase 8 is caller-owned completion,
     /// not an extrapolated threshold.
     /// </remarks>
     public static bool ShouldAdvance(int phase, int health)
@@ -23,6 +22,6 @@ internal static class BotwoonHealthPalette
             throw new InvalidDataException($"Botwoon palette phase {phase} is outside the eight retail threshold entries.");
 
         int threshold = BotwoonHealthPaletteDefinitions.HealthPerThreshold * (BotwoonHealthPaletteDefinitions.PaletteCount - phase);
-        return WordWrap.Signed(health - threshold) < 0;
+        return health < threshold;
     }
 }

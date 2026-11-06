@@ -172,8 +172,8 @@ internal sealed class CrocomireMelting
         _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
-        state.Body.Position = state.Body.Position.WithWholeX(WordWrap.Unsigned(
-            death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0)));
+        state.Body.Position = state.Body.Position.WithWholeX(
+            death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0));
 
         EraseNextCrocomireMeltingColumn(state);
 

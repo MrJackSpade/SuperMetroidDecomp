@@ -167,7 +167,7 @@ internal sealed class CrocomireFight
             return;
         if (advance is not AnimationProgramAdvance<CrocomireTongueFrame>.Show shown)
             throw new InvalidOperationException($"Crocomire's tongue program ended an update with {advance}.");
-        tongue.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        tongue.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Frame);
         tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -203,7 +203,7 @@ internal sealed class CrocomireFight
                 throw new InvalidOperationException($"Crocomire's body program ended an update with {advance}.");
             return;
         }
-        body.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        body.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         state.BodyFrame = shown.Frame;
         body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
@@ -277,7 +277,7 @@ internal sealed class CrocomireFight
                     return CrocomireBodyProgram.BackOffFromSpikeWall;
                 }
                 int random = _access.ReadCrocomireRandom();
-                int baseOffset = WordWrap.Signed(random - 2048) >= 0 ? -32 : 32;
+                int baseOffset = BossRandomRolls.InHalfFrom(random, threshold: 2048) ? -32 : 32;
                 _access.SpawnCrocomireDust(state, baseOffset + (random & 15));
                 return null;
             case CrocomireBodyCueKind.MoveRightIfOnScreen:
@@ -566,7 +566,7 @@ internal sealed class CrocomireFight
     {
         int random = _access.ReadCrocomireRandom();
         int offset = random & 31;
-        if (WordWrap.Signed(random - 4096) >= 0)
+        if (BossRandomRolls.InHalfFrom(random, threshold: 4096))
             offset = -offset;
         _access.SpawnCrocomireDust(state, offset);
     }

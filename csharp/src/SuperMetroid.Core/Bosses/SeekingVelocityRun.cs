@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Bosses;
 /// </summary>
 internal struct SeekingVelocityRun
 {
-    /// <summary>The velocity as a word, 0 through 65535; negative velocities lie in the word's upper half.</summary>
-    private int velocity;
+    /// <summary>The velocity the run has reached so far.</summary>
+    private SignedEightEight velocity;
 
     /// <summary>The unit the run's next step adds to its size: one after a step crossed zero, otherwise zero.</summary>
     private int extraUnit;
@@ -23,14 +23,14 @@ internal struct SeekingVelocityRun
     /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
     internal SeekingVelocityRun(SignedEightEight start, int position, int target)
     {
-        velocity = start.RawValue;
+        velocity = start;
         bool targetAhead = CoordinateAxis.Difference(position, target) < 0;
         bool orderedAhead = Ensure.BetweenInclusive(0, ushort.MaxValue, position) < Ensure.BetweenInclusive(0, ushort.MaxValue, target);
         extraUnit = targetAhead == orderedAhead ? 0 : 1;
     }
 
     /// <summary>The velocity the run has reached.</summary>
-    internal readonly SignedEightEight Velocity => new(velocity);
+    internal readonly SignedEightEight Velocity => velocity;
 
     /// <summary>Starts a fresh run: the next step adds no unit for a crossing before it.</summary>
     internal void StartFresh() => extraUnit = 0;
@@ -38,16 +38,16 @@ internal struct SeekingVelocityRun
     /// <summary>Raises the velocity by <paramref name="amount"/> units, 0 through 65535, plus any unit a crossing left.</summary>
     internal void Raise(int amount)
     {
-        int sum = velocity + Ensure.BetweenInclusive(0, ushort.MaxValue, amount) + extraUnit;
+        int sum = velocity.RawValue + Ensure.BetweenInclusive(0, ushort.MaxValue, amount) + extraUnit;
         extraUnit = sum > ushort.MaxValue ? 1 : 0;
-        velocity = WordWrap.Unsigned(sum);
+        velocity = SignedEightEight.Wrapped(sum);
     }
 
     /// <summary>Lowers the velocity by <paramref name="amount"/> units, 0 through 65535, plus any unit a crossing left.</summary>
     internal void Lower(int amount)
     {
-        int difference = velocity - Ensure.BetweenInclusive(0, ushort.MaxValue, amount) - extraUnit;
+        int difference = velocity.RawValue - Ensure.BetweenInclusive(0, ushort.MaxValue, amount) - extraUnit;
         extraUnit = difference < 0 ? 1 : 0;
-        velocity = WordWrap.Unsigned(difference);
+        velocity = SignedEightEight.Wrapped(difference);
     }
 }

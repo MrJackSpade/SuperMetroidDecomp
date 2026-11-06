@@ -67,7 +67,7 @@ internal static class DraygonGrabVerification
         draygon.Body.Position = FixedPosition<RoomPixels>.FromWhole(
             new(checked((ushort)(samus.Position.X.Whole - clawOffset)), samus.Position.Y.Whole));
 
-        runtime.Enemies.DraygonBehavior.Grab.ChaseAndTryToGrabSamus(draygon, samus, frameCounterLow: 1);
+        runtime.Enemies.DraygonBehavior.Grab.ChaseAndTryToGrabSamus(draygon, samus, frameCounter: 1);
         return new GrabSamusResult(runtime, samus, draygon);
     }
 

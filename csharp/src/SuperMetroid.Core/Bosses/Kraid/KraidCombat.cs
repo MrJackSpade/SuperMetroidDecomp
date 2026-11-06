@@ -171,7 +171,7 @@ internal sealed class KraidCombat
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => 0,
                     _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
                 };
-                int damage = WordWrap.Unsigned((shot.Damage >> 1) * multiplier);
+                int damage = (shot.Damage >> 1) * multiplier;
                 if (damage != 0)
                 {
                     body.Health = damage >= body.Health
@@ -305,9 +305,9 @@ internal sealed class KraidCombat
             samus.Position.X.Whole - samus.Kinematics.Radius.X) >= 0)
             return;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, KraidContactDefinitions.MinimumBodyEjectionX) >= 0)
-            samus.Position -= new Offset16<RoomPixels>(WordWrap.Signed(KraidContactDefinitions.BodyEjection), 0);
+            samus.Position -= new Offset16<RoomPixels>(KraidContactDefinitions.BodyEjection, 0);
         Position16<RoomPixels> ejected = samus.Position.Whole -
-            new Offset16<RoomPixels>(0, WordWrap.Signed(KraidContactDefinitions.BodyEjection));
+            new Offset16<RoomPixels>(0, KraidContactDefinitions.BodyEjection);
         samus.Position = samus.Position.WithWholeY((ejected - state.EjectionLimit).Y < 0
             ? state.EjectionLimit.Y : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(KraidContactDefinitions.ExtraX, KraidContactDefinitions.ExtraY));

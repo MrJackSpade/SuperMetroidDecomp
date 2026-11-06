@@ -153,7 +153,7 @@ internal sealed class MotherBrainAscent
             return;
 
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
-        MotherBrainBody.PlaceMotherBrainBodyLayer(state, new(WordWrap.Unsigned(-27), WordWrap.Unsigned(-217)));
+        MotherBrainBody.PlaceMotherBrainBodyLayer(state, Position16<BackgroundPixels>.Wrapped(-27, -217));
         state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake;
     }
@@ -165,7 +165,7 @@ internal sealed class MotherBrainAscent
         state.Head.FrameHold = WrappingCountdown.Start(1);
         state.Body.Properties = state.Body.Properties.Without(EnemyProperties.Invisible);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
-        MotherBrainBody.PlaceMotherBrainBodyLayer(state, new(WordWrap.Unsigned(-27), WordWrap.Unsigned(-217)));
+        MotherBrainBody.PlaceMotherBrainBodyLayer(state, Position16<BackgroundPixels>.Wrapped(-27, -217));
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
         _earthquake.EarthquakeType = 2;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);

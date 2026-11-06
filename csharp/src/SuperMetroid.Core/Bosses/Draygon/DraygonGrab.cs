@@ -43,9 +43,9 @@ internal sealed class DraygonGrab
     internal void ChaseAndTryToGrabSamus(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (samus is null)
             throw new InvalidOperationException("Draygon chase AI requires the active Samus actor.");
 

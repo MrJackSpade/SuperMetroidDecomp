@@ -218,7 +218,7 @@ internal sealed class MotherBrainProjectiles
             // units, so the reduced speed always fits a signed 8.8 velocity.
             int velocity = bomb.Velocity.X.SignedRawValue;
             int slowed = Math.Max(0, Math.Abs(velocity) - 2);
-            bomb.Velocity = bomb.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(velocity < 0 ? -slowed : slowed)));
+            bomb.Velocity = bomb.Velocity.WithX(SignedEightEight.FromSignedRaw(velocity < 0 ? -slowed : slowed));
             acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
         }
         else
@@ -305,7 +305,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state)
     {
         Position16<RoomPixels> impact = bomb.Position.Whole;
-        int afterburnCount = WordWrap.LowByte(bomb.Position.X.Fraction);
+        int afterburnCount = bomb.StateOf<MotherBrainBombState>().Afterburns;
         DeleteMotherBrainBomb(bomb, state);
 
         // The bomb's explosion clears the source slot before both allocations. They therefore use
@@ -354,7 +354,7 @@ internal sealed class MotherBrainProjectiles
         // 32768 units less the drag always fits a signed 8.8 velocity.
         int velocity = fragment.Velocity.X.SignedRawValue;
         int speed = Math.Max(0, Math.Abs(velocity) - MotherBrainDeathDefinitions.DoorFragmentDrag);
-        fragment.Velocity = fragment.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(velocity < 0 ? -speed : speed)));
+        fragment.Velocity = fragment.Velocity.WithX(SignedEightEight.FromSignedRaw(velocity < 0 ? -speed : speed));
         fragment.Velocity = fragment.Velocity.WithY(SignedEightEight.Wrapped(fragment.Velocity.Y.RawValue + MotherBrainDeathDefinitions.DoorFragmentGravity));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime expires when it passes zero.
@@ -430,9 +430,8 @@ internal sealed class MotherBrainProjectiles
         // one of sixteen authored shard animation lists.
         int angleOffset = (_room.Random.Generate() * 2) & 510;
         int angle = angleOffset >> 1;
-        shard.Velocity = shard.Velocity.WithX(new SignedEightEight(ReadSignedSineSample(angle + 64)));
-        shard.Velocity = shard.Velocity.WithY(SignedEightEight.Wrapped(
-            WordWrap.Signed(ReadSignedSineSample(angle)) * 4));
+        shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle + 64)));
+        shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle) * 4));
         int animationIndex = ((angleOffset >> 4) & 30) >> 1;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(_motherBrainEncounter.Colours.SpriteShading);
@@ -489,10 +488,6 @@ internal sealed class MotherBrainProjectiles
         sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(_motherBrainEncounter.Colours.SpriteShading);
     }
 
-    /// <summary>Reads the signed sine table as its raw two-byte sample.</summary>
-    internal static int ReadSignedSineSample(int index) =>
-        WordWrap.Unsigned(Trigonometry.SignedNegativeCosineWord(index));
-
     /// <summary>
     /// Runs the fired child's initializer. Each child first advances the
     /// shared aimed cursor, then receives a randomized secondary displacement used only for
@@ -518,13 +513,13 @@ internal sealed class MotherBrainProjectiles
         state.HandBeamNextPosition = beam.Position;
 
         int angleRandom = _room.Random.Generate();
-        ByteAngle scatterAngle = new ByteAngle(WordWrap.LowByte(state.HandBeamNextAngle)).AddTableUnits(WordWrap.LowByte(angleRandom));
+        ByteAngle scatterAngle = new ByteAngle(state.HandBeamNextAngle).AddTableUnits(SharedRandomState.LowerByte(angleRandom));
         int speedRandom = _room.Random.Generate();
         // Three bits of the sample's upper random byte: a whole speed of zero to seven.
-        int scatterSpeed = UnsignedEightEight.FromParts(whole: WordWrap.LowByte(SharedRandomState.UpperByte(speedRandom) & 7), fraction: 0);
-        beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(WordWrap.Unsigned(scatterSpeed), scatterAngle));
+        int scatterSpeed = UnsignedEightEight.FromParts(whole: SharedRandomState.UpperByte(speedRandom) & 7, fraction: 0);
+        beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
         beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
-            WordWrap.Unsigned(scatterSpeed),
+            scatterSpeed,
             scatterAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
@@ -771,8 +766,7 @@ internal sealed class MotherBrainProjectiles
 
         // A disallowed next step reverses the signed high-byte delta and immediately takes
         // one step in the new direction. The original game does not perform a second mask test.
-        // The direction and the delta each keep eight bits, so the reversed step wraps the
-        // way the stored bytes do.
+        // Every turret's sector spans at least three ring positions, so the step back stays inside it.
         state.RotationStep = -rotationDelta;
         state.RingPosition = currentDirection + state.RotationStep;
     }

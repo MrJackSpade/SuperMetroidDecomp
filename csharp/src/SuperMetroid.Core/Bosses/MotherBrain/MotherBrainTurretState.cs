@@ -13,19 +13,11 @@ internal sealed class MotherBrainTurretState(int turret, int ringPosition) : Ene
     /// <summary>Which of the twelve turrets this is, 0 through 11; it limits the directions the turret may face.</summary>
     internal int Turret { get; } = turret;
 
-    /// <summary>The ring position the turret faces, kept to eight bits as the turn that produced it left it.</summary>
-    internal int RingPosition
-    {
-        get;
-        set => field = WordWrap.LowByte(value);
-    } = WordWrap.LowByte(ringPosition);
+    /// <summary>The ring position the turret faces, 0 through 7; its turns keep it inside its allowed sector.</summary>
+    internal int RingPosition { get; set; } = ringPosition;
 
     /// <summary>The ring steps the turret turns by when it next turns, one either way; it starts turning forward.</summary>
-    internal int RotationStep
-    {
-        get;
-        set => field = WordWrap.SignedLowByte(value);
-    } = 1;
+    internal int RotationStep { get; set; } = 1;
 
     /// <summary>Updates until the turret next turns; it turns on the update this reaches zero.</summary>
     internal WrappingCountdown RotationWait { get; set; }

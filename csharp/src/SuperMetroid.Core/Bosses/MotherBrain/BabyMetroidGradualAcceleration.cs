@@ -6,8 +6,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries
 /// the velocity across zero makes the run's next step a unit larger, and a step taken while already
 /// moving toward the target is a unit larger when the distance to the target wraps around the
-/// coordinate space. A reversal starts fresh runs. Positions, targets, distances and velocity words
-/// all lie in 0 through 65535.
+/// coordinate space. A reversal starts fresh runs. The distance is the signed distance across the wrapping space, and
+/// the velocity stays within a few thousand units of rest (each call clamps it to its axis's limit and a step is at
+/// most a room's width), so the clamps compare signed velocities.
 /// </summary>
 internal static class BabyMetroidGradualAcceleration
 {
@@ -38,13 +39,13 @@ internal static class BabyMetroidGradualAcceleration
     {
         Ensure.NotNull(isVaguelyOffScreen);
         var run = new SeekingVelocityRun(velocity, position, target);
-        int distance = Wrap(position - target);
+        int distance = CoordinateAxis.Difference(position, target);
         if (distance == 0)
             return velocity;
-        if (IsNegative(distance))
+        if (distance < 0)
         {
-            int step = Step(Negate(distance), divisor);
-            if (IsNegative(velocity.RawValue))
+            int step = Step(-distance, divisor);
+            if (velocity.SignedRawValue < 0)
             {
                 // Off screen, a reversal first pushes the mover by its off-screen speed, raising by one unit more
                 // than the matching lowering does.
@@ -58,13 +59,12 @@ internal static class BabyMetroidGradualAcceleration
                 run.Raise(step);
             }
             run.Raise(step);
-            int speed = run.Velocity.RawValue;
-            return Velocity(IsNegative(Wrap(speed - MaxXSpeed)) ? speed : MaxXSpeed);
+            return SignedEightEight.FromSignedRaw(Math.Min(run.Velocity.SignedRawValue, MaxXSpeed));
         }
         else
         {
             int step = Step(distance, divisor);
-            if (!IsNegative(velocity.RawValue))
+            if (velocity.SignedRawValue >= 0)
             {
                 if (isVaguelyOffScreen())
                 {
@@ -76,9 +76,7 @@ internal static class BabyMetroidGradualAcceleration
                 run.Lower(step);
             }
             run.Lower(step);
-            int speed = run.Velocity.RawValue;
-            int limit = Negate(MaxXSpeed);
-            return Velocity(IsNegative(Wrap(speed - limit)) ? limit : speed);
+            return SignedEightEight.FromSignedRaw(Math.Max(run.Velocity.SignedRawValue, -MaxXSpeed));
         }
     }
 
@@ -90,35 +88,32 @@ internal static class BabyMetroidGradualAcceleration
     public static SignedEightEight AccelerateVertically(int position, int target, SignedEightEight velocity, int divisor)
     {
         var run = new SeekingVelocityRun(velocity, position, target);
-        int distance = Wrap(position - target);
+        int distance = CoordinateAxis.Difference(position, target);
         if (distance == 0)
             return velocity;
-        if (IsNegative(distance))
+        if (distance < 0)
         {
-            int step = Step(Negate(distance), divisor);
-            if (IsNegative(velocity.RawValue))
+            int step = Step(-distance, divisor);
+            if (velocity.SignedRawValue < 0)
             {
                 run.StartFresh();
                 run.Raise(ReversalStep);
                 run.Raise(step);
             }
             run.Raise(step);
-            int speed = run.Velocity.RawValue;
-            return Velocity(IsNegative(Wrap(speed - MaxYSpeed)) ? speed : MaxYSpeed);
+            return SignedEightEight.FromSignedRaw(Math.Min(run.Velocity.SignedRawValue, MaxYSpeed));
         }
         else
         {
             int step = Step(distance, divisor);
-            if (!IsNegative(velocity.RawValue))
+            if (velocity.SignedRawValue >= 0)
             {
                 run.StartFresh();
                 run.Lower(ReversalStep);
                 run.Lower(step);
             }
             run.Lower(step);
-            int speed = run.Velocity.RawValue;
-            int limit = Negate(MaxYSpeed);
-            return Velocity(IsNegative(Wrap(speed - limit)) ? limit : speed);
+            return SignedEightEight.FromSignedRaw(Math.Max(run.Velocity.SignedRawValue, -MaxYSpeed));
         }
     }
 
@@ -130,16 +125,4 @@ internal static class BabyMetroidGradualAcceleration
         int quotient = distance / divisor;
         return quotient == 0 ? 1 : quotient;
     }
-
-    /// <summary>The two's-complement negation of a word, as a word.</summary>
-    private static int Negate(int word) => Wrap(-word);
-
-    /// <summary>A difference of words reduced to the word the run compares.</summary>
-    private static int Wrap(int value) => WordWrap.Unsigned(value);
-
-    /// <summary>A velocity word as the velocity it encodes.</summary>
-    private static SignedEightEight Velocity(int word) => new(word);
-
-    /// <summary>Tests the word sign bit before choosing an acceleration or reversal branch.</summary>
-    private static bool IsNegative(int word) => WordWrap.Signed(word) < 0;
 }

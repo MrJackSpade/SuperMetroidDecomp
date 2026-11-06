@@ -43,15 +43,15 @@ internal static class MotherBrainGlassDraws
         {
             CheckRun(run);
             if (run == RunCount - 1) return 0;
-            return Pane ? -1 : WordWrap.SignedLowByte(run - 3);
+            return Pane ? -1 : run - 3;
         }
         /// <summary>Vertical origin adjustment before the following run.</summary>
         internal int NextY(int run)
         {
             CheckRun(run);
             if (run == RunCount - 1) return 0;
-            return WordWrap.SignedLowByte(Pane || Shifted && (run != 0 || Frame != MotherBrainGlassDraw.ShiftedPane1) ||
-                Frame == MotherBrainGlassDraw.Shatter1 && run >= 1 ? 1 : 0);
+            return Pane || Shifted && (run != 0 || Frame != MotherBrainGlassDraw.ShiftedPane1) ||
+                Frame == MotherBrainGlassDraw.Shatter1 && run >= 1 ? 1 : 0;
         }
         /// <summary>The selected block's appearance and collision kind.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)

@@ -111,13 +111,13 @@ internal sealed class RidleyTail
             bool targetsIdle = state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null;
             if (state.TailWhipRequest != 0 && targetsIdle)
             {
-                AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle(WordWrap.LowByte(state.TailWhipRequest - 1))));
+                AimCeresRidleyTailWhip(state, samus, ByteAngle.Wrapped(state.TailWhipRequest - 1));
             }
             else if (state.IdleTailWhipEnabled)
             {
                 // Read the existing seed; this branch never advances the original game RNG.
                 if (SharedRandomState.LowerByte(_room.Random.Read()) >= 240)
-                    AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle(WordWrap.LowByte(state.TailWhipRequest - 1))));
+                    AimCeresRidleyTailWhip(state, samus, ByteAngle.Wrapped(state.TailWhipRequest - 1));
                 else if (samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: new ByteAngle(0));
             }
@@ -234,7 +234,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = WordWrap.Unsigned(next + 1);
+                        segment.Angle = next + 1;
                     }
                 }
                 else
@@ -247,7 +247,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = WordWrap.Unsigned(next + 1);
+                        segment.Angle = next + 1;
                     }
                 }
             }
@@ -270,7 +270,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = WordWrap.Unsigned(next);
+                        segment.Angle = next;
                     }
                 }
                 else
@@ -282,7 +282,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = WordWrap.Unsigned(next);
+                        segment.Angle = next;
                     }
                 }
             }
@@ -299,7 +299,7 @@ internal sealed class RidleyTail
     private static void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
-        ByteAngle angle = new(WordWrap.LowByte(segment.Angle));
+        ByteAngle angle = ByteAngle.Wrapped(segment.Angle);
         if (index != 0)
             angle = angle.AddTableUnits(state.TailSegments[index - 1].Angle);
         int distanceInPixels = EightEight.WholeOf(segment.Distance);
@@ -405,7 +405,7 @@ internal sealed class RidleyTail
         for (int index = tipIndex; index >= 2; index--)
         {
             RidleyTailSegment segment = state.TailSegments[index];
-            Position16<RoomPixels> probe = segment.Position + new Offset16<RoomPixels>(0, WordWrap.Signed(index == tipIndex ? 16 : 18));
+            Position16<RoomPixels> probe = segment.Position + new Offset16<RoomPixels>(0, index == tipIndex ? 16 : 18);
             if ((probe.X >> 4) >= level.Size.X || (probe.Y >> 4) >= level.Size.Y)
                 continue;
             if (level.GetCollisionBlockAtPixel(probe).CollisionType != RoomCollisionType.Air)
@@ -425,7 +425,7 @@ internal sealed class RidleyTail
         {
             RidleyTailSegment segment = state.TailSegments[index];
             segment.Distance = RidleyTailReach.RestDistance(index);
-            segment.Angle = WordWrap.Unsigned(RidleyTailDefinitions.MirrorAxisAngle.RawValue - segment.Angle);
+            segment.Angle = RidleyTailDefinitions.MirrorAxisAngle.RawValue - segment.Angle;
             segment.Clockwise = true;
         }
     }

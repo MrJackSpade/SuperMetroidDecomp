@@ -125,12 +125,12 @@ internal sealed class DraygonCombat
 
     /// <summary>
     /// The vulnerable eye callback increases future swoop curvature before common shot AI.
-    /// A signed comparison prevents the stored value from ever advancing beyond <c>$98</c>.
+    /// The comparison keeps the stored value from ever advancing beyond 152.
     /// </summary>
     internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {
         EightEightVector<RoomPixels> candidate = state.SwoopAcceleration + DraygonBehavior.DraygonShotSwoopAccelerationStep;
-        if (WordWrap.Signed(candidate.Y.RawValue - DraygonBehavior.DraygonSwoopAccelerationLimit) < 0)
+        if (candidate.Y.RawValue < DraygonBehavior.DraygonSwoopAccelerationLimit)
             state.SwoopAcceleration = candidate;
     }
 

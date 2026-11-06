@@ -25,7 +25,7 @@ internal static class KraidRecordStateVerification
         part.LintTravel = 32;
         part.CeilingRock = 3;
         part.RisingRockTimer = WrappingCountdown.Start(96);
-        part.LintXOffset = 65520;
+        part.LintXOffset = -16;
 
         part.Function = KraidAiFunction.FingernailFire;
         part.NailVelocity = FixedVector<RoomPixels>.FromWords(0, 0, 6, 5);

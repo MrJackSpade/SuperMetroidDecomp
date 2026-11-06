@@ -61,11 +61,11 @@ public sealed class KraidPartState
     /// <summary>The body's head-instruction timer.</summary>
     public WrappingCountdown HeadTimer { get; internal set; }
 
-    /// <summary>A lint's X offset from the body, as the original game stores it: zero or minus sixteen wrapped to 65520.</summary>
+    /// <summary>A lint's X offset from the body in pixels: zero, or sixteen to the left.</summary>
     public int LintXOffset
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value);
     }
 
     /// <summary>The pixels a lint has travelled out of Kraid's mouth while it is produced.</summary>

@@ -74,9 +74,9 @@ internal sealed class DraygonDeath
     /// <summary>Advances burial sprite motion while the pre-sink countdown expires.</summary>
     internal void WaitForDraygonBurialEvirs(
         DraygonEnemyState state,
-        int frameCounterLow)
+        int frameCounter)
     {
-        SpawnDyingDraygonSmoke(state, frameCounterLow);
+        SpawnDyingDraygonSmoke(state, frameCounter);
         state.BurialWait = state.BurialWait.Decrement().Remaining;
         if (state.BurialWait.IsZero)
         {
@@ -90,9 +90,9 @@ internal sealed class DraygonDeath
     /// <summary>Sinks the body past the room floor, then persists boss defeat and requests its drop.</summary>
     internal void SinkDraygonBelowTheRoom(
         DraygonEnemyState state,
-        int frameCounterLow)
+        int frameCounter)
     {
-        SpawnDyingDraygonSmoke(state, frameCounterLow);
+        SpawnDyingDraygonSmoke(state, frameCounter);
         MoveDraygonDeathEvirs();
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
@@ -123,13 +123,13 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
-    private void SpawnDyingDraygonSmoke(DraygonEnemyState state, int frameCounterLow)
+    private void SpawnDyingDraygonSmoke(DraygonEnemyState state, int frameCounter)
     {
-        if ((frameCounterLow & 7) != 0)
+        if ((frameCounter & 7) != 0)
             return;
 
         int random = _room.Random.Generate();
-        Position16<RoomPixels> smoke = new(WordWrap.Unsigned((random & 127) + 192), WordWrap.Unsigned((SharedRandomState.UpperByte(random) & 63) + 400));
+        Position16<RoomPixels> smoke = new((random & 127) + 192, (SharedRandomState.UpperByte(random) & 63) + 400);
         if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default) is not null)
             state.DeathSmokeObjectsSpawned++;
     }

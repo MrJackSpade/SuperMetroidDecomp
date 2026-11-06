@@ -248,10 +248,11 @@ internal sealed class TorizoAttacks
         else
         {
             int baseAngle = _access.FacesRight(torizo) ? 32 : 224;
-            angle = WordWrap.LowByte(baseAngle + TorizoRandomDefinitions.DroolFacingSpread.Of(random) - 8);
+            // The spread of up to fifteen units, less eight, keeps either facing's angle on the turn.
+            angle = baseAngle + TorizoRandomDefinitions.DroolFacingSpread.Of(random) - 8;
         }
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(
-            Trigonometry.SignedSine(unchecked(new ByteAngle(WordWrap.LowByte(angle))))));
+            Trigonometry.SignedSine(new ByteAngle(angle))));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
             Trigonometry.SignedNegativeCosineWord(angle)));
         projectile.Position = projectile.Position.WithWholeX(_access.FacesRight(torizo)
@@ -477,8 +478,8 @@ internal sealed class TorizoAttacks
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
         // The initializer draws the X jitter before the Y jitter.
         projectile.Velocity = new EightEightVector<RoomPixels>(
-            WordWrap.Signed(definition.BaseVelocity.X.SignedRawValue + SharedRandomState.LowerByte(_room.Random.Generate()) - 128),
-            WordWrap.Signed(definition.BaseVelocity.Y.SignedRawValue + SharedRandomState.LowerByte(_room.Random.Generate()) - 128));
+            definition.BaseVelocity.X.SignedRawValue + SharedRandomState.LowerByte(_room.Random.Generate()) - 128,
+            definition.BaseVelocity.Y.SignedRawValue + SharedRandomState.LowerByte(_room.Random.Generate()) - 128);
     }
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
@@ -560,12 +561,12 @@ internal sealed class TorizoAttacks
         if (xVelocity < 0)
         {
             int dragged = xVelocity + 4;
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(WordWrap.Signed(dragged < 0 ? dragged : 3)));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(dragged < 0 ? dragged : 3));
         }
         else
         {
             int dragged = xVelocity - 4;
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(WordWrap.Signed(dragged >= 0 ? dragged : 3)));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(dragged >= 0 ? dragged : 3));
         }
 
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
@@ -622,9 +623,9 @@ internal sealed class TorizoAttacks
         {
             // The hatch timer steps the sleeping list past its sleep.
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileProgram(projectile))));
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(egg.FacingRight
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(egg.FacingRight
                 ? 256
-                : WordWrap.Unsigned(-256)));
+                : -256));
             return;
         }
 

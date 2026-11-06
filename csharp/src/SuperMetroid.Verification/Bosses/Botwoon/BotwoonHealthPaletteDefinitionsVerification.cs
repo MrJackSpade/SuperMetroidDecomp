@@ -21,7 +21,8 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         for (int phase = 0; phase < BotwoonHealthPaletteDefinitions.CompletePhase; phase++)
         {
             ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord(BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase * sizeof(ushort));
-            for (int health = 0; health <= ushort.MaxValue; health++)
+            // Every health a boss holds: the signed difference the game compares is then the plain difference.
+            for (int health = 0; health <= short.MaxValue; health++)
             {
                 bool expected = unchecked((short)((ushort)health - threshold)) < 0;
                 AssertEqual(expected,

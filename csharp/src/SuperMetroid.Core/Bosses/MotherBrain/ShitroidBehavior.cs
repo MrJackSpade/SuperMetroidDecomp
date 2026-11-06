@@ -310,8 +310,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 goto case ShitroidAiFunction.Exit;
 
             case ShitroidAiFunction.Exit:
-                GraduallyAccelerateShitroid(slot, state, 0, new(WordWrap.Unsigned(-128), 64), 1024);
-                if (ShitroidOverlapsRectangle(slot, new(WordWrap.Unsigned(-128), 64), new(8, 8)))
+                GraduallyAccelerateShitroid(slot, state, 0, Position16<RoomPixels>.Wrapped(-128, 64), 1024);
+                if (ShitroidOverlapsRectangle(slot, Position16<RoomPixels>.Wrapped(-128, 64), new(8, 8)))
                 {
                     state.Velocity = default;
                     // The leave step clears instruction processing and invisibility as Shitroid
@@ -483,12 +483,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // extra pixel. BMI reads only the sign of the difference.
         int ySpeed = samus.Kinematics.YSpeed.Whole;
         int xCarry = ySpeed >= 4 ? 1 : 0;
-        if (WordWrap.Signed(WordWrap.Unsigned(ySpeed - 4)) >= 0)
+        if (ySpeed >= 4)
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
         slot.Position = slot.Position.WithWhole(
-            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(WordWrap.Signed(xCarry), -20));
+            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(xCarry, -20));
 
         // The drain step subtracts four without Varia and two with it. The original
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
@@ -574,18 +574,18 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int acceleration,
         Position16<RoomPixels> target)
     {
-        (bool xArrived, int xVelocity) = AccelerateShitroidAxis(
+        (bool xArrived, SignedEightEight xVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.X.Whole,
             target.X,
-            state.Velocity.X.RawValue,
+            state.Velocity.X,
             acceleration);
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(xVelocity));
-        (bool yArrived, int yVelocity) = AccelerateShitroidAxis(
+        state.Velocity = state.Velocity.WithX(xVelocity);
+        (bool yArrived, SignedEightEight yVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.Y.Whole,
             target.Y,
-            state.Velocity.Y.RawValue,
+            state.Velocity.Y,
             acceleration);
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(yVelocity));
+        state.Velocity = state.Velocity.WithY(yVelocity);
         return xArrived && yArrived;
     }
 
@@ -593,25 +593,19 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static ShitroidAxisStep AccelerateShitroidAxis(
         int current,
         int target,
-        int velocityWord,
+        SignedEightEight velocity,
         int acceleration)
     {
         int delta = CoordinateAxis.Difference(current, target);
         if (delta == 0)
-            return new ShitroidAxisStep(true, velocityWord);
+            return new ShitroidAxisStep(true, velocity);
 
-        int velocity = WordWrap.Signed(velocityWord);
-        velocity = delta >= 0
-            ? Math.Max(-1280, velocity - acceleration)
-            : Math.Min(1280, velocity + acceleration);
-        velocityWord = WordWrap.Unsigned(velocity);
-
-        int predicted = WordWrap.Signed(
-            current + WordWrap.SignedLowByte(EightEight.WholeOf(velocityWord)) - target);
+        int speed = delta >= 0
+            ? Math.Max(-1280, velocity.SignedRawValue - acceleration)
+            : Math.Min(1280, velocity.SignedRawValue + acceleration);
+        int predicted = CoordinateAxis.Difference(current + EightEight.WholeOf(speed), target);
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
-        if (crossed)
-            velocityWord = 0;
-        return new ShitroidAxisStep(crossed, velocityWord);
+        return new ShitroidAxisStep(crossed, crossed ? default : SignedEightEight.FromSignedRaw(speed));
     }
 
     /// <summary>Tests inclusive-radius overlap between two enemy rectangles using signed coordinate deltas.</summary>
@@ -689,13 +683,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(slotZeroProjectile.Position.X.Whole, slot.Position.X.Whole),
             CoordinateAxis.Difference(slotZeroProjectile.Position.Y.Whole, slot.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
-        // The recoil strength is eight times the damage, kept to sixteen bits as the damage word's
-        // multiple is, and capped at 240.
-        int magnitude = Math.Min(WordWrap.Unsigned(8 * collisionDamage), 240);
+        // The recoil strength is eight times the damage, capped at 240; no beam, missile or bomb deals the 8192
+        // damage whose multiple would pass a sixteen-bit quantity.
+        int magnitude = Math.Min(8 * collisionDamage, 240);
         state.Velocity += new EightEightVector<RoomPixels>(
-            EnemyMath.MultiplySineSample(WordWrap.Unsigned(magnitude), angle.ToByteAngle()),
+            EnemyMath.MultiplySineSample(magnitude, angle.ToByteAngle()),
             EnemyMath.MultiplySineSample(
-                WordWrap.Unsigned(magnitude),
+                magnitude,
                 angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
     }
 
@@ -831,7 +825,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Cursor = cursor;
         if (advance is not AnimationProgramAdvance<BabyMetroidFrame>.Show shown)
             throw new InvalidOperationException($"The Shitroid's programs have no {advance} step.");
-        slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -844,7 +838,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case ShitroidCue.MaybeRemorseCry:
                 // The cue samples the existing random word; it does not generate a new one.
-                if (WordWrap.Signed(_room.Random.Read()) >= 0)
+                if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
                     return ShitroidProgram.Remorse;
                 RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);
                 return null;

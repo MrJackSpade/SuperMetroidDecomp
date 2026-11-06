@@ -290,8 +290,8 @@ internal sealed class CrocomireCombat
         // than the current slot, as the game does.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
         _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading);
-        projectile.GeneralTimer = WordWrap.Unsigned(
-            projectile.GeneralTimer + projectile.Velocity.X.RawValue);
+        // The timer is still zero from the spawn, so the sum is the velocity's word.
+        projectile.GeneralTimer += projectile.Velocity.X.RawValue;
 
         // Spawn parameters are 2,4,...,18. The last selects the tenth gradient, one past the
         // nine-word table, which the installed service holds; do not clamp the final shot to
@@ -323,10 +323,9 @@ internal sealed class CrocomireCombat
         // Preserve the two word shifts, including negative two's-complement bits. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
-            WordWrap.Signed(Trigonometry.SignedSine(bearing.ReinterpretAsTableAngle()) *
-                CrocomireProjectileDefinitions.VelocityMultiplier),
-            WordWrap.Signed(Trigonometry.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
-                CrocomireProjectileDefinitions.VelocityMultiplier));
+            Trigonometry.SignedSine(bearing.ReinterpretAsTableAngle()) * CrocomireProjectileDefinitions.VelocityMultiplier,
+            Trigonometry.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
+                CrocomireProjectileDefinitions.VelocityMultiplier);
     }
 
     /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
@@ -341,23 +340,22 @@ internal sealed class CrocomireCombat
         int acceleration = piece.Acceleration;
         if (acceleration != maximumAcceleration)
         {
-            acceleration = WordWrap.Unsigned(
-                acceleration + CrocomireSpikeMotion.AccelerationDelta(slot));
+            acceleration += CrocomireSpikeMotion.AccelerationDelta(slot);
             if (acceleration >= maximumAcceleration)
                 acceleration = maximumAcceleration;
         }
         piece.Acceleration = acceleration;
 
         // The acceleration's whole part is added to the 8.8 velocity's fraction: a fraction that passes a whole
-        // pixel raises the whole velocity by one, the whole velocity wraps at its byte, and it is then capped by
-        // this physical slot's maximum with a signed comparison.
-        int accelerated = WordWrap.Unsigned(projectile.Velocity.X.RawValue + UnsignedEightEight.Whole(acceleration));
+        // pixel raises the whole velocity by one, and it is then capped by this physical slot's maximum. The piece
+        // starts at rest and its whole velocity stays at or below its cap of at most six pixels.
+        int accelerated = projectile.Velocity.X.RawValue + UnsignedEightEight.Whole(acceleration);
         int velocityFraction = EightEight.FractionOf(accelerated);
         int velocityWhole = EightEight.WholeOf(accelerated);
         int maximumVelocity = CrocomireSpikeMotion.MaximumVelocity(slot);
-        if (WordWrap.SignedLowByte(velocityWhole - maximumVelocity) >= 0)
+        if (velocityWhole >= maximumVelocity)
             velocityWhole = maximumVelocity;
-        var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: WordWrap.LowByte(velocityWhole), fraction: WordWrap.LowByte(velocityFraction)));
+        var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: velocityWhole, fraction: velocityFraction));
         projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
         // Move X with the same split-byte math. Only the high subposition byte participates;

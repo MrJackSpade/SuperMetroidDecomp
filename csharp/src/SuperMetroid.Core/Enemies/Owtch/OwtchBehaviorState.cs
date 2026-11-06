@@ -13,7 +13,7 @@ public enum OwtchBehaviorState
     MovingRight,
     /// <summary>Stays buried while the underground timer counts down; reaching zero starts rising.</summary>
     Underground,
-    /// <summary>Moves down one pixel per AI update to depth sixteen, then reloads the parameter-selected underground timer.</summary>
+    /// <summary>Moves down one pixel per AI update to depth sixteen, then reloads the placement's underground wait.</summary>
     Sinking,
     /// <summary>Moves up one pixel per AI update until the burial depth reaches zero, then picks a walking direction at random.</summary>
     Rising,

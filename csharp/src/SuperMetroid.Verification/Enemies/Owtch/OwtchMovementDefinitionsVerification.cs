@@ -1,13 +1,14 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Owtch;
-/// <summary>Checks Owtch timer and travel-distance definitions through real initialization.</summary>
+/// <summary>Checks the Owtch travel distances and underground waits the import decodes, and the patrol they give.</summary>
 internal static class OwtchMovementDefinitionsVerification
 {
-    /// <summary>Checks 144 wrapped initial positions while compiled movement-table reads are forbidden.</summary>
+    /// <summary>Checks the decoded tables against the cartridge and 144 wrapped initial positions they give.</summary>
     internal static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
     {
 
@@ -32,8 +33,8 @@ internal static class OwtchMovementDefinitionsVerification
                     initialize(slot);
 
                     OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
-                    int distance = OwtchPatrol.TravelDistance(distanceIndex);
-                    AssertEqual(OwtchPatrol.UndergroundTimer(timerIndex),
+                    int distance = SpawnSettingSelectors.OwtchTravelDistance(distanceIndex);
+                    AssertEqual(SpawnSettingSelectors.OwtchUndergroundWait(timerIndex),
                         state.UndergroundTimer.RawValue,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
                     AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumPosition.X,
@@ -45,34 +46,38 @@ internal static class OwtchMovementDefinitionsVerification
         }
 
         Console.WriteLine(
-            "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass with table reads forbidden.");
+            "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass.");
     }
 
-    /// <summary>Compares eight indexed travel distances with their original cartridge words.</summary>
+    /// <summary>Compares the eight decoded travel distances with their cartridge words; the import rejects a selector past them.</summary>
     private static void VerifyOwtchTravelDistanceAlgorithm(SuperMetroidAddressSpace rom)
     {
-        AssertThrows<InvalidDataException>(() => OwtchPatrol.TravelDistance(8), "Owtch distance upper bound");
-        AssertThrows<InvalidDataException>(() => OwtchPatrol.TravelDistance(byte.MaxValue), "Owtch distance maximum invalid input");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Owtch, PopulationWords.Parameters(0, 8 << 8)),
+            "the import rejects Owtch distance selector eight");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Owtch, PopulationWords.Parameters(0, byte.MaxValue << 8)),
+            "the import rejects the largest Owtch distance selector");
         for (byte index = 0; index < 8; index++)
         {
             int address = OwtchMovementDefinitions.DistanceReferenceAddress + index * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, OwtchPatrol.TravelDistance(index),
-                $"compiled Owtch travel distance {index}");
+            AssertEqual(native, SpawnSettingSelectors.OwtchTravelDistance(index),
+                $"decoded Owtch travel distance {index}");
         }
     }
 
-    /// <summary>Compares six underground timers with their original cartridge words.</summary>
+    /// <summary>Compares the six decoded underground waits with their cartridge words; the import rejects a selector past them.</summary>
     private static void VerifyOwtchUndergroundTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
-        AssertThrows<InvalidDataException>(() => OwtchPatrol.UndergroundTimer(6), "Owtch timer upper bound");
-        AssertThrows<InvalidDataException>(() => OwtchPatrol.UndergroundTimer(byte.MaxValue), "Owtch timer maximum invalid input");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Owtch, PopulationWords.Parameters(6 << 8, 0)),
+            "the import rejects Owtch underground-wait selector six");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Owtch, PopulationWords.Parameters(byte.MaxValue << 8, 0)),
+            "the import rejects the largest Owtch underground-wait selector");
         for (byte index = 0; index < 6; index++)
         {
             int address = OwtchMovementDefinitions.TimerReferenceAddress + index * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, OwtchPatrol.UndergroundTimer(index),
-                $"compiled Owtch underground timer {index}");
+            AssertEqual(native, SpawnSettingSelectors.OwtchUndergroundWait(index),
+                $"decoded Owtch underground wait {index}");
         }
     }
 

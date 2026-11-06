@@ -26,6 +26,38 @@ internal static class SpawnSettingSelectors
     }
 
     /// <summary>
+    /// The pixels an Owtch walks to either side of its spawn position, by selector: sixteen more for each selector.
+    /// Independently reviewed for #1165 against all eight authored words.
+    /// </summary>
+    private static readonly int[] OwtchTravelDistances = [16, 32, 48, 64, 80, 96, 112, 128];
+
+    /// <summary>
+    /// The updates an Owtch stays buried, by selector: thirty-two more for each selector. Independently reviewed for
+    /// #1165 against all six NTSC J/U v1.0 words; the PAL table differs.
+    /// </summary>
+    private static readonly int[] OwtchUndergroundWaits = [32, 64, 96, 128, 160, 192];
+
+    /// <summary>The Owtch travel distance <paramref name="selector"/> selects.</summary>
+    /// <exception cref="InvalidDataException">
+    /// <paramref name="selector"/> is eight or more. The game reads past its eight distances for such a selector, but
+    /// no retail placement selects one: every Owtch placement selects one of the first four.
+    /// </exception>
+    public static int OwtchTravelDistance(int selector) => Selected(OwtchTravelDistances, selector, "Owtch travel distance");
+
+    /// <summary>The selector of the Owtch travel distance <paramref name="distance"/>.</summary>
+    public static int OwtchTravelDistanceSelector(int distance) => Selector(OwtchTravelDistances, distance, "Owtch travel distance");
+
+    /// <summary>The Owtch underground wait <paramref name="selector"/> selects.</summary>
+    /// <exception cref="InvalidDataException">
+    /// <paramref name="selector"/> is six or more. The game reads past its six waits for such a selector, but no retail
+    /// placement selects one: every Owtch placement selects the second, fourth or sixth.
+    /// </exception>
+    public static int OwtchUndergroundWait(int selector) => Selected(OwtchUndergroundWaits, selector, "Owtch underground wait");
+
+    /// <summary>The selector of the Owtch underground wait <paramref name="wait"/>.</summary>
+    public static int OwtchUndergroundWaitSelector(int wait) => Selector(OwtchUndergroundWaits, wait, "Owtch underground wait");
+
+    /// <summary>
     /// The accelerating updates <paramref name="steps"/> selects along the shared quadratic speed curve, which has a
     /// step for each of its rows.
     /// </summary>
@@ -33,4 +65,20 @@ internal static class SpawnSettingSelectors
     public static int QuadraticSteps(int steps) => steps is >= 0 and < EnemyQuadraticSpeedDefinitions.RowCount
         ? steps
         : throw new InvalidDataException($"Quadratic-speed step {steps} is past the {EnemyQuadraticSpeedDefinitions.RowCount} authored rows.");
+
+    /// <summary>The value of <paramref name="table"/> that <paramref name="selector"/> selects.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="selector"/> is past the table.</exception>
+    private static int Selected(int[] table, int selector, string setting) => selector >= 0 && selector < table.Length
+        ? table[selector]
+        : throw new InvalidDataException($"Population words select {setting} {selector}, past its {table.Length} authored values.");
+
+    /// <summary>The selector of <paramref name="value"/> in <paramref name="table"/>.</summary>
+    /// <exception cref="ArgumentException"><paramref name="value"/> is not one of the table's values.</exception>
+    private static int Selector(int[] table, int value, string setting)
+    {
+        int selector = Array.IndexOf(table, value);
+        return selector >= 0
+            ? selector
+            : throw new ArgumentException($"No selector gives {setting} {value}.", nameof(value));
+    }
 }

@@ -39779,6 +39779,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.BossRandomRolls",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/BossRandomRolls.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.BossRoomMutationPlms",
       "kind": "class",
       "scope": "product",
@@ -56974,6 +56987,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.ProjectileLaunchInheritance",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ProjectileLaunchInheritance.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint",
       "kind": "class",
       "scope": "product",
@@ -57479,19 +57505,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.WordWrap",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/WordWrap.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.WrappingCountdown",
@@ -102984,19 +102997,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.LittleEndianWord",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/LittleEndianWord.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Map.AreaMapProjection",
       "kind": "static class",
       "scope": "product",
@@ -119936,6 +119936,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Samus.BlockScanCycle",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/BlockScanCycle.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.CeresRidleyShoveDirection",
       "kind": "enum",
       "scope": "product",
@@ -122582,6 +122595,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Movement.SamusSpeedMagnitude",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SamusSpeedMagnitude.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Movement.SamusStandaloneSpeedRecord",
       "kind": "enum",
       "scope": "product",
@@ -122725,6 +122751,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Movement.SpeedEchoCursor",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SpeedEchoCursor.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SpeedEchoCursorState",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SpeedEchoCursorState.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Movement.SpeedTableEntry",
       "kind": "record struct",
       "scope": "product",
@@ -122752,6 +122804,58 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SquareSlopeColumnHalf",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SquareSlopeColumnHalf.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SquareSlopeQuadrant",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SquareSlopeQuadrant.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SquareSlopeRowHalf",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SquareSlopeRowHalf.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SquareSlopeShape",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SquareSlopeShape.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Movement.SquareSlopes",
@@ -125174,35 +125278,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileImpactAudio.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileInheritanceInspection",
-      "kind": "struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/ProjectileInheritanceInspection.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileInheritanceRecords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceRecords.cs"
       ],
       "partial": "none",
       "disposition": "owner"

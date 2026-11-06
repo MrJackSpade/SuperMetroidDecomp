@@ -68,9 +68,6 @@ public sealed class ProjectileLaunchInheritance
     public void Record(VerticalDirection direction, SignedSixteenSixteen distance) => _distances[Place(direction)] = distance;
 
     /// <summary>The last distance recorded in <paramref name="direction"/>; zero once cleared.</summary>
-    public SignedSixteenSixteen Distance(HorizontalDirection direction) => _distances[Place(direction)];
-
-    /// <summary>The last distance recorded in <paramref name="direction"/>; zero once cleared.</summary>
     public SignedSixteenSixteen Distance(VerticalDirection direction) => _distances[Place(direction)];
 
     /// <summary>Clears the four recorded distances, keeping the camera subspeed.</summary>

@@ -249,7 +249,7 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their 16-bit difference, as the original game compares positions.</summary>
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
-        WordWrap.Signed(value - threshold) >= 0;
+        CoordinateAxis.Difference(value, threshold) >= 0;
 
     /// <summary>How many head instruction lists the phases have requested; a change marks a new request.</summary>
     internal uint HeadAnimationScriptRequestSerial { get; private set; }

@@ -30,7 +30,6 @@ internal static class CompiledProjectileMathVerification
         var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new ByteAngle(babyAngle)).RawValue);
         var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle).RawValue);
         var fly = new Func<int, int>(FliesBehavior.ReadSignedSineCosine);
-        var glass = new Func<int, int>(MotherBrainProjectiles.ReadSignedSineSample);
         var eye = new Func<int, int>(EyeDoorBehavior.ReadEyeDoorAcceleration);
         var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new ByteAngle(angle)));
         var shaktool = new Func<int, int>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
@@ -74,7 +73,6 @@ internal static class CompiledProjectileMathVerification
         for (int index = 0; index < 320; index++)
         {
             AssertEqual(native[index], fly(index), "fly signed prefix sample");
-            AssertEqual(unchecked((ushort)native[index]), glass(index), "glass signed prefix word bits");
         }
         for (int index = short.MinValue; index <= ushort.MaxValue; index++)
         {

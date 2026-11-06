@@ -194,13 +194,16 @@ internal static class MotherBrainNeckKinematics
         new(CalculateSignedComponent(angle, distance),
             CalculateSignedComponent(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue), distance));
 
-    /// <summary>Exact signed multiply/high-word behavior of the sine multiply.</summary>
+    /// <summary>
+    /// Exact signed multiply/high-word behavior of the sine multiply. A joint lies at most 127 pixels from its anchor:
+    /// the neck's distances are 2, 10 and 20.
+    /// </summary>
     internal static int CalculateSignedComponent(
         ByteAngle angle,
         int distance)
     {
         int sine = Trigonometry.SignedSine(angle);
-        int product = sine * WordWrap.SignedLowByte(distance);
+        int product = sine * Ensure.BetweenInclusive(0, sbyte.MaxValue, distance);
         return CoordinateAxis.AsSigned(EightEight.WholeOf(product));
     }
 }

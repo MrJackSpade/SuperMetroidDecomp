@@ -13,7 +13,8 @@ internal static class MotherBrainNeckSineVerification
     {
         for (int angle = byte.MinValue; angle <= byte.MaxValue; angle++)
         {
-            for (int distance = byte.MinValue; distance <= byte.MaxValue; distance++)
+            // Every distance a joint may lie from its anchor, which the game multiplies as a signed byte.
+            for (int distance = 0; distance <= sbyte.MaxValue; distance++)
             {
                 short expected = ReferenceMotherBrainNeckComponent(
                     rom,
@@ -40,7 +41,7 @@ internal static class MotherBrainNeckSineVerification
         }
 
         Console.WriteLine(
-            "Mother Brain neck sine: all 65,536 signed products and 256 complete five-joint geometries match an independent ROM-backed reference without a runtime bus.");
+            "Mother Brain neck sine: all 32,768 signed products and 256 complete five-joint geometries match an independent ROM-backed reference without a runtime bus.");
     }
 
     /// <summary>Builds five neck joints using native body offsets and ROM-backed signed sine products.</summary>

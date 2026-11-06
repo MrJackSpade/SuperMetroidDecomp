@@ -71,8 +71,10 @@ internal static class MotherBrainTurretDefinitionsVerification
             AssertEqual(MotherBrainTurretDefinitions.MinimumFiringCooldown, (int)turretState.FiringWait.RawValue,
                 $"production Mother Brain turret cooldown {parameter}");
 
+            // Every position a turret may face: a turn never leaves its allowed sector.
             foreach (sbyte delta in new sbyte[] { -1, 1 })
-            for (byte current = 0; current < 8; current++)
+            for (byte current = (byte)MotherBrainTurretDefinitions.Ring.PositionOf(definition.FirstAllowedDirection);
+                current <= MotherBrainTurretDefinitions.Ring.PositionOf(definition.LastAllowedDirection); current++)
             {
                 var rotation = new RoomEnemyProjectileSlot(0)
                 {

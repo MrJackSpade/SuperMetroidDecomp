@@ -121,7 +121,7 @@ internal sealed class MotherBrainHead
         // The brain draw samples (never advances) the RNG before reading the brain frame,
         // so the small breath can spawn even on a draw that then shows no brain.
         if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
-            WordWrap.Signed(_room.Random.Read()) >= 0)
+            BossRandomRolls.InLowerHalf(_room.Random.Read()))
             SpawnMotherBrainPurpleBreathSmall(state);
         // The brain draw advances the brain list here, after every enemy's AI, and returns out
         // of the whole draw when the list is not live.
@@ -311,7 +311,7 @@ internal sealed class MotherBrainHead
                 return null;
             }
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
-                SpawnMotherBrainOnionRing(state, unchecked(new ByteAngle(WordWrap.LowByte(state.OnionRingsTargetAngle))));
+                SpawnMotherBrainOnionRing(state, new ByteAngle(state.OnionRingsTargetAngle));
                 return null;
             case MotherBrainHeadCue.SpawnBomb bomb:
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
@@ -417,13 +417,9 @@ internal sealed class MotherBrainHead
             graphics: SpriteGraphics.SharedIn(state.Colours.SpriteShading));
         RoomEnemySlot head = state.Head;
         bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
-
-        // The initializer's 8-bit store writes parameter LOW into the low byte of X
-        // subposition. Every 8.8 motion delta has a zero low byte, so that value naturally
-        // survives fractional motion and becomes the terminal Ridley-afterburn count.
-        bomb.Position = bomb.Position.WithFractionX(WordWrap.LowByte(afterburnCount)).WithFractionY(0);
+        bomb.Position = bomb.Position.WithFractionX(0).WithFractionY(0);
         bomb.Velocity = new(new SignedEightEight(224), new SignedEightEight(256));
-        bomb.State = new MotherBrainBombState(MotherBrainBombBounceSpeed);
+        bomb.State = new MotherBrainBombState(MotherBrainBombBounceSpeed, afterburnCount);
         state.RecordBombSpawned();
     }
 

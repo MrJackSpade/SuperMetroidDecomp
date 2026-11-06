@@ -661,7 +661,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 RainbowAndDeath.RunLiveMotherBrainRainbowBeam(
                     state,
                     MotherBrainAttacks.RequireMotherBrainCombatSamus(samus),
-                    WordWrap.LowByte(state.Body.FrameCounter),
+                    state.Body.FrameCounter,
                     sharedProjectiles);
                 return;
             case MotherBrainBodyFunction.FirstPhase:

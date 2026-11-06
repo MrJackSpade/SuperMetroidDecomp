@@ -811,7 +811,7 @@ public sealed class BabyMetroidCutsceneState
         int xVelocity = Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(xVelocity) - 32);
         Velocity = new(
-            SignedEightEight.FromSignedRaw(WordWrap.Signed(xVelocity < 0 ? -magnitude : magnitude)),
+            SignedEightEight.FromSignedRaw(xVelocity < 0 ? -magnitude : magnitude),
             SignedEightEight.Wrapped(Velocity.Y.RawValue + 2));
     }
 
@@ -1008,7 +1008,7 @@ public sealed class BabyMetroidCutsceneState
         {
             int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 1280);
             Velocity = Velocity.WithY(SignedEightEight.Wrapped(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.Y.RawValue)));
+            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + EightEight.WholeOf(Velocity.Y.SignedRawValue));
             if (CoordinateAxis.Difference(prediction, targetY) < 0)
                 return false;
         }
@@ -1016,7 +1016,7 @@ public sealed class BabyMetroidCutsceneState
         {
             int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -1280);
             Velocity = Velocity.WithY(SignedEightEight.Wrapped(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.Y.RawValue)));
+            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + EightEight.WholeOf(Velocity.Y.SignedRawValue));
             int predictedDifference = CoordinateAxis.Difference(prediction, targetY);
             if (predictedDifference > 0)
                 return false;
@@ -1034,7 +1034,7 @@ public sealed class BabyMetroidCutsceneState
         {
             int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 1280);
             Velocity = Velocity.WithX(SignedEightEight.Wrapped(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.X.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.X.RawValue)));
+            int prediction = CoordinateAxis.Wrap(Position.X.Whole + EightEight.WholeOf(Velocity.X.SignedRawValue));
             if (CoordinateAxis.Difference(prediction, targetX) < 0)
                 return false;
         }
@@ -1044,7 +1044,7 @@ public sealed class BabyMetroidCutsceneState
             // there is no BEQ before BPL.
             int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
             Velocity = Velocity.WithX(SignedEightEight.Wrapped(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.X.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.X.RawValue)));
+            int prediction = CoordinateAxis.Wrap(Position.X.Whole + EightEight.WholeOf(Velocity.X.SignedRawValue));
             int predictedDifference = CoordinateAxis.Difference(prediction, targetX);
             if (predictedDifference > 0)
                 return false;

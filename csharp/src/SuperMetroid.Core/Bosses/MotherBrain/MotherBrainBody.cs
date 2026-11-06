@@ -78,7 +78,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:
-                tube.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                tube.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(shown.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -199,7 +199,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainBodyFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -334,7 +334,7 @@ internal sealed class MotherBrainBody
 
             // Clamps shallow contact UP to four pixels. The resulting words are
             // consumed by Samus movement later in the frame, so overwrite rather than add.
-            samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(WordWrap.Signed(Math.Max(xOverlap, 4)), 4));
+            samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(Math.Max(xOverlap, 4), 4));
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
             samus.KnockbackTimer = WrappingCountdown.Start(5);
             samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;

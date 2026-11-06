@@ -36,7 +36,7 @@ internal sealed class MotherBrainRainbowShadeChannel
     }
 
     /// <summary>Uses the calculated shade for a matching phase, or the exact supplied edit otherwise.</summary>
-    internal int this[int color] => calculated ? WordWrap.LowByte(Calculate(color)) : inputs[color];
+    internal int this[int color] => calculated ? Calculate(color) : inputs[color];
 
     /// <summary>Applies the phase's head ramp, plate and tissue rounding, and shared tail rule.</summary>
     internal int Calculate(int color)

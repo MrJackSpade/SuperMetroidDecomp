@@ -283,7 +283,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         switch (advance)
         {
             case AnimationProgramAdvance<BabyMetroidFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;

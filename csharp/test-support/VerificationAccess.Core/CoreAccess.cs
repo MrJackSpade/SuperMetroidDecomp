@@ -215,7 +215,7 @@ internal static class CoreAccess
     extension(SuperMetroidRuntime runtime)
     {
         /// <summary>Remaining frames of Samus's room-load appearance state.</summary>
-        internal ushort SamusLoadAppearanceFramesRemaining => runtime.Player.LoadAppearanceFramesRemaining.RawValue;
+        internal ushort SamusLoadAppearanceFramesRemaining => checked((ushort)runtime.Player.LoadAppearanceFramesRemaining);
         /// <summary>Whether the room-load appearance timer still owns Samus.</summary>
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }

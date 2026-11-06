@@ -454,7 +454,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                             RoomEnemySystem system = SpawnerSystem(artwork, spawner, shown);
                             OamBuffer reference = DrawReferenceProgramFrameWith(frame.OperandAddress, bus, word(system));
                             OamBuffer drawn = DrawSpawnerFrame(system, frame.OperandAddress, graphics);
-                            AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable) || SharedPictureStandsFor(system, reference),
+                            AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable) || SharedPictureStandsFor(system, reference)
+                                    || ShowsNothingOnItsSheet(system, spawner, graphics, shown, drawn),
                                 $"{spawner}'s frame $86:{frame.OperandAddress:X4} runs without visual ROM reads under {graphics.Owner}: " +
                                 $"records (x, y, tile, attributes) native {OamRecords(reference)}, installed {OamRecords(drawn)}");
                         }
@@ -575,6 +576,16 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             return SheetFrameSources.CharacterDrawCandidates(image).Any(candidate =>
                 SpriteFrameBufferAccess.Assemble([candidate], parkUnused: false).LowTable.SequenceEqual(reference.LowTable));
         }
+
+        // Whether the frame drew nothing because its spawner's sheet names its picture among those that show nothing (#1513):
+        // a frame whose completing pages never write the characters it reads, as Mother Brain's first onion-ring frame,
+        // reads only another family's artwork there, has none of its own and is drawn as nothing, though the cartridge
+        // still writes its records (#1534).
+        static bool ShowsNothingOnItsSheet(RoomEnemySystem enemies, EnemyDefinitionId spawner, SpriteGraphics graphics,
+            EnemyProjectileFrameId frame, OamBuffer drawn) =>
+            drawn.NextByteOffset == 0
+            && (enemies.Room.Session.Sheets ?? throw new InvalidOperationException("Verification draws from the installed enemy sheets."))
+                .SpawnedShowsNothing(SpawnedObjectFixtures.SetDrawing(spawner), graphics.Owner, EnemySheetDefinitions.ProjectileFrameName(frame));
 
         // The used records of an OAM low table, for a failure message.
         static string OamRecords(OamBuffer oam) => string.Join(" ",

@@ -7,6 +7,8 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Map;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause;
@@ -62,9 +64,16 @@ internal static class ScreenTilePicturesVerification
             }
             var room = new FileSelectRoomMapGraphics(explored, shownArea, mapPresentation: maps, sheets: sheets);
             LayeredScene roomScene = room.CaptureRenderSnapshot();
+            // A cell whose picture the room-map sheet holds as showing nothing draws nothing (#1513); every other cell shows
+            // its installed picture.
+            SpriteSheet roomPictures = sheets.Get(SpriteSheetId.RoomMapPictures);
+            ImmutableArray<ShownMapCell> shownCells = room.AreaMap.Cells;
             AssertTrue(roomScene.Layers.Length == 2 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
-                && grid.Cells.Length == AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles && grid.Cells.All(cell => cell is not null),
-                $"{shownArea} room map shows every cell's picture");
+                && grid.Cells.Length == AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles && grid.Cells.Length == shownCells.Length
+                && grid.Cells.Select((cell, index) => roomPictures.ShowsNothing(AreaMapPictures.FrameName(shownCells[index]))
+                    ? cell is null
+                    : cell is { } shown && ReferenceEquals(shown.Picture, roomPictures.Frame(AreaMapPictures.FrameName(shownCells[index])))).All(matches => matches),
+                $"{shownArea} room map shows every cell's picture, and nothing for a cell whose picture shows nothing");
             AssertTrue(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer { Plane.Pictures: [{ } frame] }]
                 && ReferenceEquals(frame.Picture, sheets.Get(SpriteSheetId.RoomMapPictures).Frame(AreaMapPictures.RoomFrameName(shownArea))),
                 $"{shownArea} room map frame shows its picture");

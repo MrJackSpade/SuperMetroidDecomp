@@ -120,7 +120,8 @@ internal sealed record CallRecord(IMethodSymbol Callee, INamedTypeSymbol SiteTyp
 /// The projectile program family it starts, when it starts one (by construction or a typed-start kind); null for a frame or
 /// sprite object named outright.
 /// </param>
-internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add, INamedTypeSymbol? Family);
+/// <param name="Member">The enum member naming it, when an enum member does; null for a family the code constructs.</param>
+internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add, INamedTypeSymbol? Family, IFieldSymbol? Member);
 
 /// <summary>
 /// One reachability walk over Core's call graph, from a behaviour, a projectile program family, or the code outside
@@ -280,6 +281,15 @@ internal sealed class Walk
         {
             if (SpawningCallersOf(named.Unit, sinks, []).Count > 0)
                 continue;
+            // A behaviour's code handing a kind to the helper that allocates and starts the object (the entrance statue's
+            // decorations, the statue particles' cue handler) spawns it where that helper's spawn graphics say, never on the
+            // behaviour's own sheet by default: the statue scene's objects spawn with the shared sheet's graphics (#1534).
+            if (_behaviour is not null && _family is null && named.Member is { } member && HandedSpawns(named.Unit, member) is { Count: > 0 } handed)
+            {
+                foreach (Collected collected in handed)
+                    named.Add(collected);
+                continue;
+            }
             // A behaviour's handler starting a program on an object of a family its code spawns (a touch, shot, frame
             // behaviour or step restarting it) changes an object drawing where that code spawned it: Mother Brain's
             // turrets, onion rings, tubes and drool, spawned with the room's graphics, draw from the shared sheet, never
@@ -299,6 +309,29 @@ internal sealed class Walk
                     named.Add(collected);
             }
         }
+    }
+
+    /// <summary>
+    /// The collections the calls <paramref name="unit"/> hands <paramref name="member"/> to spawn into: each called method
+    /// whose own code spawns, by every sheet its spawn calls name.
+    /// </summary>
+    private List<Collected> HandedSpawns(Unit unit, IFieldSymbol member)
+    {
+        var collections = new List<Collected>();
+        if (!ScanOf(unit).HandedTo.TryGetValue(member, out HashSet<Unit>? callees))
+            return collections;
+        foreach (Unit callee in callees)
+        {
+            UnitScan scan = ScanOf(callee);
+            if (scan.SpawnCalls.Count == 0)
+                continue;
+            foreach (SpawnTarget target in scan.UnitTargets)
+            {
+                if (Collect(callee, target) is { } collected && !collections.Contains(collected))
+                    collections.Add(collected);
+            }
+        }
+        return collections;
     }
 
     /// <summary>
@@ -444,7 +477,7 @@ internal sealed class Walk
                     if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
                     {
                         Of(_helperEvidence, spawner).AddFamily(family, programs);
-                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.AddFamily(family, programs), family));
+                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.AddFamily(family, programs), family, Member: null));
                     }
                     else
                     {
@@ -567,7 +600,7 @@ internal sealed class Walk
         if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
         {
             add(Of(_helperEvidence, unit));
-            _unspawnedNames.Add(new UnspawnedName(unit, add, startedFamily));
+            _unspawnedNames.Add(new UnspawnedName(unit, add, startedFamily, member.OriginalDefinition));
             return;
         }
         foreach (SpawnTarget target in scan.TargetsOf(member))

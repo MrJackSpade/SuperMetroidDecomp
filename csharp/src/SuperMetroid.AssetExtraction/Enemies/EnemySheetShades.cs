@@ -342,8 +342,8 @@ internal sealed class EnemySheetShades
 
     /// <summary>
     /// The shades of the effects <paramref name="enemy"/> shows by recolouring fixed rows, by ink, and by selecting another
-    /// row, which hold wherever its sheets lie: the Chozo statues', the Tourian statue scene's, the drained corpses', the
-    /// Ninja Pirates' gold wall and the Ceres doors'.
+    /// row, which hold wherever its sheets lie: the Chozo statues', the drained corpses', the Ninja Pirates' gold wall and
+    /// the Ceres doors'.
     /// </summary>
     internal SheetShadeSet Fixed(EnemyDefinitionId enemy)
     {
@@ -357,8 +357,6 @@ internal sealed class EnemySheetShades
             inks.Add(SheetShade.Run(ChozoAndTubeShades.LowerNorfairStatue, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
                 Frame(ChozoAndTubeColorDefinitions.ColorCount, colour => chozo.ResolveStatue(ChozoStatuePalette.LowerNorfair, colour))));
         }
-        if (enemy == EnemyDefinitionId.TourianStatue)
-            inks.AddRange(TourianStatueScene());
         if (enemy == EnemyDefinitionId.CorpseSidehopper || DeadTourianPartDefinitions.Parts.ContainsKey(enemy))
         {
             ShitroidColorCatalog shitroid = inputs.Bosses.ShitroidColors ?? throw Missing("drained corpse colours");
@@ -379,11 +377,15 @@ internal sealed class EnemySheetShades
     /// <summary>
     /// The shades of the objects <paramref name="enemy"/> spawns (#1513): the colours the bosses' fights lay over their
     /// objects' rows (Kraid's rocks, Botwoon's, Draygon's and Spore Spawn's sprites, Crocomire's wall and projectiles), and
-    /// the Ridleys' and Mother Brain's sprite colours, which their objects draw in; none for any other enemy.
+    /// the Ridleys' and Mother Brain's sprite colours, which their objects draw in; and the Tourian statue scene's looks, which
+    /// the entrance statue's decorations and sprite statues show on the shared sheet they spawn onto (#1534); none for any
+    /// other enemy.
     /// </summary>
     internal SheetShadeSet SpawnedBy(EnemyDefinitionId enemy)
     {
         IEnumerable<SheetShade> inks = SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses, enemy);
+        if (enemy == EnemyDefinitionId.TourianStatue)
+            inks = inks.Concat(TourianStatueScene());
         if (enemy is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion)
             inks = inks.Concat(RidleySprites());
         if (enemy is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes

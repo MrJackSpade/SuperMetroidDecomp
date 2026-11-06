@@ -1,61 +1,47 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// What each sound library reports back as acknowledged. The game's sound handlers compare it with the request they are
-/// waiting on, so it decides when a handler moves on to its next request (<see cref="SoundAcceptanceClock{TSound}"/>).
+/// waiting on, so it decides when a handler moves on to its next request
+/// (<see cref="SoundAcceptanceClock{TLibrary, TSound}"/>). A library left unlisted, and every library of the default
+/// value, acknowledges nothing.
 /// </summary>
+/// <typeparam name="TLibrary">A sound library.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
 [CompatibilityService("the request each sound library reports back as acknowledged")]
-public readonly struct SoundAcknowledgements<TSound> : IEquatable<SoundAcknowledgements<TSound>>
+public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<SoundAcknowledgements<TLibrary, TSound>>
+    where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
-    /// <summary>
-    /// Each library's acknowledgement, indexed by its zero-based library (library one at zero); null for the default
-    /// value, in which no library acknowledges anything.
-    /// </summary>
-    private readonly SoundAcknowledgement<TSound>[]? byLibrary;
+    /// <summary>Each listed library's acknowledgement.</summary>
+    private readonly SoundLibraryValues<TLibrary, SoundAcknowledgement<TSound>> byLibrary;
 
-    /// <summary>The acknowledgements of libraries one, two and three, in that order.</summary>
-    /// <param name="byLibrary">One acknowledgement per library, library one first.</param>
-    /// <exception cref="ArgumentException"><paramref name="byLibrary"/> does not hold exactly one per library.</exception>
-    public SoundAcknowledgements(params ReadOnlySpan<SoundAcknowledgement<TSound>> byLibrary)
-    {
-        this.byLibrary = Ensure.LengthEqual(byLibrary, SoundClockTiming.LibraryCount).ToArray();
-    }
+    /// <summary>The acknowledgement of each of <paramref name="libraries"/>.</summary>
+    /// <param name="libraries">The libraries, distinct.</param>
+    /// <param name="acknowledgementOf">Each library's acknowledgement, asked once per library in the order of <paramref name="libraries"/>.</param>
+    /// <exception cref="ArgumentException"><paramref name="libraries"/> is default or holds a library twice.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="acknowledgementOf"/> is null.</exception>
+    public SoundAcknowledgements(ImmutableArray<TLibrary> libraries, Func<TLibrary, SoundAcknowledgement<TSound>> acknowledgementOf) =>
+        byLibrary = new SoundLibraryValues<TLibrary, SoundAcknowledgement<TSound>>(libraries, acknowledgementOf);
 
-    /// <summary>Each library acknowledging the given request, or reporting nothing for none; library one first.</summary>
-    /// <param name="byLibrary">One request per library, library one first.</param>
-    /// <exception cref="ArgumentException"><paramref name="byLibrary"/> does not hold exactly one per library.</exception>
-    public static SoundAcknowledgements<TSound> Of(params ReadOnlySpan<TSound?> byLibrary)
-    {
-        _ = Ensure.LengthEqual(byLibrary, SoundClockTiming.LibraryCount);
-        var acknowledgements = new SoundAcknowledgement<TSound>[SoundClockTiming.LibraryCount];
-        for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
-            acknowledgements[library] = SoundAcknowledgement<TSound>.Of(byLibrary[library]);
-        return new SoundAcknowledgements<TSound>(acknowledgements);
-    }
+    /// <summary><paramref name="library"/> acknowledging <paramref name="sound"/>, or nothing for none; every other library acknowledges nothing.</summary>
+    public static SoundAcknowledgements<TLibrary, TSound> Of(TLibrary library, TSound? sound) =>
+        new([library], _ => SoundAcknowledgement<TSound>.Of(sound));
 
-    /// <summary>The acknowledgement of the library at zero-based <paramref name="library"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is outside 0 through 2.</exception>
-    public SoundAcknowledgement<TSound> this[int library] => (uint)library < SoundClockTiming.LibraryCount
-        ? byLibrary is null ? default : byLibrary[library]
-        : throw new ArgumentOutOfRangeException(nameof(library), library, "Sound libraries are indexed 0 through 2.");
+    /// <summary>The acknowledgement of <paramref name="library"/>; nothing for a library left unlisted.</summary>
+    public SoundAcknowledgement<TSound> this[TLibrary library] => byLibrary[library];
+
+    /// <summary>Two acknowledgements are equal when every library acknowledges the same in both.</summary>
+    public bool Equals(SoundAcknowledgements<TLibrary, TSound> other) => byLibrary.Equals(other.byLibrary);
 
     /// <inheritdoc />
-    public bool Equals(SoundAcknowledgements<TSound> other)
-    {
-        for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
-            if (!this[library].Equals(other[library]))
-                return false;
-        return true;
-    }
+    public override bool Equals(object? obj) => obj is SoundAcknowledgements<TLibrary, TSound> other && Equals(other);
 
     /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is SoundAcknowledgements<TSound> other && Equals(other);
+    public override int GetHashCode() => byLibrary.GetHashCode();
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCode.Combine(this[0], this[1], this[2]);
-
-    /// <inheritdoc />
-    public override string ToString() => $"[{this[0]}, {this[1]}, {this[2]}]";
+    public override string ToString() => byLibrary.ToString();
 }

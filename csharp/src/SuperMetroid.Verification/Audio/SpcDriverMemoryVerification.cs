@@ -46,11 +46,12 @@ internal static class SpcDriverMemoryVerification
         AssertEqual(unchecked((sbyte)0xa5), player.Music.ReadFirCoefficient(1), "FIR preset byte 1 through its own view");
         AssertEqual(0xa5, panNext, "pan index 21's next entry aliases FIR preset byte 1");
 
-        // Requests are sounds of their library: a library index outside 0 through 2 is rejected, a sound asks its own
+        // Requests are sounds of their library: a library the clock was not given is rejected, a sound asks its own
         // library for it, none withdraws the library's request, and another library's sound is refused.
-        var clock = new SoundAcceptanceClock<SoundEffectId>();
-        clock.Request(2, Library3Sound.SpeedBooster);
-        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundEffectLibraries.Count, null), "a sound library index is 0 through 2");
+        var clock = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(
+            [SoundEffectLibrary.Library1, SoundEffectLibrary.Library2], SoundEffectLibrary.Library1);
+        clock.Request(SoundEffectLibrary.Library2, Library2Sound.SmallEnergyPickup);
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundEffectLibrary.Library3, null), "a library the clock was not given is rejected");
         AssertEqual(new AudioRequest.RequestSound(Library2Sound.SmallEnergyPickup),
             AudioRequest.ForSound(SoundEffectLibrary.Library2, Library2Sound.SmallEnergyPickup), "a sound requests that sound of its library");
         AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2),

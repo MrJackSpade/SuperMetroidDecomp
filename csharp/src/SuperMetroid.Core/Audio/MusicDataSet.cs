@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// set's clips, and the sound libraries take no requests for the downtime
 /// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> describes (every library's request is withdrawn for
 /// eight sound-handler calls, and the sound acceptance clock drops the requests not yet taken,
-/// <see cref="SoundAcceptanceClock{TSound}.PauseForMusicLoad"/>). Before any is loaded only the shared sounds play,
+/// <see cref="SoundAcceptanceClock{TLibrary, TSound}.PauseForMusicLoad"/>). Before any is loaded only the shared sounds play,
 /// which is represented as no data set (null).
 /// </summary>
 /// <remarks>Values are arbitrary; the import pipeline decodes the game's data set numbering into these names once.</remarks>

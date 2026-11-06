@@ -7,7 +7,7 @@ internal static class SoundEffectLibrariesAccess
     extension(SoundEffectLibraries)
     {
         /// <summary>Validates a raw cartridge library number before it enters typed code.</summary>
-        internal static SoundEffectLibrary FromCartridge(byte value, string source) => value is >= 1 and <= SoundEffectLibraries.Count
+        internal static SoundEffectLibrary FromCartridge(byte value, string source) => value >= 1 && value <= SoundEffectLibraries.Count
             ? SoundEffectLibraries.FromQueueIndex(value - 1)
             : throw new InvalidDataException($"{source} contains sound-effect library {value}, expected one through three.");
     }

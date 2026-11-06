@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// What one sound library reports back to the game's sound handler: nothing, the request it acted on, or, for library
-/// one while new music loads, the load in progress, which matches no request (<see cref="SoundAcceptanceClock{TSound}"/>).
+/// What one sound library reports back to the game's sound handler: nothing, the request it acted on, or, for the
+/// music-load reporter while new music loads, the load in progress, which matches no request
+/// (<see cref="SoundAcceptanceClock{TLibrary, TSound}"/>).
 /// </summary>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
 [CompatibilityService("what one sound library reports back as acknowledged")]
@@ -10,7 +11,7 @@ public readonly record struct SoundAcknowledgement<TSound>
     where TSound : struct, IEquatable<TSound>
 {
 
-    /// <summary>Library one reports new music loading instead of an acknowledgement; it matches no request.</summary>
+    /// <summary>The music-load reporter reports new music loading instead of an acknowledgement; it matches no request.</summary>
     public static SoundAcknowledgement<TSound> MusicLoading { get; } = new() { IsMusicLoading = true };
 
     /// <summary>The library acknowledges <paramref name="sound"/>, or reports nothing for none.</summary>

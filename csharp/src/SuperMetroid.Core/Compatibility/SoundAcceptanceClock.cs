@@ -1,33 +1,44 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// When each sound library accepts the game's sound requests, and which request it reports back as acknowledged. The
-/// original sound program checked the three libraries' requests on its own clock, every 512 of its 32,040-per-second
-/// samples, so a check falls a little earlier in each successive update. A check acts on the request it took at the
-/// previous check, reports that request back as acknowledged, and takes the game's current request; a request replaced
-/// before a check is never seen. The game's sound handlers compare the acknowledgement with the request they are waiting
-/// on, so when a request is accepted changes which sounds play and when handlers move on to the next.
+/// original sound program checked every library's request on its own clock, every 512 of its 32,040-per-second
+/// samples, so a check falls a little earlier in each successive update. A check serves the libraries in a fixed order;
+/// for each it acts on the request it took at the previous check, reports that request back as acknowledged, and takes
+/// the game's current request; a request replaced before a check is never seen. The game's sound handlers compare the
+/// acknowledgement with the request they are waiting on, so when a request is accepted changes which sounds play and
+/// when handlers move on to the next.
 /// </summary>
+/// <typeparam name="TLibrary">A sound library; the clock finds a library by equality and never reads its value.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for; the clock only compares requests.</typeparam>
 /// <remarks>
-/// Created once per game session by its composition root (<c>FrontendSession</c>), which injects it into the session's
+/// Created once per game session by its composition root (<c>FrontendSession</c>), which supplies the game's libraries in
+/// the order each check serves them and names the library that reports a music load, and injects it into the session's
 /// audio advance, so its requests, acknowledgements and request-check phase live as long as the session; an offline clip
 /// renderer owns one of its own. Advanced once per update, after the update's sound requests, by the audio event source
-/// it is injected into; its steps also schedule the sound backend's sequencer. Evidence: the sound program's timer service and request read (<c>$1621</c>),
-/// confirmed against the emulated sound program and the SMV recordings' acknowledgement traces.
+/// it is injected into; its steps also schedule the sound backend's sequencer. Evidence: the sound program's timer
+/// service and request read (<c>$1621</c>), confirmed against the emulated sound program and the SMV recordings'
+/// acknowledgement traces.
 /// </remarks>
 [CompatibilityService("when each sound library accepts a request, and the acknowledgement the game reads back")]
-public sealed class SoundAcceptanceClock<TSound>
+public sealed class SoundAcceptanceClock<TLibrary, TSound>
+    where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
+    /// <summary>The libraries, distinct, in the order each request check serves them; every array below follows it.</summary>
+    private readonly ImmutableArray<TLibrary> libraries;
+    /// <summary>The library that reports a music load in progress instead of an acknowledgement.</summary>
+    private readonly TLibrary musicLoadReporter;
     /// <summary>The game's most recent request to each library; none requests nothing.</summary>
-    private readonly TSound?[] requested = new TSound?[SoundClockTiming.LibraryCount];
+    private readonly TSound?[] requested;
     /// <summary>What each library reports back as acknowledged.</summary>
-    private readonly SoundAcknowledgement<TSound>[] acknowledged = new SoundAcknowledgement<TSound>[SoundClockTiming.LibraryCount];
+    private readonly SoundAcknowledgement<TSound>[] acknowledged;
     /// <summary>The request each library took at its most recent check, which the next check acts on.</summary>
-    private readonly TSound?[] taken = new TSound?[SoundClockTiming.LibraryCount];
+    private readonly TSound?[] taken;
     /// <summary>The request each library acted on at its most recent check, for detecting a change.</summary>
-    private readonly TSound?[] actedOn = new TSound?[SoundClockTiming.LibraryCount];
+    private readonly TSound?[] actedOn;
     /// <summary>
     /// Samples elapsed since the last step, 0 through <see cref="SoundClockTiming.SamplesPerStep"/>; a step that falls
     /// exactly on an update boundary runs at the start of the next update.
@@ -36,21 +47,42 @@ public sealed class SoundAcceptanceClock<TSound>
     /// <summary>The request-check timer: each step adds an eighth of its period and its overflow checks the requests.</summary>
     private SoundRequestCheckTimer checkTimer;
 
-    /// <summary>What each library reports back as acknowledged.</summary>
-    public SoundAcknowledgements<TSound> Acknowledgements => new(acknowledged[0], acknowledged[1], acknowledged[2]);
+    /// <summary>A clock at power-on: no requests, no acknowledgements, and the request-check timer at its start.</summary>
+    /// <param name="libraries">The libraries, distinct, in the order each request check serves them.</param>
+    /// <param name="musicLoadReporter">The library that reports a music load in progress instead of an acknowledgement.</param>
+    /// <exception cref="ArgumentException"><paramref name="libraries"/> is default or holds a library twice.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="musicLoadReporter"/> is not one of <paramref name="libraries"/>.</exception>
+    public SoundAcceptanceClock(ImmutableArray<TLibrary> libraries, TLibrary musicLoadReporter)
+    {
+        if (libraries.IsDefault)
+            throw new ArgumentException("The sound libraries are required.", nameof(libraries));
+        if (libraries.Distinct().Count() != libraries.Length)
+            throw new ArgumentException("Each sound library is listed once.", nameof(libraries));
+        if (!libraries.Contains(musicLoadReporter))
+            throw new ArgumentOutOfRangeException(nameof(musicLoadReporter), musicLoadReporter, "The music-load reporter must be one of the libraries.");
+        this.libraries = libraries;
+        this.musicLoadReporter = musicLoadReporter;
+        requested = new TSound?[libraries.Length];
+        acknowledged = new SoundAcknowledgement<TSound>[libraries.Length];
+        taken = new TSound?[libraries.Length];
+        actedOn = new TSound?[libraries.Length];
+    }
 
-    /// <summary>Records the game's current request to the library at zero-based <paramref name="library"/>; none withdraws it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is outside 0 through <see cref="SoundClockTiming.LibraryCount"/> - 1.</exception>
-    public void Request(int library, TSound? request) =>
-        requested[Ensure.BetweenInclusive(0, SoundClockTiming.LibraryCount - 1, library)] = request;
+    /// <summary>What each library reports back as acknowledged.</summary>
+    public SoundAcknowledgements<TLibrary, TSound> Acknowledgements =>
+        new(libraries, library => acknowledged[PositionOf(library)]);
+
+    /// <summary>Records the game's current request to <paramref name="library"/>; none withdraws it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The clock was not given <paramref name="library"/>.</exception>
+    public void Request(TLibrary library, TSound? request) => requested[PositionOf(library)] = request;
 
     /// <summary>
-    /// Loading new music stops the sound program: library one reports the load in progress instead of an acknowledgement
-    /// and every pending request is dropped. Requests already taken, and the clock's phase, are kept.
+    /// Loading new music stops the sound program: the music-load reporter reports the load in progress instead of an
+    /// acknowledgement and every pending request is dropped. Requests already taken, and the clock's phase, are kept.
     /// </summary>
     public void PauseForMusicLoad()
     {
-        acknowledged[0] = SoundAcknowledgement<TSound>.MusicLoading;
+        acknowledged[PositionOf(musicLoadReporter)] = SoundAcknowledgement<TSound>.MusicLoading;
         Array.Clear(requested);
     }
 
@@ -59,7 +91,7 @@ public sealed class SoundAcceptanceClock<TSound>
     /// <returns>The number of steps written to <paramref name="steps"/>.</returns>
     /// <exception cref="ArgumentException"><paramref name="steps"/> is too short.</exception>
     /// <exception cref="InvalidDataException">The clock holds a phase no update can leave.</exception>
-    public int Advance(Span<SoundClockStep<TSound>> steps)
+    public int Advance(Span<SoundClockStep<TLibrary, TSound>> steps)
     {
         if (steps.Length < SoundClockTiming.MaximumStepsPerUpdate)
             throw new ArgumentException($"The sound clock requires {SoundClockTiming.MaximumStepsPerUpdate} step entries.", nameof(steps));
@@ -84,26 +116,37 @@ public sealed class SoundAcceptanceClock<TSound>
         return count;
     }
 
-    /// <summary>Runs one step at <paramref name="sampleOffset"/>, advancing the check timer and checking every library on its overflow.</summary>
-    private SoundClockStep<TSound> Step(int sampleOffset, int periods)
+    /// <summary>Runs one step at <paramref name="sampleOffset"/>, advancing the check timer and checking every library, in order, on its overflow.</summary>
+    private SoundClockStep<TLibrary, TSound> Step(int sampleOffset, int periods)
     {
         (checkTimer, bool checks) = checkTimer.Advance(periods);
         if (!checks)
-            return new SoundClockStep<TSound>(sampleOffset, periods, ChecksRequests: false, default);
-        SoundRequestChecks<TSound> libraryChecks = default;
-        for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
-            libraryChecks[library] = Check(library);
-        return new SoundClockStep<TSound>(sampleOffset, periods, ChecksRequests: true, libraryChecks);
+            return new SoundClockStep<TLibrary, TSound>(sampleOffset, periods, ChecksRequests: false, default);
+        return new SoundClockStep<TLibrary, TSound>(sampleOffset, periods, ChecksRequests: true,
+            new SoundRequestChecks<TLibrary, TSound>(libraries, Check));
     }
 
     /// <summary>One library's check: it acts on the request taken at the previous check, acknowledges it and takes the current one.</summary>
-    private SoundRequestCheck<TSound> Check(int library)
+    private SoundRequestCheck<TSound> Check(TLibrary library)
     {
-        TSound? previous = actedOn[library];
-        TSound? request = taken[library];
-        actedOn[library] = request;
-        acknowledged[library] = SoundAcknowledgement<TSound>.Of(request);
-        taken[library] = requested[library];
+        int position = PositionOf(library);
+        TSound? previous = actedOn[position];
+        TSound? request = taken[position];
+        actedOn[position] = request;
+        acknowledged[position] = SoundAcknowledgement<TSound>.Of(request);
+        taken[position] = requested[position];
         return new SoundRequestCheck<TSound>(request, Changed: !Nullable.Equals(request, previous));
+    }
+
+    /// <summary>Where the clock keeps <paramref name="library"/>'s state.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The clock was not given <paramref name="library"/>.</exception>
+    private int PositionOf(TLibrary library)
+    {
+        for (int position = 0; position < libraries.Length; position++)
+        {
+            if (EqualityComparer<TLibrary>.Default.Equals(libraries[position], library))
+                return position;
+        }
+        throw new ArgumentOutOfRangeException(nameof(library), library, "The sound clock was not given this library.");
     }
 }

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// One thing the game's music and sound queues ask of the audio layer during an update (#1410): play or stop a music
 /// track, change the music data set, or set what a sound library is asked to play. The session applies an update's
-/// requests in order to its <see cref="SoundAcceptanceClock{TSound}"/> and publishes them as <see cref="AudioEvent"/>s.
+/// requests in order to its <see cref="SoundAcceptanceClock{TLibrary, TSound}"/> and publishes them as <see cref="AudioEvent"/>s.
 /// </summary>
 internal abstract record AudioRequest
 {
@@ -21,7 +21,7 @@ internal abstract record AudioRequest
 
     /// <summary>
     /// Switches the clips the music and sounds play from to <paramref name="DataSet"/>'s. The switch stops the music and
-    /// drops every sound request not yet accepted (<see cref="SoundAcceptanceClock{TSound}.PauseForMusicLoad"/>).
+    /// drops every sound request not yet accepted (<see cref="SoundAcceptanceClock{TLibrary, TSound}.PauseForMusicLoad"/>).
     /// </summary>
     /// <param name="DataSet">The music data set switched to, or null for only the shared sounds, as at power-on.</param>
     internal sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioRequest;

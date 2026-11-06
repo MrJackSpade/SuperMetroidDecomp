@@ -159,7 +159,7 @@ internal sealed class KraidCombat
                 // A Super Missile's leftover changes the next shot's signed compare; rebuilding a clean rectangle here
                 // doubles close-range damage.
                 bounds.LeaveAfterMouthHit(
-                    KraidMouthHitBound.After(shot.Type.Family.TableRow, shot.Type.BeamCombination.TableIndex, MouthHit(shot)),
+                    KraidMouthHitBound.After(MouthFamily(shot.Type.Family), MouthHit(shot)),
                     KraidContactDefinitions.ShotUpperBoundAfterHit);
                 // Every beam takes Kraid's charged-beam multiplier; the other families take their own.
                 int multiplier = type.Family switch
@@ -374,6 +374,20 @@ internal sealed class KraidCombat
         return false;
     
     }
+
+    /// <summary>The family of a projectile that hit the mouth, for the bound it leaves the mouth.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is undefined.</exception>
+    private static KraidMouthHitBound.Family MouthFamily(SamusProjectileFamily family) => family switch
+    {
+        SamusProjectileFamily.Beam => KraidMouthHitBound.Family.Beam,
+        SamusProjectileFamily.Missile => KraidMouthHitBound.Family.Missile,
+        SamusProjectileFamily.SuperMissile => KraidMouthHitBound.Family.SuperMissile,
+        SamusProjectileFamily.PowerBomb => KraidMouthHitBound.Family.PowerBomb,
+        SamusProjectileFamily.Bomb => KraidMouthHitBound.Family.Bomb,
+        SamusProjectileFamily.BeamExplosion => KraidMouthHitBound.Family.BeamExplosion,
+        SamusProjectileFamily.MissileExplosion => KraidMouthHitBound.Family.MissileExplosion,
+        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined projectile family."),
+    };
 
     /// <summary>How <paramref name="shot"/> was delivered, for the bound it leaves the mouth.</summary>
     private static KraidMouthHitBound.Hit MouthHit(KraidBehavior.KraidCollisionShot shot) =>

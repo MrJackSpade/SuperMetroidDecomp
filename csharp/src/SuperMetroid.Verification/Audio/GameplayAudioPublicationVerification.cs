@@ -39,7 +39,7 @@ internal static class GameplayAudioPublicationVerification
         SoundEffectId? acknowledgement = null;
         for (int frame = 0; frame < 128; frame++)
         {
-            foreach (var command in audio.AdvanceFrame(SoundAcknowledgements<SoundEffectId>.Of(null, null, acknowledgement)))
+            foreach (var command in audio.AdvanceFrame(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>.Of(SoundEffectLibrary.Library3, acknowledgement)))
             {
                 bool recognized = false;
                 foreach (SoundEffectId? value in new SoundEffectId?[] { null, Library3Sound.SpeedBooster, Library3Sound.HardLanding, Library3Sound.Landing })

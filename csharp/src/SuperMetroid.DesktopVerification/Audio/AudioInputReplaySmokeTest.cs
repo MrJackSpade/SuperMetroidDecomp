@@ -62,7 +62,7 @@ public static class AudioInputReplaySmokeTest
                 ? recording.InputAt(frameIndex)
                 : ControllerButton.None;
             FrontendFrame frame = game.Step(input);
-            SoundAcknowledgements<SoundEffectId> acknowledgements = game.AudioAcknowledgementsForVerification;
+            SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
 
             RoomHeaderDefinition? activeRoom = game.GameplayActiveRoom;
@@ -83,7 +83,7 @@ public static class AudioInputReplaySmokeTest
             powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
                 started == Library1Sound.UnchargedPowerBeam);
-            powerBeamAcknowledged |= acknowledgements[0].Acknowledges(Library1Sound.UnchargedPowerBeam);
+            powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Library1].Acknowledges(Library1Sound.UnchargedPowerBeam);
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
                 firstDoorBegan = true;

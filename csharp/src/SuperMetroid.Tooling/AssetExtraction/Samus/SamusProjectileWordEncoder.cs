@@ -26,13 +26,27 @@ public static class SamusProjectileWordEncoder
     {
         if (type.IsNone)
             return 0;
-        int word = type.Family.TableRow << FamilyShift;
+        int word = FamilyRow(type.Family) << FamilyShift;
         if (isBombSpread)
             word |= LiveMarker;
         if (hasReactedToTerrain)
             word |= ReactedToTerrainBit;
         return word;
     }
+
+    /// <summary>The row a type word gives <paramref name="family"/>; rows four and six hold no family.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is undefined.</exception>
+    private static int FamilyRow(SamusProjectileFamily family) => family switch
+    {
+        SamusProjectileFamily.Beam => 0,
+        SamusProjectileFamily.Missile => 1,
+        SamusProjectileFamily.SuperMissile => 2,
+        SamusProjectileFamily.PowerBomb => 3,
+        SamusProjectileFamily.Bomb => 5,
+        SamusProjectileFamily.BeamExplosion => 7,
+        SamusProjectileFamily.MissileExplosion => 8,
+        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined projectile family."),
+    };
 
     /// <summary>The direction word of a projectile's direction and spent flag.</summary>
     /// <param name="direction">The projectile's direction.</param>

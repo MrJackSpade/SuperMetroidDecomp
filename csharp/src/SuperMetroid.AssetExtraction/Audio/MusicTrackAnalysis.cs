@@ -79,7 +79,7 @@ internal sealed record MusicTrackAnalysis(
     }
 
     /// <summary>The native sample position of <paramref name="tick"/> in the renderer's current frame.</summary>
-    internal static long NativeSample(SpcAudioClipRenderer renderer, SoundClockStep<byte> tick) =>
+    internal static long NativeSample(SpcAudioClipRenderer renderer, SoundClockStep<SoundEffectLibrary, byte> tick) =>
         (renderer.Frame - 1) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.SampleOffset;
 
     /// <summary>The attached renderer; observers are attached before the first frame.</summary>
@@ -115,7 +115,7 @@ internal sealed record MusicTrackAnalysis(
         internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
         /// <inheritdoc />
-        public void TickStarting(SoundClockStep<byte> tick) =>
+        public void TickStarting(SoundClockStep<SoundEffectLibrary, byte> tick) =>
             tickSample = NativeSample(Required(renderer), tick);
 
         /// <inheritdoc />

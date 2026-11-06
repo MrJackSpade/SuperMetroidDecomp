@@ -22,8 +22,11 @@ came from the hardware is incidental representation or a presentation quirk, and
   one implementation; verification may supply recorded evidence through the same contract.
 - **Value types** (a wrapping countdown) live in the module too and are used directly by the entities that own them.
 - **Lowest module.** Every other module uses the layer (the wrapping counters are everywhere), so the layer depends on
-  no other Core module: a service's contract is written in its own types, and the domain maps onto them (Audio passes
-  a library's zero-based index; `SoundClockTiming.LibraryCount` is the one count of the libraries, which `SoundEffectLibraries.Count` reads for every module above, #1522).
+  no other Core module: a service's contract is written in its own types, and the domain supplies its identities
+  through generic keys. The sound services are generic over the library (`SoundAcceptanceClock<TLibrary, TSound>`):
+  Audio's composition roots pass `SoundEffectLibraries.InQueueOrder`, the order each request check serves the
+  libraries, and the library that reports a music load, and the clock finds a library by equality. The layer declares
+  no library count and never reads an identity's value.
 
 ## What qualifies
 

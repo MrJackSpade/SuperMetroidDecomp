@@ -6,11 +6,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// library reports the withdrawn request accepted, before it requests the next; so the update on which each request is
 /// accepted decides when the next queued sound can start.
 /// </summary>
+/// <typeparam name="TLibrary">A sound library.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
 /// <remarks>
 /// <para>
 /// Consulted once at the start of each update, before the sound handlers run. The game uses
-/// <see cref="ClockedSoundAcceptance{TSound}"/>, the session's <see cref="SoundAcceptanceClock{TSound}"/>, under which a
+/// <see cref="ClockedSoundAcceptance{TLibrary, TSound}"/>, the session's <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, under which a
 /// library accepts a request only at its next request check, so a request can wait one or more updates. Verification
 /// hosts supply other timings: one accepts every request on the update after it is made, isolating the handlers from
 /// the clock, and a movie replay reports, for the updates its recording covers, whether each waiting library moved on.
@@ -21,12 +22,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("on which update each sound library accepts the sound the game requested, as its sound handlers see it")]
-public interface ISoundAcceptanceTiming<TSound>
+public interface ISoundAcceptanceTiming<TLibrary, TSound>
+    where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
     /// <summary>What each library reports as accepted to the next update's sound handlers.</summary>
     /// <param name="clocked">What each library reported as accepted by the session's clock after the previous update.</param>
     /// <param name="requested">The sound each handler last requested from its library, or none.</param>
     /// <returns>What each library reports as accepted to the update.</returns>
-    SoundAcknowledgements<TSound> ForNextUpdate(SoundAcknowledgements<TSound> clocked, SoundAcknowledgements<TSound> requested);
+    SoundAcknowledgements<TLibrary, TSound> ForNextUpdate(SoundAcknowledgements<TLibrary, TSound> clocked, SoundAcknowledgements<TLibrary, TSound> requested);
 }

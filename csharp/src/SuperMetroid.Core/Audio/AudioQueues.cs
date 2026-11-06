@@ -38,8 +38,9 @@ public sealed class AudioQueues
     private readonly SoundEffectId?[] _currentSounds = new SoundEffectId?[SoundEffectLibraries.Count];
 
     /// <summary>The sound each of the three sound dispatchers last asked its library for, as an acknowledgement of it, or none.</summary>
-    internal SoundAcknowledgements<SoundEffectId> SentSoundRequests =>
-        SoundAcknowledgements<SoundEffectId>.Of(_currentSounds[0], _currentSounds[1], _currentSounds[2]);
+    internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> SentSoundRequests =>
+        new(SoundEffectLibraries.InQueueOrder,
+            library => SoundAcknowledgement<SoundEffectId>.Of(_currentSounds[SoundEffectLibraries.ToQueueIndex(library)]));
     /// <summary>Two-frame hold before a recognized sound request is withdrawn from its library.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[SoundEffectLibraries.Count];
@@ -277,7 +278,7 @@ public sealed class AudioQueues
 
     /// <summary>Runs selected audio dispatch owners and returns their requests, which only the session's audio advance consumes.</summary>
     internal IReadOnlyList<AudioRequest> AdvanceFrame(
-        SoundAcknowledgements<SoundEffectId> acknowledgements,
+        SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements,
         bool advanceMusicQueue = true,
         int soundEffectHandlerCalls = 1)
     {
@@ -371,7 +372,7 @@ public sealed class AudioQueues
 
     /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent handshakes.</summary>
     private void HandleSoundEffects(
-        SoundAcknowledgements<SoundEffectId> acknowledgements,
+        SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements,
         List<AudioRequest> requests)
     {
         if (_soundHandlerDowntime != 0)
@@ -391,7 +392,7 @@ public sealed class AudioQueues
         for (int queue = 0; queue < SoundEffectLibraries.Count; queue++)
             HandleSoundEffectQueue(
                 queue,
-                acknowledgements[queue],
+                acknowledgements[SoundEffectLibraries.FromQueueIndex(queue)],
                 requests);
     }
 

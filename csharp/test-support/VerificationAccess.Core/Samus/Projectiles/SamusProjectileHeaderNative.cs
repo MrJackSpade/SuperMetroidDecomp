@@ -82,12 +82,24 @@ internal static class SamusProjectileHeaderNative
         }
         foreach (SamusProjectileFamily family in (SamusProjectileFamily[])[
             SamusProjectileFamily.Missile, SamusProjectileFamily.SuperMissile, SamusProjectileFamily.PowerBomb, SamusProjectileFamily.Bomb])
-            yield return new(NonBeamSelectors + sizeof(ushort) * family.TableRow, SamusProjectileSelection.NonBeam(family));
+            yield return new(NonBeamSelectors + sizeof(ushort) * NonBeamSelectorRow(family), SamusProjectileSelection.NonBeam(family));
         foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
             yield return new(EchoSelectors + sizeof(ushort) * (SamusProjectileType.EchoOf(echo).BeamCombination.TableIndex - EchoSelectorLeadingCombinations),
                 SamusProjectileSelection.Echo(echo));
         yield return new(SuperMissileLinkSelector, SamusProjectileHeader.SuperMissileLink);
     }
+
+    /// <summary>The row of <paramref name="family"/>'s selector in the missile and bomb selector table.</summary>
+    private static int NonBeamSelectorRow(SamusProjectileFamily family) => family switch
+    {
+        SamusProjectileFamily.Missile => 1,
+        SamusProjectileFamily.SuperMissile => 2,
+        SamusProjectileFamily.PowerBomb => 3,
+        SamusProjectileFamily.Bomb => 5,
+        SamusProjectileFamily.Beam or SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion =>
+            throw new ArgumentOutOfRangeException(nameof(family), family, "The family has no missile or bomb selector."),
+        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined projectile family."),
+    };
 
     /// <summary>Header damage by bank-$93 address.</summary>
     extension(SamusProjectileDamage)

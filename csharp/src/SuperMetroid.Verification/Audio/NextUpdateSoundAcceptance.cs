@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Audio;
 /// The handlers' current request for a library is exactly what they last asked that library for: every request,
 /// replacement and withdrawal updates it.
 /// </remarks>
-internal sealed class NextUpdateSoundAcceptance : ISoundAcceptanceTiming<SoundEffectId>
+internal sealed class NextUpdateSoundAcceptance : ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId>
 {
     /// <summary>The stateless timing.</summary>
     internal static NextUpdateSoundAcceptance Instance { get; } = new();
@@ -17,6 +17,6 @@ internal sealed class NextUpdateSoundAcceptance : ISoundAcceptanceTiming<SoundEf
     private NextUpdateSoundAcceptance() { }
 
     /// <summary>Returns the handlers' latest requests as accepted, ignoring the clock.</summary>
-    public SoundAcknowledgements<SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectId> clocked, SoundAcknowledgements<SoundEffectId> requested) =>
+    public SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> clocked, SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> requested) =>
         requested;
 }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Audio;
 internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets)
 {
     /// <summary>The port model producing each update's events and acknowledgements.</summary>
-    private readonly AudioEventSource events = new(new SoundAcceptanceClock<SoundEffectId>());
+    private readonly AudioEventSource events = new(new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1));
 
     /// <summary>The emulated driver rendering the events.</summary>
     private readonly ManagedSpcAudioBackend backend = new(assets);
@@ -19,7 +19,7 @@ internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets
     private readonly short[] lastPcm = new short[AudioSession.PcmSamplesPerFrame];
 
     /// <summary>The acknowledgement bytes the most recent update published.</summary>
-    internal SoundAcknowledgements<SoundEffectId> Acknowledgements => events.Acknowledgements;
+    internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> Acknowledgements => events.Acknowledgements;
 
     /// <summary>The emulated driver the backend plays through.</summary>
     internal ManagedSpcPlayer PlayerForVerification => backend.Player;

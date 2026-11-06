@@ -1,20 +1,13 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The fixed timing of the <see cref="SoundAcceptanceClock{TSound}"/>: how many sound libraries it serves, how many of
-/// the sound program's samples one update holds, and how often the clock steps and checks the requests.
+/// The fixed timing of the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>: how many of the sound program's samples
+/// one update holds, and how often the clock steps and checks the requests.
 /// </summary>
 /// <remarks>Evidence: the sound program's 500-Hz timer and its request read (<c>$1621</c>).</remarks>
 [CompatibilityService("the fixed timing of the clock on which the sound libraries accept requests")]
 public static class SoundClockTiming
 {
-    /// <summary>
-    /// The number of sound libraries, addressed by zero-based index: the one count of them. The clock, the
-    /// acknowledgements and every per-library check are sized by it, and the libraries' own count
-    /// (<c>SoundEffectLibraries.Count</c>) reads it.
-    /// </summary>
-    public const int LibraryCount = 3;
-
     /// <summary>The sound clock's samples in one 60-Hz update: 32,040 / 60.</summary>
     public const int SamplesPerUpdate = 534;
 

@@ -12,7 +12,7 @@ internal sealed record SuperMetroidGameHostServices
     {
         DoorMusicLoadFrames = InstantDoorMusicLoad.Instance,
         RoomLoadProgress = InstantRoomLoad.Instance,
-        SoundAcceptance = ClockedSoundAcceptance<SoundEffectId>.Instance,
+        SoundAcceptance = ClockedSoundAcceptance<SoundEffectLibrary, SoundEffectId>.Instance,
         GameplayFrames = CapturedGameplayFrames.Instance,
     };
 
@@ -23,7 +23,7 @@ internal sealed record SuperMetroidGameHostServices
     public required IRoomLoadProgress RoomLoadProgress { get; init; }
 
     /// <summary>On which update each sound library accepts the sound the game requested.</summary>
-    public required ISoundAcceptanceTiming<SoundEffectId> SoundAcceptance { get; init; }
+    public required ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId> SoundAcceptance { get; init; }
 
     /// <summary>How each gameplay update becomes the published display.</summary>
     public required IGameplayFramePublication GameplayFrames { get; init; }

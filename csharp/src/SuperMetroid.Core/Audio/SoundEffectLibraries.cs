@@ -2,27 +2,29 @@ using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>Checked conversions for raw instruction data and zero-based queue storage.</summary>
+/// <summary>The game's sound-effect libraries in queue order, and the positions of the game's per-library queues.</summary>
 public static class SoundEffectLibraries
 {
-    /// <summary>The number of sound-effect libraries, each with its own request queue.</summary>
-    public const int Count = SoundClockTiming.LibraryCount;
-
-    /// <summary>The libraries in host queue order: queue index N is library N + 1.</summary>
+    /// <summary>
+    /// The libraries in queue order: library one, two, three. Each sound clock request check serves them in this order,
+    /// and each library's sound queue and clip state is kept at its position in it.
+    /// </summary>
     public static ImmutableArray<SoundEffectLibrary> InQueueOrder { get; } =
         [SoundEffectLibrary.Library1, SoundEffectLibrary.Library2, SoundEffectLibrary.Library3];
 
-    /// <summary>The library on zero-based host queue <paramref name="queueIndex"/>.</summary>
-    /// <param name="queueIndex">The host queue index, 0 through 2.</param>
+    /// <summary>The number of sound-effect libraries, each with its own request queue.</summary>
+    public static int Count => InQueueOrder.Length;
+
+    /// <summary>The library whose queue is at zero-based <paramref name="queueIndex"/>.</summary>
+    /// <param name="queueIndex">The queue position, below <see cref="Count"/>.</param>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="queueIndex"/> is not a queue position.</exception>
     public static SoundEffectLibrary FromQueueIndex(int queueIndex) => InQueueOrder[queueIndex];
 
-    /// <summary>Returns the zero-based host queue for a validated library selector.</summary>
-    public static int ToQueueIndex(SoundEffectLibrary library) => library switch
+    /// <summary>The zero-based position of <paramref name="library"/>'s queue.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound-effect library.</exception>
+    public static int ToQueueIndex(SoundEffectLibrary library)
     {
-        SoundEffectLibrary.Library1 => 0,
-        SoundEffectLibrary.Library2 => 1,
-        SoundEffectLibrary.Library3 => 2,
-        _ => throw new ArgumentOutOfRangeException(
-            nameof(library), library, "Unknown sound-effect library."),
-    };
+        int index = InQueueOrder.IndexOf(library);
+        return index >= 0 ? index : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
+    }
 }

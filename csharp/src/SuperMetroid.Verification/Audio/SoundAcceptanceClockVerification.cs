@@ -14,7 +14,7 @@ internal static class SoundAcceptanceClockVerification
     private const int ScenarioFrames = 120;
 
     /// <summary>
-    /// Recorded from the emulated driver before <see cref="SoundAcceptanceClock{TSound}"/> was extracted (#1304 stage 1):
+    /// Recorded from the emulated driver before <see cref="SoundAcceptanceClock{TLibrary, TSound}"/> was extracted (#1304 stage 1):
     /// SHA-256 of the scenario's four acknowledgement bytes per update.
     /// </summary>
     private const string EmulatedAcknowledgementsSha256 =
@@ -40,12 +40,12 @@ internal static class SoundAcceptanceClockVerification
     {
         var session = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var rendered = new AudioQueues();
-        SoundAcceptanceClock<SoundEffectId> ports = new SoundAcceptanceClock<SoundEffectId>();
+        SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> ports = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1);
         var modeled = new AudioQueues();
         var acknowledgementBytes = new List<byte>();
         using var pcm = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var samples = new short[AudioSession.PcmSamplesPerFrame];
-        SoundAcknowledgements<SoundEffectId> modeledAcknowledgements = default;
+        SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> modeledAcknowledgements = default;
         var starts = new List<StartValue>();
         int uploadFrame = -1, trackFrame = -1, downtimeRequestFrame = -1;
         for (int frame = 0; frame < ScenarioFrames; frame++)
@@ -68,10 +68,10 @@ internal static class SoundAcceptanceClockVerification
             IReadOnlyList<AudioEvent> events = session.Advance(commands);
             session.CopyFrame(samples);
             pcm.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));
-            SoundAcknowledgements<SoundEffectId> sessionAcknowledgements = session.Acknowledgements;
+            SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> sessionAcknowledgements = session.Acknowledgements;
             // Port zero is the sequencer's music echo, which gameplay never reads; the recording took it from the driver.
             acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.Music.musicPortToSnes));
-            for (int library = 0; library < SoundEffectLibraries.Count; library++)
+            foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
                 acknowledgementBytes.Add(SoundEffectPortBytes.PortByte(sessionAcknowledgements[library]));
 
             List<AudioEvent> expected = ExpectedEvents(ports, commands, out modeledAcknowledgements);
@@ -116,8 +116,8 @@ internal static class SoundAcceptanceClockVerification
     /// nonzero latched command). Port zero's music echo belongs to the sequencer, which this path
     /// does not run; the dispatcher reads only the three sound-effect ports.
     /// </summary>
-    private static List<AudioEvent> ExpectedEvents(SoundAcceptanceClock<SoundEffectId> ports,
-        IReadOnlyList<AudioRequest> commands, out SoundAcknowledgements<SoundEffectId> acknowledgements)
+    private static List<AudioEvent> ExpectedEvents(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> ports,
+        IReadOnlyList<AudioRequest> commands, out SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements)
     {
         var expected = new List<AudioEvent>();
         foreach (AudioRequest command in commands)
@@ -135,23 +135,23 @@ internal static class SoundAcceptanceClockVerification
                     expected.Add(new AudioEvent.SelectMusicTrack(null));
                     break;
                 case AudioRequest.RequestSound sound:
-                    ports.Request(SoundEffectLibraries.ToQueueIndex(sound.Sound.Library), sound.Sound);
+                    ports.Request(sound.Sound.Library, sound.Sound);
                     break;
                 case AudioRequest.ClearSoundRequest clear:
-                    ports.Request(SoundEffectLibraries.ToQueueIndex(clear.Library), null);
+                    ports.Request(clear.Library, null);
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown audio request {command}.");
             }
         }
-        Span<SoundClockStep<SoundEffectId>> schedule = stackalloc SoundClockStep<SoundEffectId>[SoundClockTiming.MaximumStepsPerUpdate];
+        var schedule = new SoundClockStep<SoundEffectLibrary, SoundEffectId>[SoundClockTiming.MaximumStepsPerUpdate];
         int ticks = ports.Advance(schedule);
-        foreach (SoundClockStep<SoundEffectId> tick in schedule[..ticks])
+        foreach (SoundClockStep<SoundEffectLibrary, SoundEffectId> tick in schedule.AsSpan(0, ticks))
         {
             expected.Add(new AudioEvent.ClockStep(tick.SampleOffset, tick.Steps, tick.ChecksRequests));
             if (!tick.ChecksRequests)
                 continue;
-            for (int library = 0; library < SoundEffectLibraries.Count; library++)
+            foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
             {
                 SoundRequestCheck<SoundEffectId> poll = tick.Checks[library];
                 if (poll.Changed && poll.Request is SoundEffectId started)

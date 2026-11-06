@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -9,10 +10,13 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// library's logical end, its key-ons and each allocated channel's first repeated state.
 /// Positions are native stereo frames from the accepting poll.
 /// </summary>
-/// <param name="libraryIndex">The library's zero-based queue index.</param>
+/// <param name="soundLibrary">The library the sound belongs to.</param>
 /// <param name="command">The request byte.</param>
-internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcDriverObserver
+internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
 {
+    /// <summary>Where the emulated driver keeps the library's state: its queue position.</summary>
+    private readonly int libraryIndex = SoundEffectLibraries.ToQueueIndex(soundLibrary);
+
     /// <summary>Most channels any library allocates (library 1).</summary>
     private const int MaximumChannels = 4;
 
@@ -64,11 +68,11 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
     internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
     /// <inheritdoc />
-    public void TickStarting(SoundClockStep<byte> tick)
+    public void TickStarting(SoundClockStep<SoundEffectLibrary, byte> tick)
     {
         tickSample = MusicTrackAnalysis.NativeSample(MusicTrackAnalysis.Required(renderer), tick);
         polled = tick.ChecksRequests;
-        SoundRequestCheck<byte> poll = tick.Checks[libraryIndex];
+        SoundRequestCheck<byte> poll = tick.Checks[soundLibrary];
         requested = polled && poll.Changed && poll.Request == command;
     }
 

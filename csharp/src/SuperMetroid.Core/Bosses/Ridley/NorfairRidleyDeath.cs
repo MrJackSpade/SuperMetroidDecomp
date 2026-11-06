@@ -51,7 +51,7 @@ internal sealed class NorfairRidleyDeath
         if (state.FightMode != RidleyFightMode.Dying)
         {
             SamusMovementType movement = samus is null ? SamusMovementType.Standing : SamusPoseMetadata.ReadMovementType(samus);
-            state.IntangibilityTimer = WrappingCountdown.FromRaw(RidleyGrabs.ReleaseIntangibilityFrames(movement));
+            state.IntangibilityTimer = RidleyGrabs.ReleaseIntangibilityFrames(movement);
         }
     }
 
@@ -83,10 +83,10 @@ internal sealed class NorfairRidleyDeath
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidDefinitions.DrainedHeight,
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
-        state.DeathExplosionTimer = WrappingCountdown.Start(0);
+        state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
         state.Function = RidleyAiFunction.NorfairDeathFall;
-        state.FunctionTimer = WrappingCountdown.Start(160);
+        state.FunctionTimer = 160;
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
 
@@ -123,7 +123,7 @@ internal sealed class NorfairRidleyDeath
         state.MovementAnimationEnabled = false;
         body.Properties = body.Properties.With(EnemyProperties.Invisible);
         state.Function = RidleyAiFunction.NorfairDeathWait;
-        state.FunctionTimer = WrappingCountdown.Start(32);
+        state.FunctionTimer = 32;
     }
 
     /// <summary>The breakup's deliberate 32-frame pre-wait before the final 256 frames.</summary>
@@ -132,7 +132,7 @@ internal sealed class NorfairRidleyDeath
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
             return;
         state.Function = RidleyAiFunction.NorfairDeathFinish;
-        state.FunctionTimer = WrappingCountdown.Start(256);
+        state.FunctionTimer = 256;
     }
 
     /// <summary>
@@ -170,13 +170,13 @@ internal sealed class NorfairRidleyDeath
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        if (!state.DeathExplosionTimer.IsZero)
+        if (state.DeathExplosionTimer != 0)
         {
-            state.DeathExplosionTimer = state.DeathExplosionTimer.Decrement().Remaining;
+            state.DeathExplosionTimer--;
             return;
         }
 
-        state.DeathExplosionTimer = WrappingCountdown.Start(4);
+        state.DeathExplosionTimer = 4;
         state.DeathExplosionCount++;
         if (state.DeathExplosionCount >= 10)
             state.DeathExplosionCount = 0;
@@ -236,7 +236,7 @@ internal sealed class NorfairRidleyDeath
             RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random) * RidleyExplosionDefinitions.WholePixelSpeed;
         var fragmentState = new RidleyExplosionFragmentState
         {
-            Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(part).Lifetime),
+            Lifetime = RidleyExplosionDefinitions.GetPart(part).Lifetime,
             Velocity = new(SignedEightEight.FromSignedRaw(BossRandomRolls.InLowerHalf(random)
                 ? horizontalMagnitude
                 : -horizontalMagnitude), default),
@@ -287,9 +287,7 @@ internal sealed class NorfairRidleyDeath
         fragmentState.Velocity = velocity;
         fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 
-        CountdownStep lifetime = fragmentState.Lifetime.Decrement();
-        fragmentState.Lifetime = lifetime.Remaining;
-        if (lifetime.IsNonNegative)
+        if (--fragmentState.Lifetime >= 0)
             return;
 
         // The breakup actor calls EnemyDeathAnimation(0): clear the slot immediately and

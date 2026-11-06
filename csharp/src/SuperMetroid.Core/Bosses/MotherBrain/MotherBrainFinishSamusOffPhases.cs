@@ -103,7 +103,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (stoodUp)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire;
-            _state.FunctionTimer = WrappingCountdown.Start(16);
+            _state.FunctionTimer = 16;
             return true;
         }
         return false;
@@ -117,12 +117,11 @@ internal sealed class MotherBrainFinishSamusOffPhases
     {
         // Stand-up falls through here, so the freshly written `$10` becomes `$0F`
         // on the same AI call. BPL accepts zero and expires only after underflow.
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.StretchingPhase2);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam;
-            _state.FunctionTimer = WrappingCountdown.Start(256);
+            _state.FunctionTimer = 256;
         }
         return false;
     }
@@ -133,8 +132,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.ChargingRainbowBeam);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles;
@@ -159,7 +157,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.BabyMetroidSpawned = true;
             requests.BabySpawnRequested = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam;
-            _state.FunctionTimer = WrappingCountdown.Start(256);
+            _state.FunctionTimer = 256;
         }
         return false;
     }
@@ -170,8 +168,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
             _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;

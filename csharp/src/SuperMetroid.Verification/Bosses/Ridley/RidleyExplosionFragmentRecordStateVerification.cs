@@ -15,11 +15,11 @@ internal static class RidleyExplosionFragmentRecordStateVerification
         var state = new RidleyExplosionFragmentState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Velocity = new(new SignedEightEight(0x0130), new SignedEightEight(4));
-        state.Lifetime = WrappingCountdown.Start(72);
+        state.Lifetime = 72;
 
         slot.Clear();
         AssertEqual(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties the velocity");
-        AssertEqual(WrappingCountdown.Start(0), state.Lifetime, "a kill empties the lifetime");
+        AssertEqual(0, state.Lifetime, "a kill empties the lifetime");
         Console.WriteLine("Ridley explosion fragment record state: a kill empties every value the record holds.");
     }
 

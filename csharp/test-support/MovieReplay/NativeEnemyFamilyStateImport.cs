@@ -82,7 +82,7 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge gives each record word a meaning per part (#1476); the part's identity says which.
             if (slot.DefinitionId == EnemyDefinitionId.PhantoonEye)
             {
-                phantoonPartRecord.ClosedTimer = WrappingCountdown.FromRaw(words.A);
+                phantoonPartRecord.ClosedTimer = CoordinateAxis.AsSigned(words.A);
                 phantoonPartRecord.ShotMarker = words.B;
                 phantoonPartRecord.FigureEightReversed = words.C != 0;
                 phantoonPartRecord.DyingFadeCycles = words.C;
@@ -103,7 +103,7 @@ internal static class NativeEnemyFamilyStateImport
             else if (slot.DefinitionId == EnemyDefinitionId.PhantoonMouth)
             {
                 phantoonPartRecord.CasualFlamePattern = words.A;
-                phantoonPartRecord.CasualFlameHold = WrappingCountdown.FromRaw(words.B);
+                phantoonPartRecord.CasualFlameHold = CoordinateAxis.AsSigned(words.B);
                 phantoonPartRecord.CasualFlameCount = unchecked((short)words.C);
                 phantoonPartRecord.WaveAmplitude = words.D;
                 phantoonPartRecord.WaveAmplitudeShrinking = words.E != 0;
@@ -117,7 +117,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoonPartRecord.StartingFlamesActive = words.B != 0;
                 phantoonPartRecord.FigureEightSpeed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
                 phantoonPartRecord.SpeedPhase = words.D;
-                phantoonPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
+                phantoonPartRecord.FunctionTimer = CoordinateAxis.AsSigned(words.E);
                 if (words.F != 0)
                     phantoonPartRecord.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
             }
@@ -128,14 +128,14 @@ internal static class NativeEnemyFamilyStateImport
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part reads only its own, so each is imported from the words.
             kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
-            kraidPartRecord.HeadTimer = WrappingCountdown.FromRaw(words.C);
+            kraidPartRecord.HeadTimer = words.C;
             kraidPartRecord.LintXOffset = CoordinateAxis.AsSigned(words.C);
             kraidPartRecord.LintTravel = words.B;
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
             if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
                 kraidPartRecord.CeilingRock = words.F / sizeof(ushort);
             else
-                kraidPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.F);
+                kraidPartRecord.FunctionTimer = words.F;
         }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {
@@ -174,13 +174,13 @@ internal static class NativeEnemyFamilyStateImport
             fallingTubeRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.MotherBrainTubeFunctions.Decode(words.A, "recorded MotherBrainTubeFunction");
             fallingTubeRecord.FloorY = words.B;
             fallingTubeRecord.FallSpeed = new SignedEightEight(words.C);
-            fallingTubeRecord.SmokeDelay = WrappingCountdown.FromRaw(words.D);
+            fallingTubeRecord.SmokeDelay = CoordinateAxis.AsSigned(words.D);
             fallingTubeRecord.SmokePositionIndex = words.E;
         }
         if (slot.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
         {
             ridleyFragmentRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            ridleyFragmentRecord.Lifetime = WrappingCountdown.FromRaw(words.F);
+            ridleyFragmentRecord.Lifetime = CoordinateAxis.AsSigned(words.F);
         }
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
@@ -191,7 +191,7 @@ internal static class NativeEnemyFamilyStateImport
                     draygonRecord.IntroFrames = words.B;
                     break;
                 case DraygonNativeWords.SharedValue.BurialWait:
-                    draygonRecord.BurialWait = WrappingCountdown.FromRaw(words.B);
+                    draygonRecord.BurialWait = words.B;
                     break;
                 case DraygonNativeWords.SharedValue.SwoopEntry:
                     draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
@@ -239,7 +239,7 @@ internal static class NativeEnemyFamilyStateImport
             shitroidRecord.PalettePhase = LittleEndianBytes.LowByte(words.D);
             shitroidRecord.PaletteTimer = LittleEndianBytes.HighByte(words.D);
             shitroidRecord.PaletteDelay = words.E;
-            shitroidRecord.StateTimer = WrappingCountdown.FromRaw(words.F);
+            shitroidRecord.StateTimer = CoordinateAxis.AsSigned(words.F);
         }
         if (slot.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
@@ -422,8 +422,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             fakeKraidRecord.WalkDelta = unchecked((short)words.B);
             fakeKraidRecord.FacingDelta = unchecked((short)words.C);
-            fakeKraidRecord.WalkStepTimer = WrappingCountdown.FromRaw(words.D);
-            fakeKraidRecord.SpitDecisionTimer = WrappingCountdown.FromRaw(words.E);
+            fakeKraidRecord.WalkStepTimer = words.D;
+            fakeKraidRecord.SpitDecisionTimer = words.E;
         }
         if (slot.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
@@ -477,7 +477,7 @@ internal static class NativeEnemyFamilyStateImport
             rinkaRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.RinkaEnemyFunctions.Decode(words.A, "recorded RinkaEnemyFunction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             rinkaRecord.SpawnResourceToken = words.D;
-            rinkaRecord.DelayTimer = WrappingCountdown.FromRaw(words.F);
+            rinkaRecord.DelayTimer = CoordinateAxis.AsSigned(words.F);
         }
         if (slot.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {

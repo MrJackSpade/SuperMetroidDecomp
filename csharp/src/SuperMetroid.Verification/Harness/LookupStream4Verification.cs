@@ -1399,9 +1399,9 @@ internal static class LookupStream4Verification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = WrappingCountdown.Start(99) };
+            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = 99 };
             release(state, samus);
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer.RawValue, "Actual release preserves native movement-dependent intangibility");
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
             AssertEqual(1, state.TailWhipRequest, "Actual release requests tail whip");
             AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Actual release resets tail controller");
@@ -1409,7 +1409,7 @@ internal static class LookupStream4Verification
         AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
         var absentState = new RidleyEnemyState();
         release(absentState, null);
-        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer.RawValue, "Missing Samus retains standing release fallback");
+        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
     }
 
     /// <summary>Checks Ridley tail angle selection data against native table values.</summary>
@@ -2203,14 +2203,14 @@ internal static class LookupStream4Verification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
-                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = WrappingCountdown.Start(0);
+                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = 0;
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
                     tick(slot, state);
                     ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                     int row = Math.Min(call / 3, 14);
-                    AssertEqual((ushort)(2 - call % 3), state.FunctionTimer.RawValue, "Actual three-call producer cadence preserved");
+                    AssertEqual(2 - call % 3, state.FunctionTimer, "Actual three-call producer cadence preserved");
                     AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadeStep, "Actual row and zero terminator progression");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
@@ -2220,7 +2220,7 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
                 AssertEqual(RidleyLiquidDefinitions.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
-                AssertEqual((ushort)8, state.WingAnimationTimer.RawValue, "Native wing timer handoff");
+                AssertEqual(8, state.WingAnimationTimer, "Native wing timer handoff");
                 AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
             }
         }
@@ -2455,7 +2455,7 @@ internal static class LookupStream4Verification
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.RawValue, "Actual breakup preserves each unresolved native lifetime");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime, "Actual breakup preserves each unresolved native lifetime");
             }
             spawn(state);
             AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");

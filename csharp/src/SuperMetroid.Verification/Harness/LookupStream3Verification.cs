@@ -1155,7 +1155,7 @@ internal static class LookupStream3Verification
             scatter.State.Body.Position = new(320, 192);
             for (int burst = 0; burst < 8; burst++)
             {
-                scatter.ThirdPhaseDeath.DeathExplosionIntervalTimer = WrappingCountdown.Start(0);
+                scatter.ThirdPhaseDeath.DeathExplosionIntervalTimer = 0;
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
@@ -1167,7 +1167,7 @@ internal static class LookupStream3Verification
                 {
                     short x = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 16 * group + 4 * item));
                     short y = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
-                    AssertEqual((ushort)group, scatter.ThirdPhaseDeath.DeathAndEscapeExplosionIndex.RawValue, "stream 3 death scatter reverse group order");
+                    AssertEqual(group, scatter.ThirdPhaseDeath.DeathAndEscapeExplosionIndex, "stream 3 death scatter reverse group order");
                     AssertEqual(new OctantVector(x, y), new OctantVector(requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
                     AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
@@ -1213,7 +1213,7 @@ internal static class LookupStream3Verification
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
             sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalking.AnimationDelay(Math.Min(stage, 7));
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * Math.Min(stage, 7)), sequence.DrainedByBaby.PainfulWalkingFunctionTimer.RawValue,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * Math.Min(stage, 7)), sequence.DrainedByBaby.PainfulWalkingFunctionTimer,
                 "stream 3 real stagger timer clamps terminal stages");
         }
     }

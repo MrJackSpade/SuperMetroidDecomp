@@ -98,10 +98,9 @@ internal sealed class CrocomireBodyLayer
     internal void SpawnCrocomireAcidSmoke(CrocomireEnemyState state, SamusState? samus)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        death.AcidSmokeTimer = death.AcidSmokeTimer.Decrement().Remaining;
-        if (!death.AcidSmokeTimer.IsZero)
+        if (--death.AcidSmokeTimer != 0)
             return;
-        death.AcidSmokeTimer = WrappingCountdown.Start(6);
+        death.AcidSmokeTimer = 6;
 
         int random = _access.ReadCrocomireRandom();
         // The offset is complemented, not negated, when bit one is clear; the smoke's X keeps

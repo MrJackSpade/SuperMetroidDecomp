@@ -62,7 +62,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             Tick(installed, installedSlot, installedState);
             AssertEqual(nativeState.FadeStep, installedState.FadeStep,
                 $"Norfair Ridley reveal call {call} row/terminator position");
-            AssertEqual(nativeState.FunctionTimer.RawValue, installedState.FunctionTimer.RawValue,
+            AssertEqual(nativeState.FunctionTimer, installedState.FunctionTimer,
                 $"Norfair Ridley reveal call {call} three-call cadence");
             AssertEqual(nativeState.Function, installedState.Function,
                 $"Norfair Ridley reveal call {call} terminal function");
@@ -113,10 +113,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         // Applies one native reveal update, including the three-call timer and terminating pointer.
         void TickReference(SnesCgram cgram, RidleyEnemyState state)
         {
-            state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-            if (!state.FunctionTimer.IsNegative)
+            if (--state.FunctionTimer >= 0)
                 return;
-            state.FunctionTimer = WrappingCountdown.Start(2);
+            state.FunctionTimer = 2;
             ushort pointer = ReadReferenceWord(0xa6a4eb + state.FadeStep * 2);
             state.FadeStep++;
             if (pointer != 0)
@@ -145,7 +144,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.Function = RidleyAiFunction.WaitBeforeLiftoff;
-            state.FunctionTimer = WrappingCountdown.Start(0);
+            state.FunctionTimer = 0;
             return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, slot, state);
         }
 

@@ -28,7 +28,7 @@ public sealed class KraidPartState
     public KraidAiFunction NextFunction { get; internal set; }
 
     /// <summary>Gets the second-phase foot's think timer, which expires when its decrement reaches zero.</summary>
-    public WrappingCountdown ThinkTimer { get; internal set; }
+    public int ThinkTimer { get; internal set; }
 
     /// <summary>
     /// Gets whether this fingernail's last launch was the fixed-left spawn rather than the body-side one. A nail
@@ -43,7 +43,7 @@ public sealed class KraidPartState
     public KraidAiFunction Function { get; internal set; }
 
     /// <summary>The updates before the part's function timer installs <see cref="NextFunction"/>.</summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    public int FunctionTimer { get; internal set; }
 
     /// <summary>
     /// The body's next growth ceiling rock, one of <see cref="KraidCeilingRocks.Count"/> rocks; equal to the count once
@@ -56,10 +56,10 @@ public sealed class KraidPartState
     }
 
     /// <summary>The updates left in the body's current rising-rock phase; a rock falls at each multiple of its cadence.</summary>
-    public WrappingCountdown RisingRockTimer { get; internal set; }
+    public int RisingRockTimer { get; internal set; }
 
     /// <summary>The body's head-instruction timer.</summary>
-    public WrappingCountdown HeadTimer { get; internal set; }
+    public int HeadTimer { get; internal set; }
 
     /// <summary>A lint's X offset from the body in pixels: zero, or sixteen to the left.</summary>
     public int LintXOffset
@@ -83,10 +83,10 @@ public sealed class KraidPartState
     internal void ClearWithRecord()
     {
         Function = KraidAiFunction.None;
-        FunctionTimer = WrappingCountdown.Start(0);
+        FunctionTimer = 0;
         CeilingRock = 0;
-        RisingRockTimer = WrappingCountdown.Start(0);
-        HeadTimer = WrappingCountdown.Start(0);
+        RisingRockTimer = 0;
+        HeadTimer = 0;
         LintXOffset = 0;
         LintTravel = 0;
         NailVelocity = default;

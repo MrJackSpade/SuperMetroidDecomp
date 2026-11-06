@@ -59,7 +59,7 @@ internal static class CrocomirePresentation1193Verification
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
             boss.RumbleStep = 1;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
-            death.RumbleCooldown = WrappingCountdown.Start(10);
+            death.RumbleCooldown = 10;
             death.RumbleDelta = 1;
         }
         int[] sources = [0x879d84, 0x879e04, 0x879e84, 0x879e04, 0x879d84];

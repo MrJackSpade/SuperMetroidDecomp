@@ -359,9 +359,7 @@ internal sealed class MotherBrainProjectiles
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime expires when it passes zero.
         MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
-        CountdownStep lifetime = fragmentState.Lifetime.Decrement();
-        fragmentState.Lifetime = lifetime.Remaining;
-        if (lifetime.IsNonNegative) return;
+        if (--fragmentState.Lifetime >= 0) return;
         Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
         fragment.Clear();
         _projectiles.SpawnRoomGraphicsDustExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
@@ -725,11 +723,9 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        // Each wait is a DEC, BEQ countdown that is reloaded when it reaches zero.
+        // Each wait counts down and is reloaded when it reaches zero.
         MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
-        CountdownStep rotationWait = turretState.RotationWait.Decrement();
-        turretState.RotationWait = rotationWait.Remaining;
-        if (rotationWait.IsZero)
+        if (--turretState.RotationWait == 0)
         {
             ResetMotherBrainTurretRotationTimer(turret);
             SelectNextMotherBrainTurretDirection(turret);
@@ -738,9 +734,7 @@ internal sealed class MotherBrainProjectiles
             turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
         }
 
-        CountdownStep firingWait = turretState.FiringWait.Decrement();
-        turretState.FiringWait = firingWait.Remaining;
-        if (firingWait.IsZero)
+        if (--turretState.FiringWait == 0)
         {
             ResetMotherBrainTurretCooldown(turret);
             SpawnMotherBrainTurretBullet(turret);
@@ -775,14 +769,14 @@ internal sealed class MotherBrainProjectiles
     internal void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
         int sample = SharedRandomState.LowerByte(_room.Random.Generate());
-        turret.StateOf<MotherBrainTurretState>().RotationWait = WrappingCountdown.Start(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay));
+        turret.StateOf<MotherBrainTurretState>().RotationWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay);
     }
 
     /// <summary>Restarts the turret's pause between fired bullets.</summary>
     internal void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
         int sample = SharedRandomState.LowerByte(_room.Random.Generate());
-        turret.StateOf<MotherBrainTurretState>().FiringWait = WrappingCountdown.Start(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown));
+        turret.StateOf<MotherBrainTurretState>().FiringWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown);
     }
 
     /// <summary>Ports the asymmetric viewport bounds.</summary>

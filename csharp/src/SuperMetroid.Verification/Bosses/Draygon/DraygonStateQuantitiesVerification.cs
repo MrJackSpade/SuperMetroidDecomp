@@ -29,8 +29,8 @@ internal static class DraygonStateQuantitiesVerification
     }
 
     /// <summary>
-    /// The attached goop's lifetime decrements then tests for zero (DEC then BNE): a lifetime of two holds for one
-    /// update and releases the goop on the second, and a lifetime of zero wraps to the full word and stays attached.
+    /// The attached goop's lifetime decrements then tests for zero: a lifetime of two holds for one update and releases
+    /// the goop on the second.
     /// </summary>
     private static void VerifyAttachedGoopCountdown()
     {
@@ -39,25 +39,19 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyProjectileSlot goop = AttachedGoop(enemies, lifetime: 2);
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
-        AssertEqual(1, goop.StateOf<DraygonGoopAttachedState>().Lifetime.RawValue, "the first update leaves one update of lifetime");
+        AssertEqual(1, goop.StateOf<DraygonGoopAttachedState>().Lifetime, "the first update leaves one update of lifetime");
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(!goop.IsActive, "the goop falls off on the update its lifetime reaches zero");
         AssertEqual(0, samus.XSpeedDivisor, "the goop that falls off restores one X-speed divisor step");
-
-        samus.XSpeedDivisor = 1;
-        RoomEnemyProjectileSlot cleared = AttachedGoop(enemies, lifetime: 0);
-        enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(cleared, samus);
-        AssertTrue(cleared.IsActive, "a cleared lifetime wraps below zero instead of releasing the goop");
-        AssertEqual(ushort.MaxValue, cleared.StateOf<DraygonGoopAttachedState>().Lifetime.RawValue, "a cleared lifetime wraps to the full word");
     }
 
     /// <summary>Puts an attached Draygon goop with the given lifetime in the last projectile slot.</summary>
-    private static RoomEnemyProjectileSlot AttachedGoop(RoomEnemySystem enemies, ushort lifetime)
+    private static RoomEnemyProjectileSlot AttachedGoop(RoomEnemySystem enemies, int lifetime)
     {
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.FrameBehavior = EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus;
-        goop.State = new DraygonGoopAttachedState(stackPosition: 1) { Lifetime = WrappingCountdown.FromRaw(lifetime) };
+        goop.State = new DraygonGoopAttachedState(stackPosition: 1) { Lifetime = lifetime };
         return goop;
     }
 

@@ -27,11 +27,11 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Rainbow-beam angular width in 8.8 table units, initialized and floored and capped.</summary>
     public int AngularWidth { get; internal set; }
 
-    /// <summary>Signed SFX queue countdown. Six produces seven queue attempts.</summary>
-    public WrappingCountdown SoundQueueCount { get; internal set; }
+    /// <summary>Sound queue attempts left, counted down until it runs past zero. Six produces seven queue attempts.</summary>
+    public int SoundQueueCount { get; internal set; }
 
     /// <summary>Rainbow-beam explosion timer.</summary>
-    public WrappingCountdown ExplosionTimer { get; private set; }
+    public int ExplosionTimer { get; private set; }
 
     /// <summary>Index of the offset pair the latest beam explosion used, cycling through the eight pairs.</summary>
     public int ExplosionIndex { get; private set; }
@@ -40,7 +40,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     public bool BeamActive { get; internal set; }
 
     /// <summary>Samus projectile cooldown written at beam shutdown.</summary>
-    public WrappingCountdown SamusProjectileCooldownTimer { get; private set; }
+    public int SamusProjectileCooldownTimer { get; private set; }
 
     /// <summary>
     /// Starts, immediately after the power-bomb gate and charge countdown.
@@ -52,13 +52,13 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
         AngularWidth = 512;
         ExplosionIndex = 0;
-        ExplosionTimer = WrappingCountdown.Start(0);
-        SoundQueueCount = WrappingCountdown.Start(6);
+        ExplosionTimer = 0;
+        SoundQueueCount = 6;
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
         _state.EarthquakeType = 0;
         _state.EarthquakeTimer = WrappingCountdown.Start(0);
-        SamusProjectileCooldownTimer = WrappingCountdown.Start(0);
+        SamusProjectileCooldownTimer = 0;
         _state.NeckAngleDelta = 64;
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
@@ -85,7 +85,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartCharging;
-        _state.FunctionTimer = WrappingCountdown.Start(256);
+        _state.FunctionTimer = 256;
     }
 
     /// <summary>Requests the slow forward body animation until its target is reached.</summary>
@@ -111,9 +111,9 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         // The cry step checks the signed counter before the decrement. Starting at six therefore queues
         // on values 6,5,4,3,2,1,0 and leaves -1 to suppress all later calls.
-        if (!SoundQueueCount.IsNegative)
+        if (SoundQueueCount >= 0)
         {
-            SoundQueueCount = SoundQueueCount.Decrement().Remaining;
+            SoundQueueCount--;
             _state.RainbowBeamSoundPlaying = true;
             requests.SoundQueued = true;
         }
@@ -143,11 +143,10 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown underflows.</summary>
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()
     {
-        ExplosionTimer = ExplosionTimer.Decrement().Remaining;
-        if (!ExplosionTimer.IsNegative)
+        if (--ExplosionTimer >= 0)
             return null;
 
-        ExplosionTimer = WrappingCountdown.Start(8);
+        ExplosionTimer = 8;
         ExplosionIndex = (ExplosionIndex + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
         return new MotherBrainRainbowExplosionRequest(
             MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[ExplosionIndex]);
@@ -226,8 +225,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowStartCharging()
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.ChargingRainbowBeam);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowRetractNeck;
@@ -248,7 +246,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             _state.RetractHead();
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge;
-            _state.FunctionTimer = WrappingCountdown.Start(256);
+            _state.FunctionTimer = 256;
             return true;
         }
         return false;
@@ -260,8 +258,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowWaitForCharge(MotherBrainRainbowBeamStepRequests requests)
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             requests.ChargeSoundQueued = true; // Sound library two, effect `$71`.
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown;
@@ -276,12 +273,12 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeckDown()
     {
-        SamusProjectileCooldownTimer = WrappingCountdown.Start(8);
+        SamusProjectileCooldownTimer = 8;
         _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
         _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
         _state.NeckAngleDelta = 1280; // NTSC value of the regional pair 1280/1792.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartFiring;
-        _state.FunctionTimer = WrappingCountdown.Start(16); // NTSC value of the regional pair 16/12.
+        _state.FunctionTimer = 16; // NTSC value of the regional pair 16/12.
         return true;
     }
 
@@ -295,12 +292,11 @@ internal sealed class MotherBrainRainbowAttackPhases
         IncreaseWidthAndAim(samus);
         if (!frame.PowerBombActive)
         {
-            _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-            if (_state.FunctionTimer.IsNegative)
+            if (--_state.FunctionTimer < 0)
             {
                 // The original game redundantly rereads the power-bomb flag here. The
                 // parameter is one stable sample of the flag for this translated AI call.
-                SamusProjectileCooldownTimer = WrappingCountdown.Start(0);
+                SamusProjectileCooldownTimer = 0;
                 StartActiveBeam(samus);
             }
         }
@@ -322,7 +318,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay;
-            _state.FunctionTimer = WrappingCountdown.Start(0);
+            _state.FunctionTimer = 0;
         }
         return false;
     }
@@ -341,8 +337,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         requests.Movement = _movement.MoveTowardWall(samus, CameraCheckpointOf(frame));
 
         // The start-draining step decrements zero to -1; the sign test fails on this very call.
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             _state.EarthquakeType = 8;
             _state.EarthquakeTimer = WrappingCountdown.Start(8);
@@ -360,7 +355,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // The drain start installs draining, seeds both timers with 299, and falls
         // through into the draining function in the same enemy-processing call.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus;
-        _state.FunctionTimer = WrappingCountdown.Start(299);
+        _state.FunctionTimer = 299;
         _state.EarthquakeTimer = WrappingCountdown.Start(299);
         _state.EarthquakeType = 8;
         return true;
@@ -381,8 +376,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         DecrementAmmoDueToRainbowBeam(samus, frame.MainEnemyExecutionCounter);
         requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, CameraCheckpointOf(frame));
 
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring;
         return false;
     }
@@ -410,7 +404,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             _state.EarthquakeTimer = WrappingCountdown.Start(0);
             _state.RainbowBeamSoundPlaying = false;
             samus.Control.Unlock(); // Samus command one.
-            SamusProjectileCooldownTimer = WrappingCountdown.Start(8);
+            SamusProjectileCooldownTimer = 8;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall;
         }
         return false;
@@ -450,7 +444,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // Neck words are presentation/actor-animation state. This phase's movement-
         // relevant effect is the exact function/timer handoff to the lower-head step.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction;
-        _state.FunctionTimer = WrappingCountdown.Start(128);
+        _state.FunctionTimer = 128;
         return false;
     }
 
@@ -460,8 +454,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowDecideNextAction(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             if (samus.Health >= 400)
             {

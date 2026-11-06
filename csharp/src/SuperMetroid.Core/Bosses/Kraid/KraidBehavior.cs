@@ -210,11 +210,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (Parts.StateOf(state, body).Function)
         {
             case KraidAiFunction.MainloopThinking:
-                if (!state.ThinkingTimer.IsZero && (state.ThinkingTimer = state.ThinkingTimer.Decrement().Remaining).IsZero)
+                if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
                 {
                     Parts.StateOf(state, body).Function = KraidAiFunction.MainAttackWithMouthOpen;
                     state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-                    Parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
+                    Parts.StateOf(state, body).HeadTimer = KraidHeadAnimations.RoarEntryDuration;
                 }
                 return;
 

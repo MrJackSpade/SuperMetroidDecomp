@@ -234,10 +234,9 @@ internal sealed class TorizoMovement
         RoomLevelData level)
     {
         bool alternateLanding = _body.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp);
-        if (!state.AirTransitionTimer.IsZero)
+        if (state.AirTransitionTimer != 0)
         {
-            state.AirTransitionTimer = state.AirTransitionTimer.Decrement().Remaining;
-            if (state.AirTransitionTimer.IsZero)
+            if (--state.AirTransitionTimer == 0)
             {
                 TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(alternateLanding
                     ? (_access.FacesRight(torizo)
@@ -270,10 +269,9 @@ internal sealed class TorizoMovement
     {
         // Golden Torizo's fall is the Golden analogue of Bomb Torizo's. Its only behavioral difference is the
         // sixteen-frame facing transition and Golden landing lists selected when it expires.
-        if (!state.AirTransitionTimer.IsZero)
+        if (state.AirTransitionTimer != 0)
         {
-            state.AirTransitionTimer = state.AirTransitionTimer.Decrement().Remaining;
-            if (state.AirTransitionTimer.IsZero)
+            if (--state.AirTransitionTimer == 0)
             {
                 TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                     ? TorizoBodyProgram.GoldenTurningLeft

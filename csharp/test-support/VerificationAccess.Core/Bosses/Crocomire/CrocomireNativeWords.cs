@@ -93,7 +93,7 @@ internal static class CrocomireNativeWords
         }
         else
         {
-            state.DeathPhaseDelay = WrappingCountdown.FromRaw(wordD);
+            state.DeathPhaseDelay = wordD;
             state.VerticalAcceleration = wordD;
         }
         state.VerticalSpeed = wordE;

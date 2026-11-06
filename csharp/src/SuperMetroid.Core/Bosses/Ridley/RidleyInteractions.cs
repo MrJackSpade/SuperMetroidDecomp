@@ -54,10 +54,9 @@ internal sealed class RidleyInteractions
             }
             body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
-        if (!state.IntangibilityTimer.IsZero)
+        if (state.IntangibilityTimer != 0)
         {
-            state.IntangibilityTimer = state.IntangibilityTimer.Decrement().Remaining;
-            if (state.IntangibilityTimer.IsZero)
+            if (--state.IntangibilityTimer == 0)
                 body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
     }

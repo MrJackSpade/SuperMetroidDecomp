@@ -84,7 +84,7 @@ internal sealed class NorfairRidleyCombat
             MovementMinimum = new Position16<RoomPixels>(64, 64),
             MovementMaximum = new Position16<RoomPixels>(224, 416),
             WingFrame = 0,
-            WingAnimationTimer = WrappingCountdown.Start(0),
+            WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
@@ -112,11 +112,10 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal void TickNorfairRidleyArenaReveal(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (!state.FunctionTimer.IsNegative)
+        if (--state.FunctionTimer >= 0)
             return;
 
-        state.FunctionTimer = WrappingCountdown.Start(2);
+        state.FunctionTimer = 2;
         int step = state.FadeStep;
         bool hasPalette;
         if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
@@ -132,7 +131,7 @@ internal sealed class NorfairRidleyCombat
             RidleyLiquidDefinitions.RiseVelocity, RidleyLiquidDefinitions.RiseDelay);
         state.FadeStep = 0;
         CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
-        state.WingAnimationTimer = WrappingCountdown.Start(8);
+        state.WingAnimationTimer = 8;
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
             segment.Active = true;
@@ -168,7 +167,7 @@ internal sealed class NorfairRidleyCombat
             return;
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
-        state.SwoopPhaseTimer = WrappingCountdown.Start(32);
+        state.SwoopPhaseTimer = 32;
         state.SwoopAngleAccumulator = RotationAngle.Zero;
     }
 
@@ -182,14 +181,14 @@ internal sealed class NorfairRidleyCombat
         int nextTimer)
     {
         CeresRidleyFlight.UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
-        if (!state.SwoopPhaseTimer.IsZero)
+        if (state.SwoopPhaseTimer != 0)
         {
-            state.SwoopPhaseTimer = state.SwoopPhaseTimer.Decrement().Remaining;
+            state.SwoopPhaseTimer--;
             return false;
         }
 
         state.Function = nextFunction;
-        state.SwoopPhaseTimer = WrappingCountdown.FromRaw(nextTimer);
+        state.SwoopPhaseTimer = nextTimer;
         return true;
     }
 
@@ -229,7 +228,7 @@ internal sealed class NorfairRidleyCombat
         state.Function = direction == VerticalDirection.Down
             ? RidleyAiFunction.NorfairPogoAscending
             : RidleyAiFunction.NorfairPogoDescending;
-        state.FunctionTimer = WrappingCountdown.Start(128);
+        state.FunctionTimer = 128;
         SelectNorfairRidleyFacingInstruction(slot, state);
     }
 
@@ -252,7 +251,7 @@ internal sealed class NorfairRidleyCombat
         {
             SelectNorfairRidleyFacingInstruction(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
-            state.FunctionTimer = WrappingCountdown.Start(32);
+            state.FunctionTimer = 32;
             TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
             return;
         }
@@ -275,7 +274,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.FunctionTimer = WrappingCountdown.Start(_room.Random.Read() % 64 + 128);
+        state.FunctionTimer = _room.Random.Read() % 64 + 128;
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
@@ -440,7 +439,7 @@ internal sealed class NorfairRidleyCombat
                 ? 256
                 : CoordinateAxis.Wrap(slot.Position.Y.Whole - 64));
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
-        state.FunctionTimer = WrappingCountdown.Start(32);
+        state.FunctionTimer = 32;
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 0);
         NorfairRidleyMovement.TickRidleyFunctionTimer(state);
     }
@@ -576,7 +575,7 @@ internal sealed class NorfairRidleyCombat
     {
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.DeathRoar);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
-        state.FunctionTimer = WrappingCountdown.Start(32);
+        state.FunctionTimer = 32;
     }
 
     /// <summary>Handles a missed lunge: death has priority over power-bomb dodge and ordinary retreat.</summary>

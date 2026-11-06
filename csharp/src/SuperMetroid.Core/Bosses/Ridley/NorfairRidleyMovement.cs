@@ -13,12 +13,8 @@ internal sealed class NorfairRidleyMovement
     {
     }
 
-    /// <summary>Decrements a word timer and reports signed underflow.</summary>
-    internal static bool TickRidleyFunctionTimer(RidleyEnemyState state)
-    {
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        return state.FunctionTimer.IsNegative;
-    }
+    /// <summary>Counts the function timer down and reports whether it ran past zero.</summary>
+    internal static bool TickRidleyFunctionTimer(RidleyEnemyState state) => --state.FunctionTimer < 0;
 
     /// <summary>Accelerates both 8.8 velocity axes toward a target using inertia divisors.</summary>
     internal static void MoveNorfairRidleyToward(

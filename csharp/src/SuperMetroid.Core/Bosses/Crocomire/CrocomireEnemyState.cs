@@ -92,10 +92,10 @@ public sealed class CrocomireEnemyState
     private const int MaximumStepCount = short.MaxValue;
 
     /// <summary>
-    /// In the submerged pause and the skeleton tile upload: the frames left in that death phase, a saturating countdown
-    /// (<c>LDA</c>, <c>BEQ</c>, <c>DEC</c>).
+    /// In the submerged pause and the skeleton tile upload: the frames left in that death phase, counted down only while
+    /// it is above zero.
     /// </summary>
-    public WrappingCountdown DeathPhaseDelay { get; internal set; }
+    public int DeathPhaseDelay { get; internal set; }
 
     /// <summary>
     /// While the hidden wall rumbles: the step of the current target in <see cref="CrocomireRumbleDefinitions.All"/>,
@@ -179,7 +179,7 @@ public sealed class CrocomireEnemyState
         FightFunction = CrocomireFightFunction.ResetAnimation;
         SavedFightFunction = CrocomireFightFunction.ResetAnimation;
         _stepCounter = 0;
-        DeathPhaseDelay = WrappingCountdown.Start(0);
+        DeathPhaseDelay = 0;
         RumbleStep = 0;
         VerticalAcceleration = 0;
         ReactionTimer = 0;

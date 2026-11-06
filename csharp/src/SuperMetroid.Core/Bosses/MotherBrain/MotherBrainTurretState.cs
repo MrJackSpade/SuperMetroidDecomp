@@ -20,8 +20,8 @@ internal sealed class MotherBrainTurretState(int turret, int ringPosition) : Ene
     internal int RotationStep { get; set; } = 1;
 
     /// <summary>Updates until the turret next turns; it turns on the update this reaches zero.</summary>
-    internal WrappingCountdown RotationWait { get; set; }
+    internal int RotationWait { get; set; }
 
     /// <summary>Updates until the turret next fires; it fires on the update this reaches zero.</summary>
-    internal WrappingCountdown FiringWait { get; set; }
+    internal int FiringWait { get; set; }
 }

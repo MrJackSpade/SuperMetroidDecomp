@@ -102,7 +102,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(baby.Program);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
-        slot.FrameHold = baby.FrameHold;
+        slot.FrameHold = WrappingCountdown.Start(baby.FrameHold);
         slot.Timer = WrappingCountdown.Start(0);
 
         // The writer receives colour index 241 and count 15. Color zero is deliberately

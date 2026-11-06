@@ -234,7 +234,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(0x0200, attack.RainbowAttack.AngularWidth, "beam shutdown pins angular width floor");
     AssertTrue(lockedBeforeNarrowing && !samus.Control.AlphaLocked, "beam shutdown runs Samus command one");
     AssertTrue(!attack.RainbowAttack.BeamActive, "beam shutdown hides the beam");
-    AssertEqual(WrappingCountdown.Start(8), attack.RainbowAttack.SamusProjectileCooldownTimer,
+    AssertEqual(8, attack.RainbowAttack.SamusProjectileCooldownTimer,
         "beam shutdown reloads Samus projectile cooldown");
 
     int fallingCalls = 0;
@@ -255,7 +255,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
     AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction, attack.State.Phase,
         "lower-head function installs decision timer");
-    AssertEqual(0x0080, attack.State.FunctionTimer.RawValue, "lower-head function seeds $80 timer");
+    AssertEqual(0x0080, attack.State.FunctionTimer, "lower-head function seeds $80 timer");
 
     int decisionCalls = 0;
     while (attack.State.Phase == MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction)

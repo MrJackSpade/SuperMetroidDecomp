@@ -187,10 +187,9 @@ internal sealed class MotherBrainHead
         RoomEnemySlot head)
     {
         int shake;
-        if (!state.BrainMainShakeTimer.IsZero)
+        if (state.BrainMainShakeTimer != 0)
         {
-            state.BrainMainShakeTimer = state.BrainMainShakeTimer.Decrement().Remaining;
-            shake = state.BrainMainShakeTimer.RemainingFrames;
+            shake = --state.BrainMainShakeTimer;
         }
         else
         {
@@ -279,7 +278,7 @@ internal sealed class MotherBrainHead
         switch (cue)
         {
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.ShakeBrain }:
-                state.BrainMainShakeTimer = WrappingCountdown.Start(50);
+                state.BrainMainShakeTimer = 50;
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnDrool }:
                 SpawnMotherBrainDrool(state);

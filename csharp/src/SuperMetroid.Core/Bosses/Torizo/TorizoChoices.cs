@@ -132,7 +132,7 @@ internal sealed class TorizoChoices
         int displacement = SixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = WrappingCountdown.Start(0);
+            state.AirTransitionTimer = 0;
             return AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.GoldenTurningLeft
                 : TorizoBodyProgram.GoldenTurningRight);
@@ -140,9 +140,9 @@ internal sealed class TorizoChoices
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
-            state.AirTransitionTimer.IsZero)
+            state.AirTransitionTimer == 0)
         {
-            state.AirTransitionTimer = WrappingCountdown.Start(16);
+            state.AirTransitionTimer = 16;
         }
         return null;
     }
@@ -176,7 +176,7 @@ internal sealed class TorizoChoices
         int displacement = SixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = WrappingCountdown.Start(0);
+            state.AirTransitionTimer = 0;
             return AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? step.CollisionFacingRight
                 : step.CollisionFacingLeft);
@@ -184,9 +184,9 @@ internal sealed class TorizoChoices
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
-            state.AirTransitionTimer.IsZero)
+            state.AirTransitionTimer == 0)
         {
-            state.AirTransitionTimer = WrappingCountdown.Start(72);
+            state.AirTransitionTimer = 72;
         }
         return null;
     }

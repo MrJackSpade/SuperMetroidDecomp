@@ -917,7 +917,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
-    AssertEqual(511, state.FunctionTimer.RawValue, "Ceres Ridley first delay decrement");
+    AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
@@ -951,7 +951,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
         "Ceres Ridley body fade completes");
-    AssertEqual(4, state.FunctionTimer.RawValue, "Ceres Ridley pre-roar timer");
+    AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
@@ -1238,7 +1238,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres EMERGENCY writes only its own words over BG1");
     AssertEqual(CeresSelfDestructPhase.HoldingTitle, state.CeresSelfDestructPhase,
         "Ceres self-destruct reaches the 128-frame English title hold");
-    AssertEqual(128, state.CeresEscapeTextDelayTimer.RawValue,
+    AssertEqual(128, state.CeresEscapeTextDelayTimer,
         "Ceres English warning hold starts at 128");
 
     for (int frame = 0; frame < 127; frame++)

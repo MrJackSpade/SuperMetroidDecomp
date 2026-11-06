@@ -19,20 +19,20 @@ public sealed class FakeKraidEnemyState
     public int FacingDelta { get; internal set; }
 
     /// <summary>
-    /// Walk steps remaining before the next forced reversal. A step expires when its decrement reaches zero; a cleared
-    /// timer wraps instead and counts down from the full word.
+    /// Walk steps remaining before the next forced reversal. A step expires when its decrement reaches zero, and the
+    /// expiry reloads it.
     /// </summary>
-    public WrappingCountdown WalkStepTimer { get; internal set; }
+    public int WalkStepTimer { get; internal set; }
 
-    /// <summary>Number of animation decision points before the next spit attack.</summary>
-    public WrappingCountdown SpitDecisionTimer { get; internal set; }
+    /// <summary>Number of animation decision points before the next spit attack; it stops at zero.</summary>
+    public int SpitDecisionTimer { get; internal set; }
 
     /// <summary>
     /// Three independent spike clocks. Main AI
     /// visits exactly one clock per frame in the order 0, 1, 2, 0..., counting a running clock down to zero
     /// without wrapping and reloading it when it is found at zero.
     /// </summary>
-    public WrappingCountdown[] SpikeTimers { get; } = new WrappingCountdown[3];
+    public int[] SpikeTimers { get; } = new int[3];
 
     /// <summary>Index 0-2 of the spike clock visited this frame.</summary>
     public int SpikeTimerIndex { get; internal set; }
@@ -49,7 +49,7 @@ public sealed class FakeKraidEnemyState
     {
         WalkDelta = 0;
         FacingDelta = 0;
-        WalkStepTimer = WrappingCountdown.Start(0);
-        SpitDecisionTimer = WrappingCountdown.Start(0);
+        WalkStepTimer = 0;
+        SpitDecisionTimer = 0;
     }
 }

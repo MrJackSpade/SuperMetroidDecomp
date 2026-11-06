@@ -20,13 +20,13 @@ internal static class RinkaRecordStateVerification
         state.Function = Enum.GetValues<RinkaEnemyFunction>()[^1];
         state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(1), default);
         state.SpawnResourceToken = 1;
-        state.DelayTimer = WrappingCountdown.Start(1);
+        state.DelayTimer = 1;
 
         slot.Clear();
         AssertEqual<RinkaEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<EightEightVector<RoomPixels>>(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties Velocity");
         AssertEqual<int>(0, state.SpawnResourceToken, "a kill empties SpawnResourceToken");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.DelayTimer, "a kill empties DelayTimer");
+        AssertEqual(0, state.DelayTimer, "a kill empties DelayTimer");
         Console.WriteLine("Rinka record state: a kill empties every value the record holds.");
     }
 

@@ -57,7 +57,7 @@ public sealed class BabyMetroidCutsceneState
     public MotherBrainBabyProgram Program { get; private set; }
 
     /// <summary>Enemy instruction timer, restarted at one whenever the program changes.</summary>
-    public WrappingCountdown FrameHold { get; private set; }
+    public int FrameHold { get; private set; }
 
     /// <summary>
     /// 16.16 room position. Only the high byte of each subposition participates in
@@ -74,8 +74,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Heading of the curved entrance; only its table index is passed to shared component math.</summary>
     public RotationAngle Angle { get; private set; }
 
-    /// <summary>Function timer, decremented with 16-bit wrap and BMI tests.</summary>
-    public WrappingCountdown FunctionTimer { get; private set; }
+    /// <summary>Function timer: each phase counts it down and moves on once it runs past zero.</summary>
+    public int FunctionTimer { get; private set; }
 
     /// <summary>Initial request to permit the Baby cry effect.</summary>
     public bool CrySoundEnabled { get; private set; }
@@ -100,19 +100,19 @@ public sealed class BabyMetroidCutsceneState
     /// writes sixteen here. Main AI observes the nonzero value as a doubled shake, then
     /// the later flashing handler decrements it and alternates the enemy palette.
     /// </summary>
-    public WrappingCountdown OnionRingHitFlashTimer { get; private set; }
+    public int OnionRingHitFlashTimer { get; private set; }
 
     /// <summary>Saved whole-pixel origin used by the fatal-blow shake.</summary>
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
     /// <summary>Reload-eight timer producing the nine-call black-palette cadence.</summary>
-    public WrappingCountdown FadeToBlackPaletteTimer { get; private set; }
+    public int FadeToBlackPaletteTimer { get; private set; }
 
     /// <summary>Current black-fade palette index; valid stored values are 0..6.</summary>
     public int FadeToBlackPaletteIndex { get; private set; }
 
     /// <summary>Five-call cadence word for the dust explosions surrounding the dying Baby.</summary>
-    public WrappingCountdown DeathExplosionTimer { get; private set; }
+    public int DeathExplosionTimer { get; private set; }
 
     /// <summary>
     /// Index into the shared death-explosion scatter pattern, cycling through its ten offsets.
@@ -177,11 +177,11 @@ public sealed class BabyMetroidCutsceneState
         HealthBasedPaletteEnabled = false;
         RouteLeg = 0;
         Health = 3200;
-        OnionRingHitFlashTimer = WrappingCountdown.Start(0);
+        OnionRingHitFlashTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
-        FadeToBlackPaletteTimer = WrappingCountdown.Start(0);
+        FadeToBlackPaletteTimer = 0;
         FadeToBlackPaletteIndex = 0;
-        DeathExplosionTimer = WrappingCountdown.Start(0);
+        DeathExplosionTimer = 0;
         DeathExplosionPatternIndex = 0;
         AttackPagesShown = 0;
         RoomLightsTransitionCounter = 0;
@@ -192,7 +192,7 @@ public sealed class BabyMetroidCutsceneState
         Speed = 0;
         Angle = RotationAngle.Zero;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
-        FunctionTimer = WrappingCountdown.Start(248);
+        FunctionTimer = 248;
     }
 
     /// <summary>
@@ -251,26 +251,24 @@ public sealed class BabyMetroidCutsceneState
         {
             case BabyMetroidCutscenePhase.DashOntoScreen:
                 // The timer of 248 is decremented before the sign test, so calls 1..248 leave the Baby still and
-                // call 249 wraps zero to -1. The expiry call immediately executes the
+                // call 249 takes zero to -1. The expiry call immediately executes the
                 // first curve update before the common mover consumes its new velocity.
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     Angle = RotationAngle.FromTableIndex(216);
                     Speed = 2560;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
-                    FunctionTimer = WrappingCountdown.Start(10);
+                    FunctionTimer = 10;
                     goto case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
                 UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromRaw(45056), targetSpeed: 2560);
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
-                    FunctionTimer = WrappingCountdown.Start(9);
+                    FunctionTimer = 9;
                 }
                 break;
 
@@ -281,11 +279,10 @@ public sealed class BabyMetroidCutsceneState
                     TargetRadius);
 
                 // Collision skips the timer decrement. Otherwise nine permits ten
-                // approach calls and expires when the tenth decrement wraps to -1.
+                // approach calls and expires when the tenth decrement runs to -1.
                 if (!brainCollision)
                 {
-                    FunctionTimer = FunctionTimer.Decrement().Remaining;
-                    brainCollision = FunctionTimer.IsNegative;
+                    brainCollision = --FunctionTimer < 0;
                 }
 
                 if (brainCollision)
@@ -341,7 +338,7 @@ public sealed class BabyMetroidCutsceneState
                 if (motherBrain.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
-                    FunctionTimer = WrappingCountdown.Start(64);
+                    FunctionTimer = 64;
                 }
                 break;
             }
@@ -350,12 +347,11 @@ public sealed class BabyMetroidCutsceneState
                 // Shaking ceases immediately: every wait call pins to the unoffset brain
                 // coordinate before decrementing the timer of 64, which expires only after 65 calls.
                 Position = Position.WithWhole(head + BrainLatchOffset);
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     SetProgram(MotherBrainBabyProgram.Initial);
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
-                    FunctionTimer = WrappingCountdown.Start(32);
+                    FunctionTimer = 32;
                     Velocity = default;
                 }
                 break;
@@ -364,8 +360,7 @@ public sealed class BabyMetroidCutsceneState
                 // The release branches *into* its acceleration while the timer is nonnegative. Thus the
                 // Baby accelerates ceilingward for all 32 visible release calls; the dust
                 // burst happens on call 33 and that call also performs another acceleration.
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     // `SpawnThreeDustCloudsOnMotherBrainHead` performs these calls in this
                     // exact order. Each helper adds its signed word offsets to the brain
@@ -489,9 +484,9 @@ public sealed class BabyMetroidCutsceneState
                 // The Baby's damaged step consumes Mother Brain's one-shot cry flag before inspecting
                 // the hit-flash word. Sound queuing is returned by the ring system; this
                 // actor owns only the resulting shake and health-to-function transition.
-                if (!OnionRingHitFlashTimer.IsZero)
+                if (OnionRingHitFlashTimer != 0)
                 {
-                    int shakingIndex = OnionRingHitFlashTimer.CyclePhase(2, 4);
+                    int shakingIndex = OnionRingHitFlashTimer / 2 % 4;
                     Offset16<RoomPixels> shake = ShakingOffsets[shakingIndex];
                     Position = Position.WithWhole(samus.Position.Whole + shake + shake + SamusLatchOffset);
                 }
@@ -594,7 +589,7 @@ public sealed class BabyMetroidCutsceneState
                     SetProgram(MotherBrainBabyProgram.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
-                    FunctionTimer = WrappingCountdown.Start(16);
+                    FunctionTimer = 16;
                     FatalBlowOrigin = Position.Whole;
                     goto case BabyMetroidCutscenePhase.TakeFinalBlow;
                 }
@@ -608,12 +603,11 @@ public sealed class BabyMetroidCutsceneState
                 Velocity = Velocity.WithY(SignedEightEight.Wrapped(Velocity.Y.RawValue - 1));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);
                     Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
-                    FunctionTimer = WrappingCountdown.Start(56);
+                    FunctionTimer = 56;
                     goto case BabyMetroidCutscenePhase.PlaySamusTheme;
                 }
                 break;
@@ -622,18 +616,16 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.PlaySamusTheme:
                 // The expiry call queues the two delayed music words and immediately
                 // performs the first twelve-count prepare-Hyper-Beam decrement.
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
-                    FunctionTimer = WrappingCountdown.Start(12);
+                    FunctionTimer = 12;
                     goto case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     // Samus command `$19` freezes the drained animation at byte-index 28.
                     // The Hyper Beam step also installs the first rainbow handler; neither handler is
@@ -653,7 +645,7 @@ public sealed class BabyMetroidCutsceneState
                     // installs the attack-page step, and waits through 128..0 before the first transfer.
                     Properties = Properties.With(EnemyProperties.Invisible);
                     Phase = BabyMetroidCutscenePhase.UnloadTiles;
-                    FunctionTimer = WrappingCountdown.Start(128);
+                    FunctionTimer = 128;
                 }
                 else
                 {
@@ -667,8 +659,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.UnloadTiles:
                 StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     int attackPages = MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Attack);
                     if (AttackPagesShown >= attackPages)
@@ -683,15 +674,14 @@ public sealed class BabyMetroidCutsceneState
                         // publishing entry four. Falls straight into the next step, so the
                         // newly written 176 becomes 175 on this same call.
                         Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
-                        FunctionTimer = WrappingCountdown.Start(176);
+                        FunctionTimer = 176;
                         goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                     }
                 }
                 break;
 
             case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore:
-                FunctionTimer = FunctionTimer.Decrement().Remaining;
-                if (FunctionTimer.IsNegative)
+                if (--FunctionTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.FinalCutscene;
                     RoomLightsTransitionCounter = 0;
@@ -731,10 +721,10 @@ public sealed class BabyMetroidCutsceneState
         // extra word that onion-ring hits write and shows palette zero while bit one of the
         // decremented value is set. Starting from sixteen, the first post-hit enemy call sees
         // sixteen for its shake above, then displays the normal palette with timer fifteen.
-        if (!OnionRingHitFlashTimer.IsZero)
+        if (OnionRingHitFlashTimer != 0)
         {
-            OnionRingHitFlashTimer = OnionRingHitFlashTimer.Decrement().Remaining;
-            HitFlashPaletteShown = OnionRingHitFlashTimer.IsInAlternatePhase(2);
+            OnionRingHitFlashTimer--;
+            HitFlashPaletteShown = OnionRingHitFlashTimer / 2 % 2 != 0;
         }
         else
         {
@@ -764,7 +754,7 @@ public sealed class BabyMetroidCutsceneState
         if (healthBefore == 0)
             return new BabyMetroidOnionRingHitResult();
 
-        OnionRingHitFlashTimer = WrappingCountdown.Start(16);
+        OnionRingHitFlashTimer = 16;
         Health = Math.Max(0, healthBefore - damage);
         return new BabyMetroidOnionRingHitResult();
     }
@@ -822,11 +812,10 @@ public sealed class BabyMetroidCutsceneState
         if (CoordinateAxis.Difference(Position.Y.Whole, 128) < 0)
             return false;
 
-        FadeToBlackPaletteTimer = FadeToBlackPaletteTimer.Decrement().Remaining;
-        if (!FadeToBlackPaletteTimer.IsNegative)
+        if (--FadeToBlackPaletteTimer >= 0)
             return false;
 
-        FadeToBlackPaletteTimer = WrappingCountdown.Start(8);
+        FadeToBlackPaletteTimer = 8;
         int nextIndex = FadeToBlackPaletteIndex + 1;
         if (nextIndex >= 7)
             return true;
@@ -839,11 +828,10 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Emits a dust explosion every five calls using the shared Ridley scatter pattern.</summary>
     private DustExplosionRequest? StepDeathExplosion()
     {
-        DeathExplosionTimer = DeathExplosionTimer.Decrement().Remaining;
-        if (!DeathExplosionTimer.IsNegative)
+        if (--DeathExplosionTimer >= 0)
             return null;
 
-        DeathExplosionTimer = WrappingCountdown.Start(4);
+        DeathExplosionTimer = 4;
         DeathExplosionPatternIndex++;
         if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
             DeathExplosionPatternIndex = 0;
@@ -859,7 +847,7 @@ public sealed class BabyMetroidCutsceneState
     private void SetProgram(MotherBrainBabyProgram program)
     {
         Program = program;
-        FrameHold = WrappingCountdown.Start(1);
+        FrameHold = 1;
     }
 
     /// <summary>Clamps speed and angle toward their targets before deriving 8.8 X/Y velocity from sine values.</summary>

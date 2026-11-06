@@ -11,12 +11,12 @@ internal sealed class RidleyExplosionFragmentState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The updates the fragment lives, counted down past zero.</summary>
-    public WrappingCountdown Lifetime { get; internal set; }
+    public int Lifetime { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Velocity = default;
-        Lifetime = WrappingCountdown.Start(0);
+        Lifetime = 0;
     }
 }

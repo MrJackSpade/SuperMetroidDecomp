@@ -16,9 +16,6 @@ internal sealed class MotherBrainFinishSamusOffPhases
         _state = state;
     }
 
-    /// <summary>Rainbow-beam palette animation index reset immediately before the final shot.</summary>
-    public int RainbowBeamPaletteAnimationIndex { get; internal set; }
-
     /// <summary>Applies Gravity/Varia damage reduction and the extra scaling used only by the $50 beam strike.</summary>
     /// <remarks>The nominal damage is 80 or 160, so the scaled threshold never exceeds 340.</remarks>
     private static int CalculateFinishOffHealthThreshold(SamusState samus, int nominalDamage)
@@ -176,7 +173,6 @@ internal sealed class MotherBrainFinishSamusOffPhases
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
-            RainbowBeamPaletteAnimationIndex = 0;
             _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
             _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;

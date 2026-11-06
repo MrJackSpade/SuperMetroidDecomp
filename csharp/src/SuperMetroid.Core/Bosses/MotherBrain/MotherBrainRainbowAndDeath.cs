@@ -304,7 +304,7 @@ internal sealed class MotherBrainRainbowAndDeath
         state.RainbowBeamPaletteRequested = current.PaletteRequested;
         if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam &&
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding)
-            state.RainbowPaletteCursor = 0;
+            state.NextRainbowFrame = 0;
         ApplyMotherBrainRainbowPalette(state, current);
         // The brain-slot handler runs after body AI. Its health handler is enabled during revival,
         // but the health palette waits until the corpse-state value reaches final-combat state 2.
@@ -431,16 +431,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (!rainbowPhase || !step.PaletteRequested || (state.Body.FrameCounter & 2) == 0)
             return;
 
-        if ((state.RainbowPaletteCursor & 1) != 0 ||
-            state.RainbowPaletteCursor > MotherBrainRainbowPaletteFormat.RainbowFrameCount * sizeof(ushort))
-            throw new InvalidDataException($"Mother Brain rainbow cursor ${state.RainbowPaletteCursor:X4} is outside the compiled loop.");
-        int frame = state.RainbowPaletteCursor / sizeof(ushort);
-        if (frame == MotherBrainRainbowPaletteFormat.RainbowFrameCount)
-        {
-            state.RainbowPaletteCursor = 0;
-            frame = 0;
-        }
-        state.RainbowPaletteCursor += sizeof(ushort);
+        int frame = state.NextRainbowFrame;
+        state.NextRainbowFrame = (frame + 1) % MotherBrainRainbowPaletteFormat.RainbowFrameCount;
         state.Colours.LayOverBodyAndSprites(MotherBrainShades.Rainbow(frame));
     }
 }

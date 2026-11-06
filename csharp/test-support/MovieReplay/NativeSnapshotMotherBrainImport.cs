@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>Maps Mother Brain's native body, brain, neck, and rainbow-sequence WRAM into a loaded encounter.</summary>
@@ -72,7 +73,7 @@ internal static class NativeSnapshotMotherBrainImport
             tube.RequireSpeciesState<MotherBrainFallingTubeState>().Cursor = tubes[AnimationScript(tube)];
         state.BrainMainShakeTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
-        state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);
+        state.NextRainbowFrame = DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex));
         state.DrawNeck = state.BrainFunction == MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
         for (int joint = 0; joint < MotherBrainNeckJointDefinitions.Count; joint++)
         {
@@ -211,7 +212,6 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
-        sequence.FinishSamusOff.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
         sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));
         sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
         sequence.LowerNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
@@ -232,6 +232,16 @@ internal static class NativeSnapshotMotherBrainImport
     /// <summary>Decodes the snapshot's corpse-handshake word, rejecting a value outside living, corpse and revived.</summary>
     internal static MotherBrainPhase2CorpseState DecodePhase2CorpseState(ushort word) =>
         ClosedEnumWordDecoding.Decode<MotherBrainPhase2CorpseState>(word, "Mother Brain phase-two corpse state");
+
+    /// <summary>
+    /// Decodes the snapshot's two-bytes-per-entry rainbow palette list offset into the next rainbow frame. The offset
+    /// one past the last frame is the list's terminator, which the next palette step reads as a return to the first
+    /// frame; an odd offset or one beyond the terminator is not a state the game produces.
+    /// </summary>
+    internal static int DecodeNextRainbowFrame(ushort word) =>
+        word % 2 == 0 && word / 2 <= MotherBrainRainbowPaletteFormat.RainbowFrameCount
+            ? word / 2 % MotherBrainRainbowPaletteFormat.RainbowFrameCount
+            : throw new InvalidDataException($"Mother Brain rainbow palette list offset {word} is outside the list.");
 
     /// <summary>
     /// Decodes the snapshot's leg-transfer list pointer into the next leg-artwork page. A zero pointer is a list that

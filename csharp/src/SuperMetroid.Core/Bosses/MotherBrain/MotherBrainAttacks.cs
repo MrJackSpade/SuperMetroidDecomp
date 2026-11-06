@@ -529,7 +529,7 @@ internal sealed class MotherBrainAttacks
         sequence.InheritDeathAndEscapeExplosionIndex(state.BodySubFunctionTimer);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
-        state.RainbowPaletteCursor = 0;
+        state.NextRainbowFrame = 0;
         state.RainbowAppliedHeadProgram = null;
         state.RainbowAppliedSmallPurpleBreathWrites = 0;
         _rainbowAndDeath.ApplyLiveMotherBrainRainbowState(

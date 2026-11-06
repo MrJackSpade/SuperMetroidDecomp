@@ -1183,7 +1183,7 @@ internal static void VerifySamusAtmosphericEffects()
     // $90:A40E reads $0A68 (stored-shine timer), not the boost palette timer
     // at $0AD0. Boost buildup must still publish footsteps into the real queue.
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-    runner.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.Start(1);
+    runner.HorizontalSpeed.SpecialPaletteTimer = 1;
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     AssertEqual(new SoundRequest(Library3Sound.Footsteps, SoundRequestPriority.Normal),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
@@ -1191,7 +1191,7 @@ internal static void VerifySamusAtmosphericEffects()
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: true);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "a nonzero boss ID suppresses footsteps");
     AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed stored shine sound gate");
-    runner.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.Start(0);
+    runner.HorizontalSpeed.SpecialPaletteTimer = 0;
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");
 

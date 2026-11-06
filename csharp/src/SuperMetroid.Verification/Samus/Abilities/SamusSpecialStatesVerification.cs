@@ -161,7 +161,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble palette copies six colors");
     AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "Crystal Flash bubble timer reloads five");
-    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
+    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer,
         "Crystal Flash body timer comes from interleaved ROM record");
     AssertEqual(1, samus.CrystalFlash.BodyStep,
         "Crystal Flash body pulse advances one step");
@@ -172,7 +172,7 @@ internal static void VerifySamusCrystalFlash()
         samus.CrystalFlash.UpdatePalette(crystalColours, samus);
     AssertEqual(0x0220, crystalColours.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette advances independently");
-    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
+    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer,
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.Position.Y.Whole;
@@ -437,7 +437,7 @@ internal static void VerifySamusXray()
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
     AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
-    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
+    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer,
         "widening palette timer reload");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.

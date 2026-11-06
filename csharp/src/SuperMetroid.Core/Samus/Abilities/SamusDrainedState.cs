@@ -50,7 +50,7 @@ public sealed class SamusDrainedState
     public int SpecialPaletteFrame { get; private set; }
 
     /// <summary>Common palette timer initialized to one by the rainbow-start command.</summary>
-    public WrappingCountdown CommonPaletteTimer { get; private set; }
+    public int CommonPaletteTimer { get; private set; }
 
     /// <summary>
     /// Index of the Hyper Beam palette shown by the rainbow cycle, 0 through the palette count minus one: cleared by
@@ -149,7 +149,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowPaletteEnabled = true;
         SpecialPaletteFrame = 1;
-        CommonPaletteTimer = WrappingCountdown.Start(1);
+        CommonPaletteTimer = 1;
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = false;
     }
@@ -175,7 +175,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowPaletteEnabled = false;
         SpecialPaletteFrame = 0;
-        CommonPaletteTimer = WrappingCountdown.Start(0);
+        CommonPaletteTimer = 0;
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = true;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
@@ -216,12 +216,10 @@ public sealed class SamusDrainedState
             SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
         colours.ShowSuit(SamusShades.HyperBeamSuit(paletteFrame));
 
-        CountdownStep timer = CommonPaletteTimer.Decrement();
-        CommonPaletteTimer = timer.Remaining;
-        if (!timer.IsZero && timer.IsNonNegative)
+        if (--CommonPaletteTimer > 0)
             return true;
 
-        CommonPaletteTimer = WrappingCountdown.Start(SpecialPaletteFrame);
+        CommonPaletteTimer = SpecialPaletteFrame;
         ChargePaletteIndex++;
         if (ChargePaletteIndex >= SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount)
             ChargePaletteIndex = 0;

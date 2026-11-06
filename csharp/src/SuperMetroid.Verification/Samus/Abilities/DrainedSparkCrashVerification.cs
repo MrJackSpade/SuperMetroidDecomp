@@ -36,7 +36,7 @@ internal static class DrainedSparkCrashVerification
         SamusPresentation.InitializeAnimation(samus);
         // Two calls left in the echo hold after the echoes finish circling Samus.
         samus.Shinespark.Phase = ShinesparkPhase.CrashEchoCircle;
-        samus.Shinespark.StartStopTimer = WrappingCountdown.Start(2);
+        samus.Shinespark.StartStopTimer = 2;
         samus.Drained.LetFall(samus);
         AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, samus.Pose, "controller zero installs the drained pose");
 

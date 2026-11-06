@@ -13,7 +13,7 @@ internal sealed class SamusInputSnapshot
     /// the game's jump admission still sees a nonzero shine without a Stored phase.
     /// </summary>
     public static int SharedShineTimer(SamusState samus) => samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
-        ? samus.CrystalFlash.SpecialPaletteTimer.RemainingFrames : samus.Shinespark.ShineTimer.RemainingFrames;
+        ? samus.CrystalFlash.SpecialPaletteTimer.RemainingFrames : samus.Shinespark.ShineTimer;
 
     /// <summary>
     /// Joypad1_newinput_samusfilter: the Fire edge retained by the post-draw input filter

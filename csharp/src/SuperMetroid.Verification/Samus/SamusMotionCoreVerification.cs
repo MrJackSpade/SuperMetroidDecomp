@@ -193,7 +193,7 @@ internal static void VerifySamusHorizontalSpeed()
         speedBoosterEquipped: true);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
     AssertEqual(new SamusSpeedBoostCounter(0, 1), booster.SpeedBoostCounter, "Speed Booster seeds native stage-zero countdown");
-    AssertEqual(1, booster.SpecialPaletteTimer.RawValue, "Speed Booster seeds special-palette timer");
+    AssertEqual(1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
 
     // Hexadecimal `.1000` is one sixteenth, so 112 movement calls reach 7.0000 exactly.
     for (int frame = 1; frame < 112; frame++)
@@ -267,7 +267,7 @@ internal static void VerifySamusHorizontalSpeed()
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "first Speed Booster palette comes from bank $9B");
     AssertEqual(1, booster.CyclePaletteStep, "Speed Booster palette advances to its second step");
-    AssertEqual(4, booster.SpecialPaletteTimer.RawValue, "Speed Booster palette reloads four-frame timer");
+    AssertEqual(4, booster.SpecialPaletteTimer, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
         AssertTrue(!booster.UpdateSpeedBoosterPalette(boostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
@@ -294,7 +294,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Varia Suit suppresses active Speed Booster palette copy");
     AssertEqual(SamusShades.ChargedShotGlow, submergedBoostColours.Suit,
         "submerged Speed Booster leaves live Samus palette untouched");
-    AssertEqual(0, submergedBoost.SpecialPaletteTimer.RawValue,
+    AssertEqual(0, submergedBoost.SpecialPaletteTimer,
         "submerged Speed Booster freezes common palette timer");
     AssertEqual(0, submergedBoost.CyclePaletteStep,
         "submerged Speed Booster freezes palette-list offset");

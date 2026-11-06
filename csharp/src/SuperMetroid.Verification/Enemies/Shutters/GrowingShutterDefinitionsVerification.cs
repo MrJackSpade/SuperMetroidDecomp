@@ -6,13 +6,19 @@ using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Shutters;
 
-/// <summary>Checks bank $A2 growing-shutter selectors and speed records through the actual enemy initializer.</summary>
+/// <summary>
+/// Checks the growing shutter's start selection and growth speeds against bank $A2 through the population codec and the
+/// actual enemy initializer (#1519): the codec decodes each placement's growth speed, and the initializer starts the
+/// wait the placement names.
+/// </summary>
 internal static class GrowingShutterDefinitionsVerification
 {
+    /// <summary>The number of growth speeds a placement can select.</summary>
+    private const int GrowthSpeedCount = 24;
+
     /// <summary>Compares native words and all valid initializer combinations, including wrapped section origins.</summary>
     internal static void VerifyCompiledGrowingShutters(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyGrowingShutterInitialSelection), () => VerifyGrowingShutterInitialSelection(rom));
         Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1));
@@ -24,7 +30,7 @@ internal static class GrowingShutterDefinitionsVerification
         {
             for (int high = 0; high < 256; high++)
             {
-                for (int speed = 0; speed < 24; speed++)
+                for (int speed = 0; speed < GrowthSpeedCount; speed++)
                 {
                     // The native selector's high bit is the extra-property word that names the growth direction, its low
                     // bit the initialization word that names the wait.
@@ -43,30 +49,11 @@ internal static class GrowingShutterDefinitionsVerification
                 }
             }
         }
-        AssertThrows<InvalidDataException>(() => GrowingShutters.InitialFunction(4), "Shutter invalid initial selector");
-        AssertThrows<InvalidDataException>(() => GrowingShutters.Speed(24), "Shutter speed outside authored records");
         Console.WriteLine("Growing shutter definitions: 52 native words, 24576 real initializers and wrapped section origins match without a bus.");
     }
 
     /// <summary>Reads cartridge bytes used as the compiled shutter comparison oracle.</summary>
     private static byte CompiledGrowingShuttersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks all four native initial dispatch pointers and rejects out-of-range selectors.</summary>
-    private static void VerifyGrowingShutterInitialSelection(SuperMetroidAddressSpace rom)
-    {
-        for (int index = 0; index < 4; index++)
-        {
-            int address = 0xa2ea4e + 2 * index;
-            ushort native = LittleEndianBytes.Word(GrowingShutterInitialSelectionRomByte(rom, address), GrowingShutterInitialSelectionRomByte(rom, address + 1));
-            AssertEqual(native, ShuttersNativeWords.GrowingShutterFunctions.Word(GrowingShutters.InitialFunction(index)),
-                "growing shutter named initial case matches original pointer");
-        }
-        foreach (int index in new[] { int.MinValue, -1, 4, 5, 65536, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => GrowingShutters.InitialFunction(index),
-                "growing shutter initial selector rejects invalid full-width inputs");
-    }
-
-    /// <summary>Reads a native initial dispatch pointer byte for selector verification.</summary>
-    private static byte GrowingShutterInitialSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks signed whole-pixel shutter velocities across high-byte selector aliases.</summary>
     private static void VerifyGrowingShutterWholeSpeed(SuperMetroidAddressSpace rom) =>
@@ -76,16 +63,19 @@ internal static class GrowingShutterDefinitionsVerification
     private static void VerifyGrowingShutterFractionalSpeed(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: true));
 
-    /// <summary>Compares one native speed word for each authored index and rejects invalid low bytes.</summary>
+    /// <summary>
+    /// Compares one native speed word with the speed the codec decodes for each selectable growth speed, under every
+    /// high byte, and confirms a placement selecting past the authored speeds fails to decode.
+    /// </summary>
     private static void VerifyGrowingShutterSpeedField(SuperMetroidAddressSpace rom, bool fractional)
     {
-        for (int index = 0; index < 24; index++)
+        for (int index = 0; index < GrowthSpeedCount; index++)
         {
             int address = 0xa2ea56 + 4 * index + (fractional ? 2 : 0);
             ushort native = LittleEndianBytes.Word(GrowingShutterSpeedFieldRomByte(rom, address), GrowingShutterSpeedFieldRomByte(rom, address + 1));
             for (int high = 0; high < 256; high++)
             {
-                var speed = GrowingShutters.Speed((ushort)((high << 8) | index));
+                SignedSixteenSixteen speed = DecodedGrowthSpeed((high << 8) | index);
                 if (fractional)
                     AssertEqual(native, speed.Fraction, "growing shutter native unsigned fraction and high-byte aliases");
                 else
@@ -93,10 +83,19 @@ internal static class GrowingShutterDefinitionsVerification
             }
         }
         for (int high = 0; high < 256; high++)
+        {
             foreach (int low in new[] { 24, 25, 127, 255 })
-                AssertThrows<InvalidDataException>(() => GrowingShutters.Speed((ushort)((high << 8) | low)),
+            {
+                AssertThrows<InvalidDataException>(() => DecodedGrowthSpeed((high << 8) | low),
                     "growing shutter speed rejects out-of-domain low bytes regardless of high byte");
+            }
+        }
     }
+
+    /// <summary>The growth speed the codec decodes from a placement's second parameter word.</summary>
+    private static SignedSixteenSixteen DecodedGrowthSpeed(int parameter2) =>
+        ((GrowingShutterSpawnSettings)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.ShutterGrowing,
+            SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, parameter2))).GrowthSpeed;
 
     /// <summary>Reads a native velocity byte for the shutter speed-field comparison.</summary>
     private static byte GrowingShutterSpeedFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);

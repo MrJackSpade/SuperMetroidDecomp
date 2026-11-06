@@ -25,7 +25,8 @@ internal static class ShutterBehaviorVerification
             (enemies, slot) =>
             {
                 slot.SetSpawnSettings(new GrowingShutterSpawnSettings(
-                    Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, GrowthSpeedIndex: 16));
+                    Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, ActivationWait: 0,
+                    GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
                 ShuttersBehavior.InitializeGrowingShutter(slot);
             },
             enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Program);
@@ -173,7 +174,8 @@ internal static class ShutterBehaviorVerification
     {
         for (int index = 0; index < GrowingShutterSpeedRecordCount; index++)
         {
-            SignedSixteenSixteen speed = GrowingShutters.Speed((ushort)index);
+            SignedSixteenSixteen speed = ((GrowingShutterSpawnSettings)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
+                EnemyDefinitionId.ShutterGrowing, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, index))).GrowthSpeed;
             short whole = speed.WholePixels;
             ushort fraction = speed.Fraction;
             SignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(speed);

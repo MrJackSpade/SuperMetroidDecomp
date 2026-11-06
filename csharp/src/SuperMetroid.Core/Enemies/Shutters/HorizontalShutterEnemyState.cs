@@ -31,23 +31,19 @@ public sealed class HorizontalShutterEnemyState
     /// </summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
-    /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record holding the rightward and leftward velocities.</summary>
-    public int SpeedTableIndex { get; internal set; }
     /// <summary>The end the shutter first heads for, as its population entry names it.</summary>
     public ShutterHeading PrimaryDirection { get; internal set; }
-    /// <summary>Left endpoint's rest length in sixteen-update units, 0 through 255; 255 selects an inert endpoint.</summary>
-    public int MovedLeftRestParameter { get; internal set; }
-    /// <summary>Right endpoint's rest length in sixteen-update units, 0 through 255; 255 selects an inert endpoint.</summary>
-    public int MovedRightRestParameter { get; internal set; }
     /// <summary>Population trigger mode: timer, horizontal proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
     public ShutterTriggerMode TriggerMode { get; internal set; }
-    /// <summary>Whole-pixel X separation of the two endpoints, 0 through 255.</summary>
+    /// <summary>Whole-pixel X separation of the two endpoints.</summary>
     public int TravelDistance { get; internal set; }
-    /// <summary>Parameter 2, 0 through 65535: initial AI-update wait or strict absolute horizontal pixel-distance threshold, according to trigger mode.</summary>
-    public int HorizontalProximityOrWaitTime { get; internal set; }
-    /// <summary>Left endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 installs the inert function.</summary>
+    /// <summary>The strict horizontal pixel distance Samus must come within to start a proximity-triggered shutter.</summary>
+    public int ProximityDistance { get; internal set; }
+    /// <summary>The AI updates a timer-triggered shutter waits before it moves.</summary>
+    public int WaitTime { get; internal set; }
+    /// <summary>Left endpoint's rest length in AI updates, a multiple of sixteen; 4080 installs the inert function.</summary>
     public int MovedLeftRestTime { get; internal set; }
-    /// <summary>Right endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 installs the inert function.</summary>
+    /// <summary>Right endpoint's rest length in AI updates, a multiple of sixteen; 4080 installs the inert function.</summary>
     public int MovedRightRestTime { get; internal set; }
     /// <summary>Initially clear mode-3 activation latch; the first eligible reaction sets it permanently for this enemy lifetime.</summary>
     public bool ShotActivated { get; internal set; }

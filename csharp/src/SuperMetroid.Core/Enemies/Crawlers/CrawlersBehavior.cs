@@ -46,28 +46,28 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Initializes a crawler of any species through the
-    /// shared initializer. Each species differs only by its four-animation table and
-    /// the species byte offset later consumed by the shared surface-orientation tables.
+    /// Initializes a crawler of any species through the shared initializer. Each species differs only by its initial
+    /// animation family and the surface family whose animations it switches between at corners: the species' own, or
+    /// the one its population entry names when the species gives none.
     /// </summary>
     internal static void InitializeCrawler(
         RoomEnemySlot slot,
         CrawlerAnimationFamily animationFamily,
-        int? speciesInstructionOffset = null)
+        CrawlerAnimationFamily? speciesSurfaceFamily = null)
     {
         // The population entry names the starting surface. InitAI_Viola alone takes its block side
         // instead, and a Viola's entry names no surface.
         CrawlerSurfaceOrientation orientation;
         CrawlerSurfaceOrientation blockSide;
         int speedIndex;
-        int surfaceTableOffset;
+        CrawlerAnimationFamily surfaceFamily;
         if (animationFamily == CrawlerAnimationFamily.Viola)
         {
             ViolaSpawnSettings viola = slot.SpawnSettings<ViolaSpawnSettings>();
             orientation = viola.BlockSide;
             blockSide = viola.BlockSide;
             speedIndex = viola.SpeedIndex;
-            surfaceTableOffset = viola.SurfaceTableOffset;
+            surfaceFamily = viola.SurfaceFamily;
         }
         else
         {
@@ -75,17 +75,17 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             orientation = settings.Orientation;
             blockSide = settings.BlockSide;
             speedIndex = settings.SpeedIndex;
-            surfaceTableOffset = settings.SurfaceTableOffset;
+            surfaceFamily = settings.SurfaceFamily;
         }
 
         var state = new CrawlerEnemyState
         {
             SpeedParameter = speedIndex,
-            SurfaceTableOffset = speciesInstructionOffset ?? surfaceTableOffset,
+            SurfaceFamily = speciesSurfaceFamily ?? surfaceFamily,
         };
         Bind(slot, state);
 
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
             animationFamily, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -141,11 +141,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Function = CrawlerEnemyFunction.HZoomerInstructionPending,
             SpeedParameter = speedParameter,
-            SurfaceTableOffset = settings.SurfaceTableOffset,
+            SurfaceFamily = settings.SurfaceFamily,
         };
         Bind(slot, state);
         CrawlerSurfaceOrientation orientation = settings.Orientation;
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -282,9 +282,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             state,
             state.Velocity.Y.SignedRawValue < 0
-                ? CrawlerSurfaceAnimations.InitialProgram(
+                ? CrawlerSurfaceAnimations.ProgramFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
-                : CrawlerSurfaceAnimations.InitialProgram(
+                : CrawlerSurfaceAnimations.ProgramFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
 
     /// <summary>Selects orange Zoomer's floor or ceiling animation from its horizontal velocity sign.</summary>
@@ -295,9 +295,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             state,
             state.Velocity.X.SignedRawValue < 0
-                ? CrawlerSurfaceAnimations.InitialProgram(
+                ? CrawlerSurfaceAnimations.ProgramFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
-                : CrawlerSurfaceAnimations.InitialProgram(
+                : CrawlerSurfaceAnimations.ProgramFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
     /// <summary>Starts the chosen orange-Zoomer animation with fresh instruction and loop timers.</summary>
@@ -469,21 +469,17 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCrawlerProgramFromTable(slot, state, orientation);
     }
 
-    /// <summary>Indexes the species-specific six-word surface table and resets animation timers.</summary>
+    /// <summary>Starts the crawler's surface family's animation for <paramref name="orientation"/> and resets animation timers.</summary>
     private static void SetCrawlerProgramFromTable(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
         CrawlerSurfaceOrientation orientation)
     {
-        // The offset is already a byte offset into six-word species tables. Retail
-        // Zoomers use zero; preserving byte addressing is required for the shared families.
-        if ((state.SurfaceTableOffset & 1) != 0 || state.SurfaceTableOffset > 10)
-        {
-            throw new InvalidDataException(
-                $"Crawler instruction-table offset ${state.SurfaceTableOffset:X4} is invalid.");
-        }
-        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
-            Ensure.BetweenInclusive(0, ushort.MaxValue, state.SurfaceTableOffset), orientation));
+        // The orange Zoomer turns corners with its own selection; only the shared crawlers come here.
+        if (state.SurfaceFamily is CrawlerAnimationFamily.HZoomer)
+            throw new InvalidDataException("The orange Zoomer's animations are not a shared crawler surface family.");
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
+            state.SurfaceFamily, orientation));
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -539,15 +535,15 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Ports Sciser's initializer wrapper.</summary>
     internal static void InitializeSciserAi(RoomEnemySlot slot) =>
-        InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesInstructionOffset: 8);
+        InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesSurfaceFamily: CrawlerAnimationFamily.Sciser);
 
     /// <summary>Ports Zero's initializer wrapper.</summary>
     internal static void InitializeZeroAi(RoomEnemySlot slot) =>
-        InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesInstructionOffset: 10);
+        InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesSurfaceFamily: CrawlerAnimationFamily.Zero);
 
     /// <summary>Ports Viola's initializer wrapper.</summary>
     internal static void InitializeViolaAi(RoomEnemySlot slot) =>
-        InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesInstructionOffset: 6);
+        InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesSurfaceFamily: CrawlerAnimationFamily.Viola);
 
     /// <summary>Ports the shared initializer wrapper Zeela, Sova, Zoomer and MZoomer use.</summary>
     internal static void InitializeSharedCrawlerAi(RoomEnemySlot slot) =>

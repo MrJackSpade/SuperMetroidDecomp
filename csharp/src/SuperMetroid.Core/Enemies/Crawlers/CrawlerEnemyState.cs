@@ -29,7 +29,7 @@ public sealed class CrawlerEnemyState
         Velocity = default;
         Function = null;
         SpeedParameter = 0;
-        SurfaceTableOffset = 0;
+        SurfaceFamily = CrawlerAnimationFamily.Shared;
     }
 
     /// <summary>
@@ -43,14 +43,10 @@ public sealed class CrawlerEnemyState
     }
 
     /// <summary>
-    /// The species' byte offset into the six-word surface-program tables (parameter two): the species wrapper's offset,
-    /// or the authored one when the wrapper gives none.
+    /// The family whose animations the crawler switches between when it turns a corner: the species' own, or the one
+    /// its population entry names when the species gives none.
     /// </summary>
-    public int SurfaceTableOffset
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public CrawlerAnimationFamily SurfaceFamily { get; internal set; }
 
     /// <summary>
     /// Signed 16.16 falling Y velocity per AI update, separate from attached 8.8 motion: gravity adds half a pixel per

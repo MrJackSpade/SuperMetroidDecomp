@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>Mutually exclusive crawler animation families with distinct initial tables.</summary>
+/// <summary>Mutually exclusive crawler animation families, each with its own four surface animations.</summary>
 internal enum CrawlerAnimationFamily
 {
-    /// <summary>Common surface lists used by the first three species offsets.</summary>
+    /// <summary>The common surface animations of Zoomers, Zeelas, Sovas and M-Zoomers.</summary>
     Shared,
-    /// <summary>Viola's distinct initial surface table and later species selection.</summary>
+    /// <summary>Viola's own surface animations.</summary>
     Viola,
-    /// <summary>Sciser's distinct initial surface table and later species selection.</summary>
+    /// <summary>Sciser's own surface animations.</summary>
     Sciser,
-    /// <summary>Zero's distinct initial surface table and later species selection.</summary>
+    /// <summary>Zero's own surface animations.</summary>
     Zero,
-    /// <summary>H-Zoomer's initial table; later shared-surface selection does not use this family.</summary>
+    /// <summary>The orange Zoomer's surface animations, which it selects itself; shared corner turns never use this family.</summary>
     HZoomer,
 }

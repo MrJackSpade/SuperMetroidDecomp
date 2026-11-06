@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Crawlers;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 
-/// <summary>The family, definition and species offset of one crawler behavior family.</summary>
+/// <summary>The family, definition and species surface family of one crawler behavior family.</summary>
 /// <param name="Family">The family.</param>
 /// <param name="Definition">The definition.</param>
-/// <param name="SpeciesOffset">The species offset.</param>
-internal readonly record struct CrawlerBehaviorFamily(CrawlerAnimationFamily Family, EnemyDefinitionId Definition, ushort? SpeciesOffset);
+/// <param name="SpeciesSurfaceFamily">The surface family the species initializer fixes, or none when the entry names it.</param>
+internal readonly record struct CrawlerBehaviorFamily(CrawlerAnimationFamily Family, EnemyDefinitionId Definition, CrawlerAnimationFamily? SpeciesSurfaceFamily);

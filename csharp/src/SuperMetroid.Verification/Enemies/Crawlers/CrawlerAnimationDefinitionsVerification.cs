@@ -16,9 +16,9 @@ internal static class CrawlerAnimationDefinitionsVerification
         InitialTable[] initialTables =
         [
             new InitialTable(CrawlerAnimationFamily.Shared, 0xa3e2cc, null),
-            new InitialTable(CrawlerAnimationFamily.Viola, 0xa3b667, 6),
-            new InitialTable(CrawlerAnimationFamily.Sciser, 0xa396db, 8),
-            new InitialTable(CrawlerAnimationFamily.Zero, 0xa3992b, 10),
+            new InitialTable(CrawlerAnimationFamily.Viola, 0xa3b667, CrawlerAnimationFamily.Viola),
+            new InitialTable(CrawlerAnimationFamily.Sciser, 0xa396db, CrawlerAnimationFamily.Sciser),
+            new InitialTable(CrawlerAnimationFamily.Zero, 0xa3992b, CrawlerAnimationFamily.Zero),
             new InitialTable(CrawlerAnimationFamily.HZoomer, 0xa3e03b, null),
         ];
         CrawlerSurfaceOrientation[] orientations =
@@ -33,22 +33,24 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (int orientation = 0; orientation < 4; orientation++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2)),
-                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.InitialProgram(
+                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
                     family, orientations[orientation])),
                 $"crawler initial selector {family}/{orientation}");
         }
 
+        // Each species column of the four native surface tables selects its family's animation for that surface.
         int[] surfaceTables = [0xa3e648, 0xa3e654, 0xa3e630, 0xa3e63c];
-        for (ushort speciesOffset = 0; speciesOffset <= 10; speciesOffset += 2)
+        for (int column = 0; column < SuperMetroid.AssetExtraction.Enemies.CrawlerSurfaceTableOrder.ColumnCount; column++)
         for (int orientation = 0; orientation < 4; orientation++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + speciesOffset)),
-                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.SurfaceProgram(
-                    speciesOffset, orientations[orientation])),
-                $"crawler surface selector {speciesOffset}/{orientation}");
+            CrawlerAnimationFamily family = SuperMetroid.AssetExtraction.Enemies.CrawlerSurfaceTableOrder.FamilyAt(column * 2);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + column * 2)),
+                NativeEnemyProgramOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
+                    family, orientations[orientation])),
+                $"crawler surface selector column {column} ({family})/{orientation}");
         }
 
-        foreach ((CrawlerAnimationFamily family, _, ushort? speciesOffset) in initialTables)
+        foreach ((CrawlerAnimationFamily family, _, CrawlerAnimationFamily? speciesSurfaceFamily) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -56,15 +58,15 @@ internal static class CrawlerAnimationDefinitionsVerification
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
-            AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], SpeedIndex: 0, SurfaceTableOffset: 0),
+            AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared),
                 SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer,
                     new SuperMetroid.AssetExtraction.Enemies.PopulationWords(orientation, orientation, 0, 0, 0)),
                 $"crawler population words {orientation} decode to its surface and block side");
-            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 0, SurfaceTableOffset: 0));
+            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared));
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
-                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], SpeedIndex: 0, SurfaceTableOffset: 0));
+                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared));
             }
             slot.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
             if (family == CrawlerAnimationFamily.HZoomer)
@@ -73,11 +75,11 @@ internal static class CrawlerAnimationDefinitionsVerification
             }
             else
             {
-                new Action<RoomEnemySlot, CrawlerAnimationFamily, int?>(CrawlersBehavior.InitializeCrawler)(
-                        slot, family, speciesOffset);
+                new Action<RoomEnemySlot, CrawlerAnimationFamily, CrawlerAnimationFamily?>(CrawlersBehavior.InitializeCrawler)(
+                        slot, family, speciesSurfaceFamily);
             }
 
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
                     family, (CrawlerSurfaceOrientation)orientation)),
                 (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.")).Program,
                 $"crawler production initial selector {family}/{orientation}");
@@ -85,48 +87,40 @@ internal static class CrawlerAnimationDefinitionsVerification
 
         Action<RoomEnemySlot, CrawlerEnemyState> setVertical = CrawlersBehavior.SetCrawlerVerticalSurfaceInstruction;
         Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceInstruction;
-        for (ushort speciesOffset = 0; speciesOffset <= 10; speciesOffset += 2)
+        foreach (CrawlerAnimationFamily surfaceFamily in new[] { CrawlerAnimationFamily.Shared, CrawlerAnimationFamily.Viola, CrawlerAnimationFamily.Sciser, CrawlerAnimationFamily.Zero })
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            var state = new CrawlerEnemyState { SurfaceTableOffset = speciesOffset };
+            var state = new CrawlerEnemyState { SurfaceFamily = surfaceFamily };
 
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
-                    speciesOffset, CrawlerSurfaceOrientation.UpsideRight)),
-                state.Program, $"crawler production right surface {speciesOffset}");
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideRight)),
+                state.Program, $"crawler production right surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithX(new SignedEightEight(1));
             setHorizontal(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
-                    speciesOffset, CrawlerSurfaceOrientation.UpsideLeft)),
-                state.Program, $"crawler production left surface {speciesOffset}");
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideLeft)),
+                state.Program, $"crawler production left surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(0xffff));
             setVertical(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
-                    speciesOffset, CrawlerSurfaceOrientation.UpsideDown)),
-                state.Program, $"crawler production down surface {speciesOffset}");
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideDown)),
+                state.Program, $"crawler production down surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(1));
             setVertical(slot, state);
-            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
-                    speciesOffset, CrawlerSurfaceOrientation.UpsideUp)),
-                state.Program, $"crawler production up surface {speciesOffset}");
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.ProgramFor(
+                    surfaceFamily, CrawlerSurfaceOrientation.UpsideUp)),
+                state.Program, $"crawler production up surface {surfaceFamily}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrawlerSurfaceAnimations.InitialProgram(
+            () => CrawlerSurfaceAnimations.ProgramFor(
                 (CrawlerAnimationFamily)5, CrawlerSurfaceOrientation.UpsideRight),
             "crawler initial family beyond authored tables");
-        AssertThrows<InvalidDataException>(
-            () => CrawlerSurfaceAnimations.SurfaceProgram(
-                1, CrawlerSurfaceOrientation.UpsideRight),
-            "crawler odd species byte offset");
-        AssertThrows<InvalidDataException>(
-            () => CrawlerSurfaceAnimations.SurfaceProgram(
-                12, CrawlerSurfaceOrientation.UpsideRight),
-            "crawler species byte offset beyond authored tables");
         Console.WriteLine(
-            "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
+            "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 16 real surface handoffs pass with source tables forbidden.");
     }
 
 }

@@ -24,12 +24,12 @@ internal static class CrawlerBehaviorVerification
         CrawlerBehaviorFamily[] families =
         [
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.Shared, EnemyDefinitionId.Zoomer, null),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola, 6),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser, 8),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero, 10),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola, CrawlerAnimationFamily.Viola),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser, CrawlerAnimationFamily.Sciser),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero, CrawlerAnimationFamily.Zero),
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.HZoomer, EnemyDefinitionId.HZoomer, null),
         ];
-        foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, ushort? speciesOffset) in families)
+        foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, CrawlerAnimationFamily? speciesSurfaceFamily) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
@@ -38,15 +38,15 @@ internal static class CrawlerBehaviorVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // The population entry names the surface; InitAI_Viola reads its block side instead.
             if (family == CrawlerAnimationFamily.Viola)
-                slot.SetSpawnSettings(new ViolaSpawnSettings(orientation, SpeedIndex: 0, SurfaceTableOffset: 0));
+                slot.SetSpawnSettings(new ViolaSpawnSettings(orientation, SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared));
             else
-                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 0, SurfaceTableOffset: 0));
+                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared));
             if (family == CrawlerAnimationFamily.HZoomer)
                 CrawlersBehavior.InitializeHZoomer(slot);
             else
-                CrawlersBehavior.InitializeCrawler(slot, family, speciesOffset);
+                CrawlersBehavior.InitializeCrawler(slot, family, speciesSurfaceFamily);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
-            CrawlerProgram program = CrawlerSurfaceAnimations.InitialProgram(family, orientation);
+            CrawlerProgram program = CrawlerSurfaceAnimations.ProgramFor(family, orientation);
             string context = $"{family} {orientation}";
             AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(program), state.Program, $"{context} starts its surface animation");
 

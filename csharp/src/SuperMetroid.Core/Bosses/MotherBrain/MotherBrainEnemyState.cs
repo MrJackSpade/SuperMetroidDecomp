@@ -35,10 +35,10 @@ public sealed class MotherBrainEnemyState
     public MotherBrainBrainFunction BrainFunction { get; internal set; }
 
     /// <summary>
-    /// <c>mbn_var_F</c>. Every fake-death pause decrements this unsigned word and
-    /// branches when bit 15 becomes set; zero therefore expires immediately to -1.
+    /// The body function's timer. Every fake-death pause counts it down and moves on once it runs past zero;
+    /// zero therefore expires immediately at -1.
     /// </summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    public int FunctionTimer { get; internal set; }
 
     /// <summary>
     /// Body-animation state written by private instruction opcodes. The body AI reads this
@@ -50,8 +50,8 @@ public sealed class MotherBrainEnemyState
     /// <summary>Zero-based count of fake-death grey palette steps taken, 0 through the eight-step table length plus one.</summary>
     public int GrayFadeIndex { get; internal set; }
 
-    /// <summary>Eight-frame cadence and wrapping coordinate cursor for fake-death dust.</summary>
-    public WrappingCountdown FakeDeathExplosionTimer { get; internal set; }
+    /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
+    public int FakeDeathExplosionTimer { get; internal set; }
     /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer underflows.</summary>
     public int FakeDeathExplosionIndex { get; internal set; }
 
@@ -65,8 +65,8 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
     public MotherBrainTubeCollapseFunction TubeCollapseFunction { get; internal set; }
-    /// <summary>Independent wrapping word countdown used by selected tube spawn stages; expiration occurs after decrement sets the sign bit.</summary>
-    public WrappingCountdown TubeCollapseTimer { get; internal set; }
+    /// <summary>Independent countdown used by selected tube spawn stages; a stage expires once it runs past zero.</summary>
+    public int TubeCollapseTimer { get; internal set; }
 
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
@@ -101,7 +101,7 @@ public sealed class MotherBrainEnemyState
         AnimationProgramCursor<MotherBrainBodyProgram>.Start(MotherBrainBodyProgram.InitialDummy);
 
     /// <summary>Earthquake timer copied into the head-shake word after the glass event.</summary>
-    public WrappingCountdown BrainMainShakeTimer { get; internal set; }
+    public int BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Shared flag that asks Mother Brain Rinkas and turrets to remove themselves.</summary>
     public bool DeleteTurretsAndRinkas { get; internal set; }
@@ -187,7 +187,7 @@ public sealed class MotherBrainEnemyState
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
     /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
-    public WrappingCountdown BodySubFunctionTimer { get; internal set; }
+    public int BodySubFunctionTimer { get; internal set; }
 
     /// <summary>Zero-based palette pointer-table index used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
@@ -230,8 +230,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
-    /// <summary>Unsigned 64-frame attack cooldown the attack's cooldown phase decrements.</summary>
-    public WrappingCountdown AttackCooldown { get; internal set; }
+    /// <summary>The 64-frame attack cooldown the attack's cooldown phase counts down.</summary>
+    public int AttackCooldown { get; internal set; }
 
     /// <summary>
     /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at

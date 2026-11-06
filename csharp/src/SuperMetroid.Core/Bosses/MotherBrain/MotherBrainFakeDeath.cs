@@ -58,11 +58,9 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Steps Mother Brain's fake-death gray fade and advances when its palette cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
-        CountdownStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
-        if (timer.IsNegative)
+        if (--state.FunctionTimer < 0)
         {
-            state.FunctionTimer = WrappingCountdown.Start(8);
+            state.FunctionTimer = 8;
             int step = state.GrayFadeIndex++;
             if (step == MotherBrainFakeDeathPaletteDefinitions.FrameCount)
             {
@@ -94,12 +92,10 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
     internal void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
     {
-        CountdownStep timer = state.FakeDeathExplosionTimer.Decrement();
-        state.FakeDeathExplosionTimer = timer.Remaining;
-        if (timer.IsNonNegative)
+        if (--state.FakeDeathExplosionTimer >= 0)
             return;
 
-        state.FakeDeathExplosionTimer = WrappingCountdown.Start(8);
+        state.FakeDeathExplosionTimer = 8;
         // The index steps backward through the eight positions, from the first back to the last.
         state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length - 1) %
             MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
@@ -228,13 +224,8 @@ internal sealed class MotherBrainFakeDeath
         }
     }
 
-    /// <summary>Implements the tube phase's wraparound countdown transition.</summary>
-    private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state)
-    {
-        CountdownStep timer = state.TubeCollapseTimer.Decrement();
-        state.TubeCollapseTimer = timer.Remaining;
-        return timer.IsNegative;
-    }
+    /// <summary>Counts the tube phase's timer down and reports whether it ran past zero.</summary>
+    private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state) => --state.TubeCollapseTimer < 0;
 
     /// <summary>Queues the room tile change at the tube's location.</summary>
     private void RequestMotherBrainTubePlm(
@@ -246,7 +237,7 @@ internal sealed class MotherBrainFakeDeath
     {
         _access.RequestMotherBrainPlm(block, mutation);
         state.TubeCollapseFunction = next;
-        state.TubeCollapseTimer = WrappingCountdown.Start(timer);
+        state.TubeCollapseTimer = timer;
     }
 
     /// <summary>Spawns the top tube projectile for the scripted collapse.</summary>
@@ -538,7 +529,7 @@ internal sealed class MotherBrainFakeDeath
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.FunctionTimer = WrappingCountdown.Start(4);
+        state.FunctionTimer = 4;
         int paletteStep = state.GrayTransitionCounter++;
         if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
         {
@@ -554,6 +545,6 @@ internal sealed class MotherBrainFakeDeath
         state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
         state.NeckAngleDelta = 1280;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingShakeHead;
-        state.FunctionTimer = WrappingCountdown.Start(23);
+        state.FunctionTimer = 23;
     }
 }

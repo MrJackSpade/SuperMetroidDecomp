@@ -67,7 +67,7 @@ internal sealed class MotherBrainAscent
             state.Head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.Head.Health = 18000;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense;
-        state.FunctionTimer = WrappingCountdown.Start(128);
+        state.FunctionTimer = 128;
 
         // The setup falls directly into the suspense wait; the freshly written timer is observed as
         // 127 before another enemy slot can run.
@@ -82,7 +82,7 @@ internal sealed class MotherBrainAscent
             return;
 
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPrepareForRising;
-        state.FunctionTimer = WrappingCountdown.Start(32);
+        state.FunctionTimer = 32;
         PrepareMotherBrainForRising(state);
     }
 
@@ -100,7 +100,7 @@ internal sealed class MotherBrainAscent
         state.Head.Properties = state.Head.Properties.With(EnemyProperties.Invisible);
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
-        state.FunctionTimer = WrappingCountdown.Start(256);
+        state.FunctionTimer = 256;
 
         // The first leg page shows on the same frame the floor-clipping effect starts.
         LoadMotherBrainLegTiles(state);
@@ -201,15 +201,13 @@ internal sealed class MotherBrainAscent
     /// <summary>Emits dust at the feet as the body rises from the floor.</summary>
     private void SpawnMotherBrainAscentDust(MotherBrainEnemyState state)
     {
-        CountdownStep timer = state.BodySubFunctionTimer.Decrement();
-        state.BodySubFunctionTimer = timer.Remaining;
-        if (timer.IsNegative)
-            state.BodySubFunctionTimer = WrappingCountdown.Start(7);
+        if (--state.BodySubFunctionTimer < 0)
+            state.BodySubFunctionTimer = 7;
 
         int random = _room.Random.Read();
         MiscDustAnimation animation = (SharedRandomState.UpperByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            MotherBrainAscentDustDefinitions.DustPositions[state.BodySubFunctionTimer.RemainingFrames], animation);
+            MotherBrainAscentDustDefinitions.DustPositions[state.BodySubFunctionTimer], animation);
         _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.AscentDust);
     }
 
@@ -221,7 +219,7 @@ internal sealed class MotherBrainAscent
 
         state.GrayTransitionCounter = 0;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray;
-        state.FunctionTimer = WrappingCountdown.Start(0);
+        state.FunctionTimer = 0;
     }
 
     /// <summary>Applies the phase-two head shake before normal combat begins.</summary>
@@ -234,7 +232,7 @@ internal sealed class MotherBrainAscent
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.StretchingPhase2);
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp;
         state.NeckAngleDelta = 64;
-        state.FunctionTimer = WrappingCountdown.Start(256);
+        state.FunctionTimer = 256;
         BringMotherBrainHeadBackUp(state);
     }
 
@@ -248,7 +246,7 @@ internal sealed class MotherBrainAscent
         state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
         state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingFinish;
-        state.FunctionTimer = WrappingCountdown.Start(64);
+        state.FunctionTimer = 64;
         FinishMotherBrainStretching(state);
     }
 

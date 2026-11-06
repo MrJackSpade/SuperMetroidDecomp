@@ -149,9 +149,8 @@ internal sealed class MotherBrainAttacks
 
             case MotherBrainAttackPhase.Cooldown:
                 // The cooldown decrements before testing. The phase-zero initializer always
-                // writes 64; a cooldown of zero would wrap rather than end the attack.
-                state.AttackCooldown = state.AttackCooldown.Decrement().Remaining;
-                if (state.AttackCooldown.IsZero)
+                // writes 64; a cooldown of zero would run past zero rather than end the attack.
+                if (--state.AttackCooldown == 0)
                     state.AttackPhase = MotherBrainAttackPhase.EndAttack;
                 return;
 
@@ -172,7 +171,7 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        state.AttackCooldown = WrappingCountdown.Start(64);
+        state.AttackCooldown = 64;
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         int randomLow = SharedRandomState.LowerByte(_room.Random.Read());
@@ -319,14 +318,13 @@ internal sealed class MotherBrainAttacks
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.BombPhase2);
         state.Function = MotherBrainBodyFunction.SecondPhaseBombFired;
-        state.FunctionTimer = WrappingCountdown.Start(44);
+        state.FunctionTimer = 44;
     }
 
     /// <summary>Waits after the bomb, including its stand-up fallthrough.</summary>
     internal static void WaitAfterMotherBrainBomb(MotherBrainEnemyState state)
     {
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (!state.FunctionTimer.IsNegative)
+        if (--state.FunctionTimer >= 0)
             return;
 
         if (TryMakeMotherBrainStand(state))
@@ -431,7 +429,7 @@ internal sealed class MotherBrainAttacks
         state.UpperNeckMovementIndex = targetIndex;
         state.NeckAngleDelta = 512;
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire;
-        state.FunctionTimer = WrappingCountdown.Start(4);
+        state.FunctionTimer = 4;
     }
 
     /// <summary>
@@ -448,7 +446,7 @@ internal sealed class MotherBrainAttacks
         state.NeckAngleDelta = state.NeckAngleDelta >= 0 ? 256 : -256;
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Laser);
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
-        state.FunctionTimer = WrappingCountdown.Start(16);
+        state.FunctionTimer = 16;
     }
 
     /// <summary>

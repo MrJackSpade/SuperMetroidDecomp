@@ -265,13 +265,13 @@ internal sealed class MotherBrainRainbowAndDeath
         state.LowerNeckMovementIndex = sequence.State.LowerNeckMovementIndex;
         state.UpperNeckMovementIndex = sequence.State.UpperNeckMovementIndex;
         if (sequence.ThirdPhaseFight.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
-            sequence.ThirdPhaseFight.Phase3NeckFunctionTimer.IsAt(10))
+            sequence.ThirdPhaseFight.Phase3NeckFunctionTimer == 10)
         {
             // The rainbow setup loads fifty during the one-shot setup call, immediately before the
             // fallthrough decrements neck timer eleven to ten. The physical draw hook owns
             // subsequent shake decrements, so publish this event only on that exact setup
             // result rather than copying the sequence's retained word every enemy frame.
-            state.BrainMainShakeTimer = WrappingCountdown.Start(50);
+            state.BrainMainShakeTimer = 50;
         }
         state.Form = sequence.State.Body.Form;
         state.BodySubFunctionTimer = sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex;

@@ -34,7 +34,7 @@ internal static class MotherBrainLaterContactVerification
         {
             body.Position = body.Position.WithWhole(new(128, 128));
             state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
-            state.FunctionTimer = WrappingCountdown.Start(contact == "post-dispatch position" ? 0 : 100);
+            state.FunctionTimer = contact == "post-dispatch position" ? 0 : 100;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
             samus.Kinematics.Radius = new(8, 16);
             ushort expectedX = 20;

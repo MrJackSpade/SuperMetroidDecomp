@@ -173,7 +173,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance,
         takenAback.PhaseAfter,
         "Mother Brain taken-aback setup falls through into regain balance");
-    AssertEqual(0x002f, motherBrain.State.FunctionTimer.RawValue,
+    AssertEqual(0x002f, motherBrain.State.FunctionTimer,
         "Mother Brain first regain call decrements $30 to $2F");
     AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.State.Body.Form, "Baby drain changes Mother Brain to her drained form");
     AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.LowerNeckMovementIndex,

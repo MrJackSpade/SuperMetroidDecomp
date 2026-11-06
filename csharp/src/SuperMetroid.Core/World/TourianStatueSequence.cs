@@ -69,22 +69,21 @@ public sealed class TourianStatueSequence
         public AnimationProgramCursor<TourianStatueTileProgram>? Cursor { get; private set; } =
             AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry);
         /// <summary>Remaining duration of the current tile frame.</summary>
-        public WrappingCountdown Timer { get; private set; } = WrappingCountdown.Start(1);
+        public int Timer { get; private set; } = 1;
 
         /// <summary>Counts a live statue's frame down one tick and reports whether the frame has expired; a stopped statue never counts.</summary>
         internal bool CountDown()
         {
             if (Cursor is null)
                 return false;
-            Timer = Timer.Decrement().Remaining;
-            return Timer.IsZero;
+            return --Timer == 0;
         }
 
         /// <summary>Resumes the program at <paramref name="cursor"/> after showing a picture for <paramref name="duration"/> ticks.</summary>
         internal void Show(AnimationProgramCursor<TourianStatueTileProgram> cursor, int duration)
         {
             Cursor = cursor;
-            Timer = WrappingCountdown.Start(duration);
+            Timer = duration;
         }
 
         /// <summary>Ends the program, deleting the object.</summary>

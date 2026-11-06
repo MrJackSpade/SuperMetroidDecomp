@@ -18,13 +18,13 @@ public sealed class NuclearWaffleEnemyState
     public NuclearWaffleEnemyFunction? Function { get; internal set; }
 
     /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
-    public WrappingCountdown WaitingTimer { get; internal set; }
+    public int WaitingTimer { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour and no wait.</summary>
     internal void ClearWithRecord()
     {
         Function = null;
-        WaitingTimer = WrappingCountdown.Start(0);
+        WaitingTimer = 0;
     }
 
     /// <summary>

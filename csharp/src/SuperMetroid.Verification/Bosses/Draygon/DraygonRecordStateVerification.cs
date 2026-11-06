@@ -13,7 +13,7 @@ internal static class DraygonRecordStateVerification
     /// </summary>
     internal static void VerifyDraygonRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         var state = new DraygonEnemyState(body) { Eye = eye };
@@ -22,7 +22,7 @@ internal static class DraygonRecordStateVerification
         eye.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
 
         state.IntroFrames = 40;
-        state.BurialWait = WrappingCountdown.Start(12);
+        state.BurialWait = 12;
         state.Function = DraygonAiFunction.Dying;
         state.SwoopPathEntryCount = 10;
         state.SwoopEntry = 7;
@@ -30,7 +30,7 @@ internal static class DraygonRecordStateVerification
         body.Clear();
         AssertEqual((DraygonAiFunction)0, state.Function, "a body kill empties the function");
         AssertEqual(0, state.IntroFrames, "a body kill empties the intro frame count");
-        AssertEqual((ushort)0, state.BurialWait.RawValue, "a body kill empties the burial wait");
+        AssertEqual(0, state.BurialWait, "a body kill empties the burial wait");
         AssertEqual(0, state.SwoopEntry, "a body kill empties the swoop entry");
         AssertEqual(0, state.SwoopPathEntryCount, "a body kill empties the swoop path length");
         AssertEqual(0u, state.SwoopVelocity, "a body kill empties the velocity");

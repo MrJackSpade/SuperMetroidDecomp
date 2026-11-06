@@ -14,7 +14,7 @@ internal static class PowampOwnedStateVerification
     /// </summary>
     internal static void VerifyPowampOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
@@ -34,7 +34,7 @@ internal static class PowampOwnedStateVerification
         AssertEqual(PowampEnemyFunction.DeflatedResting, bodyState.Function, "the body starts resting");
 
         bodyState.Function = PowampEnemyFunction.Inflating;
-        bodyState.FunctionTimer = WrappingCountdown.Start(1);
+        bodyState.FunctionTimer = 1;
         enemies.PowampBehavior.RunPowampMain(body, bodyState, null);
         AssertEqual(PowampEnemyFunction.InflatedRiseToTargetHeight, bodyState.Function, "inflation finishes");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");

@@ -40,7 +40,7 @@ public sealed class SbugEnemyState
         CustomHeading = CustomHeading.AddTableUnits(Ensure.BetweenInclusive(0, byte.MaxValue, tableUnits));
 
     /// <summary>The 32-frame segment/wait countdown.</summary>
-    public WrappingCountdown MovementTimer { get; internal set; }
+    public int MovementTimer { get; internal set; }
 
     /// <summary>The speed the trigonometry tables are multiplied by, as the Sbug's placement names it.</summary>
     public int Speed => _slot.SpawnSettings<SbugSpawnSettings>().Speed;
@@ -95,6 +95,6 @@ public sealed class SbugEnemyState
         StraightMovementTimer = WrappingCountdown.Start(0);
         Function = null;
         CustomHeading = RotationAngle.FromTableIndex(0);
-        MovementTimer = WrappingCountdown.Start(0);
+        MovementTimer = 0;
     }
 }

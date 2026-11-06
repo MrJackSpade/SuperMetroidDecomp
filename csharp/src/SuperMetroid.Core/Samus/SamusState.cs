@@ -414,7 +414,7 @@ public sealed class SamusState
     /// per enemy-processing pass. The translated special handler owns movement only while
     /// this counter remains nonzero.
     /// </summary>
-    public WrappingCountdown KnockbackTimer { get; set; }
+    public int KnockbackTimer { get; set; }
 
     /// <summary>
     /// Ports the two Samus-owned words from <c>DecrementSamusHurtTimers</c>.
@@ -425,7 +425,7 @@ public sealed class SamusState
     public void DecrementHurtTimers()
     {
         InvincibilityTimer = InvincibilityTimer.DecrementToZero();
-        KnockbackTimer = KnockbackTimer.DecrementToZero();
+        KnockbackTimer = Math.Max(0, KnockbackTimer - 1);
     }
 
     /// <summary>

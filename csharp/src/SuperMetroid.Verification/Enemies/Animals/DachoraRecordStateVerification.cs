@@ -14,19 +14,19 @@ internal static class DachoraRecordStateVerification
     /// </summary>
     internal static void VerifyDachoraRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DachoraEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Speed = SignedSixteenSixteen.FromParts(3, 0x8000);
-        state.StartBlinking(WrappingCountdown.Start(5));
-        AssertEqual(WrappingCountdown.Start(5), state.PhaseTimer, "the warning countdown starts");
+        state.StartBlinking(5);
+        AssertEqual(5, state.PhaseTimer, "the warning countdown starts");
         AssertEqual(SignedSixteenSixteen.FromParts(0, 0x8000), state.Speed,
             "the run after the warning countdown starts at rest, keeping the speed's fraction");
         state.Speed = SignedSixteenSixteen.FromParts(7, 0x8000);
-        state.StartCharging(WrappingCountdown.Start(5));
-        AssertEqual(WrappingCountdown.Start(5), state.PhaseTimer, "the charge countdown starts");
+        state.StartCharging(5);
+        AssertEqual(5, state.PhaseTimer, "the charge countdown starts");
         AssertEqual(SignedSixteenSixteen.Zero, state.Speed, "the launch after the charge countdown starts at rest");
 
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(1, 2);

@@ -13,7 +13,7 @@ internal static class StokeOwnedStateVerification
     /// </summary>
     internal static void VerifyStokeOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         StokeEnemyState? state = null;
         for (int record = 0; record < EnemyLinearSpeedDefinitions.RowCount; record++)

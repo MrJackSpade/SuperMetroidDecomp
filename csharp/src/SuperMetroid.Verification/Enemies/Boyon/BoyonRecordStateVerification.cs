@@ -13,7 +13,7 @@ internal static class BoyonRecordStateVerification
     /// </summary>
     internal static void VerifyBoyonRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BoyonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

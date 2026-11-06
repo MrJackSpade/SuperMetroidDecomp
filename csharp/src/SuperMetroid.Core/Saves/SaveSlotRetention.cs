@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>
 /// What a saved slot keeps of a snapshot (#1421): saving stores and loading reads back the
 /// snapshot's fields as their saved words, so every value is checked as the save stores it, and the explored map keeps
-/// only the runs of cells the stock map occupies (<see cref="ExploredMapStorage"/>).
+/// only the Zebes areas' runs of cells the stock map occupies (<see cref="ExploredMapStorage"/>, <see cref="SavedMapExplorationRuns"/>).
 /// </summary>
 [EncodingOwner("save slot words")]
 internal static class SaveSlotRetention

@@ -75,7 +75,7 @@ internal sealed class DoorPlms : IPlmFamilySource
                 residentDoor.StartClosing();
             else
                 ResidentDoorClosings.Resolve(resident.Header).StartOn(resident);
-            resident.FrameHold = WrappingCountdown.Start(1);
+            resident.FrameHold = 1;
             return true;
         }
 
@@ -88,7 +88,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.Header = fallback.Header;
         slot.BlockIndex = blockIndex;
         fallback.Start.StartOn(slot);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         SetupDoorTransitionDeactivatedSlot(level, slot);
         return true;
     }
@@ -263,7 +263,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.BlockIndex = blockIndex;
         slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         slot.FrameBehavior = PlmFrameBehaviors.Inert;
         // The spawn leaves the argument zero: door bit zero, which a later closing check reads.
         slot.Argument = new DoorBitArgument(0, DoorOpeningPersistence.Persistent);

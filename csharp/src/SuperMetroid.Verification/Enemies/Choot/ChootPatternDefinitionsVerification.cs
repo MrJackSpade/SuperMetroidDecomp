@@ -50,7 +50,7 @@ internal static class ChootPatternDefinitionsVerification
 
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var initialize = new Action<RoomEnemySlot>(ChootBehavior.InitializeChoot);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
@@ -72,7 +72,7 @@ internal static class ChootPatternDefinitionsVerification
                     $"Choot production initial falling Y {patternIndex}/{loopCount}");
             }
 
-            var fallEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var fallEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var initializeFall = new Action<RoomEnemySlot>(ChootBehavior.InitializeChoot);
             RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
             fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);
@@ -82,7 +82,7 @@ internal static class ChootPatternDefinitionsVerification
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingPatternFrame = 0;
-            fallState.FallingPatternLoopCounter = WrappingCountdown.Start(1);
+            fallState.FallingPatternLoopCounter = 1;
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
@@ -104,7 +104,7 @@ internal static class ChootPatternDefinitionsVerification
             runFall(fallSlot, fallState);
             AssertEqual(0, fallState.FallingPatternFrame,
                 $"Choot production loop cursor reset {patternIndex}");
-            AssertEqual((ushort)0, fallState.FallingPatternLoopCounter.RawValue,
+            AssertEqual(0, fallState.FallingPatternLoopCounter,
                 $"Choot production loop counter {patternIndex}");
             AssertEqual(unchecked((ushort)(0x5000 + loopYDistance)),
                 fallState.FallingOrigin.Y,

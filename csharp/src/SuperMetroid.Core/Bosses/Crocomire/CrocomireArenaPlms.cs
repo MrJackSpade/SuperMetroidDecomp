@@ -26,7 +26,7 @@ internal sealed class CrocomireArenaPlms(PlmSlotTable slotTable)
         slot.BlockIndex = blockIndex;
         slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         slot.Header = plm;
         return true;
     }

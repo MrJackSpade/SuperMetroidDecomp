@@ -8,7 +8,7 @@ internal static class XrayExtensionsVerification
     /// <summary>Checks axis routing, byte arithmetic, blank exits, unsupported reveal types, and cycle detection.</summary>
     internal static void VerifyXrayExtensions()
     {
-        RoomLevelData Create() => new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 64).ToArray(), new RoomBlockBehavior[64], new RoomBlockAppearance[64]));
+        RoomLevelData Create() => new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 64).ToArray(), new RoomBlockBehavior[64], new RoomBlockAppearance[64]), RoomLevelData.NothingBeyondGrid());
         void Set(RoomLevelData level, int index, RoomCollisionType type, int behavior)
         {
             level.SetPlmTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type));

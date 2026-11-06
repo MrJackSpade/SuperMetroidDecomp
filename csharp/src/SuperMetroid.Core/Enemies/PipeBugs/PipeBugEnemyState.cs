@@ -72,7 +72,7 @@ public sealed class PipeBugEnemyState
     /// A Brinstar Pipe Bug's respawn countdown, in AI updates: started at 48 when it leaves the screen, and expiring
     /// when a decrement reaches zero.
     /// </summary>
-    public WrappingCountdown RespawnDelay { get; internal set; }
+    public int RespawnDelay { get; internal set; }
     /// <summary>The speed, and its negation, this Norfair bug flies at: the spawn settings' speed.</summary>
     public EnemyLinearSpeedRow FlightSpeeds { get; internal set; }
     /// <summary>The point at which a Norfair member's initial rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
@@ -86,7 +86,7 @@ public sealed class PipeBugEnemyState
     /// <summary>A yellow Pipe Bug's leftward flight velocity: the spawn settings' speed, negated.</summary>
     public SignedSixteenSixteen NegativeVelocity { get; internal set; }
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
-    public WrappingCountdown EmergenceDelay { get; internal set; }
+    public int EmergenceDelay { get; internal set; }
     /// <summary>
     /// The quadratic-speed record a yellow Pipe Bug's arc reads, from 0 through the table's last record. The rising
     /// phase counts it down from 40 and ends when it would go below zero; the returning phase counts it back up.

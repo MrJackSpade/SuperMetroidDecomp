@@ -12,7 +12,7 @@ internal static class BullMovementDefinitionsVerification
     /// <summary>Checks all 104 parameter pairs through the real initializer, including timers and initial instruction.</summary>
     internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
         var slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
@@ -24,11 +24,11 @@ internal static class BullMovementDefinitionsVerification
             initialize(slot); // No loaded cartridge bus; exercises the real initializer.
             var state = enemies.BullStates[0];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d895 + interval * 4)), (state ?? throw new InvalidOperationException("Verification requires state.")).AccelerationIntervalTimerReset, "Bull compiled acceleration");
-            AssertEqual(state.AccelerationIntervalTimerReset, state.AccelerationIntervalTimer.RawValue, "Bull live timer initialization");
+            AssertEqual(state.AccelerationIntervalTimerReset, state.AccelerationIntervalTimer, "Bull live timer initialization");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d897 + interval * 4)), state.DecelerationIntervalTimerReset, "Bull compiled deceleration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), state.MaxSpeed, "Bull compiled speed");
             AssertEqual(BullEnemyFunction.MovementDelay, state.Function, "Bull initial function");
-            AssertEqual(16, state.ActivationTimer.RawValue, "Bull native activation delay");
+            AssertEqual(16, state.ActivationTimer, "Bull native activation delay");
             AssertEqual(1, slot.FrameHold.RawValue, "Bull instruction timer");
             AssertEqual(0, slot.Timer.RawValue, "Bull loop timer");
             AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initial animation");

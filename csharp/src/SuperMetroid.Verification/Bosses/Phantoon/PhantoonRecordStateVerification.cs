@@ -13,13 +13,13 @@ internal static class PhantoonRecordStateVerification
     /// </summary>
     internal static void VerifyPhantoonRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
         var part = new PhantoonPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
 
         part.PathCursor = 533;
-        AssertEqual(0, part.ClosedTimer.RawValue, "the path cursor leaves the eye's closed timer alone");
+        AssertEqual(0, part.ClosedTimer, "the path cursor leaves the eye's closed timer alone");
         part.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
         AssertTrue(!part.FigureEightReversed, "the speed leaves the eye's figure-eight direction alone");
         part.Function = PhantoonAiFunction.SpawnStartingFlames;
@@ -27,14 +27,14 @@ internal static class PhantoonRecordStateVerification
 
         part.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0x8000);
         part.SpeedPhase = 3;
-        part.FunctionTimer = WrappingCountdown.Start(120);
+        part.FunctionTimer = 120;
         part.FadeComplete = true;
         part.WavyPhaseDelta = 2;
         slot.Clear();
         AssertEqual(0, part.PathCursor, "a kill empties the path cursor");
         AssertEqual(SignedSixteenSixteen.Zero, part.FigureEightSpeed, "a kill empties the speed");
         AssertEqual(0, part.SpeedPhase, "a kill empties the speed phase");
-        AssertEqual(0, part.FunctionTimer.RawValue, "a kill empties the function timer");
+        AssertEqual(0, part.FunctionTimer, "a kill empties the function timer");
         AssertTrue(!part.FadeComplete, "a kill empties the fade-complete flag");
         AssertEqual(0, part.WavyPhaseDelta, "a kill empties the wavy phase step");
         Console.WriteLine("Phantoon record state: each part's values are held apart, and a kill empties the record.");

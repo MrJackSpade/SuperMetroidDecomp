@@ -44,7 +44,7 @@ internal static class PlmPopulationInputBoundaryVerification
             "decoded population owns its record ordering independently of caller mutation");
 
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new RoomTerrainBlock[64], new RoomBlockBehavior[64], new RoomBlockAppearance[64]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new RoomTerrainBlock[64], new RoomBlockBehavior[64], new RoomBlockAppearance[64]), RoomLevelData.NothingBeyondGrid());
         var plms = PlmFixtures.Unbound();
         AssertEqual(3, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");

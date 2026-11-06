@@ -84,7 +84,7 @@ internal static class CrocomireSkeletonArtworkVerification
 
         static RunInstalledResult RunInstalled(InstalledEnemyArtwork art)
         {
-            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
+            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             var vram = new SnesVram();
             var guard = NewCrocomireSkeletonNoReadBus();
             var state = new CrocomireDeathState();

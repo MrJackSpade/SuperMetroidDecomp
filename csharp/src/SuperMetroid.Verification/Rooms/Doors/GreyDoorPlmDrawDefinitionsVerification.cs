@@ -72,7 +72,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             ]);
             const int width = 16;
             const int origin = 4 + 4 * width;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = stock });
             var system = new SharedGameState();
             var guarded = NewGreyDoorDrawGuard(bus, lists);
@@ -135,7 +135,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
                     $"resident grey door {header} never rereads program or draw data");
 
-                var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
+                var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
                 var reopened = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = stock });
                 AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                     $"opened grey door {header} reloads");
@@ -213,7 +213,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             "Bomb Torizo grey door avoids both compiled program and draw sources");
 
         const int width = 16;
-        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
+        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
         var reopened = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), room.System, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "opened Bomb Torizo grey door reloads");

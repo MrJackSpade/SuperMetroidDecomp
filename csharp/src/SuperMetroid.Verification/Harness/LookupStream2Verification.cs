@@ -165,10 +165,10 @@ internal static class LookupStream2Verification
     /// </summary>
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Shading = PictureShading.Standard;
-        var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
+        var state = new WreckedShipGhostEnemyState { PhaseTimer = 2 };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
@@ -1002,7 +1002,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks Kraid lint initialization's source values and live actor state.</summary>
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
         enemies.KraidBehavior.Access.Kraid = state;
@@ -1021,13 +1021,13 @@ internal static class LookupStream2Verification
             KraidPartState lintState = enemies.KraidBehavior.Parts.StateOf(state, lint);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + native * 2));
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
-            AssertEqual(expected, lintState.FunctionTimer.RawValue, "Actual post-growth timer write");
+            AssertEqual(expected, lintState.FunctionTimer, "Actual post-growth timer write");
             AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
             AssertEqual(KraidAiFunction.LintProduce, lintState.NextFunction, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
                 align(lint, lintState);
-                AssertEqual((ushort)remaining, lintState.FunctionTimer.RawValue, "Actual per-part countdown");
+                AssertEqual(remaining, lintState.FunctionTimer, "Actual per-part countdown");
                 AssertEqual((remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
                     lintState.Function, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
@@ -1088,7 +1088,7 @@ internal static class LookupStream2Verification
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
             for (int member = 0; member < 5; member++)
             {
                 var slot = enemies.SlotTable.Slots[member];
@@ -1164,7 +1164,7 @@ internal static class LookupStream2Verification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.FrameHold = WrappingCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.FrameHold = 1; side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -1181,7 +1181,7 @@ internal static class LookupStream2Verification
                 foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
                     AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
-                    AssertEqual(sides.First.FrameHold.RawValue, sides.Second.FrameHold.RawValue, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
                     AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
@@ -1206,8 +1206,8 @@ internal static class LookupStream2Verification
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
         {
-            if (side.FrameHold.IsZero) return;
-            if (!frozen && (side.FrameHold = side.FrameHold.Decrement().Remaining).IsZero)
+            if (side.FrameHold == 0) return;
+            if (!frozen && --side.FrameHold == 0)
             {
                 ushort cursor = checked((ushort)side.InstructionPointer);
                 while (true)
@@ -1215,7 +1215,7 @@ internal static class LookupStream2Verification
                     ushort word = ReadVerificationWord(bus, 0x900000 | cursor);
                     if (word < 0x8000)
                     {
-                        side.FrameHold = WrappingCountdown.FromRaw(word);
+                        side.FrameHold = word;
                         if (word == 0) return;
                         nativeWords[side] = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
                         side.InstructionPointer = (ushort)(cursor + 4);
@@ -1275,11 +1275,11 @@ internal static class LookupStream2Verification
             projectiles.Trails.SpawnTrail(projectile);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
-            if (trail.Left.FrameHold.IsZero)
+            if (trail.Left.FrameHold == 0)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
-            AssertEqual(1, trail.Left.FrameHold.RawValue, "Selector extraction leaves allocation timer unchanged");
+            AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
         Console.WriteLine("Trail selectors: both tables' native words and every trailing projectile's real spawn selection pass.");
@@ -1363,7 +1363,7 @@ internal static class LookupStream2Verification
     /// </summary>
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount));
         Action<DeadTorizoEnemyState> show = SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.ShowNextRotHalf;
         for (ushort phase = 0; phase < 2; phase++)
@@ -1401,7 +1401,7 @@ internal static class LookupStream2Verification
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
@@ -1502,7 +1502,7 @@ internal static class LookupStream2Verification
     {
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
-        var slot = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())).SlotTable.Slots[0];
+        var slot = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new WreckedShipGhostEnemyState();
         for (int index = 0; index < 9; index++)
         {
@@ -1517,33 +1517,33 @@ internal static class LookupStream2Verification
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAiFunction.BrighteningAndFlickering, state.Function, "Ghost appearance phase");
-            AssertEqual((ushort)64, state.StablePositionTimer.RawValue, "Ghost appearance position timer");
-            AssertEqual((ushort)16, state.StableDirectionTimer.RawValue, "Ghost appearance direction timer");
+            AssertEqual(64, state.StablePositionTimer, "Ghost appearance position timer");
+            AssertEqual(16, state.StableDirectionTimer, "Ghost appearance direction timer");
         }
         for (int offset = 0; offset < 34; offset++)
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
             AssertEqual(original, WreckedShipGhostAppearance.FlickerDuration(offset / 2), "Ghost original flicker interval");
             slot.Properties = (EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
-            state.PhaseTimer = WrappingCountdown.Start(1);
+            state.PhaseTimer = 1;
             state.FlickerTableOffset = offset;
             flicker(slot, state);
-            AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
+            AssertEqual(original < 0 ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
             AssertEqual(original < 0 ? 0 : offset + 2, state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
             AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost actual visibility preserves unrelated flags");
         }
-        state.PhaseTimer = WrappingCountdown.Start(2);
+        state.PhaseTimer = 2;
         state.FlickerTableOffset = 2;
         slot.Properties = (EnemyProperties.Invisible);
         flicker(slot, state);
-        AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
+        AssertEqual(1, state.PhaseTimer, "Ghost interval countdown");
         AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
         AssertEqual((ushort)EnemyProperties.Invisible, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost no early visibility change");
-        state.PhaseTimer = WrappingCountdown.Start(0);
+        state.PhaseTimer = 0;
         flicker(slot, state);
         AssertEqual(0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost terminal next call clears invisibility");
-        state.PhaseTimer = WrappingCountdown.Start(1);
+        state.PhaseTimer = 1;
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
         state.SpawnColumn = 3;

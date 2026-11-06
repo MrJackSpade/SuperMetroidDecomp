@@ -37,7 +37,7 @@ public sealed class ManagedSpcPlayer
         .ToArray();
     /// <summary>Priority, mode and voice-allocation state for the three SFX libraries.</summary>
     internal readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
-        .Range(0, SpcDriverDefinitions.SoundEffects.LibraryCount)
+        .Range(0, SoundEffectLibraries.Count)
         .Select(_ => new ManagedSpcSoundLibrary())
         .ToArray();
     /// <summary>Per-library SFX instruction cursors and borrowed voice state.</summary>

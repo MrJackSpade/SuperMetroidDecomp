@@ -161,7 +161,7 @@ internal sealed class DraygonGrab
         // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
         if (SharedRandomState.LowerByte(_room.Random.Read()) == 0)
         {
-            state.TailWhipTimer = WrappingCountdown.Start(DraygonBehavior.DraygonTailWhipDuration);
+            state.TailWhipTimer = DraygonBehavior.DraygonTailWhipDuration;
             state.Function = DraygonAiFunction.TailWhipWithSamus;
             return;
         }
@@ -205,14 +205,13 @@ internal sealed class DraygonGrab
     internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
-        state.TailWhipTimer = state.TailWhipTimer.Decrement().Remaining;
-        if (state.TailWhipTimer.IsZero)
+        if (--state.TailWhipTimer == 0)
         {
             state.Function = DraygonAiFunction.FlailWithSamus;
             return;
         }
 
-        if (state.TailWhipTimer.IsAt(DraygonBehavior.DraygonTailWhipStartFrame))
+        if (state.TailWhipTimer == DraygonBehavior.DraygonTailWhipStartFrame)
         {
             _parts.StartDraygonProgram(
                 state.Tail,
@@ -323,7 +322,7 @@ internal sealed class DraygonGrab
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        body.FlashTimer = WrappingCountdown.Start(body.HurtAiTime + 8);
+        body.FlashTimer = body.HurtAiTime + 8;
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 

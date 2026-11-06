@@ -152,7 +152,7 @@ internal static void VerifyRoomEnemyLoading()
         stockColors.Add(pointer, EnemyPaletteSheetFile.Read(new MemoryStream(
             EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999))
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
@@ -174,9 +174,9 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(PictureShading.Standard, slot.Shading, "a loaded slot shows its sheet's standard colours");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
-    AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
-    AssertEqual(0, slot.InvincibilityTimer.RawValue, "room load clears invincibility timer");
-    AssertEqual(0, slot.ShakeTimer.RawValue, "room load clears shake timer");
+    AssertEqual(0, slot.FlashTimer, "room load clears flash timer");
+    AssertEqual(0, slot.InvincibilityTimer, "room load clears invincibility timer");
+    AssertEqual(0, slot.ShakeTimer, "room load clears shake timer");
     AssertEqual(0x804f, slot.SpritemapPointer,
         "extended actor receives native extended-nothing map after initialization");
 
@@ -200,7 +200,7 @@ internal static void VerifyRoomEnemyLoading()
         "definition vulnerability table offset $3C");
 
     // Repeating the load with installed art while the cartridge tile sources are forbidden leaves every gameplay field.
-    var installedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999))
+    var installedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
@@ -224,9 +224,9 @@ internal static void VerifyRoomEnemyLoading()
     // tileset. Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
     // the death quota untouched even though current enemy counts are cleared.
     AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart,
-            new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)).GraphicsSet.LoadedSet),
+            new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)).GraphicsSet.LoadedSet),
         "a room draws under no loaded graphics set until it loads one");
-    enemies = new RoomEnemySystem(enemies.Room.Session, bus, new StandaloneRoomEnemyServices(() => 0));
+    enemies = new RoomEnemySystem(enemies.Room.Session, RoomEnemyCompatibilityFixtures.ForNewRoom(), bus, new StandaloneRoomEnemyServices(() => 0));
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
@@ -331,7 +331,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var bus = new TestAddressSpace();
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
 
     RoomEnemyProjectileSlot eyeShot = enemies.Projectiles.EnemyProjectiles[17];
@@ -446,10 +446,10 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // X=88 and reverses when its positive leading edge first enters this wall.
     for (int row = 0; row < roomHeight; row++)
         foreground[row * roomWidth + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-    RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new RoomBlockBehavior[foreground.Length], new RoomBlockAppearance[foreground.Length]));
+    RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new RoomBlockBehavior[foreground.Length], new RoomBlockAppearance[foreground.Length]), RoomLevelData.NothingBeyondGrid());
 
     // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0))
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0))
     {
         TileArtwork = InstalledFixtures.EnemyTiles,
     };
@@ -469,16 +469,16 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             {
                 ripper.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode((ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
                     (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties))));
-                ripper.InvincibilityTimer = WrappingCountdown.FromRaw(initial);
-                ripper.FlashTimer = WrappingCountdown.Start(16);
-                ripper.FrozenTimer = WrappingCountdown.Start(400);
+                ripper.InvincibilityTimer = initial;
+                ripper.FlashTimer = 16;
+                ripper.FrozenTimer = 400;
                 for (int frame = 1; frame <= 12; frame++)
                 {
                     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
                     // The trace's last column is the native instruction-list word, which the port keeps as the
                     // Ripper's typed animation; the timers and position are compared.
-                    string actual = $"{(intangible ? 1 : 0)},{initial},{frame},{ripper.InvincibilityTimer.RawValue}," +
-                        $"{ripper.FlashTimer.RawValue},{ripper.FrozenTimer.RawValue},{ripper.Position.X.Whole}";
+                    string actual = $"{(intangible ? 1 : 0)},{initial},{frame},{ripper.InvincibilityTimer}," +
+                        $"{ripper.FlashTimer},{ripper.FrozenTimer},{ripper.Position.X.Whole}";
                     string expected = lines[index++];
                     AssertEqual(expected[..expected.LastIndexOf(',')], actual, "original CPU versus production frozen EnemyMain");
                 }
@@ -486,31 +486,31 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             Console.WriteLine("X-Plasma: 120 original-CPU EnemyMain frame records match production exactly.");
             return;
         }
-        ripper.InvincibilityTimer = WrappingCountdown.Start(10);
-        ripper.FlashTimer = WrappingCountdown.Start(16);
-        ripper.FrozenTimer = WrappingCountdown.Start(400);
+        ripper.InvincibilityTimer = 10;
+        ripper.FlashTimer = 16;
+        ripper.FrozenTimer = 400;
         ushort initialX = ripper.Position.X.Whole;
         EnemyFrameId? initialFrame = ripper.Frame;
         WrappingCountdown initialFrameHold = ripper.FrameHold;
         for (int frame = 1; frame <= 12; frame++)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
-            AssertEqual(Math.Max(0, 10 - frame), ripper.InvincibilityTimer.RawValue,
+            AssertEqual(Math.Max(0, 10 - frame), ripper.InvincibilityTimer,
                 $"X-Plasma prerequisite: tangible invincibility expires during X-ray frame {frame}");
-            AssertEqual(16, ripper.FlashTimer.RawValue, "X-ray holds flash timer independently");
-            AssertEqual(400, ripper.FrozenTimer.RawValue, "X-ray holds Ice freeze timer independently");
+            AssertEqual(16, ripper.FlashTimer, "X-ray holds flash timer independently");
+            AssertEqual(400, ripper.FrozenTimer, "X-ray holds Ice freeze timer independently");
             AssertEqual(initialX, ripper.Position.X.Whole, "X-ray holds enemy movement");
             AssertEqual(initialFrame, ripper.Frame, "X-ray holds the enemy's animation frame");
             AssertEqual(initialFrameHold, ripper.FrameHold, "X-ray holds the enemy's animation timer");
         }
         ripper.Properties = ripper.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        ripper.InvincibilityTimer = WrappingCountdown.Start(10);
+        ripper.InvincibilityTimer = 10;
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
-        AssertEqual(10, ripper.InvincibilityTimer.RawValue, "intangible actor bypasses native invincibility clock");
+        AssertEqual(10, ripper.InvincibilityTimer, "intangible actor bypasses native invincibility clock");
         ripper.Properties = ripper.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        ripper.InvincibilityTimer = WrappingCountdown.Start(1);
-        ripper.FrozenTimer = WrappingCountdown.Start(0);
-        ripper.FlashTimer = WrappingCountdown.Start(0);
+        ripper.InvincibilityTimer = 1;
+        ripper.FrozenTimer = 0;
+        ripper.FlashTimer = 0;
         var touchingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -518,7 +518,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
         };
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus, Level = level, ResolveSamusContactBeforeAi = true });
-        AssertEqual(0, ripper.InvincibilityTimer.RawValue, "ordinary frame expires the last invincibility tick");
+        AssertEqual(0, ripper.InvincibilityTimer, "ordinary frame expires the last invincibility tick");
         AssertEqual(99, touchingSamus.Health, "expiration frame still skips native collision branch");
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus, Level = level, ResolveSamusContactBeforeAi = true });
         AssertEqual(94, touchingSamus.Health, "following frame resumes body contact damage");
@@ -541,29 +541,29 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap origin: the reversed frame drawn
     // unshaken, then with each sign, makes both signs and the timer consumption observable.
     var steadyOam = new OamBuffer();
-    ripper.ShakeTimer = WrappingCountdown.Start(0);
+    ripper.ShakeTimer = 0;
     steadyOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(steadyOam, new(0, 0), 0, 7);
     steadyOam.FinalizeFrame();
     int steadyX = steadyOam.GetEntry(0).Position.X;
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
-    ripper.ShakeTimer = WrappingCountdown.Start(2);
+    ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(steadyX + 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one clear adds one X pixel");
-    AssertEqual(1, ripper.ShakeTimer.RawValue, "enemy draw consumes one shake tick");
+    AssertEqual(1, ripper.ShakeTimer, "enemy draw consumes one shake tick");
 
     ripper.FrameCounter = 2;
-    ripper.ShakeTimer = WrappingCountdown.Start(2);
+    ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(steadyX - 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one set subtracts one X pixel");
-    AssertEqual(1, ripper.ShakeTimer.RawValue, "negative enemy draw consumes one shake tick");
+    AssertEqual(1, ripper.ShakeTimer, "negative enemy draw consumes one shake tick");
 
     var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
@@ -575,10 +575,10 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         "Ripper radius contact reaches common touch AI");
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer.RawValue, "Ripper contact invincibility clock");
-    AssertEqual(5, samus.KnockbackTimer.RawValue, "Ripper contact knockback clock");
+    AssertEqual(5, samus.KnockbackTimer, "Ripper contact knockback clock");
 
     if (verifyDeferredContact)
-        Console.WriteLine($"CONTACT health={samus.Health} pose={(int)SamusPoseNumbering.Number(samus.Pose):X2} timer={samus.KnockbackTimer.RawValue} invincibility={samus.InvincibilityTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+        Console.WriteLine($"CONTACT health={samus.Health} pose={(int)SamusPoseNumbering.Number(samus.Pose):X2} timer={samus.KnockbackTimer} invincibility={samus.InvincibilityTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
             "touch callback publishes request without changing the pre-movement pose");
     AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == 0,
@@ -615,16 +615,16 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ArmProjectile(shot, ripper, type: 0x8002, damage: 20);
     AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
         "Ripper Ice Beam collision");
-    AssertEqual(400, ripper.FrozenTimer.RawValue, "Ripper Ice vulnerability freezes actor");
+    AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Level = level });
     AssertEqual(frozenX, ripper.Position.X.Whole, "frozen Ripper suppresses movement");
-    AssertEqual(399, ripper.FrozenTimer.RawValue, "frozen Ripper timer advances");
+    AssertEqual(399, ripper.FrozenTimer, "frozen Ripper timer advances");
 
     // Clear the focused freeze fixture and prove the Super Missile multiplier, hurt flash, and
     // common death/deletion accounting on the same loaded actor.
-    ripper.FrozenTimer = WrappingCountdown.Start(0);
-    ripper.InvincibilityTimer = WrappingCountdown.Start(0);
+    ripper.FrozenTimer = 0;
+    ripper.InvincibilityTimer = 0;
     ripper.AiStates = EnemyAiStates.None;
     SoundEffectId expectedHurtCry = Library2Sound.ShotRipper;
     AssertEqual<SoundEffectId?>(expectedHurtCry, ripper.Definition.HurtSoundEffect, "Ripper header cry decodes to the Ripper hit sound");
@@ -683,7 +683,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorLight), map.Drawn.Single(),
@@ -731,7 +731,7 @@ internal static void VerifyCeresDoorBossBranch()
     bool areaBossDefeated = false;
     int areaBossReads = 0;
     var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
         {
             areaBossReads++;
             return areaBossDefeated;
@@ -835,7 +835,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int generatedRandomCalls = 0;
     // The escape writes its warning text over BG1 (#1346).
     RoomWrittenOverlay ceresOverlay = RoomWrittenOverlay.Empty;
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, WriteBg1Pictures = picture => ceresOverlay = ceresOverlay.With(picture), Floor = RoomBackgroundsFixtures.CeresFloor() })
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, WriteBg1Pictures = picture => ceresOverlay = ceresOverlay.With(picture), Floor = RoomBackgroundsFixtures.CeresFloor() })
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
@@ -917,7 +917,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
-    AssertEqual(511, state.FunctionTimer.RawValue, "Ceres Ridley first delay decrement");
+    AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
@@ -951,7 +951,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
         "Ceres Ridley body fade completes");
-    AssertEqual(4, state.FunctionTimer.RawValue, "Ceres Ridley pre-roar timer");
+    AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
@@ -1057,7 +1057,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     const int roomWidth = 32;
     const int roomHeight = 16;
-    RoomLevelData air = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(new RoomTerrainBlock[roomWidth * roomHeight], new RoomBlockBehavior[roomWidth * roomHeight], new RoomBlockAppearance[roomWidth * roomHeight]));
+    RoomLevelData air = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(new RoomTerrainBlock[roomWidth * roomHeight], new RoomBlockBehavior[roomWidth * roomHeight], new RoomBlockAppearance[roomWidth * roomHeight]), RoomLevelData.NothingBeyondGrid());
     var sharedProjectiles = CreateBombFixture();
     var projectiles = CreateProjectileFixture();
 
@@ -1238,7 +1238,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres EMERGENCY writes only its own words over BG1");
     AssertEqual(CeresSelfDestructPhase.HoldingTitle, state.CeresSelfDestructPhase,
         "Ceres self-destruct reaches the 128-frame English title hold");
-    AssertEqual(128, state.CeresEscapeTextDelayTimer.RawValue,
+    AssertEqual(128, state.CeresEscapeTextDelayTimer,
         "Ceres English warning hold starts at 128");
 
     for (int frame = 0; frame < 127; frame++)

@@ -31,7 +31,7 @@ internal static class XrayTilemapVerification
         RoomTerrainBlock[] foreground = [.. Enumerable.Range(0, RoomSide * RoomSide)
             .Select(block => RoomTerrainBlock.Of(block, mirrorings[block % mirrorings.Length], RoomCollisionType.SolidBlock))];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(RoomSide, RoomSide),
-            new RoomLevelPlanes(foreground, new RoomBlockBehavior[RoomSide * RoomSide], new RoomBlockAppearance[RoomSide * RoomSide]));
+            new RoomLevelPlanes(foreground, new RoomBlockBehavior[RoomSide * RoomSide], new RoomBlockAppearance[RoomSide * RoomSide]), RoomLevelData.NothingBeyondGrid());
         RevealedBlock Copied(int x, int y)
         {
             int block = y * RoomSide + x;

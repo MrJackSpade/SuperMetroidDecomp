@@ -139,7 +139,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
     private static RoomEnemySystem CreateCompiledShaktoolGroup(
 )
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < 7; index++)
         {

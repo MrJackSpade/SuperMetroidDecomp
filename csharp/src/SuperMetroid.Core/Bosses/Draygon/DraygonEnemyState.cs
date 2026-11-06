@@ -135,8 +135,8 @@ public sealed class DraygonEnemyState
     /// </summary>
     public RotationAngle GoopYOscillationAngle { get; internal set; }
 
-    /// <summary>Long count initialized to sixteen when a firing pass begins.</summary>
-    public WrappingCountdown GoopCounter { get; internal set; }
+    /// <summary>Goop shots left in a firing pass, set to sixteen when the pass begins; the pass ends when it reaches zero.</summary>
+    public int GoopCounter { get; internal set; }
 
     /// <summary>Count of wall-turret projectiles admitted to the shared pool; disabled cannons and exhausted allocations do not increment it.</summary>
     public int WallTurretsSpawned { get; internal set; }
@@ -169,8 +169,8 @@ public sealed class DraygonEnemyState
     /// </summary>
     public RotationAngle SpiralAngleDelta { get; internal set; }
 
-    /// <summary>Countdown for an incidental 64-frame tail whip.</summary>
-    public WrappingCountdown TailWhipTimer { get; internal set; }
+    /// <summary>Frames left of an incidental 64-frame tail whip.</summary>
+    public int TailWhipTimer { get; internal set; }
 
     /// <summary>How many times Draygon's chase has reached its grab window and caught Samus.</summary>
     public int SuccessfulGrabs { get; internal set; }
@@ -233,7 +233,7 @@ public sealed class DraygonEnemyState
     }
 
     /// <summary>The updates the dying body waits at its burial point before it sinks, counted down to zero.</summary>
-    public WrappingCountdown BurialWait { get; internal set; }
+    public int BurialWait { get; internal set; }
 
     /// <summary>
     /// The swoop path entry whose height the body takes next: it counts down from <see cref="SwoopPathEntryCount"/>
@@ -253,7 +253,7 @@ public sealed class DraygonEnemyState
     {
         Function = DraygonAiFunction.None;
         IntroFrames = 0;
-        BurialWait = WrappingCountdown.Start(0);
+        BurialWait = 0;
         SwoopEntry = 0;
         SwoopPathEntryCount = 0;
         SwoopVelocity = 0;

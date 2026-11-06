@@ -46,7 +46,7 @@ public sealed class SamusGrappleState
     /// </summary>
     public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
     /// <summary>GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
-    public WrappingCountdown PoseChangeAutoFireTimer { get; set; }
+    public int PoseChangeAutoFireTimer { get; set; }
     /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
@@ -81,7 +81,7 @@ public sealed class SamusGrappleState
     /// <summary>Gets or sets the signed vertical impulse applied by a grapple wall jump, -32768 through 32767.</summary>
     public int JumpImpulse { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
     /// <summary>Gets or sets the countdown suppressing repeated swing-collision bounces.</summary>
-    public WrappingCountdown CollisionBounceTimer { get; set; }
+    public int CollisionBounceTimer { get; set; }
     /// <summary>Gets or sets whether the grapple movement uses submerged physics.</summary>
     public bool Submerged { get; set; }
 
@@ -123,7 +123,7 @@ public sealed class SamusGrappleState
     /// The wall-grab grace counter. Wall-grab release seeds 30, then the grace check performs
     /// one decrement-and-test wall-jump check per frame until zero wraps to 65535.
     /// </summary>
-    public WrappingCountdown WallJumpTimer { get; set; }
+    public int WallJumpTimer { get; set; }
 
     /// <summary>
     /// Distinguishes a cancel reached from a locked type-$16 pose from ordinary firing

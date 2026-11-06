@@ -43,7 +43,7 @@ internal static class ZeroDistanceJumpContactVerification
 
         var crouched = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         SamusPoseMetadata.RefreshCollisionRadii(crouched);
-        SamusKnockbackMovement.Start(crouched, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right, KnockbackTimer = WrappingCountdown.Start(5) }, level: level);
+        SamusKnockbackMovement.Start(crouched, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right, KnockbackTimer = 5 }, level: level);
         AssertEqual(SamusPoseId.KnockbackLeftPose, crouched.Pose, "crouch contact installs hurt pose");
         AssertEqual(16, crouched.Kinematics.Radius.Y, "hurt commit retains live crouch radius");
         SamusPoseMetadata.RefreshCollisionRadii(crouched);

@@ -38,7 +38,7 @@ internal static class MetroidBombPlacementVerification
         Suite(nameof(VerifyMetroidBombRuntime), () => VerifyMetroidBombRuntime(room));
         var assets = LoadFixtureRoomAssets(room);
         var random = new SharedGameState();
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
@@ -66,13 +66,13 @@ internal static class MetroidBombPlacementVerification
         }
         AssertTrue(firstExplosion >= 0, "placed normal bomb reaches its natural explosion");
         AssertTrue(detached >= firstExplosion, "centered placed bomb detaches attached Metroid");
-        Console.WriteLine($"Centered normal bomb: explosion frame {firstExplosion}, detached frame {detached}, escape timer {state.EscapeTimer.RawValue}.");
-        AssertEqual((ushort)4, state.EscapeTimer.RawValue, "native bomb-detach escape interval");
+        Console.WriteLine($"Centered normal bomb: explosion frame {firstExplosion}, detached frame {detached}, escape timer {state.EscapeTimer}.");
+        AssertEqual(4, state.EscapeTimer, "native bomb-detach escape interval");
         // Isolate the post-hit AI from further bomb/contact hits and check the exact
         // native jitter trajectory rather than treating a temporary detach as immunity.
         for (int frame = 0; frame < 4; frame++)
         {
-            int index = state.EscapeTimer.RawValue & 3;
+            int index = state.EscapeTimer & 3;
             ushort expectedX = unchecked((ushort)(target.Position.X.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + index * 2)));
             ushort expectedY = unchecked((ushort)(target.Position.Y.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + (index + 4) * 2)));
             // Move Samus away to prevent touch from immediately changing the returned
@@ -145,7 +145,7 @@ internal static class MetroidBombPlacementVerification
             runtime.StepFrame(input);
             if (frame < 61) continue;
             AssertEqual(expected[frame - 61],
-                new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.EscapeTimer.RawValue, checked((ushort)samus.Health)),
+                new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, checked((ushort)state.EscapeTimer), checked((ushort)samus.Health)),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
             AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
             AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");

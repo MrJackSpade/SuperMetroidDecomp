@@ -24,7 +24,7 @@ internal sealed class PlmSlot
     /// <summary>The typed program the slot runs (#1296), or null for a slot a family step drives or a free slot.</summary>
     internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
-    public WrappingCountdown FrameHold { get; set; }
+    public int FrameHold { get; set; }
     /// <summary>The pre-instruction run before the timer/list pass.</summary>
     internal IPlmFrameBehavior FrameBehavior { get; set; } = PlmFrameBehaviors.Inert;
     /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
@@ -63,7 +63,7 @@ internal sealed class PlmSlot
         BlockIndex = 0;
         RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         Animation = null;
-        FrameHold = WrappingCountdown.Start(0);
+        FrameHold = 0;
         FrameBehavior = PlmFrameBehaviors.Inert;
         Argument = null;
         HitCounter = 0;
@@ -97,13 +97,13 @@ internal sealed class PlmSlot
     internal void WakeAtLink()
     {
         (Animation ?? throw new InvalidOperationException("A PLM woke at its link without a typed program.")).WakeAtLink();
-        FrameHold = WrappingCountdown.Start(1);
+        FrameHold = 1;
     }
 
     /// <summary>A pre-instruction's wake past the sleep the slot rests on: the typed program steps over its hold, on the next pass.</summary>
     internal void WakePastSleep()
     {
         (Animation ?? throw new InvalidOperationException("A PLM woke past its sleep without a typed program.")).WakePastSleep();
-        FrameHold = WrappingCountdown.Start(1);
+        FrameHold = 1;
     }
 }

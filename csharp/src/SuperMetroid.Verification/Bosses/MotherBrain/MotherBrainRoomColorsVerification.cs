@@ -130,7 +130,7 @@ internal static class MotherBrainRoomColorsVerification
     /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>
     private static RoomEnemySystem CreateEnemy()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { BodySheets = BossBodySheetFixtures.Stock.Sheets } };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { BodySheets = BossBodySheetFixtures.Stock.Sheets } };
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         return enemies;
     }

@@ -18,7 +18,7 @@ internal static class BullBehaviorVerification
     /// </summary>
     internal static void VerifyBullBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -47,7 +47,7 @@ internal static class BullBehaviorVerification
     /// </summary>
     internal static void VerifyBullDecelerationOvershoot()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
@@ -57,7 +57,7 @@ internal static class BullBehaviorVerification
         state.Speed = 10;
         state.Acceleration = 48;
         state.AccelerationDelta = 24;
-        state.AccelerationIntervalTimer = WrappingCountdown.Start(1);
+        state.AccelerationIntervalTimer = 1;
 
         BullBehavior.RunBullMain(slot, state, samus: null);
         AssertEqual(24, state.Acceleration, "the expiring interval shrinks the acceleration by its delta");

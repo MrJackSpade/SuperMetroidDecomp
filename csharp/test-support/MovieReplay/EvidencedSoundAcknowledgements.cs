@@ -12,7 +12,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// waiting state during an update; the replay reproduces exactly that outcome. Music
 /// (port 0), updates without native evidence, and normal play keep the session's SPC model.
 /// </remarks>
-internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTiming<SoundEffectLibrary, SoundEffectId>
+internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId>
 {
     /// <summary>$0649..$064B: APU_SoundStateLib1..3.</summary>
     private const int SoundStateLib1 = 0x0649;
@@ -51,8 +51,8 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     public void Invalidate() => captured = false;
 
     /// <inheritdoc/>
-    public SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> modeled, SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> portWrites) =>
-        captured && expectedAfter is not null ? ForUpdate(modeled, expectedAfter) : modeled;
+    public SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> clocked, SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> requested) =>
+        captured && expectedAfter is not null ? ForUpdate(clocked, expectedAfter) : clocked;
 
     /// <summary>
     /// Acknowledgements for the update whose native result is <paramref name="nativeAfter"/>.

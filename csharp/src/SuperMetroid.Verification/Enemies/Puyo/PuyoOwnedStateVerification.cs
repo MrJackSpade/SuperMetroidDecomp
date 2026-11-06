@@ -28,7 +28,7 @@ internal static class PuyoOwnedStateVerification
         hop.StepAirborneIndex(0x0100);
         AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step below the sign bit keeps falling");
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
@@ -39,7 +39,7 @@ internal static class PuyoOwnedStateVerification
         state.CurrentHop = PuyoHopType.Giant;
         state.YSpeedTableIndex = 0x1234;
         slot.Clear();
-        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(PuyoHopType.NormalSmall, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.CurrentHop, state.YSpeedTableIndex, state.HopCooldownTimer.RawValue),
+        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(PuyoHopType.NormalSmall, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.CurrentHop, state.YSpeedTableIndex, checked((ushort)state.HopCooldownTimer)),
             "a kill empties the current hop, speed index and cooldown");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Puyo owned state: the apex, the overlong-fall restart and the cleared record match.");

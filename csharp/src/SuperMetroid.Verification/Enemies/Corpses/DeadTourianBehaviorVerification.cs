@@ -19,7 +19,7 @@ internal static class DeadTourianBehaviorVerification
     /// </summary>
     internal static void VerifyDeadSidehopperBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));

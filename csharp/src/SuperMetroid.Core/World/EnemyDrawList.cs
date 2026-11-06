@@ -94,11 +94,11 @@ internal sealed class EnemyDrawList
                 // room's background displacement. Ceres quake types 18 and above reload ShakeTimer for
                 // every active enemy, which is why its ordinary door sprites visibly move
                 // with the station instead of remaining pinned to host screen space.
-                if (!slot.ShakeTimer.IsZero)
+                if (slot.ShakeTimer != 0)
                 {
                     origin = origin.WithX(CoordinateAxis.Wrap(origin.X +
                         ((slot.FrameCounter & 2) != 0 ? -1 : 1)));
-                    slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
+                    slot.ShakeTimer--;
                 }
                 PictureShading drawShading = SelectCommonEnemyDrawShading(slot);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
@@ -222,11 +222,11 @@ internal sealed class EnemyDrawList
         // A hit flash shows the common sprite colours on alternate phases. The flash selects another row for the draw, so
         // it lies over the enemy's own shading: pixels it moves show the selected row, and pixels whose row the selection
         // leaves as it is keep showing what the enemy's own effects laid there.
-        if (!slot.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0)
+        if (slot.FlashTimer != 0 && (_frameContext.RandomEnemyCounter & 2) != 0)
             return slot.Shading.With(EnemyShades.HitFlash);
 
-        if (!slot.FrozenTimer.IsZero &&
-            (slot.FrozenTimer.IsAtLeast(90) || slot.FrozenTimer.IsInAlternatePhase(2)))
+        if (slot.FrozenTimer != 0 &&
+            (slot.FrozenTimer >= 90 || (slot.FrozenTimer / 2 % 2 != 0)))
         {
             return slot.Shading.With(EnemyShades.Frozen);
         }

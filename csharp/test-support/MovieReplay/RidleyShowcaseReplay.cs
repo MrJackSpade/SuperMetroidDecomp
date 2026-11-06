@@ -421,7 +421,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
 
             Check("Samus health", SamusQuantity.Encode(samus.Health), NativeSnapshotMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
-            Check("Samus Samus knockback countdown", samus.KnockbackTimer.RawValue, NativeSnapshotMemory.KnockbackTimer);
+            Check("Samus Samus knockback countdown", samus.KnockbackTimer, NativeSnapshotMemory.KnockbackTimer);
             Check("Samus Samus knockback direction", (ushort)samus.KnockbackDirection, NativeSnapshotMemory.KnockbackDirection);
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlashCounter), NativeSnapshotMemory.HurtFlashCounter);
@@ -522,10 +522,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
                 Check(owner + " TileIndexBase", actor.NativeTileBaseIn(runtime.Enemies), address + 32);
                 Check(owner + " Layer", actor.Layer.Order, address + 34);
-                Check(owner + " FlashTimer", actor.FlashTimer.RawValue, address + 36);
-                Check(owner + " FrozenTimer", actor.FrozenTimer.RawValue, address + 38);
-                Check(owner + " InvincibilityTimer", actor.InvincibilityTimer.RawValue, address + 40);
-                Check(owner + " ShakeTimer", actor.ShakeTimer.RawValue, address + 42);
+                Check(owner + " FlashTimer", actor.FlashTimer, address + 36);
+                Check(owner + " FrozenTimer", actor.FrozenTimer, address + 38);
+                Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);
+                Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
                 Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
             if (!deferLoadingOwners && runtime.Enemies.RidleyEncounter.Ridley is { } ridleyState &&
@@ -539,7 +539,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (!RidleyNativeWords.AiFunctions.TryDecode(nativeFunctionWord, out RidleyAiFunction nativeFunction) ||
                     nativeFunction != ridleyState.Function)
                     mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.Function}");
-                Check("Ridley AI timer", ridleyState.FunctionTimer.RawValue, NativeSnapshotMemory.RidleyFunctionTimer);
+                Check("Ridley AI timer", unchecked((ushort)ridleyState.FunctionTimer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", (ushort)ridleyState.TailFunctionIndex, NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
                 Check("Ridley TailWhipRequest", checked((ushort)ridleyState.TailWhipRequest), NativeSnapshotMemory.RidleyTailWhipRequest);
@@ -556,18 +556,18 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
                 Check("Ridley WingFrame", checked((ushort)ridleyState.WingFrame), NativeSnapshotMemory.RidleyWingFrame);
                 Check("Ridley WingAnimationTimerDelta", checked((ushort)ridleyState.WingAnimationTimerDelta), NativeSnapshotMemory.RidleyWingAnimationTimerDelta);
-                Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer.RawValue, NativeSnapshotMemory.RidleyWingAnimationTimer);
+                Check("Ridley WingAnimationTimer", unchecked((ushort)ridleyState.WingAnimationTimer), NativeSnapshotMemory.RidleyWingAnimationTimer);
                 Check("Ridley FacingDirection", RidleyNativeWords.Facings.Word(ridleyState.FacingDirection), NativeSnapshotMemory.RidleyFacingDirection);
                 Check("Ridley HealthStage", checked((ushort)ridleyState.HealthStage), NativeSnapshotMemory.RidleyHealthStage);
                 Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
                 Check("Ridley TailDamage", checked((ushort)ridleyState.TailDamage), NativeSnapshotMemory.RidleyTailDamage);
                 Check("Ridley FeetDistanceIndex", checked((ushort)(ridleyState.FeetDistanceIndex * sizeof(ushort))), NativeSnapshotMemory.RidleyFeetDistanceIndex);
-                Check("Ridley IntangibilityTimer", ridleyState.IntangibilityTimer.RawValue, NativeSnapshotMemory.RidleyIntangibilityTimer);
+                Check("Ridley IntangibilityTimer", checked((ushort)ridleyState.IntangibilityTimer), NativeSnapshotMemory.RidleyIntangibilityTimer);
                 if (ridleyState.Function is RidleyAiFunction.NorfairSwoopMoveToStart or
                     RidleyAiFunction.NorfairSwoopAimDown or RidleyAiFunction.NorfairSwoopAimSideways or
                     RidleyAiFunction.NorfairSwoopAimUp or RidleyAiFunction.NorfairSwoopClimb or RidleyAiFunction.NorfairSwoopRecover)
-                    Check("Ridley swoop timer", ridleyState.SwoopPhaseTimer.RawValue, NativeSnapshotMemory.RidleySwoopTimer);
+                    Check("Ridley swoop timer", checked((ushort)ridleyState.SwoopPhaseTimer), NativeSnapshotMemory.RidleySwoopTimer);
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {
                     // Tail workspace becomes live after its first fade-owned composition.
@@ -657,16 +657,16 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             {
                 foreach (var trail in runtime.Projectiles.TrailSlots)
                 {
-                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.FrameHold.RawValue, NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
-                    if (!trail.Left.FrameHold.IsZero)
+                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.FrameHold, NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
+                    if (trail.Left.FrameHold != 0)
                     {
                         Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Left.ShownPose), NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.SlotTableOffset);
                     }
-                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.FrameHold.RawValue, NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
-                    if (!trail.Right.FrameHold.IsZero)
+                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.FrameHold, NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
+                    if (trail.Right.FrameHold != 0)
                     {
                         Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Right.ShownPose), NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.SlotTableOffset);
@@ -678,7 +678,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Beam charge", runtime.Projectiles.Charge.FlareCounter, NativeSnapshotMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.SlotTable.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);
                 Check("PreviousBeamChargeCounter", runtime.Projectiles.Charge.PreviousBeamChargeCounter, NativeSnapshotMemory.PreviousCharge);
-                Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer.RawValue, NativeSnapshotMemory.ProjectileInteractionImmunity);
+                Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", runtime.Projectiles.Charge.ChargedShotGlowTimer.RawValue, NativeSnapshotMemory.ChargedShotGlow);
                 Check("ChargePaletteStep", runtime.Projectiles.Charge.ChargePaletteStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);

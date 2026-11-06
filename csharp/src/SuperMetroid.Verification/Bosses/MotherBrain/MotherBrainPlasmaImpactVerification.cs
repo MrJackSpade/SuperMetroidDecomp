@@ -18,7 +18,7 @@ internal static class MotherBrainPlasmaImpactVerification
     /// <summary>Confirms one accepted hit, recoil, immunity, first-form restriction, and later Hyper Beam behavior.</summary>
     internal static int VerifyMotherBrainPlasmaImpact()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var head = enemies.SlotTable.Slots[1];
         head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
         head.Bind(head.DefinitionId, RoomEnemyHeaders.Get(head.DefinitionId));
@@ -42,7 +42,7 @@ internal static class MotherBrainPlasmaImpactVerification
             "Mother Brain plasma-blocking property marks the shot for removal");
         AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
             "Accepted beam spends one step of walk credit");
-        AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer.RawValue,
+        AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer,
             "The no-death damage tail grants Plasma's hit immunity");
         var level = CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < 3; frame++)
@@ -54,12 +54,12 @@ internal static class MotherBrainPlasmaImpactVerification
                 "Later overlap does not spend walk credit again");
         }
         // Later checks are new shots after that immunity has run out.
-        head.InvincibilityTimer = WrappingCountdown.Start(0);
+        head.InvincibilityTimer = 0;
         state.Form = MotherBrainForm.Glass;
         SeedChargedPlasma();
         Hit();
         AssertEqual(17550, head.Health, "First form retains its missile-only damage restriction");
-        head.InvincibilityTimer = WrappingCountdown.Start(0);
+        head.InvincibilityTimer = 0;
         state.Form = MotherBrainForm.ThirdPhase;
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         state.RainbowBeamSequence.State.Body.Form = MotherBrainForm.ThirdPhase;
@@ -69,7 +69,7 @@ internal static class MotherBrainPlasmaImpactVerification
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
-        head.InvincibilityTimer = WrappingCountdown.Start(0);
+        head.InvincibilityTimer = 0;
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, state.RainbowBeamSequence.ThirdPhaseFight.Phase3NeckPhase,

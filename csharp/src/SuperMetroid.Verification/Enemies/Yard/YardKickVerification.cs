@@ -24,7 +24,7 @@ internal static class YardKickVerification
         foreach (ushort whole in new ushort[] { 0, 1, 2, 15, 16, 32 })
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];

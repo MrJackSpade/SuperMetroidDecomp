@@ -27,10 +27,10 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
     /// <summary>Sixteen calls precede the alternating yellow flash.</summary>
-    public WrappingCountdown PreFlashingTimer { get; private set; }
+    public int PreFlashingTimer { get; private set; }
 
     /// <summary>Reused by flash and suit-explosion palette timing.</summary>
-    public WrappingCountdown AnimationTimer { get; private set; }
+    public int AnimationTimer { get; private set; }
 
     /// <summary>
     /// Flash palette selector (zero or one) while flashing, then the suit-explosion frame index from zero up to
@@ -107,8 +107,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // screen-space pair here for the eventual explosion-spritemap path.
         ScreenPosition = samus.Position.Whole.ToScreen(cameraPosition);
 
-        PreFlashingTimer = WrappingCountdown.Start(SamusDeathSequenceDefinitions.PreFlashFrameCount);
-        AnimationTimer = WrappingCountdown.Start(3);
+        PreFlashingTimer = SamusDeathSequenceDefinitions.PreFlashFrameCount;
+        AnimationTimer = 3;
         AnimationIndex = 0;
         AnimationCounter = 0;
         Whiteout = null;
@@ -146,8 +146,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 // State `$17` freezes that final body frame while its palettes alternate.
                 SamusPresentation.AnimateDeathFrame(samus);
                 drawPose = true;
-                PreFlashingTimer = PreFlashingTimer.Decrement().Remaining;
-                if (PreFlashingTimer.IsZero || PreFlashingTimer.IsNegative)
+                PreFlashingTimer--;
+                if (PreFlashingTimer <= 0)
                     Phase = SamusDeathSequencePhase.Flashing;
                 break;
 
@@ -160,7 +160,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                     WritePalettePair(samus, samusColours, paletteIndex: 0);
                     paletteChanged = true;
                     AnimationTimer =
-                        WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(index: 0));
+                        SamusDeathExplosionTiming.DurationForIndex(index: 0);
                     AnimationIndex = 0;
                     AnimationCounter = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
@@ -173,18 +173,18 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 }
                 else
                 {
-                    AnimationTimer = AnimationTimer.Decrement().Remaining;
-                    if (AnimationTimer.IsZero || AnimationTimer.IsNegative)
+                    AnimationTimer--;
+                    if (AnimationTimer <= 0)
                     {
                         if (AnimationIndex == 0)
                         {
                             AnimationIndex = 1;
-                            AnimationTimer = WrappingCountdown.Start(1);
+                            AnimationTimer = 1;
                         }
                         else
                         {
                             AnimationIndex = 0;
-                            AnimationTimer = WrappingCountdown.Start(3);
+                            AnimationTimer = 3;
                         }
                         WritePalettePair(samus, samusColours, AnimationIndex);
                         paletteChanged = true;
@@ -241,8 +241,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         ref bool whiteoutChanged,
         SamusDeathSteps? artwork)
     {
-        AnimationTimer = AnimationTimer.Decrement().Remaining;
-        if (!AnimationTimer.IsZero && !AnimationTimer.IsNegative)
+        AnimationTimer--;
+        if (AnimationTimer > 0)
             return true;
 
         AnimationIndex++;
@@ -257,7 +257,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         }
 
         AnimationTimer =
-            WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(AnimationIndex));
+            SamusDeathExplosionTiming.DurationForIndex(AnimationIndex);
         int paletteIndex = (artwork ?? throw new InvalidOperationException(
             "Samus death requires installed palette artwork.")).ExplosionStep(AnimationIndex);
         WritePalettePair(samus, samusColours, paletteIndex);

@@ -32,7 +32,7 @@ internal static class CrawlerBehaviorVerification
         foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, CrawlerAnimationFamily? speciesSurfaceFamily) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

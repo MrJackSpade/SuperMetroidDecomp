@@ -31,7 +31,7 @@ internal sealed class MotherBrainRoomPlms(PlmSlotTable slotTable)
         slot.BlockIndex = level.GetBlockIndex(request.Block);
         slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         slot.Header = plm;
         if (request.Plm == MotherBrainRoomMutation.EscapeDoor)
         {

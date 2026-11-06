@@ -27,7 +27,7 @@ internal static class ElevatorInputDefinitionsVerification
             ElevatorTravelDirection travel = direction == 0 ? ElevatorTravelDirection.Down : ElevatorTravelDirection.Up;
             ControllerButton native = (ControllerButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
             Action<RoomEnemySlot, ElevatorEnemyState, SamusState, ControllerButton,

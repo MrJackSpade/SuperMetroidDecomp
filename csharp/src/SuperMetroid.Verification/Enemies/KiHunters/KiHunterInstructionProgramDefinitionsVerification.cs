@@ -118,7 +118,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             RunFrames(enemies, body, 90);
             AssertEqual(KiHunterEnemyFunction.GroundWait, state.Function,
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
-            AssertEqual((ushort)24, state.WaitTimer.RawValue,
+            AssertEqual(24, state.WaitTimer,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
             AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == Library2Sound.AcidSpit),
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");
@@ -202,7 +202,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         CreatePairResult CreatePair()
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initializeBody = KiHunterBehavior.InitializeKiHunter;
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 

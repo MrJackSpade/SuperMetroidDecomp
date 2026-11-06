@@ -13,7 +13,7 @@ internal static class BabyMetroidThemeVerification
     /// <summary>Confirms the frame-72 data-upload and track pair follows the initial stop, each with the native eight-frame queue delay and no duplicate requests.</summary>
     internal static int VerifyBabyMetroidTheme()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = state;
         var baby = new BabyMetroidCutsceneState();
@@ -48,7 +48,7 @@ internal static class BabyMetroidThemeVerification
             if (frame == 72)
             {
                 AssertEqual(BabyMetroidCutscenePhase.PrepareSamusForHyperBeam, step.PhaseAfter, "Theme starts at preparation transition");
-                AssertEqual((ushort)11, baby.FunctionTimer.RawValue, "Theme transition retains same-call Hyper Beam preparation decrement");
+                AssertEqual(11, baby.FunctionTimer, "Theme transition retains same-call Hyper Beam preparation decrement");
             }
         }
         Console.WriteLine("Baby Metroid music: fatal stop, 72-frame theme boundary, ordered data/track, eight-frame delays and no duplicate requests passed.");

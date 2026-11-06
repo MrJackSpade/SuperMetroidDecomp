@@ -177,10 +177,10 @@ internal sealed class KraidCombat
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
-                    body.FlashTimer = WrappingCountdown.Start(body.HurtFlashFrames + 8);
+                    body.FlashTimer = body.HurtFlashFrames + 8;
                     body.AiStates = body.AiStates | EnemyAiStates.Hurt;
                     if (type.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = WrappingCountdown.Start(16);
+                        body.InvincibilityTimer = 16;
                 }
                 else
                 {
@@ -197,7 +197,7 @@ internal sealed class KraidCombat
         if (mouthHits != 0)
         {
             state.HurtFrame = 6;
-            state.HurtFrameTimer = WrappingCountdown.Start(2);
+            state.HurtFrameTimer = 2;
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&

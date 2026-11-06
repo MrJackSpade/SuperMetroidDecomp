@@ -51,7 +51,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             LeftVelocity = SignedSixteenSixteen.Zero - settings.Speed,
             Behavior = settings.InitialBehavior,
             BurialDepth = 0,
-            UndergroundTimer = WrappingCountdown.FromRaw(settings.UndergroundWait),
+            UndergroundTimer = settings.UndergroundWait,
             MinimumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.TravelDistance), 0),
             MaximumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.TravelDistance), 0),
         };
@@ -83,8 +83,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Underground:
-                state.UndergroundTimer = state.UndergroundTimer.Decrement().Remaining;
-                if (state.UndergroundTimer.IsZero)
+                if (--state.UndergroundTimer == 0)
                     state.Behavior = OwtchBehaviorState.Rising;
                 return;
 
@@ -96,7 +95,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = WrappingCountdown.FromRaw(slot.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
+                    state.UndergroundTimer = slot.SpawnSettings<OwtchSpawnSettings>().UndergroundWait;
                 }
                 return;
 

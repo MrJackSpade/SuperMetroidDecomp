@@ -55,9 +55,7 @@ internal sealed class MotherBrainEncounterAccess
     /// </summary>
     internal static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)
     {
-        CountdownStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
-        return timer.IsNegative;
+        return --state.FunctionTimer < 0;
     }
 
     /// <summary>Restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>

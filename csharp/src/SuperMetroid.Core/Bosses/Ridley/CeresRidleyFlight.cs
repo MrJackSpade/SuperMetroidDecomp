@@ -81,7 +81,7 @@ internal sealed class CeresRidleyFlight
             BabyCurrentPose = null,
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole + CeresRidleyBabyScene.CeresBabyArmsAnchor),
             WingFrame = 5,
-            WingAnimationTimer = WrappingCountdown.Start(0),
+            WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
@@ -192,7 +192,7 @@ internal sealed class CeresRidleyFlight
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
         state.Function = RidleyAiFunction.CeresFireballShooting;
-        state.FunctionTimer = WrappingCountdown.Start(224);
+        state.FunctionTimer = 224;
         TickCeresRidleyFireballShooting(slot, state);
     }
 
@@ -219,8 +219,7 @@ internal sealed class CeresRidleyFlight
         int jitter = BossRandomRolls.InLowerHalf(random) ? random & 7 : -(random & 7);
         Position16<RoomPixels> target = JitteredFireballTarget(state.FireballBasePosition, jitter);
         AccelerateRidleyToward(slot, state, target, 0);
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (state.FunctionTimer.IsNegative)
+        if (--state.FunctionTimer < 0)
         {
             state.HoverCounter = 0;
             state.Function = RidleyAiFunction.CeresHovering;
@@ -241,8 +240,8 @@ internal sealed class CeresRidleyFlight
             : samus.Position.Whole - new Offset16<RoomPixels>(0, 68);
         AccelerateRidleyToward(slot, state, target, 13);
         bool reached = IsWithinRidleyRectangle(slot, target, new(2, 2));
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (reached || state.FunctionTimer.IsNegative)
+        state.FunctionTimer--;
+        if (reached || state.FunctionTimer < 0)
         {
             state.HoverCounter = 0;
             state.Function = RidleyAiFunction.CeresHovering;
@@ -258,7 +257,7 @@ internal sealed class CeresRidleyFlight
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 96) < 0)
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
-            state.FunctionTimer = WrappingCountdown.Start(10);
+            state.FunctionTimer = 10;
             state.SwoopAngleAccumulator = RotationAngle.Zero;
         }
     }
@@ -273,11 +272,10 @@ internal sealed class CeresRidleyFlight
         int nextTimer)
     {
         UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (state.FunctionTimer.IsNegative)
+        if (--state.FunctionTimer < 0)
         {
             state.Function = nextFunction;
-            state.FunctionTimer = WrappingCountdown.FromRaw(nextTimer);
+            state.FunctionTimer = nextTimer;
         }
     }
 
@@ -340,7 +338,7 @@ internal sealed class CeresRidleyFlight
         {
             state.BabyFunction = CeresBabyFunction.Drop;
             state.Function = RidleyAiFunction.CeresWaitBeforeRetrievingBaby;
-            state.FunctionTimer = WrappingCountdown.Start(21);
+            state.FunctionTimer = 21;
         }
     }
 
@@ -372,7 +370,7 @@ internal sealed class CeresRidleyFlight
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole + 128) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
-            state.FunctionTimer = WrappingCountdown.Start(64);
+            state.FunctionTimer = 64;
             TickCeresRidleyRetreatDelay(state);
         }
     }
@@ -380,8 +378,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Ridley Ceres behaviour: real retreat, write palettes Spawn walls.</summary>
     internal void TickCeresRidleyRetreatDelay(RidleyEnemyState state)
     {
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (!state.FunctionTimer.IsNegative)
+        if (--state.FunctionTimer >= 0)
             return;
 
         // The retreat spawns the two chamber-wall actors before the following
@@ -535,13 +532,12 @@ internal sealed class CeresRidleyFlight
     /// <summary>Advances the initial battle hold before Ridley's eye fade begins.</summary>
     internal static void TickCeresRidleyInitialDelay(RidleyEnemyState state)
     {
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (!state.FunctionTimer.IsNegative)
+        if (--state.FunctionTimer >= 0)
             return;
 
         state.Function = RidleyAiFunction.FadeInEyes;
         state.FadeStep = 0;
-        state.FunctionTimer = WrappingCountdown.Start(0);
+        state.FunctionTimer = 0;
     }
 
     /// <summary>Restarts Ridley's enemy instruction cursor and frame timer at a selected list.</summary>
@@ -573,11 +569,11 @@ internal sealed class CeresRidleyFlight
             state.WingAnimationTimerDelta = delta;
         }
 
-        state.WingAnimationTimer = state.WingAnimationTimer.AddFrames(-state.WingAnimationTimerDelta);
-        if (!state.WingAnimationTimer.IsNegative)
+        state.WingAnimationTimer -= state.WingAnimationTimerDelta;
+        if (state.WingAnimationTimer >= 0)
             return;
 
-        state.WingAnimationTimer = WrappingCountdown.Start(32);
+        state.WingAnimationTimer = 32;
         state.WingFrame = (state.WingFrame + 1) % 10;
     }
 

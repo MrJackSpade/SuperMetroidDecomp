@@ -24,7 +24,7 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>What the showing subtitle does next, or <see cref="SubtitleStage.None"/> when no subtitle is showing.</summary>
     private SubtitleStage stage;
     /// <summary>Frames left before the showing subtitle takes its next step.</summary>
-    private WrappingCountdown frameHold;
+    private int frameHold;
 
     /// <summary>Selects Japanese subtitle handling from the opening's alternate-text setting.</summary>
     public IntroJapaneseSubtitles(bool enabled) => Enabled = enabled;
@@ -33,7 +33,7 @@ internal sealed class IntroJapaneseSubtitles
     public bool Enabled { get; }
 
     /// <summary>Frames the second subtitle still holds the page's input wait; zero when the intro starts.</summary>
-    public WrappingCountdown Timer { get; private set; }
+    public int Timer { get; private set; }
 
     /// <summary>Begins <paramref name="page"/>'s text: Japanese text shows the page's first subtitle.</summary>
     public void BeginPage(IntroNarrationPageId page)
@@ -60,9 +60,9 @@ internal sealed class IntroJapaneseSubtitles
     /// </summary>
     public bool HoldInputWait()
     {
-        if (Timer.IsZero)
+        if (Timer == 0)
             return false;
-        Timer = Timer.Decrement().Remaining;
+        Timer--;
         return true;
     }
 
@@ -78,19 +78,19 @@ internal sealed class IntroJapaneseSubtitles
             // The press shows the second subtitle, holds the input wait it will start, and moves to starting that
             // wait on this same frame.
             stage = SubtitleStage.StartInputWait;
-            frameHold = WrappingCountdown.Start(1);
-            Timer = WrappingCountdown.Start(SecondSubtitleHoldFrames);
+            frameHold = 1;
+            Timer = SecondSubtitleHoldFrames;
         }
-        if (!(frameHold = frameHold.Decrement().Remaining).IsZero)
+        if (--frameHold != 0)
             return;
         switch (stage)
         {
             case SubtitleStage.ShowFirstSubtitle:
                 stage = SubtitleStage.FinishFirstSubtitle;
-                frameHold = WrappingCountdown.Start(1);
+                frameHold = 1;
                 return;
             case SubtitleStage.AwaitSecondSubtitleInput:
-                frameHold = WrappingCountdown.Start(1);
+                frameHold = 1;
                 return;
             case SubtitleStage.FinishFirstSubtitle:
                 stage = SubtitleStage.None;
@@ -115,7 +115,7 @@ internal sealed class IntroJapaneseSubtitles
                 $"The intro began page {shownPage}'s subtitle while page {page}'s subtitle was still showing.");
         page = shownPage;
         stage = firstStage;
-        frameHold = WrappingCountdown.Start(1);
+        frameHold = 1;
     }
 
     /// <summary>The steps of a page's subtitles.</summary>

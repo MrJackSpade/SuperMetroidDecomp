@@ -133,7 +133,7 @@ internal sealed class EnemyCollision
 
             // On the ordinary radius path a frozen enemy never runs its touch
             // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
-            if (!usesExtendedHitboxes && !slot.FrozenTimer.IsZero &&
+            if (!usesExtendedHitboxes && slot.FrozenTimer != 0 &&
                 slot.DefinitionId != EnemyDefinitionId.Respawn)
             {
                 continue;
@@ -182,7 +182,7 @@ internal sealed class EnemyCollision
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
                 CommonEnemyEmptyFrames.DrawsNothing(enemy.Frame) ||
-                !enemy.InvincibilityTimer.IsZero ||
+                enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(
                     EnemyProperties.Deleted |
                     EnemyProperties.IgnoreSamusCollision) ||
@@ -354,24 +354,24 @@ internal sealed class EnemyCollision
                 }
                 if (damage != 0)
                 {
-                    enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
+                    enemy.FlashTimer = enemy.HurtFlashFrames + 8;
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the header cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
                     // explosion instructions retain their separate, later sound owner.
-                    if (enemy.FrozenTimer.IsZero && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
+                    if (enemy.FrozenTimer == 0 && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
                         _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
                     // Every plasma-family hit gives sixteen invincibility frames.
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
                     if (projectileType.BeamCombination.HasPlasma)
-                        enemy.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
+                        enemy.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
 
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&
                         projectileType.BeamCombination.HasIce &&
                         !shotVulnerability.PreventsLethalFreeze &&
-                        enemy.FrozenTimer.IsZero;
+                        enemy.FrozenTimer == 0;
                     if (freezeInsteadOfKilling)
                     {
                         // A lethal Ice-bearing beam leaves health unchanged and freezes the
@@ -451,7 +451,7 @@ internal sealed class EnemyCollision
             if ((!usesCommonShotAi && !usesIgnoreShotAi &&
                     !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
                 enemy.Frame is null ||
-                !enemy.InvincibilityTimer.IsZero ||
+                enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted) ||
                 headerSuppressesMultiboxShotCollision ||
                 usesExtendedHitboxes &&
@@ -579,7 +579,7 @@ internal sealed class EnemyCollision
         if (damage == 0)
             return;
 
-        enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
+        enemy.FlashTimer = enemy.HurtFlashFrames + 8;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         enemy.Health = damage >= enemy.Health
             ? 0
@@ -623,7 +623,7 @@ internal sealed class EnemyCollision
             // the sweep; the vertical reach is unchanged.
             horizontalRadius = _powerBombRadius.HorizontalRadius(horizontalRadius);
             if (enemy.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn ||
-                !enemy.InvincibilityTimer.IsZero ||
+                enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
             {
                 continue;
@@ -661,8 +661,8 @@ internal sealed class EnemyCollision
 
             // The common reaction damages the enemy; the process-off-screen property follows.
             int damage = 100 * vulnerability.Multiplier;
-            enemy.InvincibilityTimer = WrappingCountdown.Start(48);
-            enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
+            enemy.InvincibilityTimer = 48;
+            enemy.FlashTimer = enemy.HurtFlashFrames + 8;
             enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
             enemy.Health = damage >= enemy.Health
                 ? 0
@@ -732,13 +732,13 @@ internal sealed class EnemyCollision
         // The direct-freeze vulnerability refreshes the timer even on an already frozen
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
         // reaches this helper only with an initially zero clock.
-        if (enemy.FrozenTimer.IsZero)
+        if (enemy.FrozenTimer == 0)
             _audio.QueueEnemySound(Library3Sound.EnemyFrozen, priority: SoundRequestPriority.Low);
-        enemy.FrozenTimer = WrappingCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
+        enemy.FrozenTimer = samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? 300
-            : 400);
+            : 400;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
-        enemy.InvincibilityTimer = WrappingCountdown.Start(10);
+        enemy.InvincibilityTimer = 10;
     }
 
     /// <summary>Selects the enemy's response to the projectile's beam combination or weapon family.</summary>
@@ -909,10 +909,10 @@ internal sealed class EnemyCollision
         // Touch damage uses the raw hurt-AI duration (default four), unlike projectile and
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
         // explicitly cleared because this branch represents Samus attacking the enemy.
-        enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames);
+        enemy.FlashTimer = enemy.HurtFlashFrames;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
@@ -955,7 +955,7 @@ internal sealed class EnemyCollision
         // The contact publishes a hit request; Samus admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).
-        samus.KnockbackTimer = WrappingCountdown.Start(5);
+        samus.KnockbackTimer = 5;
         samus.KnockbackXDirection = direction;
         // EnemyMain only publishes the request. The common post-animation
         // interruption owns pose/handler initialization later in this frame.

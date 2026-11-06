@@ -29,7 +29,7 @@ internal sealed class ShitroidWallPlms(PlmSlotTable slotTable)
         slot.FrameBehavior = PlmFrameBehaviors.Inert;
         slot.Argument = null;
         PlmProgramStart.Delete.StartOn(slot);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
 
         // The setup walks down the wall column. The change is part of setup, so it happens before the PLM handler's
         // timer can consume and delete this slot.

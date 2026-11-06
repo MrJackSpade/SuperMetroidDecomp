@@ -36,7 +36,7 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Destination graphics memory checked after melt operations.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner hosting the Crocomire body, tongue, and behavior.</summary>
-        internal RoomEnemySystem Enemies { get; } = new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
+        internal RoomEnemySystem Enemies { get; } = new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new VerificationRoomEnemyServices(null));
         /// <summary>Crocomire body state bound to the first two enemy slots.</summary>
         internal CrocomireEnemyState Actor { get; }
@@ -67,7 +67,7 @@ internal static class EnemyEffectsFixtureVerification
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
             Effect = BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
-            Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
+            Effect.AcidSmokeTimer = 1;
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;

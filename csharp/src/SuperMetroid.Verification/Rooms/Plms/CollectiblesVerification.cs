@@ -585,7 +585,7 @@ internal static class CollectiblesVerification
             MessageBoxFrameAudio.MusicAndSounds,
             MessageBoxFrameAudio.MusicAndSounds,
             default,
-            MessageBoxFrameAudio.MusicAndSounds with { AdvancesPerLineEffects = true },
+            MessageBoxFrameAudio.MusicAndSounds with { AdvancesLiquidWaveAndStatueDescent = true },
             MessageBoxFrameAudio.MusicAndSounds,
         ];
         foreach (MessageBoxFrameAudio expected in restoringAudio)

@@ -76,7 +76,7 @@ internal static class SpikeShinesparkSuitVerification
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
         int frozenShineTimer = SamusInputSnapshot.SharedShineTimer(frozenSamus);
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
-        ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
+        int frozenKnockbackTimer = frozenSamus.KnockbackTimer;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
             shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter) });
         AssertEqual(new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenX, frozenY),
@@ -88,7 +88,7 @@ internal static class SpikeShinesparkSuitVerification
         AssertEqual(new VerifySpikeShinesparkSuitCase(frozenShineTimer, frozenPalette),
             new VerifySpikeShinesparkSuitCase(SamusInputSnapshot.SharedShineTimer(frozenSamus), frozenSamus.Shinespark.PaletteType),
             "Reserve command zero freezes stored-shine palette progression");
-        AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer.RawValue,
+        AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer,
             "global hurt timer continues while Reserve owns Samus");
         AssertTrue(frozenSamus.KnockbackActive && frozenSamus.KnockbackDirection != 0,
             "Reserve command zero retains the interrupted knockback movement owner");

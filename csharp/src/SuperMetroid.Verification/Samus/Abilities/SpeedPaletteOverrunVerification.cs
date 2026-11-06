@@ -31,7 +31,7 @@ internal static class SpeedPaletteOverrunVerification
         int traceRow = 1;
         foreach (ushort phase in new ushort[] { 8, 10 })
         {
-            var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = WrappingCountdown.Start(1) };
+            var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = 1 };
             var samusColours = new SamusColours();
             ushort equipped = ((SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster).ToEquipmentWord());
             for (int call = 0; call < phase / 2; call++)
@@ -48,8 +48,8 @@ internal static class SpeedPaletteOverrunVerification
                 AssertEqual(expected, samusColours.ShownSuit(overrunSources)[color], $"phase {phase} native overrun color {color}");
             }
             AssertEqual(SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep, speed.CyclePaletteStep, "native clamps the step only after the overrun read");
-            AssertEqual((ushort)4, speed.SpecialPaletteTimer.RawValue, "native reloads the four-frame timer");
-            string actualTrace = $"{phase},{speed.CyclePaletteStep * sizeof(ushort)},{speed.SpecialPaletteTimer.RawValue}," +
+            AssertEqual(4, speed.SpecialPaletteTimer, "native reloads the four-frame timer");
+            string actualTrace = $"{phase},{speed.CyclePaletteStep * sizeof(ushort)},{speed.SpecialPaletteTimer}," +
                 string.Concat(samusColours.ShownSuit(overrunSources).SelectToArray(color => color.ToWord().ToString("X4")));
             AssertEqual(nativeTrace[traceRow++], actualTrace, "port colors/phase/timer match execution of original ROM on the 65816 core");
             PictureShade first = samusColours.Suit;

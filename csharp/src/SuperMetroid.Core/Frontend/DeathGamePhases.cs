@@ -25,7 +25,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
         dyingSamus.SelectedHudItem = HudItem.Beam;
         dyingSamus.AutoCancelHudItemIndex = HudItem.Beam;
         dyingSamus.InvincibilityTimer = WrappingCountdown.Start(0);
-        dyingSamus.KnockbackTimer = WrappingCountdown.Start(0);
+        dyingSamus.KnockbackTimer = 0;
         dyingSamus.KnockbackActive = false;
         session.GameState = SuperMetroidGameState.DeathBlackOutSurroundings;
     }

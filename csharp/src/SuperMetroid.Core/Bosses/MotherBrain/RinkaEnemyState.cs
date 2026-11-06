@@ -30,8 +30,8 @@ public sealed class RinkaEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Wrapping 16-bit countdown used both before flight and before special respawn.</summary>
-    public WrappingCountdown DelayTimer { get; internal set; }
+    /// <summary>Updates left before flight or before a special respawn, counted down past zero.</summary>
+    public int DelayTimer { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
@@ -39,6 +39,6 @@ public sealed class RinkaEnemyState
         Function = null;
         Velocity = default;
         SpawnResourceToken = 0;
-        DelayTimer = WrappingCountdown.Start(0);
+        DelayTimer = 0;
     }
 }

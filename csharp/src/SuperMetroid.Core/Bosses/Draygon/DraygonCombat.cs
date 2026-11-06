@@ -103,7 +103,7 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState? samus)
     {
-        bool whiteFrame = body.FlashTimer.IsInAlternatePhase(2);
+        bool whiteFrame = body.FlashTimer / 2 % 2 != 0;
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)

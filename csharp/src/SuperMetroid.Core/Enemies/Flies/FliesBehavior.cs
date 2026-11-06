@@ -63,10 +63,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case FlyEnemyFunction.Retreat:
                 MoveFlyAccordingToVelocities(slot, state);
-                state.RetreatTimer = state.RetreatTimer.Decrement().Remaining;
-                if (state.RetreatTimer.IsNegative)
+                if (--state.RetreatTimer < 0)
                 {
-                    state.RetreatTimer = WrappingCountdown.Start(24);
+                    state.RetreatTimer = 24;
                     state.Function = FlyEnemyFunction.ClockwiseCircle;
                 }
                 return;
@@ -83,9 +82,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RotationDirection rotation)
     {
-        if (!state.RetreatTimer.IsZero)
+        if (state.RetreatTimer != 0)
         {
-            state.RetreatTimer = state.RetreatTimer.Decrement().Remaining;
+            state.RetreatTimer--;
         }
         else if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) <
             FlyAttackHorizontalRange)
@@ -123,7 +122,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
-        state.RetreatTimer = state.RetreatTimer.AddFrames(1);
+        state.RetreatTimer++;
 
         bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole < state.TargetHeight.Y

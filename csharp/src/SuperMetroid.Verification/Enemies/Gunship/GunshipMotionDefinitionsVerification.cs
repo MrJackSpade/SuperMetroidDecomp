@@ -24,7 +24,7 @@ internal static class GunshipMotionDefinitionsVerification
         {
             short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
 
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new GunshipMotionFixtureGuard(rom));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
@@ -53,20 +53,20 @@ internal static class GunshipMotionDefinitionsVerification
             byte expectedTimer = GunshipMotionDefinitionsRomByte(rom, address);
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new GunshipMotionFixtureGuard(rom));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
             var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);
             part.BobPhase = phase;
-            part.BobTimer = WrappingCountdown.Start(1);
+            part.BobTimer = 1;
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
 
             stepBob(top);
 
-            AssertEqual(expectedTimer, part.BobTimer.RawValue,
+            AssertEqual(expectedTimer, part.BobTimer,
                 $"gunship production bob timer {phase}");
             AssertEqual((phase + 1) & 3, part.BobPhase,
                 $"gunship production bob phase {phase}");

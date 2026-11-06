@@ -13,7 +13,7 @@ internal static class ShitroidRecordStateVerification
     /// </summary>
     internal static void VerifyShitroidRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new ShitroidEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -22,7 +22,7 @@ internal static class ShitroidRecordStateVerification
         state.PalettePhase = 1;
         state.PaletteTimer = 1;
         state.PaletteDelay = 1;
-        state.StateTimer = WrappingCountdown.Start(1);
+        state.StateTimer = 1;
 
         slot.Clear();
         AssertEqual<ShitroidAiFunction?>(null, state.Function, "a kill empties Function");
@@ -30,7 +30,7 @@ internal static class ShitroidRecordStateVerification
         AssertEqual<int>(0, state.PalettePhase, "a kill empties PalettePhase");
         AssertEqual<int>(0, state.PaletteTimer, "a kill empties PaletteTimer");
         AssertEqual<int>(0, state.PaletteDelay, "a kill empties PaletteDelay");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.StateTimer, "a kill empties StateTimer");
+        AssertEqual(0, state.StateTimer, "a kill empties StateTimer");
         Console.WriteLine("Shitroid record state: a kill empties every value the record holds.");
     }
 

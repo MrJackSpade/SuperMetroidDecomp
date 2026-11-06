@@ -25,7 +25,7 @@ internal sealed class SporeSpawnCeilingPlms(PlmSlotTable slotTable)
         slot.BlockIndex = blockIndex;
         slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(program));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         return true;
     }
 }

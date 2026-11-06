@@ -34,7 +34,7 @@ internal static class ChainsawFiringVerification
     internal static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
@@ -68,7 +68,7 @@ internal static class ChainsawFiringVerification
         // makes that otherwise invisible call fail loudly through the production path.
         RoomTerrainBlock[] reactiveWords = new RoomTerrainBlock[256];
         reactiveWords[0] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
-        var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
+        var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
         var reactiveSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -92,7 +92,7 @@ internal static class ChainsawFiringVerification
                 RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.VerticalExtension);
             doorBts[doorOrigin + row * 16] = new RoomBlockBehavior(unchecked((byte)-row));
         }
-        var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new RoomBlockAppearance[256]));
+        var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
         var doorSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -176,7 +176,7 @@ internal static class ChainsawFiringVerification
         RoomTerrainBlock[] interferenceWords = new RoomTerrainBlock[25];
         RoomBlockBehavior[] interferenceBts = new RoomBlockBehavior[25];
         interferenceWords[yellowDoorBlock] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new RoomBlockAppearance[25]));
+        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid());
         var interferencePlms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref interferencePlms, new PlmRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
@@ -209,7 +209,7 @@ internal static class ChainsawFiringVerification
         RoomTerrainBlock[] breakingWords = new RoomTerrainBlock[25];
         breakingWords[bombableBlock] =
             RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
-        var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new RoomBlockBehavior[25], new RoomBlockAppearance[25]));
+        var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new RoomBlockBehavior[25], new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid());
         var breakingPlms = PlmFixtures.Unbound();
         var breakingReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(

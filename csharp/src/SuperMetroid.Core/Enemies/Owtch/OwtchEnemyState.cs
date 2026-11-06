@@ -48,7 +48,7 @@ public sealed class OwtchEnemyState
     }
 
     /// <summary>The underground wait countdown.</summary>
-    public WrappingCountdown UndergroundTimer { get; internal set; }
+    public int UndergroundTimer { get; internal set; }
 
     /// <summary>
     /// The left end of the patrol, the spawn X less the travel distance with

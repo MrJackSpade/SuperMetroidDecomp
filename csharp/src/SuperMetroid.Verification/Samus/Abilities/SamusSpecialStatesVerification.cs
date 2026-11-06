@@ -161,7 +161,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble palette copies six colors");
     AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "Crystal Flash bubble timer reloads five");
-    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
+    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer,
         "Crystal Flash body timer comes from interleaved ROM record");
     AssertEqual(1, samus.CrystalFlash.BodyStep,
         "Crystal Flash body pulse advances one step");
@@ -172,7 +172,7 @@ internal static void VerifySamusCrystalFlash()
         samus.CrystalFlash.UpdatePalette(crystalColours, samus);
     AssertEqual(0x0220, crystalColours.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette advances independently");
-    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
+    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer,
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.Position.Y.Whole;
@@ -258,22 +258,22 @@ internal static void VerifySamusCrystalFlash()
     // Call only accepted NMI counters divisible by eight. These are the only handler calls
     // that can consume ammo or restore energy; skipped counters are checked separately.
     samus.InvincibilityTimer = WrappingCountdown.Start(77);
-    samus.KnockbackTimer = WrappingCountdown.Start(5);
+    samus.KnockbackTimer = 5;
     var resourcesBeforeSkipped =
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
     samus.CrystalFlash.Step(samus, 15);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
-    AssertEqual(0, samus.KnockbackTimer.RawValue, "non-draining main frame still clears knockback timer");
+    AssertEqual(0, samus.KnockbackTimer, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs),
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
     {
         samus.InvincibilityTimer = WrappingCountdown.Start(77);
-        samus.KnockbackTimer = WrappingCountdown.Start(5);
+        samus.KnockbackTimer = 5;
         samus.CrystalFlash.Step(samus, unchecked((ushort)(drain * 8)));
         AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
-        AssertEqual(0, samus.KnockbackTimer.RawValue, "ammo-drain frame clears knockback timer");
+        AssertEqual(0, samus.KnockbackTimer, "ammo-drain frame clears knockback timer");
     }
 
     AssertEqual(0, samus.Missiles, "Crystal Flash consumes ten missiles");
@@ -437,7 +437,7 @@ internal static void VerifySamusXray()
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
     AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
-    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
+    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer,
         "widening palette timer reload");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.
@@ -796,7 +796,7 @@ internal static void VerifySamusDeathSequence()
         "60 flashing calls enter suit explosion");
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
         "explosion begins at index zero");
-    AssertEqual(20, samus.DeathSequence.AnimationTimer.RawValue,
+    AssertEqual(20, samus.DeathSequence.AnimationTimer,
         "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");

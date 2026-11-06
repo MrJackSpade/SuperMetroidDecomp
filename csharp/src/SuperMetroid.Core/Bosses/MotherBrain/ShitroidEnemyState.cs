@@ -53,10 +53,10 @@ public sealed class ShitroidEnemyState
     }
 
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>
-    public WrappingCountdown StateTimer { get; internal set; }
+    public int StateTimer { get; internal set; }
 
-    /// <summary>Extended word 01: randomized vertical-follow duration.</summary>
-    public WrappingCountdown HoverTimer { get; internal set; }
+    /// <summary>The randomized vertical-follow duration left; it stops at zero.</summary>
+    public int HoverTimer { get; internal set; }
 
     /// <summary>
     /// Horizontal-lock accumulator (extended word 02): gains two each update the Shitroid is horizontally
@@ -99,6 +99,6 @@ public sealed class ShitroidEnemyState
         PalettePhase = 0;
         PaletteTimer = 0;
         PaletteDelay = 0;
-        StateTimer = WrappingCountdown.Start(0);
+        StateTimer = 0;
     }
 }

@@ -215,7 +215,7 @@ public sealed class SuperMetroidGame
             // The opening update's sound processing runs only once the box closes.
             soundHandlers = 0;
         }
-        IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
+        IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcceptance.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
         IReadOnlyList<AudioRequest> audioRequests = prologueMusicRequests.Count == 0 ? trailingAudioRequests
@@ -372,7 +372,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.MadeItToCeresElevator,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchMadeItToCeresElevator(controllerInput, gameplayAudio),
-                name: () => Session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator ? $"Ceres elevator departure ({Session.ceresDeparture.HoldFramesRemaining.RemainingFrames})" : Session.Runtime?.Room.CeresElevatorArrival is { IsComplete: false } ? "Ceres elevator arrival" : "Ceres controls unlocked"),
+                name: () => Session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator ? $"Ceres elevator departure ({Session.ceresDeparture.HoldFramesRemaining})" : Session.Runtime?.Room.CeresElevatorArrival is { IsComplete: false } ? "Ceres elevator arrival" : "Ceres controls unlocked"),
             new GamePhase(SuperMetroidGameState.BlackoutFromCeres,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchBlackoutFromCeres(controllerInput, gameplayAudio),

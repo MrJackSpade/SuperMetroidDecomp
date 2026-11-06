@@ -275,7 +275,7 @@ internal sealed class BeamFiring
         InitializePosition(samus, slot);
         slot.TrailTimer = WrappingCountdown.Start(4);
         slot.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
-        ProjectileInvincibilityTimer = WrappingCountdown.Start(10);
+        ProjectileInvincibilityTimer = 10;
 
         // The combination selects one projectile, not four independent animation layers
         // composed by the host. In particular, Spazer's familiar three streaks are one
@@ -372,7 +372,7 @@ internal sealed class BeamFiring
         slot.IsSpent = false;
 
         InitializePosition(samus, slot);
-        ProjectileInvincibilityTimer = WrappingCountdown.Start(10);
+        ProjectileInvincibilityTimer = 10;
 
         // The Hyper Beam is a charged Plasma beam for its projectile data and art even though
         // acquisition equips Wave and Plasma tiles and palette. It first reads the charged
@@ -458,7 +458,7 @@ internal sealed class BeamFiring
 
         InitializePosition(samus, slot);
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
-        ProjectileInvincibilityTimer = WrappingCountdown.Start(20);
+        ProjectileInvincibilityTimer = 20;
         if (isSuperMissile)
             samus.SuperMissiles = SamusQuantity.DecrementWord(samus.SuperMissiles);
         else
@@ -587,11 +587,11 @@ internal sealed class BeamFiring
     /// The interaction-immunity timer; humanoid shots temporarily suppress Samus/projectile
     /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
     /// </summary>
-    public WrappingCountdown ProjectileInvincibilityTimer { get; internal set; }
+    public int ProjectileInvincibilityTimer { get; internal set; }
 
     /// <summary>Decrements the projectile-owned word of DecrementSamusTimers.</summary>
     public void DecrementInteractionTimer()
     {
-        ProjectileInvincibilityTimer = ProjectileInvincibilityTimer.DecrementToZero();
+        ProjectileInvincibilityTimer = Math.Max(0, ProjectileInvincibilityTimer - 1);
     }
 }

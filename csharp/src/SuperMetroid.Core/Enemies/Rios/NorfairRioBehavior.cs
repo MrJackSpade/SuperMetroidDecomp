@@ -235,7 +235,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
         NorfairRioEnemyState parentState = parent.RequireSpeciesState<NorfairRioEnemyState>();
         follower.FrozenTimer = parent.FrozenTimer;
-        if (!parent.FrozenTimer.IsZero ||
+        if (parent.FrozenTimer != 0 ||
             parentState.InstalledProgram == NorfairRioProgram.Idle)
         {
             follower.Properties = follower.Properties.With(EnemyProperties.Invisible);

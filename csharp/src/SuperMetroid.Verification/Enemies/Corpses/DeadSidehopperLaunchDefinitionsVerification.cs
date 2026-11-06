@@ -14,7 +14,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     /// <summary>Checks every phase and timer with the migrated velocity tables forbidden to production reads.</summary>
     internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 0, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.InitiallyAlive.RowCount));
@@ -25,10 +25,11 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             AssertEqual(vx, DeadSidehopperLaunchDefinitions.Velocity(phase).X.RawValue, "Native corpse X launch");
             AssertEqual(vy, DeadSidehopperLaunchDefinitions.Velocity(phase).Y.RawValue, "Native corpse Y launch");
             foreach (ushort paletteStage in new ushort[] { 0, 1 })
-            for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            // The delay starts at 64 and the phase ends on the step below zero, so every count it can hold is swept.
+            for (int raw = 0; raw <= 64; raw++)
             {
                 state.Function = DeadSidehopperAiFunction.PostLandingDelay;
-                state.StateTimer = WrappingCountdown.FromRaw((ushort)raw);
+                state.StateTimer = raw;
                 state.PaletteStage = paletteStage;
                 state.JumpPhase = phase;
                 state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
@@ -36,10 +37,10 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 slot.FrameHold = WrappingCountdown.Start(9);
                 slot.Timer = WrappingCountdown.Start(17);
                 dispatch(slot, state, null, null, default);
-                ushort timer = unchecked((ushort)(raw - 1));
-                bool expired = (timer & 0x8000) != 0;
+                int timer = raw - 1;
+                bool expired = timer < 0;
                 bool launch = expired && paletteStage == 0;
-                AssertEqual(timer, state.StateTimer.RawValue, "Exact native delay decrement and wrap");
+                AssertEqual(timer, state.StateTimer, "Exact delay decrement, ending below zero");
                 AssertEqual(launch ? vx : (ushort)0x1234, state.Velocity.X.RawValue, "Timer and palette gates control X launch");
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and palette gates control Y launch");
                 AssertEqual(expired ? (launch ? DeadSidehopperAiFunction.ActivatedMovement : DeadSidehopperAiFunction.TransformPalette) : DeadSidehopperAiFunction.PostLandingDelay,

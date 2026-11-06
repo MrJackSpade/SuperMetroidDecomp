@@ -30,7 +30,7 @@ internal static class RidleyBreakupProgramsVerification
     /// <summary>Drives the grab-release death branch and compares all 29 fragment programs with native data.</summary>
     internal static void VerifyRidleyBreakupPrograms()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
         var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.RunsAnimationScript);
@@ -38,7 +38,7 @@ internal static class RidleyBreakupProgramsVerification
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         var state = new RidleyEnemyState
         {
-            GrabState = RidleyGrabState.CarryingSamus, FunctionTimer = WrappingCountdown.Start(0),
+            GrabState = RidleyGrabState.CarryingSamus, FunctionTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
@@ -84,7 +84,7 @@ internal static class RidleyBreakupProgramsVerification
         ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
         RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
             ?? throw new InvalidOperationException("The spawned fragment has no state.");
-        expiringState.Lifetime = WrappingCountdown.Start(0);
+        expiringState.Lifetime = 0;
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
         enemies.RidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring);

@@ -27,14 +27,14 @@ internal static class PhantoonDeathExplosionsVerification
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool full in new[] { false, true })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var body = enemies.SlotTable.Slots[0];
             var tentacles = enemies.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
             enemies.PhantoonBehavior.Combat.Phantoon = state;
             Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
-            state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.FromRaw(15);
+            state.Parts[body.SlotIndex].FunctionTimer = 15;
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingExplosions;
             if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
@@ -52,7 +52,7 @@ internal static class PhantoonDeathExplosionsVerification
                     if (++index == 13) { index = 5; passes++; }
                 }
                 step(body, state);
-                AssertEqual((ushort)timer, state.Parts[body.SlotIndex].FunctionTimer.RawValue, "Exact death explosion frame timer");
+                AssertEqual((ushort)timer, state.Parts[body.SlotIndex].FunctionTimer, "Exact death explosion frame timer");
                 AssertEqual((ushort)index, state.Parts[tentacles.SlotIndex].ExplosionIndex, "Exact death record cursor and repeat");
                 AssertEqual((ushort)passes, state.Parts[body.SlotIndex].ExplosionPass, "Exact death repeat counter");
                 AssertEqual(requests, state.DeathExplosionRequests, "Exact death request frame");

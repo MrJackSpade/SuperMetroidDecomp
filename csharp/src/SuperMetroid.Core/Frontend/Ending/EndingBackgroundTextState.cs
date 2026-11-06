@@ -19,7 +19,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
     private readonly bool japaneseText;
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
-    internal WrappingCountdown FrameHold { get; set; } = WrappingCountdown.Start(1);
+    internal int FrameHold { get; set; } = 1;
     /// <summary>The installed typewriter characters, compiled when the text is bound.</summary>
     private EndingTextCharacter[]? installedProgram;
     /// <summary>The installed text sequence's characters.</summary>
@@ -76,11 +76,11 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Runs the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
     private void StepInstalled()
     {
-        if (Completed || !(FrameHold = FrameHold.Decrement().Remaining).IsZero) return;
+        if (Completed || --FrameHold != 0) return;
         if (InstalledInitialMarkerPending)
         {
             InstalledInitialMarkerPending = false;
-            FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.InitialDelayFrames);
+            FrameHold = EndingTypewriterDefinitions.InitialDelayFrames;
             return;
         }
         if (InstalledCharacterIndex < InstalledProgram.Length)
@@ -90,7 +90,7 @@ internal sealed class EndingBackgroundTextState
             if (character.Character != ' ')
                 page.Write(EndingPictureNames.Glyph(character.Style, character.Character), new Position16<TilemapCells>(
                     character.Column, character.Row));
-            FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.CharacterDelayFrames);
+            FrameHold = EndingTypewriterDefinitions.CharacterDelayFrames;
             return;
         }
         if (installedSequence == EndingTextSequence.ItemPercentage && !installedHoldStarted)
@@ -99,7 +99,7 @@ internal sealed class EndingBackgroundTextState
             if (japaneseText)
                 page.Write(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             installedHoldStarted = true;
-            FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.PercentageHoldFrames);
+            FrameHold = EndingTypewriterDefinitions.PercentageHoldFrames;
             return;
         }
         if (installedSequence == EndingTextSequence.ItemPercentage)

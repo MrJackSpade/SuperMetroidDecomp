@@ -26,7 +26,7 @@ public sealed class SamusCrystalFlashState
     public CrystalFlashPhase Phase { get; private set; }
 
     /// <summary>Initialized to nine for the ten two-pixel raise frames.</summary>
-    public WrappingCountdown RaiseTimer { get; private set; }
+    public int RaiseTimer { get; private set; }
 
     /// <summary>
     /// The ammunition the drain is consuming: missiles at activation, then super missiles and power bombs as each
@@ -59,7 +59,7 @@ public sealed class SamusCrystalFlashState
     public Position16<RoomPixels> RaisedPosition { get; private set; }
 
     /// <summary>Seeded to one for Samus's palette program.</summary>
-    public WrappingCountdown CrystalPaletteTimer { get; private set; }
+    public int CrystalPaletteTimer { get; private set; }
 
     /// <summary>
     /// The special-palette handler this owner holds: Crystal Flash from activation until the finish restores the
@@ -172,12 +172,12 @@ public sealed class SamusCrystalFlashState
         // instead of reproducing the documented adjacent timing that frees the stun.
         samus.Drained.RelinquishMovementHandler();
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
-        RaiseTimer = WrappingCountdown.Start(9);
+        RaiseTimer = 9;
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         AmmoDecrementTimer = WrappingCountdown.Start(10);
         samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RemainingFrames);
         RaisedPosition = Position16<RoomPixels>.Zero;
-        CrystalPaletteTimer = WrappingCountdown.Start(1);
+        CrystalPaletteTimer = 1;
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         BubbleStep = 0;
         SpecialPaletteTimer = WrappingCountdown.Start(1);
@@ -186,7 +186,7 @@ public sealed class SamusCrystalFlashState
         ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Raising;
@@ -220,7 +220,7 @@ public sealed class SamusCrystalFlashState
                 // The wrapper clears both words after calling the ammo handler,
                 // including its seven no-drain frames and the final phase-changing call.
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
-                samus.KnockbackTimer = WrappingCountdown.Start(0);
+                samus.KnockbackTimer = 0;
                 break;
 
             case CrystalFlashPhase.Finishing:
@@ -243,11 +243,9 @@ public sealed class SamusCrystalFlashState
         // The raise changes only the whole-pixel word. The subposition survives.
         samus.Position -= new Offset16<RoomPixels>(0, 2);
 
-        // The game initializes nine, then decrements and tests the sign. Values 8..0 return; the tenth call
-        // underflows to 65535 and installs the main handler after completing its Y move.
-        CountdownStep raiseTimer = RaiseTimer.Decrement();
-        RaiseTimer = raiseTimer.Remaining;
-        if (raiseTimer.IsNonNegative)
+        // The game initializes nine, then decrements and tests the sign. Values 8..0 return; the tenth call runs
+        // past zero and installs the main handler after completing its Y move.
+        if (--RaiseTimer >= 0)
             return;
 
         // The delay program is already on its raise loop, but the movement handler forces
@@ -258,7 +256,7 @@ public sealed class SamusCrystalFlashState
         BubbleEffectRequested = true;
         ActivationSoundRequested = true;
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         samus.KnockbackActive = false;
     }
 
@@ -333,7 +331,7 @@ public sealed class SamusCrystalFlashState
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Inactive;
     }
@@ -364,7 +362,7 @@ public sealed class SamusCrystalFlashState
             BubbleStep = 0;
             BodyStep = 0;
             SpecialPaletteTimer = WrappingCountdown.Start(0);
-            CrystalPaletteTimer = WrappingCountdown.Start(0);
+            CrystalPaletteTimer = 0;
             return true;
         }
 
@@ -384,12 +382,9 @@ public sealed class SamusCrystalFlashState
                 : 0;
         }
 
-        CountdownStep crystalPaletteTimer =
-            CrystalPaletteTimer.Decrement();
-        CrystalPaletteTimer = crystalPaletteTimer.Remaining;
-        if (crystalPaletteTimer.IsZeroOrNegative)
+        if (--CrystalPaletteTimer <= 0)
         {
-            CrystalPaletteTimer = WrappingCountdown.FromRaw(CrystalFlashPaletteTiming.DurationForStep(BodyStep));
+            CrystalPaletteTimer = CrystalFlashPaletteTiming.DurationForStep(BodyStep);
             colours.LayOverBeams(SamusShades.CrystalFlashBody(BodyStep));
 
             // The step was validated as one of the pulse's above, so this advance cannot wrap.

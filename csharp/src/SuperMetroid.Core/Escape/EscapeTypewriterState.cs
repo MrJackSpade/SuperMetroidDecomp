@@ -30,7 +30,7 @@ public sealed class EscapeTypewriterState
     /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-call character delay once the program starts.</summary>
     public int Delay { get; private set; }
     /// <summary>Calls still to skip before typing another character; a call that decrements it to zero still performs no character work.</summary>
-    public WrappingCountdown DelayTimer { get; private set; }
+    public int DelayTimer { get; private set; }
     /// <summary>Total non-space glyphs typed; spaces advance the cell but do not increment this count.</summary>
     public int GlyphsWritten { get; private set; }
     /// <summary>True after an eligible typing call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
@@ -70,7 +70,7 @@ public sealed class EscapeTypewriterState
         ClickRequested = false;
         glyph = null;
         if (Completed) return true;
-        if (!DelayTimer.IsZero) { DelayTimer = DelayTimer.Decrement().Remaining; return false; }
+        if (DelayTimer != 0) { DelayTimer--; return false; }
         EscapeTypewriterProgram program = installedProgram ??
             throw new InvalidOperationException(
                 $"Escape typewriter program {ProgramId} was restored without host content rebind.");
@@ -81,7 +81,7 @@ public sealed class EscapeTypewriterState
     private bool StepInstalled(EscapeTypewriterProgram program, out EscapeTypewriterGlyph? glyph)
     {
         glyph = null;
-        DelayTimer = WrappingCountdown.Start(Delay);
+        DelayTimer = Delay;
         if (!ProgramStarted)
         {
             Delay = EscapeTypewriterDefinitions.CharacterDelayFrames;

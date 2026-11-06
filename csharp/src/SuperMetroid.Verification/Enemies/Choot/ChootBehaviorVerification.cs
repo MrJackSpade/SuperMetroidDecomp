@@ -18,7 +18,7 @@ internal static class ChootBehaviorVerification
     /// </summary>
     internal static void VerifyChootBehavior(InstalledEnemyArtwork? artwork = null)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -34,7 +34,7 @@ internal static class ChootBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, 3), "Choot idle pose");
         AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Choot idle program disables off-screen processing");
 
-        state.JumpDelayTimer = WrappingCountdown.Start(0);
+        state.JumpDelayTimer = 0;
         ChootBehavior.PrepareChootJump(slot, state);
         AssertEqual(AnimationProgramCursor<ChootProgram>.Start(ChootProgram.Jumping), state.Program,
             "Choot real preparation handoff starts the jumping animation");

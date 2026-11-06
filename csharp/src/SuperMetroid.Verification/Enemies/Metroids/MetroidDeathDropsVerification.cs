@@ -39,7 +39,7 @@ internal static class MetroidDeathDropsVerification
         // Metroid showed when it was shot ($F137).
         metroid.SpritemapPointer = 0xf137;
         // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
-        metroid.FrozenTimer = WrappingCountdown.Start(100);
+        metroid.FrozenTimer = 100;
         metroid.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 

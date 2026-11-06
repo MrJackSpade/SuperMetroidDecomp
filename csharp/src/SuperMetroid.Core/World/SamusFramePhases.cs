@@ -379,7 +379,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 Progression = _system }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus), producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
 
             if (!_freeze.TimeIsFrozen)
-                room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer.RemainingFrames);
+                room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer);
 
             // The new-state handler dispatches the selected HUD producer and immediately
             // clears the pose bridge. Pose initialization occurs later in the

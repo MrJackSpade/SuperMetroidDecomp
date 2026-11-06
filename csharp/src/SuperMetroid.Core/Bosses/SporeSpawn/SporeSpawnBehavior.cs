@@ -469,7 +469,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveSporeSpawnShotAfterCommon(RoomEnemySlot body)
     {
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
-        if (!body.FlashTimer.IsZero)
+        if (body.FlashTimer != 0)
         {
             state.Function = SporeSpawnFunction.Moving;
 
@@ -520,8 +520,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.DeathStarted = true;
         state.SporeGenerationSuppressed = false;
-        body.InvincibilityTimer = WrappingCountdown.Start(0);
-        body.FlashTimer = WrappingCountdown.Start(0);
+        body.InvincibilityTimer = 0;
+        body.FlashTimer = 0;
         body.AiStates = EnemyAiStates.None;
         // The intangible property removes the dead body from the interactive-enemy list.
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);

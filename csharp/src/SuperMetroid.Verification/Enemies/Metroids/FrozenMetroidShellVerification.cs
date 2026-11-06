@@ -18,7 +18,7 @@ internal static class FrozenMetroidShellVerification
     /// <summary>Reproduces the empty shell frame and compares all emitted frozen sprite parts while the animation timer remains held (#1207).</summary>
     internal static int VerifyFrozenMetroidShell()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         // The shell draws as a Metroid room loads it: at the Metroid's tile base and in its palette.
         enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid));
         int tileBase = enemies.GraphicsSet.TileBaseOf(EnemyDefinitionId.Metroid);
@@ -36,7 +36,7 @@ internal static class FrozenMetroidShellVerification
         shell.Cursor = new(RoomSpriteObjectProgram.MetroidShell, 2);
         var shown = AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[1], "second shell step");
         shell.Frame = shown.Frame;
-        shell.Timer = WrappingCountdown.Start(shown.Duration);
+        shell.Timer = shown.Duration;
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         var actual = new OamBuffer();
         actual.BeginFrame();

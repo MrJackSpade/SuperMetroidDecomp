@@ -303,12 +303,11 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case CinematicSpriteFrameBehavior.ConfusedBabyIdling:
-                BabyIdleTimer = BabyIdleTimer.Decrement().Remaining;
-                if (BabyIdleTimer.IsZeroOrNegative)
+                if (--BabyIdleTimer <= 0)
                 {
                     confusedBaby.InstallFrameBehavior(
                         CinematicSpriteFrameBehavior.ConfusedBabyDancing);
-                    BabyIdleTimer = WrappingCountdown.Start(0);
+                    BabyIdleTimer = 0;
                     BabyVelocity = BabyVelocity.WithY(default);
                     confusedBaby.GeneralTimer = 0;
                 }
@@ -359,7 +358,7 @@ internal sealed class IntroBabyDiscoveryState
     private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
 
     /// <summary>Countdown from the apex of the baby's rise to the start of its dance.</summary>
-    private WrappingCountdown BabyIdleTimer { get; set; }
+    private int BabyIdleTimer { get; set; }
 
     /// <summary>Spawns slime at the authored scanline and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
@@ -393,7 +392,7 @@ internal sealed class IntroBabyDiscoveryState
         // then holds for 128 frames before enabling the two-axis dance around Samus.
         if (BabyVelocity.Y.SignedRawValue >= 0)
         {
-            BabyIdleTimer = WrappingCountdown.Start(128);
+            BabyIdleTimer = 128;
             confusedBaby.InstallFrameBehavior(
                 CinematicSpriteFrameBehavior.ConfusedBabyIdling);
         }
@@ -489,6 +488,6 @@ internal sealed class IntroBabyDiscoveryState
         var behavior = new RoomBlockBehavior[width * height];
         behavior.AsSpan().Fill(RoomBlockBehaviorValues.None);
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]));
+            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
     }
 }

@@ -17,13 +17,14 @@ internal static class BullShotReactionGuardVerification
     /// </summary>
     internal static void VerifyBullShotReactionGuardWrap()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        RoomEnemyCompatibility compatibility = RoomEnemyCompatibilityFixtures.ForNewRoom();
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), compatibility);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var inheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity);
+        SlotInheritance<BullEnemyState> inheritance = compatibility.BullInheritance;
         BullEnemyState state = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous)
         {
             Function = BullEnemyFunction.MovementDelay,
-            ActivationTimer = WrappingCountdown.Start(100),
+            ActivationTimer = 100,
             ShotReactionDisabled = true,
         });
 

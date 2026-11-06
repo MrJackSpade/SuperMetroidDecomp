@@ -24,8 +24,8 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Enemy phase.</summary>
     public required EnemyFramePhase EnemyPhase { get; init; }
 
-    /// <summary>The per-line effect phase the door transition's frames run.</summary>
-    public required PerLineEffectPhase PerLineEffects { get; init; }
+    /// <summary>The liquid wave and statue descent the door transition's frames advance.</summary>
+    public required LiquidWaveAndStatueDescent LiquidWaveAndStatueDescent { get; init; }
 
 
     /// <summary>The frame clock.</summary>

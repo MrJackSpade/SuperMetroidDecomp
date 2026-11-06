@@ -71,7 +71,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BounceSpeedAccumulator = 0;
         state.TravelSpeedAccumulator = 0;
-        state.BounceCounter = WrappingCountdown.Start(2);
+        state.BounceCounter = 2;
         state.Function = BoulderAiFunction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
@@ -228,10 +228,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = BoulderAiFunction.Rebound;
 
             // The third impact still installs the leading zero sample before the counter
-            // underflows. Preserve that write even though this impact enters rolling.
-            state.BounceSpeedAccumulator = BoulderBounces.SpeedIndex(state.BounceCounter.RemainingFrames);
-            state.BounceCounter = state.BounceCounter.Decrement().Remaining;
-            if (state.BounceCounter.IsNegative)
+            // goes below zero. Preserve that write even though this impact enters rolling.
+            state.BounceSpeedAccumulator = BoulderBounces.SpeedIndex(state.BounceCounter);
+            if (--state.BounceCounter < 0)
             {
                 state.PreviousY = slot.Position.Y;
                 state.Function = BoulderAiFunction.Rolling;

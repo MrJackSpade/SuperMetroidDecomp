@@ -78,9 +78,9 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal ushort StepBrainShakeForDraw()
         {
-            if (!self.State.BrainMainShakeTimer.IsZero)
-                self.State.BrainMainShakeTimer = self.State.BrainMainShakeTimer.Decrement().Remaining;
-            return unchecked((ushort)(self.State.BrainMainShakeTimer.RawValue & 6));
+            if (self.State.BrainMainShakeTimer != 0)
+                self.State.BrainMainShakeTimer--;
+            return checked((ushort)(self.State.BrainMainShakeTimer & 6));
         }
     }
 }

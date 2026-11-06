@@ -9,17 +9,15 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresExplosions
 {
     /// <summary>Spawner events, with the repeating frame behaviour before the final wave.</summary>
-    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref WrappingCountdown countdown)
+    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref int countdown)
     {
         bool repeat = false;
         if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame)
         {
-            CountdownStep step = countdown.Decrement();
-            countdown = step.Remaining;
-            if (step.IsZeroOrNegative)
+            if (--countdown <= 0)
             {
                 repeat = true;
-                countdown = WrappingCountdown.Start(RepeatingPeriodFrames);
+                countdown = RepeatingPeriodFrames;
             }
         }
         return new(frame == FrameOf(SpawnerMilestone.InitialWave), repeat,

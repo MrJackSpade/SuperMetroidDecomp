@@ -541,7 +541,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
-            c.Enemy.InvincibilityTimer = WrappingCountdown.Start(10);
+            c.Enemy.InvincibilityTimer = 10;
             // A shot aimed straight left or right reflects up and away; every other aim reflects down.
             SamusProjectileDirection reflected = c.Projectile.Direction switch
             {

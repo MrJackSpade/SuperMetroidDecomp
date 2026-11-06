@@ -13,18 +13,18 @@ internal static class SkreeRecordStateVerification
     /// </summary>
     internal static void VerifySkreeRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new SkreeEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.BurrowTimer = WrappingCountdown.Start(1);
+        state.BurrowTimer = 1;
         state.Function = Enum.GetValues<SkreeEnemyFunction>()[^1];
         state.RequestedInstructionIndex = Enum.GetValues<SkreeMetareeAnimationPhase>()[^1];
         state.InstalledInstructionIndex = Enum.GetValues<SkreeMetareeAnimationPhase>()[^1];
         state.AttackReady = true;
 
         slot.Clear();
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.BurrowTimer, "a kill empties BurrowTimer");
+        AssertEqual(0, state.BurrowTimer, "a kill empties BurrowTimer");
         AssertEqual<SkreeEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<SkreeMetareeAnimationPhase>(default(SkreeMetareeAnimationPhase), state.RequestedInstructionIndex, "a kill empties RequestedInstructionIndex");
         AssertEqual<SkreeMetareeAnimationPhase>(default(SkreeMetareeAnimationPhase), state.InstalledInstructionIndex, "a kill empties InstalledInstructionIndex");

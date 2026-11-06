@@ -13,21 +13,21 @@ internal static class BoulderRecordStateVerification
     /// </summary>
     internal static void VerifyBoulderRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BoulderEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<BoulderAiFunction>()[^1];
         state.TravelSpeedAccumulator = 1;
         state.BounceSpeedAccumulator = 1;
-        state.BounceCounter = WrappingCountdown.Start(1);
+        state.BounceCounter = 1;
         state.Roll = BoulderRoll.Left;
 
         slot.Clear();
         AssertEqual<BoulderAiFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.TravelSpeedAccumulator, "a kill empties TravelSpeedAccumulator");
         AssertEqual<int>(0, state.BounceSpeedAccumulator, "a kill empties BounceSpeedAccumulator");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.BounceCounter, "a kill empties BounceCounter");
+        AssertEqual(0, state.BounceCounter, "a kill empties BounceCounter");
         AssertEqual(BoulderRoll.Right, state.Roll, "a kill empties the roll");
         Console.WriteLine("Boulder record state: a kill empties every value the record holds.");
     }

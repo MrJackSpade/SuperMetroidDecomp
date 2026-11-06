@@ -52,7 +52,7 @@ internal static class RidleyAcidVerification
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
         state.Function = RidleyAiFunction.WaitBeforeLiftoff;
-        state.FunctionTimer = WrappingCountdown.Start(0);
+        state.FunctionTimer = 0;
         state.FadeStep = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
@@ -63,7 +63,7 @@ internal static class RidleyAcidVerification
         AssertEqual((ushort)440, fx.BaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
-        state.FunctionTimer = WrappingCountdown.Start(0);
+        state.FunctionTimer = 0;
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual((ushort)528, fx.TargetSurface.Y, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.YVelocity.RawValue, "native death writes draining velocity");

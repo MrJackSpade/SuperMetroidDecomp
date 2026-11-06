@@ -31,7 +31,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         var guarded = NewMotherBrainDoorFragmentReadGuard(rom);
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDoorFragment(parameter);
 
             MotherBrainDoorFragmentDefinition definition =
@@ -48,7 +48,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
                 $"production Mother Brain door fragment X velocity {parameter}");
             AssertEqual(definition.Velocity.Y, fragment.Velocity.Y,
                 $"production Mother Brain door fragment Y velocity {parameter}");
-            AssertEqual(MotherBrainDeathDefinitions.DoorFragmentLifetime, fragment.StateOf<MotherBrainDoorFragmentState>().Lifetime.RawValue,
+            AssertEqual(MotherBrainDeathDefinitions.DoorFragmentLifetime, fragment.StateOf<MotherBrainDoorFragmentState>().Lifetime,
                 $"production Mother Brain door fragment lifetime {parameter}");
         }
 

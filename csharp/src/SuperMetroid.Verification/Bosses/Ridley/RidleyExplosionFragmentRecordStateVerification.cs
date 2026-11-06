@@ -10,16 +10,16 @@ internal static class RidleyExplosionFragmentRecordStateVerification
     /// <summary>Installs a Ridley explosion fragment state with its record-clearing operation, sets every record value and confirms a kill empties each.</summary>
     internal static void VerifyRidleyExplosionFragmentRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new RidleyExplosionFragmentState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Velocity = new(new SignedEightEight(0x0130), new SignedEightEight(4));
-        state.Lifetime = WrappingCountdown.Start(72);
+        state.Lifetime = 72;
 
         slot.Clear();
         AssertEqual(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties the velocity");
-        AssertEqual(WrappingCountdown.Start(0), state.Lifetime, "a kill empties the lifetime");
+        AssertEqual(0, state.Lifetime, "a kill empties the lifetime");
         Console.WriteLine("Ridley explosion fragment record state: a kill empties every value the record holds.");
     }
 

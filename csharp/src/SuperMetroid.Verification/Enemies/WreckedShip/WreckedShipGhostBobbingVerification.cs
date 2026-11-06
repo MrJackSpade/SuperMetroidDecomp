@@ -29,14 +29,14 @@ internal static class WreckedShipGhostBobbingVerification
                      new VerifyWreckedShipGhostBobbingCase("below an origin wrapped past the top edge", 0, 65535, 1, 1, 65536 - 6144),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Coven, slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
             var state = new WreckedShipGhostEnemyState
             {
                 Function = WreckedShipGhostAiFunction.BobbingWhileVisible,
-                PhaseTimer = WrappingCountdown.Start(120),
+                PhaseTimer = 120,
                 BobbingOrigin = new(0, originY),
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };

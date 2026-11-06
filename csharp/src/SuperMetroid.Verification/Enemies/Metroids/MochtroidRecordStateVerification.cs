@@ -13,17 +13,17 @@ internal static class MochtroidRecordStateVerification
     /// </summary>
     internal static void VerifyMochtroidRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new MochtroidEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
-        state.ShakeTimer = WrappingCountdown.Start(1);
+        state.ShakeTimer = 1;
         state.MovementMode = Enum.GetValues<MochtroidMovementMode>()[^1];
 
         slot.Clear();
         AssertEqual<FixedVector<RoomPixels>>(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties Velocity");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.ShakeTimer, "a kill empties ShakeTimer");
+        AssertEqual(0, state.ShakeTimer, "a kill empties ShakeTimer");
         AssertEqual<MochtroidMovementMode>(default(MochtroidMovementMode), state.MovementMode, "a kill empties MovementMode");
         Console.WriteLine("Mochtroid record state: a kill empties every value the record holds.");
     }

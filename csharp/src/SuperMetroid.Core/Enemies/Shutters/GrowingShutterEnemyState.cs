@@ -36,7 +36,7 @@ public sealed class GrowingShutterEnemyState
     /// The timer-mode activation wait: tested for expiry before each decrement, so a wait of N activates on call N + 1
     /// and an expired wait stays expired instead of wrapping.
     /// </summary>
-    public WrappingCountdown ActivationTimer { get; internal set; }
+    public int ActivationTimer { get; internal set; }
 
     /// <summary>The proximity-mode distance in pixels: the shutter activates once Samus is horizontally within it.</summary>
     public int ActivationDistance
@@ -95,7 +95,7 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour, no origins, level zero.</summary>
     internal void ClearWithRecord()
     {
-        ActivationTimer = WrappingCountdown.Start(0);
+        ActivationTimer = 0;
         ActivationDistance = 0;
         Function = null;
         Array.Clear(_sectionOrigins);

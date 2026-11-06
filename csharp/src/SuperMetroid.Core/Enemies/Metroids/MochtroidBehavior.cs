@@ -159,11 +159,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
         // table. The low two even bits select right/up/left/down, then the timer counts down.
-        slot.Position += MochtroidShake.Offset(state.ShakeTimer.RemainingFrames);
+        slot.Position += MochtroidShake.Offset(state.ShakeTimer);
         StoreMochtroidXVelocity(state, 0);
         StoreMochtroidYVelocity(state, 0);
-        state.ShakeTimer = state.ShakeTimer.Decrement().Remaining;
-        if (state.ShakeTimer.IsZero)
+        if (--state.ShakeTimer == 0)
             state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         SetMochtroidProgram(
             slot, state, MochtroidProgram.FreeFlight);
@@ -248,7 +247,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // installed by common touch AI. Samus remains attached rather than entering a normal
         // invincibility/knockback grace period, permitting another 80-contact drain cycle.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
     }
 
     /// <summary>Advances Mochtroid's typed animation.</summary>

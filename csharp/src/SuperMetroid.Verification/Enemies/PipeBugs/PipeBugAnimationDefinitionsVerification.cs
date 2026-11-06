@@ -18,7 +18,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
         foreach (bool strong in new[] { false, true })
         {
-            var initializedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var initializedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
             initializedSlot.Bind(strong
                 ? EnemyDefinitionId.Zebbo

@@ -36,7 +36,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.Function = MotherBrainNativeWords.MotherBrainBodyFunctions.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyFunction");
         state.BrainFunction = MotherBrainNativeListAddresses.NativeBrainFunctions[W(MotherBrainMemory.BrainFunction)];
-        state.FunctionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
+        state.FunctionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
         state.RoomFlashFrame = flash == 0 ? null
             : MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame;
@@ -45,9 +45,9 @@ internal static class NativeSnapshotMotherBrainImport
         // (imported below), so only a collapse routine pointer decodes to a collapse function.
         if (MotherBrainNativeListAddresses.NativeTubeCollapseFunctions.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseFunction collapse))
             state.TubeCollapseFunction = collapse;
-        state.TubeCollapseTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
-        state.BodySubFunctionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
-        state.FakeDeathExplosionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.FakeDeathExplosionTimer));
+        state.TubeCollapseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
+        state.BodySubFunctionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
+        state.FakeDeathExplosionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
@@ -71,7 +71,7 @@ internal static class NativeSnapshotMotherBrainImport
         Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
             tube.RequireSpeciesState<MotherBrainFallingTubeState>().Cursor = tubes[AnimationScript(tube)];
-        state.BrainMainShakeTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
+        state.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.NextRainbowFrame = DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex));
         state.DrawNeck = state.BrainFunction == MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
@@ -98,7 +98,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
         state.WalkCounter = MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
         state.AttackPhase = (MotherBrainAttackPhase)W(MotherBrainMemory.AttackPhase);
-        state.AttackCooldown = WrappingCountdown.FromRaw(W(MotherBrainMemory.BodyAttackCooldown));
+        state.AttackCooldown = W(MotherBrainMemory.BodyAttackCooldown);
         state.BombCounter = W(MotherBrainMemory.BombCounter);
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = (MotherBrainHandBeamPhase)W(MotherBrainMemory.DeathBeamAttackPhase);
@@ -200,11 +200,11 @@ internal static class NativeSnapshotMotherBrainImport
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = phase;
-        sequence.State.FunctionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
+        sequence.State.FunctionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.RainbowAttack.AngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
-        sequence.RainbowAttack.SoundQueueCount = WrappingCountdown.FromRaw(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
+        sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
-        sequence.State.BrainMainShakeTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
+        sequence.State.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
         sequence.State.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
         sequence.State.HealthBasedPaletteHandlingEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
@@ -213,8 +213,8 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
-        sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));
-        sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
+        sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction));
+        sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         sequence.LowerNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
         sequence.UpperNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         sequence.State.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);

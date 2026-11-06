@@ -104,7 +104,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = BotwoonEnemyFunction.InitialDelay;
         state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
-        state.InitialDelayTimer = WrappingCountdown.Start(256);
+        state.InitialDelayTimer = 256;
         var initialSpeed = BotwoonSpeeds.ForHealthPhase(0);
         state.Speed = initialSpeed.MovementSpeed;
         state.SegmentSpacingEntries = initialSpeed.SegmentSpacingEntries;
@@ -149,8 +149,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case BotwoonEnemyFunction.InitialDelay:
-                state.InitialDelayTimer = state.InitialDelayTimer.Decrement().Remaining;
-                if (state.InitialDelayTimer.IsZero)
+                if (--state.InitialDelayTimer == 0)
                     state.Function = BotwoonEnemyFunction.ChooseNextAction;
                 break;
 
@@ -216,7 +215,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = BotwoonEnemyFunction.FollowAuthoredPath;
             state.MovementFunction = BotwoonMovementFunction.LoadAuthoredPath;
-            state.AttackTimer = WrappingCountdown.Start(0);
+            state.AttackTimer = 0;
             state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
             ChooseBotwoonPath(head, state);
         }
@@ -224,7 +223,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = BotwoonEnemyFunction.SpitWhileHidden;
             state.HeadFunction = BotwoonHeadFunction.AimAtSamus;
-            state.AttackTimer = WrappingCountdown.Start(48);
+            state.AttackTimer = 48;
             // The spit step makes the spitting head tangible again.
             head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
@@ -255,7 +254,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         SamusState samus)
     {
-        if (!state.AttackTimer.IsZero)
+        if (state.AttackTimer != 0)
         {
             RunBotwoonHeadFunction(head, state, samus);
             return;
@@ -512,11 +511,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.HeadFunction = BotwoonHeadFunction.AttackCooldown;
                 return;
             case BotwoonHeadFunction.AttackCooldown:
-                CountdownStep cooldown = state.AttackTimer.Decrement();
-                state.AttackTimer = cooldown.Remaining;
-                if (cooldown.IsNegative)
+                if (--state.AttackTimer < 0)
                 {
-                    state.AttackTimer = WrappingCountdown.Start(0);
+                    state.AttackTimer = 0;
                     state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
                 }
                 return;
@@ -714,8 +711,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.DropRequested = true;
         state.WallExplosionFrame = 0;
-        state.LargeExplosionTimer = WrappingCountdown.Start(0);
-        state.SmallExplosionTimer = WrappingCountdown.Start(0);
+        state.LargeExplosionTimer = 0;
+        state.SmallExplosionTimer = 0;
     }
 
     /// <summary>Runs the 192-frame wall sequence, then sets the boss bit and queues delayed music.</summary>
@@ -736,12 +733,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.WallExplosionFrame >= BotwoonWallExplosionsBegin)
         {
-            CountdownStep largeExplosionTimer =
-                state.LargeExplosionTimer.Decrement();
-            state.LargeExplosionTimer = largeExplosionTimer.Remaining;
-            if (largeExplosionTimer.IsNegative)
+            if (--state.LargeExplosionTimer < 0)
             {
-                state.LargeExplosionTimer = WrappingCountdown.Start(12);
+                state.LargeExplosionTimer = 12;
                 _spriteObjects.SpawnRoomSpriteObject(
                     new((_room.Random.Generate() & 31) + 232, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
@@ -749,12 +743,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
 
-            CountdownStep smallExplosionTimer =
-                state.SmallExplosionTimer.Decrement();
-            state.SmallExplosionTimer = smallExplosionTimer.Remaining;
-            if (smallExplosionTimer.IsNegative)
+            if (--state.SmallExplosionTimer < 0)
             {
-                state.SmallExplosionTimer = WrappingCountdown.Start(4);
+                state.SmallExplosionTimer = 4;
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     _spriteObjects.SpawnRoomSpriteObject(
@@ -984,7 +975,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int randomEnemyCounter)
     {
         RoomEnemySlot head = _slotTable.Slots[0];
-        segment.Graphics = segment.Graphics.In(!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0
+        segment.Graphics = segment.Graphics.In(head.FlashTimer != 0 && (randomEnemyCounter & 2) != 0
             ? EnemyShades.HitFlashed
             : (BotwoonState ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.")).BodyShading);
     }

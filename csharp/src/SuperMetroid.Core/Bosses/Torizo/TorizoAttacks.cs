@@ -617,9 +617,7 @@ internal sealed class TorizoAttacks
         RoomLevelData level)
     {
         GoldenTorizoEggState egg = projectile.StateOf<GoldenTorizoEggState>();
-        CountdownStep hatch = egg.HatchTimer.Decrement();
-        egg.HatchTimer = hatch.Remaining;
-        if (hatch.IsNegative)
+        if (--egg.HatchTimer < 0)
         {
             // The hatch timer steps the sleeping list past its sleep.
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileProgram(projectile))));

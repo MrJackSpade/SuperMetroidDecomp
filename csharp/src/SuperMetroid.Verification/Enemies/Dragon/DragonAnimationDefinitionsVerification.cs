@@ -88,7 +88,7 @@ internal static class DragonAnimationDefinitionsVerification
     private static void VerifyLiveDragonAnimationHandoffs(
         bool facingLeft)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
@@ -129,7 +129,7 @@ internal static class DragonAnimationDefinitionsVerification
             facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing",
             expectedFrameHold: facingLeft ? (ushort)0 : (ushort)1);
 
-        bodyState.FunctionTimer = WrappingCountdown.Start(0);
+        bodyState.FunctionTimer = 0;
         enemies.DragonBehavior.RunDragonRising(body, bodyState);
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         DragonAnimationSelector attacking = facingLeft

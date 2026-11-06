@@ -26,7 +26,7 @@ internal static class PhantoonPatternsVerification
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort random = LittleEndianBytes.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
@@ -34,7 +34,7 @@ internal static class PhantoonPatternsVerification
             var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
             enemies.PhantoonBehavior.Combat.Phantoon = state;
-            state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.FromRaw(1);
+            state.Parts[body.SlotIndex].FunctionTimer = 1;
             state.Parts[eye.SlotIndex].FigureEightReversed = true;
             new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.Parts[body.SlotIndex].PathCursor, "Real rain cursor handoff");
@@ -65,7 +65,7 @@ internal static class PhantoonPatternsVerification
                 PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeProgram(direction)),
                 $"native Phantoon eye direction {direction}");
         }
-        var eyeEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var eyeEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
@@ -84,7 +84,7 @@ internal static class PhantoonPatternsVerification
         AssertThrows<InvalidDataException>(
             () => PhantoonEyeGaze.EyeProgram(9),
             "Phantoon eye direction beyond authored table");
-        var shotEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));
+        var shotEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var shotBody = shotEnemies.SlotTable.Slots[0];
         var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.SlotTable.Slots[1], Tentacles = shotEnemies.SlotTable.Slots[2], Mouth = shotEnemies.SlotTable.Slots[3] };
         Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = (shotSlot, shotPhantoon, shotType, shotDamage) =>
@@ -98,13 +98,13 @@ internal static class PhantoonPatternsVerification
             shotBody.Health = 1000;
             shotBody.AiStates = EnemyAiStates.Hurt;
             shotState.Parts[shotBody.SlotIndex].Function = PhantoonAiFunction.EyeTracksSamus;
-            shotState.Parts[shotBody.SlotIndex].FunctionTimer = WrappingCountdown.FromRaw(60);
+            shotState.Parts[shotBody.SlotIndex].FunctionTimer = 60;
             shotState.Parts[shotState.Tentacles.SlotIndex].SwoopRequested = false;
             shotState.Parts[shotState.Tentacles.SlotIndex].RoundDamage = 0;
             shot(shotBody, shotState, 0x100, 1);
             AssertEqual(rom.ReadCartridgeByte(0xa7cda5 + (raw & 7)), shotState.Parts[shotState.Eye.SlotIndex].ShotMarker, "Real shot exact eye marker without bus");
             AssertEqual((ushort)(raw & 7), shotState.Parts[shotState.Mouth.SlotIndex].ShotPattern, "Real shot retains selected pattern");
-            AssertEqual(16, shotState.Parts[shotBody.SlotIndex].FunctionTimer.RawValue, "Real shot window shortening preserved");
+            AssertEqual(16, shotState.Parts[shotBody.SlotIndex].FunctionTimer, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");
         }
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");

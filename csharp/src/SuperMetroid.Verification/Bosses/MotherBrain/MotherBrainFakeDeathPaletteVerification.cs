@@ -32,7 +32,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
                     ? MotherBrainBodyFunction.FakeDeathDescentFadeToGray
                     : MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray,
                 TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished,
-                FakeDeathExplosionTimer = WrappingCountdown.Start(100),
+                FakeDeathExplosionTimer = 100,
             };
             Action<MotherBrainEnemyState> step = toGrey
                 ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
@@ -47,18 +47,18 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     MotherBrainFakeDeathPaletteDefinitions.ColorCount,
                     MotherBrainColorDestinations.BrainColor);
-                state.FunctionTimer = WrappingCountdown.Start(0);
+                state.FunctionTimer = 0;
                 step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                     $"installed Mother Brain fake-death {(toGrey ? "descent" : "ascent")} frame {frame} matches full native CGRAM");
                 AssertEqual((ushort)(frame + 1), toGrey ? state.GrayFadeIndex : state.GrayTransitionCounter,
                     "native grey fade cursor increments once per selected frame");
-                AssertEqual(toGrey ? (ushort)8 : (ushort)4, state.FunctionTimer.RawValue,
+                AssertEqual(toGrey ? 8 : 4, state.FunctionTimer,
                     "installed color frame preserves native function timer");
             }
 
             // The ninth selection is the native zero-terminator, not an editable color.
-            state.FunctionTimer = WrappingCountdown.Start(0);
+            state.FunctionTimer = 0;
             step(state);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                 "fake-death grey terminator leaves every CGRAM word unchanged");
@@ -70,7 +70,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
 
     /// <summary>Creates a Mother Brain actor with installed colors.</summary>
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(MotherBrainRainbowPalettePresentation colors) =>
-        new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
+        new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
 
     /// <summary>
     /// The colours Mother Brain's sprites show over black: the import's shades of <paramref name="colors"/>, laid as her

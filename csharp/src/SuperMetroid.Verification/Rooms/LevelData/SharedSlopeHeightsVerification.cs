@@ -30,7 +30,7 @@ internal static class SharedSlopeHeightsVerification
         for (int column = 0; column < 16; column++)
             AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeights.Read(32, column), "shape cannot exceed catalog");
         var forbidden = NewSlopeHeightNoReadBus();
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var enemy = enemies.SlotTable.Slots[0];
         var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
         var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool>(ProjectileMotion.MissileSlopePointReaction);
@@ -41,7 +41,7 @@ internal static class SharedSlopeHeightsVerification
         for (int raw = 0; raw < 256; raw++)
         {
             var bts = new RoomBlockBehavior((byte)raw);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope)], [bts], [RoomBlockAppearance.Of(0)]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope)], [bts], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid());
             var block = level.GetCollisionBlock(new(0, 0));
             for (ushort x = 0; x < 16; x++)
             {

@@ -156,7 +156,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void ResolveGRipperRipper2ShotAfterCommon(RoomEnemySlot slot)
     {
-        if (slot.FrozenTimer.IsZero)
+        if (slot.FrozenTimer == 0)
             return;
         slot.Frame = slot.RequireSpeciesState<RipperEnemyState>().XVelocity.WholePixels < 0
             ? EnemyFrameId.RipperSharedFrozenLeft

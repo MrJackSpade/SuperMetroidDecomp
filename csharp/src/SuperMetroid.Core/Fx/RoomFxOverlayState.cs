@@ -75,9 +75,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private Offset16<OverlaySubpixels> waterDrift;
     /// <summary>Countdown before advancing the water effect overlay waveform.</summary>
-    private WrappingCountdown waterOverlayWaveTimer;
+    private int waterOverlayWaveTimer;
     /// <summary>Countdown for the optional water background horizontal wave.</summary>
-    private WrappingCountdown waterBackgroundWaveTimer;
+    private int waterBackgroundWaveTimer;
     /// <summary>Selected effect overlay water displacement frame.</summary>
     private int waterOverlayWavePhase;
     /// <summary>Selected background water displacement frame.</summary>
@@ -88,7 +88,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private int waterSurfaceScreenY;
     /// <summary>Countdown for lava or acid's optional background wave.</summary>
-    private WrappingCountdown lavaAcidBackgroundWaveTimer;
+    private int lavaAcidBackgroundWaveTimer;
     /// <summary>Selected lava or acid background wave displacement frame.</summary>
     private int lavaAcidBackgroundWavePhase;
     /// <summary>
@@ -103,7 +103,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal bool LiquidMotionStopped { get; set; }
 
     /// <summary>per-line effect object variable two of the lava/acid effect overlay object: the ambient sound timer.</summary>
-    private WrappingCountdown lavaSoundTimer;
+    private int lavaSoundTimer;
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;
     /// <summary>Audio requests emitted in the game's order during the current effect pass.</summary>
@@ -233,17 +233,17 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         {
             // Both spawned per-line effect objects execute their phase initializer on the first
             // handler pass. A one-frame timer reproduces that first-call rotation.
-            waterOverlayWaveTimer = WrappingCountdown.Start(1);
-            waterBackgroundWaveTimer = WrappingCountdown.Start(1);
+            waterOverlayWaveTimer = 1;
+            waterBackgroundWaveTimer = 1;
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
             // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
             // from zero to $1E and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
-            lavaAcidBackgroundWaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
+            lavaAcidBackgroundWaveTimer = UsesLavaAcidVerticalWave
                 ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
-                : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration);
+                : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
             lavaAcidBackgroundWavePhase = 0;
         }
         else if (Type == RoomFxType.Rain)
@@ -284,7 +284,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             LavaAcidOverlayFrameBehaviorInstalled = true;
             // Water's setup sets the sound timer in the same pass that installs the frame behaviour.
             if (lavaOrAcid)
-                lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
+                lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
             return;
         }
         if (timeIsFrozen)
@@ -310,10 +310,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         if (Type != RoomFxType.Lava || CoordinateAxis.AsSigned(Surface.Y) < 0)
             return;
-        lavaSoundTimer = lavaSoundTimer.Decrement().Remaining;
-        if (!lavaSoundTimer.IsZero)
+        if (--lavaSoundTimer != 0)
             return;
-        lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
+        lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
         soundRequests.Add(new SoundRequest(
             LiquidEffects.LavaAmbientSound(random),
             LavaAcidWaveDefinitions.AmbientSoundPriority,
@@ -496,10 +495,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
         Scroll = (camera.AsOverlayScroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
-        waterOverlayWaveTimer = waterOverlayWaveTimer.Decrement().Remaining;
-        if (waterOverlayWaveTimer.IsZero)
+        if (--waterOverlayWaveTimer == 0)
         {
-            waterOverlayWaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.OverlayWavePhaseDuration);
+            waterOverlayWaveTimer = WaterWaveDefinitions.OverlayWavePhaseDuration;
             waterOverlayWavePhase =
                 (waterOverlayWavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
@@ -511,10 +509,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         // the statue vertically instead of installing the ordinary background X wave.
         if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
             return;
-        waterBackgroundWaveTimer = waterBackgroundWaveTimer.Decrement().Remaining;
-        if (waterBackgroundWaveTimer.IsZero)
+        if (--waterBackgroundWaveTimer == 0)
         {
-            waterBackgroundWaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.BackgroundWavePhaseDuration);
+            waterBackgroundWaveTimer = WaterWaveDefinitions.BackgroundWavePhaseDuration;
             waterBackgroundWavePhase =
                 (waterBackgroundWavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
@@ -549,16 +546,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         if (!UsesLavaAcidVerticalWave && !UsesLavaAcidHorizontalWave)
             return;
-        lavaAcidBackgroundWaveTimer = lavaAcidBackgroundWaveTimer.Decrement().Remaining;
-        if (!lavaAcidBackgroundWaveTimer.IsZero)
+        if (--lavaAcidBackgroundWaveTimer != 0)
             return;
 
         lavaAcidBackgroundWavePhase =
             (lavaAcidBackgroundWavePhase - 1 + LavaAcidWaveDefinitions.WaveDisplacementCount) %
             LavaAcidWaveDefinitions.WaveDisplacementCount;
-        lavaAcidBackgroundWaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
+        lavaAcidBackgroundWaveTimer = UsesLavaAcidVerticalWave
             ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
-            : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration);
+            : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
     }
 
     /// <summary>
@@ -783,16 +779,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Surface = NoSurface;
         LiquidOptions = RoomLiquidOptions.None;
         waterDrift = Offset16<OverlaySubpixels>.Zero;
-        waterBackgroundWaveTimer = WrappingCountdown.Start(0);
-        waterOverlayWaveTimer = WrappingCountdown.Start(0);
+        waterBackgroundWaveTimer = 0;
+        waterOverlayWaveTimer = 0;
         waterOverlayWavePhase = waterBackgroundWavePhase = 0;
         waterSurfaceScreenY = short.MaxValue;
-        lavaAcidBackgroundWaveTimer = WrappingCountdown.Start(0);
+        lavaAcidBackgroundWaveTimer = 0;
         lavaAcidBackgroundWavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
         LavaAcidOverlayFrameBehaviorInstalled = false;
         LiquidMotionStopped = false;
-        lavaSoundTimer = WrappingCountdown.Start(0);
+        lavaSoundTimer = 0;
         EarthquakeRequest = null;
         EarthquakeSoundTimer = WrappingCountdown.Start(0);
         EarthquakeSoundSequenceIndex = 0;

@@ -52,7 +52,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
             lostSamus.SelectedHudItem = HudItem.Beam;
             lostSamus.AutoCancelHudItemIndex = HudItem.Beam;
             lostSamus.InvincibilityTimer = WrappingCountdown.Start(0);
-            lostSamus.KnockbackTimer = WrappingCountdown.Start(0);
+            lostSamus.KnockbackTimer = 0;
             session.Close<CeresDestructionCinematicState>();
             BeginBlackDeathBlackOut();
         }

@@ -35,7 +35,7 @@ internal static class RoomSpriteObjectSlotAccess
         internal ushort InstructionPointer => self.Cursor is { } cursor ? RecordAddress(cursor.Program, cursor.Position - 1) : (ushort)0;
 
         /// <summary>The native timer word.</summary>
-        internal ushort FrameHold => self.Timer.RawValue;
+        internal ushort FrameHold => checked((ushort)self.Timer);
 
         /// <summary>The bank-$B4 spritemap the slot shows, or zero for a free slot.</summary>
         internal ushort SpritemapPointer => self.IsActive ? RoomSpriteObjectVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;

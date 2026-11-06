@@ -35,8 +35,8 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 
-        var actual = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var reference = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var actual = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var reference = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
         ushort random = 0;
@@ -77,7 +77,7 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
             AssertEqual(expected.Function, state.Function, "Native chosen callback executes on the selection frame");
-            AssertEqual(expected.FunctionTimer.RawValue, state.FunctionTimer.RawValue, "Same-frame selected timer");
+            AssertEqual(expected.FunctionTimer, state.FunctionTimer, "Same-frame selected timer");
             AssertEqual(expected.Velocity.X.RawValue, state.Velocity.X.RawValue, "Same-frame selected X motion");
             AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");

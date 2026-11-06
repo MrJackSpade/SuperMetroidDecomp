@@ -77,11 +77,11 @@ internal static class DachoraMotionStateVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: ushort.MaxValue);
             AssertEqual(DachoraAiFunction.Echo, state.Function, "a negative parameter makes an echo");
-            state.EchoLifetime = WrappingCountdown.Start(lifetime);
+            state.EchoLifetime = lifetime;
 
             enemies.DachoraBehavior.RunDachoraMainAi(slot, frame);
 
-            AssertEqual(WrappingCountdown.Start(expected), state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
+            AssertEqual(expected, state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, slot.Properties.HasAny(EnemyProperties.Invisible), $"echo lifetime {lifetime} visibility");
         }
         Console.WriteLine("  Dachora echo lifetime: counts down to zero and stays there, hiding the echo.");
@@ -90,7 +90,7 @@ internal static class DachoraMotionStateVerification
     /// <summary>An initialized Dachora with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>
     private static NewDachoraResult NewDachora(ushort parameter)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);

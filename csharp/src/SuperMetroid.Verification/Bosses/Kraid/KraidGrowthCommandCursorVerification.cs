@@ -28,7 +28,7 @@ internal static class KraidGrowthCommandCursorVerification
         var referenceArt = new EnemyIdentityFixture().Build().Bosses.KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapFiles.Encode(
             new byte[KraidWorkingMapDefinitions.HeadImageCells * 2])));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
                     new Dictionary<int, KraidHeadTilemapAtlas> { [2] = head }, referenceArt.RoomBackgroundTiles) },
@@ -50,10 +50,10 @@ internal static class KraidGrowthCommandCursorVerification
         state.Part(KraidPart.Foot).Function = KraidAiFunction.FootPrepareFirstPhaseLunge;
         footMain(foot, 0);
         AssertEqual(native.CursorAt(0x96f4), state.HeadProgram, "native command-cursor growth resumes at the closing-mouth frame");
-        AssertEqual(64, state.Part(KraidPart.Kraid).HeadTimer.RawValue, "native quick-kill growth delay is preserved");
+        AssertEqual(64, state.Part(KraidPart.Kraid).HeadTimer, "native quick-kill growth delay is preserved");
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidAiFunction.GrowReleaseCamera, state.Part(KraidPart.Kraid).NextFunction, "growth schedules camera release");
-        AssertEqual(180, state.Part(KraidPart.Kraid).FunctionTimer.RawValue, "growth function timer");
+        AssertEqual(180, state.Part(KraidPart.Kraid).FunctionTimer, "growth function timer");
         AssertEqual(KraidAiFunction.NoOperation, state.Part(KraidPart.Foot).Function, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 

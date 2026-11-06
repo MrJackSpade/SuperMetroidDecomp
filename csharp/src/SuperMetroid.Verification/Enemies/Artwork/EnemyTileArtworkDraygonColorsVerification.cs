@@ -66,7 +66,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     < (DraygonSourceDefinitions.WhiteFlashColors +
                         DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
@@ -102,7 +102,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorDestinations.SpriteDestination,
             DraygonColorDefinitions.SpriteCount, colors.ResolveSprite,
             "normal hurt sprite CGRAM");
-        body.FlashTimer = WrappingCountdown.Start(2);
+        body.FlashTimer = 2;
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
         AssertBand(DraygonColorDestinations.BackgroundDestination,
             DraygonColorDefinitions.WhiteFlashCount, colors.ResolveWhiteFlash,

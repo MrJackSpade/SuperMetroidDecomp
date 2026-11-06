@@ -13,20 +13,20 @@ internal static class SbugRecordStateVerification
     /// </summary>
     internal static void VerifySbugRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new SbugEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.StraightMovementTimer = WrappingCountdown.Start(1);
         state.Function = Enum.GetValues<SbugEnemyFunction>()[^1];
         state.FaceCustomHeading(RotationAngle.FromTableIndex(1));
-        state.MovementTimer = WrappingCountdown.Start(1);
+        state.MovementTimer = 1;
 
         slot.Clear();
         AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.StraightMovementTimer, "a kill empties StraightMovementTimer");
         AssertEqual<SbugEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<RotationAngle>(RotationAngle.FromTableIndex(0), state.CustomHeading, "a kill empties CustomHeading");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.MovementTimer, "a kill empties MovementTimer");
+        AssertEqual(0, state.MovementTimer, "a kill empties MovementTimer");
         Console.WriteLine("Sbug record state: a kill empties every value the record holds.");
     }
 

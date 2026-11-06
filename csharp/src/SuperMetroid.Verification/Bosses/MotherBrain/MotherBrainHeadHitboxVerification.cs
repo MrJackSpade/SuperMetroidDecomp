@@ -40,7 +40,7 @@ internal static class MotherBrainHeadHitboxVerification
         state.Form = MotherBrainForm.SecondPhase;
         head.Health = 18000;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
-        head.InvincibilityTimer = WrappingCountdown.Start(0);
+        head.InvincibilityTimer = 0;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.PlasmaIceWave, charged: true); shot.Damage = 900; shot.Direction = SamusProjectileDirection.UpLeft;

@@ -12,7 +12,7 @@ public sealed class MochtroidEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Variable E; used only by the shipped-but-unreferenced shake mode.</summary>
-    public WrappingCountdown ShakeTimer { get; internal set; }
+    public int ShakeTimer { get; internal set; }
 
     /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>
     public MochtroidMovementMode MovementMode { get; internal set; }
@@ -42,7 +42,7 @@ public sealed class MochtroidEnemyState
     internal void ClearWithRecord()
     {
         Velocity = FixedVector<RoomPixels>.Zero;
-        ShakeTimer = WrappingCountdown.Start(0);
+        ShakeTimer = 0;
         MovementMode = default;
     }
 }

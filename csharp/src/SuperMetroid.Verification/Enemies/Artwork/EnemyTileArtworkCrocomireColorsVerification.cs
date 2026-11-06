@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                 < (CrocomireSourceDefinitions.WallSpikesColors +
                     CrocomireColorDefinitions.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
@@ -79,14 +79,14 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertTrue(state.Colours.ShowsFightBody && !state.Colours.HurtFlash, "a hurt update shows the restored fight body");
         IReadOnlyList<SheetShade> bodyShades = BossSheetShades.Body(BossBodyOwner.Crocomire, bosses, [], []);
         AssertBand(bodyShades, CrocomireShades.FightBody, CrocomireColorDefinitions.FightBodyCount, colors.ResolveFightBody, "restored fight-body");
-        body.FlashTimer = WrappingCountdown.Start(1);
+        body.FlashTimer = 1;
         enemies.FrameContext.SeedRandomEnemyCounter(2);
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
         AssertTrue(state.Colours.HurtFlash, "a flashing hurt update shows the white hurt flash");
         AssertBand(bodyShades, CrocomireShades.BodyHurt, CrocomireColorDefinitions.FightBodyCount, _ => RgbColor.White, "native white hurt flash");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "white hurt flash leaves fight phase unchanged");
-        state.DeathPhaseDelay = WrappingCountdown.Start(0);
+        state.DeathPhaseDelay = 0;
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonTileLoadAndWallBreak(state);
         AssertTrue(state.Colours.ShowsSkeletonArm, "the wall break shows the skeleton arm's colours");
         AssertBand(BossSheetShades.OwnRow(bosses, EnemyDefinitionId.Crocomire, 0), CrocomireShades.SkeletonArm,

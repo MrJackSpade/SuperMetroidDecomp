@@ -806,7 +806,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "grapple collision restores last-safe angle plus half fraction");
     AssertEqual(-0x008c, angularCollisionSamus.Grapple.AngularVelocity,
         "grapple collision negates arithmetic half velocity");
-    AssertEqual(16, angularCollisionSamus.Grapple.CollisionBounceTimer.RawValue,
+    AssertEqual(16, angularCollisionSamus.Grapple.CollisionBounceTimer,
         "grapple collision opens sixteen-frame kick window");
 
     // The same six-point radial sweep has two damage-producing dispatcher entries. Solid
@@ -846,7 +846,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
             spikeBlockSamus.InvincibilityTimer.RawValue,
             $"solid grapple spike BTS ${behavior:X2} invincibility publication");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x000a,
-            spikeBlockSamus.KnockbackTimer.RawValue,
+            spikeBlockSamus.KnockbackTimer,
             $"solid grapple spike BTS ${behavior:X2} knockback-timer publication");
     }
 
@@ -885,14 +885,14 @@ firingLevel, cancelledSamus, controllerInput: 0);
             spikeAirSamus.InvincibilityTimer.RawValue,
             $"grapple spike-air BTS ${behavior:X2} invincibility publication");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x000a,
-            spikeAirSamus.KnockbackTimer.RawValue,
+            spikeAirSamus.KnockbackTimer,
             $"grapple spike-air BTS ${behavior:X2} knockback-timer publication");
         if (expectedDamage != 0)
         {
             spikeAirSamus.DecrementHurtTimers();
             AssertEqual(0x003b, spikeAirSamus.InvincibilityTimer.RawValue,
                 "gameplay tail ages grapple-created invincibility timer");
-            AssertEqual(0x0009, spikeAirSamus.KnockbackTimer.RawValue,
+            AssertEqual(0x0009, spikeAirSamus.KnockbackTimer,
                 "gameplay tail ages grapple-created knockback timer");
         }
     }
@@ -911,7 +911,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "grapple kick keeps gravity-corrected base angular velocity");
     AssertEqual(-0x02fa, angularCollisionSamus.Grapple.JumpImpulse,
         "successful grapple kick damps extra angular velocity by six");
-    AssertEqual(15, angularCollisionSamus.Grapple.CollisionBounceTimer.RawValue,
+    AssertEqual(15, angularCollisionSamus.Grapple.CollisionBounceTimer,
         "successful post-bounce movement ages kick window");
 
     // Rope growth uses a different radial frontier: candidate length 33 plus 56 pixels puts
@@ -1008,7 +1008,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     GrappleMovementResult wallReleased = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(wallReleased.Phase == GrapplePhase.WallGrabRelease,
         "wall-grab release opens native thirty-check wall-jump window");
-    AssertEqual(30, wallGrabSamus.Grapple.WallJumpTimer.RawValue,
+    AssertEqual(30, wallGrabSamus.Grapple.WallJumpTimer,
         "wall-grab release seeds decimal thirty before decrementing");
 
     // `$B9` faces left (pose direction four), so `$90:9CAC` probes left even though the
@@ -1017,7 +1017,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     GrappleMovementResult wallJumpQueued = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, controllerInput: ControllerButton.A, newlyPressedInput: ControllerButton.A);
     AssertTrue(wallJumpQueued.Phase == GrapplePhase.WallJumping,
         "fresh Jump plus wall probe queues grapple wall jump");
-    AssertEqual(29, wallGrabSamus.Grapple.WallJumpTimer.RawValue,
+    AssertEqual(29, wallGrabSamus.Grapple.WallJumpTimer,
         "first eligible wall-jump check decrements timer to twenty-nine");
 
     // `$9B:C9CE` mirrors the ordinary route's selective cleanup: it zeros base speed but

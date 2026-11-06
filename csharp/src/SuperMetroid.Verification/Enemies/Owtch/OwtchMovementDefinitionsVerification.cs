@@ -15,7 +15,7 @@ internal static class OwtchMovementDefinitionsVerification
         Suite(nameof(VerifyOwtchTravelDistanceAlgorithm), () => VerifyOwtchTravelDistanceAlgorithm(rom));
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = OwtchBehavior.InitializeOwtch;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
@@ -35,7 +35,7 @@ internal static class OwtchMovementDefinitionsVerification
                     OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
                     int distance = EnemySpawnSelectors.OwtchTravelDistance(distanceIndex);
                     AssertEqual(EnemySpawnSelectors.OwtchUndergroundWait(timerIndex),
-                        state.UndergroundTimer.RawValue,
+                        state.UndergroundTimer,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
                     AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumPosition.X,
                         $"Owtch minimum X {spawnX:X4}/{timerIndex}/{distanceIndex}");

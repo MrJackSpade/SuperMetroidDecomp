@@ -15,17 +15,17 @@ internal static class MetroidRecordStateVerification
     /// </summary>
     internal static void VerifyMetroidRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1));
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
-        state.EscapeTimer = WrappingCountdown.Start(1);
+        state.EscapeTimer = 1;
         state.Function = Enum.GetValues<MetroidAiFunction>()[^1];
 
         slot.Clear();
         AssertEqual<FixedVector<RoomPixels>>(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties Velocity");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.EscapeTimer, "a kill empties EscapeTimer");
+        AssertEqual(0, state.EscapeTimer, "a kill empties EscapeTimer");
         AssertEqual<MetroidAiFunction>(default(MetroidAiFunction), state.Function, "a kill empties Function");
         Console.WriteLine("Metroid record state: a kill empties every value the record holds.");
     }

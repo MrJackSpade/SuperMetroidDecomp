@@ -34,7 +34,7 @@ internal static class DmaArtworkBoundaryVerification
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         InstalledEnemyArtwork art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         var background = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));
         enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop();

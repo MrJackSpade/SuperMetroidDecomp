@@ -107,7 +107,7 @@ internal static class NativeSnapshotImport
                 ? default
                 : PaletteFxNativeProgramOracle.CursorAt(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            paletteSlot.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2));
+            paletteSlot.FrameHold = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2);
             paletteSlot.Timer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
         }
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
@@ -156,7 +156,7 @@ internal static class NativeSnapshotImport
         samus.HorizontalSpeed.TotalSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed));
         runtime.Projectiles.SlotTable.ProjectileCounter = W(NativeSnapshotMemory.ProjectileCount);
         runtime.Projectiles.Charge.PreviousBeamChargeCounter = W(NativeSnapshotMemory.PreviousCharge);
-        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.ProjectileInteractionImmunity));
+        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
         runtime.Projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.ChargedShotGlow));
         int chargePaletteByteOffset = W(NativeSnapshotMemory.ChargePaletteIndex);
         runtime.Projectiles.Charge.ChargePaletteStep = (chargePaletteByteOffset & 1) == 0
@@ -180,7 +180,7 @@ internal static class NativeSnapshotImport
         samus.Health = SamusQuantity.Decode(W(NativeSnapshotMemory.Health));
         samus.MaxHealth = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxHealth));
         samus.InvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.InvincibilityTimer));
-        samus.KnockbackTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.KnockbackTimer));
+        samus.KnockbackTimer = W(NativeSnapshotMemory.KnockbackTimer);
         samus.KnockbackDirection = (SamusKnockbackDirection)W(NativeSnapshotMemory.KnockbackDirection);
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);
@@ -221,8 +221,8 @@ internal static class NativeSnapshotImport
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {
-            trail.Left.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset));
-            trail.Right.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset));
+            trail.Left.FrameHold = W(NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
+            trail.Right.FrameHold = W(NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
             trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
             trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
             trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset));
@@ -310,10 +310,10 @@ internal static class NativeSnapshotImport
             slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             // The native tile index word is where the import composes the occupant's sheet, not slot state (#1513).
             slot.Layer = EnemyDrawLayer.Of(W(address + 34));
-            slot.FlashTimer = WrappingCountdown.FromRaw(W(address + 36));
-            slot.FrozenTimer = WrappingCountdown.FromRaw(W(address + 38));
-            slot.InvincibilityTimer = WrappingCountdown.FromRaw(W(address + 40));
-            slot.ShakeTimer = WrappingCountdown.FromRaw(W(address + 42));
+            slot.FlashTimer = W(address + 36);
+            slot.FrozenTimer = W(address + 38);
+            slot.InvincibilityTimer = W(address + 40);
+            slot.ShakeTimer = W(address + 42);
             slot.FrameCounter = W(address + 44);
             var words = new NativeEnemyRecordWords(
                 W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));
@@ -330,7 +330,7 @@ internal static class NativeSnapshotImport
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);
-                pipe.RespawnDelay = WrappingCountdown.FromRaw(words.D);
+                pipe.RespawnDelay = unchecked((short)words.D);
                 pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(words.E, "recorded Pipe Bug requested animation");
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
                 pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(

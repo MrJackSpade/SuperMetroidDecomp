@@ -136,7 +136,7 @@ internal sealed class MotherBrainBody
         bool glassDestroyed = _room.Services.Events.Has(EventNumber.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
-            state.BrainMainShakeTimer = _earthquake.EarthquakeTimer;
+            state.BrainMainShakeTimer = _earthquake.EarthquakeTimer.RemainingFrames;
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit. The following
@@ -336,7 +336,7 @@ internal sealed class MotherBrainBody
             // consumed by Samus movement later in the frame, so overwrite rather than add.
             samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(Math.Max(xOverlap, 4), 4));
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
-            samus.KnockbackTimer = WrappingCountdown.Start(5);
+            samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
             if (CoordinateAxis.Difference(samus.Position.Y.Whole, 192) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -362,7 +362,7 @@ internal sealed class MotherBrainBody
             ? 0
             : samus.Health - damage;
         samus.InvincibilityTimer = WrappingCountdown.Start(96);
-        samus.KnockbackTimer = WrappingCountdown.Start(5);
+        samus.KnockbackTimer = 5;
         samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
     }
 

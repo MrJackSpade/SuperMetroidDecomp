@@ -140,13 +140,14 @@ public sealed class RoomEnemySlot
     /// <summary>The layer the enemy draws on, initially the definition's; enemies draw layer by layer.</summary>
     public EnemyDrawLayer Layer { get; internal set; }
     /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends hurt dispatch.</summary>
-    public WrappingCountdown FlashTimer { get; internal set; }
+    [IntegerQuantity("updates of hurt flash left; Phantoon restores his colours on the eighth")]
+    public int FlashTimer { get; internal set; }
     /// <summary>How long the enemy stays frozen; its frozen blinking and thaw read it.</summary>
-    public WrappingCountdown FrozenTimer { get; internal set; }
+    public int FrozenTimer { get; internal set; }
     /// <summary>Updates during which weapons and contact do not interact with the enemy, sampled before it counts down.</summary>
-    public WrappingCountdown InvincibilityTimer { get; internal set; }
+    public int InvincibilityTimer { get; internal set; }
     /// <summary>Draws left that shake the enemy one pixel sideways, counted down as it draws.</summary>
-    public WrappingCountdown ShakeTimer { get; internal set; }
+    public int ShakeTimer { get; internal set; }
     /// <summary>
     /// The enemy's own update count, 0 through 65535, wrapping; its behaviour and drawing read it, independently of the
     /// game's frame counter.
@@ -187,13 +188,13 @@ public sealed class RoomEnemySlot
 
         Timer = WrappingCountdown.Start(0);
         Frame = null;
-        FrozenTimer = WrappingCountdown.Start(0);
-        FlashTimer = WrappingCountdown.Start(0);
+        FrozenTimer = 0;
+        FlashTimer = 0;
         Layer = default;
         Shading = PictureShading.Standard;
         FrameCounter = 0;
-        ShakeTimer = WrappingCountdown.Start(0);
-        InvincibilityTimer = WrappingCountdown.Start(0);
+        ShakeTimer = 0;
+        InvincibilityTimer = 0;
         HurtAiTime = 0;
         DrawOffset = Offset16<RoomPixels>.Zero;
         foreach (Action clearWithRecord in _clearWithRecord.Values)

@@ -47,7 +47,7 @@ internal static class RidleyAnimationsVerification
     /// <summary>Creates Ridley in slot zero of a fresh enemy system, facing <paramref name="facing"/>.</summary>
     private static NewRidleyResult NewRidley(EnemyDefinitionId definition, RidleyFacing facing)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new RidleyEnemyState { FacingDirection = facing };
         enemies.RidleyEncounter.Ridley = state;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -91,7 +91,7 @@ internal static class RidleyAnimationsVerification
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
         Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 29 });
         AssertEqual(RidleyBodyProgram.FireballingEnd, state.BodyProgram.Program, "low energy in Ceres skips to the fireballing tail");
-        AssertEqual((ushort)8, state.FunctionTimer.RawValue, "low energy shortens the hover to eight updates");
+        AssertEqual(8, state.FunctionTimer, "low energy shortens the hover to eight updates");
         AssertTrue(!state.Roaring, "the fireballing tail clears the roaring flag");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the tail shows the standing pose");
 

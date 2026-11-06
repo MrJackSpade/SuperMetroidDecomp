@@ -54,7 +54,7 @@ internal static class DragonBehaviorVerification
     /// </summary>
     private static void VerifyDragonsAttackingTogether()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         foreach (int bodySlot in new[] { 0, 2 })
         {
             for (int part = 0; part < 2; part++)
@@ -71,7 +71,7 @@ internal static class DragonBehaviorVerification
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
             body.Function = DragonEnemyFunction.Attacking;
             body.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
-            body.AttackCounter = WrappingCountdown.Start(3);
+            body.AttackCounter = 3;
             body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.SlotTable.Slots[bodySlot], body);
         }
@@ -84,7 +84,7 @@ internal static class DragonBehaviorVerification
     /// <summary>A Dragon body, or a wing for the wing selectors, with <paramref name="selector"/> freshly installed.</summary>
     private static InstallResult Install(DragonAnimationSelector selector)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

@@ -30,7 +30,7 @@ internal static class RidleyPogoDefinitionsVerification
             AssertTrue(native == new RidleyPogoDefinitionsReference(compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, checked((ushort)compiled.UpwardAcceleration), checked((ushort)compiled.DownwardAcceleration)),
                 "All indirect native pogo records and accelerations");
         }
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int reads = 0, advances = 0;
         ushort seed = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
@@ -48,7 +48,7 @@ internal static class RidleyPogoDefinitionsVerification
             reads = advances = 0;
             state.HealthStage = health;
             state.Velocity = state.Velocity.WithX(new SignedEightEight(previous));
-            state.FunctionTimer = WrappingCountdown.Start(0x1234);
+            state.FunctionTimer = 0x1234;
             initialize(state);
             var expected = reference[raw & 3, Math.Min(health, (ushort)3) + 2];
             AssertEqual(0, advances, "Native Ridley pogo initializer must not advance RNG");
@@ -58,7 +58,7 @@ internal static class RidleyPogoDefinitionsVerification
             AssertEqual(expected.Up, state.PogoUpwardAcceleration, "Pogo upward acceleration");
             AssertEqual(expected.Down, state.PogoDownwardAcceleration, "Pogo downward acceleration");
             AssertEqual(health, state.HealthStage, "Pogo preserves health-stage state");
-            AssertEqual((ushort)0x1234, state.FunctionTimer.RawValue, "Pogo preserves caller timer");
+            AssertEqual(0x1234, state.FunctionTimer, "Pogo preserves caller timer");
             cases++;
         }
         AssertEqual(1572864, cases, "All random words, health stages and horizontal signs");
@@ -68,7 +68,7 @@ internal static class RidleyPogoDefinitionsVerification
     /// <summary>Checks pogo and fireball setup timers consume the current RNG word without advancing it.</summary>
     private static void VerifyRidleyAttackTimerRandomReads()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int reads = 0, advances = 0;
         ushort seed = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
@@ -87,17 +87,17 @@ internal static class RidleyPogoDefinitionsVerification
             run(slot, state, null, 0, null);
             AssertEqual(0, advances, "Native Ridley pogo setup must not advance RNG");
             AssertEqual(1, reads, "Pogo setup samples current RNG once");
-            AssertEqual((ushort)((raw & 31) + 32), state.FunctionTimer.RawValue, "Pogo setup exact native timer");
+            AssertEqual((ushort)((raw & 31) + 32), state.FunctionTimer, "Pogo setup exact native timer");
             AssertEqual(RidleyAiFunction.NorfairFireballMoveToSide, state.Function, "Pogo non-spin handoff retained");
 
             reads = advances = 0;
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
-            state.FunctionTimer = WrappingCountdown.Start(0);
+            state.FunctionTimer = 0;
             state.TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray();
             attack(slot, state, null);
             AssertEqual(0, advances, "Native Ridley fireball setup must not advance RNG");
             AssertEqual(2, reads, "Pogo velocity and fireball timer sample the same current word");
-            AssertEqual((ushort)((raw & 63) + 128), state.FunctionTimer.RawValue, "Fireball attack exact native timer");
+            AssertEqual((ushort)((raw & 63) + 128), state.FunctionTimer, "Fireball attack exact native timer");
             AssertEqual(RidleyAiFunction.NorfairFireballAttack, state.Function, "Fireball setup handoff retained");
         }
         Console.WriteLine("Ridley attack timers: both real setup paths preserve RNG and exact duration for all 65536 current words.");

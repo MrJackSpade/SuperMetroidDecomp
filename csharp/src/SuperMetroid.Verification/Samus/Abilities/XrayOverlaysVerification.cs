@@ -38,7 +38,7 @@ internal static class XrayOverlaysVerification
                 entries.Add(new(type, new RoomBlockBehavior(bts), new(definition.TopLeft, definition.TopRight,
                     definition.BottomLeft, definition.BottomRight)));
         var visuals = new InstalledXrayReveals(entries, overlays);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());
         var system = new SharedGameState();
         var items = new[]
         {

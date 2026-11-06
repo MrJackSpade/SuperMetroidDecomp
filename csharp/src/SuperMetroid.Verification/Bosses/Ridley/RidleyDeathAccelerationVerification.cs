@@ -18,7 +18,7 @@ internal static class RidleyDeathAccelerationVerification
         AssertEqual((byte)0, rom.ReadCartridgeByte(0xa6c60f), "Death movement native inertia index");
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0xa6c611), "Death movement LDA immediate opcode");
         AssertEqual((byte)16, rom.ReadCartridgeByte(0xa6c612), "Death movement native extra deceleration");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot, RidleyEnemyState> approaching = NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot;
         Action<RoomEnemySlot, RidleyEnemyState> roaring = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathRoar;
         var slot = enemies.SlotTable.Slots[0];
@@ -31,7 +31,7 @@ internal static class RidleyDeathAccelerationVerification
         {
             slot.Position = new(new(unchecked((ushort)(128 + distance)), 0x8123), new(unchecked((ushort)(328 - distance)), 0x8123));
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)velocity)), new SignedEightEight(unchecked((ushort)velocity)));
-            state.FunctionTimer = WrappingCountdown.Start(20);
+            state.FunctionTimer = 20;
             step(slot, state);
             AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.X.Whole, 128, 16, 16), state.Velocity.X.RawValue, "Death phase native X acceleration");
             AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.Y.Whole, 328, 16, 16), state.Velocity.Y.RawValue, "Death phase native Y acceleration");

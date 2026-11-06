@@ -202,7 +202,7 @@ internal static void VerifySamusBlockCollision()
     var doorForeground = new RoomTerrainBlock[width * height];
     var doorBehavior = new RoomBlockBehavior[doorForeground.Length];
     doorForeground[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock);
-    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     var doorBody = new SamusKinematicsState
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
@@ -223,7 +223,7 @@ internal static void VerifySamusBlockCollision()
         "consumed door transition does not leak into later movement");
 
     doorBehavior[1 * width + 2] = new RoomBlockBehavior(2);
-    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");
@@ -351,7 +351,7 @@ internal static void VerifySamusBlockCollision()
             spikeSamus.InvincibilityTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes invincibility timer");
         AssertEqual(expectedDamage == 0 ? 0 : SpikeHazardDefinitions.KnockbackFrames,
-            spikeSamus.KnockbackTimer.RawValue,
+            spikeSamus.KnockbackTimer,
             $"spike-block BTS ${spikeBehavior:X2} publishes knockback timer");
         AssertEqual(KnockbackHorizontalDirection.Left, spikeSamus.KnockbackXDirection,
             $"right-facing spike-block BTS ${spikeBehavior:X2} knocks left");

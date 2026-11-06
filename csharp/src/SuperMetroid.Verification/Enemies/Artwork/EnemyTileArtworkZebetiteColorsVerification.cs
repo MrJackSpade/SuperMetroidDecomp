@@ -78,7 +78,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         static RoomEnemySystem Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
             primarySlot.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);

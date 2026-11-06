@@ -95,7 +95,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Inherits the death-and-escape explosion index from the room's encounter state when the live sequence
     /// attaches; the fake-death ascent dust last wrote it.
     /// </summary>
-    internal void InheritDeathAndEscapeExplosionIndex(WrappingCountdown bodySubFunctionTimer) =>
+    internal void InheritDeathAndEscapeExplosionIndex(int bodySubFunctionTimer) =>
         ThirdPhaseDeath.DeathAndEscapeExplosionIndex = bodySubFunctionTimer;
 
     /// <summary>
@@ -212,7 +212,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             // The neck function itself runs on Mother Brain's next ordinary phase-three
             // main call.
             ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
-            State.FunctionTimer = WrappingCountdown.Start(0);
+            State.FunctionTimer = 0;
         }
     }
 

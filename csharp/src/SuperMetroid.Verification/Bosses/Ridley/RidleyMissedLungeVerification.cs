@@ -16,7 +16,7 @@ internal static class RidleyMissedLungeVerification
     /// <summary>Checks native height and pass thresholds, room-boundary handoff, tenth death miss, and Power Bomb dodge.</summary>
     internal static void VerifyRidleyMissedLunge()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
         Action<RoomEnemySlot, RidleyEnemyState, RidleyWallImpact> move = enemies.CeresRidleyBehavior.Flight.IntegrateRidleyMovement;
         var slot = enemies.SlotTable.Slots[0];
@@ -91,7 +91,7 @@ internal static class RidleyMissedLungeVerification
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairDeathExplosions, state.Function, "tenth miss immediately executes death-roar setup");
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
-        AssertEqual((ushort)32, state.FunctionTimer.RawValue, "native death-roar timer is armed");
+        AssertEqual(32, state.FunctionTimer, "native death-roar timer is armed");
 
         var bomb = new SamusPowerBombExplosionState();
         bomb.Arm();

@@ -77,7 +77,7 @@ internal sealed class KraidDeath
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
                     _parts.StateOf(state, body).Function = KraidAiFunction.DeathShowUpperBody;
-                    state.HurtFrameTimer = WrappingCountdown.Start(1);
+                    state.HurtFrameTimer = 1;
                     state.HurtFrame = 1;
                     state.ShowBody();
                 }
@@ -89,7 +89,7 @@ internal sealed class KraidDeath
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
                     _parts.StateOf(state, lint).Function = KraidAiFunction.AlignPartToKraid;
-                    _parts.StateOf(state, lint).FunctionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+                    _parts.StateOf(state, lint).FunctionTimer = KraidBehavior.KraidStillPartTimer;
                 }
                 state.ShowBody();
                 return;
@@ -97,7 +97,7 @@ internal sealed class KraidDeath
             case KraidAiFunction.DeathShowLowerBody:
                 _ = _head.ProcessKraidHeadInstruction(body, state);
                 _parts.StateOf(state, body).Function = KraidAiFunction.DeathSink;
-                state.DeathSoundTimer = WrappingCountdown.Start(43);
+                state.DeathSoundTimer = 43;
                 body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
                 _earthquake.EarthquakeType = 1;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
@@ -218,7 +218,7 @@ internal sealed class KraidDeath
         _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
         _parts.StateOf(state, body).Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
-        _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.DeathEntryDuration);
+        _parts.StateOf(state, body).HeadTimer = KraidHeadAnimations.DeathEntryDuration;
         // The death clears the fingernails' respawn bit, then runs EnemyDeath for the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
@@ -237,11 +237,10 @@ internal sealed class KraidDeath
     private void RunKraidDeathSink(RoomEnemySlot body, KraidEnemyState state)
     {
         _ = _head.ProcessKraidHeadInstruction(body, state);
-        state.DeathSoundTimer = state.DeathSoundTimer.Decrement().Remaining;
-        if (state.DeathSoundTimer.IsZero)
+        if (--state.DeathSoundTimer == 0)
         {
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
-            state.DeathSoundTimer = WrappingCountdown.Start(30);
+            state.DeathSoundTimer = 30;
         }
         ProcessKraidSinkTable(body, state);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);

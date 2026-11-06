@@ -45,11 +45,11 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 $"Work Robot color record {record} slot {color} preserves ROM RGB5");
         }
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock }),
         };
-        enemies.WorkRobotBehavior.GlowStepTimer = WrappingCountdown.Start(1);
+        enemies.WorkRobotBehavior.GlowStepTimer = 1;
         enemies.WorkRobotBehavior.NextGlowStep = 0;
         var step = new Action(enemies.WorkRobotBehavior.AdvanceWorkRobotGlow);
 
@@ -66,7 +66,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 enemies.WorkRobotBehavior.NextGlowStep,
                 $"production Work Robot glow load {nextLoad} advances to the next step");
             AssertEqual(WorkRobotPaletteTimingDefinitions.Durations[record],
-                (int)enemies.WorkRobotBehavior.GlowStepTimer.RawValue,
+                enemies.WorkRobotBehavior.GlowStepTimer,
                 $"production Work Robot glow load {nextLoad} timer");
             // The robots draw in the record's glow shade, which the import pre-colours from the cycle's colours for the
             // record (#1512); those colours are compared with bank $A3 above.

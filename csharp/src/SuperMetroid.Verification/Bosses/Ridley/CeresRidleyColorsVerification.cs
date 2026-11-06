@@ -72,7 +72,7 @@ internal static class CeresRidleyColorsVerification
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.Artwork.MapPresentation = original;
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = fixtureAssets.EnemyTiles.Enemies,
             BossArtwork = fixtureAssets.EnemyTiles.Bosses,
@@ -92,7 +92,7 @@ internal static class CeresRidleyColorsVerification
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
             state.FadeStep = step;
-            state.FunctionTimer = WrappingCountdown.Start(0);
+            state.FunctionTimer = 0;
             eyeTick(state);
             int row = CeresRidleyEyeFade.Get(step).Shade;
             AssertEqual(unchecked((ushort)(step + 1)), state.FadeStep,
@@ -106,7 +106,7 @@ internal static class CeresRidleyColorsVerification
         for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; row++)
         {
             state.FadeStep = row;
-            state.FunctionTimer = WrappingCountdown.Start(1);
+            state.FunctionTimer = 1;
             bodyTick(slot, state);
             AssertEqual(row == CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
                 state.FadeStep, $"installed body fade row {row} advances to the next row, or resets after the last");
@@ -137,7 +137,7 @@ internal static class CeresRidleyColorsVerification
         RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;
-        activeRidley.FunctionTimer = WrappingCountdown.Start(0);
+        activeRidley.FunctionTimer = 0;
         activeRidley.MovementAnimationEnabled = false;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null);
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
@@ -190,8 +190,8 @@ internal static class CeresRidleyColorsVerification
             // Drive the real Norfair palette callback at both sides of every
             // health threshold. The extracted stock catalog supplies full-CGRAM
             // parity; the guarded installed path proves no copied ROM colors are read.
-            var nativeEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var stockEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var nativeEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var stockEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
             var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
             RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];

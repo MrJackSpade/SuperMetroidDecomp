@@ -30,7 +30,7 @@ internal static class BeetomOwnedStateVerification
         arc.StepFallingSpeed(3);
         AssertEqual(64, arc.YSpeedTableIndex, "falling holds at the maximum");
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
@@ -42,7 +42,7 @@ internal static class BeetomOwnedStateVerification
         slot.Clear();
         AssertEqual(null, state.Function, "a kill empties the function");
         AssertEqual(0, state.YSpeedTableIndex, "a kill empties the speed index");
-        AssertEqual((ushort)0, state.ButtonCounter.RawValue, "a kill empties the escape counter");
+        AssertEqual(0, state.ButtonCounter, "a kill empties the escape counter");
         AssertTrue(state.FacingRight, "the Beetom's facing outlives the kill");
 
         // The next Beetom set up in the slot inherits the facing its predecessor left; a Beetom in another slot does not.

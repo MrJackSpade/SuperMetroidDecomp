@@ -31,7 +31,7 @@ internal static class PowampDeathSequenceVerification
 
         body.Health = 0;
         state.Function = PowampEnemyFunction.DeathSequence;
-        state.FunctionTimer = WrappingCountdown.Start(1);
+        state.FunctionTimer = 1;
         runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LevelData);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;

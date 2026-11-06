@@ -21,7 +21,7 @@ internal static class PhantoonPositionVerification
     {
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
-        var capEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var capEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var capBody = capEnemies.SlotTable.Slots[0];
         var capTentacles = capEnemies.SlotTable.Slots[2];
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
@@ -43,7 +43,7 @@ internal static class PhantoonPositionVerification
             var state = boundary.Enemies.PhantoonBehavior.Combat.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
             boundaryState.Parts[boundaryState.Body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-            boundaryState.Parts[boundaryState.Eye.SlotIndex].ClosedTimer = WrappingCountdown.FromRaw(timer);
+            boundaryState.Parts[boundaryState.Eye.SlotIndex].ClosedTimer = timer;
             boundary.StepFrame(0);
             AssertEqual(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation,
                 boundaryState.Parts[boundaryState.Body.SlotIndex].Function, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
@@ -54,7 +54,7 @@ internal static class PhantoonPositionVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.");
-        AssertEqual(120, loaded.Parts[loaded.Body.SlotIndex].FunctionTimer.RawValue,
+        AssertEqual(120, loaded.Parts[loaded.Body.SlotIndex].FunctionTimer,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));

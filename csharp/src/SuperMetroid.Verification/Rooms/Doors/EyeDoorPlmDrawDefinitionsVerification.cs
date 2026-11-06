@@ -75,7 +75,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         SeedPlmProgramWords(bus, 0x050e, pointers[1]);
         SeedPlmProgramWords(bus, 0x060e, pointers[2]);
 
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
         var plms = PlmFixtures.Unbound();
         var guarded = NewEyeDoorDrawGuard(bus, lists);
         AssertEqual(3, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = _ => { } } }),
@@ -129,7 +129,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             unchecked((byte)doorBit), 0,
             0, 0,
         ]);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),
@@ -171,7 +171,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} retail eye-door lifecycle avoids instruction and draw ROM reads");
 
-        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
+        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
         var reopened = PlmFixtures.Unbound();
         AssertEqual(3, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = requests.Add } }),
             $"{orientation} opened eye-door room reloads three components");

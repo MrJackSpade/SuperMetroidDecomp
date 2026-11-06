@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         BabyMetroidCutsceneColorCatalog colors = native;
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         // The Baby's colours load while Mother Brain's encounter is loaded, which lays them over its sprites (#1512).
         var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = motherBrain;

@@ -592,13 +592,15 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// clear, without loading a population or binding memory, graphics, random-number, or gameplay services.
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
+    /// <param name="compatibility">The room's own compatibility services, created with the system by its builder.</param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The original game-state services the room's AI calls, or null when none is supplied.</param>
     /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
-    internal RoomEnemySystem(EnemySession session,
+    internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossArtworkBinding? bossArtwork = null)
     {
+        Ensure.NotNull(compatibility);
         BossArtworkBinding = bossArtwork ?? new();
         Room = new EnemyRoomBinding(session, definitions, services);
         // Shared collaborators first: every species owner receives the ones it uses.
@@ -625,9 +627,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         DeadMonsters = new DeadMonsterFrame(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Presentation, Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room, SlotTable);
-        var powerBombRadius = new PowerBombRadiusAfterKill();
-        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch, powerBombRadius, Audio);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = powerBombRadius });
+        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch, compatibility.PowerBombRadius, Audio);
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
@@ -710,7 +711,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter });
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);
-        BullBehavior = new BullBehavior(new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity));
+        BullBehavior = new BullBehavior(compatibility.BullInheritance);
         BoyonBehavior = new BoyonBehavior(Audio);
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles, Audio);
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
@@ -718,8 +719,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(SlotTable, ElevatorBehavior);
-        BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision,
-            new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity));
+        BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles, Audio);
         // Every species with room or frame lifecycle state, in the original game reset order.
@@ -927,9 +927,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // before checking time freeze. X-ray therefore stops their movement but
             // not this clock. Remember the entry value: the call that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
-            bool invincibleAtEntry = !slot.InvincibilityTimer.IsZero;
+            bool invincibleAtEntry = slot.InvincibilityTimer != 0;
             if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) && invincibleAtEntry)
-                slot.InvincibilityTimer = slot.InvincibilityTimer.Decrement().Remaining;
+                slot.InvincibilityTimer--;
             // EnemyMain checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
@@ -986,12 +986,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // immediately. That branch leaves the freeze clock at the remainder
                     // ThawedFreezeLeftover names rather than zero, which matters when hurt
                     // and frozen dispatch coexist.
-                    slot.FlashTimer = WrappingCountdown.Start(0);
-                    bool thaw = slot.FrozenTimer.IsZero ||
+                    slot.FlashTimer = 0;
+                    bool thaw = slot.FrozenTimer == 0 ||
                         (frame.Samus is not null &&
                             (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None);
                     if (!thaw)
-                        slot.FrozenTimer = slot.FrozenTimer.Decrement().Remaining;
+                        slot.FrozenTimer--;
                     else
                     {
                         slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
@@ -1000,7 +1000,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                         ThawedFreezeLeftover.Hold hold = stillGrappled
                             ? stillHurt ? ThawedFreezeLeftover.Hold.GrappledAndHurt : ThawedFreezeLeftover.Hold.Grappled
                             : stillHurt ? ThawedFreezeLeftover.Hold.Hurt : ThawedFreezeLeftover.Hold.None;
-                        slot.FrozenTimer = WrappingCountdown.Start(ThawedFreezeLeftover.Of(hold));
+                        slot.FrozenTimer = ThawedFreezeLeftover.Of(hold);
                     }
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);
@@ -1045,13 +1045,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // EnemyMain performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the
             // frame just processed rather than the already-decremented following frame.
-            if (!frame.TimeIsFrozen && !slot.FlashTimer.IsZero)
+            if (!frame.TimeIsFrozen && slot.FlashTimer != 0)
             {
-                slot.FlashTimer = slot.FlashTimer.Decrement().Remaining;
+                slot.FlashTimer--;
                 // EnemyMain clears hurt dispatch once the post-decrement timer is below
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
-                if (slot.FlashTimer.EndsWithin(8))
+                if (slot.FlashTimer - 8 < 0)
                     slot.AiStates = slot.AiStates & ~EnemyAiStates.Hurt;
             }
         }
@@ -1067,7 +1067,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
                 // A frozen enemy blocks Samus whatever its properties say.
-                !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
+                slot.FrozenTimer != 0 || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
         frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
@@ -1089,7 +1089,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (Earthquake.Advance(timeIsFrozen))
         {
             foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
-                slot.ShakeTimer = WrappingCountdown.Start(RoomEarthquakeDefinitions.EnemyShakeDuration);
+                slot.ShakeTimer = RoomEarthquakeDefinitions.EnemyShakeDuration;
         }
         return Earthquake.LastRoomShake;
     }

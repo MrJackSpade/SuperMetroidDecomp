@@ -34,7 +34,7 @@ internal sealed class MotherBrainRevivalPhases
         // The inanimate setup only installs the next function and its 768-frame timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife;
-        _state.FunctionTimer = WrappingCountdown.Start(768);
+        _state.FunctionTimer = 768;
         return false;
     }
 
@@ -47,13 +47,12 @@ internal sealed class MotherBrainRevivalPhases
         // BPL accepts zero: 768 reaches zero without advancing and only the 769th
         // call underflows to -1. Revival then re-enables both breath producers,
         // seeds 224, and falls through two function installations to the transition from grey.
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             EnableSmallPurpleBreathGeneration();
             _state.DroolGenerationEnabled = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey;
-            _state.FunctionTimer = WrappingCountdown.Start(224);
+            _state.FunctionTimer = 224;
             _state.GreyTransitionCounter = 0;
             return true;
         }
@@ -66,10 +65,9 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveTransitionFromGrey(MotherBrainRainbowBeamStepRequests requests)
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
-            _state.FunctionTimer = WrappingCountdown.Start(16);
+            _state.FunctionTimer = 16;
 
             // The revival palette list reverses the same eight grey palettes used by the corpse
             // transition and follows them with zero. The body counter is incremented
@@ -106,7 +104,7 @@ internal sealed class MotherBrainRevivalPhases
             _state.NeckAngleDelta = 1280;
             _state.NeckMovementEnabled = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch;
-            _state.FunctionTimer = WrappingCountdown.Start(16);
+            _state.FunctionTimer = 16;
             return true;
         }
         return false;
@@ -118,12 +116,11 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUpStretch()
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.StretchingPhase3);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby;
-            _state.FunctionTimer = WrappingCountdown.Start(128);
+            _state.FunctionTimer = 128;
             return true;
         }
         return false;
@@ -137,8 +134,7 @@ internal sealed class MotherBrainRevivalPhases
     {
         // Once `$80` underflows, the timer deliberately remains negative and the
         // helper is retried after every body-program call until X has overshot `$50`.
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
         {
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 4).Requested;
             bool reachedWalkTarget = CoordinateAxis.Difference(80, _state.Body.Position.X) < 0 ||
@@ -203,7 +199,7 @@ internal sealed class MotherBrainRevivalPhases
                 ? MotherBrainHeadProgram.AttackingBabyMetroid
                 : MotherBrainHeadProgram.AttackingSamusFourOnionRingsPhase3);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown;
-            _state.FunctionTimer = WrappingCountdown.Start(64);
+            _state.FunctionTimer = 64;
         }
         return false;
     }
@@ -214,8 +210,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseMurderBabyAttackCooldown()
     {
-        _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
-        if (_state.FunctionTimer.IsNegative)
+        if (--_state.FunctionTimer < 0)
             _state.Phase = MotherBrainBodyFunction.SecondPhaseMurderBabyAttack;
         return false;
     }

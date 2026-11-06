@@ -134,8 +134,6 @@ internal static class SpcDriverDefinitions
     /// <summary>Three native sound-effect libraries and their voice allocation limits.</summary>
     internal static class SoundEffects
     {
-        /// <summary>Library one plus the two smaller effect libraries.</summary>
-        internal const int LibraryCount = 3;
         /// <summary>Four simultaneous effect channels allocated to library one.</summary>
         internal const int LibraryOneChannelCount = 4;
         /// <summary>Two simultaneous channels in each remaining effect library.</summary>

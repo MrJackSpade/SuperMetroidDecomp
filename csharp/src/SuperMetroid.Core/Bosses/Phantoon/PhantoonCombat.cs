@@ -151,7 +151,7 @@ internal sealed class PhantoonCombat
         RoomEnemySlot body = state.Body;
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
             CommonEnemyEmptyFrames.DrawsNothing(body.Frame) ||
-            !body.InvincibilityTimer.IsZero ||
+            body.InvincibilityTimer != 0 ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |
                 EnemyProperties.IgnoreSamusCollision))
@@ -231,21 +231,21 @@ internal sealed class PhantoonCombat
                 EnemyCollision.ReadNormalShotVulnerability(body, projectileType);
             if (vulnerability.FreezeImmediately)
             {
-                body.FrozenTimer = WrappingCountdown.Start(400);
+                body.FrozenTimer = 400;
                 body.AiStates |= EnemyAiStates.Frozen;
-                body.InvincibilityTimer = WrappingCountdown.Start(10);
+                body.InvincibilityTimer = 10;
             }
             else
             {
                 int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
                 if (damage != 0)
                 {
-                    body.FlashTimer = WrappingCountdown.Start(body.HurtFlashFrames + 8);
+                    body.FlashTimer = body.HurtFlashFrames + 8;
                     body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared damage helper.
                     if (projectileType.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
+                        body.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
@@ -309,7 +309,7 @@ internal sealed class PhantoonCombat
             if (state.Parts[state.Tentacles.SlotIndex].RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
-                    state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(1);
+                    state.Parts[body.SlotIndex].FunctionTimer = 1;
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutWhileSwooping);
                 state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
@@ -325,8 +325,8 @@ internal sealed class PhantoonCombat
                 if (!state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
                 {
                     state.Parts[state.Tentacles.SlotIndex].SwoopRequested = true;
-                    if (state.Parts[body.SlotIndex].FunctionTimer.IsAtLeast(16))
-                        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(16);
+                    if (state.Parts[body.SlotIndex].FunctionTimer >= 16)
+                        state.Parts[body.SlotIndex].FunctionTimer = 16;
                 }
                 return;
             }
@@ -343,7 +343,7 @@ internal sealed class PhantoonCombat
         PhantoonAiFunction fadeOut)
     {
         state.Parts[body.SlotIndex].Function = fadeOut;
-        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(0);
+        state.Parts[body.SlotIndex].FunctionTimer = 0;
         RoomEnemySlot tentacles = state.Tentacles;
         RoomEnemySlot eye = state.Eye;
         state.Parts[tentacles.SlotIndex].SwoopRequested = false;

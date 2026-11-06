@@ -49,7 +49,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
             const int width = 16;
             const int origin = 4 + 4 * width;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBlueDoorVisuals = stock });
             RoomBlockBehavior behavior = new(unchecked((byte)(
                 RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)orientation)));

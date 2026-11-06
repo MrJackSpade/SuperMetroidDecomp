@@ -95,7 +95,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         {
             DoorMusicLoadFrames = uploadNmis,
             RoomLoadProgress = loaderProgress,
-            SoundAcknowledgements = soundAcknowledgements,
+            SoundAcceptance = soundAcknowledgements,
             GameplayFrames = CapturedGameplayFrames.Instance,
         };
         if (movie.Snapshot is not null)

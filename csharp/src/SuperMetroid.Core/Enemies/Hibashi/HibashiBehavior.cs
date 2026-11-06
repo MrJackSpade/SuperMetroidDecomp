@@ -49,7 +49,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new HibashiEnemyState
         {
-            InactiveTimerReset = WrappingCountdown.Start(slot.SpawnSettings<HibashiSpawnSettings>().InactiveTime),
+            InactiveTimerReset = slot.SpawnSettings<HibashiSpawnSettings>().InactiveTime,
             IsCollisionPart = slot.SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -98,8 +98,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The countdown expires through zero, so timer zero deliberately becomes -1 and erupts immediately. A
         // reset value N later produces N+1 inactive actor frames because zero is nonnegative.
-        state.InactiveTimer = state.InactiveTimer.Decrement().Remaining;
-        if (!state.InactiveTimer.IsNegative)
+        if (--state.InactiveTimer >= 0)
             return;
 
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);

@@ -51,7 +51,7 @@ internal static class RidleyFlightTailVerification
             AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");
             AssertEqual(NativeComponent(phase + 64), state.Velocity.Y.RawValue, "native swoop Y table multiplication");
         }
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
@@ -59,7 +59,7 @@ internal static class RidleyFlightTailVerification
         slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
-            Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = WrappingCountdown.Start(0),
+            Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = null, Clockwise = false,

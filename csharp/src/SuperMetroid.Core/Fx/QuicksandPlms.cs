@@ -41,7 +41,7 @@ internal sealed class QuicksandPlms
         slot.Header = header;
         slot.BlockIndex = blockIndex;
         definition.Program.StartOn(slot);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         return true;
     }
 }

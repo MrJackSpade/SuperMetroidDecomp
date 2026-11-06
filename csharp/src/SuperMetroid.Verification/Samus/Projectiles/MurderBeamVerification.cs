@@ -34,7 +34,7 @@ internal static class MurderBeamVerification
     {
         var bus = NewProjectileSoundRoutingForbiddenBus(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
@@ -119,22 +119,22 @@ internal static class MurderBeamVerification
         AssertEqual(0, shot.InstructionPointer,
             "Murder Beam remains zero-list after enemy impact");
 
-        target.InvincibilityTimer = WrappingCountdown.Start(0);
+        target.InvincibilityTimer = 0;
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             projectiles, shared, samus),
             "persistent Murder Beam can damage again after invincibility");
         AssertEqual(600, target.Health,
             "second Murder Beam contact repeats the native damage");
 
-        target.InvincibilityTimer = WrappingCountdown.Start(0);
-        target.FrozenTimer = WrappingCountdown.Start(0);
+        target.InvincibilityTimer = 0;
+        target.FrozenTimer = 0;
         target.Health = 100;
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             projectiles, shared, samus),
             "lethal Murder Beam contact reaches Ice substitution");
         AssertEqual(100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");
-        AssertEqual((ushort)400, target.FrozenTimer.RawValue,
+        AssertEqual(400, target.FrozenTimer,
             "Murder Beam freezes a vulnerable non-Norfair enemy");
 
         var phaseBoundary = new MotherBrainRainbowBeamAttackSequence();

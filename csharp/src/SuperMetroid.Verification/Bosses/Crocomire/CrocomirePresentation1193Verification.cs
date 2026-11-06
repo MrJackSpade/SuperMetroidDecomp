@@ -84,7 +84,7 @@ internal static class CrocomirePresentation1193Verification
             }
             else
             {
-                ushort expected = unchecked((ushort)(runtime.BackgroundScroll.Layer1Position.Y +
+                ushort expected = unchecked((ushort)(runtime.BackgroundScroll.ForegroundPosition.Y +
                     runtime.BackgroundScroll.ForegroundOffset.Y + (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset));
                 AssertEqual(expected, runtime.BackgroundScroll.ForegroundScroll.Y,
                     $"Comeback frame {frame} applies current enemy rumble to foreground scroll");
@@ -124,7 +124,7 @@ internal static class CrocomirePresentation1193Verification
         else
         {
             var scroll = runtime.BackgroundScroll;
-            scroll.Layer1Position = scroll.Layer1Position.WithY(100);
+            scroll.ForegroundPosition = scroll.ForegroundPosition.WithY(100);
             scroll.ForegroundOffset = scroll.ForegroundOffset.WithY(3);
             scroll.CalculateLayerScrolls();
             ushort bg2 = scroll.BackgroundScroll.Y;
@@ -132,7 +132,7 @@ internal static class CrocomirePresentation1193Verification
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
             AssertEqual((ushort)99, scroll.ForegroundScroll.Y, "Native rumble includes BG1's ordinary Y offset");
             AssertEqual(bg2, scroll.BackgroundScroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
-            AssertEqual((ushort)100, scroll.Layer1Position.Y, "Rumble does not move the camera or streaming origin");
+            AssertEqual((ushort)100, scroll.ForegroundPosition.Y, "Rumble does not move the camera or streaming origin");
             (boss ?? throw new InvalidOperationException("Verification requires boss.")).Body.Properties = boss.Body.Properties.With(EnemyProperties.Invisible);
             scroll.CalculateLayerScrolls();
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);

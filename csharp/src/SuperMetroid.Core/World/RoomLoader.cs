@@ -393,7 +393,7 @@ internal sealed class RoomLoader
 
         // CalculateLayer2PosAndScrollsWhenScrolling updates the background scroll on every
         // convergence step; the gameplay scroll owner performs the same parallax math.
-        _backgroundScroll.Layer1Position = _room.Camera.PixelPosition;
+        _backgroundScroll.ForegroundPosition = _room.Camera.PixelPosition;
         _backgroundScroll.StepScrolling();
         return false;
     }
@@ -513,7 +513,7 @@ internal sealed class RoomLoader
             door,
             sourceSamus,
             _room.Camera.PixelPosition,
-            _backgroundScroll.Layer2Position,
+            _backgroundScroll.BackgroundPosition,
             _player.Samus.Position);
         DoorDirection direction = door.Orientation.Direction;
         DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
@@ -522,7 +522,7 @@ internal sealed class RoomLoader
         // The offsets derive from the layer-one words staged before setup's first call:
         // horizontal setups had not yet taken their four-pixel step, and up's
         // FixDoorsMovingUp path stages layer one five (layer two four) pixels lower.
-        Offset16<RoomPixels> layer1Staging = direction switch
+        Offset16<RoomPixels> foregroundStaging = direction switch
         {
             DoorDirection.Right => new(-4, 0),
             DoorDirection.Left => new(4, 0),
@@ -530,11 +530,11 @@ internal sealed class RoomLoader
             DoorDirection.Up => new(0, 5),
             _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
-        Position16<RoomPixels> stagedLayer1 = _doorOpeningScroll.CameraPosition + layer1Staging;
+        Position16<RoomPixels> stagedForeground = _doorOpeningScroll.CameraPosition + foregroundStaging;
         Position16<RoomPixels> retainedForegroundScroll = direction == DoorDirection.Down
             ? sourceScroll.ForegroundScroll + new Offset16<RoomPixels>(0, 1)
             : sourceScroll.ForegroundScroll;
-        _backgroundScroll.ConfigureDoorOpeningOffsets(retainedForegroundScroll, stagedLayer1);
+        _backgroundScroll.ConfigureDoorOpeningOffsets(retainedForegroundScroll, stagedForeground);
         _pendingDoorOpeningSourceView = null;
         // The source screen stays where it was while the destination scrolls in around it.
         _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsBgPlaneScroll());
@@ -606,14 +606,14 @@ internal sealed class RoomLoader
     private void PublishDoorOpeningLayers(DoorOpeningScrollState state)
     {
         PublishDoorCameraPosition(state.CameraPosition);
-        _backgroundScroll.Layer2Position = state.Layer2Position;
+        _backgroundScroll.BackgroundPosition = state.BackgroundPosition;
     }
 
     /// <summary>Publishes a door-owned layer-one position to both the camera and the scroll owner.</summary>
     private void PublishDoorCameraPosition(Position16<RoomPixels> camera)
     {
         _room.LoadedCamera.SetDoorTransitionPosition(camera);
-        _backgroundScroll.Layer1Position = camera;
+        _backgroundScroll.ForegroundPosition = camera;
     }
 
     /// <summary>
@@ -793,7 +793,7 @@ internal sealed class RoomLoader
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
-        var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedLayer1Position,
+        var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedCameraPosition,
             _room.Scope is { } gated
                 ? new EnemyDoorTransitionGates(gated.Enemies.RoomStatus.EnemyDoorTransitionActive,
                     gated.Enemies.Elevator.ElevatorDoorTransitionActive)
@@ -837,7 +837,7 @@ internal sealed class RoomLoader
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
             if (previousCamera is not null) destinationCamera.InheritTrackingState(previousCamera);
-            destinationCamera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? carryOver.InheritedLayer1Position);
+            destinationCamera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? carryOver.InheritedCameraPosition);
         }
         else
         {
@@ -845,9 +845,9 @@ internal sealed class RoomLoader
             if (previousCamera is not null)
                 destinationCamera.RetainSubpositions(previousCamera);
             else
-                destinationCamera.RetainSubpositions(carryOver.InheritedLayer1Position);
+                destinationCamera.RetainSubpositions(carryOver.InheritedCameraPosition);
         }
-        _backgroundScroll.Layer2Scroll = room.State.Layer2Scroll;
+        _backgroundScroll.BackgroundScrollModes = room.State.BackgroundScrollModes;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
             _backgroundScroll.CalculateScrolls();
         else
@@ -1047,7 +1047,7 @@ internal sealed class RoomLoader
 
         _room.Adopt(scope.Complete());
         _pendingDoorOpeningSourceView = null;
-        _backgroundScroll.Layer1Position = destinationCamera.PixelPosition;
+        _backgroundScroll.ForegroundPosition = destinationCamera.PixelPosition;
         _backgroundScroll.CalculateScrolls();
         return new InitialViewportResult();
     }

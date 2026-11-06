@@ -15,7 +15,7 @@ public sealed record RoomStateSettings(
     SuperMetroid.Core.Fx.RoomFxHeader? Fx,
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
     Enemies.RoomEnemyGraphicsSetDefinition EnemyGraphicsSet,
-    SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes Layer2Scroll,
+    SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes BackgroundScrollModes,
     SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinition Scroll,
     SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition? XrayOverlay,
     RoomMainCallback MainCallback,

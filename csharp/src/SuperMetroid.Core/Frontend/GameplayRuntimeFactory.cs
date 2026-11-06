@@ -22,7 +22,7 @@ internal static class GameplayRuntimeFactory
             throw new ArgumentException($"A {start.Purpose} runtime start {(start.Selected is null ? "requires" : "takes no")} selected-game options.", nameof(start));
 
         var runtime = new SuperMetroidRuntime(start.Assists, start.Artwork, start.Carryover);
-        start.Layer1.PublishTo(runtime);
+        start.MenuCamera.PublishTo(runtime);
         runtime.BindArtwork(start.Artwork, previous: null);
         if (start.Selected is { } selected)
         {

@@ -43,7 +43,7 @@ internal sealed class FrontendSession
     /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
     internal readonly ScreenFadeTimer screenFade = new();
     /// <summary>The menu's retained layer-1 position, handed to and from each gameplay runtime.</summary>
-    internal readonly MenuLayer1Retention menuLayer1 = new();
+    internal readonly MenuCameraRetention menuCamera = new();
 
     /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
     internal readonly FrameClock frameClock = new();
@@ -396,7 +396,7 @@ internal sealed class FrontendSession
     internal void CreateGameplayRuntime(GameplayRuntimePurpose purpose)
     {
         if (runtime is not null)
-            menuLayer1.RetainFrom(runtime);
+            menuCamera.RetainFrom(runtime);
         bool attract = purpose == GameplayRuntimePurpose.AttractDemo;
         runtime = GameplayRuntimeFactory.Create(new GameplayRuntimeStart
         {
@@ -411,7 +411,7 @@ internal sealed class FrontendSession
                 SaveChoiceInput = saveChoiceInput,
                 StoredExploredMaps = storedExploredMaps,
             },
-            Layer1 = menuLayer1,
+            MenuCamera = menuCamera,
             Artwork = Artwork,
             // Attract scripts retain the default controls and options of their private runtime.
             Selected = attract ? null : ChosenOptions ?? new SelectedGameplayOptions(false, ControllerBindings.Default, false, false),
@@ -616,7 +616,7 @@ internal sealed class FrontendSession
     {
         // File-map selection may release when no runtime was ever created.
         if (runtime is not null)
-            menuLayer1.RetainFrom(runtime);
+            menuCamera.RetainFrom(runtime);
         runtime = null;
     }
 

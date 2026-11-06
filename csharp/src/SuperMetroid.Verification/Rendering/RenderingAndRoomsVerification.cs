@@ -608,8 +608,8 @@ internal static void VerifyBackgroundScrollState()
 {
     var state = new BackgroundScrollState
     {
-        Layer1Position = new(0x1234, 0x0200),
-        Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0), // Horizontal 128/256 = one-half parallax.
+        ForegroundPosition = new(0x1234, 0x0200),
+        BackgroundScrollModes = BackgroundScrollModes.FromHeader(0x80, 0), // Horizontal 128/256 = one-half parallax.
         ForegroundOffset = new(0x0010, unchecked((short)0xfff0)),
         BackgroundOffset = new(3, 4),
     };
@@ -617,42 +617,42 @@ internal static void VerifyBackgroundScrollState()
     state.StepScrolling();
     AssertEqual(0x1244, state.ForegroundScroll.X, "$80:A3B7 BG1 X plus offset");
     AssertEqual(0x01f0, state.ForegroundScroll.Y, "$80:A3C0 BG1 Y wrapping offset");
-    AssertEqual(0x091a, state.Layer2Position.X, "$80:A2F9 half-speed X parallax");
-    AssertEqual(0x0200, state.Layer2Position.Y, "$80:A33A zero mode copies layer 1");
+    AssertEqual(0x091a, state.BackgroundPosition.X, "$80:A2F9 half-speed X parallax");
+    AssertEqual(0x0200, state.BackgroundPosition.Y, "$80:A33A zero mode copies layer 1");
     AssertEqual(0x091d, state.BackgroundScroll.X, "$80:A3CF BG2 X plus offset");
 
     // Mode one preserves both the layer-2 position and its PPU scroll mirror.
-    ushort oldLayer2X = state.Layer2Position.X;
+    ushort oldLayer2X = state.BackgroundPosition.X;
     ushort oldBg2X = state.BackgroundScroll.X;
-    state.Layer2Scroll = Layer2ScrollModes.FromHeader(1, 1);
-    state.Layer1Position = new(0x1300, 0x0300);
+    state.BackgroundScrollModes = BackgroundScrollModes.FromHeader(1, 1);
+    state.ForegroundPosition = new(0x1300, 0x0300);
     state.StepScrolling();
-    AssertEqual(oldLayer2X, state.Layer2Position.X, "fixed BG2 X position remains unchanged");
+    AssertEqual(oldLayer2X, state.BackgroundPosition.X, "fixed BG2 X position remains unchanged");
     AssertEqual(oldBg2X, state.BackgroundScroll.X, "fixed BG2 X register remains unchanged");
 
     ushort frozenBg1X = state.ForegroundScroll.X;
-    state.Layer1Position = state.Layer1Position.WithX(0x4444);
+    state.ForegroundPosition = state.ForegroundPosition.WithX(0x4444);
     state.StepScrolling(timeIsFrozen: true);
     AssertEqual(frozenBg1X, state.ForegroundScroll.X, "$80:A3AB frozen scroll registers");
 
     var destinationParallax = new BackgroundScrollState
     {
-        Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0x40),
+        BackgroundScrollModes = BackgroundScrollModes.FromHeader(0x80, 0x40),
     };
     destinationParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0200), new(0x0400, 0x0200));
-    AssertEqual((ushort)0x0200, destinationParallax.Layer2Position.X,
+    AssertEqual((ushort)0x0200, destinationParallax.BackgroundPosition.X,
         "door setup calculates destination half-speed BG2 X");
-    AssertEqual((ushort)0x0080, destinationParallax.Layer2Position.Y,
+    AssertEqual((ushort)0x0080, destinationParallax.BackgroundPosition.Y,
         "door setup calculates destination quarter-speed BG2 Y");
-    AssertEqual(new Position16<RoomPixels>(0x0400, 0x0200), destinationParallax.Layer1Position,
+    AssertEqual(new Position16<RoomPixels>(0x0400, 0x0200), destinationParallax.ForegroundPosition,
         "door setup publishes the whole destination layer-one position");
 
     // Upward doors derive BG2 from destination+$1F while layer one keeps the destination.
-    var upwardParallax = new BackgroundScrollState { Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0x40) };
+    var upwardParallax = new BackgroundScrollState { BackgroundScrollModes = BackgroundScrollModes.FromHeader(0x80, 0x40) };
     upwardParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0220), new(0x0400, 0x021f));
-    AssertEqual(new Position16<BackgroundPixels>(0x0200, 0x0087), upwardParallax.Layer2Position,
+    AssertEqual(new Position16<BackgroundPixels>(0x0200, 0x0087), upwardParallax.BackgroundPosition,
         "upward door setup calculates BG2 from its separate parallax basis");
-    AssertEqual(new Position16<RoomPixels>(0x0400, 0x0220), upwardParallax.Layer1Position,
+    AssertEqual(new Position16<RoomPixels>(0x0400, 0x0220), upwardParallax.ForegroundPosition,
         "upward door setup keeps the destination layer-one position");
 
     // `$80:AE29` first derives four offsets from the retained source BG1 registers, the
@@ -661,12 +661,12 @@ internal static void VerifyBackgroundScrollState()
     // source image while BG2 starts four pixels from its cleared origin.
     var rightDoor = new BackgroundScrollState
     {
-        Layer1Position = new(0xff04, 0), // destination $0000 - $00FC
-        Layer2Position = new(0xff04, 0),
+        ForegroundPosition = new(0xff04, 0), // destination $0000 - $00FC
+        BackgroundPosition = new(0xff04, 0),
     };
     rightDoor.ConfigureDoorOpeningOffsets(
         retainedForegroundScroll: new(0x0120, 0x0340),
-        stagedLayer1: new(0xff00, 0x0000));
+        stagedForeground: new(0xff00, 0x0000));
     AssertEqual(new Offset16<RoomPixels>(0x0220, 0x0340), rightDoor.ForegroundOffset,
         "$80:AE29 BG1 offsets are the retained registers minus the staged layer-one origin");
     AssertEqual(new Offset16<BackgroundPixels>(0x0100, 0), rightDoor.BackgroundOffset,
@@ -679,12 +679,12 @@ internal static void VerifyBackgroundScrollState()
 
     var leftDoor = new BackgroundScrollState
     {
-        Layer1Position = new(0x00fc, 0), // destination $0000 + $00FC
-        Layer2Position = new(0x00fc, 0),
+        ForegroundPosition = new(0x00fc, 0), // destination $0000 + $00FC
+        BackgroundPosition = new(0x00fc, 0),
     };
     leftDoor.ConfigureDoorOpeningOffsets(
         retainedForegroundScroll: new(0x0120, 0x0340),
-        stagedLayer1: new(0x0100, 0x0000));
+        stagedForeground: new(0x0100, 0x0000));
     leftDoor.CalculateLayerScrolls();
     AssertEqual((ushort)0x011c, leftDoor.ForegroundScroll.X,
         "$80:AE29 left-door BG1 retains source minus first step");
@@ -694,12 +694,12 @@ internal static void VerifyBackgroundScrollState()
     // Upward setup presents destination+$FB after the built-in first moving call.
     var upwardDestination = new BackgroundScrollState
     {
-        Layer1Position = new(0, 0x02fb),
-        Layer2Position = new(0, 0x01dc),
+        ForegroundPosition = new(0, 0x02fb),
+        BackgroundPosition = new(0, 0x01dc),
     };
     upwardDestination.ConfigureDoorOpeningOffsets(
         retainedForegroundScroll: new(0x0120, 0x0340),
-        stagedLayer1: new(0, 0x0300));
+        stagedForeground: new(0, 0x0300));
     upwardDestination.CalculateLayerScrolls();
     AssertEqual((ushort)0x033b, upwardDestination.ForegroundScroll.Y,
         "$80:AF89 upward setup preserves source BG1 minus five pixels");

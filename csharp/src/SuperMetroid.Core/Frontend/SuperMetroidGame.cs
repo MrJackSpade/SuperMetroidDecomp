@@ -524,7 +524,7 @@ public sealed class SuperMetroidGame
                 // produced by gameplay and the game-over and file-map waiting updates.
                 Session.Random.SeedPowerOn();
                 Session.frameClock.Reset();
-                Session.menuLayer1.Reset();
+                Session.menuCamera.Reset();
                 // The reset phase itself runs after the first advance; the seed alone is
                 // not what it sees.
                 Session.Random.Generate();

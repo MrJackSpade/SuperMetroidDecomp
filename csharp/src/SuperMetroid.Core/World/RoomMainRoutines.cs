@@ -44,7 +44,7 @@ internal sealed class RoomMainRoutines
         var death = room.Enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's comeback room callback has no death state.");
         _backgroundScroll.SetForegroundVerticalScroll(CoordinateAxis.Wrap(
-            _backgroundScroll.Layer1Position.Y + _backgroundScroll.ForegroundOffset.Y + death.RumbleYOffset));
+            _backgroundScroll.ForegroundPosition.Y + _backgroundScroll.ForegroundOffset.Y + death.RumbleYOffset));
     }
 
     /// <summary>

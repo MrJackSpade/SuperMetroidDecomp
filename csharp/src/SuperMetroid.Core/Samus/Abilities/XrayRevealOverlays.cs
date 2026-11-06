@@ -16,11 +16,11 @@ public static class XrayRevealOverlays
     /// <param name="items">The room's collectibles.</param>
     /// <param name="system">The collected-item record.</param>
     /// <param name="roomOverlay">The room state's special overlay, or null.</param>
-    /// <param name="layer1Position">Layer one's position, which places the overlays on screen.</param>
+    /// <param name="foregroundPosition">Layer one's position, which places the overlays on screen.</param>
     /// <param name="visuals">Installed reveal art.</param>
     public static void Apply(RoomLevelData level, Span<RevealedBlock?> blocks,
         IReadOnlyList<CollectiblePlmSnapshot> items, SharedGameState system,
-        XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> layer1Position,
+        XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> foregroundPosition,
         InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
@@ -52,21 +52,21 @@ public static class XrayRevealOverlays
             };
             if ((uint)graphics >= InstalledXrayOverlays.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");
-            Write(blocks, overlays.ItemMetatile(graphics), level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);
+            Write(blocks, overlays.ItemMetatile(graphics), level.Size.CellAtRowMajorIndex(item.BlockIndex), foregroundPosition);
         }
         if (roomOverlay is null) return;
         foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(roomOverlay))
-            Write(blocks, tile.Appearance, tile.Block, layer1Position);
+            Write(blocks, tile.Appearance, tile.Block, foregroundPosition);
     }
 
     /// <summary>
     /// Places a visible overlay's whole block, its rows swapped for vertical mirroring without mirroring its picture.
     /// </summary>
     private static void Write(Span<RevealedBlock?> blocks, RoomBlockAppearance appearance, Position16<RoomBlocks> block,
-        Position16<RoomPixels> layer1Position)
+        Position16<RoomPixels> foregroundPosition)
     {
         // The overlay's metatile within the visible window, relative to the camera's block.
-        Offset16<RoomBlocks> visible = block - layer1Position.ToRoomBlock();
+        Offset16<RoomBlocks> visible = block - foregroundPosition.ToRoomBlock();
         int x = visible.X, y = visible.Y;
         // Only an overlay inside the revealed area shows.
         if ((uint)x >= XrayRevealLayout.Columns || (uint)y >= XrayRevealLayout.Rows) return;

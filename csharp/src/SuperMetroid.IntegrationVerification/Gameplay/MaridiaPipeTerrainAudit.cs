@@ -29,7 +29,7 @@ internal static class MaridiaPipeTerrainAudit
         BackgroundTile[] blockTiles = InstalledFixtures.StockBlockTiles(RoomTilesets.Get(room.State.GraphicsSet), ceres: false);
         foreach (bool background in new[] { false, true })
         {
-            if (background && !(scroll.Layer2Scroll.Horizontal.Streams && scroll.Layer2Scroll.Vertical.Streams)) continue;
+            if (background && !(scroll.BackgroundScrollModes.Horizontal.Streams && scroll.BackgroundScrollModes.Vertical.Streams)) continue;
             // The audit compares wrapped register words, so take each offset as its native word.
             int offsetX = unchecked((ushort)(background ? scroll.BackgroundOffset.X : scroll.ForegroundOffset.X));
             int offsetY = unchecked((ushort)(background ? scroll.BackgroundOffset.Y : scroll.ForegroundOffset.Y));

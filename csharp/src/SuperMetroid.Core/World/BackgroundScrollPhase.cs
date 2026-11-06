@@ -26,10 +26,10 @@ internal sealed class BackgroundScrollPhase
         if (_room.Camera is null)
             throw new InvalidOperationException("A room camera must be initialized before BG scrolling.");
 
-        _backgroundScroll.Layer1Position = _room.Camera.PixelPosition;
+        _backgroundScroll.ForegroundPosition = _room.Camera.PixelPosition;
         _backgroundScroll.StepScrolling(timeIsFrozen);
     }
 
     /// <summary>Adopts the layer-one position whose fraction words survived the previous runtime.</summary>
-    internal void AdoptLayer1Position(FixedPosition<RoomPixels> retained) => _room.InheritedLayer1Position = retained;
+    internal void AdoptCameraPosition(FixedPosition<RoomPixels> retained) => _room.InheritedCameraPosition = retained;
 }

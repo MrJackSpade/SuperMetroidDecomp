@@ -134,7 +134,7 @@ internal sealed class EnemyFramePhase
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
                 _room.Camera.SetLayerOneXFromEnemyAi(Ensure.BetweenInclusive(0, ushort.MaxValue, shitroidCameraX));
-                _backgroundScroll.Layer1Position = _backgroundScroll.Layer1Position.WithX(shitroidCameraX);
+                _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(shitroidCameraX);
             }
             // The landing tube stops the liquid surface's motion; the next frame shows it still.
             if (result.StopLiquidMotion)

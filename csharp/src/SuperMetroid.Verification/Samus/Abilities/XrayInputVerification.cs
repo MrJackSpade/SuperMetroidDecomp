@@ -95,7 +95,7 @@ internal static class XrayInputVerification
         // The background shows the reveal over the room's own blocks (#1403, #1431, #1514).
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.XrayReveal
             ?? throw new InvalidOperationException("The captured X-ray frame shows no reveal.");
-        AssertEqual(XrayRevealMap.OriginOf(runtime.BackgroundScroll.Layer1Position, runtime.BackgroundScroll.ForegroundOffset),
+        AssertEqual(XrayRevealMap.OriginOf(runtime.BackgroundScroll.ForegroundPosition, runtime.BackgroundScroll.ForegroundOffset),
             shownReveal.Origin, "the captured reveal lies over the room's own blocks");
 
         RevealedBlock?[] beforeRelease = shownReveal.Blocks.ToArray();

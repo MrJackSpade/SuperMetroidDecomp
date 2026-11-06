@@ -14,22 +14,22 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class BackgroundScrollState
 {
     /// <summary>World-space foreground/camera position.</summary>
-    public Position16<RoomPixels> Layer1Position { get; set; }
+    public Position16<RoomPixels> ForegroundPosition { get; set; }
 
     /// <summary>Parallax-derived background position.</summary>
-    public Position16<BackgroundPixels> Layer2Position { get; set; }
+    public Position16<BackgroundPixels> BackgroundPosition { get; set; }
 
     /// <summary>
     /// The room state's per-axis layer-2 scroll. Before a room state sets it, both axes copy layer one and stream,
     /// as the game's cleared mode bytes select.
     /// </summary>
-    public Layer2ScrollModes Layer2Scroll { get; set; } = Layer2ScrollModes.CopiesLayer1;
+    public BackgroundScrollModes BackgroundScrollModes { get; set; } = BackgroundScrollModes.FollowsForeground;
 
-    /// <summary>Wrapped delta added to <see cref="Layer1Position"/> to form the foreground's scroll.</summary>
+    /// <summary>Wrapped delta added to <see cref="ForegroundPosition"/> to form the foreground's scroll.</summary>
     /// <remarks>These offsets are separate values, independent of the second layer's scroll mode.</remarks>
     public Offset16<RoomPixels> ForegroundOffset { get; set; }
 
-    /// <summary>Wrapped delta added to <see cref="Layer2Position"/> to form the background's scroll.</summary>
+    /// <summary>Wrapped delta added to <see cref="BackgroundPosition"/> to form the background's scroll.</summary>
     public Offset16<BackgroundPixels> BackgroundOffset { get; set; }
 
     /// <summary>Background 1's scroll position.</summary>
@@ -55,7 +55,7 @@ public sealed class BackgroundScrollState
     /// </summary>
     public void ConfigureDoorOpeningOffsets(
         Position16<RoomPixels> retainedForegroundScroll,
-        Position16<RoomPixels> stagedLayer1)
+        Position16<RoomPixels> stagedForeground)
     {
         // State $0B preserves foreground's source-room mirrors (with the down-door one-pixel
         // adjustment already supplied by the caller) and clears both background mirrors before
@@ -63,13 +63,13 @@ public sealed class BackgroundScrollState
         // returned offset state and the block snapshot one indivisible action.
         ForegroundScroll = retainedForegroundScroll;
         BackgroundScroll = Position16<BackgroundPixels>.Zero;
-        ForegroundOffset = retainedForegroundScroll - stagedLayer1;
+        ForegroundOffset = retainedForegroundScroll - stagedForeground;
         // The derivation deliberately subtracts layer 1 for both background offsets: the
         // The background offset words are the negated staged layer-one origin. This is not a typo:
         // layer 2's own position is combined with these words later.
         BackgroundOffset = new Offset16<BackgroundPixels>(
-            CoordinateAxis.AsSigned(-stagedLayer1.X),
-            CoordinateAxis.AsSigned(-stagedLayer1.Y));
+            CoordinateAxis.AsSigned(-stagedForeground.X),
+            CoordinateAxis.AsSigned(-stagedForeground.Y));
     }
 
     /// <summary>
@@ -77,18 +77,18 @@ public sealed class BackgroundScrollState
     /// setup after the door installs the destination layer-one coordinates. Fixed mode one
     /// deliberately retains its old layer-two position, exactly like the original early return.
     /// </summary>
-    /// <param name="destination">The layer-one destination published to <see cref="Layer1Position"/>.</param>
+    /// <param name="destination">The layer-one destination published to <see cref="ForegroundPosition"/>.</param>
     /// <param name="parallaxBasis">
     /// The layer-one words the parallax calculation reads. An upward door calculates background from
     /// destination+31 before the scroll's layer-one endpoint becomes destination+32.
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {
-        if (TryCalculateLayer2Position(parallaxBasis.X, Layer2Scroll.Horizontal, out int layer2X))
-            Layer2Position = Layer2Position.WithX(layer2X);
-        if (TryCalculateLayer2Position(parallaxBasis.Y, Layer2Scroll.Vertical, out int layer2Y))
-            Layer2Position = Layer2Position.WithY(layer2Y);
-        Layer1Position = destination;
+        if (TryCalculateBackgroundPosition(parallaxBasis.X, BackgroundScrollModes.Horizontal, out int backgroundX))
+            BackgroundPosition = BackgroundPosition.WithX(backgroundX);
+        if (TryCalculateBackgroundPosition(parallaxBasis.Y, BackgroundScrollModes.Vertical, out int backgroundY))
+            BackgroundPosition = BackgroundPosition.WithY(backgroundY);
+        ForegroundPosition = destination;
     }
 
     /// <summary>
@@ -108,20 +108,20 @@ public sealed class BackgroundScrollState
     /// </summary>
     public void CalculateScrolls()
     {
-        ForegroundScroll = Layer1Position + ForegroundOffset;
+        ForegroundScroll = ForegroundPosition + ForegroundOffset;
 
         // Mode one means "do not scroll layer 2 on this axis": the caller skips both the
         // layer-2 position write and the layer-2 scroll.
-        if (TryCalculateLayer2Position(Layer1Position.X, Layer2Scroll.Horizontal, out int layer2X))
+        if (TryCalculateBackgroundPosition(ForegroundPosition.X, BackgroundScrollModes.Horizontal, out int backgroundX))
         {
-            Layer2Position = Layer2Position.WithX(layer2X);
-            BackgroundScroll = BackgroundScroll.WithX(CoordinateAxis.Wrap(layer2X + BackgroundOffset.X));
+            BackgroundPosition = BackgroundPosition.WithX(backgroundX);
+            BackgroundScroll = BackgroundScroll.WithX(CoordinateAxis.Wrap(backgroundX + BackgroundOffset.X));
         }
 
-        if (TryCalculateLayer2Position(Layer1Position.Y, Layer2Scroll.Vertical, out int layer2Y))
+        if (TryCalculateBackgroundPosition(ForegroundPosition.Y, BackgroundScrollModes.Vertical, out int backgroundY))
         {
-            Layer2Position = Layer2Position.WithY(layer2Y);
-            BackgroundScroll = BackgroundScroll.WithY(CoordinateAxis.Wrap(layer2Y + BackgroundOffset.Y));
+            BackgroundPosition = BackgroundPosition.WithY(backgroundY);
+            BackgroundScroll = BackgroundScroll.WithY(CoordinateAxis.Wrap(backgroundY + BackgroundOffset.Y));
         }
     }
 
@@ -131,35 +131,35 @@ public sealed class BackgroundScrollState
     /// </summary>
     public void CalculateLayerScrolls()
     {
-        ForegroundScroll = Layer1Position + ForegroundOffset;
-        BackgroundScroll = Layer2Position + BackgroundOffset;
+        ForegroundScroll = ForegroundPosition + ForegroundOffset;
+        BackgroundScroll = BackgroundPosition + BackgroundOffset;
     }
 
     /// <summary>
     /// Copies, freezes, or parallax-scales one layer-two axis as the room state's scroll selects. The layer-one
     /// coordinate is a sixteen-bit word and so is the result: the parallax product keeps its own wrap.
     /// </summary>
-    private static bool TryCalculateLayer2Position(int layer1Position, Layer2AxisScroll scroll, out int result)
+    private static bool TryCalculateBackgroundPosition(int foregroundPosition, BackgroundAxisScroll scroll, out int result)
     {
         switch (scroll.Kind)
         {
-            case Layer2ScrollKind.Fixed:
+            case BackgroundScrollKind.Fixed:
                 result = 0;
                 return false;
-            case Layer2ScrollKind.CopiesLayer1:
-                result = layer1Position;
+            case BackgroundScrollKind.FollowsForeground:
+                result = foregroundPosition;
                 return true;
-            case Layer2ScrollKind.Parallax:
+            case BackgroundScrollKind.Parallax:
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(Layer2ScrollKind)} {scroll.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(BackgroundScrollKind)} {scroll.Kind}.");
         }
 
         // The hardware implementation performs two 8x8 multiplies: factor*low contributes
         // its high product byte, and factor*high contributes its low product word. Together
         // they equal floor(position * factor / 256), modulo 16 bits.
         uint factor = (uint)scroll.Factor;
-        result = CoordinateAxis.Wrap(EightEight.WholeOf(checked((uint)layer1Position) * factor));
+        result = CoordinateAxis.Wrap(EightEight.WholeOf(checked((uint)foregroundPosition) * factor));
         return true;
     }
 

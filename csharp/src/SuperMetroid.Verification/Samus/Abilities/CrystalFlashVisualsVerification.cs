@@ -57,8 +57,8 @@ internal static class CrystalFlashVisualsVerification
         AssertTrue(dark != light, "the two whiteout shades that isolate the Crystal Flash body show different colours");
         FramePaint beamsDark = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(DarkBeamsStep)));
         FramePaint beamsLight = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(LightBeamsStep)));
-        int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.X;
-        int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.Y;
+        int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.X;
+        int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,
             "visual fixture keeps the entire Crystal Flash sprite in the viewport");
         // Removing only the captured color window keeps identical OAM, palette, terrain and camera, isolating its actual

@@ -55,13 +55,13 @@ public static class GameplayDisplayCapture
             if (live.CeresHaze is { } haze)
                 AddLayer(GameplayEffectCapture.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.RoomFxPaletteBlends));
             if (latched.MorphBallEyeBeam is { } eye)
-                AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, scrolls.Layer1Position));
+                AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, scrolls.ForegroundPosition));
             if (rainbow is { } beam)
                 AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door's scroll. Message glyphs precede the suit's final color window.
-        AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.Layer1Position));
+        AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.ForegroundPosition));
         AddLayer(live.MessageBox);
         AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(frame)));
         return new(basis.Paint, layers.ToArray(), basis.Brightness);
@@ -95,7 +95,7 @@ public static class GameplayDisplayCapture
             // The statues' descent supplies BG2's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. Type 13 also gives the statue OBJ zero quake displacement.
-            backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset));
+            backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset));
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
@@ -109,7 +109,7 @@ public static class GameplayDisplayCapture
         Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
         // Draygon's body shows only on the band of lines around it, placed against the frame's camera (#1354, #1468).
         ScreenLineBand backgroundLines = bosses.DraygonBody is { } draygon
-            ? DraygonBodyBand.ShownLines(draygon, scrolls.Layer1Position) : ScreenLineBand.Gameplay;
+            ? DraygonBodyBand.ShownLines(draygon, scrolls.ForegroundPosition) : ScreenLineBand.Gameplay;
         Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
         ScreenLayers displayedLayers = latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
@@ -323,7 +323,7 @@ public static class GameplayDisplayCapture
         // phase closes the beam's window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
-        ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.Layer1Position);
+        ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
         {
             Blended = XrayRoomDisplayRules.Blended(mode),

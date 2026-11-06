@@ -132,7 +132,7 @@ internal static class RoomBackgroundsVerification
                 AssertEqual(runtime.BackgroundScroll.BackgroundOffset.AsBgPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
             }
             Position16<TilePlanePixels> scroll = runtime.BackgroundScroll.ForegroundScroll.AsBgPlaneScroll();
-            Position16<TilePlanePixels> camera = runtime.BackgroundScroll.Layer1Position.AsBgPlaneScroll();
+            Position16<TilePlanePixels> camera = runtime.BackgroundScroll.ForegroundPosition.AsBgPlaneScroll();
             for (int y = 0; y < 192; y += 37)
             for (int x = 0; x < 256; x += 41)
             {

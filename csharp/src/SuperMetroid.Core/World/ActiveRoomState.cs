@@ -123,5 +123,5 @@ internal sealed class ActiveRoomState
     /// The layer-one position an earlier gameplay owner left behind. Only its fractions
     /// matter: no load path writes them, so this runtime's first camera starts from them.
     /// </summary>
-    internal FixedPosition<RoomPixels> InheritedLayer1Position { get; set; }
+    internal FixedPosition<RoomPixels> InheritedCameraPosition { get; set; }
 }

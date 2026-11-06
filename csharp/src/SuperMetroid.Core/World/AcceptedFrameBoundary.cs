@@ -124,7 +124,7 @@ internal sealed class AcceptedFrameBoundary
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
         var displayScroll = new GameplayRenderSnapshot(
-            _backgroundScroll.Layer1Position,
+            _backgroundScroll.ForegroundPosition,
             _backgroundScroll.ForegroundScroll,
             _backgroundScroll.BackgroundScroll,
             // Before the first room no enemy earthquake shakes the room.
@@ -217,11 +217,11 @@ internal sealed class AcceptedFrameBoundary
         if (_room.Scope is not { } scope)
             return null;
         RoomLevelData level = scope.LevelData;
-        Layer2ScrollModes layer2 = _backgroundScroll.Layer2Scroll;
+        BackgroundScrollModes backgroundModes = _backgroundScroll.BackgroundScrollModes;
         // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
             new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsBgPlaneOffset(), null),
-            layer2.Horizontal.Streams || layer2.Vertical.Streams
+            backgroundModes.Horizontal.Streams || backgroundModes.Vertical.Streams
                 ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsBgPlaneOffset(), null)
                 : null,
             null,

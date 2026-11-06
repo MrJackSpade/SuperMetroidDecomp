@@ -30,9 +30,9 @@ public static class RoomBlockSheetFiles
 
     /// <summary>
     /// The written picture manifest's schema revision: revision 1 names each picture by what is written and the values of
-    /// its appearance inputs (#1466).
+    /// its appearance inputs (#1466); revision 2 no longer pictures the cell the effect area is cleared to (#1514).
     /// </summary>
-    private const int WrittenManifestVersion = 1;
+    private const int WrittenManifestVersion = 2;
 
     /// <summary>The manifest naming each Ceres tileset whose turning floor is installed.</summary>
     public const string FloorManifestFileName = "room-floors.json";

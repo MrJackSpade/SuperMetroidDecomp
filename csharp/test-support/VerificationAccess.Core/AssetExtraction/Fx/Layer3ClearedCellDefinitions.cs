@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
 /// The tile word the cartridge clears a room's BG3 effect area to before an effect's page is drawn (#1348, #1466), which
-/// the BG3 picture sheet pictures as the plane's cleared picture.
+/// verification lays out to compare with native memory; the game shows nothing there and installs no picture of it (#1514).
 /// </summary>
 internal static class Layer3ClearedCellDefinitions
 {

@@ -48,7 +48,8 @@ internal static class MetroidBehaviorDefinitionsVerification
     {
         // One system serves every timer: the escape step is static and keeps no per-call state.
 
-        for (int timer = 0; timer <= ushort.MaxValue; timer++)
+        // An escape starts at its duration and ends on the step that reaches zero, so every count from one is swept.
+        for (int timer = 1; timer <= short.MaxValue; timer++)
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
@@ -58,7 +59,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 new RoomSpriteObjectSlot(0),
                 new RoomSpriteObjectSlot(1))
             {
-                EscapeTimer = WrappingCountdown.FromRaw((ushort)timer),
+                EscapeTimer = timer,
                 Function = MetroidAiFunction.PowerBombEscape,
                 Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.DrainingSamus),
             };
@@ -70,7 +71,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"production Metroid escape X timer {timer}");
             AssertEqual(unchecked((ushort)(0xffff + expected.Y)), slot.Position.Y.Whole,
                 $"production Metroid escape Y timer {timer}");
-            AssertEqual(unchecked((ushort)(timer - 1)), state.EscapeTimer.RawValue,
+            AssertEqual(timer - 1, state.EscapeTimer,
                 $"production Metroid escape countdown {timer}");
             AssertEqual(timer == 1 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,
                 state.Function,

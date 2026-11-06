@@ -106,14 +106,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body's palette, so the first half-cycle is not zero. Read that way, a palette field yields the enemy's palette
     /// row itself: the game keeps the row shifted nine bits up, so half its upper eight bits is the row.
     /// </summary>
-    private WrappingCountdown ReadFirstHalfCycle(SignedSixteenSixteen speed)
+    private int ReadFirstHalfCycle(SignedSixteenSixteen speed)
     {
         foreach (EvirFirstHalfCycleSource source in EvirInitDefinitions.FirstHalfCycleSources)
         {
             if (source.Speed != speed)
                 continue;
             RoomEnemySlot enemy = _slotTable.Slots[source.SlotIndex];
-            return WrappingCountdown.Start(source.Field switch
+            return source.Field switch
             {
                 // An enemy whose population entry has not loaded yet is still empty, read as zero.
                 EvirHalfCycleSourceField.DirectionChangePeriod => enemy.DefinitionId == EnemyDefinitionId.None
@@ -128,7 +128,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                         : throw new InvalidDataException(
                             $"An Evir body reads the colours of {enemy.DefinitionId}, which no retail room places where it reads."),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
-            });
+            };
         }
         throw new InvalidDataException(
             $"An Evir bobbing at {speed.RawValue} takes its first half-cycle from a value no retail Evir reads.");
@@ -191,11 +191,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The countdown expires through zero, so zero expires immediately into -1. Every later reset uses the
         // unshifted high parameter byte, despite initialization's unrelated aliasing bug.
-        CountdownStep step = state.MovementTimer.Decrement();
-        state.MovementTimer = step.Remaining;
-        if (step.IsNegative)
+        if (--state.MovementTimer < 0)
         {
-            state.MovementTimer = WrappingCountdown.Start(slot.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod);
+            state.MovementTimer = slot.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod;
             state.MovingDown = !state.MovingDown;
         }
     }

@@ -48,7 +48,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// runs last therefore owns this one shared base.</remarks>
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
     /// <summary>Shared countdown, reset to sixteen after each color update or actor activation.</summary>
-    private WrappingCountdown _blueBrinstarFaceBlockPaletteTimer;
+    private int _blueBrinstarFaceBlockPaletteTimer;
     /// <summary>Shared eight-frame color index, 0 through 7, intentionally retained when an actor activates.</summary>
     private int _blueBrinstarFaceBlockPaletteFrame;
     /// <summary>
@@ -75,7 +75,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // room to become active immediately after the item is acquired.
         if (HasCollectedMorphBall(samus))
             InstallBlueBrinstarFaceBlockPaletteHook(slot);
-        _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
+        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
 
         // Keeps only parameter two bit zero, moved to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
@@ -126,7 +126,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
         // Activation restarts the singleton palette hook at the game's sixteen-frame
         // cadence but deliberately does not reset its frame index.
-        _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
+        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
     }
 
     /// <summary>Uses the collected-item word so unequipping Morph Ball does not put active blocks back to sleep.</summary>
@@ -163,11 +163,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (!_blueBrinstarFaceBlockPaletteHookInstalled || _elevatorBehavior.ElevatorDoorTransitionActive)
             return;
 
-        _blueBrinstarFaceBlockPaletteTimer = _blueBrinstarFaceBlockPaletteTimer.Decrement().Remaining;
-        if (!_blueBrinstarFaceBlockPaletteTimer.IsZero)
+        if (--_blueBrinstarFaceBlockPaletteTimer != 0)
             return;
 
-        _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
+        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
         int frame = _blueBrinstarFaceBlockPaletteFrame % FaceBlockShades.GlowFrames;
         _blueBrinstarFaceBlockGlow = PictureShading.Shaded(FaceBlockShades.Glow(frame));
         foreach (RoomEnemySlot block in _slotTable.Slots)

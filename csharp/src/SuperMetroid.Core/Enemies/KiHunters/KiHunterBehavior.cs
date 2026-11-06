@@ -407,7 +407,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-4, 0));
                 state.Function = KiHunterEnemyFunction.NoOp;
-                state.WaitTimer = WrappingCountdown.Start(KiHunterGroundWaitFrames);
+                state.WaitTimer = KiHunterGroundWaitFrames;
                 InstallKiHunterInstruction(
                     body,
                     body.RequireSpeciesState<KiHunterEnemyState>(),
@@ -437,8 +437,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         SamusState samus)
     {
-        state.WaitTimer = state.WaitTimer.Decrement().Remaining;
-        if (!state.WaitTimer.IsZero)
+        if (--state.WaitTimer != 0)
             return;
 
         int distance = CoordinateAxis.Distance(body.Position.X.Whole, samus.Position.X.Whole);
@@ -693,7 +692,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _audio.QueueEnemySound(Library2Sound.AcidSpit, priority: SoundRequestPriority.Normal);
         SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
-        body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = WrappingCountdown.Start(KiHunterSpitWaitFrames);
+        body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = KiHunterSpitWaitFrames;
     }
 
     /// <summary>Restarts matching body and still-attached wing lists for the selected flight direction.</summary>

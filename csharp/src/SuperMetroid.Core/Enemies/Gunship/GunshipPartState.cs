@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal sealed class GunshipPartState
 {
     /// <summary>The top hull's function timer, decremented by the waiting functions; 144 updates per pad movement.</summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    public int FunctionTimer { get; internal set; }
 
     /// <summary>The top hull's next liftoff page to show, 0 through the last of the five.</summary>
     public int NextLiftoffPage
@@ -27,10 +27,10 @@ internal sealed class GunshipPartState
     }
 
     /// <summary>The top hull's updates until its next idle-bob step.</summary>
-    public WrappingCountdown BobTimer { get; internal set; }
+    public int BobTimer { get; internal set; }
 
     /// <summary>The bottom hull's updates until its next engine sound.</summary>
-    public WrappingCountdown EngineSoundTimer { get; internal set; }
+    public int EngineSoundTimer { get; internal set; }
 
     /// <summary>The top hull's landed room Y, from which Samus's entry and exit heights are measured.</summary>
     public int BaseY
@@ -71,11 +71,11 @@ internal sealed class GunshipPartState
     [IntendedDuplicate("each state clears its own record values; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
-        FunctionTimer = WrappingCountdown.Start(0);
+        FunctionTimer = 0;
         NextLiftoffPage = 0;
         BobPhase = 0;
-        BobTimer = WrappingCountdown.Start(0);
-        EngineSoundTimer = WrappingCountdown.Start(0);
+        BobTimer = 0;
+        EngineSoundTimer = 0;
         BaseY = 0;
         LandingBrakeStep = 0;
         RumbleFrame = 0;

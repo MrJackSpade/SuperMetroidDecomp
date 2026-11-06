@@ -44,7 +44,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
-    internal WrappingCountdown MagdollitePaletteAnimationTimer { get; set; }
+    internal int MagdollitePaletteAnimationTimer { get; set; }
     /// <summary>The palette cycle's current frame, 0 through <see cref="MagdollitePaletteDefinitions.FrameCount"/> minus one; each step advances it around the cycle.</summary>
     internal int MagdollitePaletteFrame { get; set; }
     /// <summary>
@@ -88,7 +88,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // glow; the game's hook recolours the last record's palette, which other enemies sharing it also showed (#1512).
         MagdollitePaletteAnimationInstalled = true;
         slot.Shading = MagdolliteGlow;
-        MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
+        MagdollitePaletteAnimationTimer = 8;
         MagdollitePaletteFrame = 0;
     }
 
@@ -519,11 +519,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MagdollitePaletteAnimationInstalled)
             return;
 
-        MagdollitePaletteAnimationTimer = MagdollitePaletteAnimationTimer.Decrement().Remaining;
-        if (!MagdollitePaletteAnimationTimer.IsZero)
+        if (--MagdollitePaletteAnimationTimer != 0)
             return;
 
-        MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
+        MagdollitePaletteAnimationTimer = 8;
         MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteDefinitions.FrameCount;
         MagdolliteGlow = PictureShading.Shaded(MagdolliteShades.Glow(MagdollitePaletteFrame));
         foreach (RoomEnemySlot part in _slotTable.Slots)

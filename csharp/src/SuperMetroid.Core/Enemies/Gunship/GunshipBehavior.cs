@@ -80,7 +80,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipSaveRequested = save;
         Part(top).Function = GunshipFunction.WaitForExitPadToOpen;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
-        Part(top).FunctionTimer = WrappingCountdown.Start(144);
+        Part(top).FunctionTimer = 144;
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             part.BaseY = slot.Position.Y.Whole;
             part.Function = GunshipFunction.Idle;
         }
-        part.BobTimer = WrappingCountdown.Start(1);
+        part.BobTimer = 1;
         part.BobPhase = 0;
     }
 
@@ -170,7 +170,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             else
             {
                 slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 15);
-                part.EngineSoundTimer = WrappingCountdown.Start(71);
+                part.EngineSoundTimer = 71;
             }
         }
         part.Function = GunshipFunction.NoOperation;
@@ -190,12 +190,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // The solid bottom decrements its engine-sound timer and reloads 70 on
         // one/underflow. The engine sound is requested before the reload, exactly as it is in
         // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
-        CountdownStep bottomTimer = Part(bottom).EngineSoundTimer.Decrement();
-        Part(bottom).EngineSoundTimer = bottomTimer.Remaining;
-        if (bottomTimer.IsZeroOrNegative)
+        if (--Part(bottom).EngineSoundTimer <= 0)
         {
             _audio.QueueEnemySound(Library2Sound.GunshipHover, priority: SoundRequestPriority.Normal);
-            Part(bottom).EngineSoundTimer = WrappingCountdown.Start(70);
+            Part(bottom).EngineSoundTimer = 70;
         }
 
         // The landed ship continuously performs its four-phase bob before dispatching the function itself, in every
@@ -334,12 +332,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.WaitForLandingEntranceToOpen;
         Part(top).BaseY = top.Position.Y.Whole;
-        Part(top).BobTimer = WrappingCountdown.Start(1);
+        Part(top).BobTimer = 1;
         Part(top).BobPhase = 0;
         samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
-        Part(top).FunctionTimer = WrappingCountdown.Start(144);
+        Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadOpened;
         _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
@@ -358,7 +356,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.FinishLanding;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
-        Part(top).FunctionTimer = WrappingCountdown.Start(144);
+        Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadClosed;
     }
 
@@ -392,14 +390,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Cycles the four idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
     {
-        CountdownStep bobTimer = Part(top).BobTimer.Decrement();
-        Part(top).BobTimer = bobTimer.Remaining;
-        if (!bobTimer.IsZeroOrNegative)
+        if (--Part(top).BobTimer > 0)
             return;
 
         GunshipIdleBobDefinition bob = GunshipMotion.IdleBob(
             Part(top).BobPhase & 3);
-        Part(top).BobTimer = WrappingCountdown.Start(bob.Timer);
+        Part(top).BobTimer = bob.Timer;
         int yDelta = bob.YDelta;
         for (int component = 0; component < 3; component++)
         {
@@ -440,7 +436,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             samus.Presentation.PrimeGraphics(samus);
             pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
-            Part(top).FunctionTimer = WrappingCountdown.Start(144);
+            Part(top).FunctionTimer = 144;
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
             _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         }
@@ -449,9 +445,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Decrements the function timer, treating one and signed underflow as expiry.</summary>
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
-        CountdownStep functionTimer = Part(top).FunctionTimer.Decrement();
-        Part(top).FunctionTimer = functionTimer.Remaining;
-        return functionTimer.IsZeroOrNegative;
+        return --Part(top).FunctionTimer <= 0;
     }
 
     /// <summary>Lowers Samus two pixels per frame until the closing-pad threshold.</summary>
@@ -466,7 +460,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.WaitForEntranceToClose;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
-        Part(top).FunctionTimer = WrappingCountdown.Start(144);
+        Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.EntryPadClosing;
     }
 
@@ -517,7 +511,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.FinishSamusExit;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
-        Part(top).FunctionTimer = WrappingCountdown.Start(144);
+        Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.ExitPadClosing;
         _audio.QueueEnemySound(Library3Sound.GunshipPadClosing, priority: SoundRequestPriority.Normal);
     }
@@ -570,7 +564,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (Part(bottom).RumbleFrame >= 128)
         {
             Part(top).Function = GunshipFunction.SteadyLiftoff;
-            Part(top).FunctionTimer = WrappingCountdown.Start(0);
+            Part(top).FunctionTimer = 0;
         }
     }
 

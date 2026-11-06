@@ -139,13 +139,13 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {
-            gunshipRecord.FunctionTimer = WrappingCountdown.FromRaw(words.A);
+            gunshipRecord.FunctionTimer = unchecked((short)words.A);
             gunshipRecord.NextLiftoffPage = words.B;
             gunshipRecord.BobPhase = words.C;
             // The cartridge keeps the top hull's bob timer and the bottom hull's engine-sound timer in variable D, and
             // the base Y, the landing-brake step and the rumble frame in variable E; each part reads only its own.
-            gunshipRecord.BobTimer = WrappingCountdown.FromRaw(words.D);
-            gunshipRecord.EngineSoundTimer = WrappingCountdown.FromRaw(words.D);
+            gunshipRecord.BobTimer = unchecked((short)words.D);
+            gunshipRecord.EngineSoundTimer = unchecked((short)words.D);
             gunshipRecord.BaseY = words.E;
             gunshipRecord.LandingBrakeStep = words.E;
             gunshipRecord.RumbleFrame = words.E;
@@ -415,7 +415,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
         {
             metroidRecord.Velocity = FixedVector<RoomPixels>.FromWords(words.B, words.A, words.D, words.C);
-            metroidRecord.EscapeTimer = WrappingCountdown.FromRaw(words.E);
+            metroidRecord.EscapeTimer = unchecked((short)words.E);
             metroidRecord.Function = (MetroidAiFunction)words.F;
         }
         if (slot.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
@@ -429,9 +429,9 @@ internal static class NativeEnemyFamilyStateImport
         {
             maridiaLargeSnailRecord.Function = words.A == 0 ? null : MaridiaSnailsNativeWords.MaridiaLargeSnailEnemyFunctions.Decode(words.A, "recorded MaridiaLargeSnailEnemyFunction");
             maridiaLargeSnailRecord.YSpeedTableIndex = unchecked((short)words.B);
-            maridiaLargeSnailRecord.AttackCooldown = WrappingCountdown.FromRaw(words.C);
+            maridiaLargeSnailRecord.AttackCooldown = unchecked((short)words.C);
             maridiaLargeSnailRecord.MovingLeft = words.D != 0;
-            maridiaLargeSnailRecord.RemainingBounces = WrappingCountdown.FromRaw(words.E);
+            maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
             maridiaLargeSnailRecord.BounceFunction = words.F == 0 ? null : MaridiaSnailsNativeWords.MaridiaLargeSnailBounceFunctions.Decode(words.F, "recorded MaridiaLargeSnailBounceFunction");
         }
         if (slot.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
@@ -488,7 +488,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
         {
             mochtroidRecord.Velocity = FixedVector<RoomPixels>.FromWords(words.B, words.A, words.D, words.C);
-            mochtroidRecord.ShakeTimer = WrappingCountdown.FromRaw(words.E);
+            mochtroidRecord.ShakeTimer = unchecked((short)words.E);
             mochtroidRecord.MovementMode = (MochtroidMovementMode)words.F;
         }
         if (slot.SpeciesState<MorphBallEyeEnemyState>() is { } morphBallEyeRecord)
@@ -638,12 +638,12 @@ internal static class NativeEnemyFamilyStateImport
             mama.Function = words.A == 0 ? null : MamaTurtlesNativeWords.MamaTurtleAiFunctions.Decode(words.A, "recorded MamaTurtleAiFunction");
             // Only the horizontal velocity's whole pixels live in the record; its fraction and the vertical velocity do not.
             mama.Velocity = mama.Velocity.WithX(mama.Velocity.X.WithWholePixels(unchecked((short)words.E)));
-            mama.AsleepFlag = WrappingCountdown.FromRaw(words.F);
+            mama.AsleepFlag = unchecked((short)words.F);
         }
         if (enemies.HibashiStates[index] is { } hibashi)
         {
             hibashi.Function = words.A == 0 ? null : HibashiNativeWords.HibashiEnemyFunctions.Decode(words.A, "recorded HibashiEnemyFunction");
-            hibashi.InactiveTimer = WrappingCountdown.FromRaw(words.B);
+            hibashi.InactiveTimer = unchecked((short)words.B);
             hibashi.ActivityFinished = words.C != 0;
             hibashi.SpawnHeight = new Position16<RoomPixels>(0, words.D);
         }
@@ -686,7 +686,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.EntityState<FliesEntity, FlyEnemyState>() is { } fly)
         {
-            fly.RetreatTimer = WrappingCountdown.FromRaw(words.A);
+            fly.RetreatTimer = unchecked((short)words.A);
             fly.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             fly.TargetHeight = new Position16<RoomPixels>(0, words.D);
             // The phase word is an even byte offset into the 256-entry table, nine bits wide.
@@ -733,7 +733,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.MetareeStates[index] is { } metaree)
         {
-            metaree.BurrowTimer = WrappingCountdown.FromRaw(words.A);
+            metaree.BurrowTimer = unchecked((short)words.A);
             metaree.Function = words.B == 0 ? null : MetareeNativeWords.MetareeEnemyFunctions.Decode(words.B, "recorded MetareeEnemyFunction");
             metaree.RequestedAnimationScriptIndex = (SkreeMetareeAnimationPhase)words.C;
             metaree.InstalledAnimationScriptIndex = (SkreeMetareeAnimationPhase)words.D;

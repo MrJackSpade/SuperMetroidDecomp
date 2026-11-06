@@ -87,25 +87,9 @@ public readonly record struct WrappingCountdown
     /// <param name="frames">The frames compared, 0 through 65535.</param>
     public bool IsAt(int frames) => count == frames;
 
-    /// <summary>Whether more than <paramref name="frames"/> frames are left; a countdown run past zero counts as a large count.</summary>
-    /// <param name="frames">The frames compared, 0 through 65535.</param>
-    public bool IsAbove(int frames) => count > frames;
-
     /// <summary>Whether at least <paramref name="frames"/> frames are left; a countdown run past zero counts as a large count.</summary>
     /// <param name="frames">The frames compared, 0 through 65535.</param>
     public bool IsAtLeast(int frames) => count >= frames;
-
-    /// <summary>Whether fewer than <paramref name="frames"/> frames are left; a countdown run past zero counts as a large count.</summary>
-    /// <param name="frames">The frames compared, 0 through 65535.</param>
-    public bool IsBelow(int frames) => count < frames;
-
-    /// <summary>
-    /// Whether the countdown ends within <paramref name="frames"/> frames: taking <paramref name="frames"/> away from it
-    /// leaves it negative. A countdown just run past zero has ended; one run so far past zero that the difference
-    /// counts as positive again has not.
-    /// </summary>
-    /// <param name="frames">The frames compared, 0 through 65535.</param>
-    public bool EndsWithin(int frames) => unchecked((ushort)(count - frames)) >= NegativeFrom;
 
     /// <summary>
     /// Whether the countdown is in the second half of a cycle that alternates every <paramref name="phaseFrames"/>

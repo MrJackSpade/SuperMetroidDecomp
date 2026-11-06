@@ -122,8 +122,8 @@ bool FxOverlayPicture(uint2 scrolled, out uint2 within, out uint picture)
     uint table = RoomLevels[RoomFxOverlayWord];
     if (table == 0) return false;
     uint source = RoomLevels[table + 1], size = RoomLevels[table + 2];
-    uint place = RoomLevels[table + 3], repeat = RoomLevels[table + 4];
-    uint2 position = scrolled % uint2(repeat & 65535, repeat >> 16);
+    uint place = RoomLevels[table + 3], repeatSize = RoomLevels[table + 4];
+    uint2 position = scrolled % uint2(repeatSize & 65535, repeatSize >> 16);
     uint2 offset = position - uint2(place & 65535, place >> 16);
     if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) return false;
     picture = RoomLevels[table];

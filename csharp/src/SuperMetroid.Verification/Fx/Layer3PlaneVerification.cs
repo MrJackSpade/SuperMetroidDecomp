@@ -90,12 +90,12 @@ internal static class Layer3PlaneVerification
 
         RoomFxOverlayRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual((ushort)0x0080, shown.Surface.Y, "the published effect carries the constructed liquid level");
-        FxOverlayPage page = FxOverlayFixtures.PageFromPlaneWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
-        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, page)
+        FxOverlayPage shownPage = FxOverlayFixtures.PageFromPlaneWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
+        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, shownPage)
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");
         // The overlay shows the whole page from the row the cartridge writes it to, repeating every two pages (#1514).
         OverlayPicture overlay = layer.Picture ?? throw new InvalidOperationException("Water shows its page.");
-        AssertTrue(ReferenceEquals(page.Picture, overlay.Picture) && overlay.Source == Position16<ImagePixels>.Zero
+        AssertTrue(ReferenceEquals(shownPage.Picture, overlay.Picture) && overlay.Source == Position16<ImagePixels>.Zero
             && overlay.Size.Y == overlay.Picture.Size.Y
             && overlay.Place.Y == FxOverlayPlaneConstants.EffectPageFirstRow * 8
             && overlay.Repeat.Y == FxOverlayPlaneConstants.Rows * 8,

@@ -283,8 +283,8 @@ internal static class RoomBlockPicturesVerification
     /// <summary>
     /// Confirms BG3 draws from the tileset's BG3 word sheet (#1392): in a room of each effect whose page BG3 shows, and in
     /// Kraid's room, whose library background moves the HUD's characters, the latched BG3 plane draws from pictures, and
-    /// every word of it under a stocked HUD resolves to a picture painting what its two-bit character paints at the HUD
-    /// character base BG3 shows, colour zero's row included. The words are resolved against the characters as the check
+    /// every word of the effect's page under a stocked HUD is painted in the page's picture as its two-bit character paints
+    /// at the HUD character base BG3 shows, colour zero's row included (#1514); a room showing no page shows none. The words are resolved against the characters as the check
     /// reads them, since an effect can bind its next frame after the latch.
     /// </summary>
     internal static void VerifyBg3Pictures()
@@ -317,7 +317,13 @@ internal static class RoomBlockPicturesVerification
             // there, from the row it writes the page to.
             FxOverlayPage page = new WrittenPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).FxOverlayPictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
-            SpriteSheetFrame shownPage = page.Picture ?? throw new InvalidOperationException($"{room.Name}: BG3 shows no effect page.");
+            // A room whose effect shows no page shows nothing on the overlay.
+            if (page.Picture is not { } shownPage)
+            {
+                AssertTrue(plane.EffectPage is null, $"{room.Name}: BG3 shows its effect's page");
+                Console.WriteLine($"BG3 pictures: {room.Name} shows no effect page.");
+                continue;
+            }
             int firstWord = FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns;
             for (int index = firstWord; index < FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows; index++)
             {

@@ -104,10 +104,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CeresRidleyFrame23,
         EnemyProjectileFrameId.CeresRidleyFrame24,
         EnemyProjectileFrameId.CeresRidleyFrame25,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame00,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame01,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame02,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame03,
     ];
 
     /// <summary>The room sprite objects <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns.</summary>
@@ -2360,6 +2356,10 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.Projectile86Cac8Frame06,
         EnemyProjectileFrameId.Projectile86Cac8Frame07,
         EnemyProjectileFrameId.Projectile86Cb0dFrame00,
+        EnemyProjectileFrameId.MotherBrainTopTubeFrame00,
+        EnemyProjectileFrameId.MotherBrainTopTubeFrame01,
+        EnemyProjectileFrameId.MotherBrainTopTubeFrame02,
+        EnemyProjectileFrameId.MotherBrainTopTubeFrame03,
         EnemyProjectileFrameId.MotherBrainGlassFrame00,
         EnemyProjectileFrameId.MotherBrainGlassFrame01,
         EnemyProjectileFrameId.MotherBrainGlassFrame02,

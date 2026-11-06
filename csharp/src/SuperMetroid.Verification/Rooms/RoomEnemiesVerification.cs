@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Escape;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.World.Artwork;

@@ -15,7 +15,7 @@ public sealed class CrocomireColorCatalog
         FightBody,
         /// <summary>Seventeen wall colors loaded during fight initialization.</summary>
         InitialWall,
-        /// <summary>Seventeen projectile colors loaded after the wall colours, with independent overlap edits.</summary>
+        /// <summary>Sixteen projectile colors loaded after the wall colours, with independent overlap edits.</summary>
         InitialProjectile,
         /// <summary>Sixteen skeleton-arm colors installed when the wall break begins.</summary>
         SkeletonArm,

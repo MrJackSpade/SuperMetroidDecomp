@@ -479,7 +479,9 @@ internal static class LookupStream5Verification
     {
         int[] sources = [CrocomireSourceDefinitions.FightBodyColors, CrocomireSourceDefinitions.InitialWallColors,
             CrocomireSourceDefinitions.InitialProjectileColors, CrocomireSourceDefinitions.SkeletonArmColors, CrocomireSourceDefinitions.WallSpikesColors];
-        int[] counts = [8, 17, 17, 16, 16];
+        // The initial projectile band is sprite set 5's sixteen colours: the port does not carry the transfer's seventeenth
+        // word, which lands on sprite set 6's transparent colour 0 (#1436).
+        int[] counts = [8, 17, 16, 16, 16];
         string[] labels = ["fightBody", "initialWall", "initialProjectile", "skeletonArm", "wallSpikes"];
         PaletteRgb5[][] bands = new PaletteRgb5[5][];
         for (int band = 0; band < bands.Length; band++)
@@ -495,8 +497,8 @@ internal static class LookupStream5Verification
         AssertTrue(!MetadataShape.DeclaresField(typeof(CrocomireColorCatalog), "paint", BindingFlags.Instance | BindingFlags.NonPublic), "Stock palette storage has been removed");
         var edits = stock.edits;
         AssertTrue(!MetadataShape.Fields(typeof(CrocomirePaintDefinitions), BindingFlags.Static | BindingFlags.NonPublic).Any(field => field.FieldType.IsArray), "Material calculation does not cache an output palette");
-        AssertEqual(0, edits.Count, "All 74 stock inks calculate without overrides");
-        Console.WriteLine("Crocomire material paint: 74 native colors, zero stock palette/overrides, actual CGRAM, hash and bounds pass.");
+        AssertEqual(0, edits.Count, "All 73 stock inks calculate without overrides");
+        Console.WriteLine("Crocomire material paint: 73 native colors, zero stock palette/overrides, actual CGRAM, hash and bounds pass.");
 
         CrocomireColorCatalog Check()
         {

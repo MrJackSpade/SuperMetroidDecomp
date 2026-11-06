@@ -19,7 +19,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// and 2 and a door's source room), the door window, the layer-1 overlay, sky, effect overlay and layer-2 overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
 /// colours (#1392), the layer-1 and layer-2 overlays' pictures (#1348, #1403), the sky's rows (#1347), the effect overlay's placed picture (#1514),
-/// a Mode 7 floor (#1349, #1403), a boss body's parts (#1352, #1466) and the HUD's placed pictures (#1466).
+/// a Mode 7 floor (#1349, #1403), a boss body's placed pictures (#1352, #1466, #1514) and the HUD's placed pictures (#1466).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
 /// </summary>
@@ -63,14 +63,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// </summary>
     private const int FloorSheetsWord = Bg2OverlayWord + 1;
     /// <summary>
-    /// Header word of a boss body's parts (#1352, #1466), or zero without one: the count of parts, the area its pages cover,
-    /// x below y (#1514), then four words each (its
-    /// picture's offset, the layer row its picture's top edge lies on, its first row shown with the rows it spans in the
-    /// high half, and the offset of its row masks), then each part's row masks, a bit per cell it shows.
+    /// Header word of a boss body's pieces (#1352, #1466, #1514), or zero without one: the count of pieces, the area the
+    /// body covers, x below y, then four words each: its picture's offset, the body pixel its rectangle's top-left corner
+    /// lies on, the rectangle's size, and the picture pixel that corner shows, each x below y.
     /// </summary>
     private const int BossBodyWord = FloorSheetsWord + 1;
-    /// <summary>Words of a boss body part's record.</summary>
-    private const int BossBodyPartWords = 4;
+    /// <summary>Words of a boss body piece's record.</summary>
+    private const int BossBodyPieceWords = 4;
     /// <summary>
     /// Header word of the X-ray reveal, or zero without one (#1392, #1514): the foreground pixel its first block lies on, x
     /// below y, then each block row by row, its picture's offset with its arrangement in the top four bits.
@@ -239,7 +238,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += 1 + hud.Pictures.Length * HudPictureWords;
         int bossBodyOffset = bossBody is null ? 0 : words;
         if (bossBody is not null)
-            words += 2 + bossBody.Parts.Length * BossBodyPartWords + bossBody.Parts.Sum(part => part.Shows.Rows.Length);
+            words += 2 + bossBody.Pieces.Length * BossBodyPieceWords;
         int backgroundWrittenOffset = ReserveWritten(writtenOverBackground);
         int foregroundWrittenOffset = ReserveWritten(writtenOverForeground);
         // Reserves the count and two words for each written picture; zero without any.
@@ -386,25 +385,22 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     }
 
     /// <summary>
-    /// Packs <paramref name="body"/>'s parts from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes: the
-    /// count, each part's record, then each part's row masks.
+    /// Packs <paramref name="body"/>'s pieces from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes: the
+    /// count, the area, then each piece's record.
     /// </summary>
     private static void PackBossBody(Span<uint> upload, ShownBossBody body, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
-        ImmutableArray<ShownBossBodyPart> parts = body.Parts;
-        upload[offset] = (uint)parts.Length;
+        ImmutableArray<ShownBossBodyPiece> pieces = body.Pieces;
+        upload[offset] = (uint)pieces.Length;
         upload[offset + 1] = D3D11ConstantPacking.Halves(body.Area.X, body.Area.Y);
-        int masks = offset + 2 + parts.Length * BossBodyPartWords;
-        for (int index = 0; index < parts.Length; index++)
+        for (int index = 0; index < pieces.Length; index++)
         {
-            ShownBossBodyPart part = parts[index];
-            int record = offset + 2 + index * BossBodyPartWords;
-            upload[record] = (uint)pictureWords[new(part.Picture, D3D11PictureColouring.BossBody)];
-            upload[record + 1] = (uint)part.Top;
-            upload[record + 2] = D3D11ConstantPacking.Halves(checked((ushort)part.Shows.Top), checked((ushort)part.Shows.Rows.Length));
-            upload[record + 3] = (uint)masks;
-            foreach (uint mask in part.Shows.Rows)
-                upload[masks++] = mask;
+            ShownBossBodyPiece piece = pieces[index];
+            int record = offset + 2 + index * BossBodyPieceWords;
+            upload[record] = (uint)pictureWords[new(piece.Picture, D3D11PictureColouring.BossBody)];
+            upload[record + 1] = D3D11ConstantPacking.Halves(piece.Corner.X, piece.Corner.Y);
+            upload[record + 2] = D3D11ConstantPacking.Halves(piece.Size.X, piece.Size.Y);
+            upload[record + 3] = D3D11ConstantPacking.Halves(piece.PictureCorner.X, piece.PictureCorner.Y);
         }
     }
 
@@ -495,7 +491,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 
     /// <summary>
     /// Every picture <paramref name="frame"/> draws and how it is coloured, in packing order: the planes' and the reveal's
-    /// block pictures, the background images, the message, the boss body's parts, the HUD's pictures, the pictured planes'
+    /// block pictures, the background images, the message, the boss body's pictures, the HUD's pictures, the pictured planes'
     /// and the picture grids' pictures, then the written pictures and the effect overlay's picture. A picture may appear more
     /// than once, and under more than one colouring (#1512).
     /// </summary>
@@ -534,8 +530,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         if (frame.MessagePicture is { } message)
             yield return new(message, D3D11PictureColouring.MessageBox);
-        foreach (ShownBossBodyPart part in frame.BossBody?.Parts ?? [])
-            yield return new(part.Picture, D3D11PictureColouring.BossBody);
+        foreach (ShownBossBodyPiece piece in frame.BossBody?.Pieces ?? [])
+            yield return new(piece.Picture, D3D11PictureColouring.BossBody);
         foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
             yield return new(placed.Picture, frame.HudColouring, placed.Shading);
         foreach (PicturedPlane plane in frame.Planes?.Planes ?? [])

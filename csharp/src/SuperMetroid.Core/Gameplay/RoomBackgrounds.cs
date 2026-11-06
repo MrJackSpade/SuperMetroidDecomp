@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </param>
 /// <param name="WrittenOverBackground">Words a room actor wrote over the background, or null (#1348).</param>
 /// <param name="Floor">The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</param>
-/// <param name="BossBody">The boss body layer shown while a boss shows one, as its parts' pictures, or null (#1352, #1466).</param>
+/// <param name="BossBody">The boss body shown while a boss shows one, as its pictures placed where they show, or null (#1352, #1466, #1514).</param>
 /// <param name="BlockArtwork">Which artwork foreground's and the background's blocks show (#1357, #1466).</param>
 /// <param name="XrayReveal">The X-ray reveal background shows in place of the room's own background, or null (#1392).</param>
 /// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the tilemap it loaded (#1392).</param>

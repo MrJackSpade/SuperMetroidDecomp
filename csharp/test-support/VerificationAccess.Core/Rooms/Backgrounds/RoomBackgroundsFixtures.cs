@@ -96,20 +96,20 @@ internal static class RoomBackgroundsFixtures
         SeededImage(random, scene, RoomBackgroundImageGeometry.Words / RoomBackgroundImage.PageTiles);
 
     /// <summary>
-    /// A seeded boss body of <paramref name="rows"/> rows (#1466) whose pages cover <paramref name="area"/>: every four rows
-    /// one part, showing a seeded block picture repeated across them.
+    /// A seeded boss body of <paramref name="rows"/> rows (#1466, #1514) whose pages cover <paramref name="area"/>: every four
+    /// rows one part, showing a seeded block picture repeated across them, placed where it shows.
     /// </summary>
     internal static ShownBossBody SeededBody(Random random, RgbColor[] scene, int rows, Extent16<BackgroundPixels> area)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
         const int partRows = 4;
-        var parts = new List<ShownBossBodyPart>();
+        var pieces = new List<ShownBossBodyPiece>();
         for (int top = 0; top < rows; top += partRows)
         {
-            parts.Add(new ShownBossBodyPart(blocks.Picture(random.Next(Definitions))
-                ?? throw new InvalidOperationException("A seeded block has no picture."), top, BossBodyFootprint.OfRows(top, Math.Min(partRows, rows - top))));
+            pieces.AddRange(ShownBossBody.PiecesOf(blocks.Picture(random.Next(Definitions))
+                ?? throw new InvalidOperationException("A seeded block has no picture."), top, BossBodyFootprint.OfRows(top, Math.Min(partRows, rows - top)), area));
         }
-        return new ShownBossBody(rows, [.. parts], area);
+        return new ShownBossBody([.. pieces], area);
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ internal static class RoomBackgroundsFixtures
         for (int corner = 0; corner < BlockTiles; corner++)
             definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
         RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
-        var parts = new List<ShownBossBodyPart>();
+        var pieces = new List<ShownBossBodyPiece>();
         for (int index = 0; index < distinct.Length; index++)
         {
             var masks = new uint[words.Length / BossBodyDefinitions.ColumnCount];
@@ -140,10 +140,10 @@ internal static class RoomBackgroundsFixtures
                 if (words[cell] == distinct[index])
                     masks[cell / BossBodyDefinitions.ColumnCount] |= 1u << (cell % BossBodyDefinitions.ColumnCount);
             }
-            parts.Add(new ShownBossBodyPart(painted.Picture(index) ?? throw new InvalidOperationException("A painted word has no picture."), 0,
-                new BossBodyFootprint(0, [.. masks])));
+            pieces.AddRange(ShownBossBody.PiecesOf(painted.Picture(index) ?? throw new InvalidOperationException("A painted word has no picture."), 0,
+                new BossBodyFootprint(0, [.. masks]), AreaOf(size)));
         }
-        return new ShownBossBody(words.Length / BossBodyDefinitions.ColumnCount, [.. parts], AreaOf(size));
+        return new ShownBossBody([.. pieces], AreaOf(size));
     }
 
     /// <summary>
@@ -159,7 +159,7 @@ internal static class RoomBackgroundsFixtures
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
         int rows = size.X * size.Y / BossBodyDefinitions.ColumnCount;
-        return new ShownBossBody(rows, [new ShownBossBodyPart(block, 0, BossBodyFootprint.OfRows(0, rows))], AreaOf(size));
+        return new ShownBossBody([.. ShownBossBody.PiecesOf(block, 0, BossBodyFootprint.OfRows(0, rows), AreaOf(size))], AreaOf(size));
     }
 
     /// <summary>The area a body loaded as a <paramref name="size"/> tilemap covers.</summary>

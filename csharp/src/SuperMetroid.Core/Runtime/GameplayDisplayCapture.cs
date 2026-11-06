@@ -132,7 +132,7 @@ public static class GameplayDisplayCapture
         LineScroll? backgroundVertical = crocomireBody is null ? lavaY
             : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
         // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
-        // #1353), its pages laid out by BG2's map size, each part from its picture (#1466).
+        // #1353), its pictures placed where they show on the body's area (#1466, #1514).
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {

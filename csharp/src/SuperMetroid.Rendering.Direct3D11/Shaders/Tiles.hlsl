@@ -217,37 +217,30 @@ bool Bg2OverlayPicture(uint2 scrolled, out uint picture, out uint2 within)
 {
     return WrittenPicture(RoomLevels[RoomBg2OverlayWord], scrolled, within, picture);
 }
-// A boss body (ShownBossBody, #1466) at a scrolled position of its layer: the body's area (#1514), in its table's second
-// word, x below y, repeats beyond its edges and holds the layer's 32-row pages left to right and then downward, and the part
-// showing the position's cell gives `picture` and `within`, its pixel there. Each part is four words: its picture's
-// offset, the layer row its picture's top edge lies on, its first row shown and the rows it spans (that in the high
-// half), and the offset of one word per row, a bit per cell it shows. A picture repeats across and down from the layer's
-// left edge and its top row, as the one-cell blank does. Every layer-2 sampler reads the boss through this, so a
-// color-math pass shows the same body as an ordinary one (#1426).
+// A boss body (ShownBossBody, #1466, #1514) at a scrolled position of its layer: the body's area, in its table's second
+// word, x below y, repeats beyond its edges, and the piece covering the position gives `picture` and `within`, its pixel
+// there; a position no piece covers shows nothing. Each piece is four words: its picture's offset, the body pixel its
+// rectangle's top-left corner lies on, the rectangle's size, and the picture pixel that corner shows, each x below y; the
+// picture repeats across and down from that pixel, as the one-cell blank does. Every layer-2 sampler reads the boss
+// through this, so a color-math pass shows the same body as an ordinary one (#1426).
 void BossBodyPicture(uint2 scrolled, out uint2 within, out uint picture)
 {
     uint table = RoomLevels[RoomBossBodyWord];
     uint area = RoomLevels[table + 1];
-    uint2 size = uint2(area & 65535, area >> 16) >> 3;
-    uint2 position = (scrolled & 65535) % (size * 8);
-    uint2 tile = position >> 3;
-    uint page = (tile.y >> 5) * (size.x >> 5) + (tile.x >> 5);
-    uint column = tile.x & 31;
-    uint row = page * 32 + (tile.y & 31);
-    uint2 layerPixel = uint2(column * 8 + (position.x & 7), row * 8 + (position.y & 7));
-    uint parts = RoomLevels[table];
+    uint2 position = (scrolled & 65535) % uint2(area & 65535, area >> 16);
+    uint pieces = RoomLevels[table];
     picture = 0;
     within = uint2(0, 0);
-    for (uint part = 0; part < parts; part++)
+    for (uint piece = 0; piece < pieces; piece++)
     {
-        uint record = table + 2 + part * 4;
-        uint shows = RoomLevels[record + 2];
-        uint first = shows & 65535;
-        if (row < first || row >= first + (shows >> 16)) continue;
-        if (((RoomLevels[RoomLevels[record + 3] + row - first] >> column) & 1) == 0) continue;
+        uint record = table + 2 + piece * 4;
+        uint corner = RoomLevels[record + 1], size = RoomLevels[record + 2];
+        uint2 offset = position - uint2(corner & 65535, corner >> 16);
+        if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) continue;
         picture = RoomLevels[record];
+        uint start = RoomLevels[record + 3];
         uint extent = RoomLevels[picture + PictureSizeWord];
-        within = (layerPixel - uint2(0, RoomLevels[record + 1] * 8)) % uint2(extent & 65535, extent >> 16);
+        within = (uint2(start & 65535, start >> 16) + offset) % uint2(extent & 65535, extent >> 16);
         return;
     }
 }

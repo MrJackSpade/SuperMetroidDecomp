@@ -33,8 +33,8 @@ internal static class RoomFxSnapshotTestsVerification
             new Configuration(RoomFxType.Rain, LayerBlendingConfiguration.Rain),
             new Configuration(RoomFxType.Fog, LayerBlendingConfiguration.FogAdditive),
         };
-        // The BG3 plane shows the fixture's random VRAM (#1348).
-        FxOverlayCells plane = FxOverlayCellsFixtures.FromVram(vram.Bytes, cgram.Colors);
+        // The effect's page shows the fixture's random VRAM (#1348, #1514).
+        FxOverlayPage plane = FxOverlayFixtures.PageFromVram(vram.Bytes, cgram.Colors);
         foreach ((RoomFxType type, LayerBlendingConfiguration blend) in configurations)
         foreach (short surface in new short[] { -20, 0, 32, 100, 223, 300 })
         foreach (int phase in new[] { 0, 7, 15 })
@@ -50,10 +50,10 @@ internal static class RoomFxSnapshotTestsVerification
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
                 $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY} preserves HUD band");
         }
-        var owned = new OverlayBlendLayer(plane, 0, 64, 32, BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
-        AssertThrows<ArgumentNullException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
+        var owned = new OverlayBlendLayer(null, 32, BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
+        AssertThrows<ArgumentNullException>(() => new OverlayBlendLayer(null, 32,
             BlendOperation.Add, null!, ScrollBands.Uniform(0)), "BG math requires its described line scrolls");
-        AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
+        AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(null, 32,
             (BlendOperation)255, ScrollBands.Uniform(0), ScrollBands.Uniform(0)), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], 15));
         AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomFxOverlay(

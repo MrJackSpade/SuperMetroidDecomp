@@ -108,18 +108,6 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
-        // The HUD drawn from two-bit pictures (#1392), colour zero opaque in its row's colour, some words from their characters.
-        var hudPictured = pictured with { FxOverlay = RoomBackgroundsFixtures.SeededFxOverlayPictures(random, colors) };
-        for (int hdma = 0; hdma < 4; hdma += 3)
-        {
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
-                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new GameplaySceneLayer(registers, hudPictured, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
-            count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
-            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
-                $"{device.Kind}: ordinary {count}, BG3 pictures, HDMA {hdma}");
-        }
         // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
         var typed = pictured with { WrittenOverBackground = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })

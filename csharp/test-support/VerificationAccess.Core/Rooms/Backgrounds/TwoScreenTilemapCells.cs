@@ -34,7 +34,7 @@ internal static class TwoScreenTilemapCells
             for (int row = 0; row < placed.Picture.Size.Y / tile; row++)
             for (int column = 0; column < placed.Picture.Size.X / tile; column++)
             {
-                laid[IndexOf(placed.Cell + new Offset16<TilemapCells>(column, row))] = new BgTilePicture(placed.Picture,
+                laid[IndexOf(new Position16<TilemapCells>(placed.Corner.X / tile + column, placed.Corner.Y / tile + row))] = new BgTilePicture(placed.Picture,
                     new Position16<ImagePixels>(column * tile, row * tile));
             }
         }

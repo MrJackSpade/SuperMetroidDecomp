@@ -41,25 +41,24 @@ internal static class D3D11LineScrolls
     /// <param name="slot">The slot to pack.</param>
     /// <param name="shape">The axis's described line scroll, or null.</param>
     /// <param name="ownScroll">The plane's own scroll on the axis, which every line shows without a shape.</param>
-    /// <param name="bias">A scroll added to every absolute scroll the slot holds, as the room planes' one-line offset.</param>
     /// <exception cref="NotSupportedException">A waveform or band list is larger than a slot's data rows hold.</exception>
-    internal static void Pack(Span<uint> data, int slot, LineScroll? shape, int ownScroll, int bias)
+    internal static void Pack(Span<uint> data, int slot, LineScroll? shape, int ownScroll)
     {
         Span<uint> record = data.Slice(D3D11ShaderLayout.LineScrollsWordOffset + slot * RowWords, RowWords);
         Span<uint> words = data.Slice(D3D11ShaderLayout.LineScrollsWordOffset + (Slots + slot * DataRowsPerSlot) * RowWords, DataWords);
         switch (shape)
         {
             case null:
-                record[0] = Kind(D3D11LineScrollKind.Bands, ownScroll + bias);
+                record[0] = Kind(D3D11LineScrollKind.Bands, ownScroll);
                 break;
             case ScrollWave wave:
-                record[0] = Kind(D3D11LineScrollKind.Wave, wave.BaseScroll + bias);
+                record[0] = Kind(D3D11LineScrollKind.Wave, wave.BaseScroll);
                 record[1] = Band(wave.FirstLine, wave.EndLine);
                 record[2] = (uint)wave.Amplitude;
                 record[3] = D3D11ConstantPacking.Halves(wave.Phase.RawValue, checked((ushort)wave.Period));
                 break;
             case ScrollStretch stretch:
-                record[0] = Kind(D3D11LineScrollKind.Stretch, stretch.BaseScroll + bias);
+                record[0] = Kind(D3D11LineScrollKind.Stretch, stretch.BaseScroll);
                 record[1] = Band(stretch.FirstLine, stretch.EndLine);
                 record[2] = (uint)stretch.Slope;
                 record[3] = unchecked((ushort)(stretch.ScrollAbove - stretch.BaseScroll));
@@ -67,7 +66,7 @@ internal static class D3D11LineScrolls
             case SampledScrollWave sampled:
                 if (sampled.Period > DataWords * SamplesPerWord)
                     throw new NotSupportedException($"A waveform of {sampled.Period} samples is longer than a line-scroll slot holds.");
-                record[0] = Kind(D3D11LineScrollKind.Sampled, sampled.BaseScroll + bias);
+                record[0] = Kind(D3D11LineScrollKind.Sampled, sampled.BaseScroll);
                 record[1] = Band(sampled.FirstLine, sampled.EndLine);
                 record[2] = (uint)sampled.Amplitude;
                 record[3] = D3D11ConstantPacking.Halves(checked((ushort)sampled.Phase), checked((ushort)sampled.Period));
@@ -78,10 +77,10 @@ internal static class D3D11LineScrolls
             case ScrollBands bands:
                 if (bands.Bands.Length > DataWords)
                     throw new NotSupportedException($"{bands.Bands.Length} bands are more than a line-scroll slot holds.");
-                record[0] = Kind(D3D11LineScrollKind.Bands, bands.BaseScroll + bias);
+                record[0] = Kind(D3D11LineScrollKind.Bands, bands.BaseScroll);
                 record[3] = (uint)bands.Bands.Length;
                 for (int index = 0; index < bands.Bands.Length; index++)
-                    words[index] = D3D11ConstantPacking.Halves(unchecked((ushort)(bands.Bands[index].Scroll + bias)),
+                    words[index] = D3D11ConstantPacking.Halves(unchecked((ushort)bands.Bands[index].Scroll),
                         checked((ushort)bands.Bands[index].FirstLine));
                 break;
             default:

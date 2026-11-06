@@ -9,10 +9,14 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <param name="WindowOrigin">The scrolled position of the source screen's top-left gameplay pixel.</param>
 public sealed record RoomDoorBackground(RoomBackgroundLayer SourceRoom, Position16<TilePlanePixels> WindowOrigin)
 {
-    /// <summary>The window of a door that began with the foreground scrolled to <paramref name="sourceScroll"/>.</summary>
+    /// <summary>
+    /// The window of a door that began with the foreground's camera at <paramref name="sourceCamera"/>: the source screen's
+    /// top-left gameplay pixel is the foreground row the screen showed below the HUD, the layers showing one row below the
+    /// camera (<see cref="ScreenGeometry.LayerRowsAboveSprites"/>).
+    /// </summary>
     /// <param name="sourceRoom">The source room's foreground.</param>
-    /// <param name="sourceScroll">The source room's foreground scroll registers when the door began.</param>
-    public static RoomDoorBackground Begin(RoomBackgroundLayer sourceRoom, Position16<TilePlanePixels> sourceScroll) =>
-        new(sourceRoom, sourceScroll + new Offset16<TilePlanePixels>(0,
-            ScreenGeometry.BackgroundRowOffset + ScreenGeometry.GameplayHudHeightPixels));
+    /// <param name="sourceCamera">The source room's foreground camera when the door began.</param>
+    public static RoomDoorBackground Begin(RoomBackgroundLayer sourceRoom, Position16<TilePlanePixels> sourceCamera) =>
+        new(sourceRoom, sourceCamera + new Offset16<TilePlanePixels>(0,
+            ScreenGeometry.LayerRowsAboveSprites + ScreenGeometry.GameplayHudHeightPixels));
 }

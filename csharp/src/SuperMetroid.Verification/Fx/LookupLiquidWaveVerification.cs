@@ -34,7 +34,7 @@ internal static class LookupLiquidWaveVerification
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.BackgroundWave, WaterOverlayWavePhase: phase,
                 WaterBackgroundWavePhase: phase, WaterSurfaceScreenY: 100);
-            var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankBg3());
+            var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankFxOverlay());
             for (int y = DisplayScreen.HudHeight; y < DisplayScreen.Height; y++)
             {
                 int offset = y > 100 ? Water((y - 101 - phase + 16) % 16) : 0;
@@ -55,7 +55,8 @@ internal static class LookupLiquidWaveVerification
                     int waterOffset = y > 100 ? Water((phase + cameraPhase + y - 101) & 15) : 0;
                     AssertEqual(unchecked((ushort)(baseScroll + waterOffset)), bg2[line],
                         "Water BG2 phase addition, surface boundary and signed wrap");
-                    AssertEqual(unchecked((ushort)(cameraY + Heat((phase + cameraPhase + line) & 15))),
+                    // The haze moves about the row the screen's top shows, one below the camera's (#1514).
+                    AssertEqual(unchecked((ushort)(GameplaySceneView.ShownRowAtScreenTop(cameraY) + Heat((phase + cameraPhase + line) & 15))),
                         (heatScroll)[line], "Vertical heat HDMA phase and signed wrap");
                 }
             }

@@ -47,7 +47,8 @@ internal static class DraygonBodyPublicationVerification
                 ?? throw new InvalidOperationException("Draygon publishes his body layer.");
             var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), $"Draygon at {body} shows his body image on BG2");
-            AssertEqual(expected + runtime.Display.Latched.Scrolls.RoomShake.Background, drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
+            // The view shows the body row below his placement at the screen's top (#1514).
+            AssertEqual(GameplaySceneView.ShownAtScreenTop(expected + runtime.Display.Latched.Scrolls.RoomShake.Background), drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
             AssertEqual(DraygonBodyBand.ShownLines(placement, runtime.Display.Latched.Scrolls.Layer1Position),
                 new ScreenLineBand(drawn.View.BackgroundFirstLine, drawn.View.BackgroundEndLine), $"Draygon at {body} shows BG2 on the band of lines around his body");
         }

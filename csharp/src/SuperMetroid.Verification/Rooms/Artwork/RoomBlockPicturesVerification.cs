@@ -116,7 +116,7 @@ internal static class RoomBlockPicturesVerification
             for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
             {
                 var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
-                AssertTrue(shown.RowsShown[row], $"{room.Name}: the sky shows row {row}");
+                AssertTrue(shown.BandsShown[y / SkyPictures.BandPixels], $"{room.Name}: the sky shows row {row}");
                 (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
                 AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
             }
@@ -283,8 +283,8 @@ internal static class RoomBlockPicturesVerification
     /// <summary>
     /// Confirms BG3 draws from the tileset's BG3 word sheet (#1392): in a room of each effect whose page BG3 shows, and in
     /// Kraid's room, whose library background moves the HUD's characters, the latched BG3 plane draws from pictures, and
-    /// every word of it under a stocked HUD resolves to a picture painting what its two-bit character paints at the HUD
-    /// character base BG3 shows, colour zero's row included. The words are resolved against the characters as the check
+    /// every word of the effect's page under a stocked HUD is painted in the page's picture as its two-bit character paints
+    /// at the HUD character base BG3 shows, colour zero's row included (#1514); a room showing no page shows none. The words are resolved against the characters as the check
     /// reads them, since an effect can bind its next frame after the latch.
     /// </summary>
     internal static void VerifyBg3Pictures()
@@ -313,13 +313,24 @@ internal static class RoomBlockPicturesVerification
             IReadOnlyList<AppearanceOption> effects = UploadsOf(runtime).Bg3Options;
             RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
                 ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.");
-            ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver((runtime.Room.Scope
+            // The overlay shows the effect's page picture (#1514): each of its cells paints the word the cartridge writes
+            // there, from the row it writes the page to.
+            FxOverlayPage page = new WrittenPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).FxOverlayPictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
-            for (int index = 0; index < FxOverlayPlane.Columns * FxOverlayPlane.Rows; index++)
+            // A room whose effect shows no page shows nothing on the overlay.
+            if (page.Picture is not { } shownPage)
             {
-                BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
+                AssertTrue(plane.EffectPage is null, $"{room.Name}: BG3 shows its effect's page");
+                Console.WriteLine($"BG3 pictures: {room.Name} shows no effect page.");
+                continue;
+            }
+            int firstWord = FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns;
+            for (int index = firstWord; index < FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows; index++)
+            {
+                int cellX = (index - firstWord) % FxOverlayPlaneConstants.Columns * CharacterPixels;
+                int cellY = (index - firstWord) / FxOverlayPlaneConstants.Columns * CharacterPixels;
                 var word = new SnesBgTilemapWord(planeWords[index]);
-                SpriteImage sheet = picture.Picture.Sheet;
+                SpriteImage sheet = shownPage.Sheet;
                 for (int y = 0; y < CharacterPixels; y++)
                 for (int x = 0; x < CharacterPixels; x++)
                 {
@@ -331,7 +342,7 @@ internal static class RoomBlockPicturesVerification
                     int address = pixelRow * 2;
                     int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1;
                     int expected = word.PaletteIndex * 4 + colour;
-                    int at = (picture.Picture.Corner.Y + picture.Corner.Y + y) * sheet.Size.X + picture.Picture.Corner.X + picture.Corner.X + x;
+                    int at = (shownPage.Corner.Y + cellY + y) * sheet.Size.X + shownPage.Corner.X + cellX + x;
                     AssertTrue(sheet.Inks[at].PaletteIndex == expected && (sheet.Inks[at].Priority != 0) == word.HasPriority
                             && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel()),
                         $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {sheet.Inks[at].PaletteIndex} where its character, "

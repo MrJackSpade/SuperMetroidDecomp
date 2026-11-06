@@ -112,12 +112,14 @@ public static class GameplayDisplayCapture
             ? DraygonBodyBand.ShownLines(draygon, scrolls.Layer1Position) : ScreenLineBand.Gameplay;
         Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
         ScreenLayers displayedMainScreen = latched.MainScreen;
-        var view = new GameplaySceneView(foregroundScroll,
-            new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Background.X)
+        // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
+        // below their cameras, so the backend draws the view with no offset of its own.
+        var view = new GameplaySceneView(GameplaySceneView.ShownAtScreenTop(foregroundScroll),
+            GameplaySceneView.ShownAtScreenTop(new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Background.X)
                 : crocomireBody is { } crocomireX ? Add(crocomireX.X, shake.Background.X) : backgroundScroll.X,
                 kraidBody is { } kraidY ? Add(kraidY.Y, shake.Background.Y)
                 : crocomireBody is { } crocomireY ? Add(crocomireY.Y, shake.Background.Y)
-                : sky is { } latchedSky ? Add(latchedSky.BackgroundScroll.Y, shake.Background.Y) : backgroundScroll.Y),
+                : sky is { } latchedSky ? Add(latchedSky.BackgroundScroll.Y, shake.Background.Y) : backgroundScroll.Y)),
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
@@ -130,7 +132,7 @@ public static class GameplayDisplayCapture
         LineScroll? backgroundVertical = crocomireBody is null ? lavaY
             : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
         // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
-        // #1353), its pages laid out by BG2's map size, each part from its picture (#1466).
+        // #1353), its pictures placed where they show on the body's area (#1466, #1514).
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {
@@ -152,8 +154,8 @@ public static class GameplayDisplayCapture
         ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
         TransparentColorZero: false);
 
-    /// <summary>The effect overlay the frame boundary displays (#1348).</summary>
-    private static FxOverlayCells FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms
+    /// <summary>The room effect's page the frame boundary displays on the effect overlay (#1348, #1514).</summary>
+    private static FxOverlayPage FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows the effect overlay only once a room is loaded.")).ShownFxOverlay;
 
     /// <summary>

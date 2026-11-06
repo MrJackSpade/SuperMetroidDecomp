@@ -41,7 +41,7 @@ internal static class RoomFxLayer3TilemapsVerification
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;
             ushort[] plane = LoadConstructedRoomFxTilemap(type, catalog, out CartridgeReadGuard guarded);
-            int first = FxOverlayPlane.EffectPageFirstRow * FxOverlayPlane.Columns;
+            int first = FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns;
             for (int index = 0; index < native.Length / sizeof(ushort); index++)
                 AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]), plane[first + index],
                     $"room-FX {type} installed page word {index} is shown on the BG3 plane");

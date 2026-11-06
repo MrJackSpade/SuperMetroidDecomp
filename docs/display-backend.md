@@ -19,7 +19,7 @@ to the WARP reference.
 | Floor image (`D3D11FloorImage`) | `Floor`, t5 | The perspective floor, 1024 pixels square, laid out from its tiles' pictures whenever the floor changes, with its first tile's picture beside it. |
 | Scene colours (`D3D11SceneColourBuffer`) | `Colours`, t0 | The backdrop, then one colour table per image and colouring: a bit per sixteen-ink group still showing the image's own colours, then the colour each ink shows now. |
 | Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, image place, colours), front to back. |
-| Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' cells and block grids, each picture's place, size and colour slot, the overlays, sky rows, door window and the floor's sheets. |
+| Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' block grids, each picture's place, size and colour slot, the pictures written over the layers and the HUD's at the pixels they show at, the effect overlay's placed picture, a boss body's placed pieces, the sky's bands, the door window and the floor's sheets (#1514). |
 | Sprite layer | `SpriteLayer`, u1 / render target | Per pixel, the frontmost sprite pixel's colour and its priority, with whether it blends. |
 | Output | `Output`, u0 | The composed 256 by 224 frame, eight bits a channel. |
 
@@ -45,15 +45,16 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   sprite layer, so each pixel keeps the frontmost draw's opaque pixel whatever its priority. A sprite hidden by one in
   front therefore never shows at another priority.
 - **Backdrop.** Fills the screen with the backdrop colour.
-- **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the layer-3 plane, a boss body, the
+- **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the effect overlay, a boss body, the
   X-ray reveal, a library background, or a frontend layer's cells. Each pixel of the layer shows its picture's pixel at
   the scrolled position. Options: a priority filter (only the low- or high-priority pixels), opaque colour zero, a scroll
   per line, a mosaic that groups screen pixels into blocks before the line's scroll, and words written over the layer
   drawn on top.
 - **Room order.** A room composes, per band of lines with the same visible layers: sprites of priority 0 and 1, layer 2
   then layer 1 at low priority, sprites of priority 2, layer 2 then layer 1 at high priority, sprites of priority 3; then
-  the HUD, layer 3, opaque, over the top 32 lines. Each scrolled layer shows the line one past its scroll on each screen
-  row (`D3D11Screen.LayerLineOffset`).
+  the HUD, layer 3, opaque, over the top 32 lines. The view names the room pixel each layer shows at the screen's
+  top-left corner (`GameplaySceneView`), so every screen pixel shows the layer pixel that far from it, with no offset of
+  the backend's own (#1514).
 - **Insert sprites.** Writes the sprite layer's pixels of one priority, or all, over the screen. Options: add the sprite's
   colour to the screen's, or add a fixed colour to a sprite that blends.
 - **Floor** (the perspective floor, `FloorView`). The display model describes the floor as an angle, a scale, a centre
@@ -65,8 +66,9 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   layer's colour from the floor.
 - **Add colour.** Adds a fixed colour to every pixel, in five-bit channels, clamped.
 - **Line colour add.** Adds each line's colour within that line's window.
-- **Add / subtract layer.** Adds or subtracts the room effect's layer-3 rows, each line at its own scroll, eight bits a
-  channel, clamped.
+- **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own scroll, eight bits a
+  channel, clamped. The overlay is a rectangle of its picture placed in an area that repeats across and down
+  (`OverlayPicture`, #1514); nothing shows outside the rectangle.
 - **Add layer behind.** Adds a frontend layer's colours where the layer covering it shows (and, optionally, where a
   sprite that blends shows over it), each line at its own scroll, in five-bit channels.
 - **Message text.** Draws the message box's text image from its top line, within the reveal window's lines.

@@ -78,10 +78,10 @@ internal static class RidleyAcidVerification
             // The background characters are the installed artwork the room's uploads name, as the displayed frame captures them.
             // The colours the frame's pictures show, composed from their published shading and the import's colours (#1512).
             var memory = FramePaint.FromNative(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), runtime.DisplayedSprites.Draws);
-            // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
-            ushort[] plane = fx.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
+            // The room's effect page: the acid page the room effect chose (#1514).
             var effect = GameplayEffectCapture.CaptureRoomFxOverlay((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
-                FxOverlayCellsFixtures.FromWords(plane, runtime.ComposedVram(), GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)));
+                FxOverlayFixtures.PageOf(fx.EffectPlane, InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps), runtime.ComposedVram(),
+                    GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)));
             var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
             var actual = DisplayRendering.Render(new LayeredScene(memory,
                 effect is null ? [] : new DisplayLayer[] { effect }, 15));

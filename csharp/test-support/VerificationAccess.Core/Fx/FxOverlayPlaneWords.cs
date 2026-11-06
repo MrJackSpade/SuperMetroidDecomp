@@ -17,10 +17,10 @@ internal static class FxOverlayPlaneWords
         /// <summary>Each cell's tile, row-major, its effect's page read from <paramref name="pages"/>.</summary>
         internal BackgroundTile[] TilesIn(RoomFxLayer3Pages pages)
         {
-            var tiles = new BackgroundTile[FxOverlayPlane.Columns * FxOverlayPlane.Rows];
+            var tiles = new BackgroundTile[FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows];
             tiles.AsSpan().Fill(Layer3ClearedCellDefinitions.ClearedCell);
             if (plane.EffectPage is { } type)
-                pages.Resolve(type).Span.CopyTo(tiles.AsSpan(FxOverlayPlane.EffectPageFirstRow * FxOverlayPlane.Columns));
+                pages.Resolve(type).Span.CopyTo(tiles.AsSpan(FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns));
             return tiles;
         }
 

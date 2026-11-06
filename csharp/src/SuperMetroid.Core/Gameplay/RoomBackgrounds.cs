@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 /// <param name="Foreground">The room's level plane on the foreground.</param>
 /// <param name="Background">The room's layer-2 plane on the background, or null when background shows a loaded tilemap.</param>
-/// <param name="FxOverlay">The room effect plane on the effect overlay (#1348), as its cells' pictures (#1403); null until the frame boundary that latched it resolves them. The HUD is its own layer (#1466).</param>
+/// <param name="FxOverlay">The room effect's page on the effect overlay (#1348, #1514), as its picture (#1403); null until the frame boundary that latched it resolves it. The HUD is its own layer (#1466).</param>
 /// <param name="DoorSource">The source room's foreground screen during a door's opening scroll, or null.</param>
 /// <param name="WrittenOverForeground">Words a room actor wrote over the foreground, or null.</param>
 /// <param name="Sky">
@@ -24,18 +24,18 @@ namespace SuperMetroid.Core.Gameplay;
 /// </param>
 /// <param name="WrittenOverBackground">Words a room actor wrote over the background, or null (#1348).</param>
 /// <param name="Floor">The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</param>
-/// <param name="BossBody">The boss body layer shown while a boss shows one, as its parts' pictures, or null (#1352, #1466).</param>
+/// <param name="BossBody">The boss body shown while a boss shows one, as its pictures placed where they show, or null (#1352, #1466, #1514).</param>
 /// <param name="BlockArtwork">Which artwork foreground's and the background's blocks show (#1357, #1466).</param>
 /// <param name="XrayReveal">The X-ray reveal background shows in place of the room's own background, or null (#1392).</param>
 /// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the tilemap it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
-public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background, FxOverlayCells? FxOverlay,
+public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background, FxOverlayPage? FxOverlay,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? WrittenOverForeground = null, SkyPictures? Sky = null,
     RoomOverlayPictures? WrittenOverBackground = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
     RoomBlockArtwork BlockArtwork = RoomBlockArtwork.Tileset, XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? BackgroundImage = null)
 {
-    /// <summary>The effect overlay plane the frame shows (#1403).</summary>
-    /// <exception cref="InvalidOperationException">The plane's pictures are not yet resolved.</exception>
-    public FxOverlayCells ShownFxOverlay => FxOverlay ?? throw new InvalidOperationException("The effect overlay is shown once the frame boundary that latched it resolves its pictures.");
+    /// <summary>The room effect's page the frame shows on the effect overlay (#1403, #1514).</summary>
+    /// <exception cref="InvalidOperationException">The page's picture is not yet resolved.</exception>
+    public FxOverlayPage ShownFxOverlay => FxOverlay ?? throw new InvalidOperationException("The effect overlay is shown once the frame boundary that latched it resolves its page.");
 }

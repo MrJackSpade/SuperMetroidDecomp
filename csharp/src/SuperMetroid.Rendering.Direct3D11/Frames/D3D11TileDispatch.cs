@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
-/// <summary>A layer pass's constants: what it draws and where, its scroll and map size, priority, transparency, brightness, colour and line range (#633).</summary>
+/// <summary>A layer pass's constants: what it draws and where, its scroll, priority, transparency, brightness, colour and line range (#633).</summary>
 internal sealed record D3D11TileDispatch
 {
     /// <summary>Map.</summary>
@@ -12,9 +12,6 @@ internal sealed record D3D11TileDispatch
 
     /// <summary>Scroll.</summary>
     public Position16<TilePlanePixels> Scroll { get; init; } = default;
-
-    /// <summary>Map size.</summary>
-    public Extent16<TilemapCells>? MapSize { get; init; } = null;
 
     /// <summary>Priority.</summary>
     public uint Priority { get; init; } = 0;

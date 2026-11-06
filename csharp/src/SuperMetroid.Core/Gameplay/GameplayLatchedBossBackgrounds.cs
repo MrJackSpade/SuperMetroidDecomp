@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="CrocomireBodyPlacement">Where Crocomire's body layer is placed, or null without Crocomire.</param>
 /// <param name="MotherBrainBody">Where Mother Brain's body layer is placed and her death-flicker hiding, or null without either (#1356).</param>
 /// <param name="ShownBody">
-/// The body layer's parts as the frame shows them, each picture for the frame its animation had selected, resolved once the
-/// frame's animations have bound; null without a body.
+/// The body as the frame shows it, its pictures placed where they show, each for the frame its animation had selected,
+/// resolved once the frame's animations have bound (#1514); null without a body.
 /// </param>
 public readonly record struct GameplayLatchedBossBackgrounds(
     BossBodyLayer? Body,

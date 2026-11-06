@@ -43,6 +43,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>8.8 speed assigned at the start of a divekick jump and descent.</summary>
     private const int NinjaPirateInitialDiveSpeed = 1536;
+    /// <summary>The span the posts' half-span is kept within: a wider half-span continues from zero.</summary>
+    private const int PostHalfSpanPixels = 256;
     /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
     private const int NinjaPirateActivationDistance = 128;
     /// <summary>Strict distance on both axes for a reaction to the highest occupied projectile.</summary>
@@ -96,15 +98,16 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         requestedHalfSpan >>= 1;
         state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
 
-        // The post setup truncates the half-span to one byte before moving it to the high byte.
-        // The do/while always executes once, including a zero-span debug population.
-        int distanceInSubpixels = CoordinateAxis.Wrap(EightEight.FromWhole(WordWrap.LowByte(requestedHalfSpan)));
+        // The post setup keeps only the half-span's place within 256 pixels before making it an 8.8 distance, and the
+        // distance the spin covers wraps as it accumulates. The do/while always executes once, including a zero-span
+        // debug population.
+        int distanceInSubpixels = EightEight.FromWhole(requestedHalfSpan % PostHalfSpanPixels);
         int speed = 0;
         int accumulatedDistance = 0;
         do
         {
-            speed = WordWrap.Unsigned(speed + 32);
-            accumulatedDistance = WordWrap.Unsigned(accumulatedDistance + speed);
+            speed += 32;
+            accumulatedDistance = WrappingCounter.AddWord(accumulatedDistance, speed);
         }
         while (CoordinateAxis.Difference(accumulatedDistance, distanceInSubpixels) < 0);
 
@@ -357,7 +360,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // even though all three accepted values select the same list.
         int choice;
         do
-            choice = WordWrap.Unsigned(_room.Random.Generate() & 3);
+            choice = _room.Random.Generate() & 3;
         while (choice == 0);
 
         InstallNinjaPirateInstruction(
@@ -576,7 +579,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // check deletes the claw. Y advances one pixel on both halves of the flight.
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
             (outbound ? direction * pixels : -direction * pixels));
-        claw.Speed = WordWrap.Unsigned(claw.Speed + (outbound ? -NinjaPirateClawSpeedChange : NinjaPirateClawSpeedChange));
+        claw.Speed = SignedEightEight.Wrapped(claw.Speed + (outbound ? -NinjaPirateClawSpeedChange : NinjaPirateClawSpeedChange)).RawValue;
         if (outbound && claw.Speed == 0)
             claw.Outbound = false;
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);

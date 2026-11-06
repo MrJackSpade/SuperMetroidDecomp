@@ -458,12 +458,10 @@ internal sealed class EnemyProjectileEngine
         Axis axis,
         SignedEightEight speed)
     {
-        int position = axis == Axis.Horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
-        int subposition = axis == Axis.Horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
+        FixedCoordinate current = axis == Axis.Horizontal ? projectile.Position.X : projectile.Position.Y;
+        int position = current.Whole;
         int velocity = speed.SignedRawValue;
-        int fixedPosition = unchecked((int)SixteenSixteen.Compose(position, subposition));
-        fixedPosition = unchecked(fixedPosition + (SixteenSixteen.FromEightEight(velocity)));
-        FixedCoordinate next = FixedCoordinate.FromRaw(unchecked((uint)fixedPosition));
+        FixedCoordinate next = current.MovedBy(speed.ToSixteenSixteenDelta());
         int nextPosition = next.Whole;
 
         int movementRadius = axis == Axis.Horizontal ? projectile.Radius.X : projectile.Radius.Y;
@@ -770,7 +768,7 @@ internal sealed class EnemyProjectileEngine
             xOffset = (xMask & SharedRandomState.LowerByte(_room.Random.Generate())) - xCenter;
         }
         while (xOffset < 0);
-        if (WordWrap.Signed(signSample) < 0)
+        if (SharedRandomState.IsInUpperHalf(signSample))
             xOffset = -xOffset;
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole + xOffset);
 

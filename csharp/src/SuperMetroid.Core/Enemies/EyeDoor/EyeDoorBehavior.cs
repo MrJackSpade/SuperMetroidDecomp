@@ -312,8 +312,8 @@ internal sealed class EyeDoorBehavior
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
     internal static int ReadEyeDoorAcceleration(int tableIndex)
     {
-        int sample = Trigonometry.SignedSine(unchecked(new ByteAngle(WordWrap.LowByte(tableIndex))));
-        return WordWrap.Signed(sample >> 4);
+        int sample = Trigonometry.SignedSine(ByteAngle.Wrapped(tableIndex));
+        return sample >> 4;
     }
 
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the list switch does.</summary>
@@ -354,9 +354,8 @@ internal sealed class EyeDoorBehavior
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
         shot.Heading = new ByteAngle(EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).RawValue);
-        int angle = shot.Heading.RawValue;
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedSine(new ByteAngle(WordWrap.LowByte(angle)))));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(new ByteAngle(WordWrap.LowByte(angle - 64)))));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.AddTableUnits(-64))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
@@ -395,11 +394,11 @@ internal sealed class EyeDoorBehavior
         if (movingBack)
         {
             // The far face of the blocking block: the last pixel of its sixteen, plus one.
-            int face = WordWrap.Unsigned((edge | 15) + 1 + radius);
+            int face = CoordinateAxis.Wrap((edge | 15) + 1 + radius);
             return Ensure.BetweenInclusive(0, ushort.MaxValue, face <= current ? face : current);
         }
         // The near face of the blocking block: its first pixel.
-        int near = WordWrap.Unsigned((edge & ~15) - radius);
+        int near = CoordinateAxis.Wrap((edge & ~15) - radius);
         return Ensure.BetweenInclusive(0, ushort.MaxValue, near >= current ? near : current);
     }
 

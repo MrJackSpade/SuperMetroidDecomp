@@ -211,7 +211,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while selector two breaks immediately.</summary>
     internal void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
-        int verticalDisplacement = EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(state.BounceSpeedAccumulator))).Positive;
+        int verticalDisplacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.BounceSpeedAccumulator)).Positive;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
@@ -253,7 +253,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBoulderRolling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = unchecked(
-            EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(state.TravelSpeedAccumulator))).Positive +
+            EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.TravelSpeedAccumulator)).Positive +
             SixteenSixteen.FromWhole(state.VerticalCompensation.Y));
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
@@ -291,12 +291,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
-        EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(state.TravelSpeedAccumulator))).Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.TravelSpeedAccumulator)).Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
     /// <summary>Moves the actor vertically by a quadratic table speed toward <paramref name="direction"/>, wrapping within the coordinate range.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(accumulator))).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        int displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, accumulator))).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement)));
     }
 

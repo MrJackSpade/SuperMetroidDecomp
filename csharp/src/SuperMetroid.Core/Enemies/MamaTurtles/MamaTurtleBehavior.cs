@@ -271,10 +271,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int shellTop = CoordinateAxis.Wrap(mama.Position.Y.Whole - mama.Radius.Y);
         int overlap = CoordinateAxis.Wrap(samus.Kinematics.BottomBoundary - shellTop);
-        if (WordWrap.Signed(overlap) < 0)
+        if (CoordinateAxis.AsSigned(overlap) < 0)
             return;
 
-        samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, WordWrap.Signed(overlap));
+        samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(overlap));
     }
 
     /// <summary>Runs the deliberately jittery shell-opening routine.</summary>
@@ -399,19 +399,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen velocity = state.Velocity.X;
         // One 16.16 add: the fraction's carry reaches the whole pixels.
         SignedSixteenSixteen sum = velocity + state.XAcceleration;
-        int oldWhole = velocity.WholeWord;
-        int newWhole = sum.WholeWord;
+        int oldWhole = velocity.WholePixels;
+        int newWhole = sum.WholePixels;
 
-        int magnitude = Math.Abs(CoordinateAxis.AsSigned(newWhole));
-        int cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
+        int cappedWhole = Math.Abs(newWhole) < MamaTurtleMaximumHoveringSpeed
             ? newWhole
             // Chooses the cap's sign from the old velocity word, before storing the
             // just-computed result. Preserve that one-frame zero-crossing behavior.
-            : CoordinateAxis.AsSigned(oldWhole) < 0
-                ? WordWrap.Unsigned(-MamaTurtleMaximumHoveringSpeed)
+            : oldWhole < 0
+                ? -MamaTurtleMaximumHoveringSpeed
                 : MamaTurtleMaximumHoveringSpeed;
-        state.Velocity = state.Velocity.WithX(
-            SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(cappedWhole), sum.Fraction));
+        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(cappedWhole, sum.Fraction));
     }
 
     /// <summary>
@@ -423,13 +421,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
-        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(
-            ~velocity.WholePixels, WordWrap.Unsigned(-velocity.Fraction)));
+        state.Velocity = state.Velocity.WithX(velocity.ComplementedWholeNegatedFraction());
 
         SignedSixteenSixteen acceleration = state.XAcceleration;
         int lowered = velocity.WholePixels == -1 ? 1 : 0;
-        state.XAcceleration = SignedSixteenSixteen.FromParts(
-            WordWrap.Signed(~acceleration.WholePixels - lowered), WordWrap.Unsigned(-acceleration.Fraction));
+        state.XAcceleration = acceleration.ComplementedWholeNegatedFraction() - SignedSixteenSixteen.FromParts(lowered, 0);
     }
 
     /// <summary>Runs the rider-powered seven-pixel ascent.</summary>
@@ -450,7 +446,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
         {
             mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - MamaTurtleRisingSpeed);
-            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, WordWrap.Signed(MamaTurtleRisingSpeed));
+            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, MamaTurtleRisingSpeed);
             return;
         }
 
@@ -480,7 +476,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveMamaTurtleExpandedContact(mama, samus);
 
         // The cap compares the first enemy slot's speed, which initialization requires to be Mama's own.
-        if (WordWrap.Signed(state.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed) < 0)
+        if (state.Velocity.Y.WholePixels < MamaTurtleMaximumFallingSpeed)
         {
             // The one-eighth-pixel fraction step carries into the whole word; both are one 16.16 add.
             state.Velocity = state.Velocity.WithY(
@@ -600,7 +596,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level, baby, SixteenSixteen.FromWhole(state.Velocity.X)))
         {
-            state.Velocity = state.Velocity.WithX(WordWrap.Signed(-state.Velocity.X));
+            state.Velocity = state.Velocity.WithX(-state.Velocity.X);
             return;
         }
         _terrain.MoveEnemyVertically(level, baby, SixteenSixteen.FromWhole(state.Velocity.Y));

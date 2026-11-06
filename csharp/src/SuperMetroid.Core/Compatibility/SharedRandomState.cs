@@ -52,6 +52,14 @@ public readonly record struct SharedRandomState
     public static bool IsInUpperHalf(int sample) => RequireSample(sample) >= StateSpan / 2;
 
     /// <summary>
+    /// The random byte a sample holds in its low eight bits, advanced by <paramref name="offset"/> and continuing past
+    /// 255 from zero: the roll the game takes from a draw plus a frame count.
+    /// </summary>
+    /// <param name="sample">The sample, 0 through 65535.</param>
+    /// <param name="offset">The count added, zero or more.</param>
+    public static int LowerByteAdvancedBy(int sample, int offset) => (LowerByte(sample) + Ensure.AtLeastZero(offset)) % ByteSpan;
+
+    /// <summary>
     /// The state after one advance (<c>$80:8111</c>): roughly the state times five plus 273. Each byte of the state is
     /// multiplied by five on its own, and the upper byte's product keeps only its own low byte; the products plus 256
     /// form the next state, plus 17, plus one more when the products plus 256 pass the end of the state's sixteen bits.

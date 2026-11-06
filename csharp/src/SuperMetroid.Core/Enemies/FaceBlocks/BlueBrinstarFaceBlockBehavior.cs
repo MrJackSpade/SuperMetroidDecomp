@@ -139,7 +139,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// In particular, -32768 remains -32768 just as the game's negation does.
     /// </summary>
     private static int AbsoluteFaceBlockDelta(int delta) =>
-        WordWrap.Signed(delta) < 0 ? WordWrap.Unsigned(-delta) : Ensure.BetweenInclusive(0, ushort.MaxValue, delta);
+        Math.Abs(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, delta)));
 
     /// <summary>
     /// Installs the singleton graphics hook and shows the room's glow on the block. The game's hook recolours the palette

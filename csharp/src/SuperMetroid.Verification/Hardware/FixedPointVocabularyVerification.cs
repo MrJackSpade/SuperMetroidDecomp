@@ -76,7 +76,7 @@ internal static class FixedPointVocabularyVerification
         {
             AssertEqual(unchecked((byte)(0x40 - bearing)), new Bearing((byte)bearing).ToTableAngle().RawValue,
                 $"bearing {bearing:X2} in the table convention");
-            AssertEqual((byte)bearing, new Bearing((byte)bearing).ReinterpretAsTableAngle().RawValue,
+            AssertEqual((byte)bearing, new Bearing((byte)bearing).ToMirroredTableAngle().RawValue,
                 $"bearing {bearing:X2} read unconverted");
         }
     }

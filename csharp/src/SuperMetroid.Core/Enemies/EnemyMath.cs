@@ -12,7 +12,7 @@ internal static class EnemyMath
     /// </summary>
     internal static int ClampWholeVelocity(int velocity, int maximum)
     {
-        int whole = WordWrap.Signed(SixteenSixteen.WholeOf(velocity));
+        int whole = SixteenSixteen.WholeOf(velocity);
         if (whole >= maximum)
             return SixteenSixteen.FromWhole(maximum);
         if (whole < -maximum)
@@ -78,7 +78,7 @@ internal static class EnemyMath
     /// unchecked host operation. Alcoon, Beetom, Work Robot, Polyp, and Namihe all consume
     /// this exact distance convention. <paramref name="value"/> is a word, 0 through 65535.
     /// </summary>
-    internal static int WrappedMagnitude(int value) => Math.Abs(WordWrap.Signed(value));
+    internal static int WrappedMagnitude(int value) => Math.Abs(CoordinateAxis.AsSigned(value));
 
     /// <summary>
     /// Implements the shared proximity helpers' strict <c>magnitude &lt; limit</c>
@@ -131,17 +131,11 @@ internal static class EnemyMath
     {
         // A half-wave byte times a radius byte is below 65,536, so the product needs no wrap.
         int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
-        int product = sample * RadiusMultiplierOperand(radius);
-        int whole = EightEight.WholeOf(product);
-        int fraction = WordWrap.Unsigned(SixteenSixteen.FromEightEight(product));
-        if (angle.IsInSecondHalf)
-        {
-            // The game negates each word independently instead of carrying the
-            // fractional increment into the whole word. Preserve that documented quirk.
-            whole = -whole;
-            fraction = WordWrap.Unsigned(-fraction);
-        }
-        return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), fraction);
+        SignedSixteenSixteen product = SignedSixteenSixteen.FromRaw(
+            SixteenSixteen.FromEightEight(sample * RadiusMultiplierOperand(radius)));
+        // The game negates each word independently instead of carrying the
+        // fractional increment into the whole word. Preserve that documented quirk.
+        return angle.IsInSecondHalf ? product.NegatedWordsSeparately() : product;
     }
 
     /// <summary>Rotates the fixed sine multiplication by a quarter turn for cosine, retaining its negative-fraction behavior.</summary>
@@ -193,22 +187,25 @@ internal static class EnemyMath
     internal static SignedEightEight MultiplySineSample(int speed, ByteAngle angle) =>
         Trigonometry.MultiplySignedSine(speed, angle);
 
-    /// <summary>
-    /// The game's sign extension of a word's low byte: a negative low byte fills the high byte
-    /// with ones; a positive one leaves whatever high byte the word already had, so a borrowed one survives (#1412).
-    /// </summary>
-    internal static int SignExtendLowByte(int word) =>
-        WordWrap.SignedLowByte(word) < 0 ? FillHighByte(word) : Ensure.BetweenInclusive(0, ushort.MaxValue, word);
-
-    /// <summary>The word whose low byte is <paramref name="value"/>'s and whose high byte is all ones: a negative 8-bit result (#1412).</summary>
-    internal static int FillHighByte(int value) => WordWrap.Unsigned(value | ~byte.MaxValue);
+    /// <summary>The span of an eight-bit operand or result: values past it continue from zero.</summary>
+    private const int ByteSpan = 256;
 
     /// <summary>
-    /// The eight-bit multiplier operand a radius word, 0 through 65535, supplies: the eight-bit sine multiplication
-    /// takes only its low eight bits, so a radius of 256 or more wraps.
+    /// The negative eight-bit result <paramref name="value"/>'s low part, 0 through 255, stands for, held in a
+    /// sixteen-bit quantity: 65280 plus that part, as the game fills the upper half with ones (#1412).
     /// </summary>
-    private static int RadiusMultiplierOperand(int radius) => WordWrap.LowByte(Ensure.BetweenInclusive(0, ushort.MaxValue, radius));
+    /// <param name="value">The result, zero or more; only its place within <see cref="ByteSpan"/> is kept.</param>
+    internal static int FillHighByte(int value) => (ByteSpan - 1) * ByteSpan + Ensure.AtLeastZero(value) % ByteSpan;
 
-    /// <summary>Tests the sign of the low sixteen bits as a signed word, ignoring higher bits.</summary>
-    internal static bool IsNegative16(int value) => WordWrap.IsNegative(value);
+    /// <summary>
+    /// The eight-bit multiplier operand a radius, 0 through 65535, supplies: the eight-bit sine multiplication
+    /// takes only its place within 256, so a radius of 256 or more continues from zero.
+    /// </summary>
+    private static int RadiusMultiplierOperand(int radius) => Ensure.BetweenInclusive(0, ushort.MaxValue, radius) % ByteSpan;
+
+    /// <summary>
+    /// Whether a computed coordinate difference, speed or count reads as negative, as the game's sign tests read one:
+    /// wrapped onto 0 through 65535, it lies in the upper half.
+    /// </summary>
+    internal static bool IsNegative16(int value) => CoordinateAxis.AsSigned(value) < 0;
 }

@@ -354,7 +354,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<int> readRandomNumber = _room.Random.Read;
-        int count = WordWrap.Unsigned(readRandomNumber() & 3);
+        int count = readRandomNumber() & 3;
         state.StepCounter = WrappingCountdown.FromRaw(count == 0 ? 2 : count);
         return state.Velocity.X.WholePixels < 0
             ? AlcoonProgram.WalkingLeft
@@ -381,7 +381,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int oldVelocity = state.Velocity.X.WholePixels;
-        state.Velocity = state.Velocity.WithWholeX(WordWrap.Signed(-oldVelocity));
+        state.Velocity = state.Velocity.WithWholeX(-oldVelocity);
         return oldVelocity >= 0
             ? AlcoonProgram.WalkingLeftLoop
             : AlcoonProgram.WalkingRightLoop;
@@ -440,8 +440,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.AlcoonFireball,
             SpriteGraphics.SpawnedBy(alcoon));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(alcoon.Position.X.Whole + (movingLeft ? -16 : 16)), CoordinateAxis.Wrap(alcoon.Position.Y.Whole - 12)));
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingLeft
-            ? WordWrap.Unsigned(-AlcoonFireballGraphicsHorizontalSpeed)
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(movingLeft
+            ? -AlcoonFireballGraphicsHorizontalSpeed
             : AlcoonFireballGraphicsHorizontalSpeed));
         projectile.Velocity = projectile.Velocity.WithY(launch.YVelocity);
     }
@@ -464,15 +464,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int velocity = projectile.Velocity.X.SignedRawValue;
         if (velocity < 0)
         {
-            velocity = WordWrap.Signed(velocity + AlcoonFireballHorizontalDeceleration);
+            velocity += AlcoonFireballHorizontalDeceleration;
             if (velocity >= unchecked(-AlcoonFireballTerminalHorizontalSpeed))
                 velocity = unchecked(-AlcoonFireballTerminalHorizontalSpeed);
         }
         else
         {
-            velocity = WordWrap.Signed(velocity - AlcoonFireballHorizontalDeceleration);
+            velocity -= AlcoonFireballHorizontalDeceleration;
             if (velocity < AlcoonFireballTerminalHorizontalSpeed)
-                velocity = WordWrap.Signed(AlcoonFireballTerminalHorizontalSpeed);
+                velocity = AlcoonFireballTerminalHorizontalSpeed;
         }
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(velocity));
     }

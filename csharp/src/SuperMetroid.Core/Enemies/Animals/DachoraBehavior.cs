@@ -275,7 +275,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         RoomLevelData level)
     {
-        if (WordWrap.Signed(state.Speed.WholePixels - DachoraMaximumSpeed.WholePixels) >= 0)
+        if (state.Speed.WholePixels >= DachoraMaximumSpeed.WholePixels)
         {
             if (state.PaletteFrame == 0 && state.PaletteTicks == 1)
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraSpeedBoosterSound, priority: SoundRequestPriority.Normal);
@@ -300,8 +300,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The game compares the whole and fraction words separately, each by the sign of its difference
         // from the cap's; a fraction with its top bit set therefore also counts as below the cap.
         SignedSixteenSixteen speed = state.Speed;
-        bool belowMaximum = WordWrap.Signed(speed.WholePixels - DachoraMaximumSpeed.WholePixels) < 0 ||
-            WordWrap.Signed(speed.Fraction - DachoraMaximumSpeed.Fraction) < 0;
+        bool belowMaximum = speed.WholePixels < DachoraMaximumSpeed.WholePixels ||
+            WrappingCounter.IsBehind(speed.Fraction, DachoraMaximumSpeed.Fraction);
         if (belowMaximum)
         {
             speed += DachoraAcceleration;
@@ -364,7 +364,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The cap replaces only the whole word, compared by the sign of its word difference; the fraction is kept.
         SignedSixteenSixteen speed = state.Speed;
-        SignedSixteenSixteen capped = WordWrap.Signed(speed.WholePixels - DachoraShinesparkMaximumWholeSpeed) >= 0
+        SignedSixteenSixteen capped = speed.WholePixels >= DachoraShinesparkMaximumWholeSpeed
             ? speed.WithWholePixels(DachoraShinesparkMaximumWholeSpeed)
             : speed;
         int upwardDisplacement = unchecked(-capped.RawValue);
@@ -397,7 +397,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         state.Speed += SamusGravity(samus);
-        if (WordWrap.Signed(state.Speed.WholePixels - DachoraMaximumFallSpeed.WholePixels) >= 0)
+        if (state.Speed.WholePixels >= DachoraMaximumFallSpeed.WholePixels)
             state.Speed = DachoraMaximumFallSpeed;
 
         if (!_terrain.MoveEnemyVertically(
@@ -542,12 +542,12 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Uses wrapped signed positions and a strict proximity threshold on one axis.</summary>
     private static bool DachoraWithinAxis(int actor, int samus, int distance) =>
-        Math.Abs(WordWrap.Signed(actor - samus)) < distance;
+        CoordinateAxis.Distance(actor, samus) < distance;
 
     /// <summary>Samus's current gravity per update, which the shinespark and fall accumulate.</summary>
     private static SignedSixteenSixteen SamusGravity(SamusState samus) =>
         SignedSixteenSixteen.FromParts(
-            WordWrap.Signed(samus.Kinematics.YAcceleration.Whole),
+            samus.Kinematics.YAcceleration.Whole,
             samus.Kinematics.YAcceleration.Fraction);
 
     /// <summary>Advances Dachora's typed animation.</summary>

@@ -440,10 +440,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             definition.ProjectileKind(),
             SpriteGraphics.SpawnedBy(robot));
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(definition switch
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
-                WordWrap.Unsigned(-128),
+                -128,
             WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => 128,
             WorkRobotLaser.Horizontal => 0,
             _ => throw new InvalidOperationException(

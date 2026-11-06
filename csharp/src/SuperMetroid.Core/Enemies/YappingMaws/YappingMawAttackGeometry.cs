@@ -17,7 +17,7 @@ public static class YappingMawAttackGeometry
     internal static Offset16<RoomPixels> HeldSamusOffset(int direction)
     {
         if ((uint)direction >= 8) throw new ArgumentOutOfRangeException(nameof(direction));
-        static int Component(int phase) => WordWrap.Signed(8 * (2 - Math.Abs(phase - 4)));
+        static int Component(int phase) => 8 * (2 - Math.Abs(phase - 4));
         return new(Component((direction + 2) & 7), Component(direction));
     }
 }

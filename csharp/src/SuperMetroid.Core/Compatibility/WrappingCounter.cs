@@ -53,6 +53,16 @@ public static class WrappingCounter
         (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue;
 
     /// <summary>
+    /// Whether <paramref name="value"/> is behind <paramref name="limit"/> as the game compares two counts: by the sign
+    /// of their difference, so a value up to 32768 below the limit is behind it, and one that has run 32768 or more past
+    /// the limit (or a count that wrapped from zero to a large one) reads as behind it again.
+    /// </summary>
+    /// <param name="value">The count compared, 0 through 65535.</param>
+    /// <param name="limit">The count it is compared with, 0 through 65535.</param>
+    public static bool IsBehind(int value, int limit) =>
+        unchecked((short)(Ensure.BetweenInclusive(0, ushort.MaxValue, value) - Ensure.BetweenInclusive(0, ushort.MaxValue, limit))) < 0;
+
+    /// <summary>
     /// Takes one away from the eight-bit count kept in the lower half of <paramref name="value"/>, 0 through 65535: the
     /// eight-bit count wraps from 0 to 255 and the upper half is kept unchanged. The step's tests describe the eight-bit
     /// count alone.

@@ -9,13 +9,16 @@ namespace SuperMetroid.Core.Spatial;
 [EncodingOwner("8.8 rotation angle word")]
 public readonly record struct RotationAngle : IComparable<RotationAngle>
 {
-    /// <summary>Number of high-byte sine-table units in one complete turn.</summary>
-    public const int TableUnitsPerTurn = 0x100;
+    /// <summary>Number of whole sine-table units in one complete turn.</summary>
+    public const int TableUnitsPerTurn = 256;
 
-    /// <summary>Retains the complete native angle word, including its fractional low byte.</summary>
+    /// <summary>Number of 1/256th fractions in one sine-table unit.</summary>
+    private const int FractionsPerTableUnit = 256;
+
+    /// <summary>Holds the angle in 1/256ths of a table unit, 0 through 65535: whole units and their fraction.</summary>
     private RotationAngle(ushort rawValue) => RawValue = rawValue;
 
-    /// <summary>The complete wrapping 8.8-turn word used by native state.</summary>
+    /// <summary>The angle in 1/256ths of a table unit, 0 through 65535; a full turn wraps to zero.</summary>
     public ushort RawValue { get; }
 
     /// <summary>The high-byte index consumed by 256-entry trigonometry tables.</summary>
@@ -27,44 +30,44 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>The angle in radians, fraction included: a half turn is pi, and the sine table's quarter turn is pi / 2.</summary>
     public double Radians => RawValue * Math.PI / HalfTurn.RawValue;
 
-    /// <summary>
-    /// This angle's 1/256th fraction read as a table angle: what an eight-bit routine handed the whole angle word
-    /// reads, as the Fireflea initializer does before its main AI reads the table index.
-    /// </summary>
-    public ByteAngle ReinterpretFractionAsTableAngle() => new(unchecked((byte)RawValue));
+    /// <summary>Zero turns: the sine table's zero angle.</summary>
+    public static RotationAngle Zero { get; } = FromTableIndex(0);
 
-    /// <summary>Zero turns.</summary>
-    public static RotationAngle Zero { get; } = new(0x0000);
+    /// <summary>One quarter turn on from <see cref="Zero"/>: where the sine table peaks.</summary>
+    public static RotationAngle QuarterTurn { get; } = FromTableIndex(TableUnitsPerTurn / 4);
 
-    /// <summary>One quarter turn (<c>$40</c> table units / <c>$4000</c> raw).</summary>
-    public static RotationAngle QuarterTurn { get; } = new(0x4000);
+    /// <summary>One half turn on from <see cref="Zero"/>: the opposite direction.</summary>
+    public static RotationAngle HalfTurn { get; } = FromTableIndex(TableUnitsPerTurn / 2);
 
-    /// <summary>One half turn (<c>$80</c> table units / <c>$8000</c> raw).</summary>
-    public static RotationAngle HalfTurn { get; } = new(0x8000);
+    /// <summary>Three quarters of a turn on from <see cref="Zero"/>: where the sine table is lowest.</summary>
+    public static RotationAngle ThreeQuarterTurn { get; } = FromTableIndex(3 * TableUnitsPerTurn / 4);
 
-    /// <summary>Three quarters of a turn (<c>$C0</c> table units / <c>$C000</c> raw).</summary>
-    public static RotationAngle ThreeQuarterTurn { get; } = new(0xc000);
-
-    /// <summary>Preserves a native 8.8 angle word exactly.</summary>
+    /// <summary>The angle of exactly <paramref name="rawValue"/> 1/256ths of a table unit, 0 through 65535.</summary>
     public static RotationAngle FromRaw(int rawValue) => new(checked((ushort)rawValue));
 
-    /// <summary>Promotes a 256-unit turn value into the high byte of native angle state.</summary>
-    public static RotationAngle FromTableIndex(int tableIndex) =>
-        new(checked((ushort)(checked((byte)tableIndex) << 8)));
+    /// <summary>The angle of <paramref name="tableIndex"/> whole table units, 0 through 255, with no fraction.</summary>
+    public static RotationAngle FromTableIndex(int tableIndex) => FromTableIndex(tableIndex, 0);
 
-    /// <summary>A 256-unit turn value with a fractional low byte, in 1/256 table units.</summary>
+    /// <summary>The angle of <paramref name="tableIndex"/> whole table units and <paramref name="fraction"/> 256ths, each 0 through 255.</summary>
     public static RotationAngle FromTableIndex(int tableIndex, int fraction) =>
-        new(checked((ushort)(checked((byte)tableIndex) << 8 | checked((byte)fraction))));
+        new(checked((ushort)(Ensure.BetweenInclusive(0, TableUnitsPerTurn - 1, tableIndex) * FractionsPerTableUnit +
+            Ensure.BetweenInclusive(0, FractionsPerTableUnit - 1, fraction))));
 
-    /// <summary>Normalizes an arbitrary raw angle through native 16-bit wraparound.</summary>
+    /// <summary>The angle a computation in 1/256ths of a table unit lands on: past a full turn, or below zero, it continues around the circle.</summary>
     public static RotationAngle NormalizeRaw(int rawValue) => new(unchecked((ushort)rawValue));
 
-    /// <summary>Normalizes an arbitrary 256-unit turn value through native byte wraparound.</summary>
+    /// <summary>The angle a computation in whole table units lands on, continuing around the circle, with no fraction.</summary>
     public static RotationAngle NormalizeTableIndex(int tableIndex) =>
         FromTableIndex(unchecked((byte)tableIndex), 0);
 
-    /// <summary>Adds a signed native 8.8 delta with cartridge word wraparound.</summary>
+    /// <summary>Turns the angle by <paramref name="delta"/> 1/256ths of a table unit, continuing around the circle.</summary>
     public RotationAngle AddRaw(int delta) => NormalizeRaw(RawValue + delta);
+
+    /// <summary>
+    /// The turn from this angle on to <paramref name="other"/>, in 1/256ths of a table unit, 0 through 65535: the arc
+    /// in the direction of increasing angle, so an angle just behind this one lies almost a full turn on.
+    /// </summary>
+    public int UnitsTo(RotationAngle other) => NormalizeRaw(other.RawValue - RawValue).RawValue;
 
     /// <summary>Adds whole sine-table units while retaining the fractional low byte.</summary>
     public RotationAngle AddTableUnits(int delta) => AddRaw(delta << 8);

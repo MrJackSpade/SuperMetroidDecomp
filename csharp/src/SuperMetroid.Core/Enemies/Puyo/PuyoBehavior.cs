@@ -166,12 +166,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
-            timeAccumulator = WordWrap.Unsigned(timeAccumulator + xSpeed);
+            timeAccumulator = WrappingCounter.AddWord(timeAccumulator, xSpeed);
             EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(UnsignedEightEight.Whole(timeAccumulator));
 
             // Summing each row's coarse speed, in 256ths of a pixel, gives the 8.8 distance estimate used only to
             // find the initial curve row.
-            distanceAccumulator = WordWrap.Unsigned(distanceAccumulator +
+            distanceAccumulator = WrappingCounter.AddWord(distanceAccumulator,
                 speedRow.CoarseToward(EnemySpeedSign.Positive));
             if (!EnemyMath.IsNegative16(CoordinateAxis.Wrap(swappedJumpHeight - distanceAccumulator)))
                 continue;
@@ -290,7 +290,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// enemy's frame counter before keeping the low three bits.
     /// </summary>
     private int NextPuyoRandom0To7(RoomEnemySlot slot) =>
-        WordWrap.Unsigned((_room.Random.Generate() + slot.FrameCounter) & 7);
+        (_room.Random.Generate() + slot.FrameCounter) & 7;
 
     /// <summary>Runs the post-drop bounce wrapper.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
@@ -344,9 +344,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
         // hop's 1.25 therefore moves exactly one pixel per frame either way.
         int xSpeed = Hop(state).XSpeed;
-        int whole = WordWrap.Signed(EightEight.WholeOf(xSpeed));
+        int whole = EightEight.WholeOf(xSpeed);
         if (state.Direction == PuyoDirection.Left)
-            whole = WordWrap.Signed(-whole);
+            whole = -whole;
         int horizontalDisplacement = SixteenSixteen.FromWhole(whole);
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(

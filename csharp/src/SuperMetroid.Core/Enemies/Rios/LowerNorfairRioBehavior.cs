@@ -268,8 +268,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Applies the negative 8.8 vertical acceleration after a flight step.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(
-            WordWrap.Unsigned(state.Velocity.Y.RawValue - LowerNorfairRioGravity)));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(
+            state.Velocity.Y.RawValue - LowerNorfairRioGravity));
 
     /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>
     private static void InstallLowerNorfairRioAnimationScript(

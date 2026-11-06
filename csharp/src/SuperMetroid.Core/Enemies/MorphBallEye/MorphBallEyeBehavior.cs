@@ -183,7 +183,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Calculates the game angle from signed wrapped eye-to-Samus displacement.</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ReinterpretAsTableAngle().ToAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ToMirroredTableAngle().ToAngle();
 
     /// <summary>Requires the body in retail slot one before scheduling the room-global beam to appear next frame.</summary>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)

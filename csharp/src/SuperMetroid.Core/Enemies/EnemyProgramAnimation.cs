@@ -162,12 +162,12 @@ internal static class EnemyProgramAnimation
         switch (advance)
         {
             case AnimationProgramAdvance<TFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 slot.Frame = frame(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<TFrame>.Wait waiting:
-                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(waiting.Duration);
                 return;
             case AnimationProgramAdvance<TFrame>.Hold:
                 return;

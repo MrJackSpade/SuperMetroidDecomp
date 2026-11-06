@@ -50,9 +50,8 @@ internal sealed class EnemyTerrain
         if (displacement == 0)
             return false;
 
-        uint oldPosition = slot.Position.X.RawValue;
-        uint newPosition = unchecked(oldPosition + (uint)displacement);
-        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)newPosition));
+        FixedCoordinate newPosition = slot.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(displacement));
+        int targetCenter = newPosition.Whole;
         bool movingLeft = displacement < 0;
         int targetEdge = movingLeft
             ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
@@ -61,9 +60,9 @@ internal sealed class EnemyTerrain
         int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int spanMinusOne = CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)) >> 4;
-        // The 8-bit multiplier forms (top row & $FF) * width, the target
+        // The eight-bit multiplier forms the top row's place within 256 rows times the width, the target
         // column is added unbounded, and each scanned row adds the width again.
-        int firstIndex = WordWrap.LowByte(topPixel >> 4) * level.Size.X + (targetEdge >> 4);
+        int firstIndex = MultiplierRow(topPixel >> 4) * level.Size.X + (targetEdge >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -84,7 +83,7 @@ internal sealed class EnemyTerrain
 
         if (!collided)
         {
-            slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(newPosition));
+            slot.Position = slot.Position.WithX(newPosition);
             return false;
         }
 
@@ -116,9 +115,8 @@ internal sealed class EnemyTerrain
         if (displacement == 0)
             return false;
 
-        uint oldPosition = slot.Position.Y.RawValue;
-        uint newPosition = unchecked(oldPosition + (uint)displacement);
-        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)newPosition));
+        FixedCoordinate newPosition = slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement));
+        int targetCenter = newPosition.Whole;
         bool movingUp = displacement < 0;
         int targetEdge = movingUp
             ? CoordinateAxis.Wrap(targetCenter - slot.Radius.Y)
@@ -127,9 +125,9 @@ internal sealed class EnemyTerrain
         int leftPixel = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int rightPixel = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
         int spanMinusOne = CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)) >> 4;
-        // (target row & $FF) * width plus the left column, then each
+        // The target row's place within 256 rows times the width plus the left column, then each
         // scanned column steps to the next block index.
-        int firstIndex = WordWrap.LowByte(targetEdge >> 4) * level.Size.X + (leftPixel >> 4);
+        int firstIndex = MultiplierRow(targetEdge >> 4) * level.Size.X + (leftPixel >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -143,7 +141,7 @@ internal sealed class EnemyTerrain
 
         if (!collided)
         {
-            slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(newPosition));
+            slot.Position = slot.Position.WithY(newPosition);
             return false;
         }
 
@@ -175,8 +173,7 @@ internal sealed class EnemyTerrain
         RoomEnemySlot slot,
         int unsignedDistance)
     {
-        uint target = unchecked(slot.Position.Y.RawValue + (uint)unsignedDistance);
-        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)target));
+        int targetCenter = slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(unsignedDistance)).Whole;
         int targetEdge = CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
         int row = targetEdge >> 4;
         int firstColumn = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
@@ -203,8 +200,7 @@ internal sealed class EnemyTerrain
         RoomEnemySlot slot,
         int displacement)
     {
-        uint position = slot.Position.X.RawValue;
-        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)(position + (uint)displacement)));
+        int targetCenter = slot.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(displacement)).Whole;
         bool movingLeft = displacement < 0;
         int targetEdge = movingLeft
             ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
@@ -234,8 +230,7 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
     {
-        uint position = slot.Position.Y.RawValue;
-        int center = FixedCoordinate.WholeOf(unchecked((int)(position + (uint)displacement)));
+        int center = slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement)).Whole;
         int edge = displacement < 0
             ? CoordinateAxis.Wrap(center - slot.Radius.Y)
             : CoordinateAxis.Wrap(center + slot.Radius.Y - 1);
@@ -333,11 +328,20 @@ internal sealed class EnemyTerrain
         };
     }
 
+    /// <summary>The rows the movers' row multiplier distinguishes: a row past them continues from the first.</summary>
+    private const int MultiplierRowSpan = 256;
+
+    /// <summary>The blocks the movers' level-data index reaches before continuing from the first.</summary>
+    private const int MoverBlockSpan = 32768;
+
+    /// <summary>The place of block row <paramref name="row"/>, zero or more, within the multiplier's 256 rows.</summary>
+    private static int MultiplierRow(int row) => Ensure.AtLeastZero(row) % MultiplierRowSpan;
+
     /// <summary>
-    /// The movers index <c>LevelData,X</c> with a 16-bit byte offset, so the block index
-    /// wraps at 32,768 blocks.
+    /// The block the movers read for block index <paramref name="index"/>, zero or more: their level-data index
+    /// continues from the first block after 32,768 blocks.
     /// </summary>
-    private static int EnemyMoverBlockIndex(int index) => WordWrap.Unsigned(index << 1) >> 1;
+    private static int EnemyMoverBlockIndex(int index) => Ensure.AtLeastZero(index) % MoverBlockSpan;
 
     /// <summary>
     /// Reads a block for the movers, which never bound the index to the authored

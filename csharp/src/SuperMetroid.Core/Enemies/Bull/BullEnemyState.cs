@@ -81,8 +81,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Accelerate()
     {
-        Acceleration = WordWrap.Unsigned(Acceleration + AccelerationDelta);
-        Speed = WordWrap.Unsigned(Speed + Acceleration);
+        Acceleration = SignedEightEight.Wrapped(Acceleration + AccelerationDelta).RawValue;
+        Speed = SignedEightEight.Wrapped(Speed + Acceleration).RawValue;
     }
 
     /// <summary>
@@ -92,8 +92,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Decelerate()
     {
-        Acceleration = WordWrap.Unsigned(Acceleration - AccelerationDelta);
-        Speed = WordWrap.Unsigned(Speed - Acceleration);
+        Acceleration = SignedEightEight.Wrapped(Acceleration - AccelerationDelta).RawValue;
+        Speed = SignedEightEight.Wrapped(Speed - Acceleration).RawValue;
     }
 
     /// <summary>

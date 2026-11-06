@@ -23,7 +23,7 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
     }
 
     /// <summary>The angle whose sine is the sway's sideways speed: the phase's angle with its quarter-turn bit set.</summary>
-    internal ByteAngle SwayAngle => new(WordWrap.LowByte((SwayPhase >> 1) | QuarterTurn));
+    internal ByteAngle SwayAngle => ByteAngle.Wrapped((SwayPhase >> 1) | QuarterTurn);
 
     /// <summary>Moves the sway on by <paramref name="step"/> half-angle units, wrapping at a full swing.</summary>
     internal void AdvanceSway(int step) => SwayPhase = (SwayPhase + step) % SwayPeriod;

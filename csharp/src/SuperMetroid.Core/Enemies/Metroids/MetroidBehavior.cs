@@ -184,15 +184,19 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             StoreMetroidXVelocity(state, 0);
     }
 
+    /// <summary>The span within which a Metroid measures its distance to its target.</summary>
+    private const int ClosingSpan = 256;
+
     /// <summary>Chooses Metroid's byte-oriented closing speed from wrapped distance to Samus.</summary>
     private static int CalculateMetroidClosingVelocity(int target, int current)
     {
-        int lowByteDifference = WordWrap.LowByte(target - WordWrap.LowByte(current));
-        int shifted = lowByteDifference << 5;
-        // Sign-extend the 13-bit shifted byte difference.
-        shifted = (shifted << 19) >> 19;
+        // The closing speed is 32 times the signed distance between the two coordinates' places within a 256-pixel
+        // span, -128 through 127: a distance of 128 or more one way reads as the other way.
+        int nearDistance = CoordinateAxis.Wrap(target - current) % ClosingSpan;
+        if (nearDistance >= ClosingSpan / 2)
+            nearDistance -= ClosingSpan;
         return Math.Clamp(
-            WordWrap.Signed(shifted),
+            32 * nearDistance,
             -MetroidMaximumVelocity,
             MetroidMaximumVelocity);
     }
@@ -396,8 +400,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = _room.Random.Generate();
             // Each axis adds a five-bit random selection minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
-                WordWrap.Signed(EnemyDropMasks.HorizontalScatter.Of(random) - 16),
-                WordWrap.Signed(EnemyDropMasks.VerticalScatter.Of(random) - 16));
+                EnemyDropMasks.HorizontalScatter.Of(random) - 16,
+                EnemyDropMasks.VerticalScatter.Of(random) - 16);
             MetroidDropRequests.Add(new MetroidDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }

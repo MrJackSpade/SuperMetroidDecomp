@@ -472,9 +472,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
-            tableIndex = WordWrap.Unsigned(tableIndex + tableIndexDelta);
+            tableIndex = WrappingCounter.AddWord(tableIndex, tableIndexDelta);
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
-            accumulatedHeight = WordWrap.Unsigned(accumulatedHeight +
+            accumulatedHeight = WrappingCounter.AddWord(accumulatedHeight,
                 EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive));
             if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
                 return tableIndex;
@@ -515,9 +515,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((slot.FrameCounter & 63) != 63)
             return;
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? WordWrap.Unsigned(slot.Definition.Damage >> 2)
+            ? slot.Definition.Damage >> 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? WordWrap.Unsigned(slot.Definition.Damage >> 1)
+                ? slot.Definition.Damage >> 1
                 : slot.Definition.Damage;
         samus.Health = samus.Health <= damage
             ? 0

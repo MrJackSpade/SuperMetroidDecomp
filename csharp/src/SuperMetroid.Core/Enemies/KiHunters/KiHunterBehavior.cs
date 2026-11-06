@@ -200,7 +200,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.Velocity.Y.RawValue))
         {
-            state.Velocity = state.Velocity.WithWholeY(WordWrap.Signed(-state.Velocity.Y.WholePixels));
+            state.Velocity = state.Velocity.WithWholeY(-state.Velocity.Y.WholePixels);
         }
         else if ((body.Position.Whole - state.UpperPatrol).Y < 0)
         {
@@ -216,7 +216,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.Velocity.X.RawValue))
         {
-            state.Velocity = state.Velocity.WithWholeX(WordWrap.Signed(-state.Velocity.X.WholePixels));
+            state.Velocity = state.Velocity.WithWholeX(-state.Velocity.X.WholePixels);
             SetKiHunterPairFacing(body, state.Velocity.X.WholePixels >= 0);
         }
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
@@ -379,7 +379,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         bool jumpLeft = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
             jumpLeft ? -2 : 2,
-            WordWrap.Signed((random & 1) - 8)));
+            (random & 1) - 8));
         InstallKiHunterInstruction(
             body,
             body.RequireSpeciesState<KiHunterEnemyState>(),
@@ -423,7 +423,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.Velocity.X.RawValue))
         {
-            state.Velocity = state.Velocity.WithWholeX(WordWrap.Signed(-state.Velocity.X.WholePixels));
+            state.Velocity = state.Velocity.WithWholeX(-state.Velocity.X.WholePixels);
             return;
         }
 
@@ -619,7 +619,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             int index = EightEight.WholeOf(state.DetachedSpeedReset);
             state.AccumulateDetachedSpeed(EnemyQuadraticSpeeds.Row(index).CoarseToward(EnemySpeedSign.Positive));
         }
-        while (WordWrap.Signed(state.DetachedSpeedAccumulator - KiHunterMotionDefinitions.DetachedSpeedThreshold) < 0);
+        while (WrappingCounter.IsBehind(state.DetachedSpeedAccumulator, KiHunterMotionDefinitions.DetachedSpeedThreshold));
     }
 
     /// <summary>Centers the detached wing's orbit at its current position with a negative quarter-turn seed.</summary>
@@ -647,7 +647,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The detached wing's orbit angle step: a quadratic row's coarse speed in the direction it turns.</summary>
     internal static int ReadKiHunterQuadraticAngleDelta(int speedIndex, EnemySpeedSign sign) =>
         // The orbit steps by the coarse speed, in 256ths of a pixel; stepping by the full speed changes the orbit.
-        WordWrap.Unsigned(EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign));
+        EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign);
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)
@@ -915,9 +915,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             kind,
             SpriteGraphics.SpawnedBy(body));
 
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingRight
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(movingRight
             ? KiHunterAcidHorizontalSpeed
-            : WordWrap.Unsigned(-KiHunterAcidHorizontalSpeed)));
+            : -KiHunterAcidHorizontalSpeed));
         projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + (movingRight ? 22 : -22));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
         projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - 16).WithFractionX(0).WithFractionY(0);
@@ -957,9 +957,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int accelerated = WordWrap.Unsigned(projectile.Velocity.Y.RawValue + KiHunterAcidGravity);
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(WordWrap.Signed(accelerated - KiHunterAcidTerminalYSpeed) >= 0
-            ? KiHunterAcidTerminalYSpeed
-            : accelerated));
+        SignedEightEight accelerated = SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + KiHunterAcidGravity);
+        projectile.Velocity = projectile.Velocity.WithY(accelerated.SignedRawValue >= KiHunterAcidTerminalYSpeed
+            ? new SignedEightEight(KiHunterAcidTerminalYSpeed)
+            : accelerated);
     }
 }

@@ -239,11 +239,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             ? EnemyTerrain.EnemyMeetsAttachmentBlockHorizontallyAhead(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.X.RawValue, 7))
+                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.X, 7))
             : EnemyTerrain.EnemyMeetsAttachmentBlockVerticallyAhead(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.Y.RawValue, 7));
+                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.Y, 7));
         if (!stillAttached)
             DropYard(slot, state);
     }
@@ -271,11 +271,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             ? _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.X.RawValue, 1))
+                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.X, 1))
             : _terrain.MoveEnemyVertically(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.Y.RawValue, 1));
+                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.Y, 1));
         slot.Position -= turn.Lookahead;
 
         if (!surfaceCollision)
@@ -552,13 +552,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Negates the whole and fraction words independently, as Yard's collision handlers do.</summary>
     private static SignedSixteenSixteen NegateWordsSeparately(SignedSixteenSixteen velocity) =>
-        SignedSixteenSixteen.FromParts(
-            WordWrap.Signed(CrawlersBehavior.Negate16(velocity.WholeWord)),
-            CrawlersBehavior.Negate16(velocity.Fraction));
+        velocity.NegatedWordsSeparately();
 
     /// <summary>Negates one raw 8.8 crawl word, wrapping at sixteen bits.</summary>
     private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>
-        new(CrawlersBehavior.Negate16(velocity.RawValue));
+        velocity.Negated();
 
     /// <summary>Runs Yard's custom touch entry.</summary>
     private void ResolveYardTouch(

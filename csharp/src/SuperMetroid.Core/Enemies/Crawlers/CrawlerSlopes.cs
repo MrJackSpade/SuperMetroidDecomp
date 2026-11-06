@@ -11,5 +11,5 @@ public static class CrawlerSlopes
             : throw new InvalidDataException($"Crawler slope shape {shape} exceeds the 32 slope shapes.");
 
     /// <summary>Converts signed 8.8 tangent speed into signed 16.16 displacement without truncating the product.</summary>
-    public static int Scale(int velocity, int shape) => WordWrap.Signed(velocity) * Multiplier(shape);
+    public static int Scale(SignedEightEight velocity, int shape) => velocity.SignedRawValue * Multiplier(shape);
 }

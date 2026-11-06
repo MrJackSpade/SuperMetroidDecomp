@@ -216,7 +216,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // “Backward” is the leftward branch selected when Samus is left of the actor. The
         // initial setup always writes +3, so only this branch negates the whole-pixel word.
         if (direction == HopperHopDirection.Backward)
-            state.XVelocity = WordWrap.Signed(-state.XVelocity);
+            state.XVelocity = -state.XVelocity;
 
         SetHopperProgram(slot, state, ReadHopperProgram(state, surface, HopperPhase.Jumping));
         state.Function = new HopperHop(surface, direction) switch
@@ -258,7 +258,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (movingAwayFromSurface)
             {
-                state.XVelocity = WordWrap.Signed(-state.XVelocity);
+                state.XVelocity = -state.XVelocity;
                 state.Falling = true;
             }
             else
@@ -272,7 +272,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         int horizontalDisplacement = SixteenSixteen.FromWhole(state.XVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            state.XVelocity = WordWrap.Signed(-state.XVelocity);
+            state.XVelocity = -state.XVelocity;
             if (movingAwayFromSurface)
             {
                 // Rising code treats a wall exactly like a ceiling/floor interruption and
@@ -315,7 +315,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
-            tableIndex = WordWrap.Unsigned(tableIndex + tableIndexDelta);
+            tableIndex = WrappingCounter.AddWord(tableIndex, tableIndexDelta);
 
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every
             // initial jump row.

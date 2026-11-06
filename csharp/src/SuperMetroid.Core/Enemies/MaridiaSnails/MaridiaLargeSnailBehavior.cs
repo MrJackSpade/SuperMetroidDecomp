@@ -308,7 +308,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // Temporarily extends the whole-pixel move sixteen pixels toward Samus,
             // performs collision, then retracts the center. Net velocity remains the table
             // speed while wall clipping naturally transfers the lost distance to Samus.
-            speed = speed.WithWholePixels(WordWrap.Signed(speed.WholePixels + (state.MovingLeft ? -16 : 16)));
+            speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft ? -16 : 16));
         }
 
         int displacement = speed.RawValue;
@@ -498,9 +498,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         int shove = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
-            ? WordWrap.Unsigned(-4)
+            ? -4
             : 4;
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(WordWrap.Signed(shove), 0);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(shove, 0);
     }
 
     /// <summary>

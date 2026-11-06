@@ -243,7 +243,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             ? target
             : target + new Offset16<RoomPixels>(0, direction == VerticalDirection.Up
                 ? GrowingShutterIntermediateInset
-                : WordWrap.Signed(-GrowingShutterIntermediateInset));
+                : -GrowingShutterIntermediateInset);
         slot.Position = slot.Position.WithWholeY(placed.Y);
         state.GrowthLevel += 1;
 

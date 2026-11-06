@@ -166,7 +166,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             int verticalOverlap = CoordinateAxis.Wrap(
                 kinematics.Radius.Y + verticalReach - verticalDistance);
-            if (WordWrap.Signed(verticalOverlap) < 0)
+            if (CoordinateAxis.AsSigned(verticalOverlap) < 0)
                 continue;
 
             int horizontalDistance;
@@ -202,7 +202,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FinishedEntryCount++;
         int random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(WordWrap.Unsigned(CorpseDustDefinitions.TorizoSpread.Of(random) + 272), 188),
+            new(CorpseDustDefinitions.TorizoSpread.Of(random) + 272, 188),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)

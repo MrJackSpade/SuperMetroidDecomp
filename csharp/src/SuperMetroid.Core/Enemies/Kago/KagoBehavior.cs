@@ -360,8 +360,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             jumpLeft = KagoDefinitions.LeftJump.IsSetIn(random);
         }
 
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(jumpLeft
-            ? WordWrap.Unsigned(-KagoBugHorizontalSpeed)
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(jumpLeft
+            ? -KagoBugHorizontalSpeed
             : KagoBugHorizontalSpeed));
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.KagoBugJump;

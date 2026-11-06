@@ -161,8 +161,8 @@ internal sealed class EnemyDeathsAndDrops
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
-                WordWrap.Unsigned((random & xMask) + xBase),
-                WordWrap.Unsigned((SharedRandomState.UpperByte(random) & yMask) + yBase)), definitionId);
+                CoordinateAxis.Wrap((random & xMask) + xBase),
+                CoordinateAxis.Wrap((SharedRandomState.UpperByte(random) & yMask) + yBase)), definitionId);
         }
     }
 
@@ -308,8 +308,7 @@ internal sealed class EnemyDeathsAndDrops
 
         int majorAdjustedBudget = byte.MaxValue;
         int accumulated = 0;
-        int combinedEnergy = WordWrap.Unsigned(
-            samus.Health + samus.ReserveEnergy);
+        int combinedEnergy = samus.Health + samus.ReserveEnergy;
         if (combinedEnergy < 30)
             _room.Session.CriticalEnergyDropBias = true;
         else if (combinedEnergy >= 50)
@@ -321,7 +320,7 @@ internal sealed class EnemyDeathsAndDrops
         int enabledMask;
         if (_room.Session.CriticalEnergyDropBias)
         {
-            pooledMinorWeight = WordWrap.LowByte(table.SmallEnergy + table.BigEnergy);
+            pooledMinorWeight = WithinWeightPool(table.SmallEnergy + table.BigEnergy);
             enabledMask = EnemyDropMasks.Energy;
         }
         else
@@ -331,24 +330,24 @@ internal sealed class EnemyDeathsAndDrops
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
-                pooledMinorWeight = WordWrap.LowByte(
+                pooledMinorWeight = WithinWeightPool(
                     pooledMinorWeight + table.SmallEnergy + table.BigEnergy);
                 enabledMask |= EnemyDropMasks.Energy;
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
-                pooledMinorWeight = WordWrap.LowByte(pooledMinorWeight + table.Missile);
+                pooledMinorWeight = WithinWeightPool(pooledMinorWeight + table.Missile);
                 enabledMask |= EnemyDropMasks.Missile;
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
-                majorAdjustedBudget = WordWrap.LowByte(
+                majorAdjustedBudget = WithinWeightPool(
                     majorAdjustedBudget - table.SuperMissile);
                 enabledMask |= EnemyDropMasks.SuperMissile;
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
-                majorAdjustedBudget = WordWrap.LowByte(
+                majorAdjustedBudget = WithinWeightPool(
                     majorAdjustedBudget - table.PowerBomb);
                 enabledMask |= EnemyDropMasks.PowerBomb;
             }
@@ -546,7 +545,17 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Measures the absolute distance between 16-bit coordinates.</summary>
     private static int AbsoluteWrappedDelta(int left, int right) =>
-        Math.Abs(WordWrap.Signed(left - right));
+        CoordinateAxis.Distance(left, right);
+
+    /// <summary>The span of the drop-weight pool: every chance is out of 255.</summary>
+    private const int WeightPoolSpan = 256;
+
+    /// <summary>
+    /// A pooled drop weight or remaining budget within the 256-unit pool: a pool summed past 255, or a budget taken below
+    /// zero, continues from the other end, as it does for a table whose chances do not sum to 255.
+    /// </summary>
+    /// <param name="weight">The computed weight, which may lie outside the pool.</param>
+    private static int WithinWeightPool(int weight) => (weight % WeightPoolSpan + WeightPoolSpan) % WeightPoolSpan;
 
     /// <summary>
     /// Runs the respawn cue for the respawning enemy a death actor retains.

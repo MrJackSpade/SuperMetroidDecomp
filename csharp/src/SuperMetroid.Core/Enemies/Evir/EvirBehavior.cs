@@ -86,13 +86,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SetEvirBodyFacing(slot, state, samus);
 
-            // The body's row in the shared linear-speed table: its positive half is the downward velocity and its
-            // negative half the upward one.
-            int speedRecord = slot.SpawnSettings<EvirSpawnSettings>().SpeedIndex;
-            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedRecord);
-            state.DownVelocity = speeds.Positive;
-            state.UpVelocity = speeds.Negative;
-            state.MovementTimer = ReadFirstHalfCycle(speedRecord);
+            // The body bobs down at its speed and up at the same speed.
+            SignedSixteenSixteen speed = slot.SpawnSettings<EvirSpawnSettings>().Speed;
+            state.DownVelocity = speed;
+            state.UpVelocity = SignedSixteenSixteen.Zero - speed;
+            state.MovementTimer = ReadFirstHalfCycle(speed);
         }
 
         state.MovingDown = false;
@@ -102,17 +100,17 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The body's first bobbing half-cycle. Instead of half its own direction-change period, the body takes half the
-    /// upper eight bits of another enemy's value, fixed by its speed record
+    /// upper eight bits of another enemy's value, fixed by its bobbing speed
     /// (<see cref="EvirInitDefinitions.FirstHalfCycleSources"/>). The enemy is read as it stands while the population
     /// loads: for the second Evir of either retail room the third enemy is the first Evir's spit, already carrying its
     /// body's palette, so the first half-cycle is not zero. Read that way, a palette field yields the enemy's palette
     /// row itself: the game keeps the row shifted nine bits up, so half its upper eight bits is the row.
     /// </summary>
-    private WrappingCountdown ReadFirstHalfCycle(int speedRecord)
+    private WrappingCountdown ReadFirstHalfCycle(SignedSixteenSixteen speed)
     {
         foreach (EvirFirstHalfCycleSource source in EvirInitDefinitions.FirstHalfCycleSources)
         {
-            if (source.SpeedRecord != speedRecord)
+            if (source.Speed != speed)
                 continue;
             RoomEnemySlot enemy = _slotTable.Slots[source.SlotIndex];
             return WrappingCountdown.Start(source.Field switch
@@ -133,7 +131,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             });
         }
         throw new InvalidDataException(
-            $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
+            $"An Evir bobbing at {speed.RawValue} takes its first half-cycle from a value no retail Evir reads.");
     }
 
     /// <summary>Initializes the Evir Projectile.</summary>

@@ -15,16 +15,12 @@ public sealed class MultiviolaEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The flight heading as the game's byte-angle word (parameter one), reflected by exclusive-or at each wall or
-    /// floor; its velocity is rebuilt from it every update.
+    /// The flight heading, from its spawn settings, reflected by exclusive-or at each wall or floor; its velocity is
+    /// rebuilt from it every update.
     /// </summary>
-    public int Heading
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public ByteAngle Heading { get; internal set; }
 
-    /// <summary>The flight speed, parameter two's low byte, multiplied with the heading's sine and cosine.</summary>
+    /// <summary>The flight speed, from its spawn settings, multiplied with the heading's sine and cosine.</summary>
     public int Speed
     {
         get;
@@ -35,7 +31,7 @@ public sealed class MultiviolaEnemyState
     internal void ClearWithRecord()
     {
         Velocity = FixedVector<RoomPixels>.Zero;
-        Heading = 0;
+        Heading = default;
         Speed = 0;
     }
 }

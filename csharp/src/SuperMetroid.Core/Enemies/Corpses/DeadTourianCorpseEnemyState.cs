@@ -27,7 +27,7 @@ public sealed class DeadTourianCorpseEnemyState
     public DeadTourianCorpseFunction? Function { get; internal set; }
     /// <summary>Corpse family selected by the enemy header, determining callbacks and the tiled artwork layout.</summary>
     public DeadTourianCorpseSpecies Species { get; }
-    /// <summary>Zero-based variant within the species, obtained by dividing the even parameter-1 table-byte offset by two; Rippers allow 0–1, Zoomers and Skrees 0–2.</summary>
+    /// <summary>Zero-based variant within the species, the variant of its rotting kind; Rippers have 0–1, Zoomers and Skrees 0–2.</summary>
     public int VariantIndex { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotSchedule Rot { get; }

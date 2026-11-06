@@ -471,7 +471,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             : CrawlerSurfaceOrientation.UpsideRight;
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing block side for its downward probe and horizontal sign.
-        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocities(state.BlockSide, state.CrawlingSpeedIndex, state.CrawlingVelocity);
+        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocities(
+            state.BlockSide, new SignedEightEight(CrawlerSpeeds.ForParameter(state.CrawlingSpeedIndex)), state.CrawlingVelocity);
         slot.Frame = EnemyFrameId.Empty;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??

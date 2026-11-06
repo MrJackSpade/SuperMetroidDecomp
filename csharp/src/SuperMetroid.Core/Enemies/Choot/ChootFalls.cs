@@ -5,13 +5,12 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// <summary>Where a falling Choot is: its pattern, and the sample of its path at each fall frame.</summary>
 internal static class ChootFalls
 {
-    /// <summary>The falling pattern population pattern index <paramref name="patternIndex"/> selects.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="patternIndex"/> selects none of the five streams.</exception>
-    internal static ChootPatternDefinition ForIndex(int patternIndex) =>
-        (uint)patternIndex < (uint)ChootPatternDefinitions.Patterns.Length
-            ? ChootPatternDefinitions.Patterns[patternIndex]
-            : throw new InvalidDataException(
-                $"Choot falling-pattern index {patternIndex} exceeds its five real streams.");
+    /// <summary>How far, in pixels, the loop origin of <paramref name="fallingPath"/> advances per loop.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
+    internal static int LoopYDistance(ChootFallingPath fallingPath) =>
+        ChootPatternDefinitions.LoopYDistances.TryGetValue(fallingPath, out int distance)
+            ? distance
+            : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
 
     /// <summary>Returns the exact physical sample of one falling path at one frame.</summary>
     internal static ChootFallingPathPoint At(ChootFallingPath fallingPath, int frameIndex)

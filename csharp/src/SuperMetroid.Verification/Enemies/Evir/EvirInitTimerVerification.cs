@@ -28,7 +28,8 @@ internal static class EvirInitTimerVerification
         {
             if (slot.DefinitionId != EnemyDefinitionId.Evir || slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
                 continue;
-            int speedOffset = slot.SpawnSettings<EvirSpawnSettings>().SpeedIndex * 8;
+            // The game stores the body's speed eight bytes per linear-speed row, at the row its settings encode.
+            int speedOffset = (SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(slot.Spawn.Population.SpawnSettings).Parameter2 & 0xff) * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;
             RoomEnemySlot aliased = runtime.Enemies.SlotTable.Slots[relative / 0x40];
             int byteOffset = relative % 0x40;

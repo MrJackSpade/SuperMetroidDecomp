@@ -59,14 +59,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // instead, and a Viola's entry names no surface.
         CrawlerSurfaceOrientation orientation;
         CrawlerSurfaceOrientation blockSide;
-        int speedIndex;
+        SignedEightEight? crawlSpeed;
         CrawlerAnimationFamily surfaceFamily;
         if (animationFamily == CrawlerAnimationFamily.Viola)
         {
             ViolaSpawnSettings viola = slot.SpawnSettings<ViolaSpawnSettings>();
             orientation = viola.BlockSide;
             blockSide = viola.BlockSide;
-            speedIndex = viola.SpeedIndex;
+            crawlSpeed = viola.CrawlSpeed;
             surfaceFamily = viola.SurfaceFamily;
         }
         else
@@ -74,13 +74,13 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
             orientation = settings.Orientation;
             blockSide = settings.BlockSide;
-            speedIndex = settings.SpeedIndex;
+            crawlSpeed = settings.CrawlSpeed;
             surfaceFamily = settings.SurfaceFamily;
         }
 
         var state = new CrawlerEnemyState
         {
-            SpeedParameter = speedIndex,
+            TakesDefaultSpeedOnLanding = crawlSpeed is null,
             SurfaceFamily = speciesSurfaceFamily ?? surfaceFamily,
         };
         Bind(slot, state);
@@ -91,27 +91,19 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
-        state.Velocity = ResetCrawlerVelocities(blockSide, state.SpeedParameter, state.Velocity);
+        state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
     }
 
     /// <summary>Shared crawler velocity reset, also called by Yard after landing.</summary>
     /// <param name="blockSide">The side of its block the crawler holds, which signs the velocity.</param>
-    /// <param name="speedParameter">The crawl speed selector: a speed-table index or the preserve-velocity selector.</param>
-    /// <param name="velocity">The velocity kept when the selector preserves it.</param>
-    /// <returns>The reset velocity: <paramref name="velocity"/> or the parameter's speed on both axes, signed by the block side.</returns>
+    /// <param name="crawlSpeed">The crawl speed on both axes, or none to keep <paramref name="velocity"/>.</param>
+    /// <param name="velocity">The velocity kept when there is no crawl speed.</param>
+    /// <returns>The reset velocity: <paramref name="velocity"/> or the crawl speed on both axes, signed by the block side.</returns>
     internal static EightEightVector<RoomPixels> ResetCrawlerVelocities(
-        CrawlerSurfaceOrientation blockSide, int speedParameter, EightEightVector<RoomPixels> velocity)
+        CrawlerSurfaceOrientation blockSide, SignedEightEight? crawlSpeed, EightEightVector<RoomPixels> velocity)
     {
-        if (speedParameter != CrawlerSpeedDefinitions.PreserveVelocity)
-        {
-            if (speedParameter >= CrawlerSpeedDefinitions.Count)
-            {
-                throw new InvalidDataException(
-                    $"Crawler speed parameter {speedParameter} exceeds the authored speed table.");
-            }
-            int speed = CrawlerSpeeds.ForParameter(Ensure.BetweenInclusive(0, ushort.MaxValue, speedParameter));
-            velocity = new(new SignedEightEight(speed), new SignedEightEight(speed));
-        }
+        if (crawlSpeed is SignedEightEight speed)
+            velocity = new(speed, speed);
 
         return SignedForBlockSide(blockSide, velocity);
     }
@@ -130,17 +122,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeHZoomer(RoomEnemySlot slot)
     {
         CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
-        int speedParameter = settings.SpeedIndex;
-        if (speedParameter >= CrawlerSpeedDefinitions.Count)
-        {
-            throw new InvalidDataException(
-                $"HZoomer speed parameter {speedParameter} exceeds the authored speed table.");
-        }
+        SignedEightEight crawlSpeed = settings.CrawlSpeed ??
+            throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its initializer has no speed for.");
 
         var state = new CrawlerEnemyState
         {
             Function = CrawlerEnemyFunction.HZoomerInstructionPending,
-            SpeedParameter = speedParameter,
             SurfaceFamily = settings.SurfaceFamily,
         };
         Bind(slot, state);
@@ -149,9 +136,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
-        int velocity = CrawlerSpeeds.ForParameter(Ensure.BetweenInclusive(0, ushort.MaxValue, speedParameter));
-        state.Velocity = new(new SignedEightEight(velocity), new SignedEightEight(velocity));
-        state.Velocity = SignedForBlockSide(settings.BlockSide, state.Velocity);
+        state.Velocity = SignedForBlockSide(settings.BlockSide, new EightEightVector<RoomPixels>(crawlSpeed, crawlSpeed));
     }
 
     /// <summary>
@@ -421,8 +406,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         int displacement = state.FallingYVelocity.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
-            // Parameter 255 is the game's "choose default speed after first landing" path.
-            if (state.SpeedParameter == 255)
+            // A crawler placed without a crawl speed takes the default speed after its first landing.
+            if (state.TakesDefaultSpeedOnLanding)
             {
                 state.Velocity = new EightEightVector<RoomPixels>(128, 128);
             }

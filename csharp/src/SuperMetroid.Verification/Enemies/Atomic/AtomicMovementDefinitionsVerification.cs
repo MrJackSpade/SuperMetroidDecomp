@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Atomic.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Enemies.Atomic;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -17,12 +18,16 @@ internal static class AtomicMovementDefinitionsVerification
     {
         for (ushort selector = 0; selector < 4; selector++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | ((ushort)(0xe380 + 2 * selector))),
-                NativeEnemyProgramOracle.EntryOf(AtomicNativeListAddresses.Entries, AtomicSpins.InitialProgram(selector)),
+                NativeEnemyProgramOracle.EntryOf(AtomicNativeListAddresses.Entries, DecodedSpin(selector)),
                 "Atomic native direction program");
         foreach (ushort selector in new ushort[] { 4, 5, 0x7fff, 0xffff })
-            AssertThrows<InvalidDataException>(() => AtomicSpins.InitialProgram(selector),
+            AssertThrows<InvalidDataException>(() => DecodedSpin(selector),
                 "Atomic invalid direction selector");
     }
+
+    /// <summary>The spinning animation the import decodes from a first parameter word.</summary>
+    private static AtomicProgram DecodedSpin(int parameter1) =>
+        ((AtomicSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Atomic, PopulationWords.Parameters(parameter1, 0))).Spin;
 
     /// <summary>Runs the initializers and all four spinning loops with the selector table forbidden, checking native speeds.</summary>
     internal static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
@@ -40,11 +45,11 @@ internal static class AtomicMovementDefinitionsVerification
             slot.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
             AtomicBehavior.InitializeAtomic(slot);
             AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
-            AtomicProgram program = AtomicSpins.InitialProgram(selector);
+            AtomicProgram program = DecodedSpin(selector);
             AssertEqual(AnimationProgramCursor<AtomicProgram>.Start(program), state.Program,
                 $"Atomic initializer animation {selector}");
 
-            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<AtomicSpawnSettings>().SpeedIndex);
+            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(selector * 7);
             AssertEqual(speeds.Positive, state.Speed, $"Atomic positive speed {selector}");
             AssertEqual(speeds.Negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 

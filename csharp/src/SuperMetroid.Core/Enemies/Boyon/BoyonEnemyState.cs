@@ -11,18 +11,17 @@ public sealed class BoyonEnemyState
     internal AnimationProgramCursor<BoyonProgram> Program { get; set; }
 
     /// <summary>
-    /// The speed multiplier selected by parameter one's low byte, 1 through 20 from the spawn table; only its low byte
-    /// reaches the multiply.
+    /// The multiplier its bounce curve is scaled by, from its spawn settings; a kill empties it to zero. The multiply
+    /// takes it whole, so a multiplier the multiply could not hold, above 255, is rejected.
     /// </summary>
     public int SpeedMultiplier
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>
-    /// The latest product of the curve sample and the multiplier's low byte, in 256ths of a pixel per update (0 through
-    /// 65025).
+    /// The latest product of the curve sample and the multiplier, in 256ths of a pixel per update (0 through 65025).
     /// </summary>
     public int Speed
     {
@@ -31,8 +30,8 @@ public sealed class BoyonEnemyState
     }
 
     /// <summary>
-    /// The arc's target height in 256ths of a pixel, 12288 through 45056 from the spawn table. It is compared with <see
-    /// cref="DistanceAccumulator"/> by the sign of their word difference (<see cref="HasReachedJumpHeight"/>), so
+    /// The arc's target height in 256ths of a pixel, 12288 through 45056 from its spawn settings. It is compared with
+    /// <see cref="DistanceAccumulator"/> by the sign of their word difference (<see cref="HasReachedJumpHeight"/>), so
     /// heights of 32769 and above behave as the game's do.
     /// </summary>
     public int JumpHeight

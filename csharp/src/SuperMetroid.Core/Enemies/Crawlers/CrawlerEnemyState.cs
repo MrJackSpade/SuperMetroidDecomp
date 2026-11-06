@@ -28,19 +28,15 @@ public sealed class CrawlerEnemyState
     {
         Velocity = default;
         Function = null;
-        SpeedParameter = 0;
+        TakesDefaultSpeedOnLanding = false;
         SurfaceFamily = CrawlerAnimationFamily.Shared;
     }
 
     /// <summary>
-    /// The authored crawl speed, parameter one: an index into the speed table, the preserve-velocity selector, or 255
-    /// for the default speed after the first landing.
+    /// Whether the crawler was placed without a crawl speed, so it keeps its velocity until its first landing and takes
+    /// the default speed then. A kill empties it.
     /// </summary>
-    public int SpeedParameter
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public bool TakesDefaultSpeedOnLanding { get; internal set; }
 
     /// <summary>
     /// The family whose animations the crawler switches between when it turns a corner: the species' own, or the one

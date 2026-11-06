@@ -70,12 +70,13 @@ internal static class TorizoPaletteShakeVerification
         Execute(TorizoCueKind.FadeToNormalColors);
         Execute(TorizoCueKind.AdvancePaletteFade);
         Execute(TorizoCueKind.AdvancePaletteFade);
-        // Save mid-fade: the fade's start, target and step must survive, not restart.
+        // Save mid-fade: the fade's start, target and step must survive, not restart. They are the statue's colours, which
+        // are saved on their own: the whole statue state reaches the enemy system's graph through its body slot.
         using var saved = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, state);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, state.Colours);
         saved.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
-        AssertEqual(state.Colours.Shading, restored.Colours.Shading, "Mid-fade save preserves the fade's step");
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoColours>(saved);
+        AssertEqual(state.Colours.Shading, restored.Shading, "Mid-fade save preserves the fade's step");
 
         // A hurt colouring written mid-fade restarts the fade from it at the counter value it stands at (#1512).
         state.Colours.Show(new TorizoLook(TorizoLookKind.White));
@@ -147,7 +148,7 @@ internal static class TorizoPaletteShakeVerification
     /// </summary>
     private static void VerifyTorizoSheetRows()
     {
-        EnemySheetInputs inputs = EnemySheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.ContentDirectory);
+        EnemySheetInputs inputs = EnemySheetFixtures.Inputs;
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.BombTorizo));
         EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.Single(sheet => sheet.Enemy == EnemyDefinitionId.BombTorizo);

@@ -1095,11 +1095,14 @@ internal static class LookupStream1Verification
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
             var expected = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose))))));
-            OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
-                new ChargeFlareArtwork { Placement = stock, Objects = flareObjects }));
-            AssertTrue(expected.ImageEquals(actual), "Actual flare OAM matches independently positioned native sprite");
-            AssertEqual(expected.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Native flare OAM admission");
+            // The flare's picture may be laid out once for several projectile sheet frames whose pictures are identical
+            // (#1513), so the draw is matched against each composition that picture stands for.
+            Action<SpriteFrameBuffer> drawFlare = frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
+                new ChargeFlareArtwork { Placement = stock, Objects = flareObjects });
+            OamBuffer actual = SpriteFrameBuffer.DrawnOam(drawFlare);
             AssertTrue(actual.LastFinalizedSpriteCount > 0, "Focused flare placement fixture emits its native sprite");
+            AssertTrue(SpriteFrameBufferAccess.DrawnStandsFor(drawFlare, expected),
+                $"Actual flare draw stands for the independently positioned native sprite, {pose}: {expected.FirstDifference(actual)}");
         }
         Console.WriteLine("Beam/Grapple flare origins:128 direct native words, zero stock overrides, bounded aliases and four actual OAM fixtures pass.");
     }

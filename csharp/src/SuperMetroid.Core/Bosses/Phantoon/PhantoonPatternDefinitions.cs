@@ -25,7 +25,7 @@ public static class PhantoonPatternDefinitions
 
     /// <summary>
     /// The shot reaction
-    /// indexes these eight bytes with RNG &amp; 7 and writes the selected marker to eye variable B.
+    /// indexes these eight markers with RNG &amp; 7 and writes the selected marker to eye variable B.
     /// </summary>
     /// <remarks>
     /// Issue1165 narrow nonsense exception: these are arbitrary random-bucket assignments,
@@ -35,7 +35,7 @@ public static class PhantoonPatternDefinitions
     /// changes exact RNG-to-state behavior. Boolean cases would merely recite the same bucket
     /// choices. Retain only this mapping and preserve the existing RNG call/state write.
     /// </remarks>
-    public static ReadOnlySpan<byte> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
+    public static ReadOnlySpan<int> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
     /// <summary>
     /// The eye program of each relative-octant selector 0..8. The unused code 5 retains the

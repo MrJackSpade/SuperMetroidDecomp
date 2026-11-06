@@ -137,7 +137,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         static EnemyTileArtworkNorfairRidleyColorsCreateResult Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+            var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);

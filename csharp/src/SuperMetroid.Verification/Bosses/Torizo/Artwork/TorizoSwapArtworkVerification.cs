@@ -24,7 +24,7 @@ internal static class TorizoSwapArtworkVerification
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
         AssertTrue(stock.Bosses.TorizoSwaps is not null,
             "installed Torizo instruction tile pages exist");
-        var installedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var installedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
         installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition));
@@ -92,7 +92,7 @@ internal static class TorizoSwapArtworkVerification
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> stockBytes),
             "stock Golden Torizo upload remains addressable");
-        var goldenEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var goldenEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         RoomEnemySlot goldenSlot = goldenEnemies.SlotTable.Slots[0];
         goldenSlot.Bind(EnemyDefinitionId.GoldenTorizo, goldenSlot.Definition);
         goldenSlot.Bind(goldenSlot.DefinitionId, installedSlot.Definition);

@@ -35,7 +35,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));
         Suite(nameof(VerifyBeetomDistantDirectionMapping), () => VerifyBeetomDistantDirectionMapping());
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
@@ -91,7 +91,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     private static CreateBeetomDistantSelectionFixtureResult
         CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = nextRandom;
         Action<RoomEnemySlot, SamusState, ControllerButton> initialize = enemies.BeetomBehavior.InitializeBeetom;

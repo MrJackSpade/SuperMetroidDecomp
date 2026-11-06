@@ -94,7 +94,7 @@ internal static class CorpseRotDrawingVerification
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.CorpseTorizo);
         byte[] loaded = Loaded(set, []);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount));
         string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStationary);
         string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.HookFrame);

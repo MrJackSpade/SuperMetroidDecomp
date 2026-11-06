@@ -202,7 +202,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         CreatePairResult CreatePair()
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initializeBody = KiHunterBehavior.InitializeKiHunter;
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 

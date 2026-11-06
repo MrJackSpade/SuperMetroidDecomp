@@ -11,7 +11,7 @@ internal static class FirefleaMovementDefinitionsVerification
     {
         const ushort radiusTable = 0x8d1d;
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = FirefleaBehavior.InitializeFireflea;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);

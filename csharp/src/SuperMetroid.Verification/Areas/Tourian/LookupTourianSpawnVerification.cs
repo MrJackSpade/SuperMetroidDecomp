@@ -34,7 +34,7 @@ internal static class LookupTourianSpawnVerification
         // Outside the statue room the sequence starts disabled with no objects; the spawn routine is then called alone.
         var sequence = new TourianStatueSequence(RepositoryInstallation.CreateRuntime().TourianStatueDependencies,
             new RoomFxOverlayState(new RoomFxSession()), new RoomPaletteFxSystem(new PaletteFxSessionState()), PlmFixtures.Unbound(),
-            new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())));
+            new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()));
         sequence.SpawnAnimatedObjects();
         var objects = sequence.objects;
         AssertEqual(expected.Count, objects.Count, "Production spawn count");

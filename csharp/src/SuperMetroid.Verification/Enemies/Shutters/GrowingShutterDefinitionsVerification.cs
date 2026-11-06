@@ -22,7 +22,7 @@ internal static class GrowingShutterDefinitionsVerification
         Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot> initialize = ShuttersBehavior.InitializeGrowingShutter;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.ShutterGrowing, slot.Definition);

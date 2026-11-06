@@ -30,7 +30,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             for (ushort animationIndex = 0; animationIndex < 16; animationIndex++)
             {
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
                 enemies.VerificationServices().NextRandom = () => random.Dequeue();
                 // The glass breaks while her encounter is loaded; its shards draw in the colours it laid (#1512).
                 var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);

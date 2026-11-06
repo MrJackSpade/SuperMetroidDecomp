@@ -53,7 +53,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         foreach ((CrawlerAnimationFamily family, _, CrawlerAnimationFamily? speciesSurfaceFamily) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
@@ -89,7 +89,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceInstruction;
         foreach (CrawlerAnimationFamily surfaceFamily in new[] { CrawlerAnimationFamily.Shared, CrawlerAnimationFamily.Viola, CrawlerAnimationFamily.Sciser, CrawlerAnimationFamily.Zero })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             var state = new CrawlerEnemyState { SurfaceFamily = surfaceFamily };
 

@@ -21,7 +21,7 @@ internal static class DragonFireballBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DragonFireballNativeListAddresses.Extent, "Dragon-fireball");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);

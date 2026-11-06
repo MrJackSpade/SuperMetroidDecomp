@@ -13,7 +13,7 @@ internal static class WreckedShipGhostBehaviorVerification
     /// <summary>The real initializer starts the floating loop, which shows its three poses sixteen updates apiece.</summary>
     internal static void VerifyWreckedShipGhostBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
         ghost.Bind(ghost.DefinitionId, default(RoomEnemyDefinition));

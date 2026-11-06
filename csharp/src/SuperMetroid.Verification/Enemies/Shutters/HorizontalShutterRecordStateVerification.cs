@@ -13,7 +13,7 @@ internal static class HorizontalShutterRecordStateVerification
     /// </summary>
     internal static void VerifyHorizontalShutterRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new HorizontalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

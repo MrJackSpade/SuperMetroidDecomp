@@ -54,7 +54,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
         foreach (PlatformProgramCase testCase in cases)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.Kamer2

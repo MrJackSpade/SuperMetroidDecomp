@@ -23,7 +23,7 @@ internal static class CrocomireCutsceneVerification
     /// <summary>Compares all 33 skeleton frames' hitboxes and callbacks with the cartridge, including the empty E6BC frame.</summary>
     internal static void VerifyCrocomireCorpseCollision()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -95,7 +95,7 @@ internal static class CrocomireCutsceneVerification
         byte[] storage = ReadNativeCrocomireRoomScrolls(rom);
         var scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null))
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null))
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) },
         };

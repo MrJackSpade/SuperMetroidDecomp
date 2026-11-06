@@ -592,13 +592,15 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// clear, without loading a population or binding memory, graphics, random-number, or gameplay services.
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
+    /// <param name="compatibility">The room's own compatibility services, created with the system by its builder.</param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The original game-state services the room's AI calls, or null when none is supplied.</param>
     /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
-    internal RoomEnemySystem(EnemySession session,
+    internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossArtworkBinding? bossArtwork = null)
     {
+        Ensure.NotNull(compatibility);
         BossArtworkBinding = bossArtwork ?? new();
         Room = new EnemyRoomBinding(session, definitions, services);
         // Shared collaborators first: every species owner receives the ones it uses.
@@ -625,9 +627,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         DeadMonsters = new DeadMonsterFrame(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Presentation, Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room, SlotTable);
-        var powerBombRadius = new PowerBombRadiusAfterKill();
-        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch, powerBombRadius, Audio);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = powerBombRadius });
+        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch, compatibility.PowerBombRadius, Audio);
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
@@ -710,7 +711,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter });
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);
-        BullBehavior = new BullBehavior(new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity));
+        BullBehavior = new BullBehavior(compatibility.BullInheritance);
         BoyonBehavior = new BoyonBehavior(Audio);
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles, Audio);
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
@@ -718,8 +719,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(SlotTable, ElevatorBehavior);
-        BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision,
-            new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity));
+        BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles, Audio);
         // Every species with room or frame lifecycle state, in the original game reset order.

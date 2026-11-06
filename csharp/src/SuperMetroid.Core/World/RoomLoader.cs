@@ -5,6 +5,8 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Beetom;
+using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
@@ -994,7 +996,15 @@ internal sealed class RoomLoader
 
         // The destination's enemies load with the door-transition gates clear; their projectile places start from what
         // the outgoing room's left (RoomHandOver).
-        var enemies = new RoomEnemySystem(_enemySession, CompiledRoomEnemyDefinitions.Instance, areaServices,
+        // Each enemy system gets its own compatibility services: the sweep and the slots start with no earlier kill or
+        // occupant.
+        var compatibility = new RoomEnemyCompatibility
+        {
+            PowerBombRadius = new PowerBombRadiusAfterKill(),
+            BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
+            BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
+        };
+        var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
             _bossArtwork);
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;

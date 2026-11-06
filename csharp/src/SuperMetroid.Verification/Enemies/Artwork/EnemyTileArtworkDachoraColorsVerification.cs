@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
                 or (>= DachoraColorSources.ShinePointerTable and
                     < DachoraColorSources.ShinePointerTable + (DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort))),
             address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         Type type = typeof(RoomEnemySystem);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(96, 96));

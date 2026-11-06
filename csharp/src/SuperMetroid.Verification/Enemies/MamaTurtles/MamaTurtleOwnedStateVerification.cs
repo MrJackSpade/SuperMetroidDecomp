@@ -39,7 +39,7 @@ internal static class MamaTurtleOwnedStateVerification
         AssertEqual(null, state.Function, "a kill empties the function");
 
         // Her fall and contact box read the first slot's values, so a Mama anywhere else is refused (#1500).
-        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot misplaced = enemies.SlotTable.Slots[1];
         misplaced.Bind(EnemyDefinitionId.MamaTurtle, misplaced.Definition);
         AssertThrows<InvalidDataException>(() => MamaTurtleBehavior.InitializeMamaTurtle(misplaced),

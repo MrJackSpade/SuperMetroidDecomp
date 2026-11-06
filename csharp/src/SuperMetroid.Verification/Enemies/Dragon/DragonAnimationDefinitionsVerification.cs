@@ -88,7 +88,7 @@ internal static class DragonAnimationDefinitionsVerification
     private static void VerifyLiveDragonAnimationHandoffs(
         bool facingLeft)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);

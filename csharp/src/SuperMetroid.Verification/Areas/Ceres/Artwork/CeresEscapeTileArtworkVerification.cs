@@ -42,7 +42,7 @@ internal static class CeresEscapeTileArtworkVerification
             writable: false);
         EscapeTimerCharacters timer = EscapeTimerCharacters.Read(timerPng);
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies,
             
@@ -91,7 +91,7 @@ internal static class CeresEscapeTileArtworkVerification
         AssertTrue(stockArt.TryResolve(0, 0,
                 0x0200, out ReadOnlyMemory<byte> stockChunk),
             "Ceres warning transfer resolves in stock artwork");
-        var warningEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var warningEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies,
         };

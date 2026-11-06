@@ -19,7 +19,7 @@ internal static class PowampBehaviorVerification
     /// </summary>
     internal static void VerifyPowampBehavior(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));

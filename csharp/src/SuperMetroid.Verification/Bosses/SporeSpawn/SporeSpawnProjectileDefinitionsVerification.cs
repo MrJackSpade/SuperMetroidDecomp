@@ -31,7 +31,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 delta.Y, $"Spore Spawn movement Y {offset:X2}");
         }
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, ushort> spawnStalk = (stalkBody, stalkArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, stalkArgument);
         Action<RoomEnemySlot, ushort> spawnSpawner = (spawnerBody, spawnerArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, spawnerArgument);
         Action<RoomEnemyProjectileSlot> move = SporeSpawnBehavior.RunSporeSpawnSporeFrameBehavior;

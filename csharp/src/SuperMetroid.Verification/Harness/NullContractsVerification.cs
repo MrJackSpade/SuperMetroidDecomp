@@ -62,7 +62,7 @@ internal static class NullContractsVerification
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");
         var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
         AssertThrows<InvalidOperationException>(() => _ = phantoon.Eye, "Phantoon's eye requires part initialization");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         AssertThrows<InvalidOperationException>(() => _ = game.Session.GameplayRuntime, "the frontend has no gameplay runtime before a game loads");
         Console.WriteLine("#623 null contracts: JSON, node, reflection and lifecycle wrappers return present values and fail with context when absent.");

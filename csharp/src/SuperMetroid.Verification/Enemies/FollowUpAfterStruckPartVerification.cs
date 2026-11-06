@@ -16,7 +16,7 @@ internal static class FollowUpAfterStruckPartVerification
     /// </summary>
     internal static void VerifyFollowUpAfterStruckPart()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         IReadOnlyList<RoomEnemySlot> slots = enemies.SlotTable.Slots;
         AssertEqual(EnemySlotOrder.Capacity, slots.Count, "the room has every enemy slot");
 

@@ -100,7 +100,7 @@ internal static class FamilyTrigonometryVerification
         ParallelSweep.For(0, origins.Length * AngleBlocks, block =>
         {
             uint initial = origins[block / AngleBlocks];
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var previous = enemies.SlotTable.Slots[0];
             var segment = enemies.SlotTable.Slots[1];
             previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);

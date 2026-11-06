@@ -14,7 +14,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     /// <summary>Checks every phase and timer with the migrated velocity tables forbidden to production reads.</summary>
     internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 0, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.InitiallyAlive.RowCount));

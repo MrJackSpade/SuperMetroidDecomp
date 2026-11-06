@@ -25,7 +25,7 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyProductionInterpreter), () => VerifyProductionInterpreter(rom));
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
-        var unstarted = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
+        var unstarted = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         Func<RoomEnemySlot, KraidEnemyState, KraidHeadProgramResult> run = unstarted.KraidBehavior.Head.ExecuteKraidHeadInstruction;
         AssertThrows<InvalidDataException>(() => run(unstarted.SlotTable.Slots[0], new KraidEnemyState()),
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
@@ -41,7 +41,7 @@ internal static class KraidHeadInstructionsVerification
         foreach (KraidHeadNativeRecord record in native.Records)
         {
             var guard = new KraidHeadProgramReadGuard(rom);
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Func<RoomEnemySlot, KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -83,7 +83,7 @@ internal static class KraidHeadInstructionsVerification
     /// <summary>Checks roar, glow, death, and all 16-bit growth-resume timer inputs against native selection.</summary>
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);

@@ -22,7 +22,7 @@ internal static class KraidNailContourVerification
         {
             BossOverreads = InstalledFixtures.BossAndIntroOverreads,
         };
-        var enemies = new RoomEnemySystem(session, definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         Func<RoomEnemySlot, bool> reflect = enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail;

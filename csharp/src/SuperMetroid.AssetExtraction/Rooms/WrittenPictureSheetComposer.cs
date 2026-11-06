@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;

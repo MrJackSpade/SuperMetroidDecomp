@@ -338,7 +338,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Restricts target distance to the signed angle routine's supported range.</summary>
     private static int ClampBotwoonTargetDelta(int value) =>
-        WordWrap.Signed(value < -256 ? -255 : value >= 256 ? 255 : value);
+        value < -256 ? -255 : value >= 256 ? 255 : value;
 
     /// <summary>Uses health phase, current hole, and RNG to choose an authored path.</summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
@@ -618,7 +618,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         if (advance is not AnimationProgramAdvance<BotwoonHeadFrame>.Show shown)
             throw new InvalidOperationException($"Botwoon's head program ended an update with {advance}.");
-        head.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        head.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Frame);
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -706,8 +706,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int random = _room.Random.Generate();
             var position = new Position16<RoomPixels>(
-                WordWrap.Unsigned((random & 127) + 64),
-                WordWrap.Unsigned((SharedRandomState.UpperByte(random) & 63) + 128));
+                (random & 127) + 64,
+                (SharedRandomState.UpperByte(random) & 63) + 128);
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 position,
                 head.Definition.DropChances);
@@ -743,7 +743,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.LargeExplosionTimer = WrappingCountdown.Start(12);
                 _spriteObjects.SpawnRoomSpriteObject(
-                    new(WordWrap.Unsigned((_room.Random.Generate() & 31) + 232), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
+                    new((_room.Random.Generate() & 31) + 232, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
                     graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
@@ -758,7 +758,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     _spriteObjects.SpawnRoomSpriteObject(
-                        new(WordWrap.Unsigned((_room.Random.Generate() & 63) + 224), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
+                        new((_room.Random.Generate() & 63) + 224, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
                         graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
                 }
@@ -996,7 +996,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         int randomEnemyCounter)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(WordWrap.Unsigned(EightEight.WholeOf(segment.Velocity.Y.RawValue))).Positive;
+        int displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(segment.Velocity.Y.RawValue)).Positive;
         segment.Position = segment.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
         if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {

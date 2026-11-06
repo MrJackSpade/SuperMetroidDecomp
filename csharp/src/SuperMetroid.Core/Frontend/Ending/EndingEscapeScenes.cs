@@ -223,7 +223,7 @@ internal sealed class EndingEscapeScenes
         int normalized = Math.Clamp(digit, 0, 9);
         _stage.SpawnSprite(
             new(x, EndingActorDefinitions.ClearTimeDigitY),
-            EndingSpriteColouring.ClearTimeDigits,
+            EndingActorDefinitions.ClearTimeDigitColouring,
             ClearTimeDigitProgram(normalized),
             EndingSpriteRole.ClearTimeDigit);
     }
@@ -237,23 +237,8 @@ internal sealed class EndingEscapeScenes
     internal void SpawnEndingRewardActors()
     {
         sprites.Clear();
-        switch (_stage.EndingReward)
-        {
-            case EndingReward.Suitless:
-                _stage.SpawnSprite(EndingActorDefinitions.SuitlessRewardBody, EndingSpriteRole.RewardSamus);
-                _stage.SpawnSprite(EndingActorDefinitions.SuitlessRewardLegs, EndingSpriteRole.RewardSamus);
-                break;
-            case EndingReward.Helmetless:
-                _stage.SpawnSprite(EndingActorDefinitions.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
-                _stage.SpawnSprite(EndingActorDefinitions.HelmetlessRewardHead, EndingSpriteRole.RewardSamus);
-                break;
-            case EndingReward.Armored:
-                _stage.SpawnSprite(EndingActorDefinitions.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
-                _stage.SpawnSprite(EndingActorDefinitions.ArmoredRewardHead, EndingSpriteRole.RewardSamus);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined ending reward {_stage.EndingReward}.");
-        }
+        foreach (EndingSpriteDefinition actor in EndingRewardCast.Idle(_stage.EndingReward))
+            _stage.SpawnSprite(actor, EndingSpriteRole.RewardSamus);
     }
 
     /// <summary>Whether the explosion installed its finale arrangement.</summary>

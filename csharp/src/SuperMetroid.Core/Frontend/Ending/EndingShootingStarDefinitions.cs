@@ -1,8 +1,12 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Post-credits star motion and animation data.</summary>
 internal static class EndingShootingStarDefinitions
 {
+    /// <summary>The colouring every star draws in.</summary>
+    internal const EndingSpriteColouring Colouring = EndingSpriteColouring.ShootingStars;
     /// <summary>Initialize_ShootingStars creates forty sixteen-byte records.</summary>
     internal const int Count = 40;
     /// <summary>Initialization and reset put both coordinates at the screen center.</summary>

@@ -82,6 +82,10 @@ public static class TitleSequenceDefinitions
         public static Position16<ScreenPixels> LogoOrigin => new(128, 48);
         /// <summary>The Nintendo copyright's origin in screen pixels, below the logo.</summary>
         public static Position16<ScreenPixels> CopyrightOrigin => new(128, 196);
+        /// <summary>The colouring the logo draws in, as the final zoom and the skip show it.</summary>
+        public const TitleSpriteColouring LogoColouring = TitleSpriteColouring.Logo;
+        /// <summary>The colouring the copyright draws in.</summary>
+        public const TitleSpriteColouring CopyrightColouring = TitleSpriteColouring.Copyright;
     }
 
     /// <summary>The installed title graphics' extents and the Baby Metroid's animation pages.</summary>

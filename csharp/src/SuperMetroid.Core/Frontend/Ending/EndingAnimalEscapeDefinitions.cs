@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Definitions for the rescued animals' escape pod.</summary>
@@ -5,6 +8,10 @@ internal static class EndingAnimalEscapeDefinitions
 {
     /// <summary>The pod tests whether the animals were saved, then takes its fixed actor slot four.</summary>
     internal const int ForcedSlot = 2;
+    /// <summary>The colouring the pod draws in.</summary>
+    internal const EndingSpriteColouring Colouring = EndingSpriteColouring.AnimalEscape;
+    /// <summary>The program the pod runs.</summary>
+    internal const CinematicSpriteProgram Program = CinematicSpriteProgram.EndingAnimalEscape;
     /// <summary>Both pod coordinates start at 128.</summary>
     internal const int Origin = 128;
     /// <summary>The actor's general-purpose timer start (not a spawn delay).</summary>

@@ -92,7 +92,7 @@ internal sealed class EndingFlyaway
             if (crittersEscaped)
             {
                 _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
-                    EndingSpriteColouring.AnimalEscape, CinematicSpriteProgram.EndingAnimalEscape,
+                    EndingAnimalEscapeDefinitions.Colouring, EndingAnimalEscapeDefinitions.Program,
                     EndingSpriteRole.AnimalEscape);
                 IntroDiscoverySprite pod = sprites[^1].Sprite;
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;

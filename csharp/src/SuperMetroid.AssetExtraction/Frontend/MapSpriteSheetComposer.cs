@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -10,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Composes the map sprite sheet (#1392): each map marker, elevator and area label, arrow and position indicator frame
-/// over the menu sprite page, its palette-inheriting parts in the sheet's frame palette and the others in their own,
+/// over the menu sprite page, its palette-inheriting parts in its standard colouring's sprite set (#1513) and the others in their own,
 /// coloured as file select loads the menu palette, with a shade for each colouring the map sprites draw in on each map
 /// screen and for each frame of the highlight cycle (#1512).
 /// </summary>
@@ -28,23 +29,35 @@ internal static class MapSpriteSheetComposer
         Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
         MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
-        List<SheetFrameSource> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
-            new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page, FrontendSheetPalette.FrameColourGroup.Number))];
+        // Each sprite is pictured once, its palette-inheriting parts in its standard colouring's set (#1513).
+        List<ColouredFrame<MapSpriteColouring>> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
+        {
+            MapSpriteColouring[] colourings = [.. Ensure.Listed(MapSpriteColourings.Drawn, frame.Id)];
+            return new ColouredFrame<MapSpriteColouring>(new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page,
+                MapSpriteColouringSets.SpriteSet(colourings[0])), colourings);
+        })];
+        ColouringPictures<MapSpriteColouring> pictures = ColouringPictures<MapSpriteColouring>.Of(frames, MapSpriteColouringSets.SpriteSet);
         MapStaticPalettes palettes = InstalledAreaMapPresentation.PalettesOf(maps);
         RgbColor[] fileSelect = palettes.FileSelect[SpriteColours..].ToArray();
         RgbColor[] pause = palettes.Pause[SpriteColours..].ToArray();
-        // A frame's palette-inheriting parts are coloured in its frame group's inks; each shade recolours those inks.
+        // Each colouring's shade shows its set's colours on each screen over the sets its sprites are pictured in.
         var shades = new List<SheetShade>();
         foreach (MapSpriteColouring colouring in Enum.GetValues<MapSpriteColouring>())
         {
             int set = MapSpriteColouringSets.SpriteSet(colouring);
-            shades.Add(Drawn(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, colouring), fileSelect, set));
-            shades.Add(Drawn(MapSpriteShades.Drawn(MapSpriteScreen.Pause, colouring), pause, set));
+            shades.Add(Drawn(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, colouring), fileSelect, set, pictures.SetsOf(colouring)));
+            shades.Add(Drawn(MapSpriteShades.Drawn(MapSpriteScreen.Pause, colouring), pause, set, pictures.SetsOf(colouring)));
         }
+        // The highlight cycle shows each frame's colours over the highlighted sprites, in place of their drawn shade.
+        int highlighted = MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
         MapPaletteCycle highlight = InstalledAreaMapPresentation.HighlightColoursOf(maps);
         for (int frame = 0; frame < highlight.FrameCount; frame++)
-            shades.Add(SheetShade.Run(MapSpriteShades.Highlight(frame), FrameInk, highlight.Colours(frame)));
-        return new SpriteSheetSources(frames, fileSelect, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
+        {
+            shades.Add(SheetShade.DrawnOver(MapSpriteShades.Highlight(frame), highlighted, pictures.SetsOf(MapSpriteColouring.Highlighted),
+                highlight.Colours(frame)) with { TakesColourMath = false });
+        }
+        return new SpriteSheetSources([.. frames.Select(frame => frame.Frame)], fileSelect, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection),
+            PartsKeepOwnRows: true)
         {
             Shades = shades,
         };
@@ -53,10 +66,10 @@ internal static class MapSpriteSheetComposer
     /// <summary>The colours of one sprite colour group.</summary>
     private const int GroupColours = 16;
 
-    /// <summary>The first ink of the frame group that a map sprite's palette-inheriting parts are coloured in.</summary>
-    private static int FrameInk => FrontendSheetPalette.FrameColourGroup.Number * GroupColours;
-
-    /// <summary>The shade that shows a frame's palette-inheriting parts in sprite set <paramref name="set"/> of <paramref name="sprites"/>.</summary>
-    private static SheetShade Drawn(PictureShade shade, RgbColor[] sprites, int set) =>
-        SheetShade.DrawnRun(shade, FrameInk, sprites.AsSpan(set * GroupColours, GroupColours), set);
+    /// <summary>
+    /// The shade that shows the sprites drawn in the colouring held in sprite set <paramref name="set"/> in that set's
+    /// colours of <paramref name="sprites"/>, over the sets <paramref name="pictured"/> holds.
+    /// </summary>
+    private static SheetShade Drawn(PictureShade shade, RgbColor[] sprites, int set, SortedSet<int> pictured) =>
+        SheetShade.DrawnOver(shade, set, pictured, sprites.AsSpan(set * GroupColours, GroupColours));
 }

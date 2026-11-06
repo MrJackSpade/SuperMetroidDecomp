@@ -229,7 +229,7 @@ internal static class EndingCreditsPresentation
             }
         }
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase) && Shows(EndingSpriteLayer.Stars))
-            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(), ending.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
+            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(), ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));
         objects.FinishFrame();
         return objects;
 

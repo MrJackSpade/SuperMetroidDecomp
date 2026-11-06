@@ -24,8 +24,8 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     public ScrollingSkyChunkTable Variant { get; } = variant;
 
     /// <summary>23 16.16 per-line data slots; the last slot is stationary.</summary>
-    private readonly uint[] _fixedHorizontalScrolls =
-        new uint[ScrollingSkyBandDefinitions.DataSlotCount];
+    private readonly FixedCoordinate[] _fixedHorizontalScrolls =
+        new FixedCoordinate[ScrollingSkyBandDefinitions.DataSlotCount];
 
     /// <summary>
     /// Returns whether a room-state callback dispatches to the translated land-sky
@@ -60,7 +60,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     {
         if ((uint)slot >= _fixedHorizontalScrolls.Length)
             throw new ArgumentOutOfRangeException(nameof(slot));
-        return FixedCoordinate.WholeOf(unchecked((int)_fixedHorizontalScrolls[slot]));
+        return _fixedHorizontalScrolls[slot].Whole;
     }
 
     /// <summary>Advances the fixed-point sky bands and copies the camera Y into the background vertical scroll.</summary>
@@ -100,12 +100,11 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
         {
             SkyScrollSection section = ScrollingSkyBands.GetSection(index);
-            _fixedHorizontalScrolls[section.DataSlot] = unchecked(
-                _fixedHorizontalScrolls[section.DataSlot] + (uint)section.Velocity.RawValue);
+            _fixedHorizontalScrolls[section.DataSlot] = _fixedHorizontalScrolls[section.DataSlot].MovedBy(section.Velocity);
         }
 
         // The sky clears the final fractional and integer words after all 23
         // additions, keeping the bottommost section stationary.
-        _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = 0;
+        _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = default;
     }
 }

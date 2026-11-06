@@ -81,12 +81,15 @@ internal static class ImportedBossLooks
         /// <summary>Shows health band <paramref name="band"/>'s background colours over <paramref name="cgram"/>.</summary>
         internal void ApplyHealthBand(IPaletteColors cgram, int band) => self.ShowImported(cgram, DraygonShades.Health(band));
 
-        /// <summary>Shows a hurt update over <paramref name="cgram"/>: his material colours or their white flash, then <paramref name="healthBand"/> unless negative.</summary>
+        /// <summary>
+        /// Shows a hurt update over <paramref name="cgram"/>: his material colours with <paramref name="healthBand"/> unless
+        /// negative, or their white flash, which his hurt update shows without the band.
+        /// </summary>
         internal void ApplyHurt(IPaletteColors cgram, bool whiteFrame, int healthBand)
         {
             self.ShowImported(cgram, whiteFrame ? DraygonShades.BackgroundWhite : DraygonShades.Background);
             self.ShowImported(cgram, whiteFrame ? DraygonShades.SpriteWhite : DraygonShades.Sprite);
-            if (healthBand >= 0)
+            if (!whiteFrame && healthBand >= 0)
                 self.ShowImported(cgram, DraygonShades.Health(healthBand));
         }
 

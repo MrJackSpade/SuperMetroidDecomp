@@ -22,8 +22,11 @@ public static class RoomBlockSheetFiles
     /// <summary>The manifest naming each background image and the tilemap words it pictures.</summary>
     public const string BackgroundManifestFileName = "room-backgrounds.json";
 
-    /// <summary>The background manifest's schema revision: revision 2 records each image's changing cells (#1466).</summary>
-    private const int BackgroundManifestVersion = 2;
+    /// <summary>
+    /// The background manifest's schema revision: revision 2 records each image's changing cells (#1466); revision 3 no
+    /// longer pictures a cell over a collectible's graphics (#1513).
+    /// </summary>
+    private const int BackgroundManifestVersion = 3;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";

@@ -406,7 +406,7 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
     {
-        IReadOnlyList<AppearanceOption> options = UploadsOf(runtime).AllOptions;
+        IReadOnlyList<AppearanceOption> options = UploadsOf(runtime).Options;
         RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
             ?? throw new InvalidOperationException($"{where}: the runtime has no installed animated tiles.");
         RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.BackgroundImage
@@ -485,7 +485,7 @@ internal static class RoomBlockPicturesVerification
         RoomScope scope = RoomScopeOf(runtime);
         RoomBlockUploads.TilesetUploads uploads = UploadsOf(runtime);
         var copy = new ArtworkFrameSelections();
-        foreach (AnimationAppearance animation in uploads.AllOptions.Concat(uploads.Bg3Options).Select(option => option.Input)
+        foreach (AnimationAppearance animation in uploads.Options.Concat(uploads.Bg3Options).Select(option => option.Input)
             .OfType<AnimationAppearance>().Distinct())
         {
             if (scope.ArtworkFrames.TryShown(animation.Animation, out ArtworkFrame frame))
@@ -539,7 +539,7 @@ internal static class RoomBlockPicturesVerification
         // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles,
         // and the frames its animations paint over them.
         bool sprites = rooms.BlockArtwork == RoomBlockArtwork.Sprites;
-        IReadOnlyList<AppearanceOption> options = sprites ? [] : UploadsOf(runtime).AllOptions;
+        IReadOnlyList<AppearanceOption> options = sprites ? [] : UploadsOf(runtime).Options;
         byte[] tiles = sprites
             ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Reached(runtime)).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
@@ -555,7 +555,10 @@ internal static class RoomBlockPicturesVerification
             SpriteImage sheet = picture.Sheet;
             bool overUpload = scope.Assets.BlockSheet.Inputs.Of(block, rooms.BlockArtwork)
                 .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
+            // A collectible slot's block shows the collectible in the slot as the collectible writes it, or the room's load
+            // while the slot holds none (#1486).
             ushort[] blockWords = !ceres && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is { } slot
+                && scope.Appearance.CollectibleIn(slot) is not null
                 ? CollectibleSlotWords(scope.Appearance, slot, block)
                 : stock[(block * BlockTiles)..((block + 1) * BlockTiles)];
             for (int tile = 0; tile < BlockTiles; tile++)

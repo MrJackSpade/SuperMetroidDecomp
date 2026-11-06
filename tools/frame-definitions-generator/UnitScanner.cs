@@ -42,6 +42,12 @@ internal sealed class UnitScan
     public List<SpawnCall> SpawnCalls { get; } = [];
 
     /// <summary>
+    /// The Core methods each enum member the code names is handed to as a call's argument: a kind passed to the helper that
+    /// allocates and starts the object (#1534).
+    /// </summary>
+    public Dictionary<IFieldSymbol, HashSet<Unit>> HandedTo { get; } = new(SymbolEqualityComparer.Default);
+
+    /// <summary>
     /// The projectile program families the code refers to, each with the programs its constructions start it in (#1513);
     /// null for a family the code reaches otherwise, or constructs naming a program no constant decides, which may then be
     /// started in any of its programs.
@@ -367,6 +373,8 @@ internal sealed class UnitScanner(CoreModel model)
         if (node is InvocationExpressionSyntax invocation && semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol method
             && method.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type.OriginalDefinition, model.SpriteGraphics)))
             RecordSpawnCall(scan, semantic, invocation.ArgumentList, method);
+        if (node is InvocationExpressionSyntax handing && semantic.GetSymbolInfo(handing).Symbol is IMethodSymbol callee && model.IsSource(callee))
+            RecordHandedMembers(scan, semantic, handing.ArgumentList, callee);
         // A graphics switch is code changing another object's graphics (a cue handler clearing a projectile's). An object
         // setting its own (a slot's construction or Clear, its free-slot value) is its lifecycle, not a spawn's graphics.
         if (node is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
@@ -435,6 +443,24 @@ internal sealed class UnitScanner(CoreModel model)
             && SymbolEqualityComparer.Default.Equals(definition.ContainingType, model.EnemyDefinitionId))
         {
             scan.SheetDraws.Add(definition.OriginalDefinition);
+        }
+    }
+
+    /// <summary>Records each enum member a call's arguments name as handed to <paramref name="callee"/>.</summary>
+    private static void RecordHandedMembers(UnitScan scan, SemanticModel semantic, ArgumentListSyntax arguments, IMethodSymbol callee)
+    {
+        foreach (ArgumentSyntax argument in arguments.Arguments)
+        {
+            foreach (SyntaxNode part in argument.Expression.DescendantNodesAndSelf())
+            {
+                if (part is not ExpressionSyntax value
+                    || semantic.GetSymbolInfo(value).Symbol is not IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member)
+                    continue;
+                IFieldSymbol key = member.OriginalDefinition;
+                if (!scan.HandedTo.TryGetValue(key, out HashSet<Unit>? callees))
+                    scan.HandedTo.Add(key, callees = []);
+                callees.Add(Unit.Member(callee.OriginalDefinition));
+            }
         }
     }
 

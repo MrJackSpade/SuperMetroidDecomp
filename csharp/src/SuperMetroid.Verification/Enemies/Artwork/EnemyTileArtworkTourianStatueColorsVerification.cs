@@ -7,6 +7,8 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Verification.Areas.Tourian;
@@ -49,14 +51,24 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
 
-        // The statue scene's pictures are the statues' spawned objects', on their installed sheet (#1512, #1513): the statue
-        // enemy itself pictures nothing, so it has no sheet. The colours a published shading shows are that sheet's inks
-        // under it, at the places of the native image the import coloured them from.
+        // The statue scene's pictures are the statues' spawned objects', which spawn with the shared sheet's graphics, on
+        // the set's shared sheets (#1512, #1513, #1534): the statue enemy itself pictures nothing, so it has no sheet. The
+        // decorations, the sprite statues and the released particles and tails are on one of those sheets; the colours a
+        // published shading shows are that sheet's inks under it, at the places of the native image the import coloured
+        // them from.
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
             candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.TourianStatue));
-        IReadOnlyList<SpriteSheet> statueSheets = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Of(EnemyDefinitionId.TourianStatue)).Sheets;
-        AssertEqual(1, statueSheets.Count, "the statue scene's pictures are on one installed sheet");
-        SpriteImage statueSheet = statueSheets[0].Image;
+        SpawnedObjectSheet scenePictures = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
+        SpriteImage statueSheet = scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueFrame24)).Sheet;
+        foreach (EnemyProjectileFrameId scene in new[]
+        {
+            EnemyProjectileFrameId.TourianStatueFrame14, EnemyProjectileFrameId.TourianStatueFrame18,
+            EnemyProjectileFrameId.TourianStatueFrame25, EnemyProjectileFrameId.TourianStatueFrame26, EnemyProjectileFrameId.TourianStatueFrame27,
+        })
+        {
+            AssertEqual(statueSheet.Name, scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(scene)).Sheet.Name,
+                $"the statue scene's {scene} is on the decoration's installed sheet");
+        }
         var guard = NewTourianStatueColorGuard(bus, forbidden);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {

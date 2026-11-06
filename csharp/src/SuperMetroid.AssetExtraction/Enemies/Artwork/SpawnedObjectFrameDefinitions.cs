@@ -13,26 +13,6 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 [ArchitectureReview("large", "Generated data: the projectile frames and sprite-object kinds each enemy definition spawns; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
 internal static class SpawnedObjectFrameDefinitions
 {
-    /// <summary>The projectile frames <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns.</summary>
-    private static readonly EnemyProjectileFrameId[] TourianEntranceStatueProjectiles =
-    [
-        EnemyProjectileFrameId.TourianStatueFrame14,
-        EnemyProjectileFrameId.TourianStatueFrame15,
-        EnemyProjectileFrameId.TourianStatueFrame16,
-        EnemyProjectileFrameId.TourianStatueFrame17,
-        EnemyProjectileFrameId.TourianStatueFrame18,
-        EnemyProjectileFrameId.TourianStatueFrame19,
-        EnemyProjectileFrameId.TourianStatueFrame20,
-        EnemyProjectileFrameId.TourianStatueFrame21,
-        EnemyProjectileFrameId.TourianStatueFrame24,
-        EnemyProjectileFrameId.TourianStatueFrame25,
-        EnemyProjectileFrameId.TourianStatueFrame26,
-        EnemyProjectileFrameId.TourianStatueFrame27,
-    ];
-
-    /// <summary>The room sprite objects <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] TourianEntranceStatueSpriteObjects = [];
-
     /// <summary>The projectile frames <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] BotwoonProjectiles =
     [
@@ -874,6 +854,18 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.ChozoTourianDustFrame11,
         EnemyProjectileFrameId.ChozoTourianDustFrame12,
         EnemyProjectileFrameId.ChozoTourianDustFrame13,
+        EnemyProjectileFrameId.TourianStatueFrame14,
+        EnemyProjectileFrameId.TourianStatueFrame15,
+        EnemyProjectileFrameId.TourianStatueFrame16,
+        EnemyProjectileFrameId.TourianStatueFrame17,
+        EnemyProjectileFrameId.TourianStatueFrame18,
+        EnemyProjectileFrameId.TourianStatueFrame19,
+        EnemyProjectileFrameId.TourianStatueFrame20,
+        EnemyProjectileFrameId.TourianStatueFrame21,
+        EnemyProjectileFrameId.TourianStatueFrame24,
+        EnemyProjectileFrameId.TourianStatueFrame25,
+        EnemyProjectileFrameId.TourianStatueFrame26,
+        EnemyProjectileFrameId.TourianStatueFrame27,
     ];
 
     /// <summary>The room sprite objects <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -6849,7 +6841,6 @@ internal static class SpawnedObjectFrameDefinitions
     internal static IReadOnlyDictionary<EnemyDefinitionId, SpawnedObjects> ByEnemy { get; } =
         new Dictionary<EnemyDefinitionId, SpawnedObjects>
         {
-            [EnemyDefinitionId.TourianStatue] = new(TourianEntranceStatueProjectiles, TourianEntranceStatueSpriteObjects),
             [EnemyDefinitionId.Botwoon] = new(BotwoonProjectiles, BotwoonSpriteObjects),
             [EnemyDefinitionId.Crocomire] = new(CrocomireProjectiles, CrocomireSpriteObjects),
             [EnemyDefinitionId.CrocomireTongue] = new(CrocomireProjectiles, CrocomireSpriteObjects),

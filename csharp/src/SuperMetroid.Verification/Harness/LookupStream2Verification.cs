@@ -1597,7 +1597,7 @@ internal static class LookupStream2Verification
         }
         var residuals = stock.bubble;
         AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
-        AssertEqual(0x7fff, residuals[new PaintColour(0, 30)], "Final-frame leading white remains supplied data");
+        AssertEqual(0x7fff, residuals[new PaintColour(CrystalFlashColorFormat.BubbleFrameCount - 1, 0)], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
         {

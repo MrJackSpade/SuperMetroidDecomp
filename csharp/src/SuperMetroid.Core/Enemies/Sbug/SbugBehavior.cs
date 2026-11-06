@@ -40,13 +40,6 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemySlot slot)
     {
-        int behavior = slot.SpawnSettings<SbugSpawnSettings>().Behavior;
-        if (!SbugMovementDefinitions.ActivationBehaviors.TryAt(behavior, out _))
-        {
-            throw new InvalidDataException(
-                $"Sbug activation behavior {behavior} is not one of the seven activation behaviours.");
-        }
-
         var state = new SbugEnemyState(slot)
         {
             // Enemy extension arrays are cleared with the room before initialization: no loop
@@ -60,7 +53,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // The forward velocity uses the game-derived unsigned quarter-circle magnitudes and lets
         // the shared helper apply signs later from the original angle. The side velocities instead use the signed,
         // intentionally imperfect eight-bit multiply routine.
-        int speed = Ensure.BetweenInclusive(0, byte.MaxValue, state.Speed);
+        int speed = state.Speed;
         RotationAngle leftAngle = state.InitialAngle.AddTableUnits(-EnemyByteAngleDefinitions.EighthTurn);
         RotationAngle rightAngle = state.InitialAngle.AddTableUnits(EnemyByteAngleDefinitions.EighthTurn);
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
@@ -303,7 +296,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CalculateSignedSbugVelocities(
             state.CustomHeading.ToByteAngle(),
-            Ensure.BetweenInclusive(0, byte.MaxValue, state.Speed),
+            state.Speed,
             out SignedSixteenSixteen customX,
             out SignedSixteenSixteen customY);
         state.CustomXVelocity = customX;

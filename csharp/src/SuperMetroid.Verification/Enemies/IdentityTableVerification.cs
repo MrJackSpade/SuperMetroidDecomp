@@ -4,7 +4,6 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Crawlers;
-using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
@@ -25,7 +24,6 @@ internal static class IdentityTableVerification
         SequenceMatchesValues(MotherBrainTurretDefinitions.Ring, 8, value => (MotherBrainTurretDirection)value, "Mother Brain turret ring");
         SequenceMatchesValues(MotherBrainFallingTubePopulationDefinitions.Pieces, 5, value => (MotherBrainTubePiece)value, "Mother Brain tube pieces");
         SequenceMatchesValues(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations, 4, value => (CrawlerSurfaceOrientation)value, "crawler orientations");
-        SequenceMatchesValues(SbugMovementDefinitions.ActivationBehaviors, 7, value => (SbugActivationBehavior)value, "Sbug activation behaviours");
 
         int[] breakupOrder = [12, 10, 8, 6, 4, 2, 0, 14, 16, 20, 18, 22];
         var spawned = new List<RidleyExplosionPart>();

@@ -45,11 +45,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeShaktool(RoomEnemySlot slot)
     {
         ShaktoolSpawnSettings settings = slot.SpawnSettings<ShaktoolSpawnSettings>();
-        int segmentIndex = settings.Segment;
-        if (segmentIndex > 6)
-            throw new InvalidDataException($"Shaktool segment {segmentIndex} is not one of its seven segments.");
-
-        ShaktoolSegmentDefinition definition = ShaktoolSegments.ForIndex(segmentIndex);
+        ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -77,16 +73,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngularVelocity = definition.AngularVelocity;
         state.OrbitAngle = definition.InitialOrbitAngle;
 
-        // The second half of the definition table is a parallel animation table. Parameter two is
-        // already a byte offset, so +14+p2 selects exactly entries seven through thirteen;
-        // the definition names the animation each selects.
+        // The segment's definition names the animation it starts.
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram);
         slot.Layer = definition.Layer;
 
-        // Slot zero is the fixed head/anchor. Every later segment's curious drawing-queue
+        // The leading saw is the chain's fixed anchor. Every later segment's curious drawing-queue
         // read aliases the preceding enemy record's X/sub-X/Y/sub-Y words. Express
         // that alias structurally instead of treating queue scratch as an unrelated center.
-        if (segmentIndex != 0)
+        if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(slot, state);
     }
 

@@ -972,7 +972,7 @@ false,             CrashSequenceFinished: true);
     /// coordinates are separate words and may survive replacement of that owner.
     /// </summary>
     internal bool StepOwnedReleasedCrashEcho(SamusState samus,
-        Position16<RoomPixels> layer1, SamusProjectileSlot projectile)
+        Position16<RoomPixels> cameraPosition, SamusProjectileSlot projectile)
     {
         ReleasedEchoSlot echo = projectile.SlotIndex switch
         {
@@ -982,7 +982,7 @@ false,             CrashSequenceFinished: true);
         };
         echo.Radius = WordWrap.Unsigned(projectile.Velocity.X.SignedRawValue);
         echo.Angle = projectile.EchoAngle.ToAngle();
-        if (!StepReleasedCrashEcho(samus, layer1,
+        if (!StepReleasedCrashEcho(samus, cameraPosition,
             echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(CoordinateAxis.AsSigned(echo.Radius)));
         projectile.Position = projectile.Position.WithWhole(echo.Position);
@@ -992,7 +992,7 @@ false,             CrashSequenceFinished: true);
     /// <summary>Expands an echo around live Samus position and clears its drawing words when either viewport axis rejects it.</summary>
     internal static bool StepReleasedCrashEcho(
         SamusState samus,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ReleasedEchoSlot slot,
         CrashEchoSlotOwner slotOwner = CrashEchoSlotOwner.Echo)
     {
@@ -1009,7 +1009,7 @@ false,             CrashSequenceFinished: true);
 
         // The game performs the X viewport rejection before calculating/publishing Y. The
         // cleared result is identical either way; the branch order follows the game's steps.
-        int screenX = CoordinateAxis.Difference(slot.Position.X, layer1.X);
+        int screenX = CoordinateAxis.Difference(slot.Position.X, cameraPosition.X);
         if (screenX is < 0 or >= 256)
         {
             slot.Clear();
@@ -1017,7 +1017,7 @@ false,             CrashSequenceFinished: true);
         }
 
         slot.Position = slot.Position.WithY(point.Y);
-        int screenY = CoordinateAxis.Difference(slot.Position.Y, layer1.Y);
+        int screenY = CoordinateAxis.Difference(slot.Position.Y, cameraPosition.Y);
         if (screenY is < 0 or >= 256)
         {
             slot.Clear();

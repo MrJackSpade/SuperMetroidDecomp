@@ -76,7 +76,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// </summary>
     public SamusDeathSequenceStartResult Begin(
         SamusState samus,
-        Position16<RoomPixels> layer1)
+        Position16<RoomPixels> cameraPosition)
     {
         Ensure.NotNull(samus);
         if (IsActive)
@@ -105,7 +105,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // renderer adds layer 1 back before drawing. Retain world coordinates in Samus
         // for this host's shared camera/minimap model and capture the mathematically identical
         // screen-space pair here for the eventual explosion-spritemap path.
-        ScreenPosition = samus.Position.Whole.ToScreen(layer1);
+        ScreenPosition = samus.Position.Whole.ToScreen(cameraPosition);
 
         PreFlashingTimer = WrappingCountdown.Start(SamusDeathSequenceDefinitions.PreFlashFrameCount);
         AnimationTimer = WrappingCountdown.Start(3);

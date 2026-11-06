@@ -157,17 +157,17 @@ public sealed class D3D11FrameRenderer : IDisposable
     private unsafe void RenderCore(DisplayPacket packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
-        if (packet.Floor is { } mode7)
+        if (packet.Floor is { } turningFloor)
         {
             // A turning-floor frame is a frontend screen's: its floor, its sprites in front of it, then its gradient.
-            if (mode7.Paint.Gameplay is not null)
+            if (turningFloor.Paint.Gameplay is not null)
                 throw new NotSupportedException("A turning-floor frame shows a frontend screen, not gameplay.");
             var operations = new List<DisplayLayer>();
-            if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
-            operations.Add(new SpritesLayer(mode7.Paint.SpriteDraws));
-            if (mode7.Gradient is { } gradient) operations.Add(gradient);
-            DrawLayers(packet, new LayeredScene(new FramePaint(mode7.Paint.Backdrop),
-                operations.ToArray(), mode7.Brightness));
+            if (turningFloor.Background is { } background && turningFloor.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
+            operations.Add(new SpritesLayer(turningFloor.Paint.SpriteDraws));
+            if (turningFloor.Gradient is { } gradient) operations.Add(gradient);
+            DrawLayers(packet, new LayeredScene(new FramePaint(turningFloor.Paint.Backdrop),
+                operations.ToArray(), turningFloor.Brightness));
             return;
         }
         RgbaPixel color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
@@ -666,9 +666,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         grids.Clear();
         foreach (DisplayLayer layer in scene.Layers)
         {
-            if (layer is TurningFloorLayer frontendMode7)
+            if (layer is TurningFloorLayer frontendFloor)
             {
-                floorMap = SameFloor(floorMap, frontendMode7.Floor);
+                floorMap = SameFloor(floorMap, frontendFloor.Floor);
                 floorColouring = D3D11PictureColouring.OwnShading;
             }
             if (layer is PictureGridLayer { Grid: { } grid } && !grids.Contains(grid))
@@ -679,10 +679,10 @@ public sealed class D3D11FrameRenderer : IDisposable
                 if (!planes.Contains(plane))
                     planes.Add(plane);
             }
-            if (layer is TurningRoomLayer mode7)
+            if (layer is TurningRoomLayer turningRoom)
             {
-                floor = mode7.Floor?.Room ?? floor;
-                floorMap = SameFloor(floorMap, mode7.Map);
+                floor = turningRoom.Floor?.Room ?? floor;
+                floorMap = SameFloor(floorMap, turningRoom.Map);
                 floorColouring = D3D11PictureColouring.Room;
             }
             else if (layer is OverlayBlendLayer math)

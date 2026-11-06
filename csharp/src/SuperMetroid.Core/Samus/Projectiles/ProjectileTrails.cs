@@ -162,7 +162,7 @@ internal sealed class ProjectileTrails
         SpriteFrameBuffer sprites,
         SamusProjectileTrailSlot pair,
         int slotIndex,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         HorizontalDirection direction,
         ProjectileDrawArtwork objects)
     {
@@ -174,8 +174,8 @@ internal sealed class ProjectileTrails
         // The trail draw requires both complete 16-bit camera-relative coordinates to have
         // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
         // are skipped rather than wrapped or parked.
-        int screenX = CoordinateAxis.Wrap(side.DisplayedPosition.X - layer1.X);
-        int screenY = CoordinateAxis.Wrap(side.DisplayedPosition.Y - layer1.Y);
+        int screenX = CoordinateAxis.Wrap(side.DisplayedPosition.X - cameraPosition.X);
+        int screenY = CoordinateAxis.Wrap(side.DisplayedPosition.Y - cameraPosition.Y);
         if (ScreenConversions.IsOutsideSpriteRange(screenX) || ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 

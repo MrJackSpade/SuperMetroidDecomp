@@ -60,7 +60,7 @@ public sealed class SamusCeresRidleyEjectionState
 
         RoomLevelData level,
         SamusState samus,
-        int layer1X,
+        int cameraX,
         int frameCounter)
     {
 
@@ -90,7 +90,7 @@ public sealed class SamusCeresRidleyEjectionState
 
             // The side is selected from screen X, not world X. Exact center belongs to the
             // rightward branch because the game tests the sign of `(screenX - 128)`.
-            int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole - layer1X);
+            int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole - cameraX);
             PushDirection = CoordinateAxis.Difference(screenX, 128) < 0
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;

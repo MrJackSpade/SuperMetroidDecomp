@@ -30,7 +30,7 @@ internal sealed class ProjectileMotion
     internal bool RunNoWaveBeamFrameBehavior(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ISamusRoomPlms? roomPlms,
         SamusPowerBombExplosionState powerBomb)
     {
@@ -84,7 +84,7 @@ internal sealed class ProjectileMotion
         // when collision changed the beam into an explosion. KillBeam moves its
         // origin to the contact edge, which can put an otherwise retained shot
         // outside that window on this very frame.
-        DeleteIfOutsideMovementWindow(slot, layer1);
+        DeleteIfOutsideMovementWindow(slot, cameraPosition);
 
         return collided;
     }
@@ -93,7 +93,7 @@ internal sealed class ProjectileMotion
     internal void RunWaveBeamFrameBehavior(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ISamusRoomPlms? roomPlms)
     {
         if (slot.IsSpent)
@@ -116,14 +116,14 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        RunWaveBeamShared(level, slot, layer1, roomPlms);
+        RunWaveBeamShared(level, slot, cameraPosition, roomPlms);
     }
 
     /// <summary>Uses Wave's block-transparent movement for Hyper Beam without spawning projectile trails.</summary>
     internal void RunHyperBeamFrameBehavior(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ISamusRoomPlms? roomPlms)
     {
         if (slot.IsSpent)
@@ -135,14 +135,14 @@ internal sealed class ProjectileMotion
         // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
         // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
         // and the separately counting muzzle flare provide the complete presentation.
-        RunWaveBeamShared(level, slot, layer1, roomPlms);
+        RunWaveBeamShared(level, slot, cameraPosition, roomPlms);
     }
 
     /// <summary>Advances Wave or Hyper positions and notifies shootable blocks while ignoring terrain collision carry.</summary>
     private void RunWaveBeamShared(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ISamusRoomPlms? roomPlms)
     {
         int direction = slot.Direction.ToAimIndex();
@@ -169,7 +169,7 @@ internal sealed class ProjectileMotion
             ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, slot, roomPlms);
         }
 
-        DeleteIfOutsideMovementWindow(slot, layer1);
+        DeleteIfOutsideMovementWindow(slot, cameraPosition);
     }
 
     /// <summary>Handles ordinary missile ignition, acceleration, trail, point collision, and post-impact deletion.</summary>
@@ -177,7 +177,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms)
     {
@@ -237,7 +237,7 @@ internal sealed class ProjectileMotion
         // The missile direction handler may create an explosion just
         // beyond the retention boundary. Its caller still runs the offscreen
         // check on that same frame, after impact sound/cooldown side effects.
-        DeleteIfOutsideMovementWindow(slot, layer1);
+        DeleteIfOutsideMovementWindow(slot, cameraPosition);
         return collided;
     }
 
@@ -246,7 +246,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms)
     {
@@ -303,7 +303,7 @@ internal sealed class ProjectileMotion
                 level, slot, axis: Axis.Vertical, sharedProjectiles, roomPlms);
         }
 
-        if (DeleteIfOutsideMovementWindow(slot, layer1))
+        if (DeleteIfOutsideMovementWindow(slot, cameraPosition))
         {
             ClearAllSuperMissileLinks();
         }
@@ -319,13 +319,13 @@ internal sealed class ProjectileMotion
     /// <returns>True when the projectile was outside the movement window and cleared.</returns>
     private bool DeleteIfOutsideMovementWindow(
         SamusProjectileSlot slot,
-        Position16<RoomPixels> layer1)
+        Position16<RoomPixels> cameraPosition)
     {
         const int MinimumVisibleCoordinate = -64;
         const int MaximumVisibleCoordinateExclusive = 320;
 
-        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
-        int screenY = CoordinateAxis.Difference(slot.Position.Y.Whole, layer1.Y);
+        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
+        int screenY = CoordinateAxis.Difference(slot.Position.Y.Whole, cameraPosition.Y);
         bool outside =
             screenX < MinimumVisibleCoordinate ||
             screenX >= MaximumVisibleCoordinateExclusive ||

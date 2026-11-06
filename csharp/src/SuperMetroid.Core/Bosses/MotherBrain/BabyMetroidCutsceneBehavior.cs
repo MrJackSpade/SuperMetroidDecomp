@@ -150,7 +150,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             target,
             sequence,
             state.Head.Position.Whole,
-            layer1: camera,
+            cameraPosition: camera,
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: _room.Random.Read());
         // Both outcomes of the heal helper call the sound helper after the

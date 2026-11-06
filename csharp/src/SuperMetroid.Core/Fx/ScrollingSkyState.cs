@@ -64,7 +64,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     }
 
     /// <summary>Advances the fixed-point sky bands and copies layer-one Y into the background vertical scroll.</summary>
-    public void ProcessFrame(int layer1YPosition, bool timeIsFrozen)
+    public void ProcessFrame(int cameraY, bool timeIsFrozen)
     {
         if (timeIsFrozen)
         {
@@ -76,22 +76,22 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
 
         BandsShown = HasBands;
         if (HasBands) AdvanceHorizontalScrolls();
-        BackgroundScroll = new Position16<BackgroundPixels>(0, layer1YPosition);
+        BackgroundScroll = new Position16<BackgroundPixels>(0, cameraY);
     }
 
     /// <summary>
-    /// The sky layer the frame shows, positioned from <paramref name="layer1YPosition"/>; null when the room spawned no
+    /// The sky layer the frame shows, positioned from <paramref name="cameraY"/>; null when the room spawned no
     /// band per-line effect object, whose background is the room's own background.
     /// </summary>
-    /// <param name="layer1YPosition">The camera's layer-one Y the bands are positioned from.</param>
-    public ScrollingSkyLayer? Publish(int layer1YPosition)
+    /// <param name="cameraY">The camera's layer-one Y the bands are positioned from.</param>
+    public ScrollingSkyLayer? Publish(int cameraY)
     {
         if (!HasBands)
             return null;
         var offsets = ImmutableArray.CreateBuilder<int>(_fixedHorizontalScrolls.Length);
         for (int slot = 0; slot < _fixedHorizontalScrolls.Length; slot++)
             offsets.Add(GetDataSlotPosition(slot));
-        return new ScrollingSkyLayer(layer1YPosition, offsets.MoveToImmutable(), BandsShown);
+        return new ScrollingSkyLayer(cameraY, offsets.MoveToImmutable(), BandsShown);
     }
 
     /// <summary>Adds each strip's 16.16 speed and resets the stationary bottom strip.</summary>

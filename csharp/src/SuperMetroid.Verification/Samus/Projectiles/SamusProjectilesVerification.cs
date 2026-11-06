@@ -568,7 +568,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "normal-jump initializer hands over the new pose's shot direction");
     bridgeBombs.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
-    bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, layer1: new(0, 0), sharedProjectiles: bridgeBombs);
+    bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, cameraPosition: new(0, 0), sharedProjectiles: bridgeBombs);
     int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
     AssertTrue(bridgeReleaseSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");

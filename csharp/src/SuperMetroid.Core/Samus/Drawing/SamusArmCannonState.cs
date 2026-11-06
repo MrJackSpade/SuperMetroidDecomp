@@ -91,7 +91,7 @@ public sealed class SamusArmCannonState
     public SamusArmCannonDrawResult Draw(
         SpriteFrameBuffer sprites,
         SamusState samus,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         int frameCounter)
     {
         Ensure.NotNull(sprites);
@@ -110,9 +110,9 @@ public sealed class SamusArmCannonState
         Offset16<RoomPixels> offset = placement.Offset(samus.AnimationFrame);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
-        int screenX = CoordinateAxis.AsSigned(samus.Position.X.Whole + offset.X - layer1.X);
+        int screenX = CoordinateAxis.AsSigned(samus.Position.X.Whole + offset.X - cameraPosition.X);
         int screenY = CoordinateAxis.AsSigned(
-            samus.Position.Y.Whole + offset.Y - graphicsYOffset - layer1.Y);
+            samus.Position.Y.Whole + offset.Y - graphicsYOffset - cameraPosition.Y);
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
         if (spriteWritten)
         {

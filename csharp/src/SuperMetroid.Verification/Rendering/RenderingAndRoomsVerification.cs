@@ -1064,7 +1064,7 @@ internal static void VerifyScrollingSkyState()
         "a room main without a sky has no chunk table");
 
     var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
-    sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false);
+    sky.ProcessFrame(cameraY: 0x041f, timeIsFrozen: false);
     AssertEqual(new Position16<BackgroundPixels>(0, 0x041f), sky.BackgroundScroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
 
     // Chunk index five is the intentional table-adjacency wrap to tilemap zero.
@@ -1077,7 +1077,7 @@ internal static void VerifyScrollingSkyState()
     ScrollingSkyLayer layer = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
     AssertEqual(1, ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer, 0), DisplayScreen.HudHeight), "sky scanline resolves aliased HDMA slot");
 
-    sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: true);
+    sky.ProcessFrame(cameraY: 0x041f, timeIsFrozen: true);
     AssertEqual(false, sky.BandsShown, "frozen sky terminates HDMA table");
     ScrollingSkyLayer frozen = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
     AssertTrue(!frozen.BandsShown && ScrollShapeLines.GameplayScrolls(SkyBandScrolls.Of(frozen, 0)).All(scroll => scroll == 0), "a frozen frame shows every band unshifted");

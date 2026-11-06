@@ -20,12 +20,12 @@ internal static class SamusShinesparkStateAccess
         internal void StepReleasedCrashEchoProjectiles(
             ISnesAddressSpace bus,
             SamusState samus,
-            Position16<RoomPixels> layer1)
+            Position16<RoomPixels> cameraPosition)
         {
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
-            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self.FirstReleasedCrashEchoSlot);
-            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self.SecondReleasedCrashEchoSlot);
+            SamusShinesparkState.StepReleasedCrashEcho(samus, cameraPosition, self.FirstReleasedCrashEchoSlot);
+            SamusShinesparkState.StepReleasedCrashEcho(samus, cameraPosition, self.SecondReleasedCrashEchoSlot);
         }
     }
 }

@@ -42,7 +42,7 @@ public static class SamusGrappleBeamDrawing
     public static bool DrawFlareBeforeSamus(
         SamusState samus,
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork objects)
     {
         Ensure.NotNull(samus);
@@ -87,8 +87,8 @@ public static class SamusGrappleBeamDrawing
             grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(delay);
         }
 
-        int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - layer1.X);
-        int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - layer1.Y);
+        int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - cameraPosition.X);
+        int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y);
         // The draw tests only Y's high byte. X is allowed to wrap into the screen's ninth X bit, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
@@ -168,7 +168,7 @@ public static class SamusGrappleBeamDrawing
     public static void DrawConnectedBeam(
         SamusGrappleState grapple,
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         SpriteSheet? sheet = null,
         SamusPoseId samusPose = 0)
     {
@@ -213,8 +213,8 @@ public static class SamusGrappleBeamDrawing
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 1 << 6) ^ 1 << 6));
         SpriteMirror mirror = ((flipBits & 1 << 6) != 0 ? SpriteMirror.Horizontal : SpriteMirror.None) |
             ((flipBits & 1 << 7) != 0 ? SpriteMirror.Vertical : SpriteMirror.None);
-        int screenXFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
-        int screenYFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
+        int screenXFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.X - cameraPosition.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
+        int screenYFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.Y - cameraPosition.Y - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
         // The game enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
         int segmentCount = Math.Max(1, (grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing)
@@ -257,16 +257,16 @@ public static class SamusGrappleBeamDrawing
         }
 
         DrawBeamEndpoint(grapple, sprites, installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.EndpointFrame(
-            grapple.PointAnimationFrame)), layer1, samusPose);
+            grapple.PointAnimationFrame)), cameraPosition, samusPose);
     }
 
 
     /// <summary>Preserves the pose-selected endpoint routines.</summary>
     private static void DrawBeamEndpoint(SamusGrappleState grapple, SpriteFrameBuffer sprites, SpriteSheetFrame image,
-        Position16<RoomPixels> layer1, SamusPoseId samusPose)
+        Position16<RoomPixels> cameraPosition, SamusPoseId samusPose)
     {
         bool swinging = samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
-        int relativeY = CoordinateAxis.Wrap(grapple.Anchor.Y - layer1.Y);
+        int relativeY = CoordinateAxis.Wrap(grapple.Anchor.Y - cameraPosition.Y);
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
         if (!swinging && ScreenConversions.IsOutsideSpriteRange(relativeY))
@@ -275,10 +275,10 @@ public static class SamusGrappleBeamDrawing
         // Only the swinging routine lets the first of its two subtractions borrow from the second.
         // Consequently unsigned camera subtraction can carry a borrow into the
         // half-character offset, even when wrapped coordinates look adjacent.
-        int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;
-        int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
+        int borrowX = swinging && grapple.Anchor.X < cameraPosition.X ? 1 : 0;
+        int borrowY = swinging && grapple.Anchor.Y < cameraPosition.Y ? 1 : 0;
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), image,
-            new Position16<ScreenPixels>(CoordinateAxis.Wrap(grapple.Anchor.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowX), CoordinateAxis.Wrap(relativeY - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowY)),
+            new Position16<ScreenPixels>(CoordinateAxis.Wrap(grapple.Anchor.X - cameraPosition.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowX), CoordinateAxis.Wrap(relativeY - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowY)),
             SpriteMirror.None));
     }
 

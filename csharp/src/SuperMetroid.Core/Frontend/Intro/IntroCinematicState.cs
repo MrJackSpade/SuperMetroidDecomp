@@ -913,7 +913,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running
         // the real owner is still required for missile admission timing.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, layer1: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
             audio?.QueueSound(
@@ -1102,7 +1102,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // cinematic objects; once deleting Mother Brain clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, layer1: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
+            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, cameraPosition: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
             // The flashback's artwork holds the power beam's characters whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(projectileSheets, EquippedBeams: 0);
             flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates), projectileArtwork);
@@ -1159,7 +1159,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, layer1: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
+        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>

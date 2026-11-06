@@ -181,10 +181,10 @@ internal sealed class AcceptedFrameBoundary
     /// room main computes it), otherwise the elevator shaft's while the shaft has its transform. The
     /// shaft's transform exists exactly while the room was entered through the shaft's door.
     /// </summary>
-    /// <param name="layer1Scroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>
-    private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> layer1Scroll) =>
+    /// <param name="foregroundScroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>
+    private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> foregroundScroll) =>
         CeresRidleyGetaway.FloorTransform(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
-        : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, layer1Scroll)
+        : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, foregroundScroll)
         : null;
 
     /// <summary>
@@ -289,7 +289,7 @@ internal sealed class AcceptedFrameBoundary
             Rooms = rooms with
             {
                 Foreground = rooms.Foreground with { Pictures = pictures },
-                Background = rooms.Background is { } bg2 ? bg2 with { Pictures = pictures } : null,
+                Background = rooms.Background is { } shownBackground ? shownBackground with { Pictures = pictures } : null,
                 BackgroundImage = image,
                 Sky = sky,
                 WrittenOverBackground = writtenOverBackground,

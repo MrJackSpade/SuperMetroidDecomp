@@ -267,7 +267,7 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public void Draw(
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(sprites);
@@ -293,8 +293,8 @@ public sealed class SamusBombProjectileSystem
             // The bomb draw admits X in [-48,304). Y is admitted only when the high byte of
             // the wrapped room-relative word is zero, i.e. [0,255]. The screen itself clips the
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
-            int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
-            int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - layer1.Y);
+            int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
+            int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
             if (screenX < -48 || screenX >= 304 || ScreenConversions.IsOutsideSpriteRange(screenY))
                 continue;
 

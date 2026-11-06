@@ -353,7 +353,7 @@ internal sealed class SamusPresentation
     /// </remarks>
     public bool Draw(SamusState samus,
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         int frameCounter = 0,
         TurningFloorTransform? turningFloor = null)
     {
@@ -392,9 +392,9 @@ internal sealed class SamusPresentation
 
         InstalledSamusBodyArtwork artwork = BodyFrames.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork.");
-        int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
+        int spritemapX = CoordinateAxis.Wrap(renderX - cameraPosition.X);
         int spritemapY = CoordinateAxis.Wrap(
-            renderY - SamusBodyDrawing.OriginRise(samus.Pose, pictureFrame, artwork) - layer1.Y);
+            renderY - SamusBodyDrawing.OriginRise(samus.Pose, pictureFrame, artwork) - cameraPosition.Y);
         SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
 
         // The body's top half, the chest cover the unsuited forward-facing body shows, and the bottom half unless the top
@@ -421,7 +421,7 @@ internal sealed class SamusPresentation
     /// </remarks>
     public void DrawSpeedBoosterEchoes(SamusState samus, 
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1)
+        Position16<RoomPixels> cameraPosition)
     {
         Ensure.NotNull(sprites);
 
@@ -437,7 +437,7 @@ internal sealed class SamusPresentation
                 DrawActiveSpeedBoosterEcho(samus, 
                     sprites,
                     samus.HorizontalSpeed.SecondSpeedEchoPosition,
-                    layer1, slot: 1);
+                    cameraPosition, slot: 1);
             }
 
             if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
@@ -447,7 +447,7 @@ internal sealed class SamusPresentation
                 DrawActiveSpeedBoosterEcho(samus, 
                     sprites,
                     samus.HorizontalSpeed.FirstSpeedEchoPosition,
-                    layer1, slot: 0);
+                    cameraPosition, slot: 0);
             }
 
             samus.HorizontalSpeed.FinishDepartingSpeedEchoFrame();
@@ -462,11 +462,11 @@ internal sealed class SamusPresentation
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            layer1, slot: 1);
+            cameraPosition, slot: 1);
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.FirstSpeedEchoPosition,
-            layer1, slot: 0);
+            cameraPosition, slot: 0);
     }
 
     /// <summary>
@@ -475,7 +475,7 @@ internal sealed class SamusPresentation
     /// </summary>
     public void DrawShinesparkCrashEchoes(SamusState samus, 
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         int frameCounter)
     {
         Ensure.NotNull(sprites);
@@ -489,11 +489,11 @@ internal sealed class SamusPresentation
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            layer1, slot: 1);
+            cameraPosition, slot: 1);
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.FirstSpeedEchoPosition,
-            layer1, slot: 0);
+            cameraPosition, slot: 0);
     }
 
     /// <summary>
@@ -502,7 +502,7 @@ internal sealed class SamusPresentation
     /// </summary>
     public void DrawReleasedShinesparkCrashEchoes(SamusState samus, 
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         int frameCounter)
     {
         Ensure.NotNull(sprites);
@@ -515,14 +515,14 @@ internal sealed class SamusPresentation
         if (second.Active)
         {
             DrawActiveSpeedBoosterEcho(samus, 
-                sprites, second.Position, layer1, slot: 3);
+                sprites, second.Position, cameraPosition, slot: 3);
         }
 
         ShinesparkReleasedEcho first = samus.Shinespark.FirstReleasedCrashEcho;
         if (first.Active)
         {
             DrawActiveSpeedBoosterEcho(samus, 
-                sprites, first.Position, layer1, slot: 2);
+                sprites, first.Position, cameraPosition, slot: 2);
         }
     }
 
@@ -534,7 +534,7 @@ internal sealed class SamusPresentation
     private void DrawActiveSpeedBoosterEcho(SamusState samus, 
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> echo,
-        Position16<RoomPixels> layer1,
+        Position16<RoomPixels> cameraPosition,
         int slot)
     {
         // Zero X is the game's empty-slot sentinel, not merely an off-screen point.
@@ -542,7 +542,7 @@ internal sealed class SamusPresentation
             return;
 
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int screenY = CoordinateAxis.Difference(echo.Y - graphicsYOffset, layer1.Y);
+        int screenY = CoordinateAxis.Difference(echo.Y - graphicsYOffset, cameraPosition.Y);
 
         // The original accepts screen Y 0..247. Horizontal clipping remains display work,
         // exactly as it is for the current Samus body.
@@ -551,7 +551,7 @@ internal sealed class SamusPresentation
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus speed-booster echo requires installed spritemap artwork.");
-        int screenX = CoordinateAxis.Wrap(echo.X - layer1.X);
+        int screenX = CoordinateAxis.Wrap(echo.X - cameraPosition.X);
         var origin = Position16<ScreenPixels>.Of(screenX, CoordinateAxis.Wrap(screenY));
         // An echo repeats the full-body picture the body last drew; before the body has been drawn there is nothing to repeat.
         if (DrawnFrame is { } body)

@@ -164,7 +164,7 @@ internal static class SuperMetroidRuntimeAccess
 
                 ushort restingY = unchecked((ushort)(blockY * 16 + height - yRadius));
 
-                // Normal right-facing distance slot zero targets layer1X = SamusX-$60. Seed the
+                // Normal right-facing distance slot zero targets cameraX = SamusX-$60. Seed the
                 // camera at that exact target so the first moved frame follows smoothly instead
                 // of spending several frames correcting the cutscene door's unrelated X=$400.
                 // Vertical framing remains the explicit host stimulus supplied by the caller.

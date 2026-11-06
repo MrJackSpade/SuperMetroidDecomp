@@ -206,7 +206,7 @@ public sealed class BabyMetroidCutsceneState
         SamusState samus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
         Position16<RoomPixels> head,
-        Position16<RoomPixels> layer1 = default,
+        Position16<RoomPixels> cameraPosition = default,
         int enemyFrameCounter = 0,
         int randomNumber = 0)
     {
@@ -302,7 +302,7 @@ public sealed class BabyMetroidCutsceneState
                     target,
                     accelerationDivisor: 16,
                     wrongWayOffScreenXSpeed: 1024,
-                    layer1);
+                    cameraPosition);
                 brainCollision = CollidesWithRectangle(target, new Extent16<RoomPixels>(8, 8));
                 if (brainCollision)
                     Phase = BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack;
@@ -391,7 +391,7 @@ public sealed class BabyMetroidCutsceneState
                     target,
                     accelerationDivisor: 16,
                     wrongWayOffScreenXSpeed: 1024,
-                    layer1);
+                    cameraPosition);
                 bool ceilingCollision = CollidesWithRectangle(target, TargetRadius);
                 if (ceilingCollision)
                 {
@@ -434,7 +434,7 @@ public sealed class BabyMetroidCutsceneState
                     target,
                     accelerationDivisor,
                     wrongWayExtra,
-                    layer1);
+                    cameraPosition);
 
                 // The route's 4x4 rectangle test occurs before the common velocity mover.
                 // Reaching an ordinary leg's target moves on to the next leg; reaching the
@@ -457,7 +457,7 @@ public sealed class BabyMetroidCutsceneState
                     samus.Position.Whole + SamusLatchOffset,
                     accelerationDivisor: 16,
                     wrongWayOffScreenXSpeed: 1024,
-                    layer1);
+                    cameraPosition);
                 break;
 
             case BabyMetroidCutscenePhase.HealSamusToFullHealth:
@@ -528,7 +528,7 @@ public sealed class BabyMetroidCutsceneState
                     target,
                     accelerationDivisor: 16,
                     wrongWayOffScreenXSpeed: 16,
-                    layer1);
+                    cameraPosition);
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
                     Phase = BabyMetroidCutscenePhase.FlyOffScreen;
@@ -543,7 +543,7 @@ public sealed class BabyMetroidCutsceneState
                     new Position16<RoomPixels>(272, 64),
                     accelerationDivisor: 16,
                     wrongWayOffScreenXSpeed: 16,
-                    layer1);
+                    cameraPosition);
                 if (CollidesWithRectangle(new Position16<RoomPixels>(272, 64), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
                 break;
@@ -556,7 +556,7 @@ public sealed class BabyMetroidCutsceneState
                     new Position16<RoomPixels>(305, 160),
                     accelerationDivisor: 16,
                     wrongWayOffScreenXSpeed: 16,
-                    layer1);
+                    cameraPosition);
                 if (CollidesWithRectangle(new Position16<RoomPixels>(305, 160), TargetRadius))
                 {
                     Health = 79;
@@ -572,7 +572,7 @@ public sealed class BabyMetroidCutsceneState
                     new Position16<RoomPixels>(290, 128),
                     accelerationDivisor: 6,
                     wrongWayOffScreenXSpeed: 1024,
-                    layer1);
+                    cameraPosition);
                 if (CollidesWithRectangle(new Position16<RoomPixels>(290, 128), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.FinalCharge;
                 break;
@@ -585,7 +585,7 @@ public sealed class BabyMetroidCutsceneState
                     head + new Offset16<RoomPixels>(0, -32),
                     accelerationDivisor: 4,
                     wrongWayOffScreenXSpeed: 1024,
-                    layer1);
+                    cameraPosition);
                 if (Health == 0)
                 {
                     // The fatal-blow step changes graphics/list state, freezes the body AI,
@@ -962,28 +962,28 @@ public sealed class BabyMetroidCutsceneState
         Position16<RoomPixels> target,
         int accelerationDivisor,
         int wrongWayOffScreenXSpeed,
-        Position16<RoomPixels> layer1)
+        Position16<RoomPixels> cameraPosition)
     {
         Velocity = Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(
             Position.X.Whole, target.X, Velocity.X, accelerationDivisor, wrongWayOffScreenXSpeed,
-            () => IsVaguelyOffScreen(layer1)));
+            () => IsVaguelyOffScreen(cameraPosition)));
         Velocity = Velocity.WithY(BabyMetroidGradualAcceleration.AccelerateVertically(
             Position.Y.Whole, target.Y, Velocity.Y, accelerationDivisor));
     }
 
     /// <summary>Checks the generous signed camera rectangle used by the Baby's wrong-way movement recovery.</summary>
-    private bool IsVaguelyOffScreen(Position16<RoomPixels> layer1)
+    private bool IsVaguelyOffScreen(Position16<RoomPixels> cameraPosition)
     {
         // This is the signed-branch sequence; its generous rectangle extends
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
         if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
             return true;
-        int relativeY = CoordinateAxis.AsSigned(Position.Y.Whole + 96 - layer1.Y);
+        int relativeY = CoordinateAxis.AsSigned(Position.Y.Whole + 96 - cameraPosition.Y);
         if (relativeY is < 0 or >= 416)
             return true;
         if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
             return true;
-        int relativeX = CoordinateAxis.AsSigned(Position.X.Whole + 16 - layer1.X);
+        int relativeX = CoordinateAxis.AsSigned(Position.X.Whole + 16 - cameraPosition.X);
         return relativeX is < 0 or >= 288;
     }
 

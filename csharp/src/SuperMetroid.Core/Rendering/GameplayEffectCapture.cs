@@ -98,11 +98,11 @@ public static class GameplayEffectCapture
     /// <summary>Converts the eye's aim and half-width into the cone its beam lights.</summary>
     /// <remarks>The cone's apex is one line above the eye's position.</remarks>
     public static ColourAddWindowLayer? CaptureMorphBallEyeBeam(
-        MorphBallEyeBeamCone beam, Position16<RoomPixels> layer1)
+        MorphBallEyeBeamCone beam, Position16<RoomPixels> cameraPosition)
     {
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
-        Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(layer1);
+        Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(cameraPosition);
         int angle = beam.Angle.TableIndex;
         var cone = new WindowCone(eye.WithY(eye.Y - EyeWindowRenderDefinitions.ApexYOffset),
             angle - beam.AngularWidth, angle + beam.AngularWidth);
@@ -253,10 +253,10 @@ public static class GameplayEffectCapture
     /// otherwise it is the blast's current radius. The oval is three quarters as tall as it is wide.
     /// </summary>
     /// <param name="explosion">The blast as the frame shows it.</param>
-    /// <param name="layer1">The camera, which places the blast on the screen.</param>
+    /// <param name="cameraPosition">The camera, which places the blast on the screen.</param>
     /// <param name="firstLine">The first screen line the blast covers: the playfield's first line below the HUD in gameplay, the top of the screen in cinematics.</param>
     public static ColourAddWindowLayer? CapturePowerBombGlow(
-        PowerBombRenderSnapshot explosion, Position16<RoomPixels> layer1,
+        PowerBombRenderSnapshot explosion, Position16<RoomPixels> cameraPosition,
         int firstLine = HudHeight)
     {
         if ((uint)firstLine > Height)
@@ -265,7 +265,7 @@ public static class GameplayEffectCapture
         int radius = PowerBombHorizontalRadius(explosion);
         int verticalRadius = radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts;
         ScreenWindow window = verticalRadius == 0 ? ScreenWindow.Closed
-            : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(layer1),
+            : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(cameraPosition),
                 new Extent16<ScreenPixels>(radius, verticalRadius)),
                 firstLine);
         return new(window, explosion.FixedColor);
@@ -290,9 +290,9 @@ public static class GameplayEffectCapture
     /// The X-ray scope's cone from Samus's eye (#1468): three pixels ahead of her, at her standing or crouching eye
     /// height, sweeping the scope's half-width either side of its aim, below the HUD.
     /// </summary>
-    public static ScreenWindow CaptureXrayWindow(SamusXrayDisplaySnapshot xray, Position16<RoomPixels> layer1)
+    public static ScreenWindow CaptureXrayWindow(SamusXrayDisplaySnapshot xray, Position16<RoomPixels> cameraPosition)
     {
-        Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(layer1);
+        Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(cameraPosition);
         int eyeX = samusOnScreen.X +
             (xray.FacingLeft ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
         int eyeY = samusOnScreen.Y -

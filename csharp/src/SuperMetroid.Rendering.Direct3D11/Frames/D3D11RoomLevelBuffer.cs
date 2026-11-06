@@ -166,12 +166,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <param name="images">The image texture, holding every picture <see cref="Collect"/> named.</param>
     internal bool Pack(RoomLevelLayers frame, D3D11ImageAtlas images)
     {
-        RoomBackgroundLayer? bg1 = frame.Foreground, bg2 = frame.Background;
+        RoomBackgroundLayer? foreground = frame.Foreground, background = frame.Background;
         RoomDoorBackground? door = frame.Door;
         RoomOverlayPictures? writtenOverForeground = frame.WrittenOverForeground, writtenOverBackground = frame.WrittenOverBackground;
         SkyPictures? sky = frame.Sky;
         OverlayPicture? fxOverlay = frame.FxOverlay;
-        AffineFloor? mode7 = frame.Floor;
+        AffineFloor? turningFloor = frame.Floor;
         ShownBossBody? bossBody = frame.BossBody;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.BackgroundImage, skyImage = sky?.Image;
@@ -184,14 +184,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread. It colours no
         // picture either, so the last room's colour slots go: the scene's colours are packed for none of its images, and a
         // later frame showing that room again packs it afresh.
-        if (bg1 is null && bg2 is null && sky is null && fxOverlay is null && mode7 is null && reveal is null && image is null
+        if (foreground is null && background is null && sky is null && fxOverlay is null && turningFloor is null && reveal is null && image is null
             && message is null && hud is null && pictured.IsEmpty && grids.IsEmpty)
         {
             colourSlots.Clear();
             packed = null;
             return false;
         }
-        RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
+        RoomBackgroundLayer?[] planes = [foreground, background, door?.SourceRoom];
         int words = HeaderWords;
         planeTables.Clear();
         foreach (PicturedPlane plane in pictured)
@@ -255,9 +255,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int skyOffset = sky is null ? 0 : words;
         if (sky is not null)
             words += SkyPictures.Bands;
-        int floorOffset = mode7 is null ? 0 : words;
-        if (mode7 is not null)
-            words += mode7.Pictures.Length;
+        int floorOffset = turningFloor is null ? 0 : words;
+        if (turningFloor is not null)
+            words += turningFloor.Pictures.Length;
         // Each picture's header once for each way it is coloured, and each image and how it is coloured once as a colour
         // slot (#1408): a picture two groups show, as a block of one tileset in both rooms of a door, shows each group's
         // shading (#1512).
@@ -275,8 +275,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             }
         }
         // The floor image draws from its pictures directly, so they hold colour slots but no place in the image texture.
-        foreach (SpriteSheetFrame sheet in mode7?.Pictures ?? [])
-            slots.TryAdd(new D3D11ColourSlot(sheet.Sheet, frame.FloorColouring, mode7!.Shading), slots.Count);
+        foreach (SpriteSheetFrame sheet in turningFloor?.Pictures ?? [])
+            slots.TryAdd(new D3D11ColourSlot(sheet.Sheet, frame.FloorColouring, turningFloor!.Shading), slots.Count);
         if (words > Upload.Length)
         {
             Dispose();
@@ -341,11 +341,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         upload[WrittenOverBackgroundWord] = (uint)backgroundWrittenOffset;
         PackWritten(upload, writtenOverBackground, backgroundWrittenOffset, pictureWords);
         upload[FloorSheetsWord] = (uint)floorOffset;
-        if (mode7 is not null)
+        if (turningFloor is not null)
         {
-            ImmutableArray<SpriteSheetFrame> sheets = mode7.Pictures;
+            ImmutableArray<SpriteSheetFrame> sheets = turningFloor.Pictures;
             for (int sheet = 0; sheet < sheets.Length; sheet++)
-                upload[floorOffset + sheet] = (uint)slots[new D3D11ColourSlot(sheets[sheet].Sheet, frame.FloorColouring, mode7.Shading)];
+                upload[floorOffset + sheet] = (uint)slots[new D3D11ColourSlot(sheets[sheet].Sheet, frame.FloorColouring, turningFloor.Shading)];
         }
         upload[XrayRevealWord] = (uint)revealOffset;
         if (reveal is not null)

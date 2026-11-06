@@ -258,6 +258,7 @@ internal static class LookupStream1Verification
             var body = enemies.SlotTable.Slots[1];
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);
             body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+            body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
             initialize(body);
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;

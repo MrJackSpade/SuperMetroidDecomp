@@ -95,7 +95,9 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>
     /// Earthquake timer as last written by this actor. The global earthquake updater owns
-    /// independent per-frame decrements, so this class does not fabricate them.
+    /// independent per-frame decrements, so this class does not fabricate them. It keeps the wrapping countdown: the
+    /// escape holds the quake by setting it to the full 65535-frame count, and it mirrors the room's own earthquake
+    /// countdown sampled each update.
     /// </summary>
     public WrappingCountdown EarthquakeTimer { get; internal set; }
 

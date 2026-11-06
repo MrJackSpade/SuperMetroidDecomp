@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainStockVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathPlmsVerification;
@@ -32,7 +33,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             RoomPlmMotherBrainFakeDeathVisualCatalog stock =
                 installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
             VerifyMotherBrainStockMapping(rom, stock);
-            VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
+            VerifyMotherBrainVisualDraw(MotherBrainRoomMutation.BackgroundRowD,
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 null);
 
@@ -50,7 +51,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
     }
 
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
-    private static void VerifyMotherBrainVisualDraw(PlmHeaderId header,
+    private static void VerifyMotherBrainVisualDraw(MotherBrainRoomMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
         RoomPlmMotherBrainFakeDeathVisualCatalog? visuals)
     {
@@ -58,19 +59,19 @@ internal static class MotherBrainFakeDeathVisualsVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainFakeDeathVisuals = visuals });
-        AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
-            $"Mother Brain visual header {header} allocates");
+        AssertTrue(plms.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(5, 3), mutation)),
+            $"Mother Brain visual mutation {mutation} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physical,
             level.GetCollisionBlockByIndex(blockIndex).Terrain,
-            $"Mother Brain visual header {header} retains physical block");
+            $"Mother Brain visual mutation {mutation} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
         AssertEqual(visual, level.DisplayedAppearance(blockIndex),
-            $"Mother Brain visual header {header} presents its tile");
+            $"Mother Brain visual mutation {mutation} presents its tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Mother Brain visual header {header} reads no compiled source");
+            $"Mother Brain visual mutation {mutation} reads no compiled source");
     }
 
     /// <summary>Runs the Mother Brain fake-death visual asset suite.</summary>

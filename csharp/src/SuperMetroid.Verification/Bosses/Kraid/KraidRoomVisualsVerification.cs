@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Kraid;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualSelectionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -40,7 +41,7 @@ internal static class KraidRoomVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmKraidVisualFiles.Create([]),
                 "Kraid visual catalog rejects missing frames");
-            Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x180)));
+            Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(KraidRoomMutation.CrumbleCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x180)));
 
             string stockPath = Path.Combine(
                 installation.RoomPlmKraidVisualDirectory,
@@ -56,7 +57,7 @@ internal static class KraidRoomVisualsVerification
     }
 
     /// <summary>Spawns a Kraid mutation and checks its collision word and streamed tile.</summary>
-    private static void VerifyKraidDraw(PlmHeaderId header, ushort drawPointer, int blockOffset, RoomTerrainBlock physicalWord, RoomBlockAppearance visualWord)
+    private static void VerifyKraidDraw(KraidRoomMutation mutation, ushort drawPointer, int blockOffset, RoomTerrainBlock physicalWord, RoomBlockAppearance visualWord)
     {
         const int width = 32;
         var words = new RoomTerrainBlock[width * 16];
@@ -65,8 +66,8 @@ internal static class KraidRoomVisualsVerification
         RoomLevelData level = CreateRoom(new(width, 16), words,
             new RoomBlockBehavior[words.Length]);
         var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
-            $"Kraid visual owner {header} allocates");
+        AssertTrue(plms.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation)),
+            $"Kraid visual owner {mutation} allocates");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = 5 * width + 5 + blockOffset;

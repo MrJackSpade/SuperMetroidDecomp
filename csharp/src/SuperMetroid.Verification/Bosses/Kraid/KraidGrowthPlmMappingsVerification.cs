@@ -18,11 +18,11 @@ internal static class KraidGrowthPlmMappingsVerification
 
     /// <summary>Compares the compiled growth PLM headers with callback inline words.</summary>
     internal static void VerifyKraidGrowthPlmHeaders(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 6, request => PlmNativeWords.Word(request.Header)));
+        Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 6, request => PlmNativeWords.Word(KraidRoomMutationDefinitions.Plms[request.Plm])));
 
     /// <summary>Reads each callback field at the requested native offset and checks indexed and enumerated PLM requests.</summary>
     private static void VerifyKraidGrowthPlmField(SuperMetroidAddressSpace rom, int offset,
-        Func<PlmSpawnRequest, ushort> field)
+        Func<PlmSpawnRequest<KraidRoomMutation>, ushort> field)
     {
         ushort Word(int address) => LittleEndianBytes.Word(KraidGrowthPlmFieldRomByte(rom, address), KraidGrowthPlmFieldRomByte(rom, address + 1));
         var requests = KraidPlmDefinitions.GrowthCeiling;

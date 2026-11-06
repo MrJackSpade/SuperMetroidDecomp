@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Crocomire;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.LookupCrocomireStockVerification;
@@ -32,7 +33,7 @@ internal static class CrocomireArenaVisualsVerification
             RoomPlmCrocomireVisualCatalog stock =
                 installation.LoadRoomPlmCrocomireVisuals();
             VerifyCrocomireStockMapping(rom, stock);
-            VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
+            VerifyCrocomireVisualDraw(CrocomireArenaMutation.ClearBridge,
                 new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x80), null);
 
             string stockPath = Path.Combine(
@@ -48,7 +49,7 @@ internal static class CrocomireArenaVisualsVerification
     }
 
     /// <summary>Runs one arena mutation and checks its collision word, immediate BG1 update, and ROM-free visual source.</summary>
-    private static void VerifyCrocomireVisualDraw(PlmHeaderId header,
+    private static void VerifyCrocomireVisualDraw(CrocomireArenaMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
         RoomPlmCrocomireVisualCatalog? visuals)
     {
@@ -56,18 +57,18 @@ internal static class CrocomireArenaVisualsVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmCrocomireVisuals = visuals });
-        AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
-            $"Crocomire visual header {header} allocates");
+        AssertTrue(plms.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
+            $"Crocomire visual mutation {mutation} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physical,
             level.GetCollisionBlockByIndex(blockIndex).Terrain,
-            $"Crocomire visual header {header} retains physical block");
+            $"Crocomire visual mutation {mutation} retains physical block");
         AssertEqual(visual, level.DisplayedAppearance(blockIndex),
-            $"Crocomire visual header {header} presents its tile");
+            $"Crocomire visual mutation {mutation} presents its tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Crocomire visual header {header} reads no compiled source");
+            $"Crocomire visual mutation {mutation} reads no compiled source");
     }
 
     /// <summary>Runs the focused Crocomire arena artwork and PLM checks.</summary>

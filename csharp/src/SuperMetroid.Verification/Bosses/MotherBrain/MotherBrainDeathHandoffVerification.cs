@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -39,7 +40,7 @@ internal static class MotherBrainDeathHandoffVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), 256).ToArray();
         var level = CreateRoom(new(16, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(0, 6), PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
+        AssertTrue(plms.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(0, 6), MotherBrainRoomMutation.EscapeDoor)), "escape PLM allocates");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock), level.GetCollisionBlock(new(0, 6)).Terrain, "door setup preserves the block's appearance");
         AssertEqual(1, level.GetCollisionBlock(new(0, 6)).Behavior.Value, "door setup selects second door header");
         for (int row = 7; row < 10; row++)

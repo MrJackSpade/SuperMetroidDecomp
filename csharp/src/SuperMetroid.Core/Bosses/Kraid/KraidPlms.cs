@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidPlms
 {
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
-    public static PlmSpawnRequest? ForSinkCallback(KraidSinkCallback callback) =>
-        KraidPlmDefinitions.SinkMutations.TryGetValue(callback, out PlmSpawnRequest? request)
+    public static PlmSpawnRequest<KraidRoomMutation>? ForSinkCallback(KraidSinkCallback callback) =>
+        KraidPlmDefinitions.SinkMutations.TryGetValue(callback, out PlmSpawnRequest<KraidRoomMutation>? request)
             ? request
             : throw new InvalidOperationException($"Undefined KraidSinkCallback {callback}.");
 }

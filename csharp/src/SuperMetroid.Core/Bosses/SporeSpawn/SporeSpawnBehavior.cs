@@ -144,7 +144,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialDead);
             body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
             UpdateSporeSpawnStalks(state);
-            PublishSporeSpawnPlm(header: PlmHeaderId.ClearSporeSpawnCeiling);
+            PublishSporeSpawnPlm(SporeSpawnCeilingMutation.Clear);
             return;
         }
 
@@ -320,8 +320,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Requests the arena ceiling PLM at its fixed room block position.</summary>
-    private void PublishSporeSpawnPlm(PlmHeaderId header) =>
-        _frameResults.SporeSpawnCeiling = new PlmSpawnRequest(new(7, 30), header);
+    private void PublishSporeSpawnPlm(SporeSpawnCeilingMutation mutation) =>
+        _frameResults.SporeSpawnCeiling = mutation;
 
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
     internal void AddSporeSpawnBombReactions(EnemySharedReactions table)
@@ -536,7 +536,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.FrameHold = WrappingCountdown.Start(1);
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;
-        PublishSporeSpawnPlm(header: PlmHeaderId.CrumbleSporeSpawnCeiling);
+        PublishSporeSpawnPlm(SporeSpawnCeilingMutation.Crumble);
     }
 
     /// <summary>Carries out one cue of Spore Spawn's body program.</summary>

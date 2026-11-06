@@ -1,4 +1,8 @@
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -23,19 +27,19 @@ internal sealed class BossFrameResultBuilder
     internal bool RemoveLiquidEffects { get; set; }
 
     /// <summary>Botwoon's wall PLM.</summary>
-    internal PlmHeaderId? BotwoonWall { get; set; }
+    internal BotwoonWallMutation? BotwoonWall { get; set; }
 
     /// <summary>Spore Spawn's ceiling PLM.</summary>
-    internal PlmSpawnRequest? SporeSpawnCeiling { get; set; }
+    internal SporeSpawnCeilingMutation? SporeSpawnCeiling { get; set; }
 
     /// <summary>The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</summary>
     internal PaletteFxObject? TorizoBellyGlow { get; set; }
 
     /// <summary>Crocomire's arena mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest> CrocomirePlms { get; } = [];
+    internal List<PlmSpawnRequest<CrocomireArenaMutation>> CrocomirePlms { get; } = [];
 
     /// <summary>Kraid's ceiling and platform mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest> KraidPlms { get; } = [];
+    internal List<PlmSpawnRequest<KraidRoomMutation>> KraidPlms { get; } = [];
 
     /// <summary>Mother Brain's death-sequence step.</summary>
     internal MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep { get; set; }
@@ -47,10 +51,10 @@ internal sealed class BossFrameResultBuilder
     internal int MotherBrainFxEntry { get; set; }
 
     /// <summary>Mother Brain's room mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest> MotherBrainPlms { get; } = [];
+    internal List<PlmSpawnRequest<MotherBrainRoomMutation>> MotherBrainPlms { get; } = [];
 
     /// <summary>The Shitroid's wall mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest> ShitroidPlms { get; } = [];
+    internal List<PlmSpawnRequest<ShitroidWallMutation>> ShitroidPlms { get; } = [];
 
     /// <summary>Clears every result before a pass or a room load.</summary>
     internal void Begin()

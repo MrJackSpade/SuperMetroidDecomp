@@ -316,7 +316,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
                 state.FunctionTimer = WrappingCountdown.Start(0);
                 state.GrayFadeIndex = 0;
-                Access.RequestMotherBrainPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
+                Access.RequestMotherBrainPlm(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
 
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
@@ -331,43 +331,43 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    PlmHeaderId.MotherBrainsBackgroundRow2,
-                    PlmHeaderId.MotherBrainsBackgroundRow3,
+                    MotherBrainRoomMutation.BackgroundRow2,
+                    MotherBrainRoomMutation.BackgroundRow3,
                     MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    PlmHeaderId.MotherBrainsBackgroundRow4,
-                    PlmHeaderId.MotherBrainsBackgroundRow5,
+                    MotherBrainRoomMutation.BackgroundRow4,
+                    MotherBrainRoomMutation.BackgroundRow5,
                     MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    PlmHeaderId.MotherBrainsBackgroundRow6,
-                    PlmHeaderId.MotherBrainsBackgroundRow7,
+                    MotherBrainRoomMutation.BackgroundRow6,
+                    MotherBrainRoomMutation.BackgroundRow7,
                     MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    PlmHeaderId.MotherBrainsBackgroundRow8,
-                    PlmHeaderId.MotherBrainsBackgroundRow9,
+                    MotherBrainRoomMutation.BackgroundRow8,
+                    MotherBrainRoomMutation.BackgroundRow9,
                     MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    PlmHeaderId.MotherBrainsBackgroundRowA,
-                    PlmHeaderId.MotherBrainsBackgroundRowB,
+                    MotherBrainRoomMutation.BackgroundRowA,
+                    MotherBrainRoomMutation.BackgroundRowB,
                     MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    PlmHeaderId.MotherBrainsBackgroundRowC,
-                    PlmHeaderId.MotherBrainsBackgroundRowD,
+                    MotherBrainRoomMutation.BackgroundRowC,
+                    MotherBrainRoomMutation.BackgroundRowD,
                     MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:

@@ -126,9 +126,9 @@ internal sealed class CeresRidleyGetaway
         state.FloorZoom = zoom;
         // The getaway frame's velocity is added to the vertical word and subtracted from the
         // horizontal word.
-        state.FloorOffset = new Offset16<FloorPixels>(
-            WordWrap.Signed(state.FloorOffset.X - frame.Velocity.X),
-            WordWrap.Signed(state.FloorOffset.Y + frame.Velocity.Y));
+        state.FloorOffset = Offset16<FloorPixels>.Wrapped(
+            state.FloorOffset.X - frame.Velocity.X,
+            state.FloorOffset.Y + frame.Velocity.Y);
 
         UpdateCeresRidleyFloorPalette(state, zoom);
         state.FloorAngle = state.FloorAngle.AddRaw(48);

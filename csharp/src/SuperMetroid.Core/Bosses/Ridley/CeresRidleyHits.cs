@@ -101,11 +101,12 @@ internal sealed class CeresRidleyHits
 
         // The original game draws the hurt palette from the enemy frame that just completed.
         // Collision runs afterward, so publish that same pre-increment frame immediately
-        // for standalone renderers inspecting the colours before the next enemy dispatcher call.
+        // for standalone renderers inspecting the colours before the next enemy dispatcher call. Only the count's low
+        // bits are read, so the count before zero reads as all ones.
         UpdateRidleyHurtFlashPalettes(
             slot,
             state,
-            WordWrap.Unsigned(slot.FrameCounter - 1));
+            slot.FrameCounter - 1);
         UpdateCeresRidleyHealthPalette(state);
     }
 

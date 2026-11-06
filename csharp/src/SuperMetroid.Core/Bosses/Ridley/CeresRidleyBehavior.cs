@@ -332,8 +332,8 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
     internal const int CeresRidleyMaximumSpeed = 1280;
-    /// <summary>The fastest 8.8 speed toward a higher target, as the two's-complement word.</summary>
-    internal static readonly int CeresRidleyMinimumSpeed = WordWrap.Unsigned(-1280);
+    /// <summary>The fastest 8.8 speed toward a higher target: five pixels per update the other way.</summary>
+    internal const int CeresRidleyMinimumSpeed = -CeresRidleyMaximumSpeed;
 
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>

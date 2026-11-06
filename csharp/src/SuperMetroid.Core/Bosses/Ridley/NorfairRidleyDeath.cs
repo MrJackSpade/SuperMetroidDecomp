@@ -237,9 +237,9 @@ internal sealed class NorfairRidleyDeath
         var fragmentState = new RidleyExplosionFragmentState
         {
             Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(part).Lifetime),
-            Velocity = new(SignedEightEight.FromSignedRaw(WordWrap.Signed(WordWrap.Signed(random) < 0
-                ? -horizontalMagnitude
-                : horizontalMagnitude)), default),
+            Velocity = new(SignedEightEight.FromSignedRaw(BossRandomRolls.InLowerHalf(random)
+                ? horizontalMagnitude
+                : -horizontalMagnitude), default),
         };
         fragment.SetSpeciesState(fragmentState, fragmentState.ClearWithRecord);
 
@@ -249,8 +249,7 @@ internal sealed class NorfairRidleyDeath
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
-                WordWrap.LowByte(WordWrap.LowByte(tail.Angle) +
-                    WordWrap.LowByte(state.TailSegments[5].Angle) + 8) / 16;
+                ByteAngle.Wrapped(tail.Angle + state.TailSegments[5].Angle + 8).RawValue / 16;
             StartRidleyBreakupProgram(state, fragment, RidleyBreakup.SelectTailFrame(
                 part,
                 tailTipOrientation));

@@ -109,8 +109,8 @@ internal sealed class CeresRidleyBabyScene
         {
             RidleyTailSegment tip = state.TailSegments[6];
             // The tip's sixteen poses split the byte angle into sixteenths.
-            int tipIndex = WordWrap.LowByte(
-                tip.Angle + state.TailSegments[5].Angle + 8) / 16;
+            int tipIndex = ByteAngle.Wrapped(
+                tip.Angle + state.TailSegments[5].Angle + 8).RawValue / 16;
             EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.Of(
                 tipIndex);
             DrawRidleyWorldSpritemap(

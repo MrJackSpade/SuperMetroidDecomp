@@ -73,7 +73,7 @@ internal sealed class CeresRidleyFlight
             IdleTailWhipEnabled = true,
             TailDamage = 15,
             Velocity = new EightEightVector<RoomPixels>(0, 0),
-            MovementMinimum = new Position16<RoomPixels>(40, WordWrap.Unsigned(-32)),
+            MovementMinimum = Position16<RoomPixels>.Wrapped(40, -32),
             MovementMaximum = new Position16<RoomPixels>(224, 176),
             BabyProgram = AnimationProgramCursor<CeresBabyProgram>.Start(CeresBabyProgram.Initial),
             BabyFrameHold = 1,
@@ -196,21 +196,28 @@ internal sealed class CeresRidleyFlight
         TickCeresRidleyFireballShooting(slot, state);
     }
 
+    /// <summary>
+    /// The fireball target a jitter selects around the base position. Both coordinates move by the jitter, and the
+    /// game adds the jitter as a sixteen-bit quantity, so its sum with X carries one pixel into Y whenever it passes the
+    /// end of the coordinate space: a negative jitter carries unless it takes X below zero, a positive one only when it
+    /// takes X past the far end.
+    /// </summary>
+    /// <param name="basePosition">The base position the jitter moves.</param>
+    /// <param name="jitter">The jitter, -7 through 7 pixels.</param>
+    private static Position16<RoomPixels> JitteredFireballTarget(Position16<RoomPixels> basePosition, int jitter)
+    {
+        int x = basePosition.X + jitter;
+        bool carries = jitter < 0 ? x >= 0 : x > ushort.MaxValue;
+        return Position16<RoomPixels>.Wrapped(x, basePosition.Y + jitter + (carries ? 1 : 0));
+    }
+
     /// <summary>Selects the next fireball target from the base position and a jitter drawn from the current random number.</summary>
     internal void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // The attack choice reads RandomNumberSeed without generating a number.
         int random = _room.Random.Read();
-        int jitter = WordWrap.Signed(random) < 0 ? -(random & 7) : random & 7;
-        // Both targets add the jitter, read as a word, to the base position. When the X sum passes the end of the
-        // coordinate word, as a negative jitter's does unless X lies within the jitter of zero, the Y target lands one
-        // pixel further down.
-        int jitterWord = WordWrap.Unsigned(jitter);
-        int xSum = state.FireballBasePosition.X + jitterWord;
-        int yNudge = xSum > ushort.MaxValue ? 1 : 0;
-        Position16<RoomPixels> target = new(
-            WordWrap.Unsigned(xSum),
-            CoordinateAxis.Wrap(state.FireballBasePosition.Y + jitterWord + yNudge));
+        int jitter = BossRandomRolls.InLowerHalf(random) ? random & 7 : -(random & 7);
+        Position16<RoomPixels> target = JitteredFireballTarget(state.FireballBasePosition, jitter);
         AccelerateRidleyToward(slot, state, target, 0);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (state.FunctionTimer.IsNegative)
@@ -296,15 +303,15 @@ internal sealed class CeresRidleyFlight
             angle = RotationAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
         ByteAngle phase = angle.ToByteAngle();
-        state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(WordWrap.Unsigned(magnitude), phase));
-        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(WordWrap.Unsigned(magnitude), phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+        state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(magnitude, phase));
+        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(magnitude, phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)
     {
         state.Function = RidleyAiFunction.CeresRealRetreatRising;
-        state.MovementMinimum = state.MovementMinimum.WithY(WordWrap.Unsigned(-192));
+        state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
     }
 
     /// <summary>Moves the 100-shot retreat toward the Baby retrieval staging point.</summary>
@@ -327,8 +334,8 @@ internal sealed class CeresRidleyFlight
         // Ridley rises past Y=$20 while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent falling function and a
         // 21-underflow wait before Ridley changes to the retrieval pose.
-        state.MovementMinimum = state.MovementMinimum.WithY(WordWrap.Unsigned(-192));
-        AccelerateRidleyToward(slot, state, new(192, WordWrap.Unsigned(-128)), 1);
+        state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
+        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 1);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 32) < 0)
         {
             state.BabyFunction = CeresBabyFunction.Drop;
@@ -361,7 +368,7 @@ internal sealed class CeresRidleyFlight
         // The retreat accelerates toward the off-screen point. The signed test
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and the delay falls through into its first tick.
-        AccelerateRidleyToward(slot, state, new(192, WordWrap.Unsigned(-128)), 1);
+        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 1);
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole + 128) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
@@ -415,7 +422,8 @@ internal sealed class CeresRidleyFlight
     /// <summary>
     /// One axis of Ridley's seek (Y and X): one run of steps toward the target, three while reversing
     /// and one otherwise, in which a step that crosses zero makes the next one a unit larger
-    /// (<see cref="SeekingVelocityRun"/>).
+    /// (<see cref="SeekingVelocityRun"/>). The velocity stays within a few thousand units of rest (each call clamps it
+    /// to five pixels and a step is at most the arena's width), so the clamps compare signed velocities.
     /// </summary>
     /// <param name="velocity">The axis velocity.</param>
     /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
@@ -430,7 +438,7 @@ internal sealed class CeresRidleyFlight
         int step = Math.Max(1, Math.Abs(difference) / divisor);
         var run = new SeekingVelocityRun(velocity, position, target);
 
-        int word;
+        int speed;
         if (difference < 0)
         {
             if (velocity.SignedRawValue < 0)
@@ -439,10 +447,7 @@ internal sealed class CeresRidleyFlight
                 run.Raise(step);
             }
             run.Raise(step);
-            word = run.Velocity.RawValue;
-            // The compare against 1280 keeps any value whose signed difference is negative.
-            if (WordWrap.Signed(word - CeresRidleyBehavior.CeresRidleyMaximumSpeed) >= 0)
-                word = CeresRidleyBehavior.CeresRidleyMaximumSpeed;
+            speed = Math.Min(run.Velocity.SignedRawValue, CeresRidleyBehavior.CeresRidleyMaximumSpeed);
         }
         else
         {
@@ -452,12 +457,9 @@ internal sealed class CeresRidleyFlight
                 run.Lower(step);
             }
             run.Lower(step);
-            word = run.Velocity.RawValue;
-            // The compare against -1280 keeps any value whose signed difference is non-negative.
-            if (WordWrap.Signed(word - CeresRidleyBehavior.CeresRidleyMinimumSpeed) < 0)
-                word = CeresRidleyBehavior.CeresRidleyMinimumSpeed;
+            speed = Math.Max(run.Velocity.SignedRawValue, CeresRidleyBehavior.CeresRidleyMinimumSpeed);
         }
-        return new SignedEightEight(word);
+        return SignedEightEight.FromSignedRaw(speed);
     }
 
     /// <summary>Applies Ridley's 8.8 motion and arena clamps, invoking impact only at the strict left bound.</summary>

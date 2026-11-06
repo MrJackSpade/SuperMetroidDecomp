@@ -22,6 +22,6 @@ public static class RidleyClawOffsets
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="footPose"/> is not one of the three poses.</exception>
     public static int ReadY(int footPose) => (uint)footPose < 3
-        ? WordWrap.Signed(35 + (21 * footPose + 1) / 2)
+        ? 35 + (21 * footPose + 1) / 2
         : throw new ArgumentOutOfRangeException(nameof(footPose), footPose, "Ridley has three claw-height poses.");
 }

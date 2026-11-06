@@ -710,7 +710,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             funeNamihe.Function = words.B == 0 ? null : FuneNamiheNativeWords.FuneNamiheEnemyFunctions.Decode(words.B, "recorded FuneNamiheEnemyFunction");
             funeNamihe.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
-            funeNamihe.VariantIndex = Index(words.D, 15, "Fune/Namihe variant");
+            funeNamihe.Variant = Index(words.D, 15, "Fune/Namihe variant") == 0 ? FuneNamiheVariant.Fune : FuneNamiheVariant.Namihe;
             funeNamihe.CooldownTimer = words.E;
             funeNamihe.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);

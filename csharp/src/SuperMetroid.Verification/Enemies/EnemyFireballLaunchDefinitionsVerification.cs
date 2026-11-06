@@ -1,11 +1,13 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies;
 
-/// <summary>Checks compiled Alcoon and NamiFune fireball launch velocities against native words.</summary>
+/// <summary>Checks compiled Alcoon and decoded NamiFune fireball launch velocities against native words.</summary>
 internal static class EnemyFireballLaunchDefinitionsVerification
 {
     /// <summary>Checks Alcoon's upward, level and downward launches against the three authored vertical velocities.</summary>
@@ -26,21 +28,24 @@ internal static class EnemyFireballLaunchDefinitionsVerification
     private static void VerifyNamiFuneRightLaunchMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNamiFuneLaunchField), () => VerifyNamiFuneLaunchField(rom, left: false));
 
-    /// <summary>Compares eight indexed velocity pairs with native words and rejects invalid low-byte selectors.</summary>
+    /// <summary>
+    /// Compares the launch speed the import decodes from each of the eight selectors, and its reversal, with the native
+    /// velocity pairs whatever the wake distance beside it; the import rejects a selector past them.
+    /// </summary>
     private static void VerifyNamiFuneLaunchField(SuperMetroidAddressSpace rom, bool left)
     {
         for (int high = 0; high < 256; high++)
         {
             for (int index = 0; index < 8; index++)
             {
-                var pair = EnemyFireballLaunches.NamiFuneVelocities((ushort)((high << 8) | index));
+                var settings = (FuneNamiheSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Fune, PopulationWords.Parameters(0, (high << 8) | index));
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((left ? 0x86deb6 : 0x86deb8) + index * 4));
-                AssertEqual(expected, left ? pair.Left : pair.Right,
+                AssertEqual(expected, left ? settings.LaunchSpeed.Negated().RawValue : settings.LaunchSpeed.RawValue,
                     left ? "NamiFune native negative horizontal speed and high-byte aliases" : "NamiFune native positive horizontal speed and high-byte aliases");
             }
             foreach (int index in new[] { 8, 9, 127, 255 })
-                AssertThrows<InvalidDataException>(() => EnemyFireballLaunches.NamiFuneVelocities((ushort)((high << 8) | index)),
-                    "NamiFune rejects invalid low-byte selectors regardless of high byte");
+                AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Fune, PopulationWords.Parameters(0, (high << 8) | index)),
+                    "the import rejects NamiFune launch selectors past the eight records regardless of high byte");
         }
     }
 

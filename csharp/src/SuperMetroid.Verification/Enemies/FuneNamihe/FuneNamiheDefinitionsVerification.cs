@@ -57,7 +57,7 @@ internal static class FuneNamiheDefinitionsVerification
         {
             ushort native = LittleEndianBytes.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
-            var state = new FuneNamiheEnemyState { VariantIndex = namihe ? 1 : 0, ShowsActiveAnimation = active, FacingRight = right };
+            var state = new FuneNamiheEnemyState { Variant = namihe ? FuneNamiheVariant.Namihe : FuneNamiheVariant.Fune, ShowsActiveAnimation = active, FacingRight = right };
             AssertEqual(native, NativeEnemyProgramOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheProgram(state)),
                 "Fune/Namihe production species/activity/facing selection matches native pointer");
         }

@@ -25,6 +25,31 @@ internal static class SpawnSettingSelectors
             : throw new ArgumentException($"No linear-speed row moves at {speed}.", nameof(speed));
     }
 
+    /// <summary>The Fune and Namihe launch speeds, each a quarter pixel per update faster than the last.</summary>
+    private const int FuneNamiheLaunchSpeedCount = 8;
+
+    /// <summary>The quarter pixel per update, in 256ths of a pixel, by which each Fune and Namihe launch speed is faster.</summary>
+    private const int FuneNamiheLaunchSpeedStep = 64;
+
+    /// <summary>The speed at which Fune and Namihe launch selector <paramref name="selector"/> launches fireballs.</summary>
+    /// <exception cref="InvalidDataException">
+    /// <paramref name="selector"/> is eight or more. The game reads past its eight launch velocity pairs for such a
+    /// selector, but no retail placement selects one: every Fune and Namihe placement selects the sixth or eighth.
+    /// </exception>
+    public static SignedEightEight FuneNamiheLaunchSpeed(int selector) => selector is >= 0 and < FuneNamiheLaunchSpeedCount
+        ? new SignedEightEight((selector + 1) * FuneNamiheLaunchSpeedStep)
+        : throw new InvalidDataException($"Population words select Fune/Namihe launch speed {selector}, past its {FuneNamiheLaunchSpeedCount} authored values.");
+
+    /// <summary>The Fune and Namihe launch selector that launches fireballs at <paramref name="speed"/>.</summary>
+    /// <exception cref="ArgumentException">No selector launches at <paramref name="speed"/>.</exception>
+    public static int FuneNamiheLaunchSpeedSelector(SignedEightEight speed)
+    {
+        int selector = speed.RawValue / FuneNamiheLaunchSpeedStep - 1;
+        return selector is >= 0 and < FuneNamiheLaunchSpeedCount && FuneNamiheLaunchSpeed(selector) == speed
+            ? selector
+            : throw new ArgumentException($"No Fune/Namihe launch selector launches at {speed}.", nameof(speed));
+    }
+
     /// <summary>
     /// The pixels an Owtch walks to either side of its spawn position, by selector: sixteen more for each selector.
     /// Independently reviewed for #1165 against all eight authored words.

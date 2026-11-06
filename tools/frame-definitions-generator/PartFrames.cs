@@ -216,8 +216,8 @@ internal sealed record PartFrameConfiguration(
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
             [
-                new("Fune", "FuneNamiheSpawnSettings", "Variant", ["0"]),
-                new("Namihe", "FuneNamiheSpawnSettings", "Variant", ["1"]),
+                new("Fune", "FuneNamiheSpawnSettings", "Variant", ["Fune"]),
+                new("Namihe", "FuneNamiheSpawnSettings", "Variant", ["Namihe"]),
             ]),
         // Kamer runs the suspensor platform's programs and the Tripper its own, as the platform initializer chooses by
         // definition; only the Tripper's shot and bomb reactions pin its frozen frames.

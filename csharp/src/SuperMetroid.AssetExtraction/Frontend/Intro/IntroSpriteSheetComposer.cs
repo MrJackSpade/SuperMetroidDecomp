@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;

@@ -51,8 +51,7 @@ public sealed class FileSelectRoomMapGraphics
             throw new ArgumentOutOfRangeException(nameof(area));
         screen = new MenuScreen(mapPresentation.Backdrops.FileSelect,
             mapPresentation.WorldArtwork, installed);
-        AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system,
-            mapPresentation.HiddenCells.RoomSelect(system.HasAreaMap(area)), revealMode);
+        AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system, revealMode);
     }
 
     /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background tiles.</summary>
@@ -76,7 +75,7 @@ public sealed class FileSelectRoomMapGraphics
         var system = icons.MapSystem;
         var area = icons.MapArea;
         screen.BindWorldArtwork(catalog.WorldArtwork);
-        AreaMap = AreaMapProjection.Project(catalog.Get(area), system, catalog.HiddenCells.RoomSelect(system.HasAreaMap(area)));
+        AreaMap = AreaMapProjection.Project(catalog.Get(area), system);
     }
 
     /// <summary>Composes landmarks, the saved-station marker, and arrows in drawing order without advancing animations.</summary>

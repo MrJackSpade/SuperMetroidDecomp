@@ -149,28 +149,30 @@ internal static void VerifyHudState()
     AssertEqual(0x1400, hud.TileWords[0x14 / 2] & 0x1c00,
         "live HUD restores deselected missile icon to palette five");
 
-    // Area zero points to a synthetic two-screen-wide Crateria map. Give every map tile a
-    // character equal to its SNES-layout index and mark every coordinate as existing; the
-    // expected HUD words then prove room origin + Samus screen coordinates, 5x3 centering,
-    // exploration palette, and the map-station/unexplored palette independently.
+    // Area zero points to a synthetic two-screen-wide Crateria map. Give every 5x3 window of
+    // map tiles fifteen different retail map cells (#1513) and mark every coordinate as
+    // existing; the expected HUD words then prove room origin + Samus screen coordinates,
+    // 5x3 centering, exploration palette, and the map-station/unexplored palette independently.
     SeedSyntheticCrateriaAreaMap(bus);
 
     var mapSystem = new SharedGameState();
     mapSystem.SetAreaMapAcquired(0);
     hud.UpdateMinimap(mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "minimap Landing Site absolute tile");
-    AssertEqual(0x2c99, hud.TileWords[26], "minimap top-left unvisited map-station tile");
-    AssertEqual(0x28bb, hud.TileWords[60], "minimap explored center tile");
+    AssertEqual(SyntheticHudWord(new(25, 4), explored: false), hud.TileWords[26], "minimap top-left unvisited map-station tile");
+    AssertEqual(SyntheticHudWord(new(27, 5), explored: true), hud.TileWords[60], "minimap explored center tile");
 
     var noMapSystem = new SharedGameState();
     hud.UpdateMinimap(noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
-    AssertEqual(0x3cbb, hud.TileWords[60], "minimap blinking center palette");
+    AssertEqual((int)new MapTileWord(SyntheticMapWord(new(27, 5))).ForHud(explored: true).WithLocationBlink().Raw, hud.TileWords[60],
+        "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.TileWords[26], "minimap hides unvisited tile without map station");
 
-    // The sloping hall character explores the corner above the current cell. Native
-    // renders the upper row before setting this bit, so its palette changes next update.
+    // The sloped hallway's lower floor, rising either way, explores the corner above the
+    // current cell. Native renders the upper row before setting this bit, so its palette
+    // changes next update.
     foreach (int x in new[] { 31, 32 })
-    foreach (ushort slope in new ushort[] { 0x0028, 0x4228, 0x8028, 0xc228 })
+    foreach (ushort slope in new ushort[] { 0x0c28, 0x4c28 })
     {
         var slopeSystem = new SharedGameState();
         Position16<MapTiles> currentTile = new(checked((ushort)x), 5);
@@ -178,7 +180,7 @@ internal static void VerifyHudState()
         ushort savedCurrent = ReadFixtureMapWord(bus, currentTile);
         ushort savedAbove = ReadFixtureMapWord(bus, aboveTile);
         SeedFixtureMapWord(bus, currentTile, slope);
-        SeedFixtureMapWord(bus, aboveTile, 0x0029);
+        SeedFixtureMapWord(bus, aboveTile, 0x0c29);
         hud.UpdateMinimap(slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
         AssertTrue(slopeSystem.IsMapTileExplored(0, new(checked((ushort)x), 4)), "sloped hallway explores its upper corner on either map page");
         AssertEqual(0x2c1f, hud.TileWords[28], "upper corner remains blank on native discovery update");
@@ -188,11 +190,12 @@ internal static void VerifyHudState()
         SeedFixtureMapWord(bus, aboveTile, savedAbove);
     }
     var ordinaryCornerSystem = new SharedGameState();
-    // Character $029 is adjacent in the graphics catalog but must not get the $028
-    // exploration side effect; this also rejects indiscriminate upper-cell revealing.
+    // The hallway's lower ceiling, character $029, is adjacent in the graphics catalog but
+    // must not get the lower floor's exploration side effect; this also rejects
+    // indiscriminate upper-cell revealing.
     Position16<MapTiles> ordinaryTile = new(30, 5);
     ushort ordinarySaved = ReadFixtureMapWord(bus, ordinaryTile);
-    SeedFixtureMapWord(bus, ordinaryTile, 0x0029);
+    SeedFixtureMapWord(bus, ordinaryTile, 0x0c29);
     hud.UpdateMinimap(ordinaryCornerSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(30, 4), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
     SeedFixtureMapWord(bus, ordinaryTile, ordinarySaved);
@@ -238,7 +241,7 @@ internal static void VerifyHudState()
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
     hud.UpdateMinimap(rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(34, rightPageCenterY), hud.MinimapCenter, "right-page minimap absolute tile");
-    AssertEqual(0x2e63, hud.TileWords[61],
+    AssertEqual(SyntheticHudWord(new(rightPageNeighborX, rightPageCenterY), explored: false), hud.TileWords[61],
         "right-page minimap reads the same eastern cell as pause map");
     AssertEqual(0x2c1f, hud.TileWords[59],
         "right-page sparse map keeps the western cell blank");
@@ -278,8 +281,8 @@ static void ResetFixtureMapStationBitsToSingleTile(TestAddressSpace bus, Positio
 
 /// <summary>
 /// Seeds area zero's synthetic two-screen-wide Crateria map: the area pointer tables name
-/// mask $82:9000 and tilemap $B5:8000, every mask bit is set, and every tilemap word's
-/// character equals its SNES-layout index.
+/// mask $82:9000 and tilemap $B5:8000, every mask bit is set, and every tilemap word is the
+/// <see cref="SyntheticMapWord"/> of its cell.
 /// </summary>
 static void SeedSyntheticCrateriaAreaMap(TestAddressSpace bus)
 {
@@ -289,9 +292,27 @@ static void SeedSyntheticCrateriaAreaMap(TestAddressSpace bus)
     WriteTestWord(bus, 0x829717, 0x9000);
     for (int index = 0; index < 0x100; index++)
         WriteTestByte(bus, 0x829000 + index, 0xff);
-    for (int index = 0; index < 0x800; index++)
-        WriteTestWord(bus, 0xb58000 + index * 2, (ushort)(index & 0x03ff));
+    for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
+    for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+    {
+        var tile = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
+        WriteTestWord(bus, 0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2, SyntheticMapWord(tile));
+    }
 }
+
+/// <summary>
+/// The synthetic map's word at <paramref name="tile"/>: one of fifteen retail map cells, none a sloped hallway, each the
+/// first map character that pictures its cell in the unexplored row (#1513), chosen by the tile's column modulo five and
+/// row modulo three, so every 5x3 window of the map shows fifteen different cells and the HUD's words name the tile read.
+/// </summary>
+static ushort SyntheticMapWord(Position16<MapTiles> tile)
+{
+    ushort[] words = [0x0c20, 0x0c21, 0x0c22, 0x0c23, 0x0c24, 0x0c25, 0x0c26, 0x0c27, 0x0c4d, 0x0c4f, 0x0c5e, 0x0c6e, 0x0c6f, 0x0c76, 0x0c77];
+    return words[tile.X % 5 + 5 * (tile.Y % 3)];
+}
+
+/// <summary>The HUD word the minimap shows the synthetic map's <paramref name="tile"/> as, explored or not.</summary>
+static int SyntheticHudWord(Position16<MapTiles> tile, bool explored) => new MapTileWord(SyntheticMapWord(tile)).ForHud(explored).Raw;
 
 /// <summary>
 /// Seeds the three-row HUD ROM template entirely with the canonical blank HUD tile $2C0F, and

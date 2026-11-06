@@ -174,17 +174,9 @@ internal static class IntroSpriteSheetComposer
 
     /// <summary>
     /// Each family's composition of every pose over <paramref name="page"/>, its objects at <paramref name="sizes"/> and its
-    /// palette-inheriting parts in the sheet's frame palette, which the ending's colourings recolour.
-    /// </summary>
-    internal static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
-        ScreenObjectSizes sizes) =>
-        Frames(families, page, sizes, (_, _) => FrontendSheetPalette.FrameColourGroup.Number);
-
-    /// <summary>
-    /// Each family's composition of every pose over <paramref name="page"/>, its objects at <paramref name="sizes"/> and its
     /// palette-inheriting parts in the sprite set <paramref name="set"/> gives the family's pose.
     /// </summary>
-    private static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
+    internal static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
         ScreenObjectSizes sizes, Func<CinematicSpriteFamily, CinematicSpritePose, int> set) =>
         Ensure.NotNull(families).SelectMany(family => family.Frames.OrderBy(pair => pair.Key.Index).Select(pair =>
         {

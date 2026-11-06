@@ -264,7 +264,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 {
                     ActiveSprite = TitleSprite.SuperMetroidLogo;
                     ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-                    ActiveObjectColouring = TitleSpriteColouring.Logo;
+                    ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                 }
@@ -403,8 +403,8 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>The copyright's shading: its drawn colours, with its glyph colours restored once the skip has rebuilt the title objects (#1512).</summary>
     internal PictureShading CopyrightShading => CopyrightRestored
-        ? PictureShading.Shaded(TitleShades.Drawn(TitleSpriteColouring.Copyright)).With(TitleShades.RestoredCopyright)
-        : PictureShading.Shaded(TitleShades.Drawn(TitleSpriteColouring.Copyright));
+        ? PictureShading.Shaded(TitleShades.Drawn(TitleSequenceDefinitions.Sprites.CopyrightColouring)).With(TitleShades.RestoredCopyright)
+        : PictureShading.Shaded(TitleShades.Drawn(TitleSequenceDefinitions.Sprites.CopyrightColouring));
 
     /// <summary>Resolves the installed title gradient at the floor's current zoom.</summary>
     private ScreenGradient ResolveTitleGradient()
@@ -522,7 +522,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         CopyrightRestored = true;
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-        ActiveObjectColouring = TitleSpriteColouring.Logo;
+        ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
         floorBackgroundEnabled = true;
         panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
         Zoom = TitleSequenceDefinitions.Scenes.IdentityScale;

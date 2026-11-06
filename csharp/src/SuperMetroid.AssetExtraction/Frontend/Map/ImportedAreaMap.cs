@@ -11,8 +11,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </summary>
 public sealed class ImportedAreaMap : IAreaMapView
 {
-    /// <summary>Decoded map words addressed in logical 64-by-32 cell order.</summary>
-    private readonly MapTileWord[] tilemap;
+    /// <summary>The cell each map word shows (#1513), in logical 64-by-32 cell order.</summary>
+    private readonly MapCell[] cells;
 
     /// <summary>Pairs the cartridge bytes and their sources with the decoded map and reveal plane.</summary>
     internal ImportedAreaMap(
@@ -28,7 +28,7 @@ public sealed class ImportedAreaMap : IAreaMapView
         StationRevealMaskSource = stationRevealMaskSource;
         RawTilemapBytes = rawTilemapBytes;
         StationRevealMaskBytes = stationRevealMaskBytes;
-        this.tilemap = tilemap;
+        cells = [.. tilemap.Select(MapCellCharacters.Decode)];
     }
 
     /// <summary>Gets the area whose tilemap and map-station reveal plane were decoded.</summary>
@@ -46,15 +46,12 @@ public sealed class ImportedAreaMap : IAreaMapView
     /// <summary>Gets the map-station reveal-mask bytes.</summary>
     public byte[] StationRevealMaskBytes { get; }
 
-    /// <summary>Reads one decoded tilemap word in logical 64-by-32 coordinates.</summary>
-    public MapTileWord Word(Position16<MapTiles> cell)
+    /// <summary>How the cell at logical 64-by-32 coordinates looks, decoded from its word.</summary>
+    public MapCell Cell(Position16<MapTiles> cell)
     {
         _ = AreaMapPages.GetTilemapWordIndex(cell);
-        return tilemap[AreaMapLayout.Size.RowMajorIndex(cell)];
+        return cells[AreaMapLayout.Size.RowMajorIndex(cell)];
     }
-
-    /// <summary>How the cell at logical 64-by-32 coordinates looks, decoded from its word.</summary>
-    public MapCell Cell(Position16<MapTiles> cell) => Word(cell).ToCell();
 
     /// <summary>Whether the area's ordinary map station reveals this coordinate.</summary>
     public bool IsRevealedByMapStation(Position16<MapTiles> cell)

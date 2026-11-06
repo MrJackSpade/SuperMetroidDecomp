@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Map;
@@ -86,17 +87,17 @@ internal static class MapCrossViewAudit
             for (int outputX = 0; outputX < 5; outputX++)
             {
                 int mapX = (hud.MinimapCenter.X + outputX - 2) & 0x3f;
-                MapTileWord hudWord = new(hud.TileWords[26 + outputY * HudStateConstants.WidthInTiles + outputX]);
-                MapTileWord pauseWord = pause.ReadDisplayedMapTile(new(checked((ushort)mapX), checked((ushort)mapY)));
-                if (hudWord.IsBlank != pauseWord.IsBlank ||
-                    (!hudWord.IsBlank &&
-                        (hudWord.CharacterIndex != pauseWord.CharacterIndex ||
-                         hudWord.FlipFlags != pauseWord.FlipFlags)))
+                // Both views show the same map cell (#1513); a cell the HUD hides is the empty cell the pause map shows.
+                MapCell hudCell = hud.Minimap[outputY * GameplayHudPresentation.MinimapSize.X + outputX] is MinimapMapCell shown
+                    ? shown.Cell
+                    : MapCell.Empty;
+                MapCell pauseCell = pause.ReadDisplayedMapCell(new(checked((ushort)mapX), checked((ushort)mapY))).Cell;
+                if (hudCell != pauseCell)
                 {
                     throw new InvalidDataException(
                         $"Room {room.Identity} map cell ({mapX},{mapY}) disagreed " +
-                        $"with area-map acquisition={hasAreaMap}: HUD=${hudWord.Raw:X4}, " +
-                        $"pause=${pauseWord.Raw:X4}.");
+                        $"with area-map acquisition={hasAreaMap}: HUD={hudCell.Name}, " +
+                        $"pause={pauseCell.Name}.");
                 }
                 comparisons++;
             }

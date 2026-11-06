@@ -44,8 +44,12 @@ internal static class HudNativeState
         }
     }
 
-    /// <summary>What the minimap shows at a cell whose native word is <paramref name="word"/>.</summary>
-    private static MinimapCell Decode(MapTileWord word)
+    /// <summary>
+    /// What the minimap shows at a cell whose native word is <paramref name="word"/>: the hidden cell, or the map cell the
+    /// word's character and mirroring picture (#1513) in the shade its colour row selects.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The word is not one the minimap writes, or names an unclassified map character.</exception>
+    internal static MinimapCell Decode(MapTileWord word)
     {
         if (word == MapTileWords.HudBlank)
             return MinimapHiddenCell.Instance;
@@ -54,6 +58,6 @@ internal static class HudNativeState
             : word == shown.ForHud(explored: false) ? MinimapShade.Unexplored
             : word == shown.ForHud(explored: true).WithLocationBlink() ? MinimapShade.SamusLocation
             : throw new InvalidDataException($"HUD minimap word {word.Raw:x4} is not one the minimap writes.");
-        return new MinimapMapCell(new MapCellShape(shown.CharacterIndex), shown.Mirroring, shade);
+        return new MinimapMapCell(MapCellCharacters.Picture(shown.CharacterIndex, shown.Mirroring), shade);
     }
 }

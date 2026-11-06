@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -317,8 +318,15 @@ internal static void VerifyTypedNativeWords()
         var cell = new MapTileWord(raw);
         AssertEqual(raw, cell.Raw, $"{name} map cell raw round trip");
     }
-    AssertTrue(MapTileWords.PauseBlank.IsBlank && MapTileWords.HudBlank.IsBlank,
-        "pause and HUD blank sentinels share the empty character");
+    // The import decodes a map word to the cell it pictures, its mirroring folded into the cell's edges (#1513).
+    AssertEqual(MapCell.Empty,
+        MapCellCharacters.Picture(MapTileWords.HudBlank.CharacterIndex, MapTileWords.HudBlank.Mirroring),
+        "the HUD's hidden cell shows the empty map character");
+    AssertEqual(new MapCell(MapCellKind.Room, new(MapCellEdge.Wall,
+            MapCellEdge.Wall, MapCellEdge.Open, MapCellEdge.Wall)),
+        MapCellCharacters.Decode(new MapTileWord(0x4c21)), "a mirrored room character decodes to the room walled on its mirrored edges");
+    AssertThrows<InvalidDataException>(() => MapCellCharacters.Decode(new MapTileWord(0x0021)),
+        "a mapped cell in a colour row no retail map stores it in fails to decode");
     AssertEqual((ushort)0xa812, new MapTileWord(0xac12).AsExplored().Raw,
         "explored map cell clears only cartridge palette bit $0400");
     AssertEqual((ushort)0xebff, new MapTileWord(0xffff).ForHud(explored: true).Raw,

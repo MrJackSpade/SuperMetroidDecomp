@@ -34,7 +34,7 @@ internal sealed class EndingLogo
             CinematicActorDefinition definition = EndingLogoActors.Actor(i);
             actors[i] = new IntroDiscoverySprite(
                 EndingLogoActors.Origin(i),
-                EndingShades.Drawn(EndingSpriteColouring.Logo),
+                EndingShades.Drawn(EndingLogoDefinitions.Colouring),
                 definition.Program);
             actors[i].InstallFrameBehavior(definition.FrameBehavior);
         }

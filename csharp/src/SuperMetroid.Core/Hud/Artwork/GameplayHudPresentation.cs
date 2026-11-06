@@ -94,7 +94,7 @@ public class GameplayHudPresentation
             yield return new PlacedHudImage(new HudReserveCellImage(indicator, cell), Drawn(parts.AutoReserveCells[cell]));
     }
 
-    /// <summary>One minimap cell: a revealed map cell's shape and mirroring in its shade, or the empty cell.</summary>
+    /// <summary>One minimap cell: a revealed map cell in its shade, or the empty cell.</summary>
     /// <param name="output">The zero-based minimap column and row.</param>
     /// <param name="cell">What the minimap cell shows.</param>
     public PlacedHudImage MinimapCell(Position16<TilemapCells> output, MinimapCell cell)

@@ -79,39 +79,49 @@ internal static class EndingScreenShades
         [.. Ensure.NotNull(screen).Select(shade => Within(shade, 0, EndingScreenInks.SpriteFirst, 0))];
 
     /// <summary>
-    /// A sprite sheet's shades from <paramref name="screen"/>: each colouring's drawn shade, the sheet's own colours of
-    /// its group over the palette-inheriting parts' inks from <paramref name="frameInk"/>; the part of each screen shade
-    /// on the own-palette parts' sprite colours outside the frame inks' group; and under each colouring, the part of each
-    /// on its group, over the palette-inheriting parts' inks.
+    /// A sprite sheet's shades from <paramref name="screen"/> (#1513): each colouring's drawn shade, its own sprite set's
+    /// colours over every set its frames are pictured in, as <paramref name="pictures"/> records them; the part of each
+    /// screen shade on the sprite colours, except the sets some colouring's shade shows in another set's colours; and under
+    /// each colouring, the part of each screen shade on its set, over every set its frames are pictured in.
     /// </summary>
     /// <param name="screen">The ending's screen shades.</param>
     /// <param name="sprites">The sheet's sprite colours.</param>
-    /// <param name="frameInk">The first ink of the group a frame's palette-inheriting parts are coloured in.</param>
-    internal static IReadOnlyList<SheetShade> Sprites(IReadOnlyList<SheetShade> screen, IReadOnlyList<RgbColor> sprites, int frameInk)
+    /// <param name="pictures">The sets each colouring's frames are pictured in.</param>
+    internal static IReadOnlyList<SheetShade> Sprites(IReadOnlyList<SheetShade> screen, IReadOnlyList<RgbColor> sprites,
+        ColouringPictures<EndingSpriteColouring> pictures)
     {
         Ensure.NotNull(screen);
         Ensure.NotNull(sprites);
-        int frameGroup = frameInk / EndingScreenInks.GroupColours;
+        Ensure.NotNull(pictures);
         var shades = new List<SheetShade>();
         EndingSpriteColouring[] colourings = Enum.GetValues<EndingSpriteColouring>();
         foreach (EndingSpriteColouring colouring in colourings)
         {
             int set = EndingScreenInks.SpriteSet(colouring);
-            shades.Add(SheetShade.DrawnRun(EndingShades.Drawn(colouring), frameInk,
-                [.. sprites.Skip(set * EndingScreenInks.GroupColours).Take(EndingScreenInks.GroupColours)], set));
+            shades.Add(SheetShade.DrawnOver(EndingShades.Drawn(colouring), set, pictures.SetsOf(colouring),
+                [.. sprites.Skip(set * EndingScreenInks.GroupColours).Take(EndingScreenInks.GroupColours)]));
         }
         foreach (SheetShade shade in screen)
         {
-            int ownFirst = EndingScreenInks.SpriteFirst + (frameGroup + 1) * EndingScreenInks.GroupColours;
-            shades.Add(Within(shade, ownFirst, EndingScreenInks.ScreenColourCount, -EndingScreenInks.SpriteFirst));
+            shades.Add(Outside(Within(shade, EndingScreenInks.SpriteFirst, EndingScreenInks.ScreenColourCount, -EndingScreenInks.SpriteFirst),
+                pictures.Remapped));
             foreach (EndingSpriteColouring colouring in colourings)
             {
                 int first = EndingScreenInks.SpriteFirst + EndingScreenInks.SpriteSet(colouring) * EndingScreenInks.GroupColours;
-                SheetShade drawn = Within(shade, first, first + EndingScreenInks.GroupColours, frameInk - first);
-                shades.Add(drawn with { Shade = EndingShades.Under(EndingShades.Drawn(colouring), shade.Shade) });
+                SheetShade[] parts = [.. pictures.SetsOf(colouring).Select(pictured =>
+                    Within(shade, first, first + EndingScreenInks.GroupColours, pictured * EndingScreenInks.GroupColours - first))];
+                shades.Add(new SheetShade(EndingShades.Under(EndingShades.Drawn(colouring), shade.Shade),
+                    [.. parts.SelectMany(part => part.Inks)], [.. parts.SelectMany(part => part.Colours)]));
             }
         }
         return shades;
+    }
+
+    /// <summary><paramref name="shade"/> without the inks of the sprite sets <paramref name="sets"/> holds.</summary>
+    private static SheetShade Outside(SheetShade shade, SortedSet<int> sets)
+    {
+        int[] kept = [.. Enumerable.Range(0, shade.Inks.Length).Where(index => !sets.Contains(shade.Inks[index] / EndingScreenInks.GroupColours))];
+        return new SheetShade(shade.Shade, [.. kept.Select(index => shade.Inks[index])], [.. kept.Select(index => shade.Colours[index])]);
     }
 
     /// <summary>The colour each flash shows.</summary>

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
@@ -63,7 +64,7 @@ internal static class HudImageSheet
                 MapCell cell = map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y));
                 foreach (MinimapShade shade in Enum.GetValues<MinimapShade>())
                 {
-                    var image = new HudMinimapCellImage(cell.Shape, cell.Mirroring, shade);
+                    var image = new HudMinimapCellImage(cell, shade);
                     if (minimap.Add(image))
                         images.Add(image);
                 }
@@ -108,13 +109,15 @@ internal static class HudImageSheet
 
     /// <summary>
     /// Composes the pause HUD sheet: every HUD image <paramref name="maps"/>' HUD can place, painted from the HUD's
-    /// characters under the pause palette (#1466). A tile naming a character beyond the HUD's shows nothing, as pause shows
-    /// nothing there.
+    /// characters under the pause palette (#1466), after requiring those characters to picture each minimap cell once
+    /// (#1513). A tile naming a character beyond the HUD's shows nothing, as pause shows nothing there.
     /// </summary>
+    /// <exception cref="InvalidDataException">Two map characters that picture one minimap cell paint different pixels.</exception>
     internal static ComposedSpriteSheet ComposePause(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         ReadOnlyMemory<byte> characters = MapCharacterArtwork.Of(maps).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount];
+        MapCellCharacters.RequireOnePicturePerCell(new ScreenCharacters(TileInkDepth.FourColours).Place(0, characters));
         HudSheetLayout layout = Layout(GameplayHudArtwork.Of(maps.GameplayHud), Maps(maps));
         const int cell = RoomTileCanvas.CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ShelfCells * cell, checked((ushort)(layout.Rows * cell))));

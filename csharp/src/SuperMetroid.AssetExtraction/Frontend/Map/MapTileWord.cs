@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>
 /// The codec of one cartridge area-map cell word (#1466): the import's single reader and writer of a map cell's
 /// character, palette, priority and flip fields, and of the cartridge's explored-palette and HUD attribute operations.
-/// The game sees a cell only as the <see cref="MapCell"/> this decodes.
+/// The game sees a cell only as the <see cref="MapCell"/> <see cref="MapCellCharacters.Decode"/> decodes (#1513).
 /// </summary>
 /// <remarks>
 /// Map cells use the ordinary SNES BG tile layout, but bank <c>$82</c> gives one palette
@@ -54,9 +54,6 @@ public readonly record struct MapTileWord(ushort Raw)
     /// <summary>Alternating Samus marker palette bits applied during minimap blink.</summary>
     internal const ushort HudLocationBlinkAttributes = 0x1c00;
 
-    /// <summary>The nine low character bits $90:AAFD compares, ignoring character bit nine and every attribute.</summary>
-    private const ushort SlopedHallwayIdentityMask = 0x01ff;
-
     /// <summary>Low ten-bit map character selected by this cell.</summary>
     public ushort CharacterIndex => (ushort)(Raw & CharacterMask);
 
@@ -70,15 +67,6 @@ public readonly record struct MapTileWord(ushort Raw)
     public TileFlip Mirroring =>
         ((Raw & HorizontalFlipMask) != 0 ? TileFlip.Horizontal : TileFlip.None) |
         ((Raw & VerticalFlipMask) != 0 ? TileFlip.Vertical : TileFlip.None);
-
-    /// <summary>
-    /// Whether this cell shows the sloped-hallway character, as $90:AAFD recognises it from the character's nine low
-    /// bits regardless of flips and attributes.
-    /// </summary>
-    public bool IsSlopedHallway => (Raw & SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter;
-
-    /// <summary>Whether this word selects the cartridge's empty map character.</summary>
-    public bool IsBlank => CharacterIndex == MapTileWords.PauseBlank.CharacterIndex;
 
     /// <summary>
     /// Applies bank <c>$82:943D</c>'s explored-cell operation, clearing only palette bit
@@ -101,19 +89,4 @@ public readonly record struct MapTileWord(ushort Raw)
 
     /// <summary>The background tile the cell places: its character, palette, mirroring and priority.</summary>
     public BackgroundTile ToTile() => new(CharacterIndex, PaletteIndex, HasPriority, Mirroring);
-
-    /// <summary>
-    /// The cell the game shows for this word: its character as the shape, its palette as the colour variant, the palette
-    /// <c>$82:943D</c> leaves once the cell is explored, its mirroring and its priority.
-    /// </summary>
-    public MapCell ToCell() => new(new MapCellShape(CharacterIndex), PaletteIndex, AsExplored().PaletteIndex, Mirroring, HasPriority);
-
-    /// <summary>The cartridge word that shows <paramref name="cell"/> before it is explored.</summary>
-    public static MapTileWord Of(MapCell cell) => new(checked((ushort)(
-        cell.Shape.Picture |
-        cell.ColourVariant << PaletteShift |
-        (cell.InFront ? PriorityMask : 0) |
-        ((cell.Mirroring & TileFlip.Horizontal) != TileFlip.None ? HorizontalFlipMask : 0) |
-        ((cell.Mirroring & TileFlip.Vertical) != TileFlip.None ? VerticalFlipMask : 0))));
-
 }

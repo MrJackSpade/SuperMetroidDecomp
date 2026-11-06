@@ -165,7 +165,7 @@ internal static class CinematicSheetFixtures
     /// <summary>
     /// A sheet of any cinematic family's <paramref name="frames"/> over the installed intro OBJ page in the opening's colours
     /// and shades: an opening family's as the intro sheet composes it, in its colouring's sprite set (#1513); a Ceres or
-    /// ending family's with its palette-inheriting parts in the frame colour group, as the opening defines no colouring for
+    /// ending family's with its palette-inheriting parts in <see cref="FixtureSet"/>, as the opening defines no colouring for
     /// it. The OAM comparisons such a sheet serves read each draw's palette row from the draw's drawn shade
     /// (<see cref="DrawnShadeRows"/>), never from the picture's inks.
     /// </summary>
@@ -180,9 +180,12 @@ internal static class CinematicSheetFixtures
         }
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
         RgbColor[] sprites = [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours];
-        return new SpriteSheetSources([.. IntroSpriteSheetComposer.Frames([frames], IntroObjectPage.Of(intro), sizes)], sprites, sizes,
+        return new SpriteSheetSources([.. IntroSpriteSheetComposer.Frames([frames], IntroObjectPage.Of(intro), sizes, (_, _) => FixtureSet)], sprites, sizes,
             PartsKeepOwnRows: true) { Shades = IntroSheetShades.Sprites(sprites) };
     }
+
+    /// <summary>The sprite set a fixture sheet pictures a Ceres or ending family's palette-inheriting parts in: the first.</summary>
+    private const int FixtureSet = 0;
 
     /// <summary>Composes, loads and registers one fixture sheet under a name of its own.</summary>
     internal static SpriteSheet Load(SpriteSheetSources sources, string name)

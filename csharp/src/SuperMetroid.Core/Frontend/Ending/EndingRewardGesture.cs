@@ -18,19 +18,9 @@ internal sealed class EndingRewardGesture
     /// <summary>Spawns the suitless pair or the suited head, body, and arm in E342 allocation order.</summary>
     public EndingRewardGesture(EndingReward reward)
     {
-        if (reward == EndingReward.Suitless)
-        {
-            Spawn(EndingRewardActor.SuitlessUpper);
-            Spawn(EndingRewardActor.SuitlessLower);
-        }
-        else
-        {
-            // Keep E342's allocation order: head first, then body, then arm.
-            Spawn(reward == EndingReward.Helmetless ? EndingRewardActor.HelmetlessHead
-                : EndingRewardActor.HelmetedHead);
-            Spawn(EndingRewardActor.SuitedBody);
-            Spawn(EndingRewardActor.SuitedArm);
-        }
+        // The cast keeps the allocation order: a suited reward's head first, then body, then arm.
+        foreach (EndingRewardActor actor in EndingRewardCast.Gesture(reward))
+            Spawn(actor);
     }
 
     /// <summary>Advances active gesture actors once and records any instruction-triggered jump handoff.</summary>

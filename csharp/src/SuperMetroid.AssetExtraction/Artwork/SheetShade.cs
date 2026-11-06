@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -24,6 +25,28 @@ internal sealed record SheetShade(PictureShade Shade, int[] Inks, RgbColor[] Col
     /// </summary>
     internal static SheetShade DrawnRun(PictureShade shade, int firstInk, ReadOnlySpan<RgbColor> colours, int set) =>
         Run(shade, firstInk, colours) with { TakesColourMath = set >= SpriteColourMathDefinitions.FirstSetTakingColourMath };
+
+    /// <summary>
+    /// The drawn shade of a colouring held in sprite set <paramref name="set"/> over frames pictured in the sets
+    /// <paramref name="pictured"/> holds (#1513): each of those sets' inks shows the colouring's <paramref name="colours"/>,
+    /// colour for colour, so a frame pictured in another colouring's set shows in this one's; it takes part in colour math
+    /// when the colouring's set is one colour math covers.
+    /// </summary>
+    internal static SheetShade DrawnOver(PictureShade shade, int set, SortedSet<int> pictured, ReadOnlySpan<RgbColor> colours)
+    {
+        Ensure.NotNull(pictured);
+        var inks = new List<int>(pictured.Count * colours.Length);
+        var shown = new List<RgbColor>(pictured.Count * colours.Length);
+        foreach (int frameSet in pictured)
+        {
+            for (int colour = 0; colour < colours.Length; colour++)
+            {
+                inks.Add(frameSet * colours.Length + colour);
+                shown.Add(colours[colour]);
+            }
+        }
+        return new SheetShade(shade, [.. inks], [.. shown]) { TakesColourMath = set >= SpriteColourMathDefinitions.FirstSetTakingColourMath };
+    }
 
     /// <summary>
     /// The shade that recolours <paramref name="colours"/>.Length inks from <paramref name="firstInk"/> on, as a run of a

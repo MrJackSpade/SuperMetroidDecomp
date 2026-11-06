@@ -229,15 +229,18 @@ internal static class EndingCreditsPresentation
             }
         }
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase) && Shows(EndingSpriteLayer.Stars))
-            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(), ending.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
+            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(), ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));
         objects.FinishFrame();
         return objects;
 
         // Whether the sprites of `layer` are placed.
         bool Shows(EndingSpriteLayer layer) => only is null || only == layer;
 
-        // A family's frames, drawn in the ending's colours under the colouring each actor names.
-        CinematicSpriteSheet Family(CinematicSpriteFamily family) => new(Sheet(), family, ending.screen.Colours.Drawn);
+        // A family's frames, drawn in the ending's colours under the colouring each actor names; the result text's typed
+        // texts are drawn as the glyphs typed so far (#1513).
+        IIntroCinematicSpritePresentation Family(CinematicSpriteFamily family) => family == EndingTypedTexts.Family
+            ? new TypedTextSpriteSheet(Sheet(), family, ending.screen.Colours.Drawn, EndingTypedTexts.Texts)
+            : new CinematicSpriteSheet(Sheet(), family, ending.screen.Colours.Drawn);
 
         // A frame that draws nothing needs no sheet.
         SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward));

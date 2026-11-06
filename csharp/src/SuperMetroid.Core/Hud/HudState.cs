@@ -269,8 +269,7 @@ public sealed class HudState
                     continue;
                 }
 
-                MapCell mapCell = frame.PresentationMap.Cell(cell);
-                Minimap[destination] = new MinimapMapCell(mapCell.Shape, mapCell.Mirroring,
+                Minimap[destination] = new MinimapMapCell(frame.PresentationMap.Cell(cell),
                     explored ? MinimapShade.Explored : MinimapShade.Unexplored);
                 // The center slope also explores the corner above it. The top
                 // row has already been rendered and its explored bits latched, so that

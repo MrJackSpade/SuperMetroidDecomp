@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -5,6 +6,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Definitions for the final assembling Super Metroid icon.</summary>
 internal static class EndingLogoDefinitions
 {
+    /// <summary>The colouring every logo actor draws in.</summary>
+    internal const EndingSpriteColouring Colouring = EndingSpriteColouring.Logo;
 
     /// <summary>Upper S, moving into place, showing LogoUpperS.</summary>
     internal static CinematicActorDefinition UpperS => new(CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf, CinematicSpriteProgram.LogoUpperS);

@@ -73,7 +73,6 @@ internal static class PauseMenuFixtureVerification
         var parts = new AreaMapPresentationParts
         {
             Areas = areas,
-            HiddenCells = stock.HiddenCells,
             ContentIdentity = "constructed-pause-interaction-fixture",
             HighlightCycle = stock.HighlightCycle,
             Backdrops = palettes.Backdrops(),

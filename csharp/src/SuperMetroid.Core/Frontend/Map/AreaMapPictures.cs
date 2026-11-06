@@ -8,13 +8,12 @@ namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
 /// Shows an area map as the map screens draw it (#1467): a picture grid of the map's cells, each the installed picture of
-/// its shape in the colour variant and tier the screen shows it in, mirrored as the cell mirrors it.
+/// the cell (#1513) in the shade the screen shows it in.
 /// </summary>
 internal static class AreaMapPictures
 {
-    /// <summary>The frame name of the picture of <paramref name="shown"/>'s shape, colour variant and tier, before mirroring.</summary>
-    internal static string FrameName(ShownMapCell shown) =>
-        $"Map.Cell.{shown.Cell.Shape.Picture}.{shown.ColourVariant}.{(shown.Cell.InFront ? "Front" : "Back")}";
+    /// <summary>The frame name of the picture of <paramref name="shown"/>'s cell in its shade.</summary>
+    internal static string FrameName(ShownMapCell shown) => $"Map.Cell.{shown.Cell.Name}.{shown.Shade}";
 
     /// <summary>The frame name of <paramref name="area"/>'s room-map frame page.</summary>
     internal static string RoomFrameName(AreaId area) => $"Map.RoomFrame.{area}";
@@ -39,7 +38,7 @@ internal static class AreaMapPictures
         foreach (ShownMapCell shown in map.Cells)
         {
             string frame = FrameName(shown);
-            cells.Add(sheet.ShowsNothing(frame) ? null : new GridPicture(sheet.Frame(frame), shown.Cell.Mirroring, PictureShading.Standard));
+            cells.Add(sheet.ShowsNothing(frame) ? null : new GridPicture(sheet.Frame(frame), TileFlip.None, PictureShading.Standard));
         }
         return new PictureGrid(new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), cells.MoveToImmutable());
     }

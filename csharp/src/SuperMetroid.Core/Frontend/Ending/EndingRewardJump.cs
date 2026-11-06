@@ -8,18 +8,24 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Reward jump/landing actor owner, ending at the screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
-    /// <summary>The program Samus's body falls by once she is drawn from her falling sheet.</summary>
-    private const CinematicSpriteProgram FallingProgram = CinematicSpriteProgram.Falling;
+    /// <summary>
+    /// The program Samus's body falls by once she is drawn from her falling sheet. A suited jump's head flies ahead of the
+    /// body and is deleted as it passes the height at which the body switches to that sheet, so only the body's falling and
+    /// landing are drawn from it.
+    /// </summary>
+    internal const CinematicSpriteProgram FallingProgram = CinematicSpriteProgram.Falling;
 
     /// <summary>The program Samus's body lands and shoots by.</summary>
-    private const CinematicSpriteProgram LandingProgram = CinematicSpriteProgram.Landing;
+    internal const CinematicSpriteProgram LandingProgram = CinematicSpriteProgram.Landing;
 
-    /// <summary>
-    /// The programs the jump's actors run while Samus is drawn from her falling sheet (#1513): the body's falling and
-    /// landing. A suited jump's head flies ahead of the body, which it leaves below it, and is deleted as it passes the
-    /// height at which the body later switches to the falling sheet, so no head is drawn from that sheet.
-    /// </summary>
-    internal static IReadOnlyList<CinematicSpriteProgram> FallingSheetPrograms { get; } = [FallingProgram, LandingProgram];
+    /// <summary>The colouring Samus's body falls and lands in once she is drawn from her falling sheet.</summary>
+    internal const EndingSpriteColouring FallingColouring = EndingSpriteColouring.FallingSamus;
+
+    /// <summary>The colouring the landing program's shoot cue turns Samus's body to, which it keeps to the end.</summary>
+    internal const EndingSpriteColouring ShootingColouring = EndingSpriteColouring.ShootingSamus;
+
+    /// <summary>The landing program's cue that turns Samus's body to <see cref="ShootingColouring"/> and requests the shot.</summary>
+    internal const CinematicSpriteCueKind ShootCue = CinematicSpriteCueKind.Shoot;
 
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
@@ -40,9 +46,9 @@ internal sealed class EndingRewardJump
     public EndingRewardJump(EndingReward reward)
     {
         helmeted = reward == EndingReward.Armored;
-        if (reward != EndingReward.Suitless)
-            head = Spawn(helmeted ? EndingRewardActor.JumpHelmetedHead : EndingRewardActor.JumpHelmetlessHead);
-        body = Spawn(reward == EndingReward.Suitless ? EndingRewardActor.JumpSuitlessBody : EndingRewardActor.JumpSuitedBody);
+        if (EndingRewardCast.JumpHead(reward) is { } headActor)
+            head = Spawn(headActor);
+        body = Spawn(EndingRewardCast.JumpBody(reward));
     }
 
     /// <summary>Advances head before body, including shared gravity and instruction effects.</summary>
@@ -66,7 +72,7 @@ internal sealed class EndingRewardJump
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
             {
                 FallingSheetSelected = true;
-                body.SetColouring(EndingShades.Drawn(EndingSpriteColouring.FallingSamus));
+                body.SetColouring(EndingShades.Drawn(FallingColouring));
                 body.Start(FallingProgram);
                 body.InstallFrameBehavior(CinematicSpriteFrameBehavior.RewardLanding);
             }
@@ -114,8 +120,8 @@ internal sealed class EndingRewardJump
             case CinematicSpriteCueKind.LaunchHead:
                 RequireHead().WholePosition = new(WordWrap.Unsigned(helmeted ? 120 : 121), WordWrap.Unsigned(helmeted ? 114 : 116));
                 return;
-            case CinematicSpriteCueKind.Shoot:
-                body.SetColouring(EndingShades.Drawn(EndingSpriteColouring.ShootingSamus));
+            case ShootCue:
+                body.SetColouring(EndingShades.Drawn(ShootingColouring));
                 ShotRequested = true;
                 return;
             case CinematicSpriteCueKind.SetFrameBehavior:

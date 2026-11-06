@@ -59,7 +59,7 @@ internal static class ActorPartDrawsVerification
         pirate.ExtraProperties = pirate.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         pirate.Frame = frame;
         pirate.Position = pirate.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(0, pirate);
+        enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), pirate);
 
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();

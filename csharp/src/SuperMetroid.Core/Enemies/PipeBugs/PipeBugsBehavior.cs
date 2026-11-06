@@ -624,17 +624,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         Axis axis,
         int displacement)
     {
-        uint position = axis == Axis.Horizontal
-            ? slot.Position.X.RawValue
-            : slot.Position.Y.RawValue;
-        position = unchecked(position + (uint)displacement);
+        SignedSixteenSixteen moved = SignedSixteenSixteen.FromRaw(displacement);
         if (axis == Axis.Horizontal)
         {
-            slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
+            slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(moved));
         }
         else
         {
-            slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
+            slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(moved));
         }
     }
 

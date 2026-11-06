@@ -471,8 +471,6 @@ internal sealed class KraidRise
         RoomEnemySlot body,
         int displacement)
     {
-        uint position = body.Position.Y.RawValue;
-        position = unchecked(position + (uint)displacement);
-        body.Position = body.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
+        body.Position = body.Position.WithY(body.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement)));
     }
 }

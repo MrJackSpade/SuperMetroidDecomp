@@ -277,9 +277,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>Ports the direct 16.16 <c>AddToHiLo</c> used by both travel directions.</summary>
     private static void AddElevatorYVelocity(RoomEnemySlot slot, int signedVelocity)
     {
-        uint fixedPosition = slot.Position.Y.RawValue;
-        fixedPosition = unchecked(fixedPosition + (uint)signedVelocity);
-        slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(fixedPosition)));
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(signedVelocity)));
     }
 
     /// <summary>Pins Samus to the elevator.</summary>

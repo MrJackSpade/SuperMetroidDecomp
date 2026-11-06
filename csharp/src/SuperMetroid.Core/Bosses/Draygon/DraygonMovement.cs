@@ -21,10 +21,8 @@ internal sealed class DraygonMovement
     internal static void MoveDraygonHorizontally(DraygonEnemyState state, bool rightward)
     {
         RoomEnemySlot body = state.Body;
-        uint position = body.Position.X.RawValue;
-        uint velocity = state.SwoopVelocity;
-        position = rightward ? unchecked(position + velocity) : unchecked(position - velocity);
-        body.Position = body.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
+        int velocity = unchecked((int)state.SwoopVelocity);
+        body.Position = body.Position.WithX(body.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(rightward ? velocity : unchecked(-velocity))));
     }
 
     /// <summary>Emits a breath bubble every 128 body frames when a sprite slot is available.</summary>
@@ -47,10 +45,7 @@ internal sealed class DraygonMovement
         uint magnitude,
         bool subtract)
     {
-        uint fixedPosition = position.RawValue;
-        fixedPosition = subtract
-            ? unchecked(fixedPosition - magnitude)
-            : unchecked(fixedPosition + magnitude);
-        return FixedCoordinate.FromRaw(fixedPosition);
+        int displacement = unchecked((int)magnitude);
+        return position.MovedBy(SignedSixteenSixteen.FromRaw(subtract ? unchecked(-displacement) : displacement));
     }
 }

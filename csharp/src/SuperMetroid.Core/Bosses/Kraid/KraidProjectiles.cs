@@ -484,9 +484,7 @@ internal sealed class KraidProjectiles
         RoomEnemySlot slot,
         int displacement)
     {
-        uint position = slot.Position.X.RawValue;
-        position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(displacement)));
     }
 
     /// <summary>Updates a spit rock's flight and removes it at its boundary.</summary>

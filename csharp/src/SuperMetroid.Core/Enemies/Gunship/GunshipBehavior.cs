@@ -373,9 +373,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
-            uint fixedPosition = slot.Position.Y.RawValue;
-            fixedPosition = unchecked(fixedPosition + delta);
-            slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(fixedPosition)));
+            slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(unchecked((int)delta))));
         }
     }
 

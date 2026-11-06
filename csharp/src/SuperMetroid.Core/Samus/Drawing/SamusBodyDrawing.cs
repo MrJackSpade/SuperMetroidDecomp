@@ -25,7 +25,7 @@ internal static class SamusBodyDrawing
     /// between them for the forward-facing Power Suit body. <see cref="SamusShownFrames.PictureFrame"/> gives the picture
     /// frame an animation frame shows.
     /// </summary>
-    /// <exception cref="InvalidDataException">The pose has no movement type, or the body's placement lacks installed art.</exception>
+    /// <exception cref="InvalidDataException">The pose has no movement type, or the forward-facing Power Suit frame is not installed.</exception>
     internal static SamusBodyFrame Frame(SamusPoseId pose, int pictureFrame, InstalledSamusBodyArtwork artwork)
     {
         Ensure.NotNull(artwork);
@@ -89,66 +89,12 @@ internal static class SamusBodyDrawing
 
     /// <summary>
     /// How far above Samus's drawn point the body's origin sits for <paramref name="pose"/> at picture frame
-    /// <paramref name="animationFrame"/>, by the pose's own movement type: movement type zero uses the standing position
-    /// selector, `$0F/$1B` use their explicit table-backed selectors, and every other pose the pose's graphics offset. The
-    /// origin goes with the picture: a mapped frame is placed as the picture frame it shows.
+    /// <paramref name="animationFrame"/>: the placement the import baked into that installed frame (#1517). The origin
+    /// goes with the picture: a mapped frame is placed as the picture frame it shows.
     /// </summary>
-    /// <exception cref="InvalidDataException">The pose has no movement type, or the frame's offset lacks installed art.</exception>
-    internal static int OriginRise(SamusPoseId pose, int animationFrame, InstalledSamusBodyArtwork artwork)
-    {
-        Ensure.NotNull(artwork);
-        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(pose);
-        if (movementType == SamusMovementType.Standing &&
-            pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
-            animationFrame >= 2)
-        {
-            // The front-facing draw uses the ordinary pose graphics offset for front-facing
-            // frames zero/one, then pins every later frame exactly one pixel above Samus's
-            // center.
-            return 1;
-        }
-        if (movementType == SamusMovementType.Standing &&
-            SamusPoseNumbering.InRange(pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
-        {
-            // The landing offset indexes sixteen packed bytes. The game reads a word there, whose high byte, the next
-            // frame's byte, the drawn position never shows (#1397), so the body is placed by the frame's own byte (#1500).
-            int landingOffsetIndex = SamusPoseNumbering.Offset(pose, SamusPoseId.NormalLandingRightPose) * 4 + animationFrame;
-            if (!artwork.TryLandingYOffset(landingOffsetIndex, out int landingOffset))
-                throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
-            return landingOffset;
-        }
-        if (movementType == SamusMovementType.PostureTransition &&
-            !SamusPoseNumbering.Precedes(pose, SamusPoseId.CrouchingTransitionRightPose) &&
-            SamusPoseNumbering.Precedes(pose, SamusPoseId.MorphBallGroundLeftPose))
-        {
-            // The posture-transition offset indexes a signed byte by `2*(pose-$35)+animation frame` instead
-            // of using the pose-definition graphics offset. Installed visual bytes
-            // retain ordinary crouch/morph/stand/unmorph values and the four
-            // valid-but-unused zero records `$39/$3A/$3F/$40`. An out-of-range
-            // selection rejects; neighboring bytes are not a runtime fallback.
-            int postureIndex = SamusPoseNumbering.Offset(pose, SamusPoseId.CrouchingTransitionRightPose) * 2 + animationFrame;
-            if (!artwork.TryPostureYOffset(postureIndex, out int transitionOffset))
-                throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
-            return -transitionOffset;
-        }
-        if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-        {
-            // The drained-body offset indexes a shared 32-byte table directly with the
-            // animation byte index. Several indices intentionally name command operands,
-            // because the external controller can publish those literal indices for a
-            // visible frame. The installed 32-byte table preserves that odd layout.
-            if (!artwork.TryDrainedYOffset(animationFrame, out int drainedOffset))
-                throw new InvalidDataException($"Samus drained offset {animationFrame} lacks installed art.");
-            return -drainedOffset;
-        }
-        // The drained-body draw replaces the usual pose graphics offset with -3 after
-        // standing drained art reaches byte index five.
-        if (pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose && animationFrame >= 5)
-            return 3;
-        // The draw sign-extends the byte at pose-definition offset four. FacingRightNormalPose stores
-        // +6, moving the art origin six pixels above Samus's world-space center.
-        return artwork.GraphicsYOffset(pose);
-    }
+    /// <exception cref="InvalidDataException">The frame is not installed.</exception>
+    internal static int OriginRise(SamusPoseId pose, int animationFrame, InstalledSamusBodyArtwork artwork) =>
+        Ensure.NotNull(artwork).Frame(pose, animationFrame).OriginRise;
 
     /// <summary>
     /// Where the chest cover sits relative to the body's origin, or none for a pose without it. The game draws one

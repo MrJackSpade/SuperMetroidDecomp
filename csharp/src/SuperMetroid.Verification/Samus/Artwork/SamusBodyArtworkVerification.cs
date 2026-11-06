@@ -140,17 +140,25 @@ internal static class SamusBodyArtworkVerification
         OamBuffer zeroOam = SamusSpritemapDrawsAccess.SamusSpritemapOam((ushort)zeroIndex,
             new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus));
         AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
-        for (int i = 0; i < stock.LandingYOffsets.Length; i++)
-            AssertEqual(bus.ReadCartridgeByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + i),
-                stock.LandingYOffsets[i], $"Samus landing visual byte {i}");
-        for (int i = 0; i < stock.PostureYOffsets.Length; i++)
-            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value + i)),
-                stock.PostureYOffsets[i], $"Samus posture visual byte {i}");
-        for (int i = 0; i < stock.DrainedYOffsets.Length; i++)
-            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusSourceDefinitions.DrainedVerticalOffsets.Value + i)),
-                stock.DrainedYOffsets[i], $"Samus drained visual byte {i}");
+        // The installation holds each pose's and frame's placement, decoded once from the cartridge's tables (#1517).
+        Dictionary<SamusPoseId, SamusBodyPosePlacement> expectedPlacements = SamusBodyPlacementDecoding.Decode(
+            Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
+                SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4))).ToArray(),
+            Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.LandingByteCount).Select(i =>
+                (int)bus.ReadCartridgeByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + i)).ToArray(),
+            Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.PostureByteCount).Select(i =>
+                (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value + i))).ToArray(),
+            Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.DrainedByteCount).Select(i =>
+                (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.DrainedVerticalOffsets.Value + i))).ToArray());
+        AssertEqual(expectedPlacements.Count, stock.Placements.Count, "Samus placements cover every pose with a record");
+        foreach (KeyValuePair<SamusPoseId, SamusBodyPosePlacement> expected in expectedPlacements)
+        {
+            SamusBodyPosePlacement installed = stock.Placements[expected.Key];
+            AssertEqual(expected.Value.GraphicsYOffset, installed.GraphicsYOffset, $"Samus pose {expected.Key} installed origin");
+            AssertTrue(expected.Value.FrameRises is null ? installed.FrameRises is null
+                : installed.FrameRises is { } rises && rises.SequenceEqual(expected.Value.FrameRises),
+                $"Samus pose {expected.Key} installed frame placements");
+        }
 
         // The installed selector and both VRAM halves must take the production path
         // without even reading one cartridge byte. This covers every authored pose's

@@ -345,9 +345,9 @@ internal sealed class SamusPresentation
     /// Ports the standing and ordinary-running portions of <c>Samus_Draw</c>.
     /// </summary>
     /// <remarks>
-    /// The body's origin and the halves it shows come from <see cref="SamusBodyDrawing"/>, which keeps the complete
-    /// position selectors and lower-half dispatcher, including all unused-but-valid movement types; the body sheet is
-    /// composed from the same decisions. The halves an update shows are drawn as one full-body picture (#1513), by the
+    /// The body's origin and the halves it shows come from <see cref="SamusBodyDrawing"/>: the origin is the placement the
+    /// import baked into the installed frame (#1517), and the halves follow the draw's lower-half dispatcher for every pose
+    /// the game gives Samus; the body sheet is composed from the same decisions. The halves an update shows are drawn as one full-body picture (#1513), by the
     /// pose's own movement type at the picture frame <see cref="SamusShownFrames"/> gives the animation frame: the body is
     /// always a whole Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
     /// </remarks>

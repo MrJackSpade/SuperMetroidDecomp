@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -9,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>
 /// Samus's body as the import pipeline holds it (#1465): the cartridge's definition-group starts, per-pose frame lists
 /// and four-byte frame selections, from which the import resolves once the half pictures each pose shows at each
-/// animation frame. A half picture is a numbered body definition record: a group's start plus a selection's position,
+/// animation frame, and the placement each of those frames carries (#1517). A half picture is a numbered body definition record: a group's start plus a selection's position,
 /// which may run into the next group. The numbering is the import's private knowledge; gameplay sees only
 /// <see cref="SamusBodyPicture"/> identities.
 /// </summary>
@@ -47,6 +46,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         bottomSetStarts = (int[])parts.BottomSetStarts.Clone();
         poseFirstFrames = (int[])parts.PoseFirstFrames.Clone();
         frames = (SamusBodyFrameSelection[])parts.Frames.Clone();
+        Placements = parts.Placements.ToDictionary();
     }
 
     /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
@@ -61,43 +61,16 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
     public string BodyCharactersContentIdentity { get; }
 
-    /// <summary>The resolved signed art-origin offset of every pose, in pose-number order.</summary>
-    public ReadOnlySpan<int> GraphicsYOffsets => graphicsYOffsetsTable ??=
-        [.. Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index)))];
-    /// <summary>The materialized <see cref="GraphicsYOffsets"/>; the installed tables never change after construction.</summary>
-    private int[]? graphicsYOffsetsTable;
-
-    /// <summary>The landing table: four unsigned bytes for each landing pose.</summary>
-    public ReadOnlySpan<int> LandingYOffsets => landingYOffsetsTable ??=
-        [.. Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount)
-            .Select(index => TryLandingYOffset(index, out int value) ? value : throw new InvalidOperationException($"Landing byte {index} is outside the table."))];
-    /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
-    private int[]? landingYOffsetsTable;
-
-    /// <summary>The installed posture-transition vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsetsTable ??=
-        [.. Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount)
-            .Select(index => TryPostureYOffset(index, out int value) ? checked((sbyte)value) : throw new InvalidOperationException($"Posture byte {index} is outside the table."))];
-    /// <summary>The materialized <see cref="PostureYOffsets"/>; the installed tables never change after construction.</summary>
-    private sbyte[]? postureYOffsetsTable;
-
-    /// <summary>The installed drained-state vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsetsTable ??=
-        [.. Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
-            .Select(index => TryDrainedYOffset(index, out int value) ? checked((sbyte)value) : throw new InvalidOperationException($"Drained byte {index} is outside the table."))];
-    /// <summary>The materialized <see cref="DrainedYOffsets"/>; the installed tables never change after construction.</summary>
-    private sbyte[]? drainedYOffsetsTable;
+    /// <summary>Where each pose with a record places the body: its art origin and, where they differ, each frame's own placement.</summary>
+    public IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
 
     /// <summary>SHA-256 of all visual selectors, the body characters' identity and bundled Samus presentation catalogs.</summary>
-    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v3", content =>
+    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v4", content =>
     {
         foreach (int start in TopSetStarts) content.Append("top set start", start);
         foreach (int start in BottomSetStarts) content.Append("bottom set start", start);
         foreach (int firstFrame in PoseFirstFrames) content.Append("pose first frame", firstFrame);
-        content.Append("graphics y offsets", GraphicsYOffsets.SelectToArray(value => unchecked((byte)value)));
-        content.AppendWords("landing y offsets", LandingYOffsets);
-        content.Append("posture y offsets", PostureYOffsets.SelectToArray(value => unchecked((byte)value)));
-        content.Append("drained y offsets", DrainedYOffsets.SelectToArray(value => unchecked((byte)value)));
+        AppendPlacements(content, Placements);
         foreach (SamusBodyFrameSelection frame in Frames)
         {
             content.Append("top set", frame.TopSet);
@@ -130,6 +103,26 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
 
     /// <summary>The picture that shows definition <paramref name="record"/>.</summary>
     public static SamusBodyPicture Picture(int record) => new(record);
+
+    /// <summary>
+    /// Adds every pose's placement to <paramref name="content"/> in the cartridge's pose order: its art origin, then its
+    /// frames' own placements when it has them.
+    /// </summary>
+    private static void AppendPlacements(SelectedPresentationHash content, IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> placements)
+    {
+        Ensure.NotNull(content);
+        Ensure.NotNull(placements);
+        for (int number = 0; number < PoseCount; number++)
+        {
+            SamusBodyPosePlacement placement = placements[SamusPoseNumbering.FromNumber(number)];
+            content.Append("graphics y offset", placement.GraphicsYOffset);
+            if (placement.FrameRises is not { } rises)
+                continue;
+            content.Append("frame rise count", rises.Length);
+            foreach (int rise in rises)
+                content.Append("frame rise", rise);
+        }
+    }
 
     /// <summary>
     /// The number of definitions each group start holds: every record between it and the next start in sorted order (or
@@ -171,26 +164,31 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         foreach (int firstFrame in parts.PoseFirstFrames)
             if ((uint)firstFrame >= FrameCount)
                 throw new InvalidDataException($"Samus pose selects invalid frame list {firstFrame}.");
+        Ensure.NotNull(parts.Placements);
+        if (parts.Placements.Count != PoseCount || parts.Placements.Keys.Any(pose => !SamusPoseNumbering.HasRecord(pose)) ||
+            parts.Placements.Values.Any(placement => placement is null))
+            throw new InvalidDataException("Samus body placements do not cover exactly the poses with records.");
         int first = GroupLengths(parts.TopSetStarts, parts.BottomSetStarts).Keys.Min();
-        SamusBodyFramePictures? Pictures(SamusBodyFrameSelection selection) =>
+        // A frame is installed when both its pictures and its placement resolve.
+        SamusBodyFramePictures? Pictures(SamusBodyFrameSelection selection, SamusBodyPosePlacement placement, int animationFrame) =>
+            placement.TryFrameRise(animationFrame, out int rise) &&
             TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Top, selection.TopSet, selection.TopPosition, out int top) &&
             (!selection.NamesBottom || TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Bottom,
                 selection.BottomSet, selection.BottomPosition, out _))
                 ? new SamusBodyFramePictures(Picture(top), selection.NamesBottom
-                    ? Picture(parts.BottomSetStarts[selection.BottomSet] + selection.BottomPosition) : null)
+                    ? Picture(parts.BottomSetStarts[selection.BottomSet] + selection.BottomPosition) : null, rise)
                 : null;
         return new SamusBodyArtworkContent
         {
-            Frames = Enumerable.Range(0, PoseCount).ToDictionary(SamusPoseNumbering.FromNumber, pose =>
+            Frames = Enumerable.Range(0, PoseCount).ToDictionary(SamusPoseNumbering.FromNumber, number =>
             {
-                int firstFrame = parts.PoseFirstFrames[pose];
+                int firstFrame = parts.PoseFirstFrames[number];
+                SamusBodyPosePlacement placement = parts.Placements[SamusPoseNumbering.FromNumber(number)];
                 return (IReadOnlyList<SamusBodyFramePictures?>)parts.Frames
-                    .Skip(firstFrame).Take(Math.Min(SamusBodySheetDefinitions.AnimationFrames, FrameCount - firstFrame)).Select(Pictures).ToArray();
+                    .Skip(firstFrame).Take(Math.Min(SamusBodySheetDefinitions.AnimationFrames, FrameCount - firstFrame))
+                    .Select((selection, animationFrame) => Pictures(selection, placement, animationFrame)).ToArray();
             }),
-            GraphicsYOffsets = parts.GraphicsYOffsets,
-            LandingYOffsets = parts.LandingYOffsets,
-            PostureYOffsets = parts.PostureYOffsets,
-            DrainedYOffsets = parts.DrainedYOffsets,
+            GraphicsYOffsets = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
             Spritemaps = parts.Spritemaps,
             Atmosphere = parts.Atmosphere,
             DeathSteps = parts.DeathPalettes.Steps,

@@ -5,8 +5,9 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Verification access to the native tables the import resolved an installed body's pictures from (#1465). Gameplay
-/// reads only the pictures; verification compares these tables, and the records they select, with the cartridge.
+/// Verification access to the native tables the import resolved an installed body's pictures from (#1465), and the
+/// placements it installed (#1517). Gameplay reads only the frames; verification compares these tables, and the records
+/// they select, with the cartridge.
 /// </summary>
 internal static class InstalledSamusBodyArtworkAccess
 {
@@ -25,17 +26,8 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <summary>The contiguous frame-selector interval.</summary>
         internal ReadOnlySpan<SamusBodyFrameSelection> Frames => self.Source.Frames;
 
-        /// <summary>The resolved signed art-origin offset of every pose, in pose-number order.</summary>
-        internal ReadOnlySpan<int> GraphicsYOffsets => self.Source.GraphicsYOffsets;
-
-        /// <summary>The landing table: four unsigned bytes for each landing pose.</summary>
-        internal ReadOnlySpan<int> LandingYOffsets => self.Source.LandingYOffsets;
-
-        /// <summary>The installed posture-transition vertical-offset table.</summary>
-        internal ReadOnlySpan<sbyte> PostureYOffsets => self.Source.PostureYOffsets;
-
-        /// <summary>The installed drained-state vertical-offset table.</summary>
-        internal ReadOnlySpan<sbyte> DrainedYOffsets => self.Source.DrainedYOffsets;
+        /// <summary>Where each pose places the body, as the installation holds it: its art origin and its frames' own placements (#1517).</summary>
+        internal IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements => self.Source.Placements;
 
         /// <summary>The identity of the death-explosion characters the import pipeline installed with the body.</summary>
         internal string DeathTilesContentIdentity => self.Source.DeathTilesContentIdentity;

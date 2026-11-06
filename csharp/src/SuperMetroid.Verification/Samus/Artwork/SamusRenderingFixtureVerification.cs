@@ -25,7 +25,8 @@ internal static class SamusRenderingFixtureVerification
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
-        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat((int)offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, stock.BodyCharactersContentIdentity);
+        PlacementTables tables = StockPlacementTables(stock);
+        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), Placements = SamusBodyPlacementDecoding.Decode(Enumerable.Repeat((int)offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), tables.Landing, tables.Posture, tables.Drained), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon }, stock.BodyCharactersContentIdentity);
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }
@@ -80,16 +81,17 @@ internal static class SamusRenderingFixtureVerification
                 if (bus.HasSeededByte(address + index * 2)) original[index] = Word(address + index * 2);
             return original;
         }
-        sbyte[] OverrideBytes(int address, sbyte[] original)
+        int[] OverrideSignedBytes(int address, int[] original)
         {
             for (int index = 0; index < original.Length; index++)
                 if (bus.HasSeededByte(address + index)) original[index] = unchecked((sbyte)bus.ReadByte(address + index));
             return original;
         }
+        PlacementTables tables = StockPlacementTables(stock);
         var topPointers = OverrideWords(SamusSourceDefinitions.TopDefinitionListPointers.Value, stock.TopSetPointers.ToArray());
         var bottomPointers = OverrideWords(SamusSourceDefinitions.BottomDefinitionListPointers.Value, stock.BottomSetPointers.ToArray());
         var posePointers = OverrideWords(SamusSourceDefinitions.AnimationDefinitionListPointers.Value, stock.PosePointers.ToArray());
-        int[] offsets = stock.GraphicsYOffsets.ToArray();
+        int[] offsets = tables.GraphicsYOffsets;
         for (int pose = 0; pose < offsets.Length; pose++)
         {
             int address = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
@@ -137,10 +139,34 @@ internal static class SamusRenderingFixtureVerification
         var sprites = new SamusSpritemapSources(
             Words(InstalledSamusSpritemaps.TopBaseAddress, InstalledSamusBodyArtwork.PoseCount),
             Words(InstalledSamusSpritemaps.BottomBaseAddress, InstalledSamusBodyArtwork.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
-        int[] landing = stock.LandingYOffsets.ToArray();
+        int[] landing = tables.Landing;
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))
                 landing[index] = bus.ReadByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index);
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, stock.DrainedYOffsets.ToArray()) }, Groups(true, topPointers), Groups(false, bottomPointers));
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), Placements = SamusBodyPlacementDecoding.Decode(offsets, landing, OverrideSignedBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, tables.Posture), OverrideSignedBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, tables.Drained)), Frames = frames, Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon }, Groups(true, topPointers), Groups(false, bottomPointers));
     }
+
+    /// <summary>
+    /// The cartridge tables <paramref name="stock"/>'s placements were decoded from (#1517), recovered so a fixture can
+    /// override their seeded bytes and decode them again: each pose's origin, and the whole landing, posture-transition and
+    /// drained tables, which the first pose of each family installs from its first frame to the table's end.
+    /// </summary>
+    private static PlacementTables StockPlacementTables(InstalledSamusBodyArtwork stock)
+    {
+        int[] Rises(SamusPoseId pose) => stock.Placements[pose].FrameRises is { } rises
+            ? [.. rises]
+            : throw new InvalidDataException($"Stock pose {pose} installs no frame placements.");
+        return new PlacementTables(
+            [.. Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => stock.Placements[SamusPoseNumbering.FromNumber(pose)].GraphicsYOffset)],
+            Rises(SamusPoseId.NormalLandingRightPose),
+            [.. Rises(SamusPoseId.CrouchingTransitionRightPose).Select(rise => -rise)],
+            [.. Rises(SamusPoseId.DrainedCrouchingRightPose).Select(rise => -rise)]);
+    }
+
+    /// <summary>The cartridge's body placement tables, as a fixture overrides them.</summary>
+    /// <param name="GraphicsYOffsets">Each pose's signed art origin, in the cartridge's pose order.</param>
+    /// <param name="Landing">The landing table's unsigned rises.</param>
+    /// <param name="Posture">The posture-transition table's signed offsets.</param>
+    /// <param name="Drained">The drained-body table's signed offsets.</param>
+    private sealed record PlacementTables(int[] GraphicsYOffsets, int[] Landing, int[] Posture, int[] Drained);
 }

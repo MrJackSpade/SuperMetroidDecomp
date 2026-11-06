@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Samus's body as the import reads it (#633, #1465): the cartridge's definition-group starts, per-pose frame lists and
-/// frame selections, from which the import resolves the half pictures each pose frame shows, with the offsets and
-/// dependent artwork catalogs.
+/// frame selections, from which the import resolves the half pictures each pose frame shows, with where each pose and frame
+/// places the body and the dependent artwork catalogs.
 /// </summary>
 public sealed record SamusBodyArtworkParts
 {
@@ -19,8 +20,11 @@ public sealed record SamusBodyArtworkParts
     /// <summary>Each pose's first four-byte frame selector.</summary>
     public required int[] PoseFirstFrames { get; init; }
 
-    /// <summary>Per-pose signed vertical art origins.</summary>
-    public required int[] GraphicsYOffsets { get; init; }
+    /// <summary>
+    /// Where each pose with a record places the body (#1517): its art origin and, for a pose whose frames differ from it,
+    /// each animation frame's own placement.
+    /// </summary>
+    public required IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; init; }
 
     /// <summary>The contiguous native frame-selector interval.</summary>
     public required SamusBodyFrameSelection[] Frames { get; init; }
@@ -39,13 +43,4 @@ public sealed record SamusBodyArtworkParts
 
     /// <summary>Where each pose places the arm-cannon cover.</summary>
     public required InstalledSamusArmCannonArtwork ArmCannon { get; init; }
-
-    /// <summary>Native landing vertical-offset bytes.</summary>
-    public required int[] LandingYOffsets { get; init; }
-
-    /// <summary>Native posture-transition vertical offsets.</summary>
-    public required sbyte[] PostureYOffsets { get; init; }
-
-    /// <summary>Native drained-state vertical offsets.</summary>
-    public required sbyte[] DrainedYOffsets { get; init; }
 }

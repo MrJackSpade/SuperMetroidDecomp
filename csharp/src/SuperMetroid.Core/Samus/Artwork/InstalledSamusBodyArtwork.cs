@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -8,23 +7,18 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <remarks>
 /// These records affect presentation only. Pose transitions, animation delays, collision,
 /// and projectile timing remain in the compiled simulation. The import resolves, once, the half pictures each pose shows
-/// at every animation frame the body sheets cover (#1465); their characters are composed into the pre-coloured sheets at
-/// installation, and this catalog names the pictures a frame shows and carries their characters' identity.
+/// at every animation frame the body sheets cover (#1465) and where each of those frames places the body (#1517); their
+/// characters are composed into the pre-coloured sheets at installation, and this catalog names the pictures a frame
+/// shows, carries their characters' identity, and places the body by pose and frame.
 /// </remarks>
 public abstract class InstalledSamusBodyArtwork
 {
     /// <summary>Number of Samus pose entries with body-art selectors.</summary>
     public const int PoseCount = SamusPoseNumbering.RecordCount;
 
-    /// <summary>Pose art-origin edits independent of physical collision offsets.</summary>
-    internal readonly Dictionary<int, int> graphicsYOffsets;
-    /// <summary>Edited landing visual bytes.</summary>
-    internal readonly Dictionary<int, int> landingYOffsets;
-    /// <summary>The installed posture-transition art offsets.</summary>
-    private readonly sbyte[] postureYOffsets;
-    /// <summary>The installed drained-state art offsets.</summary>
-    private readonly sbyte[] drainedYOffsets;
-    /// <summary>The half pictures each pose shows at each covered animation frame, or none where they are not installed.</summary>
+    /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
+    internal readonly Dictionary<SamusPoseId, int> graphicsYOffsets;
+    /// <summary>Each pose's installed animation frames, each holding its pictures and placement, or none where not installed.</summary>
     private readonly Dictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>> poseFrames;
 
     /// <summary>Which body picture each pose half shows at each animation frame, for these body frames.</summary>
@@ -40,8 +34,11 @@ public abstract class InstalledSamusBodyArtwork
     public InstalledSamusArmCannonArtwork ArmCannon { get; }
 
     /// <summary>Validates a complete Samus body-art catalog.</summary>
-    /// <param name="content">The pictures each pose frame shows, the body's placement and the catalogs it binds.</param>
-    /// <exception cref="InvalidDataException">A table has an invalid length, or the pictures do not cover exactly the poses with records.</exception>
+    /// <param name="content">The frames each pose shows with their placements, each pose's art origin and the catalogs it binds.</param>
+    /// <exception cref="InvalidDataException">
+    /// The frames do not cover exactly the poses with records, the art origins do not cover the same poses, or an art
+    /// origin lies outside -128 through 127 pixels.
+    /// </exception>
     protected InstalledSamusBodyArtwork(SamusBodyArtworkContent content)
     {
         Ensure.NotNull(content);
@@ -51,32 +48,15 @@ public abstract class InstalledSamusBodyArtwork
         Ensure.NotNull(content.Atmosphere);
         Ensure.NotNull(content.DeathSteps);
         Ensure.NotNull(content.ArmCannon);
-        Ensure.NotNull(content.LandingYOffsets);
-        Ensure.NotNull(content.PostureYOffsets);
-        Ensure.NotNull(content.DrainedYOffsets);
-        if (content.GraphicsYOffsets.Length != PoseCount ||
-            content.LandingYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount ||
-            content.PostureYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount ||
-            content.DrainedYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
-            throw new InvalidDataException("Samus body selector tables have an invalid length.");
         if (content.Frames.Count != PoseCount || content.Frames.Keys.Any(pose => !SamusPoseNumbering.HasRecord(pose)) ||
             content.Frames.Values.Any(frames => frames is null))
             throw new InvalidDataException("Samus body pictures do not cover exactly the poses with records.");
-
-        if (content.GraphicsYOffsets.Any(value => value is < sbyte.MinValue or > sbyte.MaxValue))
-            throw new InvalidDataException("Samus art origins must fit in one signed byte.");
-        this.graphicsYOffsets = Enumerable.Range(0, content.GraphicsYOffsets.Length)
-            .Where(index => content.GraphicsYOffsets[index] != SamusBodyPlacements.DefaultGraphicsYOffset(SamusPoseNumbering.FromNumber(index)))
-            .ToDictionary(index => index, index => content.GraphicsYOffsets[index]);
-        if (content.LandingYOffsets.Any(value => value is < 0 or > byte.MaxValue))
-            throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
-        this.landingYOffsets = Enumerable.Range(0, content.LandingYOffsets.Length)
-            .Where(index => content.LandingYOffsets[index] != (SamusBodyPlacements.LandingSourceIndex(index) == index
-                ? SamusBodyPlacements.DefaultLandingByte(index)
-                : content.LandingYOffsets[SamusBodyPlacements.LandingSourceIndex(index)]))
-            .ToDictionary(index => index, index => content.LandingYOffsets[index]);
-        this.postureYOffsets = (sbyte[])content.PostureYOffsets.Clone();
-        this.drainedYOffsets = (sbyte[])content.DrainedYOffsets.Clone();
+        if (content.GraphicsYOffsets.Count != content.Frames.Count ||
+            content.Frames.Keys.Any(pose => !content.GraphicsYOffsets.ContainsKey(pose)))
+            throw new InvalidDataException("Samus art origins do not cover exactly the poses with body pictures.");
+        if (content.GraphicsYOffsets.Values.Any(value => value is < sbyte.MinValue or > sbyte.MaxValue))
+            throw new InvalidDataException("Samus art origins must lie from -128 through 127 pixels.");
+        this.graphicsYOffsets = content.GraphicsYOffsets.ToDictionary();
         this.poseFrames = content.Frames.ToDictionary();
         Spritemaps = content.Spritemaps;
         Atmosphere = content.Atmosphere;
@@ -84,63 +64,23 @@ public abstract class InstalledSamusBodyArtwork
         ArmCannon = content.ArmCannon;
     }
 
-    /// <summary>Resolves an edited landing byte or its shared-source alias.</summary>
-    private int LandingByte(int index) => landingYOffsets.ContainsKey(index)
-        ? landingYOffsets[index] : SamusBodyPlacements.LandingSourceIndex(index) == index
-            ? SamusBodyPlacements.DefaultLandingByte(index) : LandingByte(SamusBodyPlacements.LandingSourceIndex(index));
-    /// <summary>
-    /// Attempts to read the landing visual offset at a byte index. The game reads a word there, but only its low byte
-    /// reaches the drawn position, so the next landing byte, and for the last frame the byte after the table, are not
-    /// read (#1500).
-    /// </summary>
-    /// <param name="index">The byte index: four per landing pose, then the animation frame.</param>
-    /// <param name="value">Receives the unsigned landing offset, 0 through 255 pixels upward.</param>
-    /// <returns><see langword="true"/> when the index is in range.</returns>
-    public bool TryLandingYOffset(int index, out int value)
-    {
-        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount)
-        {
-            value = 0;
-            return false;
-        }
-        value = LandingByte(index);
-        return true;
-    }
-    /// <summary>Attempts to read a signed posture-transition art offset.</summary>
-    /// <param name="index">The table byte index.</param>
-    /// <param name="value">Receives the signed vertical offset.</param>
-    /// <returns><see langword="true"/> when the index is in range.</returns>
-    public bool TryPostureYOffset(int index, out int value)
-    {
-        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount) { value = 0; return false; }
-        value = postureYOffsets[index];
-        return true;
-    }
-    /// <summary>Attempts to read a signed drained-state art offset.</summary>
-    /// <param name="index">The table byte index.</param>
-    /// <param name="value">Receives the signed vertical offset.</param>
-    /// <returns><see langword="true"/> when the index is in range.</returns>
-    public bool TryDrainedYOffset(int index, out int value)
-    {
-        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount) { value = 0; return false; }
-        value = drainedYOffsets[index];
-        return true;
-    }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
+    /// <exception cref="InvalidDataException">The pose has no art origin.</exception>
     public int GraphicsYOffset(SamusPoseId pose) =>
-        SamusPoseNumbering.HasRecord(pose) ? graphicsYOffsets.ContainsKey(SamusPoseNumbering.Number(pose)) ? graphicsYOffsets[SamusPoseNumbering.Number(pose)] : SamusBodyPlacements.DefaultGraphicsYOffset(pose) :
-            throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
+        graphicsYOffsets.TryGetValue(pose, out int offset)
+            ? offset
+            : throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
 
-    /// <summary>The half pictures <paramref name="pose"/> shows at <paramref name="animationFrame"/>.</summary>
-    /// <exception cref="InvalidDataException">The pose has no record, or the frame's pictures are not installed.</exception>
+    /// <summary>The half pictures <paramref name="pose"/> shows at <paramref name="animationFrame"/>, and where that frame places the body.</summary>
+    /// <exception cref="InvalidDataException">The pose has no record, or the frame is not installed.</exception>
     public SamusBodyFramePictures Frame(SamusPoseId pose, int animationFrame) =>
         TryFrame(pose, animationFrame, out SamusBodyFramePictures pictures)
             ? pictures
             : throw new InvalidDataException($"Samus pose {pose} animation frame {animationFrame} shows no installed body pictures.");
 
     /// <summary>
-    /// The half pictures <paramref name="pose"/> shows at <paramref name="animationFrame"/>, when the pose has a record and
-    /// the frame's pictures are installed; false for any other pair, which <see cref="Frame"/> rejects.
+    /// The half pictures <paramref name="pose"/> shows at <paramref name="animationFrame"/> with the frame's placement, when
+    /// the pose has a record and the frame is installed; false for any other pair, which <see cref="Frame"/> rejects.
     /// </summary>
     public bool TryFrame(SamusPoseId pose, int animationFrame, out SamusBodyFramePictures pictures)
     {

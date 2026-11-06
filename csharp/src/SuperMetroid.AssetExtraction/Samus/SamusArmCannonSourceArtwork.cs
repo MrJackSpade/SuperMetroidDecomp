@@ -99,7 +99,9 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         if (poseDescriptors.Length != SamusBodySources.PoseCount)
             throw new InvalidDataException("Arm-cannon placements must cover every pose.");
         var placements = new Dictionary<int, SamusArmCannonPlacement>();
-        return poseDescriptors.Select((descriptor, pose) => KeyValuePair.Create(SamusPoseNumbering.FromNumber(pose), Placement(descriptor))).ToDictionary();
+        // A record no pose names is never drawn (#1517).
+        return Enumerable.Range(0, poseDescriptors.Length).Where(SamusPoseNumbering.NamesPose)
+            .ToDictionary(SamusPoseNumbering.FromNumber, pose => Placement(poseDescriptors[pose]));
 
         SamusArmCannonPlacement Placement(int descriptor)
         {

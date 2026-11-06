@@ -259,7 +259,7 @@ public static class SamusBodyArtworkFiles
             manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodySources.TopSetCount ||
             manifest.Bottom.Length != SamusBodySources.BottomSetCount ||
-            manifest.Placements.Count != SamusBodySources.PoseCount ||
+            manifest.Placements.Count != Enumerable.Range(0, SamusBodySources.PoseCount).Count(SamusPoseNumbering.NamesPose) ||
             manifest.Placements.Values.Any(placement => placement is null) ||
             manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||

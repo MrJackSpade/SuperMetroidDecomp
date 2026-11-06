@@ -34,7 +34,7 @@ internal static class SamusPoseInputRulesEarly
         MorphBallMovingLeftPoseList => MatchMorphBallMovingLeftPoseList(held, newlyPressed),
         MorphBallGroundLeftPoseList => MatchMorphBallGroundLeftPoseList(held, newlyPressed),
         GlitchBallRightPoseList => MatchGlitchBallRightPoseList(),
-        GlitchBallLeftPoseList => MatchGlitchBallLeftPoseList(),
+        GlitchBallLeftPoseList => MatchGlitchBallRightPoseList().Mirrored(),
         CrouchingRightPoseList => MatchCrouchingRightPoseList(held, newlyPressed),
         CrouchingLeftPoseList => MatchCrouchingLeftPoseList(held, newlyPressed),
         FallingRightPoseList => MatchFallingRightPoseList(held),
@@ -473,11 +473,6 @@ internal static class SamusPoseInputRulesEarly
         return new(null, HasConditions: false);
     }
 
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallLeftPose"/>: priority order.</summary>
-    private static SamusPoseInputMatch MatchGlitchBallLeftPoseList()
-    {
-        return new(null, HasConditions: false);
-    }
 
     /// <summary>TransitionTable_27_71_73_85_FacingRight_Crouching: priority order.</summary>
     private static SamusPoseInputMatch MatchCrouchingRightPoseList(ControllerButton held, ControllerButton newlyPressed)

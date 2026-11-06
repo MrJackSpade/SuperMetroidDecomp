@@ -114,7 +114,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     {
         Ensure.NotNull(content);
         Ensure.NotNull(placements);
-        for (int number = 0; number < PoseCount; number++)
+        foreach (int number in Enumerable.Range(0, PoseCount).Where(SamusPoseNumbering.NamesPose))
         {
             SamusBodyPosePlacement placement = placements[SamusPoseNumbering.FromNumber(number)];
             content.Append("graphics y offset", placement.GraphicsYOffset);
@@ -167,7 +167,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
             if ((uint)firstFrame >= FrameCount)
                 throw new InvalidDataException($"Samus pose selects invalid frame list {firstFrame}.");
         Ensure.NotNull(parts.Placements);
-        if (parts.Placements.Count != PoseCount || parts.Placements.Keys.Any(pose => !SamusPoseNumbering.HasRecord(pose)) ||
+        if (parts.Placements.Count != Enumerable.Range(0, PoseCount).Count(SamusPoseNumbering.NamesPose) || parts.Placements.Keys.Any(pose => !SamusPoseNumbering.HasRecord(pose)) ||
             parts.Placements.Values.Any(placement => placement is null))
             throw new InvalidDataException("Samus body placements do not cover exactly the poses with records.");
         int first = GroupLengths(parts.TopSetStarts, parts.BottomSetStarts).Keys.Min();
@@ -182,7 +182,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
                 : null;
         return new SamusBodyArtworkContent
         {
-            Frames = Enumerable.Range(0, PoseCount).ToDictionary(SamusPoseNumbering.FromNumber, number =>
+            Frames = Enumerable.Range(0, PoseCount).Where(SamusPoseNumbering.NamesPose).ToDictionary(SamusPoseNumbering.FromNumber, number =>
             {
                 int firstFrame = parts.PoseFirstFrames[number];
                 SamusBodyPosePlacement placement = parts.Placements[SamusPoseNumbering.FromNumber(number)];

@@ -116,11 +116,11 @@ internal static class RidleySamusDrawReference
             SamusMovementType.Knockback => frame >= 3 ||
                 poseId is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose),
             SamusMovementType.PostureTransition => !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
-                (!SamusPoseNumbering.Precedes(poseId, SamusPoseId.UnusedPoseDd) ? frame == 2 :
-                 !SamusPoseNumbering.Precedes(poseId, SamusPoseId.UnusedPoseDb) ? frame == 0 :
+                (!SamusPoseNumbering.Precedes(poseId, SamusPoseId.CompactStandingUpRightPose) ? frame == 2 :
+                 !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CompactMorphingRightPose) ? frame == 0 :
                  poseId is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
                     SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose),
-            SamusMovementType.Unused0D => frame == 0 || poseId is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66),
+            SamusMovementType.Unused0D => frame == 0 || poseId is not (SamusPoseId.CompactAirborneFallingRightPose or SamusPoseId.CompactAirborneFallingLeftPose),
             SamusMovementType.WallJumping => frame is < 3 or >= 13,
             SamusMovementType.DamageBoost => frame is < 2 or >= 9,
             SamusMovementType.Special =>

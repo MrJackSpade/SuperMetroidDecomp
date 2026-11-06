@@ -157,7 +157,8 @@ internal static class SamusRenderingFixtureVerification
             ? [.. rises]
             : throw new InvalidDataException($"Stock pose {pose} installs no frame placements.");
         return new PlacementTables(
-            [.. Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => stock.Placements[SamusPoseNumbering.FromNumber(pose)].GraphicsYOffset)],
+            // A record no pose names is skipped by the decoder, so its table entry is read by nothing.
+            [.. Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => SamusPoseNumbering.NamesPose(pose) ? stock.Placements[SamusPoseNumbering.FromNumber(pose)].GraphicsYOffset : 0)],
             Rises(SamusPoseId.NormalLandingRightPose),
             [.. Rises(SamusPoseId.CrouchingTransitionRightPose).Select(rise => -rise)],
             [.. Rises(SamusPoseId.DrainedCrouchingRightPose).Select(rise => -rise)]);

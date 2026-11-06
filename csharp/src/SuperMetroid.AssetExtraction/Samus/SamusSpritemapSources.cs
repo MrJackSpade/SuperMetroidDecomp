@@ -172,7 +172,7 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
             if (entry is { } composition && (uint)composition.Ordinal >= (uint)compositionCount)
                 throw new InvalidDataException($"Samus spritemap {composition.Ordinal} is absent from installed art.");
         SamusSpritemapId?[] table = (SamusSpritemapId?[])entries.Clone();
-        return Enumerable.Range(0, SamusBodySources.PoseCount).ToDictionary(SamusPoseNumbering.FromNumber,
+        return Enumerable.Range(0, SamusBodySources.PoseCount).Where(SamusPoseNumbering.NamesPose).ToDictionary(SamusPoseNumbering.FromNumber,
             pose => new SamusPoseSpritemaps(Run(table, topBases[pose]), Run(table, bottomBases[pose])));
     }
 

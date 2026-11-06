@@ -40,7 +40,8 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(native, stock.PosePointers[pose], $"Samus body pose pointer {pose:X2}");
             int graphicsAddress = SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
-            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
+            if (SamusPoseNumbering.NamesPose(pose))
+                AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
                 stock.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
         }
         for (int index = 0; index < SamusBodySources.FrameCount; index++)
@@ -87,6 +88,7 @@ internal static class SamusBodyArtworkVerification
         SamusSpritemapSources sprites = stock.Spritemaps.Source;
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int topAddress = InstalledSamusSpritemaps.TopBaseAddress + pose * 2;
             int bottomAddress = InstalledSamusSpritemaps.BottomBaseAddress + pose * 2;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(topAddress),
@@ -337,6 +339,7 @@ internal static class SamusBodyArtworkVerification
         }
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             var frames = new SamusBodyFrameState();
             frames.BindArtwork(stock);
             frames.Select(SamusPoseNumbering.FromNumber(pose), 0);
@@ -403,6 +406,7 @@ internal static class SamusBodyArtworkVerification
                 CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2);
             int direction = bus.ReadCartridgeByte(descriptor);
             bool frameDependent = (direction & 0x80) != 0;
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             SamusArmCannonPlacement placement = body.ArmCannon.Placement(SamusPoseNumbering.FromNumber(pose));
             AssertEqual(bus.ReadCartridgeByte(descriptor + 1), placement.DrawingMode, $"arm-cannon pose {pose:X2} drawing mode");
             AssertEqual(direction & 0x7f, placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");

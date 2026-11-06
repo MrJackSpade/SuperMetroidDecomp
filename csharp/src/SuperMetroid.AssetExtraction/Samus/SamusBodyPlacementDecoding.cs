@@ -49,6 +49,9 @@ public static class SamusBodyPlacementDecoding
         var placements = new Dictionary<SamusPoseId, SamusBodyPosePlacement>();
         for (int number = 0; number < SamusBodySources.PoseCount; number++)
         {
+            // A record no pose names is never drawn (#1517).
+            if (!SamusPoseNumbering.NamesPose(number))
+                continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
             int origin = graphicsYOffsets[number];
             placements.Add(pose, new SamusBodyPosePlacement(origin,

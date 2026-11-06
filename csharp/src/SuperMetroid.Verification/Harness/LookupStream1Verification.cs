@@ -584,6 +584,7 @@ internal static class LookupStream1Verification
         AssertTrue(stock.Frames.SequenceEqual(frames), "Independent frame payload remains intact");
         for (int pose = 0; pose < 253; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int index = (native[pose] - 0xdb48) / 4;
             AssertEqual(frames[index], stock.Selection(SamusPoseNumbering.FromNumber(pose), 0), "Import selects supplied frame payload through the native frame list");
         }
@@ -621,6 +622,7 @@ internal static class LookupStream1Verification
             foreach (int firstFrame in SamusBodyNative.Frames(posePointers)) content.Append("pose first frame", firstFrame);
             for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
             {
+                if (!SamusPoseNumbering.NamesPose(pose)) continue;
                 SamusBodyPosePlacement placement = template.Placements[SamusPoseNumbering.FromNumber(pose)];
                 content.Append("graphics y offset", placement.GraphicsYOffset);
                 if (placement.FrameRises is not { } rises) continue;
@@ -682,6 +684,7 @@ internal static class LookupStream1Verification
         InstalledSamusBodyArtwork installed = SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
         for (int pose = 0; pose < 253; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             AssertEqual(native[pose], stock.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "Installed origin is the supplied placement");
             AssertEqual(native[pose], installed.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "The import installs the native real-pose byte as the pose's origin");
             AssertEqual(unchecked((byte)native[pose]), SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)), "Physical projectile origin matches the native byte");
@@ -855,6 +858,7 @@ internal static class LookupStream1Verification
         for (int half = 0; half < 2; half++)
         for (int pose = 0; pose < 253; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             ushort expected = half == 0 ? top[pose] : bottom[pose];
             var firstFrame = new SamusBodyHalfFrame(SamusPoseNumbering.FromNumber(pose), half == 0 ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, 0);
             AssertEqual(expected, half == 0 ? stock.TopBase(SamusPoseNumbering.FromNumber(pose)) : stock.BottomBase(SamusPoseNumbering.FromNumber(pose)), "Import-side native base selection");
@@ -2296,7 +2300,7 @@ internal static class LookupStream1Verification
         // Every pose half's animation frame shows the composition of the native entry its base and frame index, for
         // every frame the body sheets cover that the table holds; a frame past those is outside installed art.
         int poseFrames = 0;
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
+        foreach (int pose in Enumerable.Range(0, SamusBodySources.PoseCount).Where(SamusPoseNumbering.NamesPose))
         foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
         for (int frame = 0; ; frame++)
         {

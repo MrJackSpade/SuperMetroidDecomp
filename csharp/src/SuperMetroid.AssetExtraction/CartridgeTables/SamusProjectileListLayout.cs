@@ -20,7 +20,7 @@ internal sealed class SamusProjectileListLayout
     /// <summary>The cursor each instruction pointer stands for: a program's entry, else the one step at that pointer.</summary>
     private readonly Dictionary<ushort, AnimationProgramCursor<SamusProjectileProgram>> _cursors;
     /// <summary>Each timed record's instruction pointer.</summary>
-    private readonly Dictionary<SamusProjectileFrame, ushort> _recordPositions;
+    private readonly Dictionary<SamusProjectileFrame, int> _recordPositions;
     /// <summary>Each program's list entry and the word just before it.</summary>
     private readonly IReadOnlyDictionary<SamusProjectileProgram, ListPosition> _positions;
 
@@ -53,7 +53,7 @@ internal sealed class SamusProjectileListLayout
     internal ushort Position(AnimationProgramCursor<SamusProjectileProgram> cursor) => stepPositions[cursor.Program][cursor.Position];
 
     /// <summary>The instruction pointer timed record <paramref name="record"/> stands at.</summary>
-    internal ushort RecordPosition(SamusProjectileFrame record) => _recordPositions[record];
+    internal ushort RecordPosition(SamusProjectileFrame record) => checked((ushort)_recordPositions[record]);
 
     /// <summary>The cursor a nonzero instruction pointer <paramref name="place"/> stands for, when it is a list position.</summary>
     internal bool TryCursorAt(int place, out AnimationProgramCursor<SamusProjectileProgram> cursor) =>
@@ -93,9 +93,9 @@ internal sealed class SamusProjectileListLayout
     }
 
     /// <summary>Finds the one pointer each timed record is shown from.</summary>
-    private Dictionary<SamusProjectileFrame, ushort> BuildRecordPositions()
+    private Dictionary<SamusProjectileFrame, int> BuildRecordPositions()
     {
-        var places = new Dictionary<SamusProjectileFrame, ushort>();
+        var places = new Dictionary<SamusProjectileFrame, int>();
         foreach (SamusProjectileProgram program in ListOrder)
         {
             var steps = SamusProjectileAnimations.Programs.Steps(program);
@@ -103,11 +103,11 @@ internal sealed class SamusProjectileListLayout
             {
                 if (steps[position] is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
                     continue;
-                ushort place = stepPositions[program][position];
+                int place = stepPositions[program][position];
                 SamusProjectileFrame record = show.Frame;
                 if (record.Program != program)
                     throw new InvalidDataException($"{program} step {position} shows {record}, a record of another program.");
-                if (places.TryGetValue(record, out ushort known) && known != place)
+                if (places.TryGetValue(record, out int known) && known != place)
                     throw new InvalidDataException($"Timed projectile record {record} stands at $93:{known:X4} and $93:{place:X4}.");
                 places[record] = place;
             }

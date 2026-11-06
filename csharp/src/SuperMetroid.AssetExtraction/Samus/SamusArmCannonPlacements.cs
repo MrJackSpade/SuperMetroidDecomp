@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.AssetExtraction.Samus.SamusArmCannonPlacementDefinitions;
 using SuperMetroid.AssetExtraction.Artwork;

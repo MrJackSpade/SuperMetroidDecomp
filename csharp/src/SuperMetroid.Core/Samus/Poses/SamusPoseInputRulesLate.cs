@@ -18,9 +18,9 @@ internal static class SamusPoseInputRulesLate
         SpringBallJumpRightPoseList => MatchSpringBallJumpRightPoseList(held, newlyPressed),
         SpringBallJumpLeftPoseList => MatchSpringBallJumpLeftPoseList(held, newlyPressed),
         CompactAirborneRightPoseList => MatchCompactAirborneRightPoseList(held),
-        CompactAirborneLeftPoseList => MatchCompactAirborneLeftPoseList(held),
+        CompactAirborneLeftPoseList => MatchCompactAirborneRightPoseList(MirrorButtons(held)).Mirrored(),
         CompactAirborneFallingRightPoseList => MatchCompactAirborneFallingRightPoseList(held),
-        CompactAirborneFallingLeftPoseList => MatchCompactAirborneFallingLeftPoseList(held),
+        CompactAirborneFallingLeftPoseList => MatchCompactAirborneFallingRightPoseList(MirrorButtons(held)).Mirrored(),
         WallJumpRightPoseList => MatchWallJumpRightPoseList(held, newlyPressed),
         WallJumpLeftPoseList => MatchWallJumpRightPoseList(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
         RanIntoWallRightPoseList => MatchRanIntoWallRightPoseList(held, newlyPressed),
@@ -170,13 +170,6 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>UNUSED_TransitionTable_64_91A998: priority order.</summary>
-    private static SamusPoseInputMatch MatchCompactAirborneLeftPoseList(ControllerButton held)
-    {
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
-        return new(null, HasConditions: true);
-    }
 
     /// <summary>UNUSED_TransitionTable_65_91A9A0: priority order.</summary>
     private static SamusPoseInputMatch MatchCompactAirborneFallingRightPoseList(ControllerButton held)
@@ -196,23 +189,6 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>UNUSED_TransitionTable_66_91A9C6: priority order.</summary>
-    private static SamusPoseInputMatch MatchCompactAirborneFallingLeftPoseList(ControllerButton held)
-    {
-        if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
-        if (Has(held, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
-        if (Has(held, Jump))
-            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
-        return new(null, HasConditions: true);
-    }
 
     /// <summary>TransitionTable_83_FacingRight_WallJump: priority order; TransitionTable_84_FacingLeft_WallJump is the same list mirrored.</summary>
     private static SamusPoseInputMatch MatchWallJumpRightPoseList(ControllerButton held, ControllerButton newlyPressed)

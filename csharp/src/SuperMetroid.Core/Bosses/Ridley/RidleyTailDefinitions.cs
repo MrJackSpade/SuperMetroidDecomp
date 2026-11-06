@@ -30,7 +30,7 @@ internal static class RidleyTailDefinitions
     internal const int RightWhipTargetBase = 16384;
 
     /// <summary>The longest each segment may extend while whipping, base through tip.</summary>
-    internal static readonly ushort[] MaximumDistances = [0, 24 << 8, 24 << 8, 22 << 8, 22 << 8, 18 << 8, 5 << 8];
+    internal static readonly int[] MaximumDistances = [0, 24 << 8, 24 << 8, 22 << 8, 22 << 8, 18 << 8, 5 << 8];
     /// <summary>Descending stab extension request.</summary>
     internal const int StabDistance = 2560;
     /// <summary>Bounce extension request.</summary>
@@ -62,11 +62,11 @@ internal static class RidleyTailDefinitions
     private const int TipRestDistance = 5 << 8;
 
     /// <summary>The tail returns to its initialized rest geometry: base, five shaft links, then tip.</summary>
-    internal static readonly ushort[] RestDistances =
+    internal static readonly int[] RestDistances =
         [BaseRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, TipRestDistance];
 
     /// <summary>The seven successive initial link angles, base through tip.</summary>
-    internal static readonly ushort[] InitialAngles =
+    internal static readonly int[] InitialAngles =
     [
         InitialBaseAngle, InitialBaseAngle + IdealInterSegmentSpacing, InitialBaseAngle + 2 * IdealInterSegmentSpacing,
         InitialBaseAngle + 3 * IdealInterSegmentSpacing, InitialBaseAngle + 4 * IdealInterSegmentSpacing,

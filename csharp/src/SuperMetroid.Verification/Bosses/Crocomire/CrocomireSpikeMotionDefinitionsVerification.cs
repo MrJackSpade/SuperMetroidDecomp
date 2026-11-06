@@ -39,7 +39,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
     {
         for (int slot = 0; slot < 18; slot++)
             AssertEqual(rom.ReadCartridgeByte(0x86920b + 2 * slot), CrocomireSpikeMotion.MaximumVelocity(slot),
-                $"Crocomire spike velocity limit low byte, physical slot {slot}");
+                $"Crocomire spike velocity limit, physical slot {slot}");
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumVelocity(-1), "negative velocity limit slot");
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumVelocity(18), "velocity limit slot past end");
     }

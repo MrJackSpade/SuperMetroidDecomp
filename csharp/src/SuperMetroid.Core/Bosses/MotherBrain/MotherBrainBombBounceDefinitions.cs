@@ -14,5 +14,5 @@ internal static class MotherBrainBombBounceDefinitions
     internal const int FallAcceleration = 7;
 
     /// <summary>The acceleration of stages zero through eight, then zero for expiry at stage nine.</summary>
-    internal static readonly ushort[] YAccelerations = [FallAcceleration, 16, 32, 64, 112, 176, 240, 304, 368, 0];
+    internal static readonly int[] YAccelerations = [FallAcceleration, 16, 32, 64, 112, 176, 240, 304, 368, 0];
 }

@@ -761,7 +761,7 @@ internal sealed class PhantoonPatterns
                 break;
 
             case PhantoonFlameSpawnType.Enraged:
-                flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.RageAngle(index)))
+                flame.State = new PhantoonOrbitingFlameState(PhantoonFlameSpawns.RageAngle(index))
                 {
                     AngleStep = index >= 8 ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep,
                 };
@@ -776,7 +776,7 @@ internal sealed class PhantoonPatterns
             case PhantoonFlameSpawnType.Spiral:
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
-                flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.SpiralAngle(index)));
+                flame.State = new PhantoonOrbitingFlameState(PhantoonFlameSpawns.SpiralAngle(index));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
                 flame.FrameBehavior =
                     EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit;

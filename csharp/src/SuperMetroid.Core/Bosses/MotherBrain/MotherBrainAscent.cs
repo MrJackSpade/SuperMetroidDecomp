@@ -209,7 +209,7 @@ internal sealed class MotherBrainAscent
         int random = _room.Random.Read();
         MiscDustAnimation animation = (SharedRandomState.UpperByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(MotherBrainBehavior.MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RemainingFrames], 212), animation);
+            MotherBrainAscentDustDefinitions.DustPositions[state.BodySubFunctionTimer.RemainingFrames], animation);
         _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.AscentDust);
     }
 

@@ -10,11 +10,11 @@ internal static class MotherBrainPainfulWalkingDefinitions
     internal const int StagesPerPair = 2;
 
     /// <summary>By pair: the first pair is fastest; subsequent pairs add two animation ticks.</summary>
-    internal static readonly ushort[] AnimationDelays = [2, 6, 8, 10];
+    internal static readonly int[] AnimationDelays = [2, 6, 8, 10];
 
     /// <summary>By pair: each pair halves angular scale while its gain decreases from five to two.</summary>
-    internal static readonly ushort[] NeckAngleDeltas = [5 * 256, 4 * 256 / 2, 3 * 256 / 4, 2 * 256 / 8];
+    internal static readonly int[] NeckAngleDeltas = [5 * 256, 4 * 256 / 2, 3 * 256 / 4, 2 * 256 / 8];
 
     /// <summary>By pair: each successive forward/backward pair adds sixteen pause ticks.</summary>
-    internal static readonly ushort[] FunctionTimers = [16, 32, 48, 64];
+    internal static readonly int[] FunctionTimers = [16, 32, 48, 64];
 }

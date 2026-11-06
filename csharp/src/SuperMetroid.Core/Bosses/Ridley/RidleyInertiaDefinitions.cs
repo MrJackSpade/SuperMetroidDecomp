@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Shared Ceres/Norfair target-seeking acceleration divisors.</summary>
 public static class RidleyInertiaDefinitions
 {
-    /// <summary>MoveRidleyToDeathSpot loads Y=0, selecting the first inertia byte.</summary>
+    /// <summary>MoveRidleyToDeathSpot loads Y=0, selecting the first inertia divisor.</summary>
     public const int DeathDivisorIndex = 0;
 
     /// <summary>Moving Ridley to his death spot adds sixteen to reversal deceleration, independently of Y.</summary>
@@ -19,5 +19,5 @@ public static class RidleyInertiaDefinitions
     public const int ReversalAcceleration = 8;
 
     /// <summary>RidleyInertiaTable and CeresRidleyInertiaTable: identical values 16 down to 1.</summary>
-    public static readonly ushort[] Divisors = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    public static readonly int[] Divisors = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 }

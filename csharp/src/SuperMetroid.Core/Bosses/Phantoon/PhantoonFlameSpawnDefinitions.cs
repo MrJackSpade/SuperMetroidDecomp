@@ -3,12 +3,16 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Authored Phantoon flame start angles and rain columns.</summary>
 public static class PhantoonFlameSpawnDefinitions
 {
-    /// <summary>PhantoonDestroyableFlameInit_Type2_Enraged. Eight clockwise angles followed by eight counterclockwise angles.</summary>
-    internal static readonly byte[] RageAngles = [16, 32, 48, 64, 80, 96, 112, 128, 240, 224, 208, 192, 176, 160, 144, 128];
+    /// <summary>The enraged flames' start angles: eight clockwise angles followed by eight counterclockwise angles.</summary>
+    internal static readonly ByteAngle[] RageAngles =
+    [
+        new(16), new(32), new(48), new(64), new(80), new(96), new(112), new(128),
+        new(240), new(224), new(208), new(192), new(176), new(160), new(144), new(128),
+    ];
 
-    /// <summary>PhantoonDestroyableFlameInit_Type4_Rain. Nine screen-X columns, 48 through 208, spaced twenty pixels apart.</summary>
-    internal static readonly byte[] RainXs = [48, 68, 88, 108, 128, 148, 168, 188, 208];
+    /// <summary>The rain's nine screen-X columns, 48 through 208, spaced twenty pixels apart.</summary>
+    internal static readonly int[] RainXs = [48, 68, 88, 108, 128, 148, 168, 188, 208];
 
-    /// <summary>PhantoonDestroyableFlameInit_Type6_Spiral. Eight equally spaced byte angles.</summary>
-    internal static readonly byte[] SpiralAngles = [0, 32, 64, 96, 128, 160, 192, 224];
+    /// <summary>The spiral flames' eight equally spaced start angles.</summary>
+    internal static readonly ByteAngle[] SpiralAngles = [new(0), new(32), new(64), new(96), new(128), new(160), new(192), new(224)];
 }

@@ -11727,6 +11727,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EncounterArtworkSource",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterArtworkSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EncounterArtworkSources",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterArtworkSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EncounterArtworkStepRange",
       "kind": "record",
       "scope": "product",
@@ -147325,6 +147351,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainWalkBackwardsPoseVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainWholeFramesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainWholeFramesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

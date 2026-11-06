@@ -18,6 +18,6 @@ internal readonly record struct TorizoInstructionInputs
     /// <summary>Controller input.</summary>
     public required ControllerButton ControllerInput { get; init; }
 
-    /// <summary>The low byte of the frame counter, from zero to 255. The attack choosers keep only bit 3 of their sum, so only its low four bits affect a choice.</summary>
-    public required int FrameCounterLow { get; init; }
+    /// <summary>The frame counter. The attack choosers keep only bit 3 of their sum, so only its low four bits affect a choice.</summary>
+    public required int FrameCounter { get; init; }
 }

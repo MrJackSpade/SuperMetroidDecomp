@@ -31,7 +31,7 @@ internal static class TorizoPaletteShakeVerification
         enemies.BombTorizoBehavior.Access.TorizoState = state;
         void Execute(TorizoCueKind kind) =>
             AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(
-                    actor, state, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
+                    actor, state, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
                     new TorizoCue.Command(kind), AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.BombTorizoInitial1)) is null,
                 "Torizo palette cue runs on");
         enemies.Earthquake.EarthquakeType = 4;

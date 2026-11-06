@@ -129,7 +129,7 @@ internal static class TorizoSwapArtworkVerification
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, TorizoArtworkSwap swap) =>
         AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot,
                 new TorizoEnemyState(slot, isGolden: StepOf(swap).Sequence == EncounterArtworkSequence.GoldenTorizo),
-                new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
+                new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(swap),
                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,
             $"Torizo artwork swap {swap.Ordinal} runs on");

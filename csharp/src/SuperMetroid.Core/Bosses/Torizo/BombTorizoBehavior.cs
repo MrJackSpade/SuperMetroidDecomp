@@ -225,7 +225,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances BombTorizo's typed animation.</summary>
     internal void AdvanceBombTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
-        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = WordWrap.LowByte(_frameContext.FrameCounter) });
+        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
     }
     /// <summary>Runs Bomb or Golden Torizo's body program where the enemy instruction interpreter would.</summary>
     internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoInstructionInputs inputs)
@@ -255,8 +255,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Carries out one cue of Bomb or Golden Torizo's body program, returning the cursor a branch, call or return
     /// continues at, or null to run on. <paramref name="continuation"/> is the cursor just past the cue: the return
-    /// point a call saves. <see cref="TorizoInstructionInputs.FrameCounterLow"/> is the low byte of
-    /// the frame counter, which both attack choosers add; only its bit 3 survives.
+    /// point a call saves. <see cref="TorizoInstructionInputs.FrameCounter"/> is the frame
+    /// counter, which both attack choosers add; only its bit 3 survives.
     /// </summary>
     internal AnimationProgramCursor<TorizoBodyProgram>? ApplyTorizoCue(
         RoomEnemySlot torizo,
@@ -434,7 +434,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException("Bomb Torizo attack selection requires Samus state.");
                 state.ReturnCursor = continuation;
                 bool chooseFirst = inputs.Samus.Missiles < 5 ||
-                    ((inputs.FrameCounterLow + (inputs.Samus.Position.X.Whole & 1) + (inputs.Samus.Position.X.Whole >> 1)) & 8) != 0;
+                    ((inputs.FrameCounter + (inputs.Samus.Position.X.Whole & 1) + (inputs.Samus.Position.X.Whole >> 1)) & 8) != 0;
                 return AnimationProgramCursor<TorizoBodyProgram>.Start(chooseFirst ? choice.Target : choice.Alternate);
             }
 
@@ -576,7 +576,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 SamusState activeSamus = RequireGoldenTorizoSamus(inputs.Samus);
                 state.ReturnCursor = continuation;
                 bool chooseFirst = activeSamus.Missiles < 32 ||
-                    ((inputs.FrameCounterLow + (activeSamus.Position.X.Whole & 1) +
+                    ((inputs.FrameCounter + (activeSamus.Position.X.Whole & 1) +
                         (activeSamus.Position.X.Whole >> 1)) & 8) != 0;
                 return AnimationProgramCursor<TorizoBodyProgram>.Start(chooseFirst ? choice.Target : choice.Alternate);
             }

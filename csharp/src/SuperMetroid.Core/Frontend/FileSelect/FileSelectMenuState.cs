@@ -55,8 +55,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private ScreenBrightness brightness;
     /// <summary>Advances the brightness timing for entry and submenu transitions.</summary>
     private readonly ScreenFade screenFade = new();
-    /// <summary>Installed page identifier rebuilt after save data or the installed artwork change.</summary>
-    private FileSelectPage currentPresentationPage = FileSelectPage.MainEmpty;
+    /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
+    private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
     internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], 0, 0);
 
@@ -77,7 +77,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             saveSlots[slot] = saves.ReadSlot(slot);
         SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
 
-        BuildSaveTilemap();
+        ShowMainPage();
 
         // Loading above is atomic, but the menu's opening steps are not: the
         // blanking and unblanking steps each wait out one more update.
@@ -259,13 +259,17 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         sprites.FinishFrame();
     }
 
-    /// <summary>Builds the main page from decoded slots, hiding Copy and Clear when every slot is empty.</summary>
-    private void BuildSaveTilemap()
+    /// <summary>Shows the main page, without its Copy and Clear entries when every slot is empty.</summary>
+    private void ShowMainPage() => ShowPage(HasAnySave ? FileSelectPage.MainWithData : FileSelectPage.MainEmpty);
+
+    /// <summary>
+    /// Shows <paramref name="page"/>: the main menu, a copy page naming its source and destination slots, or a clear page
+    /// naming its slot, with each slot's field as it is now.
+    /// </summary>
+    private void ShowPage(FileSelectPage page)
     {
-        currentPresentationPage = HasAnySave
-            ? FileSelectPage.MainWithData
-            : FileSelectPage.MainEmpty;
-        RebuildInstalledPresentationPage();
+        selectedPage = page;
+        RefreshShownPage();
     }
 
     /// <summary>
@@ -403,7 +407,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             else
             {
                 showDataManagementScreen = false;
-                BuildSaveTilemap();
+                ShowMainPage();
                 phaseAfterFadeIn = FileSelectPhase.Main;
             }
             Phase = FileSelectPhase.FadeInFromDataManagement;
@@ -424,12 +428,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         confirmationSelection = YesNoChoice.Yes;
         if (pendingDataMode == FileSelectDataMode.Copy)
         {
-            BuildCopySourceTilemap();
+            ShowPage(FileSelectPage.CopySource);
             phaseAfterFadeIn = FileSelectPhase.CopySelectSource;
         }
         else
         {
-            BuildClearSelectionTilemap();
+            ShowPage(FileSelectPage.ClearSelection);
             phaseAfterFadeIn = FileSelectPhase.ClearSelectSlot;
         }
     }
@@ -507,13 +511,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             submenuSelection = FileSelectItemRows.ForSaveSlot(Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
                 .First(slot => slot != operationSourceSlot));
-            BuildCopyDestinationTilemap();
+            ShowPage(FileSelectPage.CopyDestination);
             Phase = FileSelectPhase.CopySelectDestination;
         }
         else
         {
             confirmationSelection = YesNoChoice.Yes;
-            BuildClearConfirmationTilemap();
+            ShowPage(FileSelectPage.ClearConfirm);
             Phase = FileSelectPhase.ClearConfirm;
         }
     }
@@ -527,7 +531,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             QueueCursorSound();
             submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
-            BuildCopySourceTilemap();
+            ShowPage(FileSelectPage.CopySource);
             Phase = FileSelectPhase.CopySelectSource;
             return;
         }
@@ -542,7 +546,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         copyTargetSlot = FileSelectItemRows.SaveSlot(submenuSelection);
         confirmationSelection = YesNoChoice.Yes;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.InitialPaletteDelay;
-        BuildCopyConfirmationTilemap();
+        ShowPage(FileSelectPage.CopyConfirm);
         Phase = FileSelectPhase.CopyConfirm;
     }
 
@@ -585,7 +589,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             saves.CopySlot(operationSourceSlot, copyTargetSlot);
             saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
                 ?? throw new InvalidDataException("Copied SRAM slot failed its copied checksums.");
-            BuildCopyCompletedTilemap();
+            ShowPage(FileSelectPage.CopyCompleted);
             Phase = FileSelectPhase.CopyCompleted;
         }
         else
@@ -593,7 +597,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             saves.ClearSlot(operationSourceSlot);
             ClearedSaveThisFrame = true;
             saveSlots[operationSourceSlot] = null;
-            BuildClearCompletedTilemap();
+            ShowPage(FileSelectPage.ClearCompleted);
             Phase = FileSelectPhase.ClearCompleted;
         }
         SavesChangedThisFrame = true;
@@ -605,12 +609,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         submenuSelection = FileSelectItemRows.ForSaveSlot(mode == FileSelectDataMode.Copy ? copyTargetSlot : operationSourceSlot);
         if (mode == FileSelectDataMode.Copy)
         {
-            BuildCopyDestinationTilemap();
+            ShowPage(FileSelectPage.CopyDestination);
             Phase = FileSelectPhase.CopySelectDestination;
         }
         else
         {
-            BuildClearSelectionTilemap();
+            ShowPage(FileSelectPage.ClearSelection);
             Phase = FileSelectPhase.ClearSelectSlot;
         }
     }
@@ -622,55 +626,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             return;
         submenuSelection = next;
         QueueCursorSound();
-    }
-
-    /// <summary>Builds the Copy page that asks which occupied save to use as source.</summary>
-    private void BuildCopySourceTilemap()
-    {
-        currentPresentationPage = FileSelectPage.CopySource;
-        RebuildInstalledPresentationPage();
-    }
-
-    /// <summary>Builds the destination prompt and inserts the chosen source slot letter.</summary>
-    private void BuildCopyDestinationTilemap()
-    {
-        currentPresentationPage = FileSelectPage.CopyDestination;
-        RebuildInstalledPresentationPage();
-    }
-
-    /// <summary>Builds the Yes/No prompt with both source and destination slot letters.</summary>
-    private void BuildCopyConfirmationTilemap()
-    {
-        currentPresentationPage = FileSelectPage.CopyConfirm;
-        RebuildInstalledPresentationPage();
-    }
-
-    /// <summary>Displays the completed copy page after SRAM and decoded slots have been updated.</summary>
-    private void BuildCopyCompletedTilemap()
-    {
-        currentPresentationPage = FileSelectPage.CopyCompleted;
-        RebuildInstalledPresentationPage();
-    }
-
-    /// <summary>Builds the Clear page that asks which occupied slot to erase.</summary>
-    private void BuildClearSelectionTilemap()
-    {
-        currentPresentationPage = FileSelectPage.ClearSelection;
-        RebuildInstalledPresentationPage();
-    }
-
-    /// <summary>Builds the erase Yes/No prompt with the selected source slot letter.</summary>
-    private void BuildClearConfirmationTilemap()
-    {
-        currentPresentationPage = FileSelectPage.ClearConfirm;
-        RebuildInstalledPresentationPage();
-    }
-
-    /// <summary>Displays the cleared page with refreshed slot data after SRAM is erased.</summary>
-    private void BuildClearCompletedTilemap()
-    {
-        currentPresentationPage = FileSelectPage.ClearCompleted;
-        RebuildInstalledPresentationPage();
     }
 
     /// <summary>Finds the initial data-management selection and rejects entry with no occupied slot.</summary>
@@ -710,14 +665,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         screen.BindWorldArtwork(catalog.WorldArtwork);
 
         screen.Backdrop = catalog.Backdrops.FileSelect;
-        RebuildInstalledPresentationPage();
+        RefreshShownPage();
     }
 
     /// <summary>
     /// Shows the selected page with each slot's field and the slots its copy or clear prompt names, as they are now: the
     /// game redraws the page only where file select selects it or its slots change (#1467).
     /// </summary>
-    private void RebuildInstalledPresentationPage() =>
-        ShownPage = new ShownFileSelectPage(currentPresentationPage,
+    private void RefreshShownPage() =>
+        ShownPage = new ShownFileSelectPage(selectedPage,
             [.. saveSlots.Select(slot => slot is null ? null : ShownFileSelectSave.Of(slot))], operationSourceSlot, copyTargetSlot);
 }

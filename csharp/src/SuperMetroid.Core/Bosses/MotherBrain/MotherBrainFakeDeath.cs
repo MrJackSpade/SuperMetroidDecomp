@@ -414,7 +414,7 @@ internal sealed class MotherBrainFakeDeath
             _motherBrainEncounter.RequestBodySound(Library2Sound.SmallExplosion);
     }
 
-    /// <summary>Queues the BG2 room rows revealed by the tube collapse.</summary>
+    /// <summary>Queues the background room rows revealed by the tube collapse.</summary>
     internal void RequestMotherBrainRoomRows(
         MotherBrainEnemyState state,
         PlmHeaderId firstHeader,

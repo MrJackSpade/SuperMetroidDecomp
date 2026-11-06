@@ -661,7 +661,7 @@ internal sealed class PhantoonCombat
             return null;
 
         // Phantoon's extended frame roots include hitbox-list pointers,
-        // but its editable BG2 tilemap writes must never become collision
+        // but its editable background tilemap writes must never become collision
         // data. Preserve the component and rectangle order from
         // the compiled definitions, including point no-ops.
         foreach (EnemyCollisionComponent component in

@@ -473,7 +473,7 @@ internal sealed class MotherBrainAttacks
     private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
         // The backward walk alters only the walk accumulator and installs an authored body list;
-        // actual displacement remains bytecode-owned, which also keeps BG2 scroll aligned.
+        // actual displacement remains bytecode-owned, which also keeps the background scroll aligned.
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
         if (state.WalkCounter.IsEmpty)

@@ -21,7 +21,7 @@ internal static class CrocomireMeltingDefinitions
     /// </summary>
     public const int SecondPassBandCount = 7;
 
-    /// <summary>Lowest BG2 source row the distortion stretches back to, in both passes.</summary>
+    /// <summary>Lowest background source row the distortion stretches back to, in both passes.</summary>
     public const int LowestDistortionSourceRow = 88;
 
     /// <summary>Height at which the distortion band stops, in both passes.</summary>

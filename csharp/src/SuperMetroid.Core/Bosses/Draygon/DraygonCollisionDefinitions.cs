@@ -29,7 +29,7 @@ internal static class DraygonCollisionDefinitions
         new(-62, -33, 15, -5, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
     ];
 
-    /// <summary>The empty list of the BG2 frames in which the body cannot be hit or touched.</summary>
+    /// <summary>The empty list of the background frames in which the body cannot be hit or touched.</summary>
     internal static readonly EnemyCollisionHitbox[] EmptyHitboxes = [];
 
     /// <summary>Ordinary sprite art has no collision components.</summary>
@@ -38,7 +38,7 @@ internal static class DraygonCollisionDefinitions
     internal static readonly ImmutableArray<EnemyCollisionComponent> FirstBodyComponents = [new(Offset16<RoomPixels>.Zero, FirstBodyHitboxes)];
     /// <summary>The right-facing body's one zero-offset component.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> SecondBodyComponents = [new(Offset16<RoomPixels>.Zero, SecondBodyHitboxes)];
-    /// <summary>The one zero-offset component of a BG2 frame in which the body cannot be hit or touched.</summary>
+    /// <summary>The one zero-offset component of a background frame in which the body cannot be hit or touched.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> EmptyBodyComponents = [new(Offset16<RoomPixels>.Zero, EmptyHitboxes)];
 
     /// <summary>

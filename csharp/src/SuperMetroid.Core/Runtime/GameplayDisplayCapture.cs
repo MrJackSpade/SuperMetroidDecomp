@@ -33,7 +33,7 @@ public static class GameplayDisplayCapture
             layers[0] = CaptureFirefleaDarkness(latched.FixedColors.Shared, basis);
         if (!doorOwnsDisplay)
         {
-            // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
+            // The rainbow beam's blend hides the effect overlay. Its fixed
             // color window replaces room liquid/fog blending while the beam owns the per-line effects.
             MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
             if (rainbow?.Active != true && latched.RoomFxOverlay is { } fx)
@@ -71,9 +71,9 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>
-    /// Captures the ordinary Mode-1 base only: the room and the HUD's layer. Room color math, windows, messages and
+    /// Captures the ordinary base only: the room and the HUD's layer. Room blends, windows, messages and
     /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
-    /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
+    /// Turning-floor rooms are rejected rather than silently drawn as an ordinary room.
     /// </summary>
     public static LayeredScene CaptureOrdinaryBase(GameplayDisplayFrame frame)
     {
@@ -81,7 +81,7 @@ public static class GameplayDisplayCapture
         GameplayDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
         if (latched.ShowsPerspectiveFloor)
-            throw new InvalidOperationException("Ordinary base capture cannot represent a Mode-7 scene.");
+            throw new InvalidOperationException("Ordinary base capture cannot represent a turning-floor scene.");
 
         GameplayRenderSnapshot scrolls = latched.Scrolls;
         GameplayLatchedScene scene = latched.Scene;
@@ -92,9 +92,9 @@ public static class GameplayDisplayCapture
         // water waves then displace.
         Position16<BackgroundPixels> backgroundScroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.BackgroundScroll) + shake.Background;
         if (live.TourianStatuesEnabled)
-            // The statues' descent supplies BG2's vertical scroll per line after the
+            // The statues' descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
-            // scroll. Type 13 also gives the statue OBJ zero quake displacement.
+            // scroll. Type 13 also gives the statue sprites zero quake displacement.
             backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset));
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
@@ -131,7 +131,7 @@ public static class GameplayDisplayCapture
         // Crocomire's melt owns the background's vertical scroll while it shows on his body layer; otherwise lava's does.
         LineScroll? backgroundVertical = crocomireBody is null ? lavaY
             : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
-        // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
+        // A sky room shows the sky's rows on the background (#1347); a boss shows its body layer there while it owns it (#1352,
         // #1353), its pictures placed where they show on the body's area (#1466, #1514).
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
@@ -210,7 +210,7 @@ public static class GameplayDisplayCapture
         });
     }
 
-    /// <summary>Captures the latched perspective floor and the HUD's layer, adding the layer-2 band below the floor during Ridley's getaway.</summary>
+    /// <summary>Captures the latched perspective floor and the HUD's layer, adding the background band below the floor during Ridley's getaway.</summary>
     private static LayeredScene CapturePerspectiveFloorBase(GameplayDisplayFrame frame)
     {
         GameplayDisplayLatch latched = frame.Latched;
@@ -218,7 +218,7 @@ public static class GameplayDisplayCapture
         RoomShakeFrameResult shake = scrolls.RoomShake;
         PerspectiveFloor perspective = latched.PerspectiveFloor
             ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
-        // Room shake moves the floor with layer 1, wrapping as a sixteen-bit scroll.
+        // Room shake moves the floor with the foreground, wrapping as a sixteen-bit scroll.
         FloorView transform = perspective.Transform with
         {
             Scroll = new Offset16<FloorPixels>(
@@ -227,10 +227,10 @@ public static class GameplayDisplayCapture
         };
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.BackgroundScroll + shake.Background,
-                latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
+                latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its background plane below the turning floor."))
             : null;
         var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
-                ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
+                ?? throw new InvalidOperationException("A turning-floor gameplay frame shows a Ceres room's floor.")), ScreenGeometry.GameplayHudHeightPixels, floor);
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 

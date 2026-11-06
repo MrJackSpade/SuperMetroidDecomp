@@ -21,20 +21,20 @@ internal sealed class PrePhantoonRoomBehavior
         _projectiles = projectiles;
     }
 
-    /// <summary>The runtime's BG scroll words, available to the current projectile pass.</summary>
+    /// <summary>The runtime's background scroll state, available to the current projectile pass.</summary>
     private BackgroundScrollState? _enemyProjectileBackgroundScroll;
 
-    /// <summary>Binds the runtime's BG scroll words for the projectile pass that follows.</summary>
+    /// <summary>Binds the runtime's background scroll state for the projectile pass that follows.</summary>
     internal void BindBackgroundScroll(BackgroundScrollState? backgroundScroll) => _enemyProjectileBackgroundScroll = backgroundScroll;
 
-    /// <summary>Requires the current projectile pass's background scroll state before the pre-instruction writes BG2.</summary>
+    /// <summary>Requires the current projectile pass's background scroll state before the pre-instruction writes the background.</summary>
     internal BackgroundScrollState RequireEnemyProjectileBackgroundScroll() =>
         _enemyProjectileBackgroundScroll ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile requires the runtime's background scroll words.");
 
     /// <summary>
     /// Runs the pre-Phantoon room's setup: spawns its room-graphics projectile. Its
-    /// initialization AI zeroes BG2YOffset immediately.
+    /// initialization AI zeroes the background's vertical offset immediately.
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile(BackgroundScrollState backgroundScroll)
     {
@@ -47,7 +47,7 @@ internal sealed class PrePhantoonRoomBehavior
         backgroundScroll.BackgroundOffset = backgroundScroll.BackgroundOffset.WithY(0);
     }
 
-    /// <summary>Registers the projectile pre-instruction that pins the runtime BG2 Y offset to zero.</summary>
+    /// <summary>Registers the projectile pre-instruction that pins the background's vertical offset to zero.</summary>
     internal void AddPrePhantoonRoomProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

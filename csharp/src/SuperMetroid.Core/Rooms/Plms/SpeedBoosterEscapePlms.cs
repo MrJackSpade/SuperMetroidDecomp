@@ -10,7 +10,7 @@ internal sealed class SpeedBoosterEscapePlms
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
-    /// <summary>The room's layer-3 FX.</summary>
+    /// <summary>The room's effect overlay FX.</summary>
     private readonly IRoomFxMotion? _roomFx;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter? _earthquake;

@@ -18,13 +18,13 @@ public enum GameplayPictures
     /// <summary>The HUD's pictures.</summary>
     Hud,
 
-    /// <summary>The room effect's pages on layer 3: its liquid, fog or haze.</summary>
+    /// <summary>The room effect's pages on the effect overlay: its liquid, fog or haze.</summary>
     FxOverlay,
 
     /// <summary>The message box's pictures.</summary>
     MessageBox,
 
-    /// <summary>The boss body drawn on layer 2: Kraid's, Phantoon's, Crocomire's, Draygon's, Mother Brain's or Ridley's.</summary>
+    /// <summary>The boss body drawn on the background: Kraid's, Phantoon's, Crocomire's, Draygon's, Mother Brain's or Ridley's.</summary>
     BossBody,
 
     /// <summary>

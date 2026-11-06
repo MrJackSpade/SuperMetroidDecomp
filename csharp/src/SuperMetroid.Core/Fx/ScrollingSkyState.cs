@@ -47,7 +47,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
             : throw new ArgumentOutOfRangeException(nameof(callback), callback, "The room main runs no scrolling sky.");
 
     /// <summary>
-    /// The background scroll the sky publishes: the sky copies layer-one Y, with its sixteen-bit wrap, into Y.
+    /// The background scroll the sky publishes: the sky copies the camera Y, with its sixteen-bit wrap, into Y.
     /// X stays zero because the sky never writes the uniform horizontal scroll; its bands shift each line instead.
     /// </summary>
     public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
@@ -63,7 +63,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         return FixedCoordinate.WholeOf(unchecked((int)_fixedHorizontalScrolls[slot]));
     }
 
-    /// <summary>Advances the fixed-point sky bands and copies layer-one Y into the background vertical scroll.</summary>
+    /// <summary>Advances the fixed-point sky bands and copies the camera Y into the background vertical scroll.</summary>
     public void ProcessFrame(int cameraY, bool timeIsFrozen)
     {
         if (timeIsFrozen)
@@ -83,7 +83,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// The sky layer the frame shows, positioned from <paramref name="cameraY"/>; null when the room spawned no
     /// band per-line effect object, whose background is the room's own background.
     /// </summary>
-    /// <param name="cameraY">The camera's layer-one Y the bands are positioned from.</param>
+    /// <param name="cameraY">The camera Y the bands are positioned from.</param>
     public ScrollingSkyLayer? Publish(int cameraY)
     {
         if (!HasBands)

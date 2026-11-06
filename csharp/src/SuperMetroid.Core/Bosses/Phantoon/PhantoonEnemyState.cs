@@ -72,7 +72,7 @@ public sealed class PhantoonEnemyState
     /// <summary>Gets the number of death-explosion requests that allocated a physical effect actor.</summary>
     public int DeathExplosionsSpawned { get; internal set; }
     /// <summary>
-    /// Gets the live BG2 mosaic block size in screen pixels before display latching: one (no quantization) until
+    /// Gets the live background mosaic block size in screen pixels before display latching: one (no quantization) until
     /// the dying fade grows it one pixel every sixteenth frame up to sixteen, and one again once the body is cleared.
     /// </summary>
     public int MosaicBlockSize { get; internal set; } = 1;

@@ -44,8 +44,8 @@ public sealed class RoomFxBlendInks
     public RgbColor CeresHazeRed { get; }
 
     /// <summary>
-    /// The colours <paramref name="selection"/> loads for layer 3's three blend inks, in order (#1512): the import
-    /// pre-colours the layer-3 pictures in each selection's. The empty selection loads only the third, black.
+    /// The colours <paramref name="selection"/> loads for the effect overlay's three blend inks, in order (#1512): the import
+    /// pre-colours the effect overlay pictures in each selection's. The empty selection loads only the third, black.
     /// </summary>
     internal IReadOnlyList<RgbColor> Inks(RoomFxPaletteBlend selection) => selection == RoomFxPaletteBlend.None
         ? [RgbColor.Black]

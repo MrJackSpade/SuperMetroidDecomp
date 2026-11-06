@@ -16,7 +16,7 @@ public static class XrayRevealOverlays
     /// <param name="items">The room's collectibles.</param>
     /// <param name="system">The collected-item record.</param>
     /// <param name="roomOverlay">The room state's special overlay, or null.</param>
-    /// <param name="foregroundPosition">Layer one's position, which places the overlays on screen.</param>
+    /// <param name="foregroundPosition">Camera position, which places the overlays on screen.</param>
     /// <param name="visuals">Installed reveal art.</param>
     public static void Apply(RoomLevelData level, Span<RevealedBlock?> blocks,
         IReadOnlyList<CollectiblePlmSnapshot> items, SharedGameState system,

@@ -58,10 +58,10 @@ public sealed class CrocomireDeathState
     /// </summary>
     public int SkeletonChunksShown { get; internal set; }
 
-    /// <summary>Lowest BG2 source row the melt distortion stretches back to, from the active pass.</summary>
+    /// <summary>Lowest background source row the melt distortion stretches back to, from the active pass.</summary>
     public int LowestDistortionSourceRow { get; internal set; }
 
-    /// <summary>BG2 source row the distortion starts at; it climbs three rows per frame and stops at sixteen.</summary>
+    /// <summary>Background source row the distortion starts at; it climbs three rows per frame and stops at sixteen.</summary>
     public int DistortionSourceRow { get; internal set; }
 
     /// <summary>

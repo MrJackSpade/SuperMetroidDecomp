@@ -42,7 +42,7 @@ internal sealed class AcceptedFrameBoundary
     /// runtime's first room, when no enemy is displayed.
     /// </summary>
     private IEnemyDisplaySources? Displays => _room.Enemies?.DisplaySources;
-    /// <summary>The main-screen layers latched with the accepted frame.</summary>
+    /// <summary>The layers shown, latched with the accepted frame.</summary>
     private readonly GameplayScreenLayers _screenLayers;
     /// <summary>Sprite frame the update finalized for the next frame boundary.</summary>
     private readonly SpriteFrameBuffer _sprites;
@@ -161,7 +161,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room's part of the scene: the room's blending, and the sky's layer-2 map and vertical scroll.
+    /// The room's part of the scene: the room's blending, and the sky's background map and vertical scroll.
     /// </summary>
     private GameplayLatchedScene CaptureScene()
     {
@@ -181,7 +181,7 @@ internal sealed class AcceptedFrameBoundary
     /// room main computes it), otherwise the elevator shaft's while the shaft has its transform. The
     /// shaft's transform exists exactly while the room was entered through the shaft's door.
     /// </summary>
-    /// <param name="foregroundScroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>
+    /// <param name="foregroundScroll">The foreground's scroll this frame shows, which scrolls the shaft's floor.</param>
     private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> foregroundScroll) =>
         CeresRidleyGetaway.FloorTransform(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
         : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, foregroundScroll)
@@ -208,7 +208,7 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The room backgrounds this frame boundary displays (#1346): foreground from the level plane through the foreground offset, background from the
-    /// layer-2 plane when that layer streams (otherwise background shows the tilemap its owner loaded), the source screen of a
+    /// background plane when that layer streams (otherwise the background shows the tilemap its owner loaded), the source screen of a
     /// door's opening scroll, and the room's foreground overlay. The planes are shared until gameplay changes level data.
     /// </summary>
     private RoomBackgrounds? CaptureRoomBackgrounds()
@@ -262,7 +262,7 @@ internal sealed class AcceptedFrameBoundary
             sky = new SkyPictures(skyImage.Resolve(appearance, skyImage.Image.PagesInOneColumn), scrollingSky.Variant);
         }
         // Where background shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
-        // streaming layer-2 plane, the sky's rows or a boss body that owns background.
+        // streaming background plane, the sky's rows or a boss body that owns the background.
         RoomBackgroundImagePlane? image = null;
         if (rooms.Background is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
         {

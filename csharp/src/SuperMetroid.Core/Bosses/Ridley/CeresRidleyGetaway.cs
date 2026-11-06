@@ -286,13 +286,13 @@ internal sealed class CeresRidleyGetaway
         }
     }
 
-    /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's BG1.</summary>
+    /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's foreground.</summary>
     internal void DrawCeresEmergencyText()
     {
         DrawCeresOverlay(CeresEscapeOverlayTilemapDefinitions.Emergency);
     }
 
-    /// <summary>Writes the picture of one warning page over the room's BG1 at its overlay cell (#1466).</summary>
+    /// <summary>Writes the picture of one warning page over the room's foreground at its overlay cell (#1466).</summary>
     private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page) =>
         _room.Services.WriteForegroundPicture(new WrittenPicture(page.Picture, page.Cell));
 
@@ -318,7 +318,7 @@ internal sealed class CeresRidleyGetaway
         return state.CeresEscapePages.IsFinished;
     }
 
-    /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's BG1.</summary>
+    /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's foreground.</summary>
     internal void DrawCeresJapaneseOverlay()
     {
         foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.Japanese)
@@ -331,7 +331,7 @@ internal sealed class CeresRidleyGetaway
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
-        // The Ceres program types over the room's BG1 (#1348).
+        // The Ceres program types over the room's foreground (#1348).
         if (glyph is { } typed)
             _room.Services.WriteForegroundPicture(new WrittenPicture(typed.Picture, typed.Cell));
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;

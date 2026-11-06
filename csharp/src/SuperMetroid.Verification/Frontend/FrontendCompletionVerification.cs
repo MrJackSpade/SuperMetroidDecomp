@@ -319,7 +319,7 @@ internal static void VerifyDoorOpeningTrajectories()
             _ => finalCameraY,
         }, preSnapCameraY, $"door direction {direction} final streamed camera Y");
 
-        trajectory.SnapLayerOneToDestination();
+        trajectory.SnapCameraToDestination();
         AssertEqual(new Position16<RoomPixels>(destinationX, finalCameraY), trajectory.CameraPosition,
             $"door direction {direction} final camera snap");
         AssertEqual(finalBackground, trajectory.BackgroundPosition,

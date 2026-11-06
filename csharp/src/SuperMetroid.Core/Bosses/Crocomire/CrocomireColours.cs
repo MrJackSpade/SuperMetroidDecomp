@@ -4,7 +4,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's colours (#1512): whether his body on layer 2 shows its fight colours or its white hurt flash, and the
+/// Crocomire's colours (#1512): whether his body on the background shows its fight colours or its white hurt flash, and the
 /// colours his skeleton's death adds to his sprites, the arm's and then the wall spikes'.
 /// </summary>
 internal sealed class CrocomireColours : IGameplayShadingSource

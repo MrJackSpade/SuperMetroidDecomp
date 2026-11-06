@@ -123,7 +123,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
 
-    /// <summary>The main-screen layers gameplay chooses and the accepted frame shows.</summary>
+    /// <summary>The layers gameplay chooses to show and the accepted frame shows.</summary>
     internal GameplayScreenLayers ScreenLayers { get; }
 
     /// <summary>The <see cref="EscapeRoomEffects"/> owner of this SuperMetroidRuntime.</summary>
@@ -207,7 +207,7 @@ internal sealed class SuperMetroidRuntime
     /// runtime), otherwise only the catalogs whose reference changed.
     /// </summary>
     /// <remarks>
-    /// The map presentation binds first: its setter pushes the HUD, message-box, layer-3 and Samus palette bindings and
+    /// The map presentation binds first: its setter pushes the HUD, message-box, effect overlay and Samus palette bindings and
     /// rebinds queued transfers that later catalogs' setters may read.
     /// </remarks>
     /// <param name="artwork">The catalogs to bind.</param>
@@ -362,7 +362,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public bool PowerBombExplosionSuppressesSounds => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
-    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's layer-3 FX.</summary>
+    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's effect overlay FX.</summary>
     public RoomFxSession RoomFx { get; } = new();
 
     /// <summary>The held beam charge, flare and charge palette, which survive room loads; each room's projectiles share it.</summary>
@@ -384,7 +384,7 @@ internal sealed class SuperMetroidRuntime
     public HudState Hud { get; } = new();
 
     /// <summary>
-    /// Parallax/layer/block dispatcher fed by the active layer-1 camera.
+    /// Parallax/layer/block dispatcher fed by the active camera.
     /// Its requests become row/column staging transfers when a room loader supplies level data.
     /// </summary>
     public BackgroundScrollState BackgroundScroll { get; } = new();
@@ -515,7 +515,7 @@ internal sealed class SuperMetroidRuntime
         System.NextRandom();
     }
 
-    /// <summary>Runs the owners before the game-state dispatch: Ceres haze, the suit transformation, Phantoon's wave and blending, and room layer-3 FX.</summary>
+    /// <summary>Runs the owners before the game-state dispatch: Ceres haze, the suit transformation, Phantoon's wave and blending, and room effect overlay FX.</summary>
     private void RunPreDispatchEffects()
     {
         Room.LoadedScope.CeresHaze.Step();
@@ -835,7 +835,7 @@ internal sealed class SuperMetroidRuntime
             // MainScrollingRoutine invokes the mutable global
             // scrolling-finished hook after both axes have tracked Samus. Live Spore
             // Spawn installs its own hook, which owns the arena's vertical camera floor;
-            // it must run before the layer scrolls and the sprite list consume layer-one position.
+            // it must run before the layer scrolls and the sprite list consume camera position.
             Room.LoadedScope.Enemies.RoomMainHooks.RunSporeSpawnScrollingFinishedHook(camera);
             camera.FinishSamusScrolling(currentCameraPoint);
 
@@ -956,7 +956,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Decrements Samus's hurt timers and the projectile interaction timer.</summary>
     private void DecrementHurtTimers()
     {
-        // Main gameplay decrements these timers after Samus, enemies, drawing, HUD/BG
+        // Main gameplay decrements these timers after Samus, enemies, drawing, HUD/background
         // bookkeeping, room main ASM, the energy-zero check, and room shaking. Keep this
         // shared tail out of individual movement handlers: in particular, grapple spike
         // reactions set the knockback timers without installing the knockback handler.
@@ -1025,7 +1025,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// The published frame's gameplay shading (#1512): each owner of a colour effect names the shades and effects its
-    /// state shows, in the order later colour writes won over earlier ones: the room's palette effects and layer-3 colours,
+    /// state shows, in the order later colour writes won over earlier ones: the room's palette effects and the effect overlay colours,
     /// then its bosses', then the door's fade over all of them.
     /// </summary>
     private GameplayShading PublishShading()

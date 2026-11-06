@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </remarks>
 internal sealed class DoorOpeningScrollState
 {
-    /// <summary>Pixels the camera and layer two move per scroll update.</summary>
+    /// <summary>Pixels the camera and the background move per scroll update.</summary>
     private const int LayerStepPixels = 4;
 
     /// <summary>Captures the directional setup positions, Samus's step, and the exact destination positions.</summary>
@@ -49,7 +49,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Exact camera endpoint published after the scroll's final update.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
-    /// <summary>Layer-two endpoint reached through directional four-pixel steps.</summary>
+    /// <summary>Background endpoint reached through directional four-pixel steps.</summary>
     public Position16<BackgroundPixels> FinalBackgroundPosition { get; }
 
     /// <summary>Deferred Samus endpoint retained by the door loader for the destination handoff.</summary>
@@ -69,8 +69,8 @@ internal sealed class DoorOpeningScrollState
         DoorDirection direction = door.Orientation.Direction;
         FixedPosition<RoomPixels> samus = RebaseSamus(door, ApplySetupMovement(door, sourceSamus));
 
-        // Layer two starts as far before its endpoint as the setup camera does before the
-        // destination, except upward doors: their layer two begins $DC (not $FB) below it.
+        // The background starts as far before its endpoint as the setup camera does before the
+        // destination, except upward doors: their background begins $DC (not $FB) below it.
         Offset16<BackgroundPixels> backgroundSetup = direction switch
         {
             DoorDirection.Right => new(-252, 0),
@@ -100,7 +100,7 @@ internal sealed class DoorOpeningScrollState
     internal static Position16<RoomPixels> GetDestination(DoorDefinition door) =>
         door.DestinationScreen.ToRoomPixels();
 
-    /// <summary>Layer-one origin after the directional setup's initial call.</summary>
+    /// <summary>Camera origin after the directional setup's initial call.</summary>
     internal static Position16<RoomPixels> GetSetupCamera(DoorDefinition door) =>
         GetDestination(door) + door.Orientation.Direction switch
         {
@@ -112,7 +112,7 @@ internal sealed class DoorOpeningScrollState
         };
 
     /// <summary>
-    /// The door setup replaces both whole coordinates with layer one plus the
+    /// The door setup replaces both whole coordinates with the foreground plus the
     /// low position byte, preserving the fractions and deferring final nudges.
     /// </summary>
     internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
@@ -193,14 +193,14 @@ internal sealed class DoorOpeningScrollState
     /// Snaps the camera to the door's destination after the final directional step has
     /// produced its last background request.
     /// </summary>
-    public void SnapLayerOneToDestination()
+    public void SnapCameraToDestination()
     {
         if (RemainingFrames != 0)
             throw new InvalidOperationException(
                 "A door-opening trajectory cannot snap before its final scroll update.");
 
         // The final directional step recalculates the layer scrolls first; only then is the
-        // camera replaced with the exact door destination. Layer two reaches its endpoint
+        // camera replaced with the exact door destination. The background reaches its endpoint
         // through the final directional step and is not rewritten by the snap.
         CameraPosition = FinalCameraPosition;
     }

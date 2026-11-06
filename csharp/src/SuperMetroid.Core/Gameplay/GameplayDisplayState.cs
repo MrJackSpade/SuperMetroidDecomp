@@ -34,7 +34,7 @@ internal sealed class GameplayDisplayState
 
     /// <summary>
     /// Door setup shows the elevator shaft's floor before the room is exposed, or removes it,
-    /// scrolled with the latched layer-1 scroll. A getaway floor already latched stays, as it takes
+    /// scrolled with the latched foreground scroll. A getaway floor already latched stays, as it takes
     /// precedence over the shaft's. Later room-main changes reach the display only through the frame latch.
     /// </summary>
     /// <param name="transform">The shaft's transform, or null to remove the floor.</param>

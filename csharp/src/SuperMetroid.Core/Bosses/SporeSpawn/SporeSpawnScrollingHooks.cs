@@ -7,8 +7,8 @@ public static class SporeSpawnScrollingHooks
 {
     /// <summary>
     /// <c>ScrollingFinishedHook_SporeSpawnFight</c>. The routine
-    /// prevents layer one from moving above Y 464 while the live encounter owns
+    /// prevents the camera from moving above Y 464 while the live encounter owns
     /// the global scrolling-finished callback.
     /// </summary>
-    public const int FightMinimumLayerOneY = 464;
+    public const int FightMinimumCameraY = 464;
 }

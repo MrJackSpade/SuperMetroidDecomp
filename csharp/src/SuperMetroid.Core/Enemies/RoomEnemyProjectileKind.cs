@@ -7,7 +7,7 @@ public enum RoomEnemyProjectileKind
 {
     /// <summary>No projectile: the physical slot is available for allocation.</summary>
     None = 0,
-    /// <summary>The pre-Phantoon room's BG2-offset keeper, spawned by the room's setup.</summary>
+    /// <summary>The pre-Phantoon room's background-offset keeper, spawned by the room's setup.</summary>
     PrePhantoonRoom = 1,
     /// <summary><c>EnemyProjectile_YappingMawsBody</c>: the Maw's projectile-backed body.</summary>
     YappingMawBody = 2,

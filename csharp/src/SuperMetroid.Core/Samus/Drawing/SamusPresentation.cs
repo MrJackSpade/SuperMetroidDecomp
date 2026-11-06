@@ -26,7 +26,7 @@ internal sealed class SamusPresentation
     /// </summary>
     public SamusBodyPictures ShownPictures { get; internal set; }
 
-    /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
+    /// <summary>Last screen-space origin calculated from world position and the foreground scroll.</summary>
     public Position16<ScreenPixels> SpritemapPosition { get; internal set; }
 
     /// <summary>Which body definitions the body shows, and the installed artwork they are drawn from.</summary>

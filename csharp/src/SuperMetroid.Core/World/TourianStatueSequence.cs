@@ -11,7 +11,7 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Owns the four statue tile programs and the descending BG2
+/// Owns the four statue tile programs and the descending background
 /// pre-instructions. Boss victories and grey-statue events are deliberately separate:
 /// visiting the room must play each release before opening the elevator route.
 /// </summary>
@@ -36,9 +36,9 @@ public sealed class TourianStatueSequence
     /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
 
-    /// <summary>Builds one room's statue sequence over the session services that run its tile and BG2 descent programs.</summary>
+    /// <summary>Builds one room's statue sequence over the session services that run its tile and the background descent programs.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
-    /// <param name="roomFxOverlay">The room's layer-3 FX, whose earthquake sound the descent publishes.</param>
+    /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomPaletteFx">The room's palette FX.</param>
     /// <param name="plms">The room's PLM system, which receives the Tourian access PLM when the statues are already open.</param>
     /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
@@ -94,7 +94,7 @@ public sealed class TourianStatueSequence
     internal readonly List<TileObject> objects = [];
     /// <summary>Minus two waits for all grey events; nonnegative values count down the authored pre-descent hold.</summary>
     private int delay = -2;
-    /// <summary>Accumulated positive 16.16 travel, exposed as a negative BG2 vertical offset.</summary>
+    /// <summary>Accumulated positive 16.16 travel, exposed as a negative background vertical offset.</summary>
     internal int Descent { get; set; }
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes; the next room builds its own sequence.</summary>
     public bool Enabled { get; private set; }
@@ -105,9 +105,9 @@ public sealed class TourianStatueSequence
     /// between minus that distance and zero.
     /// </summary>
     public int VerticalOffset => CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(-Descent));
-    /// <summary>BG2 offset latched at the same frame boundary as the displayed sprite frame.</summary>
+    /// <summary>Background offset latched at the same frame boundary as the displayed sprite frame.</summary>
     public int DisplayedVerticalOffset { get; private set; }
-    /// <summary>Captures the current BG2 position for presentation with the corresponding sprite frame.</summary>
+    /// <summary>Captures the current background position for presentation with the corresponding sprite frame.</summary>
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>

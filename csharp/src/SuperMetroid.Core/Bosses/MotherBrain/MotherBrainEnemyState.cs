@@ -72,7 +72,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
 
-    /// <summary>Whether the unpause hook must restore Mother Brain's BG2 image and beam SFX.</summary>
+    /// <summary>Whether the unpause hook must restore Mother Brain's background image and beam SFX.</summary>
     public bool EnableUnpauseHook { get; internal set; }
 
 

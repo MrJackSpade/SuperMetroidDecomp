@@ -84,7 +84,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Mother Brain's request that special Rinkas be removed instead of launched or respawned.</summary>
     internal void RequestTermination() => _rinkaTerminationFlag = true;
-    /// <summary>Layer-1 camera coordinates used by the spawn and flight windows.</summary>
+    /// <summary>Camera coordinates used by the spawn and flight windows.</summary>
     private Position16<RoomPixels> _rinkaCamera;
     /// <summary>
     /// Special Rinka slots awaiting the door loader's camera for spawn selection, in the
@@ -93,7 +93,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
     /// <summary>
-    /// Captures layer-1 coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
+    /// Captures camera coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
     /// any Rinka AI; Load supplies the already-positioned destination camera for initialization.
     /// </summary>
     internal void SetRinkaCamera(Position16<RoomPixels> camera)
@@ -119,7 +119,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.Without(resetMask);
         if (IsSpecialRinka(slot))
         {
-            // The spawn selection tests its spawn points against layer 1. A door's loader runs this
+            // The spawn selection tests its spawn points against the foreground. A door's loader runs this
             // while the door transition is still scrolling, so that choice waits for the camera
             // of the update in which the loader reaches this slot.
             if (_frameContext.DeferLoaderTimeCameraReads)
@@ -187,7 +187,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the camera-dependent part of each deferred initialization whose slot the door
-    /// loader has reached, against that update's layer-1 position.
+    /// loader has reached, against that update's camera position.
     /// </summary>
     public void CompleteLoaderTimeCameraReads(
         Func<int, bool> loaderInitializedSlot,

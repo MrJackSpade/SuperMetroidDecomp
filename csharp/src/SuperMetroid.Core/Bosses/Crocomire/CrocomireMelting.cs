@@ -59,7 +59,7 @@ internal sealed class CrocomireMelting
 
     /// <summary>
     /// <c>MainAI_Crocomire_DeathSequence_2C_Hop_6_LoadMeltingTilemap</c>. It
-    /// first refills the melt's per-line BG2 vertical scroll and leaves the tongue alone.
+    /// first refills the melt's per-line background vertical scroll and leaves the tongue alone.
     /// </summary>
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
@@ -100,7 +100,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// Begins <paramref name="pass"/>'s melt: resets the BG2 scroll table and the distortion, and starts
+    /// Begins <paramref name="pass"/>'s melt: resets the background scroll table and the distortion, and starts
     /// the pass with no column erased and its first band to show. Each band keeps the previous pass's picture until this
     /// pass shows its own.
     /// </summary>
@@ -177,7 +177,7 @@ internal sealed class CrocomireMelting
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
     }
 
-    /// <summary>Updates the acid dissolve, BG2 distortion, tongue placement, and scheduled melting graphics.</summary>
+    /// <summary>Updates the acid dissolve, background distortion, tongue placement, and scheduled melting graphics.</summary>
     internal void RunCrocomireMelting(CrocomireEnemyState state, SamusState? samus)
     {
         _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);

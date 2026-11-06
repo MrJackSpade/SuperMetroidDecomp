@@ -50,7 +50,7 @@ internal sealed class EnemyProcessingWindow
     /// initialization) and shutdown (the full beam sees the body's cleared activation word on
     /// the following frame).
     /// </remarks>
-    /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     public void PrepareEnemyProcessingList(Position16<RoomPixels> camera)
     {
         _room.EnsureLoaded();

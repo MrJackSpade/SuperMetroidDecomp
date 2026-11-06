@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// the cone effect widens/aims/deactivates the window beam. Keeping those words in one
 /// explicit state prevents the standing and crouching X-ray poses from silently inheriting ordinary standing or
 /// crouching input. The desktop compositor now consumes these exact angle/width words to
-/// reproduce the moving tangent-table window; building the revealed-block BG2 tilemap remains
+/// reproduce the moving tangent-table window; building the revealed blocks' picture remains
 /// separate presentation work and no fake hidden tiles are generated here.
 /// </remarks>
 public sealed class SamusXrayState
@@ -67,7 +67,7 @@ public sealed class SamusXrayState
     public bool TimeIsFrozen { get; private set; }
 
     /// <summary>
-    /// The eight setup calls which prepare/transfer the two BG2 screens
+    /// The eight setup calls which prepare the reveal
     /// before the main frame behaviour begins changing the beam state.
     /// </summary>
     public XraySetupStage SetupStage { get; internal set; }
@@ -409,7 +409,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Advances the cone effect by one update. The setup-stage count represents the eight
-    /// real setup functions. Actual BG2 copies remain intentionally outside this movement
+    /// real setup functions. The reveal itself remains intentionally outside this movement
     /// state; the renderer consumes its angle/width only after setup has completed.
     /// </summary>
     public XrayBeamStepResult StepBeam(
@@ -473,7 +473,7 @@ public sealed class SamusXrayState
 
             case XrayBeamPhase.RestoreFirstHalf:
                 // The game's states three/four would wait while the artwork queue lacks room; the managed queue
-                // always has room for these BG2 transfers, so each restore half completes in one call.
+                // always has room for these restorations, so each restore half completes in one call.
                 BeamPhase = XrayBeamPhase.RestoreSecondHalf;
                 break;
 

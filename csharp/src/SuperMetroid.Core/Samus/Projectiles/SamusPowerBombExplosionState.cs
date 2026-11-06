@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <remarks>
 /// The game uses one effect to advance the explosion's stages and a second to configure
-/// the color-math window. The second effect has no independent lifetime: it waits until
+/// the glowing window. The second effect has no independent lifetime: it waits until
 /// the first ends both. Keeping one owner therefore exposes the meaningful state without
 /// inventing a second animation. Every phase transition and every 8.8 fixed-point radius
 /// update below follows the game's explosion stages exactly.

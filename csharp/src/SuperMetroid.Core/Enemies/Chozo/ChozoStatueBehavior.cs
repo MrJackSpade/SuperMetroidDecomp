@@ -32,7 +32,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Exposes slot zero for the singleton statue's cross-slot writes.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Receives statue-authored layer-three FX motion writes.</summary>
+    /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
 
     /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>

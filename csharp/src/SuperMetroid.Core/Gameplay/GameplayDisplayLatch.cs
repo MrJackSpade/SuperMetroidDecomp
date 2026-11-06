@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// shows from the next shown frame. An update without a frame boundary leaves the previous latch in place. Arrays are owned copies;
 /// simulation cannot change them.
 /// </summary>
-/// <param name="Scrolls">The camera's layer-1 and layer-2 scrolls and the room shake.</param>
+/// <param name="Scrolls">The foreground's and the background's scrolls and the room shake.</param>
 /// <param name="ShownLayers">The room's layers and the actors gameplay shows.</param>
 /// <param name="PerspectiveFloor">The Ceres perspective floor the frame shows in place of the ordinary layers, or null.</param>
 /// <param name="RoomFxOverlay">Room-FX effect overlay state.</param>
@@ -22,10 +22,10 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Phantoon">Phantoon's wave, blend, and mosaic latches, when Phantoon exists.</param>
 /// <param name="TourianStatueVerticalOffset">
 /// Tourian statue background vertical offset in pixels: the statue state's signed offset, which the capture adds to the
-/// layer-one position with the scroll's own wrap.
+/// camera position with the scroll's own wrap.
 /// </param>
 /// <param name="Scene">The room's effect-overlay characters, blending, sky and X-ray context.</param>
-/// <param name="Bosses">The bodies bosses draw as layer 2.</param>
+/// <param name="Bosses">The bodies bosses draw as the background.</param>
 /// <param name="FixedColors">The fixed colours the frame's blends use.</param>
 /// <param name="XrayReveal">
 /// The X-ray reveal background shows while X-ray is active, drawn from the room's block pictures (#1392).

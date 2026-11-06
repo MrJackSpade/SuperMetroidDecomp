@@ -584,7 +584,7 @@ internal sealed class CeresRidleyFlight
     {
         // SpawnEnemy consumes the first two free slots and initializes the literal
         // population records embedded. Keeping these as real slots makes
-        // their layer-two sprite order, off-screen processing, and visibility dispatcher
+        // their enemy-layer sprite order, off-screen processing, and visibility dispatcher
         // flow through the same scheduler as the original game instead of painting host panels.
         SpawnCeresRidleyGetawayWall(new(8, 127), CeresDoorVariant.RidleyEscapeFloorLeftWall);
         SpawnCeresRidleyGetawayWall(new(248, 127), CeresDoorVariant.RidleyEscapeFloorRightWall);

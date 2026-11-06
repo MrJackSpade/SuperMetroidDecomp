@@ -14,7 +14,7 @@ internal abstract record DraygonCue
     /// <summary>Gives the part running the program (the eye) its tracking function.</summary>
     internal sealed record SetOwnEyeFunction(DraygonEyeFunction Function) : DraygonCue;
 
-    /// <summary>Displaces the body's BG2 graphics while the tail whips.</summary>
+    /// <summary>Displaces the body's background graphics while the tail whips.</summary>
     internal sealed record DisplaceBodyGraphics(Offset16<BackgroundPixels> Offset) : DraygonCue;
 
     /// <summary>Queues a sound effect with a six-entry admission limit.</summary>

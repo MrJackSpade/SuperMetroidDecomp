@@ -20,7 +20,7 @@ public sealed class BackgroundScrollState
     public Position16<BackgroundPixels> BackgroundPosition { get; set; }
 
     /// <summary>
-    /// The room state's per-axis layer-2 scroll. Before a room state sets it, both axes copy layer one and stream,
+    /// The room state's per-axis background scroll. Before a room state sets it, both axes copy the foreground and stream,
     /// as the game's cleared mode bytes select.
     /// </summary>
     public BackgroundScrollModes BackgroundScrollModes { get; set; } = BackgroundScrollModes.FollowsForeground;
@@ -40,7 +40,7 @@ public sealed class BackgroundScrollState
 
     /// <summary>
     /// Publishes a room actor's direct writes to the background 2 scroll. Mother Brain
-    /// uses fixed layer-two room modes, so the ordinary scrolling pass intentionally leaves
+    /// uses fixed background room modes, so the ordinary scrolling pass intentionally leaves
     /// these values untouched after the actor supplies them.
     /// </summary>
     public void SetBackgroundScroll(Position16<BackgroundPixels> scroll) => BackgroundScroll = scroll;
@@ -50,7 +50,7 @@ public sealed class BackgroundScrollState
 
     /// <summary>
     /// Installs the door-opening offsets after a directional door setup has staged its
-    /// off-screen layer-one coordinate. The foreground keeps the source room's scroll while the door
+    /// off-screen foreground coordinate. The foreground keeps the source room's scroll while the door
     /// transition clears background's; all four offsets then remain active throughout the opening scroll.
     /// </summary>
     public void ConfigureDoorOpeningOffsets(
@@ -64,23 +64,23 @@ public sealed class BackgroundScrollState
         ForegroundScroll = retainedForegroundScroll;
         BackgroundScroll = Position16<BackgroundPixels>.Zero;
         ForegroundOffset = retainedForegroundScroll - stagedForeground;
-        // The derivation deliberately subtracts layer 1 for both background offsets: the
-        // The background offset words are the negated staged layer-one origin. This is not a typo:
-        // layer 2's own position is combined with these words later.
+        // The derivation deliberately subtracts the foreground for both background offsets: the
+        // background offset words are the negated staged camera origin. This is not a typo:
+        // the background's own position is combined with these words later.
         BackgroundOffset = new Offset16<BackgroundPixels>(
             CoordinateAxis.AsSigned(-stagedForeground.X),
             CoordinateAxis.AsSigned(-stagedForeground.Y));
     }
 
     /// <summary>
-    /// Implements the two layer-two position calculations made by each directional door
-    /// setup after the door installs the destination layer-one coordinates. Fixed mode one
-    /// deliberately retains its old layer-two position, exactly like the original early return.
+    /// Implements the two background position calculations made by each directional door
+    /// setup after the door installs the destination camera coordinates. Fixed mode one
+    /// deliberately retains its old background position, exactly like the original early return.
     /// </summary>
-    /// <param name="destination">The layer-one destination published to <see cref="ForegroundPosition"/>.</param>
+    /// <param name="destination">The foreground destination published to <see cref="ForegroundPosition"/>.</param>
     /// <param name="parallaxBasis">
-    /// The layer-one words the parallax calculation reads. An upward door calculates background from
-    /// destination+31 before the scroll's layer-one endpoint becomes destination+32.
+    /// The foreground words the parallax calculation reads. An upward door calculates background from
+    /// destination+31 before the scroll's foreground endpoint becomes destination+32.
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {
@@ -92,8 +92,8 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Implements the gameplay entry point: the scroll registers and layer-two parallax follow
-    /// layer one. A frozen frame changes nothing.
+    /// Implements the gameplay entry point: the scroll registers and the background parallax follow
+    /// the foreground. A frozen frame changes nothing.
     /// </summary>
     public void StepScrolling(bool timeIsFrozen = false)
     {
@@ -110,8 +110,8 @@ public sealed class BackgroundScrollState
     {
         ForegroundScroll = ForegroundPosition + ForegroundOffset;
 
-        // Mode one means "do not scroll layer 2 on this axis": the caller skips both the
-        // layer-2 position write and the layer-2 scroll.
+        // Mode one means "do not scroll the background on this axis": the caller skips both the
+        // background position write and the background scroll.
         if (TryCalculateBackgroundPosition(ForegroundPosition.X, BackgroundScrollModes.Horizontal, out int backgroundX))
         {
             BackgroundPosition = BackgroundPosition.WithX(backgroundX);
@@ -136,7 +136,7 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Copies, freezes, or parallax-scales one layer-two axis as the room state's scroll selects. The layer-one
+    /// Copies, freezes, or parallax-scales one background axis as the room state's scroll selects. The foreground
     /// coordinate is a sixteen-bit word and so is the result: the parallax product keeps its own wrap.
     /// </summary>
     private static bool TryCalculateBackgroundPosition(int foregroundPosition, BackgroundAxisScroll scroll, out int result)

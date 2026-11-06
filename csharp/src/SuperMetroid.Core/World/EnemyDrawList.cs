@@ -9,7 +9,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// EnemyMain's draw phase (<c>WriteEnemyOams</c>): the per-layer queues the enemy pass fills, the common
+/// The enemies' draw phase: the per-layer queues the enemy pass fills, the common
 /// draw-palette selection, and the ordinary, extended and supplemental sprite output with the boss body frames it draws.
 /// </summary>
 [RoomLifetime]
@@ -59,11 +59,11 @@ internal sealed class EnemyDrawList
     private InclusiveRange _preparedLayers;
 
     /// <summary>
-    /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in queue order: each queued
+    /// The simulation half of the enemies' draw for an inclusive layer range, in queue order: each queued
     /// enemy's shake tick is consumed while its origin is formed, and an extended enemy's boss body frame is
     /// drawn. These run whenever the game's draw pass runs, whether or not the frame is shown.
     /// </summary>
-    /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First draw layer, inclusively, in the range 0..7.</param>
     /// <param name="lastLayer">Last draw layer, inclusively, in the range 0..7 and not below firstLayer.</param>
     /// <exception cref="ArgumentOutOfRangeException">The inclusive layer range is invalid.</exception>
@@ -138,7 +138,7 @@ internal sealed class EnemyDrawList
     /// still write sprites between them, in the game's order.
     /// </summary>
     /// <param name="sprites">The frame's sprite description; the occupant and boss hooks write its sprites.</param>
-    /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
     /// <param name="lastLayer">Last draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
     /// <exception cref="InvalidOperationException">The range was not prepared by <see cref="AdvanceLayers"/>.</exception>
@@ -202,7 +202,7 @@ internal sealed class EnemyDrawList
 
     /// <summary>
     /// Ports the palette selection, immediately before
-    /// <c>WriteEnemyOams</c> emits either an ordinary or extended enemy spritemap.
+    /// the draw emits either an ordinary or extended enemy spritemap.
     /// </summary>
     /// <remarks>
     /// A hit does not replace an enemy's stored colouring. On alternating phases of the

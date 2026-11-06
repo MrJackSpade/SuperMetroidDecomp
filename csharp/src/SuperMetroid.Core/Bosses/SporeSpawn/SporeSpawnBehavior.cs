@@ -86,9 +86,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the global scrolling-finished callback installed by live Spore Spawn.
     /// The camera invokes it after both ordinary camera axes have
-    /// finished and before background streaming observes the final layer-one words.
+    /// finished and before background streaming observes the final camera position.
     /// </summary>
-    /// <param name="camera">Live room camera whose layer-one Y is raised to the arena minimum of 464 room pixels when the hook is active.</param>
+    /// <param name="camera">Live room camera whose Y is raised to the arena minimum of 464 room pixels when the hook is active.</param>
     /// <exception cref="ArgumentNullException"><paramref name="camera"/> is null.</exception>
     public void RunScrollingFinishedHook(ScrollBoundaryCamera camera)
     {
@@ -96,14 +96,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SporeSpawn?.ScrollClampHookActive != true)
             return;
 
-        // The hook loads the arena minimum of 464, compares it with layer1_y_pos, and returns when it is below.
+        // The hook loads the arena minimum of 464, compares it with the camera's Y, and returns when it is below.
         // Equality deliberately performs the harmless store; a larger camera Y is
         // already below the arena ceiling and is therefore left untouched.
-        if (SporeSpawnScrollingHooks.FightMinimumLayerOneY < camera.PixelPosition.Y)
+        if (SporeSpawnScrollingHooks.FightMinimumCameraY < camera.PixelPosition.Y)
             return;
 
-        camera.SetLayerOneYFromScrollingFinishedHook(
-            SporeSpawnScrollingHooks.FightMinimumLayerOneY);
+        camera.SetCameraYFromScrollingFinishedHook(
+            SporeSpawnScrollingHooks.FightMinimumCameraY);
     }
 
     /// <summary>Gets the single boss state and verifies it belongs to the supplied body slot.</summary>

@@ -25,7 +25,7 @@ public sealed record RoomPlmServices
     /// <summary>Tourian entrance statue progress for grey-door conditions.</summary>
     public ITourianStatueProgress? TourianStatue { get; init; }
 
-    /// <summary>Layer-3 FX the Speed Booster escape and N00b tube drive.</summary>
+    /// <summary>Effect overlay FX the Speed Booster escape and N00b tube drive.</summary>
     public IRoomPlmFx? RoomFx { get; init; }
 
     /// <summary>Room-shake writes.</summary>

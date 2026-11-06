@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The background scroll phase: scroll offsets from the camera and layer-1 position adoption. Backgrounds render from
+/// The background scroll phase: scroll offsets from the camera and the camera position adoption. Backgrounds render from
 /// level data through these offsets, so nothing streams into the backgrounds (#1346).
 /// </summary>
 internal sealed class BackgroundScrollPhase
@@ -20,16 +20,16 @@ internal sealed class BackgroundScrollPhase
         _room = room;
     }
 
-    /// <summary>Copies the translated layer-1 camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
+    /// <summary>Copies the translated camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
     public void UpdateBackgroundScrollingFromCamera(bool timeIsFrozen = false)
     {
         if (_room.Camera is null)
-            throw new InvalidOperationException("A room camera must be initialized before BG scrolling.");
+            throw new InvalidOperationException("A room camera must be initialized before the backgrounds scroll.");
 
         _backgroundScroll.ForegroundPosition = _room.Camera.PixelPosition;
         _backgroundScroll.StepScrolling(timeIsFrozen);
     }
 
-    /// <summary>Adopts the layer-one position whose fraction words survived the previous runtime.</summary>
+    /// <summary>Adopts the camera position whose fraction words survived the previous runtime.</summary>
     internal void AdoptCameraPosition(FixedPosition<RoomPixels> retained) => _room.InheritedCameraPosition = retained;
 }

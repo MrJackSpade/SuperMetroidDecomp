@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's three fixed hitbox lists, separate from its editable BG2 frames: the inert point carried by hidden
+/// Phantoon's three fixed hitbox lists, separate from its editable background frames: the inert point carried by hidden
 /// parts and tentacles, the five-rectangle full body, and the vulnerable eye alone. Every frame root has zero
 /// component offsets; the three tentacle roots each have two components.
 /// </summary>
@@ -67,7 +67,7 @@ internal static class PhantoonCollisionDefinitions
     private static EnemyCollisionHitbox Centered(int halfWidth, int top, int bottom) =>
         Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>
-    /// Each Phantoon BG2 frame's components: the full body and the eye alone each have one component, the three
+    /// Each Phantoon background frame's components: the full body and the eye alone each have one component, the three
     /// tentacle frames two inert points, and every other frame one inert point.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()

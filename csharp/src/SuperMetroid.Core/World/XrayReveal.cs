@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class XrayReveal
 {
-    /// <summary>Supplies layer one's position and the foreground's offset, which place the reveal.</summary>
+    /// <summary>Supplies the camera position and the foreground's offset, which place the reveal.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies the active room, its level data and its area.</summary>
     private readonly ActiveRoomState _room;

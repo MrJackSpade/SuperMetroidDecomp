@@ -387,11 +387,11 @@ internal sealed class RoomLoader
         if (alignment.Completed)
             return true;
 
-        // The alignment increments or decrements the whole layer-one position only; fractions, the ideal
+        // The alignment increments or decrements the whole camera position only; fractions, the ideal
         // camera position and Samus's previous position are untouched.
         _room.Camera.SetDoorTransitionPosition(alignment.CameraPosition);
 
-        // CalculateLayer2PosAndScrollsWhenScrolling updates the background scroll on every
+        // The game updates the background's position and scroll on every
         // convergence step; the gameplay scroll owner performs the same parallax math.
         _backgroundScroll.ForegroundPosition = _room.Camera.PixelPosition;
         _backgroundScroll.StepScrolling();
@@ -519,9 +519,9 @@ internal sealed class RoomLoader
         DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
             ?? throw new InvalidOperationException(
                 "Door-opening scroll lost the source room's view.");
-        // The offsets derive from the layer-one words staged before setup's first call:
+        // The offsets derive from the foreground words staged before setup's first call:
         // horizontal setups had not yet taken their four-pixel step, and up's
-        // FixDoorsMovingUp path stages layer one five (layer two four) pixels lower.
+        // FixDoorsMovingUp path stages the foreground five (the background four) pixels lower.
         Offset16<RoomPixels> foregroundStaging = direction switch
         {
             DoorDirection.Right => new(-4, 0),
@@ -574,7 +574,7 @@ internal sealed class RoomLoader
             // The final directional step has already recalculated the layer scrolls from
             // the stepped coordinates; only the camera snaps to the exact destination,
             // without another scroll calculation.
-            state.SnapLayerOneToDestination();
+            state.SnapCameraToDestination();
             PublishDoorCameraPosition(state.CameraPosition);
         }
         // The scroll moves at the start of the update; room loading's progress follows.
@@ -609,7 +609,7 @@ internal sealed class RoomLoader
         _backgroundScroll.BackgroundPosition = state.BackgroundPosition;
     }
 
-    /// <summary>Publishes a door-owned layer-one position to both the camera and the scroll owner.</summary>
+    /// <summary>Publishes a door-owned camera position to both the camera and the scroll owner.</summary>
     private void PublishDoorCameraPosition(Position16<RoomPixels> camera)
     {
         _room.LoadedCamera.SetDoorTransitionPosition(camera);

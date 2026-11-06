@@ -101,7 +101,7 @@ public sealed class CeresElevatorArrivalState
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the loaded graphics set's sheets.</param>
-    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    /// <param name="camera">Camera position in whole room pixels.</param>
     internal void Draw(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);

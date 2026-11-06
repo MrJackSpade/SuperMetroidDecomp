@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="ElevatorClearedProjectileData">The elevator called <c>ResetProjectileData</c>; the bomb owner completes it.</param>
 /// <param name="DraygonDiscardedSamusPoseRequests">Draygon grabbed or released Samus, discarding alpha's pose requests.</param>
 /// <param name="CeresEscapeStarted">Ceres Ridley started the escape on this EnemyMain call.</param>
-/// <param name="LayerOneXOverride">The Shitroid's direct layer-one X write in room pixels, if any.</param>
+/// <param name="CameraXOverride">The Shitroid's direct camera X write in room pixels, if any.</param>
 /// <param name="StopLiquidMotion">Mother Brain's tube landed, stopping the liquid surface's motion from the next frame.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
 /// <param name="RoomEffects">The hardcoded PLMs and room writes enemy AI requested.</param>
@@ -22,7 +22,7 @@ public readonly record struct EnemyFrameResult(
     bool ElevatorClearedProjectileData,
     bool DraygonDiscardedSamusPoseRequests,
     bool CeresEscapeStarted,
-    int? LayerOneXOverride,
+    int? CameraXOverride,
     bool StopLiquidMotion,
     GunshipFrameEvent Gunship,
     EnemyRoomEffectRequests RoomEffects);

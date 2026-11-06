@@ -14,7 +14,7 @@ public static class KraidShades
 
     /// <summary>
     /// Kraid's colours for health band <paramref name="band"/>, zero through seven, or the hurt flash's for minus one: his
-    /// body's on layer 2 and his sprite parts' (#1512).
+    /// body's on the background and his sprite parts' (#1512).
     /// </summary>
     public static PictureShade Health(int band) => new("kraid-health", band + 1);
 

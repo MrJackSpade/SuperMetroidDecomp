@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 public static class FloorConversions
 {
     /// <summary>
-    /// A room point as a signed floor offset when the turning floor is layer one, as in the Ceres elevator shaft.
+    /// A room point as a signed floor offset when the turning floor is the foreground, as in the Ceres elevator shaft.
     /// The words are unchanged; the floor transform reads them as signed.
     /// </summary>
     public static Offset16<FloorPixels> AsFloorWord(this Position16<RoomPixels> cameraPosition) =>

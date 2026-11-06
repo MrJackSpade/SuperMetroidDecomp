@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Layer-1 camera position constrained by Super Metroid's directional scroll-zone handlers.
+/// The camera position constrained by Super Metroid's directional scroll-zone handlers.
 /// </summary>
 /// <remarks>
 /// The four private handlers are direct ports of the four scroll-boundary handlers.
@@ -28,12 +28,12 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Gets the layer-one 16.16 position: the integer words and the fraction
+    /// Gets the camera's 16.16 position: the integer words and the fraction
     /// words.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
-    /// <summary>Gets the layer-one integer position (the camera's top-left room pixel).</summary>
+    /// <summary>Gets the camera's integer position (its top-left room pixel).</summary>
     public Position16<RoomPixels> PixelPosition => Position.Whole;
 
     /// <summary>
@@ -106,7 +106,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Keeps the layer-one fraction words of the camera this one replaces.
+    /// Keeps the fraction words of the camera this one replaces.
     /// Room and game loads write only the integer positions, so the
     /// previous room's fractions remain in RAM.
     /// </summary>
@@ -114,14 +114,14 @@ public sealed class ScrollBoundaryCamera
         RetainSubpositions(previous.Position);
 
     /// <summary>
-    /// Keeps the layer-one fraction words of <paramref name="retained"/>, such as those that
+    /// Keeps the fraction words of <paramref name="retained"/>, such as those that
     /// survived a released gameplay owner; the integer words are unchanged.
     /// </summary>
     public void RetainSubpositions(FixedPosition<RoomPixels> retained) =>
         Position = Position.WithFractionsOf(retained);
 
     /// <summary>
-    /// Publishes the modular layer-one position the door-transition scroll owns.
+    /// Publishes the modular camera position the door-transition scroll owns.
     /// </summary>
     /// <remarks>
     /// The vertical transition routines deliberately begin outside the destination room:
@@ -131,7 +131,7 @@ public sealed class ScrollBoundaryCamera
     /// prevents ordinary loaders and debug callers from bypassing room-edge validation.
     /// </remarks>
     public void SetDoorTransitionPosition(Position16<RoomPixels> position) =>
-        // The door-transition setup and scroll write whole layer-one positions, leaving both fractions intact.
+        // The door-transition setup and scroll write whole camera positions, leaving both fractions intact.
         Position = Position.WithWhole(position);
 
     /// <summary>
@@ -143,18 +143,18 @@ public sealed class ScrollBoundaryCamera
         Position = retainedFractions.WithWhole(position);
 
     /// <summary>
-    /// Applies the direct <c>layer1_x_pos</c> write used by Shitroid AI. Unlike
+    /// Applies the direct camera X write the Shitroid's AI makes. Unlike
     /// entry placement, the game does not clear subposition or replace either ideal
     /// camera coordinate at this point in the gameplay frame.
     /// </summary>
-    public void SetLayerOneXFromEnemyAi(int xPosition) => SetWholeX(xPosition);
+    public void SetCameraXFromEnemyAi(int xPosition) => SetWholeX(xPosition);
 
     /// <summary>
-    /// Applies a direct layer-one Y write made by a room-installed scrolling-finished
-    /// hook. The game changes only <c>Layer1YPosition</c> at this point: fractional
+    /// Applies a direct camera Y write made by a room-installed scrolling-finished
+    /// hook. The game changes only the camera's whole Y at this point: fractional
     /// and ideal-camera words retain the values produced by ordinary scrolling.
     /// </summary>
-    public void SetLayerOneYFromScrollingFinishedHook(int yPosition) =>
+    public void SetCameraYFromScrollingFinishedHook(int yPosition) =>
         SetWholeY(yPosition);
 
     /// <summary>
@@ -209,7 +209,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// The fast-swing branch of <c>Main_Scrolling_Routine</c>: layer 1
+    /// The fast-swing branch of the camera's scrolling: the camera
     /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
     /// The camera speed words are not recalculated. A negative Samus X skips both axes.
     /// </summary>

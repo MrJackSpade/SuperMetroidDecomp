@@ -233,7 +233,7 @@ internal sealed class MotherBrainBody
                 MoveMotherBrainBody(stepAndMove.Offset);
                 return;
             // The six posture-transition steps each move the body
-            // vertically, counter-scrolls BG2 by the opposite amount, and derives BG2 X from
+            // vertically, counter-scrolls the background by the opposite amount, and derives the background's X from
             // the body's new origin plus its authored horizontal bias.
             case MotherBrainBodyCue.MoveWithScrollBias moveWithScrollBias:
                 MoveMotherBrainBodyWithScrollBias(moveWithScrollBias.Y, moveWithScrollBias.ScrollBias);
@@ -402,8 +402,8 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Literal body/BG2 movement helper. The signed Y operand is added
-    /// to the actor and subtracted from the background, keeping the large BG2 body art
+    /// Literal body/background movement helper. The signed Y operand is added
+    /// to the actor and subtracted from the background, keeping the large background body art
     /// rigidly attached to its small OBJ hitbox record. X movement happens before this call
     /// in the original game, so the derived scroll must sample the already-updated body X.
     /// </summary>

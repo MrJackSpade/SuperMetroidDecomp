@@ -3,18 +3,18 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>The seven revealed-block commands named by the X-ray reveal tables.</summary>
 public enum XrayRevealCommand
 {
-    /// <summary>RevealedBlockCommand_VerticalExtension.</summary>
+    /// <summary>A vertical extension: reveals as the block it extends does.</summary>
     VerticalExtension,
-    /// <summary>RevealedBlockCommand_HorizontalExtension.</summary>
+    /// <summary>A horizontal extension: reveals as the block it extends does.</summary>
     HorizontalExtension,
-    /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2Tilemap.</summary>
+    /// <summary>Reveals one block.</summary>
     CopyOne,
-    /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2TilemapIfBrinstar.</summary>
+    /// <summary>Reveals one block, in Brinstar only.</summary>
     CopyBrinstar,
-    /// <summary>RevealedBlockCommand_Copy2x1BlockToXrayBG2Tilemap.</summary>
+    /// <summary>Reveals two blocks side by side.</summary>
     CopyWide,
-    /// <summary>RevealedBlockCommand_Copy1x2BlockToXrayBG2Tilemap.</summary>
+    /// <summary>Reveals two blocks one above the other.</summary>
     CopyTall,
-    /// <summary>RevealedBlockCommand_Copy2x2BlockToXrayBG2Tilemap.</summary>
+    /// <summary>Reveals a square of four blocks.</summary>
     CopySquare,
 }

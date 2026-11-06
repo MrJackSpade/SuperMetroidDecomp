@@ -30,12 +30,12 @@ cbuffer TileParameters : register(b0)
 // The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
 // each ink's colour under the slot's shading (#1512).
 StructuredBuffer<uint> Colours : register(t0);
-// Room level planes (D3D11RoomLevelBuffer): layer-1, layer-2 and door-source plane records, the door window, the layer-1 overlay,
+// Room level planes (D3D11RoomLevelBuffer): the foreground, background and door-source plane records, the door window, the foreground overlay,
 // and the pre-coloured block pictures the planes' definitions show (#1392).
 StructuredBuffer<uint> RoomLevels : register(t3);
-// RoomSource: what a layer pass draws: the room's layer 1 or 2 as level data shows it, the sky's rows, the effect
+// RoomSource: what a layer pass draws: the room's foreground or background as level data shows it, the sky's rows, the effect
 // overlay, a boss body, the X-ray reveal, a library background, the HUD, a pictured plane or a picture grid.
-// SourceWrittenOverBackground added to it lays words written over layer 2 on top.
+// SourceWrittenOverBackground added to it lays words written over the background on top.
 static const uint SourceForeground = 1, SourceBackground = 2, SourceSky = 3, SourceFxOverlay = 4;
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
@@ -229,8 +229,8 @@ bool WrittenOverBackgroundPicture(uint2 scrolled, out uint picture, out uint2 wi
 // word, x below y, repeats beyond its edges, and the piece covering the position gives `picture` and `within`, its pixel
 // there; a position no piece covers shows nothing. Each piece is four words: its picture's offset, the body pixel its
 // rectangle's top-left corner lies on, the rectangle's size, and the picture pixel that corner shows, each x below y; the
-// picture repeats across and down from that pixel, as the one-cell blank does. Every layer-2 sampler reads the boss
-// through this, so a color-math pass shows the same body as an ordinary one (#1426).
+// picture repeats across and down from that pixel, as the one-cell blank does. Every background sampler reads the boss
+// through this, so a blending pass shows the same body as an ordinary one (#1426).
 void BossBodyPicture(uint2 scrolled, out uint2 within, out uint picture)
 {
     uint table = RoomLevels[RoomBossBodyWord];
@@ -288,8 +288,8 @@ bool LibraryBackgroundPicture(uint2 scrolled, out uint picture, out uint2 within
     within = cell != 0 ? (pagePixel & 15) : uint2(pagePixel.x, page * 256 + pagePixel.y);
     return true;
 }
-// Layer 2 from the room's layer-2 plane or the sky's rows, or layer 1 as RoomBackgrounds resolves it: a door's source
-// screen, then words written over layer 1, then the level plane.
+// The background from the room's background plane or the sky's rows, or the foreground as RoomBackgrounds resolves it: a door's source
+// screen, then words written over the foreground, then the level plane.
 bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
 {
     entry = 0;
@@ -595,7 +595,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint2 within = uint2(0, 0);
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
-    // A word written over layer 2 shows its picture over whatever layer 2 shows there (#1403).
+    // A word written over the background shows its picture over whatever the background shows there (#1403).
     bool overlaid = (RoomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(scrolled, picture, within);
     if (!overlaid)
     {

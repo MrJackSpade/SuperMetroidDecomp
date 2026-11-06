@@ -542,7 +542,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Packs the room's layer-2 scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
+    /// Packs the room's background scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
     /// the background pixel the view shows at the screen's top on every line (#1514).
     /// </summary>
     private static void PackBackgroundScrolls(uint[] data, GameplaySceneLayer layer)
@@ -644,7 +644,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 hud = hud is null || ReferenceEquals(hud, shownHud.Hud) ? shownHud.Hud
                     : throw new InvalidOperationException("A frame shows two different HUDs.");
         }
-        // The gameplay base layer publishes the room backgrounds; a Mode-7 floor band shows the room's layer-2 plane.
+        // The gameplay base layer publishes the room backgrounds; a turning floor's band shows the room's background plane.
         RoomBackgrounds? rooms = scene.Layers.IsEmpty ? null : scene.Layers[0] switch
         {
             GameplaySceneLayer ordinary => ordinary.Rooms,

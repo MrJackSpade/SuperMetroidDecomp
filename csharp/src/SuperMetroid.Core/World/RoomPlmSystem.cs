@@ -56,7 +56,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
     /// <summary>Queues sound requests emitted by room object instructions.</summary>
     internal PlmSoundQueue Sounds { get; }
 
-    /// <summary>Turns PLM draw-list commands into level changes and BG tilemap updates.</summary>
+    /// <summary>Turns PLM draw-list commands into level changes and background picture updates.</summary>
     internal PlmBlockDrawing Drawing { get; }
 
     /// <summary>Spawns PLMs for breakable blocks struck by projectile impacts.</summary>

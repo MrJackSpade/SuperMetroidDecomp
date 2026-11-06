@@ -80,7 +80,7 @@ internal sealed class MotherBrainRainbowAndDeath
             step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody;
         if (bodyFade)
         {
-            // ADF41C flickers the body and BG2 together on every call, not just palette ticks.
+            // ADF41C flickers the body and the background together on every call, not just palette ticks.
             state.DeathHidesBodyLayer = (state.Body.FrameCounter & 1) == 0;
             state.Body.Properties = state.DeathHidesBodyLayer
                 ? state.Body.Properties.With(EnemyProperties.Invisible)
@@ -180,7 +180,7 @@ internal sealed class MotherBrainRainbowAndDeath
         fragment.State = new MotherBrainDoorFragmentState();
     }
 
-    /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room BG2 (#1348).</summary>
+    /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348).</summary>
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
         _room.Services.WriteBackgroundPicture(new WrittenPicture(glyph.Picture, glyph.Cell));
 

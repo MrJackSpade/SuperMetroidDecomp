@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainRecoveryPaintDefinitions
 {
-    /// <summary>Recovery full-light BG palette3 slot1: light blue-violet band on the right doorway's curved rim.</summary>
+    /// <summary>Recovery full-light background palette 3 slot 1: light blue-violet band on the right doorway's curved rim.</summary>
     internal static readonly RgbColor DoorwayRimLight = new(18, 21, 28);
 
-    /// <summary>Recovery full-light BG palette3 slot2: middle blue-violet band on the doorway rim, independently chosen hue.</summary>
+    /// <summary>Recovery full-light background palette 3 slot 2: middle blue-violet band on the doorway rim, independently chosen hue.</summary>
     internal static readonly RgbColor DoorwayRimMiddle = new(7, 14, 28);
 
-    /// <summary>Recovery full-light BG palette3 slot3: dark blue-violet band on the doorway rim.</summary>
+    /// <summary>Recovery full-light background palette 3 slot 3: dark blue-violet band on the doorway rim.</summary>
     internal static readonly RgbColor DoorwayRimDark = new(3, 3, 17);
 
     /// <summary>

@@ -118,7 +118,7 @@ internal sealed class EnemyFramePhase
             {
                 // Phantoon's body layer is placed by his AI, while eye/tentacle collision follows enemy
                 // positions. Publish the placement before the next accepted frame latches the matching sprite
-                // frame. The room's fixed layer-two axes preserve it during camera scrolling.
+                // frame. The room's fixed background axes preserve it during camera scrolling.
                 _backgroundScroll.SetBackgroundScroll(phantoon.BodyLayerPlacement);
             }
             if (result.CeresEscapeStarted)
@@ -127,13 +127,13 @@ internal sealed class EnemyFramePhase
                 // ceres_status from one to two; the actor sets the boss bit itself.
                 _enemyRoomEffects.StartCeresEscape();
             }
-            if (result.LayerOneXOverride is int layerOneX)
+            if (result.CameraXOverride is int cameraX)
             {
-                int shitroidCameraX = Ensure.BetweenInclusive(0, ushort.MaxValue, layerOneX);
-                // The Shitroid writes layer one's X position during EnemyMain, before the ordinary
+                int shitroidCameraX = Ensure.BetweenInclusive(0, ushort.MaxValue, cameraX);
+                // The Shitroid writes the camera X position during EnemyMain, before the ordinary
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
-                _room.Camera.SetLayerOneXFromEnemyAi(Ensure.BetweenInclusive(0, ushort.MaxValue, shitroidCameraX));
+                _room.Camera.SetCameraXFromEnemyAi(Ensure.BetweenInclusive(0, ushort.MaxValue, shitroidCameraX));
                 _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(shitroidCameraX);
             }
             // The landing tube stops the liquid surface's motion; the next frame shows it still.

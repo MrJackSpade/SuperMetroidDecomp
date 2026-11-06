@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 public static class RenderingDiscriminantExtensions
 {
     /// <summary>
-    /// True only for the two backdrop-color-math configurations that animate
+    /// True only for the two backdrop-blending configurations that animate
     /// Samus's visor. Other raw configuration indices remain unnamed and return false.
     /// </summary>
     public static bool AnimatesVisor(this LayerBlendingConfiguration configuration) =>

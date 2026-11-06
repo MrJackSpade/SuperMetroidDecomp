@@ -275,8 +275,8 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBombProjectileSlot slot in InUpdateOrder)
         {
             // Power bombs and normal bombs both use the same projectile
-            // timed-spritemap interpreter. The large power-bomb flash itself is a per-line
-            // color-math window and is composed separately from the sprites.
+            // timed-spritemap interpreter. The large power-bomb flash itself is a glowing
+            // window and is composed separately from the sprites.
             SamusProjectileFamily family = slot.Type.Family;
             if (slot.Cursor is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))

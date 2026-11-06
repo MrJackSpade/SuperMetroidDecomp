@@ -4,7 +4,7 @@ using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's colours (#1512): the colouring his body last showed whole on layer 2, the fade running from it, and the
+/// Phantoon's colours (#1512): the colouring his body last showed whole on the background, the fade running from it, and the
 /// Wrecked Ship's power coming on over his room once he dies. His body and the room show the import's shade of each step.
 /// </summary>
 /// <remarks>
@@ -104,6 +104,6 @@ internal sealed class PhantoonColours : IGameplayShadingSource
         }
     }
 
-    /// <summary>The pictures the power coming on recolours: the room's, its HUD's and its layer-3 effect's.</summary>
+    /// <summary>The pictures the power coming on recolours: the room's, its HUD's and its effect overlay's.</summary>
     private static readonly GameplayPictures[] PoweredPictures = [GameplayPictures.Room, GameplayPictures.Hud, GameplayPictures.FxOverlay];
 }

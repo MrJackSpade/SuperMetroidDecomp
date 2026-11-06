@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// start supplies an all-clear context and therefore follows the exact default branch.
 /// <c>UpScroller</c> and <c>DownScroller</c> are the camera's vertical scroller distances in pixels, 0 through 255.
 /// <c>UsesIsolatedDoorTransition</c> is the header's common-room-element bit that door transitions read: when the
-/// source or destination room sets it, the transition hides BG1 below the HUD and does not keep the common
+/// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the common
 /// room elements' colours while the source palette fades.
 /// </remarks>
 public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSettings State)
@@ -38,7 +38,7 @@ public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSett
     /// <summary>The camera's downward scroller distance in pixels.</summary>
     public int DownScroller => Definition.DownScroller;
 
-    /// <summary>Whether door transitions into or out of this room hide BG1 and drop the common room elements' colours.</summary>
+    /// <summary>Whether door transitions into or out of this room hide the foreground and drop the common room elements' colours.</summary>
     public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;
 
     /// <summary>The entries the room's type-$9 blocks select by index.</summary>

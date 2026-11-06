@@ -191,9 +191,9 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
                 // The shared land-sky loader has already selected the same vertical
-                // BG2 page layout. Require that owner rather than writing a dummy mirror.
+                // background page layout. Require that owner rather than writing a dummy mirror.
                 if (_room.ScrollingSky is null)
-                    throw new InvalidDataException("Landing Site demo requires the scrolling-sky BG2 owner.");
+                    throw new InvalidDataException("Landing Site demo requires the scrolling sky's background owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
                 enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoDefinitions.KraidFunctionTimer);

@@ -15,9 +15,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The frame's room backgrounds packed for Tiles.hlsl at register t3 (#1346): a header of three plane records (layers 1
-/// and 2 and a door's source room), the door window, the layer-1 overlay, sky, effect overlay and layer-2 overlay offsets; then each plane's
+/// and 2 and a door's source room), the door window, the foreground overlay, sky, effect overlay and the background overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
-/// colours (#1392), the layer-1 and layer-2 overlays' pictures (#1348, #1403), the sky's rows (#1347), the effect overlay's placed picture (#1514),
+/// colours (#1392), the foreground and the background overlays' pictures (#1348, #1403), the sky's rows (#1347), the effect overlay's placed picture (#1514),
 /// a Mode 7 floor (#1349, #1403), a boss body's placed pictures (#1352, #1466, #1514) and the HUD's placed pictures (#1466).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
@@ -34,8 +34,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PictureHeaderWords = 3;
     /// <summary>Plane slots: layers 1 and 2 and a door's source room.</summary>
     private const int PlaneSlots = 3;
-    /// <summary>Header words: the plane records, the door window origin, and the offsets of the layer-1 overlay, the sky rows,
-    /// the effect overlay, the layer-2 overlay and the other tables.</summary>
+    /// <summary>Header words: the plane records, the door window origin, and the offsets of the foreground overlay, the sky rows,
+    /// the effect overlay, the background overlay and the other tables.</summary>
     private const int HeaderWords = PlaneSlots * RecordWords + 12;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
@@ -162,7 +162,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs the frame's room planes against the image texture's places; false when they match the last packing and the
     /// texture has kept every picture where it was.
     /// </summary>
-    /// <param name="frame">The planes, overlays, layer 3, floor, boss body, X-ray reveal and HUD the frame shows.</param>
+    /// <param name="frame">The planes, overlays, effect overlay, floor, boss body, X-ray reveal and HUD the frame shows.</param>
     /// <param name="images">The image texture, holding every picture <see cref="Collect"/> named.</param>
     internal bool Pack(RoomLevelLayers frame, D3D11ImageAtlas images)
     {

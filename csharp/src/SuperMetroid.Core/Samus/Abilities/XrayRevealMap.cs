@@ -17,9 +17,9 @@ public static class XrayRevealMap
     /// overlays are applied afterwards by their respective owners, as on the game.
     /// </summary>
     /// <param name="level">The room whose blocks the reveal resolves and whose foreground plane the base copy reads.</param>
-    /// <param name="foregroundPosition">Layer one's position, which selects the revealed blocks.</param>
+    /// <param name="foregroundPosition">Camera position, which selects the revealed blocks.</param>
     /// <param name="foregroundOffset">
-    /// The foreground's scroll less layer one's position. The base copy reads the foreground plane's block at each revealed
+    /// The foreground's scroll less camera position. The base copy reads the foreground plane's block at each revealed
     /// block's scrolled position (#1351), from the block holding the screen's left and top edges onwards; a block beyond
     /// the room shows nothing.
     /// </param>
@@ -104,8 +104,8 @@ public static class XrayRevealMap
     /// The foreground pixel the revealed area's first block lies on: the top-left corner of the block the foreground's
     /// scroll lies in, so every revealed block lies over the room's own.
     /// </summary>
-    /// <param name="foregroundPosition">Layer one's position.</param>
-    /// <param name="foregroundOffset">The foreground's scroll less layer one's position.</param>
+    /// <param name="foregroundPosition">Camera position.</param>
+    /// <param name="foregroundOffset">The foreground's scroll less camera position.</param>
     public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> foregroundPosition, Offset16<RoomPixels> foregroundOffset)
     {
         Position16<RoomPixels> foregroundScroll = foregroundPosition + foregroundOffset;

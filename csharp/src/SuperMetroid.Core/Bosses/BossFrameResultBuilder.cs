@@ -16,8 +16,8 @@ internal sealed class BossFrameResultBuilder
     /// <summary>Ceres Ridley started the escape.</summary>
     internal bool CeresEscapeStarted { get; set; }
 
-    /// <summary>The Shitroid's direct layer-one X write in room pixels, if any.</summary>
-    internal int? LayerOneXOverride { get; set; }
+    /// <summary>The Shitroid's direct camera X write in room pixels, if any.</summary>
+    internal int? CameraXOverride { get; set; }
 
     /// <summary>Mother Brain's tube landed, removing the room's liquid effects.</summary>
     internal bool RemoveLiquidEffects { get; set; }
@@ -57,7 +57,7 @@ internal sealed class BossFrameResultBuilder
     {
         DraygonDiscardedSamusPoseRequests = false;
         CeresEscapeStarted = false;
-        LayerOneXOverride = null;
+        CameraXOverride = null;
         RemoveLiquidEffects = false;
         BotwoonWall = null;
         SporeSpawnCeiling = null;

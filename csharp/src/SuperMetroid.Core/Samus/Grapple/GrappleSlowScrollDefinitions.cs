@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// </summary>
 internal static class GrappleSlowScrollDefinitions
 {
-    /// <summary>Pixels layer 1 moves per frame toward the dead zone.</summary>
+    /// <summary>Pixels the camera moves per frame toward the dead zone.</summary>
     public const int Step = 3;
 
     /// <summary>Samus screen X from which the camera scrolls right.</summary>

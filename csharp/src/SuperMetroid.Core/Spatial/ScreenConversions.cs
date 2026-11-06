@@ -17,7 +17,7 @@ public static class ScreenConversions
 
     /// <summary>
     /// The screen position word pair of <paramref name="room"/> under the camera: the native
-    /// <c>position - layer-1 scroll</c> subtraction kept as wrapped unsigned words, as WRAM stores it.
+    /// <c>position - camera</c> subtraction kept as wrapped unsigned words.
     /// </summary>
     public static Position16<ScreenPixels> ToScreen(this Position16<RoomPixels> room, Position16<RoomPixels> camera) =>
         new(unchecked((ushort)(room.X - camera.X)), unchecked((ushort)(room.Y - camera.Y)));

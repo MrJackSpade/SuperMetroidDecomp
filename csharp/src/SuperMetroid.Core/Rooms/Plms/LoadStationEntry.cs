@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>One fourteen-byte entry consumed by <c>LoadFromLoadStation</c>.</summary>
 /// <param name="Room">The room, or null for an unused slot.</param>
 /// <param name="Door">The door through which the room is entered, or null for an unused slot.</param>
-/// <param name="CameraPosition">Initial BG1 camera top-left (entry words 6 and 8).</param>
+/// <param name="CameraPosition">Initial camera top-left (entry words 6 and 8).</param>
 /// <param name="SamusOffset">
 /// Samus's placement relative to the camera (entry words 12 and 10): X is measured from the
 /// screen's horizontal centre, Y from the camera top.

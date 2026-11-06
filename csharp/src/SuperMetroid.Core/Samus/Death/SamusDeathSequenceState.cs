@@ -101,8 +101,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         samus.CommitPoseHistory();
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, initialFrame, timer: 2);
 
-        // The game subtracts layer 1 directly from Samus's live words because its death
-        // renderer adds layer 1 back before drawing. Retain world coordinates in Samus
+        // The game subtracts the foreground directly from Samus's live words because its death
+        // renderer adds the foreground back before drawing. Retain world coordinates in Samus
         // for this host's shared camera/minimap model and capture the mathematically identical
         // screen-space pair here for the eventual explosion-spritemap path.
         ScreenPosition = samus.Position.Whole.ToScreen(cameraPosition);

@@ -222,15 +222,13 @@ internal sealed class CeresRidleyGetaway
                     // through the same queue used by every other music producer.
                     _audio.RequestRidleyMusic(MusicRequest.SelectTrack(7));
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.HoldingTitle;
-                    state.CeresEscapeTextDelayTimer = WrappingCountdown.Start(128);
+                    state.CeresEscapeTextDelayTimer = 128;
                 }
                 return;
 
             case CeresSelfDestructPhase.HoldingTitle:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
-                CountdownStep delay = state.CeresEscapeTextDelayTimer.Decrement();
-                state.CeresEscapeTextDelayTimer = delay.Remaining;
-                if (!delay.IsZero)
+                if (--state.CeresEscapeTextDelayTimer != 0)
                     return;
 
                 state.CeresEscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
@@ -247,9 +245,7 @@ internal sealed class CeresRidleyGetaway
 
             case CeresSelfDestructPhase.JapaneseSubtitle:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
-                CountdownStep japaneseDelay = state.CeresEscapeTextDelayTimer.Decrement();
-                state.CeresEscapeTextDelayTimer = japaneseDelay.Remaining;
-                if (japaneseDelay.IsZero)
+                if (--state.CeresEscapeTextDelayTimer == 0)
                 {
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.TypingWarning;
                     DrawCeresJapaneseOverlay();
@@ -334,7 +330,7 @@ internal sealed class CeresRidleyGetaway
         // The Ceres program types over the room's foreground (#1348).
         if (glyph is { } typed)
             _room.Services.WriteForegroundPicture(new WrittenPicture(typed.Picture, typed.Cell));
-        state.CeresEscapeTextDelayTimer = installed.DelayTimer;
+        state.CeresEscapeTextDelayTimer = installed.DelayTimer.RemainingFrames;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);
         return completed;

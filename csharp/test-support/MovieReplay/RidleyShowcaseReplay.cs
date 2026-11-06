@@ -539,7 +539,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (!RidleyNativeWords.AiFunctions.TryDecode(nativeFunctionWord, out RidleyAiFunction nativeFunction) ||
                     nativeFunction != ridleyState.Function)
                     mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.Function}");
-                Check("Ridley AI timer", ridleyState.FunctionTimer.RawValue, NativeSnapshotMemory.RidleyFunctionTimer);
+                Check("Ridley AI timer", unchecked((ushort)ridleyState.FunctionTimer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", (ushort)ridleyState.TailFunctionIndex, NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
                 Check("Ridley TailWhipRequest", checked((ushort)ridleyState.TailWhipRequest), NativeSnapshotMemory.RidleyTailWhipRequest);
@@ -556,18 +556,18 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
                 Check("Ridley WingFrame", checked((ushort)ridleyState.WingFrame), NativeSnapshotMemory.RidleyWingFrame);
                 Check("Ridley WingAnimationTimerDelta", checked((ushort)ridleyState.WingAnimationTimerDelta), NativeSnapshotMemory.RidleyWingAnimationTimerDelta);
-                Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer.RawValue, NativeSnapshotMemory.RidleyWingAnimationTimer);
+                Check("Ridley WingAnimationTimer", unchecked((ushort)ridleyState.WingAnimationTimer), NativeSnapshotMemory.RidleyWingAnimationTimer);
                 Check("Ridley FacingDirection", RidleyNativeWords.Facings.Word(ridleyState.FacingDirection), NativeSnapshotMemory.RidleyFacingDirection);
                 Check("Ridley HealthStage", checked((ushort)ridleyState.HealthStage), NativeSnapshotMemory.RidleyHealthStage);
                 Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
                 Check("Ridley TailDamage", checked((ushort)ridleyState.TailDamage), NativeSnapshotMemory.RidleyTailDamage);
                 Check("Ridley FeetDistanceIndex", checked((ushort)(ridleyState.FeetDistanceIndex * sizeof(ushort))), NativeSnapshotMemory.RidleyFeetDistanceIndex);
-                Check("Ridley IntangibilityTimer", ridleyState.IntangibilityTimer.RawValue, NativeSnapshotMemory.RidleyIntangibilityTimer);
+                Check("Ridley IntangibilityTimer", checked((ushort)ridleyState.IntangibilityTimer), NativeSnapshotMemory.RidleyIntangibilityTimer);
                 if (ridleyState.Function is RidleyAiFunction.NorfairSwoopMoveToStart or
                     RidleyAiFunction.NorfairSwoopAimDown or RidleyAiFunction.NorfairSwoopAimSideways or
                     RidleyAiFunction.NorfairSwoopAimUp or RidleyAiFunction.NorfairSwoopClimb or RidleyAiFunction.NorfairSwoopRecover)
-                    Check("Ridley swoop timer", ridleyState.SwoopPhaseTimer.RawValue, NativeSnapshotMemory.RidleySwoopTimer);
+                    Check("Ridley swoop timer", checked((ushort)ridleyState.SwoopPhaseTimer), NativeSnapshotMemory.RidleySwoopTimer);
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {
                     // Tail workspace becomes live after its first fade-owned composition.

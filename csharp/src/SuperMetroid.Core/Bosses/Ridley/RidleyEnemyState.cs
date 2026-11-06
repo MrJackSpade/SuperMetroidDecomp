@@ -46,7 +46,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the tail tip's contact damage before Samus's suit reduction: fifteen in Ceres, 120 in Lower Norfair.</summary>
     public int TailDamage { get; internal set; }
     /// <summary>Gets the current AI phase's countdown, which times how long the phase lasts.</summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    public int FunctionTimer { get; internal set; }
     /// <summary>
     /// Gets the shared reveal fade's step: the eye-fade schedule step (zero through 64), the body-fade shade (zero through
     /// fifteen), or the Lower Norfair reveal step (zero through fifteen). Each fade resets it to zero when it completes.
@@ -62,8 +62,8 @@ public sealed class RidleyEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Gets the shared wing animation phase, zero through nine, advancing when its timer underflows.</summary>
     public int WingFrame { get; internal set; }
-    /// <summary>Gets the wing animation's countdown accumulator, reloaded to $20 after signed underflow.</summary>
-    public WrappingCountdown WingAnimationTimer { get; internal set; }
+    /// <summary>Gets the wing animation's countdown accumulator, reloaded to 32 once it runs below zero.</summary>
+    public int WingAnimationTimer { get; internal set; }
     /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing accumulator; nonnegative vertical motion halves it.</summary>
     public int WingAnimationTimerDelta { get; internal set; }
     /// <summary>Gets the shared tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
@@ -110,7 +110,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the signed 8.8 velocity computed from the clamped fireball aim angle.</summary>
     public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
     /// <summary>Independent swoop phase countdown used by the swoop functions.</summary>
-    public WrappingCountdown SwoopPhaseTimer { get; internal set; }
+    public int SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its table index selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }
     /// <summary>
@@ -125,7 +125,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the Lower Norfair grabbed-Samus state controlling claw attachment and release: one while Ridley carries Samus, otherwise zero.</summary>
     public RidleyGrabState GrabState { get; internal set; }
     /// <summary>Gets the Lower Norfair countdown keeping the body intangible after a grab release.</summary>
-    public WrappingCountdown IntangibilityTimer { get; internal set; }
+    public int IntangibilityTimer { get; internal set; }
     /// <summary>Gets the current Lower Norfair movement target's whole-pixel room position.</summary>
     public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the Lower Norfair pogo bounce counter, reset after its two-bounce threshold.</summary>
@@ -144,7 +144,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the number of zero-health Lower Norfair lunges completed before the authored death transition.</summary>
     public int ZeroHealthLungeCount { get; internal set; }
     /// <summary>Gets the Lower Norfair small-explosion countdown, reloaded to four for one explosion every five calls.</summary>
-    public WrappingCountdown DeathExplosionTimer { get; internal set; }
+    public int DeathExplosionTimer { get; internal set; }
     /// <summary>Gets the Lower Norfair index, zero through nine, cycling through ten authored death-explosion placements.</summary>
     public int DeathExplosionCount { get; internal set; }
     /// <summary>Gets the whole-pixel room-liquid target height published by Lower Norfair death or combat logic.</summary>
@@ -203,7 +203,7 @@ public sealed class RidleyEnemyState
     /// <summary>Where the Ceres self-destruct stands in its current page list, advanced as each page is shown (#1406).</summary>
     internal CeresEscapePageCursor CeresEscapePages { get; set; }
     /// <summary>Gets the Ceres warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>
-    public WrappingCountdown CeresEscapeTextDelayTimer { get; internal set; }
+    public int CeresEscapeTextDelayTimer { get; internal set; }
     /// <summary>Gets the installed Ceres warning typewriter state, created after the initial delay when presentation data is available.</summary>
     public EscapeTypewriterState? CeresEscapeTypewriter { get; internal set; }
     /// <summary>Gets the sixteen-phase Ceres self-destruct alarm-palette frame, zero through fifteen, returning to zero after fifteen.</summary>

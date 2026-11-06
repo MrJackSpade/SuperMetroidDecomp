@@ -180,7 +180,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
         {
             ridleyFragmentRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            ridleyFragmentRecord.Lifetime = WrappingCountdown.FromRaw(words.F);
+            ridleyFragmentRecord.Lifetime = CoordinateAxis.AsSigned(words.F);
         }
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {

@@ -494,7 +494,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);
                 string owner = $"Enemy {actor.SlotIndex}";
                 Check(owner + " identity", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
-                if (actor.DefinitionId == 0 || W(address) == 0) continue;
+                if (actor.DefinitionId == EnemyDefinitionId.None || W(address) == 0) continue;
                 Check(owner + " X", actor.Position.X.Whole, address + 2);
                 Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);
                 Check(owner + " Y", actor.Position.Y.Whole, address + 6);
@@ -521,7 +521,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
                 Check(owner + " TileIndexBase", actor.NativeTileBaseIn(runtime.Enemies), address + 32);
-                Check(owner + " Layer", actor.Layer, address + 34);
+                Check(owner + " Layer", actor.Layer.Order, address + 34);
                 Check(owner + " FlashTimer", actor.FlashTimer.RawValue, address + 36);
                 Check(owner + " FrozenTimer", actor.FrozenTimer.RawValue, address + 38);
                 Check(owner + " InvincibilityTimer", actor.InvincibilityTimer.RawValue, address + 40);

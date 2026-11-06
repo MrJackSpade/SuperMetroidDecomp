@@ -71,7 +71,7 @@ internal sealed class NorfairRidleyCombat
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         slot.Position = slot.Position.WithWhole(new(96, 394));
-        slot.Layer = 5;
+        slot.Layer = EnemyDrawLayer.Of(5);
 
         _ridleyEncounter.Ridley = new RidleyEnemyState
         {

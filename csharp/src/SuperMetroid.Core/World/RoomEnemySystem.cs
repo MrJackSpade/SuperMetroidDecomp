@@ -1040,7 +1040,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             bool visible = slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
                 !EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, frame.Camera);
             if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
-                Drawing.Enqueue(slot.Layer & 7, slot);
+                Drawing.Enqueue(slot.Layer, slot);
 
             // EnemyMain performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the

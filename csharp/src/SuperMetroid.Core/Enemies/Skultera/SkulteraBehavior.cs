@@ -32,11 +32,11 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             case SkulteraCueKind.DrawAboveScenery:
                 // The right-facing swim promotes the fish above foreground scenery only after its first
                 // animation tick, exactly like the game.
-                slot.Layer = 6;
+                slot.Layer = EnemyDrawLayer.Of(6);
                 break;
             case SkulteraCueKind.DrawBelowScenery:
                 // The left-facing swim draws below the matching scenery layer.
-                slot.Layer = 2;
+                slot.Layer = EnemyDrawLayer.Of(2);
                 break;
             case SkulteraCueKind.FinishTurn:
                 // Turns sleep immediately after publishing this flag. Main AI consumes it on the following frame

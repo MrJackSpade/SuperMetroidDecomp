@@ -309,7 +309,7 @@ internal static class NativeSnapshotImport
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
             slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             // The native tile index word is where the import composes the occupant's sheet, not slot state (#1513).
-            slot.Layer = W(address + 34);
+            slot.Layer = EnemyDrawLayer.Of(W(address + 34));
             slot.FlashTimer = WrappingCountdown.FromRaw(W(address + 36));
             slot.FrozenTimer = WrappingCountdown.FromRaw(W(address + 38));
             slot.InvincibilityTimer = WrappingCountdown.FromRaw(W(address + 40));

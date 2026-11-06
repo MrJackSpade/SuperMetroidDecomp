@@ -80,7 +80,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // reads facing and position from the immediately prior
             // body record. Retail gives it layer four so the two maps compose correctly.
             PositionEvirArms(slot, state, update: EvirArmsUpdate.Initialization);
-            slot.Layer = 4;
+            slot.Layer = EnemyDrawLayer.Of(4);
         }
         else
         {

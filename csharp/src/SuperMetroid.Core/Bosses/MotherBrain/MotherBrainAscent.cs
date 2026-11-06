@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.BossBodies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -25,14 +23,11 @@ internal sealed class MotherBrainAscent
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainAscent(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyPresentation presentation, EnemyFrameContext frameContext, MotherBrainEncounter motherBrainEncounter, BossArtworkBinding bossArtwork)
+    internal MotherBrainAscent(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyPresentation presentation, EnemyFrameContext frameContext, MotherBrainEncounter motherBrainEncounter)
     {
-        _bossArtwork = bossArtwork;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
@@ -41,7 +36,7 @@ internal sealed class MotherBrainAscent
         _motherBrainEncounter = motherBrainEncounter;
     }
 
-    /// <summary>Stages the phase-two body tilemap and requests its first artwork transfer.</summary>
+    /// <summary>Reveals her body and requests its first artwork transfer.</summary>
     internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
         // The ascent installs colors 1..15 of the attack and back-leg palettes. Color zero
@@ -49,12 +44,9 @@ internal sealed class MotherBrainAscent
         state.Colours.Sprites.Lay(MotherBrainShades.PhaseTwo);
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
-        // The transition shows her staged body, replacing the room's pipe background before the articulated body becomes
-        // visible. Its first page is the whole of what her room shows; she owns her body layer from here (#1356, #1466).
-        var body = new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows);
-        body.Copy(state.StagedBody ?? throw new InvalidOperationException("Mother Brain's phase two began with no staged body."),
-            0, MotherBrainBodyDefinitions.ShownCells);
-        _presentation.AttachBossBody(body);
+        // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background
+        // before the articulated body becomes visible (#1356, #1466, #1515).
+        _presentation.RequireBossBody().Reveal();
     }
 
     /// <summary>Attaches the phase-two head and prepares its first animation and position.</summary>

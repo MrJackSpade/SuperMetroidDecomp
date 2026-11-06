@@ -177,9 +177,8 @@ internal sealed class KraidHead
 
             case AnimationProgramAdvance<KraidHeadFrame>.Show shown:
                 state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(shown.Duration);
+                // His body layer shows the pose over his body from here (#1515).
                 state.DisplayedHeadFrame = shown.Frame;
-                // The head draw draws the pose straight over the upper half of his body; the next showing of that half covers it.
-                state.ShowHead(shown.Frame);
                 return 1;
 
             case AnimationProgramAdvance<KraidHeadFrame>.Wait or AnimationProgramAdvance<KraidHeadFrame>.Stop:

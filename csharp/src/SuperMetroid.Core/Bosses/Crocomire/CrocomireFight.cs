@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -40,14 +39,11 @@ internal sealed class CrocomireFight
     private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CrocomireFight(CrocomireFightDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
         _projectiles = dependencies.Projectiles;
@@ -67,11 +63,9 @@ internal sealed class CrocomireFight
         var state = new CrocomireEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         _access.Crocomire = state;
-        // Crocomire shows his body on a cleared body layer (#1355, #1466): his body frames, and what his death assembles
-        // on its working canvas, are drawn on it.
-        BossBodySheet body = _bossArtwork.Body(BossBodyOwner.Crocomire);
-        _access.CrocomireDeath = new CrocomireDeathState { WorkingBody = new BossBodyCanvas(body, BossBodyDefinitions.SharedBodyRows) };
-        _presentation.AttachBossBody(new BossBodyCanvas(body, BossBodyDefinitions.SharedBodyRows));
+        // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
+        _access.CrocomireDeath = new CrocomireDeathState();
+        _presentation.AttachBossBody(new BossBodyParts());
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
@@ -92,7 +86,6 @@ internal sealed class CrocomireFight
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(97, 11), PlmHeaderId.ClearCrocomireBridge);
-            _bodyLayer.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
             return;
         }
 

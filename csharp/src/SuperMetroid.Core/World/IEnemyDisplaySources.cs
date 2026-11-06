@@ -27,8 +27,8 @@ internal interface IEnemyDisplaySources
     RidleyEnemyState? CeresRidley { get; }
 
     /// <summary>
-    /// The body layer a boss shows (#1352, #1353, #1466): Kraid's while he owns it, otherwise the one a boss attached;
-    /// null without either.
+    /// The body a boss shows (#1352, #1353, #1466, #1515): Kraid's while he owns it, otherwise the one a boss attached
+    /// while its room shows it; null without either.
     /// </summary>
     BossBodyLayer? BossBody { get; }
 

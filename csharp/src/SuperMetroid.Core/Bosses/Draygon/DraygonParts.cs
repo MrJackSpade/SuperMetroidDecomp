@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
+﻿using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -30,8 +29,6 @@ internal sealed class DraygonParts
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
     /// <summary>Receives the sounds Draygon's programs and death request.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -39,7 +36,6 @@ internal sealed class DraygonParts
     /// <summary>Builds the component from the encounter's collaborators.</summary>
     internal DraygonParts(DraygonPartsDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -60,9 +56,8 @@ internal sealed class DraygonParts
 
         // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
-        // Draygon shows his body on a cleared body layer, both pages of it, not merely the one shown (#1354, #1466); his
-        // body frames are drawn on it.
-        _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Draygon), BossBodyDefinitions.SharedBodyRows));
+        // Draygon shows his body and eye frames on his body (#1354, #1466, #1515), nothing at first.
+        _presentation.AttachBossBody(new BossBodyParts());
 
         body.FrameHold = WrappingCountdown.Start(1);
 

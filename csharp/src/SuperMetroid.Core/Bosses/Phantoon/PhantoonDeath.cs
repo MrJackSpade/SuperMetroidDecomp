@@ -172,7 +172,7 @@ internal sealed class PhantoonDeath
     }
 
 
-    /// <summary>Clears the visible enemy background page and starts the 60-frame power delay.</summary>
+    /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the 60-frame power delay.</summary>
     internal void ClearPhantoonDeathGraphics(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -186,11 +186,8 @@ internal sealed class PhantoonDeath
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
         body.Position = body.Position.WithWhole(new(384, 128));
 
-        _presentation.RequireBossBody().Clear(0, DeathClearedCells);
+        _presentation.RequireBossBody().Clear();
     }
-
-    /// <summary>The cells of Phantoon's body layer his death clears: its first sixteen rows.</summary>
-    private const int DeathClearedCells = 512;
 
     /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>
     internal void ActivateWreckedShipAfterPhantoon(

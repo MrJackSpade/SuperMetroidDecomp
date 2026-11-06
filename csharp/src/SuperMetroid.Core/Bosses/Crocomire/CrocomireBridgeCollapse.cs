@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -159,19 +158,13 @@ internal sealed class CrocomireBridgeCollapse
             : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>
-    /// Erases the body layer row two hundred and eighty-eight pixels below the top of Crocomire's view while he sinks:
-    /// this is what makes his body disappear into the acid. Merely moving the enemy leaves a stale full-height body behind.
+    /// Hides his body from the body row two hundred and eighty-eight pixels below the top of Crocomire's view down while he
+    /// sinks (#1515): this is what makes his body disappear into the acid as it slides down past the view's bottom.
     /// </summary>
-    /// <exception cref="InvalidDataException">The row lies outside his body layer.</exception>
-    private void ClearCrocomireSinkRow()
-    {
-        int row = CoordinateAxis.Wrap(_bodyLayer.Placement.Y + SinkRowDepth) / BossBodyDefinitions.CellPixels;
-        int firstCell = row * BossBodyDefinitions.ColumnCount;
-        _bodyLayer.WorkingBody.Clear(firstCell, BossBodyDefinitions.ColumnCount);
-        _bodyLayer.ShowCrocomireWorkingCells(firstCell, BossBodyDefinitions.ColumnCount);
-    }
+    private void HideCrocomireSunkenBody() =>
+        _bodyLayer.HideCrocomireBodyFrom(CoordinateAxis.Wrap(_bodyLayer.Placement.Y + SinkRowDepth));
 
-    /// <summary>How far below the top of Crocomire's view, in pixels, the row his sinking erases lies.</summary>
+    /// <summary>How far below the top of Crocomire's view, in pixels, the row from which his sinking hides his body lies.</summary>
     private const int SinkRowDepth = 288;
 
     /// <summary>Runs the body and its body layer while Crocomire sinks into acid.</summary>
@@ -234,7 +227,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        ClearCrocomireSinkRow();
+        HideCrocomireSunkenBody();
         body.ExtraProperties = body.ExtraProperties.Without(
             EnemyExtraProperties.NewInstructionFrame);
 

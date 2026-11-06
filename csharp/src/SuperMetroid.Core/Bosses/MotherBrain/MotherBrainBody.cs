@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -37,14 +36,14 @@ internal sealed class MotherBrainBody
     private readonly MotherBrainProjectiles _projectileAttacks;
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Holds the body her body frames show on.</summary>
+    private readonly EnemyPresentation _presentation;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainBody(MotherBrainBodyDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
+        _presentation = dependencies.Presentation;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -115,10 +114,10 @@ internal sealed class MotherBrainBody
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,
-            // Her body is staged on a cleared canvas, without replacing the visible pipe background; her phase-two
-            // transition shows it.
-            StagedBody = new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows),
         };
+        // Her body frames show on her body from here, which her room does not show over the pipe background until her
+        // phase-two transition reveals it (#1356, #1515).
+        _presentation.AttachBossBody(new BossBodyParts(shown: false));
         // Both source palettes include transparent color zero. The initializer deliberately
         // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
         // ranges used by glass shards and tube projectiles.

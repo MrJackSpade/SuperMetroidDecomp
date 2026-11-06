@@ -5,24 +5,28 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-assembled boss body sheets (#1466): each boss's sheet as an image, palette map and frames, the manifest
-/// naming each frame's parts with the layer rows each lies on and covers, and the provenance of their hashes. A player
-/// edits a sheet's installed files in place.
+/// Installs the pre-assembled boss body sheets (#1466, #1515): each boss's sheet as an image, palette map and frames, the
+/// manifest naming each frame's whole picture, where it lies on the body's area, the rectangles it covers and its
+/// animations' pictures, and the provenance of their hashes. A player edits a sheet's installed files in place.
 /// </summary>
 public static class BossBodySheetFiles
 {
     /// <summary>The provenance manifest's file name.</summary>
     public const string ProvenanceFileName = "boss-body-sheets-provenance.json";
 
-    /// <summary>The manifest naming each boss's frames and their parts.</summary>
+    /// <summary>The manifest naming each boss's frames.</summary>
     public const string ManifestFileName = "boss-bodies.json";
 
-    /// <summary>The manifest's schema revision: 2 names each part apart from its picture, which a part that clears its cells lacks (#1513).</summary>
-    private const int ManifestVersion = 2;
+    /// <summary>
+    /// The manifest's schema revision: 3 names each frame's one whole picture, placed on the body's area with the
+    /// rectangles it covers, and its animations' pictures, with no cell footprints or blank (#1515).
+    /// </summary>
+    private const int ManifestVersion = 3;
 
     /// <summary>Composes and writes every boss's body sheet.</summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
@@ -41,7 +45,7 @@ public static class BossBodySheetFiles
         store.WriteAll([.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))]);
         store.Finish(sourceCartridgeSha256);
         var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => sheet.Owner.ToString(), sheet => (SheetDocument?)new SheetDocument(
-            sheet.Blank is { } blank ? Document(blank) : null, sheet.Frames.ToDictionary(frame => frame.Key, frame => (PartDocument[]?)frame.Value.Select(Document).ToArray(), StringComparer.Ordinal)),
+            sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(frame.Value), StringComparer.Ordinal)),
             StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -63,32 +67,51 @@ public static class BossBodySheetFiles
                 : throw new InvalidDataException($"Boss body manifest {manifestPath} names unknown boss {entry.Key}.");
             SheetDocument document = entry.Value ?? throw new InvalidDataException($"Boss body manifest {manifestPath} has no sheet for {owner}.");
             SpriteSheet sheet = store.Read(BossBodySheetComposer.SheetNameOf(owner));
-            return new BossBodySheet(owner, sheet, document.Blank is null ? null : Part(sheet, document.Blank, manifestPath),
+            return new BossBodySheet(owner, sheet,
                 (document.Frames ?? throw new InvalidDataException($"Boss body manifest {manifestPath} lists no frames for {owner}."))
-                    .Select(frame => new BossBodyFrame(frame.Key, [.. (frame.Value ?? []).Select(part => Part(sheet, part, manifestPath))])));
+                    .Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath)));
         }));
     }
 
-    /// <summary>The manifest entry of <paramref name="part"/>.</summary>
-    private static PartDocument Document(ComposedBossBodyPart part) => new(part.Name, part.Picture, part.Top, part.Footprint.Top, [.. part.Footprint.Rows],
-        part.Animation?.Name, part.Animation is null ? null : new Dictionary<string, string>(part.AnimationPictures, StringComparer.Ordinal));
+    /// <summary>The manifest entry of <paramref name="frame"/>.</summary>
+    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner, [.. frame.Covers.Select(Area)],
+        [.. frame.Overlays.Select(overlay => new OverlayDocument(overlay.Animation.Name, overlay.Corner, [.. overlay.Covers.Select(Area)],
+            new Dictionary<string, string>(overlay.Pictures, StringComparer.Ordinal)))]);
 
     /// <summary>
-    /// The part <paramref name="document"/> describes, its pictures cut from <paramref name="sheet"/>; a part naming no
-    /// picture clears its cells (#1513).
+    /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its pictures cut from
+    /// <paramref name="sheet"/>; a frame naming no picture covers what lies beneath it and shows nothing there (#1513).
     /// </summary>
-    /// <exception cref="InvalidDataException">The entry is missing, has no name, or covers nothing.</exception>
-    private static BossBodyPart Part(SpriteSheet sheet, PartDocument? document, string manifestPath)
+    /// <exception cref="InvalidDataException">The entry is missing or incomplete, or covers nothing.</exception>
+    private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath)
     {
-        if (document?.Name is null || document.Footprint is null)
-            throw new InvalidDataException($"Boss body manifest {manifestPath} has an incomplete part.");
-        var footprint = new BossBodyFootprint(document.FootprintTop, ImmutableArray.Create(document.Footprint));
-        if (footprint.IsEmpty)
-            throw new InvalidDataException($"Boss body manifest {manifestPath} part {document.Name} covers nothing.");
-        return new BossBodyPart(document.Name, document.Picture is null ? null : sheet.Frame(document.Picture), document.Top, footprint,
-            document.Animation is null ? null : new ArtworkAnimation(document.Animation),
-            document.AnimationPictures?.ToDictionary(entry => entry.Key, entry => sheet.Frame(entry.Value), StringComparer.Ordinal));
+        if (document?.Corner is null || document.Covers is null || document.Covers.Length == 0)
+            throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete or covers nothing.");
+        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), document.Corner.Value,
+            Rectangles(document.Covers, manifestPath), [.. (document.Overlays ?? []).Select(overlay => Overlay(sheet, name, overlay, manifestPath))]);
     }
+
+    /// <summary>The overlay <paramref name="document"/> of frame <paramref name="frame"/> describes, its pictures cut from <paramref name="sheet"/>.</summary>
+    /// <exception cref="InvalidDataException">The entry is missing or incomplete.</exception>
+    private static BossBodyOverlay Overlay(SpriteSheet sheet, string frame, OverlayDocument? document, string manifestPath)
+    {
+        if (document?.Animation is null || document.Corner is null || document.Covers is null || document.Pictures is null)
+            throw new InvalidDataException($"Boss body manifest {manifestPath} frame {frame} has an incomplete overlay.");
+        return new BossBodyOverlay(new ArtworkAnimation(document.Animation), document.Corner.Value, Rectangles(document.Covers, manifestPath),
+            document.Pictures.ToDictionary(entry => entry.Key, entry => sheet.Frame(entry.Value), StringComparer.Ordinal));
+    }
+
+    /// <summary>The manifest entry of <paramref name="rectangle"/>.</summary>
+    private static AreaDocument Area(BossBodyRectangle rectangle) => new(rectangle.Left, rectangle.Top, rectangle.Size.X, rectangle.Size.Y);
+
+    /// <summary>The rectangles <paramref name="documents"/> name.</summary>
+    /// <exception cref="InvalidDataException">A rectangle is missing, empty or lies off the body.</exception>
+    private static ImmutableArray<BossBodyRectangle> Rectangles(AreaDocument?[] documents, string manifestPath) =>
+        [.. documents.Select(document => document is { Width: > 0, Height: > 0 } area
+                && area.X is >= 0 and <= ushort.MaxValue && area.Y is >= 0 and <= ushort.MaxValue
+                && area.X + area.Width <= ushort.MaxValue && area.Y + area.Height <= ushort.MaxValue
+            ? BossBodyRectangle.Between(area.X, area.Y, area.X + area.Width, area.Y + area.Height)
+            : throw new InvalidDataException($"Boss body manifest {manifestPath} has a rectangle that is missing, empty or off the body."))];
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
     /// <param name="Version">The schema revision.</param>
@@ -96,20 +119,29 @@ public static class BossBodySheetFiles
     private sealed record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
 
     /// <summary>One boss's frames.</summary>
-    /// <param name="Blank">The part the boss clears its layer with, or null when its blank shows nothing.</param>
-    /// <param name="Frames">Each frame's parts, by frame name.</param>
-    private sealed record SheetDocument(PartDocument? Blank, Dictionary<string, PartDocument[]?>? Frames);
+    /// <param name="Frames">Each frame, by frame name.</param>
+    private sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
 
-    /// <summary>One part: its name and picture, where it lies and what it covers, and its animation's pictures.</summary>
-    /// <param name="Name">The part's name in the boss's sheet.</param>
-    /// <param name="Picture">The sheet frame of its still picture, or null for a part that clears its cells.</param>
-    /// <param name="Top">The layer row its picture's top edge lies on.</param>
-    /// <param name="FootprintTop">The first layer row it covers.</param>
-    /// <param name="Footprint">The cells it covers in each row from <paramref name="FootprintTop"/>, the lowest bit the leftmost.</param>
-    /// <param name="Animation">The animation it follows, or null for a still part.</param>
-    /// <param name="AnimationPictures">The sheet frame picturing it for each frame of its animation, by frame name.</param>
-    private sealed record PartDocument(string? Name, string? Picture, int Top, int FootprintTop, uint[]? Footprint, string? Animation,
-        Dictionary<string, string>? AnimationPictures);
+    /// <summary>One frame: its whole picture, where it lies, what it covers, and its animations' pictures.</summary>
+    /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
+    /// <param name="Corner">The body pixel its picture's top-left corner lies on.</param>
+    /// <param name="Covers">The rectangles of the body it covers.</param>
+    /// <param name="Overlays">The pixels each room animation paints.</param>
+    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner, AreaDocument?[]? Covers, OverlayDocument?[]? Overlays);
+
+    /// <summary>The pixels of a frame one room animation paints.</summary>
+    /// <param name="Animation">The animation's name.</param>
+    /// <param name="Corner">The body pixel each picture's top-left corner lies on.</param>
+    /// <param name="Covers">The rectangles of the body it paints.</param>
+    /// <param name="Pictures">The sheet frame picturing them over each frame of the animation, by frame name.</param>
+    private sealed record OverlayDocument(string? Animation, Position16<BackgroundPixels>? Corner, AreaDocument?[]? Covers, Dictionary<string, string>? Pictures);
+
+    /// <summary>A rectangle of the body.</summary>
+    /// <param name="X">The column of its left edge.</param>
+    /// <param name="Y">The row of its top edge.</param>
+    /// <param name="Width">Its width in pixels.</param>
+    /// <param name="Height">Its height in pixels.</param>
+    private sealed record AreaDocument(int X, int Y, int Width, int Height);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -52,18 +52,18 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>
-    /// The body layer the room's boss draws its body on (#1353, #1466), once a boss that shows one attaches it; Kraid
-    /// publishes his own.
+    /// The body the room's boss shows its parts' frames on (#1353, #1466, #1515), once a boss that shows one attaches it;
+    /// Kraid publishes his own.
     /// </summary>
-    internal BossBodyCanvas? BossBody { get; private set; }
+    internal BossBodyParts? BossBody { get; private set; }
 
-    /// <summary>A boss's initialization: attaches the cleared body layer it draws its body on.</summary>
-    internal void AttachBossBody(BossBodyCanvas body) => BossBody = Ensure.NotNull(body);
+    /// <summary>A boss's initialization: attaches the body, no part showing anything yet, that its parts show their frames on.</summary>
+    internal void AttachBossBody(BossBodyParts body) => BossBody = Ensure.NotNull(body);
 
-    /// <summary>The attached body layer.</summary>
+    /// <summary>The attached body.</summary>
     /// <exception cref="InvalidOperationException">No boss has attached one.</exception>
-    internal BossBodyCanvas RequireBossBody() =>
-        BossBody ?? throw new InvalidOperationException("No boss has attached its body layer.");
+    internal BossBodyParts RequireBossBody() =>
+        BossBody ?? throw new InvalidOperationException("No boss has attached its body.");
 
     /// <summary>How far the room's encounters have played their artwork sequences, which their frames' pictures follow (#1513).</summary>
     internal EncounterArtworkProgress ArtworkProgress => _room.Session.ArtworkProgress;

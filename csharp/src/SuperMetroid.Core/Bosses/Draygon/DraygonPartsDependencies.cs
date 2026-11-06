@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -11,9 +10,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed record DraygonPartsDependencies
 {
-    /// <summary>The installed Draygon artwork the parts draw from.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
-
     /// <summary>Accesses the active room, enemy slots, and shared random numbers.</summary>
     public required EnemyRoomBinding Room { get; init; }
 

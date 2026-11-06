@@ -3,10 +3,8 @@ using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
-/// <summary>One boss's composed body sheet (#1466): its pictures and the parts each frame is drawn as.</summary>
+/// <summary>One boss's composed body sheet (#1466, #1515): its pictures and its frames.</summary>
 /// <param name="Owner">The boss.</param>
 /// <param name="Sheet">The pictures.</param>
-/// <param name="Blank">The part the boss clears its layer with, or null when its blank shows nothing.</param>
-/// <param name="Frames">Each frame's parts, by frame name.</param>
-internal sealed record ComposedBossBodySheet(BossBodyOwner Owner, ComposedSpriteSheet Sheet, ComposedBossBodyPart? Blank,
-    IReadOnlyDictionary<string, IReadOnlyList<ComposedBossBodyPart>> Frames);
+/// <param name="Frames">Each frame, by name.</param>
+internal sealed record ComposedBossBodySheet(BossBodyOwner Owner, ComposedSpriteSheet Sheet, IReadOnlyDictionary<string, ComposedBossBodyFrame> Frames);

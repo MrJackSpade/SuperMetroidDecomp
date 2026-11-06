@@ -94,14 +94,11 @@ public sealed class KraidEnemyState
     private const int MaximumPendingMouthReopens = 255;
 
     /// <summary>
-    /// How Kraid's body appears when a half of it is next shown (#1352, #1466): behind the room's sprites once his body is
-    /// ready, in front of them once he has grown, hidden in a defeated room and once his death clears his layer. Rise,
-    /// growth and death show each half only on their authored updates, so his shown body lags it.
+    /// How Kraid's body shows on his body layer (#1352, #1466, #1515): hidden until he rises through the floor, behind the
+    /// room's sprites as he rises, in front of them once he has grown, and hidden again in a defeated room and once his
+    /// death has sunk him. His whole body shows it at once, with his head at its current pose over it.
     /// </summary>
     internal KraidBodyAppearance BodyAppearance { get; set; }
-
-    /// <summary>The body frame Kraid's body layer shows (#1352).</summary>
-    internal KraidBodyFrame ShownBody { get; set; } = KraidBodyFrame.Hidden;
 
     /// <summary>
     /// True while Kraid's body layer stands in for the room's background layer behind the level: his two-by-two-screen
@@ -110,23 +107,9 @@ public sealed class KraidEnemyState
     public bool ShowsBodyLayer { get; internal set; }
 
     /// <summary>
-    /// Kraid's body is ready to show: his body appears behind the room's sprites, which his installed
-    /// body sheet pictures, and his body layer is shown from here (#1352, #1466).
+    /// Kraid's body is ready: his body layer is shown from here, his body hidden on it until he rises (#1352, #1466).
     /// </summary>
-    internal void InitializeBodyLayer()
-    {
-        BodyAppearance = KraidBodyAppearance.BehindSprites;
-        ShowsBodyLayer = true;
-    }
-
-    /// <summary>Shows the upper half of his body as it now appears, covering any head drawn over it.</summary>
-    internal void ShowUpperBody() => ShownBody = ShownBody with { Upper = BodyAppearance, Head = null };
-
-    /// <summary>Shows the lower half of his body as it now appears.</summary>
-    internal void ShowLowerBody() => ShownBody = ShownBody with { Lower = BodyAppearance };
-
-    /// <summary>Draws head pose <paramref name="frame"/> over the upper half of his body.</summary>
-    internal void ShowHead(KraidHeadFrame frame) => ShownBody = ShownBody with { Head = frame };
+    internal void InitializeBodyLayer() => ShowsBodyLayer = true;
 
     /// <summary>
     /// Where Kraid's body layer is placed: the layer position shown at the screen's top-left, which his AI sets from the

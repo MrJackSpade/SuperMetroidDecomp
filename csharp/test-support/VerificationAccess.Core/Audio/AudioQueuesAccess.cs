@@ -9,7 +9,7 @@ internal static class AudioQueuesAccess
         /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
         internal string MusicQueueForVerification() =>
             $"{self.MusicReadPosition:X}/{self.MusicWritePosition:X} " +
-            $"t={self.MusicTimer.RawValue:X} d=" +
+            $"t={self.MusicTimer:X} d=" +
             string.Join(",", self.MusicDelays.Select(delay => $"{delay.Updates:X}"));
 
         /// <summary>One entry of an SFX library's queue ($0643+): the sound queued there, or none.</summary>

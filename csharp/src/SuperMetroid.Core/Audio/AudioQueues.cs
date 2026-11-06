@@ -51,10 +51,10 @@ public sealed class AudioQueues
     /// <summary>Insertion slot of the circular delayed-music command queue, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
     internal int MusicWritePosition { get; private set; }
     /// <summary>
-    /// The music delay countdown. It expires on reaching zero, and a cleared timer wraps negative on the
-    /// next call, which is what fetches the next queued entry.
+    /// The music delay countdown, in music-handler calls. It expires on reaching zero, and a cleared timer runs
+    /// negative on the next call, which is what fetches the next queued entry.
     /// </summary>
-    internal WrappingCountdown MusicTimer { get; private set; }
+    internal int MusicTimer { get; private set; }
     /// <summary>Music request currently awaiting delay expiry and dispatch.</summary>
     private MusicRequest _musicEntry = MusicRequest.Stop;
     /// <summary>Sound-handler calls, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/>, for which a music change withdraws every library's sound request.</summary>
@@ -325,10 +325,9 @@ public sealed class AudioQueues
     /// <summary>Advances the music handler's delay countdown and requests either a data set change or a track at expiry.</summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
-        CountdownStep step = MusicTimer.Decrement();
-        MusicTimer = step.Remaining;
-        bool timerExpired = step.IsZero;
-        if (step.IsNonNegative)
+        MusicTimer--;
+        bool timerExpired = MusicTimer == 0;
+        if (MusicTimer >= 0)
         {
             if (!timerExpired)
                 return;
@@ -359,7 +358,7 @@ public sealed class AudioQueues
         }
 
         _musicEntry = _musicEntries[MusicReadPosition];
-        MusicTimer = WrappingCountdown.Start(MusicDelays[MusicReadPosition].Updates);
+        MusicTimer = MusicDelays[MusicReadPosition].Updates;
     }
 
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>

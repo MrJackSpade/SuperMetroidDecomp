@@ -56,7 +56,7 @@ internal static class ObjSubscreenVerification
             var floor = AffineFloorFixtures.Floor(vram, ToColors(floorColors));
             foreach (byte palette in new byte[] { 0, 4 })
             {
-                ushort[] colors = (ushort[])floorColors.Clone();
+                ushort[] colors = [.. floorColors];
                 colors[129 + palette * 16] = 12;
                 var shownColours = ToColors(colors);
                 foreach (byte priority in new byte[] { 0, 1, 2, 3 })

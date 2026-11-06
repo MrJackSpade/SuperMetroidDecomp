@@ -235,9 +235,9 @@ internal sealed class PlmPopulationLoader
             return true;
         }
 
-        if (DraygonCannonPlms.IsDraygonCannonHeader(header))
+        if (DraygonCannonPlms.SetupOf(header) is { } cannonSetup)
         {
-            DraygonCannonPlms.SetupDraygonCannonSlot(level, slot, placement.Cannon
+            DraygonCannonPlms.SetupDraygonCannonSlot(level, slot, cannonSetup, placement.Cannon
                 ?? throw new InvalidDataException($"Draygon cannon placement {header} carries no cannon-control word."));
             return true;
         }

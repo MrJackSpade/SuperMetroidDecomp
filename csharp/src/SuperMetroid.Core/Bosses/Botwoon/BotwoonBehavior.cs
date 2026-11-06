@@ -89,7 +89,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // installs the permanent open wall and makes both one-screen scroll entries blue.
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
-            _frameResults.BotwoonWall = PlmHeaderId.ClearBotwoonWall;
+            _frameResults.BotwoonWall = BotwoonWallMutation.Clear;
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.WallCrumbleRequested = true;
             state.BossBitSet = true;
@@ -696,7 +696,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
-        _frameResults.BotwoonWall = PlmHeaderId.CrumbleBotwoonWall;
+        _frameResults.BotwoonWall = BotwoonWallMutation.Crumble;
         state.WallCrumbleRequested = true;
 
         // `Enemy_ItemDrop_Botwoon` emits sixteen independent pickup

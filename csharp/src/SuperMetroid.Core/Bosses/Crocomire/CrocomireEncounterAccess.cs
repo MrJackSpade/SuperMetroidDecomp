@@ -67,8 +67,8 @@ internal sealed class CrocomireEncounterAccess
             "Crocomire death extension is not initialized for the current room.");
 
     /// <summary>Queues a PLM block change for later room processing.</summary>
-    internal void PublishCrocomirePlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
-        _frameResults.CrocomirePlms.Add(new PlmSpawnRequest(block, header));
+    internal void PublishCrocomirePlm(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>
+        _frameResults.CrocomirePlms.Add(new PlmSpawnRequest<CrocomireArenaMutation>(block, mutation));
 
     /// <summary>Consumes the room's next RNG word for Crocomire effects and choices.</summary>
     internal int ReadCrocomireRandom() => _room.Random.Read();

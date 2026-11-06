@@ -119,9 +119,9 @@ internal static class SporeSpawnCeilingPlmsVerification
             terrain[y * width + x] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
-                clear ? PlmHeaderId.ClearSporeSpawnCeiling :
-                    PlmHeaderId.CrumbleSporeSpawnCeiling),
+        AssertTrue(plms.BossRoomMutations.SporeSpawnCeiling.TrySpawn(level,
+                clear ? SporeSpawnCeilingMutation.Clear :
+                    SporeSpawnCeilingMutation.Crumble),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;

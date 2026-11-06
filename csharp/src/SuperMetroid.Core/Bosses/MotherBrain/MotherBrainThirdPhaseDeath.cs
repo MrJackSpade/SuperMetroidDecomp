@@ -668,7 +668,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing;
         requests.EscapeDoorPlm = new(
             Block: new(0, 6),
-            PlmEntry: PlmHeaderId.MotherBrainsRoomEscapeDoor);
+            PlmEntry: MotherBrainRoomMutation.EscapeDoor);
         return false;
     }
 

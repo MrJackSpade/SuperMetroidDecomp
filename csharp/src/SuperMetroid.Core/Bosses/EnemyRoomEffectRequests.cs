@@ -1,4 +1,8 @@
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -9,7 +13,7 @@ namespace SuperMetroid.Core.Bosses;
 /// runtime applies them right after EnemyMain, and the room loader after enemy initialization.
 /// </summary>
 /// <param name="BotwoonWall">Botwoon's wall PLM: the defeated-room clear or the live crumble.</param>
-/// <param name="SporeSpawnCeiling">Spore Spawn's ceiling PLM.</param>
+/// <param name="SporeSpawnCeiling">Spore Spawn's ceiling PLM: the defeated-room clear or the death crumble.</param>
 /// <param name="CrocomirePlms">Crocomire's arena mutations.</param>
 /// <param name="KraidPlms">Kraid's ceiling and platform mutations.</param>
 /// <param name="MotherBrainDeathStep">Mother Brain's death-sequence step and its palette, timer, boss-bit and event requests.</param>
@@ -18,14 +22,14 @@ namespace SuperMetroid.Core.Bosses;
 /// <param name="ShitroidPlms">The Shitroid's wall mutations.</param>
 /// <param name="TorizoBellyGlow">The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</param>
 public readonly record struct EnemyRoomEffectRequests(
-    PlmHeaderId? BotwoonWall,
-    PlmSpawnRequest? SporeSpawnCeiling,
-    IReadOnlyList<PlmSpawnRequest> CrocomirePlms,
-    IReadOnlyList<PlmSpawnRequest> KraidPlms,
+    BotwoonWallMutation? BotwoonWall,
+    SporeSpawnCeilingMutation? SporeSpawnCeiling,
+    IReadOnlyList<PlmSpawnRequest<CrocomireArenaMutation>> CrocomirePlms,
+    IReadOnlyList<PlmSpawnRequest<KraidRoomMutation>> KraidPlms,
     MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep,
     int MotherBrainFxEntry,
-    IReadOnlyList<PlmSpawnRequest> MotherBrainPlms,
-    IReadOnlyList<PlmSpawnRequest> ShitroidPlms,
+    IReadOnlyList<PlmSpawnRequest<MotherBrainRoomMutation>> MotherBrainPlms,
+    IReadOnlyList<PlmSpawnRequest<ShitroidWallMutation>> ShitroidPlms,
     PaletteFxObject? TorizoBellyGlow)
 {
 

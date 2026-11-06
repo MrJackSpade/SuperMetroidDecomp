@@ -80,9 +80,9 @@ internal sealed class CrocomireFight
             _room.Services.RoomScroll.Write(1, RoomScrollState.Blue);
             _room.Services.RoomScroll.Write(2, RoomScrollState.Blue);
             _room.Services.RoomScroll.Write(3, RoomScrollState.Blue);
-            _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
-            _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
-            _access.PublishCrocomirePlm(new Position16<RoomBlocks>(97, 11), PlmHeaderId.ClearCrocomireBridge);
+            _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
+            _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
+            _access.PublishCrocomirePlm(new Position16<RoomBlocks>(97, 11), CrocomireArenaMutation.ClearBridge);
             return;
         }
 

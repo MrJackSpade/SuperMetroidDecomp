@@ -26,15 +26,15 @@ internal static class CrocomireArenaPlmsVerification
 
         Suite(nameof(VerifyCrocomirePhysicalDrawMapping), () => VerifyCrocomirePhysicalDrawMapping(rom));
 
-        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireBridge,
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(CrocomireArenaMutation.ClearBridge,
             cell => cell.Y == 0 && cell.X < 10 ? Block(0x80, RoomCollisionType.Air) : Untouched));
-        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.CrumbleCrocomireBridgeBlock,
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(CrocomireArenaMutation.CrumbleBridgeBlock,
             cell => cell == Position16<RoomBlocks>.Zero ? Block(0x10b, RoomCollisionType.SolidBlock) : Untouched));
-        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireBridgeBlock,
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(CrocomireArenaMutation.ClearBridgeBlock,
             cell => cell == Position16<RoomBlocks>.Zero ? Block(0x80, RoomCollisionType.Air) : Untouched));
-        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireInvisibleWall,
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(CrocomireArenaMutation.ClearInvisibleWall,
             cell => cell.X < 3 && cell.Y < 8 ? WallBlock(cell, RoomCollisionType.Air) : Untouched));
-        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.CreateCrocomireInvisibleWall,
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(CrocomireArenaMutation.CreateInvisibleWall,
             cell => cell.X < 3 && cell.Y < 8 ? WallBlock(cell, RoomCollisionType.SolidBlock) : Untouched));
         Console.WriteLine("Crocomire PLMs: five programs and physical draws match ROM; all mutations execute without source reads.");
 
@@ -61,7 +61,7 @@ internal static class CrocomireArenaPlmsVerification
     }
 
     /// <summary>Spawns one arena PLM and compares its first-frame block changes and next-frame deletion.</summary>
-    private static void VerifyCrocomireMutation(PlmHeaderId header,
+    private static void VerifyCrocomireMutation(CrocomireArenaMutation mutation,
         Func<Position16<RoomBlocks>, RoomTerrainBlock> expectedBlock)
     {
         const int width = 32;
@@ -69,22 +69,22 @@ internal static class CrocomireArenaPlmsVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(Untouched, width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
-            $"Crocomire header {header} allocates");
+        AssertTrue(plms.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
+            $"Crocomire mutation {mutation} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         plms.Step(level);
         AssertEqual(1, plms.SlotTable.ActiveCount,
-            $"Crocomire header {header} persists for native draw frame");
+            $"Crocomire mutation {mutation} persists for native draw frame");
         for (int y = 0; y < 9; y++)
         for (int x = 0; x < 11; x++)
             AssertEqual(expectedBlock(new((ushort)x, (ushort)y)),
                 level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).Terrain,
-                $"Crocomire header {header} physical block ({x},{y})");
+                $"Crocomire mutation {mutation} physical block ({x},{y})");
         plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
-            $"Crocomire header {header} deletes on next frame");
+            $"Crocomire mutation {mutation} deletes on next frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Crocomire header {header} reads no migrated ROM records");
+            $"Crocomire mutation {mutation} reads no migrated ROM records");
     }
 
     /// <summary>Rejects live reads of the bank-$84 program and draw records now supplied by compiled definitions.</summary>

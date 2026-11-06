@@ -18,11 +18,11 @@ internal static class KraidDefeatedPlmMappingsVerification
 
     /// <summary>Compares the native two-byte PLM header identities for both post-fight operations.</summary>
     internal static void VerifyKraidDefeatedPlmHeaders(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 2, request => PlmNativeWords.Word(request.Header)));
+        Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 2, request => PlmNativeWords.Word(KraidRoomMutationDefinitions.Plms[request.Plm])));
 
     /// <summary>Checks the selected field in native request order and rejects indexes outside the two operations.</summary>
     private static void VerifyKraidDefeatedPlmField(SuperMetroidAddressSpace rom, int offset,
-        Func<PlmSpawnRequest, ushort> field)
+        Func<PlmSpawnRequest<KraidRoomMutation>, ushort> field)
     {
         int[] arguments = [0xa7c16c, 0xa7c175];
         var requests = KraidPlmDefinitions.DefeatedRoom;

@@ -208,11 +208,8 @@ internal sealed class CeresRidleyBabyScene
         RoomEnemySlot door = _slotTable.Slots[1];
         if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
-            // The private Ceres hook does not call the common enemy sprite writer and therefore owns a
-            // second, authored quake adjustment. Its `Y`
-            // index is the low two bits of the earthquake timer, but the table contains
-            // words and the assembly omits an ASL. Preserve that retail byte-index read:
-            // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
+            // The scene draws the door itself rather than through the common enemy drawing, so it applies the door's
+            // own earthquake shake, which moves only the drawn door.
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.EarthquakeTimer.RemainingFrames);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
                 new(CoordinateAxis.Wrap(door.Position.X.Whole - camera.X + quakeXOffset), CoordinateAxis.Wrap(door.Position.Y.Whole - camera.Y)),

@@ -4,25 +4,27 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The opening's Japanese subtitles: the intro's three "mode 7 objects" that load each page's
-/// subtitle, and the subtitle timer that holds every page's input wait after a
-/// second subtitle appears. English text spawns none of them and leaves the timer at zero.
+/// The opening's Japanese subtitle sequencer: it shows each page's first subtitle as the page begins, and on pages two
+/// to five waits at the end of the page for a press that shows the second subtitle, which then holds the page's input
+/// wait for <see cref="SecondSubtitleHoldFrames"/>. English text shows no subtitle and leaves the hold at zero.
 /// </summary>
 /// <remarks>
-/// The intro runs its floor objects after the cinematic sprite
-/// objects and before the background objects whose page instructions spawn these subtitles, so an
-/// object first runs on the frame after its spawn. Slots are searched and processed from
-/// index two down to zero.
+/// At most one subtitle is showing at a time: a page's first subtitle has finished long before the page's text ends,
+/// and the second subtitle starts the input wait that leads to the next page. The intro advances the subtitle after
+/// its cinematic sprites and before the page text that begins and finishes subtitles, so a subtitle first advances on
+/// the frame after it begins.
 /// </remarks>
 internal sealed class IntroJapaneseSubtitles
 {
     /// <summary>Frames the second subtitle holds a page's input wait.</summary>
     public const int SecondSubtitleHoldFrames = 60;
 
-    /// <summary>Three subtitle object slots, searched from highest index downward.</summary>
-    private const int SlotCount = 3;
-    /// <summary>Active subtitle objects in slot order; an empty slot is available for the next page.</summary>
-    private readonly SubtitleObject?[] slots = new SubtitleObject?[SlotCount];
+    /// <summary>The page whose subtitle is showing; meaningful while <see cref="stage"/> is not <see cref="SubtitleStage.None"/>.</summary>
+    private IntroNarrationPageId page;
+    /// <summary>What the showing subtitle does next, or <see cref="SubtitleStage.None"/> when no subtitle is showing.</summary>
+    private SubtitleStage stage;
+    /// <summary>Frames left before the showing subtitle takes its next step.</summary>
+    private WrappingCountdown frameHold;
 
     /// <summary>Selects Japanese subtitle handling from the opening's alternate-text setting.</summary>
     public IntroJapaneseSubtitles(bool enabled) => Enabled = enabled;
@@ -30,36 +32,31 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>The Japanese text option at the start of the intro.</summary>
     public bool Enabled { get; }
 
-    /// <summary><c>CinematicSpriteObject_IntroSubtitleTimer</c>, cleared by intro setup.</summary>
+    /// <summary>Frames the second subtitle still holds the page's input wait; zero when the intro starts.</summary>
     public WrappingCountdown Timer { get; private set; }
 
-    /// <summary>
-    /// <c>Instruction_HandleCreatingSubtitle_PageN</c>, the first
-    /// instruction of each English page's text list: Japanese text loads the page's first
-    /// subtitle.
-    /// </summary>
+    /// <summary>Begins <paramref name="page"/>'s text: Japanese text shows the page's first subtitle.</summary>
     public void BeginPage(IntroNarrationPageId page)
     {
         if (Enabled)
-            Spawn(new SubtitleObject(page, SubtitleStage.LoadFirstSubtitle));
+            Show(page, SubtitleStage.ShowFirstSubtitle);
     }
 
     /// <summary>
-    /// <c>Instruction_SpawnBlinkingMarkers_WaitForInput_PageN</c>.
-    /// Returns true when the page's input wait starts now; on pages two to five Japanese text
-    /// instead waits for a press that shows the second subtitle, and that object starts the wait.
+    /// Finishes <paramref name="page"/>'s text. Returns true when the page's input wait starts now; on pages two to five
+    /// Japanese text instead waits for a press that shows the second subtitle, and the subtitle starts the wait.
     /// </summary>
     public bool FinishPage(IntroNarrationPageId page)
     {
         if (!Enabled || page is IntroNarrationPageId.Page1 or IntroNarrationPageId.Page6)
             return true;
-        Spawn(new SubtitleObject(page, SubtitleStage.AwaitSecondSubtitleInput));
+        Show(page, SubtitleStage.AwaitSecondSubtitleInput);
         return false;
     }
 
     /// <summary>
-    /// The timer check at the start of every intro input wait, in each page's setup.
-    /// True while the wait is held: the call consumed one frame of the timer.
+    /// The hold check at the start of every intro input wait, in each page's setup.
+    /// True while the wait is held: the call consumed one frame of the hold.
     /// </summary>
     public bool HoldInputWait()
     {
@@ -69,86 +66,70 @@ internal sealed class IntroJapaneseSubtitles
         return true;
     }
 
-    /// <summary>Runs the floor objects for one frame.</summary>
-    /// <param name="newlyPressed">This frame's controller rising edges ($8F), read by the second subtitle's pre-instruction.</param>
-    /// <param name="startInputWait">Receives each page whose second subtitle has started its input wait.</param>
+    /// <summary>Advances the showing subtitle by one frame.</summary>
+    /// <param name="newlyPressed">This frame's newly pressed buttons, which show a waiting page's second subtitle.</param>
+    /// <param name="startInputWait">Receives the page whose second subtitle has started its input wait.</param>
     public void Step(ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
     {
-        for (int index = SlotCount - 1; index >= 0; index--)
-            if (slots[index] is { } subtitle && subtitle.Process(this, newlyPressed, startInputWait))
-                slots[index] = null;
-    }
-
-    /// <summary>
-    /// Spawning takes the highest free slot. The intro never has
-    /// more than one subtitle alive, so a full table would be a modelling error.
-    /// </summary>
-    private void Spawn(SubtitleObject subtitle)
-    {
-        for (int index = SlotCount - 1; index >= 0; index--)
-        {
-            if (slots[index] is not null) continue;
-            slots[index] = subtitle;
+        if (stage == SubtitleStage.None)
             return;
+        if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
+        {
+            // The press shows the second subtitle, holds the input wait it will start, and moves to starting that
+            // wait on this same frame.
+            stage = SubtitleStage.StartInputWait;
+            frameHold = WrappingCountdown.Start(1);
+            Timer = WrappingCountdown.Start(SecondSubtitleHoldFrames);
         }
-        throw new InvalidOperationException("All three intro subtitle object slots are occupied.");
+        if (!(frameHold = frameHold.Decrement().Remaining).IsZero)
+            return;
+        switch (stage)
+        {
+            case SubtitleStage.ShowFirstSubtitle:
+                stage = SubtitleStage.FinishFirstSubtitle;
+                frameHold = WrappingCountdown.Start(1);
+                return;
+            case SubtitleStage.AwaitSecondSubtitleInput:
+                frameHold = WrappingCountdown.Start(1);
+                return;
+            case SubtitleStage.FinishFirstSubtitle:
+                stage = SubtitleStage.None;
+                return;
+            case SubtitleStage.StartInputWait:
+                stage = SubtitleStage.None;
+                startInputWait(page);
+                return;
+            case SubtitleStage.None:
+                throw new InvalidOperationException("The intro advanced a subtitle that is not showing.");
+            default:
+                throw new InvalidOperationException($"Unknown intro subtitle stage {stage}.");
+        }
     }
 
-    /// <summary>Instruction-list stages for first-subtitle transfer and second-subtitle input wait.</summary>
+    /// <summary>Starts showing <paramref name="shownPage"/>'s subtitle at <paramref name="firstStage"/>, one frame from its next step.</summary>
+    /// <exception cref="InvalidOperationException">Another subtitle is still showing; the intro never shows two.</exception>
+    private void Show(IntroNarrationPageId shownPage, SubtitleStage firstStage)
+    {
+        if (stage != SubtitleStage.None)
+            throw new InvalidOperationException(
+                $"The intro began page {shownPage}'s subtitle while page {page}'s subtitle was still showing.");
+        page = shownPage;
+        stage = firstStage;
+        frameHold = WrappingCountdown.Start(1);
+    }
+
+    /// <summary>The steps of a page's subtitles.</summary>
     private enum SubtitleStage
     {
-        /// <summary>First record of a page's first-subtitle list: load the text, then a one-frame transfer record.</summary>
-        LoadFirstSubtitle,
-        /// <summary>After the transfer record: enable the cinematic page's updates and delete.</summary>
+        /// <summary>No subtitle is showing.</summary>
+        None,
+        /// <summary>The page has begun: show its first subtitle, taking one frame.</summary>
+        ShowFirstSubtitle,
+        /// <summary>The first subtitle is shown: let the page's text continue, then stop showing.</summary>
         FinishFirstSubtitle,
-        /// <summary>The second-subtitle list's one-frame transfer loop, whose pre-instruction watches for a press.</summary>
+        /// <summary>The page's text has finished: wait, one frame at a time, for a press that shows the second subtitle.</summary>
         AwaitSecondSubtitleInput,
-        /// <summary>The page's "done input" list: enable tilemap updates, select its input wait and delete.</summary>
+        /// <summary>The second subtitle is shown: start the page's input wait, then stop showing.</summary>
         StartInputWait,
-    }
-
-    /// <summary>One mode 7 object: its instruction timer and position in its subtitle list.</summary>
-    private sealed class SubtitleObject(IntroNarrationPageId page, SubtitleStage stage)
-    {
-        /// <summary>Current subtitle animation stage.</summary>
-        private SubtitleStage stage = stage;
-        /// <summary>One-frame transfer or wait-loop countdown before the next list action.</summary>
-        private WrappingCountdown frameHold = WrappingCountdown.Start(1);
-
-        /// <summary>
-        /// Runs the pre-instruction, then the
-        /// instruction list once the timer reaches zero. Returns true when the object deleted itself.
-        /// </summary>
-        public bool Process(IntroJapaneseSubtitles owner, ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
-        {
-            if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
-            {
-                // The second subtitle's steps: show the second subtitle, hold the input wait it
-                // will start, and switch to the done-input list on this same frame.
-                stage = SubtitleStage.StartInputWait;
-                frameHold = WrappingCountdown.Start(1);
-                owner.Timer = WrappingCountdown.Start(SecondSubtitleHoldFrames);
-            }
-            if (!(frameHold = frameHold.Decrement().Remaining).IsZero)
-                return false;
-            switch (stage)
-            {
-                case SubtitleStage.LoadFirstSubtitle:
-                    stage = SubtitleStage.FinishFirstSubtitle;
-                    frameHold = WrappingCountdown.Start(1);
-                    return false;
-                case SubtitleStage.AwaitSecondSubtitleInput:
-                    // One-frame transfer record, then goto itself.
-                    frameHold = WrappingCountdown.Start(1);
-                    return false;
-                case SubtitleStage.FinishFirstSubtitle:
-                    return true;
-                case SubtitleStage.StartInputWait:
-                    startInputWait(page);
-                    return true;
-                default:
-                    throw new InvalidOperationException($"Unknown intro subtitle stage {stage}.");
-            }
-        }
     }
 }

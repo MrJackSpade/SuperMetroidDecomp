@@ -28,21 +28,21 @@ internal static class KraidRoomPlmsVerification
         Suite(nameof(VerifyKraidDrawWords), () => VerifyKraidDrawWords(rom));
         Suite(nameof(VerifyKraidDrawVisualIds), () => VerifyKraidDrawVisualIds());
 
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingIntoBackground1,
             12, RoomTerrainBlock.Of(0x13c, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.CrumbleKraidCeilingIntoBackground2,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingIntoBackground2,
             12, RoomTerrainBlock.Of(0x131, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.CrumbleKraidCeilingIntoBackground3,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingIntoBackground3,
             12, RoomTerrainBlock.Of(0x130, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.CrumbleKraidPlatformVariant1,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumblePlatformVariant1,
             3, RoomTerrainBlock.Of(0x131, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.CrumbleKraidPlatformVariant2,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumblePlatformVariant2,
             3, RoomTerrainBlock.Of(0x130, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.ClearKraidCeiling,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.ClearCeiling,
             1, RoomTerrainBlock.Of(0x13c, BlockMirroring.None, RoomCollisionType.Air), 15));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.CrumbleKraidSpikes,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleSpikes,
             264, RoomTerrainBlock.Of(0x111, BlockMirroring.None, RoomCollisionType.Air), 22));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(PlmHeaderId.ClearKraidSpikes,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.ClearSpikes,
             1, RoomTerrainBlock.Of(0x111, BlockMirroring.None, RoomCollisionType.Air), 22));
         Console.WriteLine(
             "Kraid room PLMs: eight reachable programs and ten physical draws match ROM; all live ceiling/spike paths, timing and collision run without source reads.");
@@ -50,7 +50,7 @@ internal static class KraidRoomPlmsVerification
 
     /// <summary>Runs one ceiling or spike PLM to deletion and checks every final room block without converted ROM reads.</summary>
     private static void VerifyKraidMutation(
-        PlmHeaderId header, int expectedDeletionFrame, RoomTerrainBlock firstFinalWord,
+        KraidRoomMutation mutation, int expectedDeletionFrame, RoomTerrainBlock firstFinalWord,
         int changedBlockCount)
     {
         const int width = 32;
@@ -61,44 +61,44 @@ internal static class KraidRoomPlmsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new RoomBlockBehavior[words.Length]);
         var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
-            $"Kraid mutation {header} allocates");
+        AssertTrue(plms.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation)),
+            $"Kraid mutation {mutation} allocates");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),
             level.GetCollisionBlockByIndex(5 * width + 5).Terrain,
-            $"Kraid mutation {header} setup preserves tile priority");
+            $"Kraid mutation {mutation} setup preserves tile priority");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
              plms.SlotTable.ActiveCount != 0; frame++)
         {
             plms.Step(level);
-            if (frame == 0 && header is
-                PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
-                PlmHeaderId.CrumbleKraidCeilingIntoBackground2 or
-                PlmHeaderId.CrumbleKraidCeilingIntoBackground3 or
-                PlmHeaderId.CrumbleKraidSpikes)
+            if (frame == 0 && mutation is
+                KraidRoomMutation.CrumbleCeilingIntoBackground1 or
+                KraidRoomMutation.CrumbleCeilingIntoBackground2 or
+                KraidRoomMutation.CrumbleCeilingIntoBackground3 or
+                KraidRoomMutation.CrumbleSpikes)
                 AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock),
                     level.GetCollisionBlockByIndex(5 * width + 5).Terrain,
-                    $"Kraid mutation {header} first crumble frame");
+                    $"Kraid mutation {mutation} first crumble frame");
             if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(expectedDeletionFrame, deletionFrame,
-            $"Kraid mutation {header} native deletion frame");
+            $"Kraid mutation {mutation} native deletion frame");
         for (int offset = 0; offset < changedBlockCount; offset++)
         {
-            RoomTerrainBlock expected = header is PlmHeaderId.ClearKraidCeiling
+            RoomTerrainBlock expected = mutation is KraidRoomMutation.ClearCeiling
                 ? RoomTerrainBlock.Of(offset == 0 ? 0x13c : offset % 2 == 1 ? 0x131 : 0x130, BlockMirroring.None, RoomCollisionType.Air)
-                : header is PlmHeaderId.CrumbleKraidSpikes or
-                    PlmHeaderId.ClearKraidSpikes
+                : mutation is KraidRoomMutation.CrumbleSpikes or
+                    KraidRoomMutation.ClearSpikes
                     ? RoomTerrainBlock.Of(offset % 2 == 0 ? 0x111 : 0x110, BlockMirroring.None, RoomCollisionType.Air)
                     : firstFinalWord;
             AssertEqual(expected,
                 level.GetCollisionBlockByIndex(5 * width + 5 + offset).Terrain,
-                $"Kraid mutation {header} final block {offset}");
+                $"Kraid mutation {mutation} final block {offset}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Kraid mutation {header} reads no migrated source bytes");
+            $"Kraid mutation {mutation} reads no migrated source bytes");
     }
 
     /// <summary>Forbids bank-$84 Kraid program and draw bytes after their conversion to compiled definitions.</summary>

@@ -7,6 +7,11 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.SporeSpawn;
 
 namespace SuperMetroid.Core.World;
 
@@ -79,7 +84,7 @@ internal sealed class EnemyRoomEffects
     /// </summary>
     internal void ApplyPendingBotwoonWallPlm(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
     {
-        if (requests.BotwoonWall is not PlmHeaderId header)
+        if (requests.BotwoonWall is not BotwoonWallMutation mutation)
             return;
         if (_room.LevelData is null || _room.Camera is null)
         {
@@ -90,9 +95,9 @@ internal sealed class EnemyRoomEffects
         // SpawnHardcodedPLM silently returns when all slots are occupied. Preserve
         // that allocator behavior; normal load begins from Reset's empty pool, while an
         // artificial full-pool audit must not gain a host-only exception or terrain edit.
-        plms.BossRoomMutations.TrySpawnBotwoonWall(_room.LevelData, header);
+        plms.BossRoomMutations.BotwoonWall.TrySpawn(_room.LevelData, mutation);
 
-        if (header == PlmHeaderId.ClearBotwoonWall)
+        if (mutation == BotwoonWallMutation.Clear)
         {
             // The already-defeated branch clears the wall directly with one store
             // during setup; unlike the live crumble PLM, it does not wait for its
@@ -109,22 +114,16 @@ internal sealed class EnemyRoomEffects
     /// </summary>
     internal void ApplyPendingSporeSpawnCeilingPlm(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
     {
-        if (requests.SporeSpawnCeiling is not PlmSpawnRequest request)
+        if (requests.SporeSpawnCeiling is not SporeSpawnCeilingMutation mutation)
             return;
         if (_room.LevelData is null)
         {
             throw new InvalidOperationException(
                 "Spore Spawn published a ceiling PLM without active room level data.");
         }
-        if (request.Block != new Position16<RoomBlocks>(7, 30))
-        {
-            throw new InvalidDataException(
-                $"Spore Spawn published ceiling coordinates other than its own wall " +
-                $"({request.Block.X},{request.Block.Y}).");
-        }
 
         // SpawnHardcodedPLM silently drops the request if all forty slots are full.
-        plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(_room.LevelData, request.Header);
+        plms.BossRoomMutations.SporeSpawnCeiling.TrySpawn(_room.LevelData, mutation);
     }
 
     /// <summary>
@@ -142,14 +141,11 @@ internal sealed class EnemyRoomEffects
                 "Crocomire published an arena PLM without an active room level.");
         }
 
-        foreach (PlmSpawnRequest request in requests.CrocomirePlms)
+        foreach (PlmSpawnRequest<CrocomireArenaMutation> request in requests.CrocomirePlms)
         {
             // SpawnHardcodedPLM silently loses a request when all forty slots are
-            // occupied. TrySpawnCrocomireArenaMutation deliberately mirrors that result.
-            plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(
-                _room.LevelData,
-                request.Block,
-                request.Header);
+            // occupied. The arena spawner deliberately mirrors that result.
+            plms.BossRoomMutations.CrocomireArena.TrySpawn(_room.LevelData, request);
         }
     }
 
@@ -164,13 +160,8 @@ internal sealed class EnemyRoomEffects
         if (_room.LevelData is null)
             throw new InvalidOperationException("Kraid published room PLMs without active level data.");
 
-        foreach (PlmSpawnRequest request in requests.KraidPlms)
-        {
-            plms.BossRoomMutations.TrySpawnKraidRoomMutation(
-                _room.LevelData,
-                request.Block,
-                request.Header);
-        }
+        foreach (PlmSpawnRequest<KraidRoomMutation> request in requests.KraidPlms)
+            plms.BossRoomMutations.KraidRoom.TrySpawn(_room.LevelData, request);
     }
 
     /// <summary>
@@ -209,13 +200,8 @@ internal sealed class EnemyRoomEffects
                 "Mother Brain published a room PLM without active room level data.");
         }
 
-        foreach (PlmSpawnRequest request in requests.MotherBrainPlms)
-        {
-            plms.BossRoomMutations.TrySpawnMotherBrainMutation(
-                _room.LevelData,
-                request.Block,
-                request.Header);
-        }
+        foreach (PlmSpawnRequest<MotherBrainRoomMutation> request in requests.MotherBrainPlms)
+            plms.BossRoomMutations.MotherBrainRoom.TrySpawn(_room.LevelData, request);
     }
 
     /// <summary>
@@ -232,13 +218,8 @@ internal sealed class EnemyRoomEffects
                 "Shitroid published wall PLMs without active room level data.");
         }
 
-        foreach (PlmSpawnRequest request in requests.ShitroidPlms)
-        {
-            plms.BossRoomMutations.TrySpawnShitroidWallMutation(
-                _room.LevelData,
-                request.Block,
-                request.Header);
-        }
+        foreach (PlmSpawnRequest<ShitroidWallMutation> request in requests.ShitroidPlms)
+            plms.BossRoomMutations.ShitroidWall.TrySpawn(_room.LevelData, request);
     }
 
     /// <summary>

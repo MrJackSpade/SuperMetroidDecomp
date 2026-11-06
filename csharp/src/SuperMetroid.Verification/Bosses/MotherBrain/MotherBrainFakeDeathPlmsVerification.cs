@@ -43,29 +43,29 @@ internal static class MotherBrainFakeDeathPlmsVerification
                 $"Mother Brain program {program} selects a compiled draw");
         Reachable[] reachable =
         [
-            new Reachable(PlmHeaderId.FillMotherBrainsWall, MotherBrainFakeDeathProgram.FillWall),
-            new Reachable(PlmHeaderId.MotherBrainsRoomEscapeDoor, MotherBrainFakeDeathProgram.EscapeDoor),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow2, MotherBrainFakeDeathProgram.BackgroundRow2),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow3, MotherBrainFakeDeathProgram.BackgroundRow3),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow4, MotherBrainFakeDeathProgram.BackgroundRow4),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow5, MotherBrainFakeDeathProgram.BackgroundRow5),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow6, MotherBrainFakeDeathProgram.BackgroundRow6),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow7, MotherBrainFakeDeathProgram.BackgroundRow7),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow8, MotherBrainFakeDeathProgram.BackgroundRow8),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRow9, MotherBrainFakeDeathProgram.BackgroundRow9),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRowA, MotherBrainFakeDeathProgram.BackgroundRowA),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRowB, MotherBrainFakeDeathProgram.BackgroundRowB),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRowC, MotherBrainFakeDeathProgram.BackgroundRowC),
-            new Reachable(PlmHeaderId.MotherBrainsBackgroundRowD, MotherBrainFakeDeathProgram.BackgroundRowD),
-            new Reachable(PlmHeaderId.ClearMotherBrainCeilingBlock, MotherBrainFakeDeathProgram.ClearCeilingBlock),
-            new Reachable(PlmHeaderId.ClearMotherBrainCeilingTube, MotherBrainFakeDeathProgram.ClearCeilingTube),
-            new Reachable(PlmHeaderId.ClearMotherBrainBottomMiddleSideTube, MotherBrainFakeDeathProgram.ClearBottomMiddleSideTube),
-            new Reachable(PlmHeaderId.ClearMotherBrainBottomMiddleTubes, MotherBrainFakeDeathProgram.ClearBottomMiddleTubes),
-            new Reachable(PlmHeaderId.ClearMotherBrainBottomLeftTube, MotherBrainFakeDeathProgram.ClearBottomLeftTube),
-            new Reachable(PlmHeaderId.ClearMotherBrainBottomRightTube, MotherBrainFakeDeathProgram.ClearBottomRightTube),
+            new Reachable(MotherBrainRoomMutation.FillWall, MotherBrainFakeDeathProgram.FillWall),
+            new Reachable(MotherBrainRoomMutation.EscapeDoor, MotherBrainFakeDeathProgram.EscapeDoor),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow2, MotherBrainFakeDeathProgram.BackgroundRow2),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow3, MotherBrainFakeDeathProgram.BackgroundRow3),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow4, MotherBrainFakeDeathProgram.BackgroundRow4),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow5, MotherBrainFakeDeathProgram.BackgroundRow5),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow6, MotherBrainFakeDeathProgram.BackgroundRow6),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow7, MotherBrainFakeDeathProgram.BackgroundRow7),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow8, MotherBrainFakeDeathProgram.BackgroundRow8),
+            new Reachable(MotherBrainRoomMutation.BackgroundRow9, MotherBrainFakeDeathProgram.BackgroundRow9),
+            new Reachable(MotherBrainRoomMutation.BackgroundRowA, MotherBrainFakeDeathProgram.BackgroundRowA),
+            new Reachable(MotherBrainRoomMutation.BackgroundRowB, MotherBrainFakeDeathProgram.BackgroundRowB),
+            new Reachable(MotherBrainRoomMutation.BackgroundRowC, MotherBrainFakeDeathProgram.BackgroundRowC),
+            new Reachable(MotherBrainRoomMutation.BackgroundRowD, MotherBrainFakeDeathProgram.BackgroundRowD),
+            new Reachable(MotherBrainRoomMutation.ClearCeilingBlock, MotherBrainFakeDeathProgram.ClearCeilingBlock),
+            new Reachable(MotherBrainRoomMutation.ClearCeilingTube, MotherBrainFakeDeathProgram.ClearCeilingTube),
+            new Reachable(MotherBrainRoomMutation.ClearBottomMiddleSideTube, MotherBrainFakeDeathProgram.ClearBottomMiddleSideTube),
+            new Reachable(MotherBrainRoomMutation.ClearBottomMiddleTubes, MotherBrainFakeDeathProgram.ClearBottomMiddleTubes),
+            new Reachable(MotherBrainRoomMutation.ClearBottomLeftTube, MotherBrainFakeDeathProgram.ClearBottomLeftTube),
+            new Reachable(MotherBrainRoomMutation.ClearBottomRightTube, MotherBrainFakeDeathProgram.ClearBottomRightTube),
         ];
-        foreach ((PlmHeaderId header, MotherBrainFakeDeathProgram program) in reachable)
-            VerifyMotherBrainFakeDeathMutation(header, program);
+        foreach ((MotherBrainRoomMutation mutation, MotherBrainFakeDeathProgram program) in reachable)
+            VerifyMotherBrainFakeDeathMutation(mutation, program);
 
         Console.WriteLine(
             "Mother Brain fake-death PLMs: 22 typed programs, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
@@ -73,7 +73,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
 
     /// <summary>Checks one spawned PLM's exact collision blocks, draw-frame lifetime, deletion, and source-read guard.</summary>
     private static void VerifyMotherBrainFakeDeathMutation(
-        PlmHeaderId header, MotherBrainFakeDeathProgram program)
+        MotherBrainRoomMutation mutation, MotherBrainFakeDeathProgram program)
     {
         const int width = 32;
         const int height = 16;
@@ -81,16 +81,16 @@ internal static class MotherBrainFakeDeathPlmsVerification
             width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
-            $"Mother Brain mutation {header} allocates");
+        AssertTrue(plms.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(5, 3), mutation)),
+            $"Mother Brain mutation {mutation} allocates");
         RoomTerrainBlock[] expected = Enumerable.Range(0, terrain.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).Terrain)
             .ToArray();
         AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
-            $"Mother Brain mutation {header} starts its typed program");
+            $"Mother Brain mutation {mutation} starts its typed program");
         AssertTrue(MotherBrainFakeDeathDraws.TryGet(
                 PlmDraw.Of(MotherBrainFakeDeathPrograms.Layout(program)), out var draw),
-            $"Mother Brain mutation {header} has a physical draw");
+            $"Mother Brain mutation {mutation} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {
             RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
@@ -106,16 +106,16 @@ internal static class MotherBrainFakeDeathPlmsVerification
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(level);
         AssertEqual(1, plms.SlotTable.ActiveCount,
-            $"Mother Brain mutation {header} persists through its draw frame");
+            $"Mother Brain mutation {mutation} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
                 level.GetCollisionBlockByIndex(index).Terrain,
-                $"Mother Brain mutation {header} level block {index}");
+                $"Mother Brain mutation {mutation} level block {index}");
         plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
-            $"Mother Brain mutation {header} deletes on the following frame");
+            $"Mother Brain mutation {mutation} deletes on the following frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Mother Brain mutation {header} reads no migrated source bytes");
+            $"Mother Brain mutation {mutation} reads no migrated source bytes");
     }
 
     /// <summary>Forbids bank-$84 reads of the migrated fake-death instruction and draw ranges.</summary>

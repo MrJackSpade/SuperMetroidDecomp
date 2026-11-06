@@ -21,9 +21,9 @@ internal sealed class MotherBrainEncounterAccess
         _motherBrainEncounter = motherBrainEncounter;
     }
 
-    /// <summary>Requests a PLM spawn at a foreground room-block coordinate for this pass.</summary>
-    internal void RequestMotherBrainPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
-        _frameResults.MotherBrainPlms.Add(new PlmSpawnRequest(block, header));
+    /// <summary>Requests one of Mother Brain's room mutations at a foreground room block for this pass.</summary>
+    internal void RequestMotherBrainPlm(Position16<RoomBlocks> block, MotherBrainRoomMutation mutation) =>
+        _frameResults.MotherBrainPlms.Add(new PlmSpawnRequest<MotherBrainRoomMutation>(block, mutation));
 
     /// <summary>Ports <c>SetMotherBrainHeadInstList</c>: restarts the brain on <paramref name="program"/>.</summary>
     internal static void SetMotherBrainBrainProgram(MotherBrainEnemyState state, MotherBrainHeadProgram program)

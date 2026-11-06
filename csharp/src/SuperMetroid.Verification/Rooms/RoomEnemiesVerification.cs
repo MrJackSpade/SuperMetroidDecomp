@@ -890,9 +890,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0, Shown()[0xf1], "Ceres Ridley hidden body palette starts black");
     AssertEqual(0, Shown()[0xff], "Ceres Ridley hidden body palette ends black");
 
-    // Ridley's private `$A6:A2F2` door overlay bypasses WriteEnemyOAM and reproduces the
-    // retail byte-index bug in its word table. Earthquake timer two therefore reads byte
-    // $FC and displaces the door four pixels left.
+    // Ridley's private `$A6:A2F2` door overlay bypasses WriteEnemyOAM and shakes the door by its
+    // authored earthquake offsets: timer one displaces the door four pixels left.
     SeedCeresDoorQuakeOverlay(bus);
     RoomEnemySlot overlayDoor = enemies.SlotTable.Slots[1];
     overlayDoor.Bind(ceresDoorDefinitionPointer, overlayDoor.Definition);
@@ -900,7 +899,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.SetSpeciesState(overlayDoorState, overlayDoorState.ClearWithRecord);
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
-    short[] expectedDoorOffsets = [0, 0, -4, -1];
+    short[] expectedDoorOffsets = [0, -4, -1, 3];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {
         enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
@@ -909,7 +908,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         doorOam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 0)));
         doorOam.FinalizeFrame();
         AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).Position.X,
-            $"Ceres private door hook byte-indexed quake phase {timer}");
+            $"Ceres private door hook authored quake phase {timer}");
     }
     overlayDoor.Bind(0, overlayDoor.Definition);
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
@@ -1412,7 +1411,7 @@ static void ClearCeresEscapeTypewriterSource(TestAddressSpace bus)
 
 /// <summary>
 /// Seeds Ridley's private `$A6:A2F2` door overlay: a one-entry spritemap at $A6:A329 and the
-/// earthquake displacement word table at $A6:A321 whose retail byte-index bug reads $FC for timer two.
+/// earthquake displacement word table at $A6:A321, whose authored words the door is shaken by.
 /// </summary>
 static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 {
@@ -1420,10 +1419,10 @@ static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
     WriteTestWord(bus, 0xa6a32b, 0);
     WriteTestByte(bus, 0xa6a32d, 0);
     WriteTestWord(bus, 0xa6a32e, 0);
-    WriteTestByte(bus, 0xa6a321, 0x00);
-    WriteTestByte(bus, 0xa6a322, 0x00);
-    WriteTestByte(bus, 0xa6a323, 0xfc);
-    WriteTestByte(bus, 0xa6a324, 0xff);
+    WriteTestWord(bus, 0xa6a321, 0x0000);
+    WriteTestWord(bus, 0xa6a323, 0xfffc);
+    WriteTestWord(bus, 0xa6a325, 0xffff);
+    WriteTestWord(bus, 0xa6a327, 0x0003);
 }
 
 /// <summary>Reads back the seeded Ceres Ridley palette words ($A6:E14F) and one planar tile ($A6:9000) as installed fixture artwork.</summary>

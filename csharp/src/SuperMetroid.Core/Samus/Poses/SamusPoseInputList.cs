@@ -47,12 +47,10 @@ internal enum SamusPoseInputList
     MorphBallMovingLeftPoseList,
     /// <summary>TransitionTable_1D_FaceLeft_MorphBall_NoSpringBall_OnGround: diagnostic list identity.</summary>
     MorphBallGroundLeftPoseList,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose20"/>: diagnostic list identity.</summary>
-    UnusedPose20List,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose23"/>: diagnostic list identity.</summary>
-    UnusedPose23List,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose42"/>: diagnostic list identity.</summary>
-    UnusedPose42List,
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallRightPose"/>: diagnostic list identity.</summary>
+    GlitchBallRightPoseList,
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallLeftPose"/>: diagnostic list identity.</summary>
+    GlitchBallLeftPoseList,
     /// <summary>TransitionTable_27_71_73_85_FacingRight_Crouching: diagnostic list identity.</summary>
     CrouchingRightPoseList,
     /// <summary>TransitionTable_28_72_74_86_Crouching: diagnostic list identity.</summary>
@@ -69,14 +67,6 @@ internal enum SamusPoseInputList
     UnusedKnockbackRightPoseList,
     /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackLeftPose"/>: diagnostic list identity.</summary>
     UnusedKnockbackLeftPoseList,
-    /// <summary>UNUSED_TransitionTable_45_91A7CC: diagnostic list identity.</summary>
-    UnusedPose45List,
-    /// <summary>UNUSED_TransitionTable_46_91A7E0: diagnostic list identity.</summary>
-    UnusedPose46List,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose47"/>: diagnostic list identity.</summary>
-    UnusedPose47List,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose48"/>: diagnostic list identity.</summary>
-    UnusedPose48List,
     /// <summary>TransitionTable_49_75_77_FacingLeft_Moonwalk: diagnostic list identity.</summary>
     MoonwalkFacingLeftPoseList,
     /// <summary>TransitionTable_4A_76_78_FacingRight_Moonwalk: diagnostic list identity.</summary>
@@ -85,10 +75,6 @@ internal enum SamusPoseInputList
     KnockbackRightPoseList,
     /// <summary>TransitionTable_54_FacingLeft_Knockback: diagnostic list identity.</summary>
     KnockbackLeftPoseList,
-    /// <summary>UNUSED_TransitionTable_5B_91A8FC: diagnostic list identity.</summary>
-    UnusedPose5BList,
-    /// <summary>UNUSED_TransitionTable_5C_91A904: diagnostic list identity.</summary>
-    UnusedPose5CList,
     /// <summary>TransitionTable_79_7B_FacingRight_MorphBall_Spring_OnGround: diagnostic list identity.</summary>
     SpringBallGroundRightPoseList,
     /// <summary>TransitionTable_7A_7C_FacingLeft_MorphBall_Spring_OnGround: diagnostic list identity.</summary>
@@ -102,13 +88,13 @@ internal enum SamusPoseInputList
     /// <summary>TransitionTable_80_FacingLeft_MorphBall_SpringBall_InAir: diagnostic list identity.</summary>
     SpringBallJumpLeftPoseList,
     /// <summary>UNUSED_TransitionTable_63_91A990: diagnostic list identity.</summary>
-    UnusedPose63List,
+    CompactAirborneRightPoseList,
     /// <summary>UNUSED_TransitionTable_64_91A998: diagnostic list identity.</summary>
-    UnusedPose64List,
+    CompactAirborneLeftPoseList,
     /// <summary>UNUSED_TransitionTable_65_91A9A0: diagnostic list identity.</summary>
-    UnusedPose65List,
+    CompactAirborneFallingRightPoseList,
     /// <summary>UNUSED_TransitionTable_66_91A9C6: diagnostic list identity.</summary>
-    UnusedPose66List,
+    CompactAirborneFallingLeftPoseList,
     /// <summary>TransitionTable_83_FacingRight_WallJump: diagnostic list identity.</summary>
     WallJumpRightPoseList,
     /// <summary>TransitionTable_84_FacingLeft_WallJump: diagnostic list identity.</summary>
@@ -150,7 +136,7 @@ internal enum SamusPoseInputList
     /// <summary>TransitionTable_2E_FacingLeft_Falling_AimingDown: diagnostic list identity.</summary>
     FallingAimDownLeftPoseList,
     /// <summary>UNUSED_TransitionTable_DF_91AE10: diagnostic list identity.</summary>
-    UnusedPoseDfList,
+    DraygonHeldBallLeftPoseList,
     /// <summary>TransitionTable_BA_BB_BC_BD_BE_FacingLeft_GrabbedByDraygon: diagnostic list identity.</summary>
     DraygonGrabbedNeutralLeftPoseList,
     /// <summary>TransitionTable_EC_ED_EE_EF_F0_FacingRight_GrabbedByDraygon: diagnostic list identity.</summary>

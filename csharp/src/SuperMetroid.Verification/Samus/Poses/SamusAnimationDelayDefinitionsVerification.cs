@@ -21,6 +21,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
+            if (!SamusPoseNumbering.NamesPose(number)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
             SamusAnimationProgram actual = SamusAnimationDelays.ProgramForPose(pose);
             int nextFrame = 0;
@@ -72,6 +73,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
             .Select(number => SamusAnimationProgramCodec.ProgramStart(cartridge, number))];
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
+            if (!SamusPoseNumbering.NamesPose(number)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
             int start = starts[number];
             int[] later = [.. starts.Where(other => other > start)];

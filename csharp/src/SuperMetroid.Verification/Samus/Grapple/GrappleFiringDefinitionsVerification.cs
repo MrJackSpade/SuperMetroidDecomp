@@ -34,7 +34,7 @@ internal static class GrappleFiringDefinitionsVerification
         var grapple = samus.Grapple;
         // Exercise each compiled movement family with a real pose instead of rewriting
         // the immutable movement byte of standing pose $01.
-        SamusPoseId[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
+        SamusPoseId[] movementPoses = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).GroupBy(pose =>
             GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1))
             .OrderBy(group => group.Key).Select(group => SamusPoseNumbering.FromNumber(group.First())).ToArray();
         // The graphics-Y byte only enters the flare as a signed offset, so the signed byte
@@ -43,7 +43,7 @@ internal static class GrappleFiringDefinitionsVerification
         ushort[] positions = [0x0000, 0x0001, 0x7fff, 0x8000, 0xfffe, 0xffff];
         for (byte direction = 0; direction < 10; direction++)
         {
-            SamusPoseId[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
+            SamusPoseId[] aimingPoses = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).Where(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
                 SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.DraygonGrabbedMovingLeftPose or SamusPoseId.DraygonGrabbedMovingRightPose))
                 .Select(pose => SamusPoseNumbering.FromNumber(pose)).ToArray();
@@ -97,7 +97,7 @@ internal static class GrappleFiringDefinitionsVerification
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         for (byte direction = 0; direction < 10; direction++)
         {
-            samus.Pose = sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).First(pose =>
+            samus.Pose = sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1));
             samus.Presentation.BodyFrames.BindArtwork(SamusGraphicsOffsetFixture(0));

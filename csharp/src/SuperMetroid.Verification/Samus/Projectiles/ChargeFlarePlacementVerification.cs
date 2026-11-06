@@ -114,7 +114,7 @@ internal static class ChargeFlarePlacementVerification
             if (direction >= ChargeFlarePlacementDefinitions.StandingDirectionCount)
                 AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, direction), $"standing flare selection {direction} past the turning placements is rejected");
         }
-        AssertTrue(Enumerable.Range(0, byte.MaxValue + 1)
+        AssertTrue(Enumerable.Range(0, byte.MaxValue + 1).Where(SamusPoseNumbering.NamesPose)
             .Select(number => SamusPoseMetadata.ReadShotDirection(SamusPoseNumbering.FromNumber(number)))
             .Where(shot => shot != byte.MaxValue)
             .All(shot => (shot & 15) < ChargeFlarePlacementDefinitions.StandingDirectionCount),

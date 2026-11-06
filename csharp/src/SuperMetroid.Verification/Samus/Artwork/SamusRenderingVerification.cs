@@ -99,7 +99,7 @@ internal static void VerifySamusRenderingSlice()
     // The item transition's two poses, chosen by equipment (#1473). Only the unused poses $3F/$40 hold one in retail;
     // pose $3F's run is one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
     // gameplay movement metadata, reaches the transition on its first tick.
-    var itemTransitionSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.UnusedPose3F };
+    var itemTransitionSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.InstantMorphingRightPose };
     SamusPresentation.InitializeAnimation(itemTransitionSamus);
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -9,6 +10,31 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Reads of the game pose tables for Samus: collision radii, facing and movement kind, and the per-pose metadata the movement handlers consult, including the bomb-jump direction publication.</summary>
 internal static class SamusPoseMetadata
 {
+    /// <summary>The shinespark flights, from <see cref="SamusPoseFamilyDefinitions.ShinesparkPoses"/>.</summary>
+    private static readonly FrozenSet<SamusPoseId> ShinesparkPoses = SamusPoseFamilyDefinitions.ShinesparkPoses.ToFrozenSet();
+
+    /// <summary>The poses an elevator arms under, from <see cref="SamusPoseFamilyDefinitions.ElevatorArmingPoses"/>.</summary>
+    private static readonly FrozenSet<SamusPoseId> ElevatorArmingPoses = SamusPoseFamilyDefinitions.ElevatorArmingPoses.ToFrozenSet();
+
+    /// <summary>The posture-transition admissions, from <see cref="SamusPoseFamilyDefinitions.PostureTransitionAdmissions"/>.</summary>
+    private static readonly FrozenDictionary<SamusPoseId, SamusPostureTransitionAdmission> PostureTransitionAdmissions =
+        SamusPoseFamilyDefinitions.PostureTransitionAdmissions.ToFrozenDictionary();
+
+    /// <summary>True for the six shinespark flights.</summary>
+    public static bool IsShinesparkPose(SamusPoseId pose) => ShinesparkPoses.Contains(pose);
+
+    /// <summary>True for the poses an elevator arms under: the power-suit front view and the standing poses.</summary>
+    public static bool ArmsElevator(SamusPoseId pose) => ElevatorArmingPoses.Contains(pose);
+
+    /// <summary>
+    /// How the posture-transition weapon handler treats <paramref name="pose"/>: the family the definitions list it in, or
+    /// <see cref="SamusPostureTransitionAdmission.BeyondTable"/> for every pose they do not list.
+    /// </summary>
+    public static SamusPostureTransitionAdmission PostureTransitionAdmission(SamusPoseId pose) =>
+        PostureTransitionAdmissions.TryGetValue(pose, out SamusPostureTransitionAdmission admission)
+            ? admission
+            : SamusPostureTransitionAdmission.BeyondTable;
+
     /// <summary>
     /// Ports <c>Samus_SetRadius</c>: every pose is five pixels wide and
     /// reads its vertical radius from pose-definition byte six.
@@ -378,6 +404,9 @@ internal static class SamusPoseMetadata
     /// <summary>True for the complete mirrored left-facing landing set.</summary>
     public static bool IsLeftFacingLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(SamusPoseMirror.Of(pose));
 
+    /// <summary>True for every landing, facing either way: the normal, spin, aimed and firing landings.</summary>
+    public static bool IsLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(pose) || IsLeftFacingLandingPose(pose);
+
     /// <summary>
     /// True when the ordinary grounded input dispatcher may interrupt a landing stream
     /// with any same-facing normal-jump transition `$4B/$4C/$55-$5A`.
@@ -509,8 +538,8 @@ internal static class SamusPoseMetadata
     /// <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513).
     /// </summary>
     internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
-        [.. Enumerable.Range(0, SamusPoseNumbering.RecordCount).Select(SamusPoseNumbering.FromNumber)
-            .Except(SamusUnreachablePoseDefinitions.Poses)];
+        [.. Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose)
+            .Select(SamusPoseNumbering.FromNumber).Except(SamusUnreachablePoseDefinitions.Poses)];
 
     /// <summary>True for the four drained bodies $E8-$EB that Mother Brain's controllers install.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is
@@ -536,12 +565,12 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// <c>Setup_Collision_RespawningBombBlock</c> breaks the block when the boost
-    /// stage is active or Samus is screw attacking ($81/$82) or shinesparking ($C9-$CE).
+    /// stage is active or Samus is screw attacking or shinesparking.
     /// </summary>
     public static bool BreaksCollisionBombBlocks(SamusState samus) =>
         samus.HorizontalSpeed.IsActivelySpeedBoosting ||
         IsScrewAttackPose(samus.Pose) ||
-        SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.ShinesparkHorizontalRightPose, SamusPoseId.ShinesparkDiagonalLeftPose);
+        IsShinesparkPose(samus.Pose);
 
     /// <summary>True only for the two Space Jump animation records `$1B/$1C`.</summary>
     public static bool IsSpaceJumpPose(SamusPoseId pose) => pose is

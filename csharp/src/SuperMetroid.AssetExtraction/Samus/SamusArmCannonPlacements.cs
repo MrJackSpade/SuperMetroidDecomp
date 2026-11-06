@@ -147,8 +147,8 @@ internal static class SamusArmCannonPlacements
             case SamusPoseId.AdjacentCodePoseFF:
             case SamusPoseId.ForwardFacingSuitedPose:
             case SamusPoseId.MovingLeftNormalPose:
-            case SamusPoseId.UnusedPose65:
-            case SamusPoseId.UnusedPose66:
+            case SamusPoseId.CompactAirborneFallingRightPose:
+            case SamusPoseId.CompactAirborneFallingLeftPose:
             case SamusPoseId.MoonwalkTurnJumpLeftPose:
             case SamusPoseId.MoonwalkTurnJumpRightPose:
             case SamusPoseId.MoonwalkTurnJumpAimUpLeftPose:
@@ -171,11 +171,11 @@ internal static class SamusArmCannonPlacements
             case SamusPoseId.DeathSequenceLeftPose:
             case SamusPoseId.XrayingCrouchingRightPose:
             case SamusPoseId.XrayingCrouchingLeftPose:
-            case SamusPoseId.UnusedPoseDb:
-            case SamusPoseId.UnusedPoseDc:
-            case SamusPoseId.UnusedPoseDd:
-            case SamusPoseId.UnusedPoseDe:
-            case SamusPoseId.UnusedPoseDf:
+            case SamusPoseId.CompactMorphingRightPose:
+            case SamusPoseId.DraygonHeldMorphingLeftPose:
+            case SamusPoseId.CompactStandingUpRightPose:
+            case SamusPoseId.DraygonHeldStandingUpLeftPose:
+            case SamusPoseId.DraygonHeldBallLeftPose:
             case SamusPoseId.DrainedCrouchingRightPose:
             case SamusPoseId.DrainedCrouchingLeftPose:
             case SamusPoseId.DrainedStandingRightPose:
@@ -309,38 +309,18 @@ internal static class SamusArmCannonPlacements
             case SamusPoseId.NeutralJumpLeftPose:
             case SamusPoseId.NormalLandingLeftPose:
             case SamusPoseId.SpinLandingLeftPose:
-            case SamusPoseId.UnusedPose20:
-            case SamusPoseId.UnusedPose21:
-            case SamusPoseId.UnusedPose22:
-            case SamusPoseId.UnusedPose23:
-            case SamusPoseId.UnusedPose24:
-            case SamusPoseId.UnusedPose39:
-            case SamusPoseId.UnusedPose3A:
-            case SamusPoseId.UnusedPose3F:
-            case SamusPoseId.UnusedPose40:
-            case SamusPoseId.UnusedPose42:
-            case SamusPoseId.UnusedPose45:
-            case SamusPoseId.UnusedPose46:
-            case SamusPoseId.UnusedPose47:
-            case SamusPoseId.UnusedPose48:
-            case SamusPoseId.UnusedPose5B:
-            case SamusPoseId.UnusedPose5C:
-            case SamusPoseId.UnusedPose5D:
-            case SamusPoseId.UnusedPose5E:
-            case SamusPoseId.UnusedPose5F:
-            case SamusPoseId.UnusedPose60:
-            case SamusPoseId.UnusedPose61:
-            case SamusPoseId.UnusedPose62:
-            case SamusPoseId.UnusedPose63:
-            case SamusPoseId.UnusedPose64:
-            case SamusPoseId.UnusedPoseAC:
-            case SamusPoseId.UnusedPoseAD:
-            case SamusPoseId.UnusedPoseAE:
-            case SamusPoseId.UnusedPoseAF:
-            case SamusPoseId.UnusedPoseB0:
-            case SamusPoseId.UnusedPoseB1:
-            case SamusPoseId.UnusedPoseC5:
-            case SamusPoseId.UnusedPoseC6:
+            case SamusPoseId.GlitchBallRightPose:
+            case SamusPoseId.GlitchBallMorphingRightPose:
+            case SamusPoseId.GlitchBallMorphingLeftPose:
+            case SamusPoseId.InstantMorphingRightPose:
+            case SamusPoseId.InstantMorphingLeftPose:
+            case SamusPoseId.GlitchBallLeftPose:
+            case SamusPoseId.CompactAirborneRightPose:
+            case SamusPoseId.CompactAirborneLeftPose:
+            case SamusPoseId.GrappleAirborneGunExtendedRightPose:
+            case SamusPoseId.GrappleAirborneAimDownRightPose:
+            case SamusPoseId.GrappleAirborneAimDiagonalDownRightPose:
+            case SamusPoseId.DraygonGrabbingLeftPose:
             default:
                 throw new InvalidOperationException($"{pose} does not own an arm-cannon drawing allocation.");
         }
@@ -371,6 +351,7 @@ internal static class SamusArmCannonPlacements
             position >= SamusArmCannonArtworkFormat.AdjacentCostStart ||
             SamusArmCannonArtworkFormat.TryStockDrawingByte(position, out _)) return false;
         int start = -1;
+        int owner = -1;
         // Resolve allocation identity through the existing semantic pose dispatch.
         // No second descriptor-position or pose-selection table is introduced.
         for (int candidate = 0; candidate < SamusBodySources.PoseCount; candidate++)
@@ -378,9 +359,12 @@ internal static class SamusArmCannonPlacements
             int descriptorStart = SamusArmCannonArtworkFormat.StockPoseDescriptor(candidate);
             if (descriptorStart > position || descriptorStart <= start) continue;
             start = descriptorStart;
-            pose = SamusPoseNumbering.FromNumber(candidate);
+            owner = candidate;
         }
-        if (start < 0 || !SamusArmCannonArtworkFormat.TryStockDrawingByte(start, out int selector)) return false;
+        // A descriptor only the record of a pose no path reaches selects belongs to no pose.
+        if (start < 0 || !SamusPoseNumbering.NamesPose(owner) ||
+            !SamusArmCannonArtworkFormat.TryStockDrawingByte(start, out int selector)) return false;
+        pose = SamusPoseNumbering.FromNumber(owner);
         int relative = position - start - ((selector & 128) != 0 ? 4 : 2);
         if (relative < 0) return false;
         phase = relative / 2;

@@ -487,7 +487,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
                 : SamusMovementType.Falling;
             // Exercise the whole connection-table cross-product through real authored
             // aim/movement combinations. Immutable mechanics metadata is not test input.
-            int sourcePoseIndex = Enumerable.Range(0, 253).FirstOrDefault(pose =>
+            int sourcePoseIndex = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).FirstOrDefault(pose =>
                 SamusPoseDispatch.ReadMovement(SamusPoseNumbering.FromNumber(pose)) == sourceMovementType &&
                 SamusPoseAimRestrictions.Read(SamusPoseNumbering.FromNumber(pose)) == direction,
                 -1);

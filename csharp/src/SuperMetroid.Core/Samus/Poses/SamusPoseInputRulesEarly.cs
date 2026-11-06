@@ -33,9 +33,8 @@ internal static class SamusPoseInputRulesEarly
         MorphBallMovingRightPoseList => MatchMorphBallMovingRightPoseList(held, newlyPressed),
         MorphBallMovingLeftPoseList => MatchMorphBallMovingLeftPoseList(held, newlyPressed),
         MorphBallGroundLeftPoseList => MatchMorphBallGroundLeftPoseList(held, newlyPressed),
-        UnusedPose20List => MatchUnusedPose20List(),
-        UnusedPose23List => MatchUnusedPose23List(),
-        UnusedPose42List => MatchUnusedPose42List(),
+        GlitchBallRightPoseList => MatchGlitchBallRightPoseList(),
+        GlitchBallLeftPoseList => MatchGlitchBallLeftPoseList(),
         CrouchingRightPoseList => MatchCrouchingRightPoseList(held, newlyPressed),
         CrouchingLeftPoseList => MatchCrouchingLeftPoseList(held, newlyPressed),
         FallingRightPoseList => MatchFallingRightPoseList(held),
@@ -44,26 +43,20 @@ internal static class SamusPoseInputRulesEarly
         MorphBallFallingLeftPoseList => MatchMorphBallFallingRightPoseList(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
         UnusedKnockbackRightPoseList => MatchUnusedKnockbackRightPoseList(),
         UnusedKnockbackLeftPoseList => MatchUnusedKnockbackRightPoseList().Mirrored(),
-        UnusedPose45List => MatchUnusedPose45List(held),
-        UnusedPose46List => MatchUnusedPose46List(held),
-        UnusedPose47List => MatchUnusedPose47List(),
-        UnusedPose48List => MatchUnusedPose48List(),
         MoonwalkFacingLeftPoseList => MatchMoonwalkFacingLeftPoseList(held, newlyPressed),
         MoonwalkFacingRightPoseList => MatchMoonwalkFacingRightPoseList(held, newlyPressed),
         KnockbackRightPoseList => MatchKnockbackRightPoseList(held),
         KnockbackLeftPoseList => MatchKnockbackRightPoseList(MirrorButtons(held)).Mirrored(),
-        UnusedPose5BList => MatchUnusedPose5BList(held),
-        UnusedPose5CList => MatchUnusedPose5CList(held),
         SamusPoseInputList.SpringBallGroundRightPoseList or
             SamusPoseInputList.SpringBallGroundLeftPoseList or
             SamusPoseInputList.SpringBallFallingRightPoseList or
             SamusPoseInputList.SpringBallFallingLeftPoseList or
             SamusPoseInputList.SpringBallJumpRightPoseList or
             SamusPoseInputList.SpringBallJumpLeftPoseList or
-            SamusPoseInputList.UnusedPose63List or
-            SamusPoseInputList.UnusedPose64List or
-            SamusPoseInputList.UnusedPose65List or
-            SamusPoseInputList.UnusedPose66List or
+            SamusPoseInputList.CompactAirborneRightPoseList or
+            SamusPoseInputList.CompactAirborneLeftPoseList or
+            SamusPoseInputList.CompactAirborneFallingRightPoseList or
+            SamusPoseInputList.CompactAirborneFallingLeftPoseList or
             SamusPoseInputList.WallJumpRightPoseList or
             SamusPoseInputList.WallJumpLeftPoseList or
             SamusPoseInputList.RanIntoWallRightPoseList or
@@ -84,7 +77,7 @@ internal static class SamusPoseInputRulesEarly
             SamusPoseInputList.ShinesparkWindupLeftPoseList or
             SamusPoseInputList.FallingAimDownRightPoseList or
             SamusPoseInputList.FallingAimDownLeftPoseList or
-            SamusPoseInputList.UnusedPoseDfList or
+            SamusPoseInputList.DraygonHeldBallLeftPoseList or
             SamusPoseInputList.DraygonGrabbedNeutralLeftPoseList or
             SamusPoseInputList.DraygonGrabbedNeutralRightPoseList or
             SamusPoseInputList.MovingRightGunExtendedPoseList or
@@ -474,20 +467,14 @@ internal static class SamusPoseInputRulesEarly
 
 
 
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose20"/>: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose20List()
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallRightPose"/>: priority order.</summary>
+    private static SamusPoseInputMatch MatchGlitchBallRightPoseList()
     {
         return new(null, HasConditions: false);
     }
 
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose23"/>: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose23List()
-    {
-        return new(null, HasConditions: false);
-    }
-
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose42"/>: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose42List()
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallLeftPose"/>: priority order.</summary>
+    private static SamusPoseInputMatch MatchGlitchBallLeftPoseList()
     {
         return new(null, HasConditions: false);
     }
@@ -608,42 +595,6 @@ internal static class SamusPoseInputRulesEarly
     }
 
 
-    /// <summary>UNUSED_TransitionTable_45_91A7CC: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose45List(ControllerButton held)
-    {
-        if (Has(held, Shoot | Left))
-            return Accept(SamusPoseId.UnusedPose45);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.MovingRightNormalPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.TurningRightToLeftPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>UNUSED_TransitionTable_46_91A7E0: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose46List(ControllerButton held)
-    {
-        if (Has(held, Shoot | Right))
-            return Accept(SamusPoseId.UnusedPose46);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.MovingLeftNormalPose);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.TurningLeftToRightPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose47"/>: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose47List()
-    {
-        return new(null, HasConditions: false);
-    }
-
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose48"/>: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose48List()
-    {
-        return new(null, HasConditions: false);
-    }
-
     /// <summary>TransitionTable_49_75_77_FacingLeft_Moonwalk: priority order.</summary>
     private static SamusPoseInputMatch MatchMoonwalkFacingLeftPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
@@ -702,19 +653,4 @@ internal static class SamusPoseInputRulesEarly
     }
 
 
-    /// <summary>UNUSED_TransitionTable_5B_91A8FC: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose5BList(ControllerButton held)
-    {
-        if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.UnusedPose66);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>UNUSED_TransitionTable_5C_91A904: priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose5CList(ControllerButton held)
-    {
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.UnusedPose65);
-        return new(null, HasConditions: true);
-    }
 }

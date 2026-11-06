@@ -24,6 +24,7 @@ internal static class PoseDispatchDefinitionsVerification
         Action<SamusState, ISnesAddressSpace> commit = (state, memory) => state.CommitPoseHistory();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int address = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount;
             byte facing = rom.ReadCartridgeByte(address), movement = rom.ReadCartridgeByte(address + 1), fallback = rom.ReadCartridgeByte(address + 2);
             ISnesAddressSpace source = forbidden;
@@ -67,7 +68,8 @@ internal static class PoseDispatchDefinitionsVerification
         long before = GC.GetAllocatedBytesForCurrentThread();
         for (int index = 0; index < 65536; index++)
         {
-            SamusPoseId pose = unchecked(SamusPoseNumbering.FromNumber((index % 253)));
+            if (!SamusPoseNumbering.NamesPose(index % 253)) continue;
+            SamusPoseId pose = SamusPoseNumbering.FromNumber(index % 253);
             checksum += SamusPoseMetadata.ReadPoseXDirection(pose);
             checksum += SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose));
             checksum += SamusPoseNumbering.Number(SamusPoseDispatch.ReadNoInputPose(pose));

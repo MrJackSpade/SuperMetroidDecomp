@@ -32,18 +32,18 @@ public static class SamusArmCannonArtworkFormat
     internal static int StockPoseDescriptor(int pose)
     {
         if ((uint)pose >= SamusBodySources.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
+        if (!SamusPoseNumbering.NamesPose(pose))
+            return ArmCannonUnreachedRecordDefinitions.StockDescriptors[pose];
         return SamusPoseNumbering.FromNumber(pose) switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
             SamusPoseId.ForwardFacingSuitedPose => ArmCannonDescriptorDefinitions.FacingForward,
             SamusPoseId.FacingRightNormalPose or
-            SamusPoseId.UnusedPose47 or
             SamusPoseId.RanIntoWallRightPose or
             SamusPoseId.GrappleStandingRightPose or
             SamusPoseId.FiringLandingRightPose or
             SamusPoseId.DraygonGrabbedFiringRightPose => ArmCannonDescriptorDefinitions.FacingRight,
             SamusPoseId.FacingLeftNormalPose or
-            SamusPoseId.UnusedPose48 or
             SamusPoseId.RanIntoWallLeftPose or
             SamusPoseId.GrappleStandingLeftPose or
             SamusPoseId.DraygonGrabbedFiringLeftPose or
@@ -91,11 +91,7 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.MorphBallGroundRightPose or
             SamusPoseId.MorphBallMovingRightPose or
             SamusPoseId.MorphBallMovingLeftPose or
-            SamusPoseId.UnusedPose20 or
-            SamusPoseId.UnusedPose21 or
-            SamusPoseId.UnusedPose22 or
-            SamusPoseId.UnusedPose23 or
-            SamusPoseId.UnusedPose24 or
+            SamusPoseId.GlitchBallRightPose or
             SamusPoseId.TurningRightToLeftPose or
             SamusPoseId.TurningLeftToRightPose or
             SamusPoseId.FallingRightPose or
@@ -110,20 +106,18 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.CrouchingTransitionLeftPose or
             SamusPoseId.MorphingTransitionRightPose or
             SamusPoseId.MorphingTransitionLeftPose or
-            SamusPoseId.UnusedPose39 or
-            SamusPoseId.UnusedPose3A or
+            SamusPoseId.GlitchBallMorphingRightPose or
+            SamusPoseId.GlitchBallMorphingLeftPose or
             SamusPoseId.StandingTransitionRightPose or
             SamusPoseId.StandingTransitionLeftPose or
             SamusPoseId.UnmorphingTransitionRightPose or
             SamusPoseId.UnmorphingTransitionLeftPose or
-            SamusPoseId.UnusedPose3F or
-            SamusPoseId.UnusedPose40 or
+            SamusPoseId.InstantMorphingRightPose or
+            SamusPoseId.InstantMorphingLeftPose or
             SamusPoseId.MorphBallGroundLeftPose or
-            SamusPoseId.UnusedPose42 or
+            SamusPoseId.GlitchBallLeftPose or
             SamusPoseId.TurningRightToLeftCrouchingPose or
             SamusPoseId.TurningLeftToRightCrouchingPose or
-            SamusPoseId.UnusedPose45 or
-            SamusPoseId.UnusedPose46 or
             SamusPoseId.NeutralJumpTransitionLeftPose or
             SamusPoseId.NeutralJumpRightPose or
             SamusPoseId.NeutralJumpLeftPose or
@@ -131,18 +125,10 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.DamageBoostRightPose or
             SamusPoseId.KnockbackRightPose or
             SamusPoseId.KnockbackLeftPose or
-            SamusPoseId.UnusedPose5B or
-            SamusPoseId.UnusedPose5C or
-            SamusPoseId.UnusedPose5D or
-            SamusPoseId.UnusedPose5E or
-            SamusPoseId.UnusedPose5F or
-            SamusPoseId.UnusedPose60 or
-            SamusPoseId.UnusedPose61 or
-            SamusPoseId.UnusedPose62 or
-            SamusPoseId.UnusedPose63 or
-            SamusPoseId.UnusedPose64 or
-            SamusPoseId.UnusedPose65 or
-            SamusPoseId.UnusedPose66 or
+            SamusPoseId.CompactAirborneRightPose or
+            SamusPoseId.CompactAirborneLeftPose or
+            SamusPoseId.CompactAirborneFallingRightPose or
+            SamusPoseId.CompactAirborneFallingLeftPose or
             SamusPoseId.SpringBallGroundRightPose or
             SamusPoseId.SpringBallGroundLeftPose or
             SamusPoseId.SpringBallMovingRightPose or
@@ -195,8 +181,7 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
             SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
             SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
-            SamusPoseId.UnusedPoseC5 or
-            SamusPoseId.UnusedPoseC6 or
+            SamusPoseId.DraygonGrabbingLeftPose or
             SamusPoseId.ShinesparkWindupRightPose or
             SamusPoseId.ShinesparkWindupLeftPose or
             SamusPoseId.ShinesparkHorizontalRightPose or
@@ -213,11 +198,11 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.DeathSequenceLeftPose or
             SamusPoseId.XrayingCrouchingRightPose or
             SamusPoseId.XrayingCrouchingLeftPose or
-            SamusPoseId.UnusedPoseDb or
-            SamusPoseId.UnusedPoseDc or
-            SamusPoseId.UnusedPoseDd or
-            SamusPoseId.UnusedPoseDe or
-            SamusPoseId.UnusedPoseDf or
+            SamusPoseId.CompactMorphingRightPose or
+            SamusPoseId.DraygonHeldMorphingLeftPose or
+            SamusPoseId.CompactStandingUpRightPose or
+            SamusPoseId.DraygonHeldStandingUpLeftPose or
+            SamusPoseId.DraygonHeldBallLeftPose or
             SamusPoseId.DrainedCrouchingRightPose or
             SamusPoseId.DrainedCrouchingLeftPose or
             SamusPoseId.DrainedStandingRightPose or
@@ -231,15 +216,13 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.RunningAimDiagonalDownRightPose => ArmCannonDescriptorDefinitions.MovingRightAimingDownRight,
             SamusPoseId.RunningAimDiagonalDownLeftPose => ArmCannonDescriptorDefinitions.MovingLeftAimingDownLeft,
             SamusPoseId.NormalJumpGunExtendedRightPose or
-            SamusPoseId.UnusedPoseAC => ArmCannonDescriptorDefinitions.FacingRightNormalJumpNotMovingGunExt,
-            SamusPoseId.NormalJumpGunExtendedLeftPose or
-            SamusPoseId.UnusedPoseAD => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpNotMovingGunExt,
+            SamusPoseId.GrappleAirborneGunExtendedRightPose => ArmCannonDescriptorDefinitions.FacingRightNormalJumpNotMovingGunExt,
+            SamusPoseId.NormalJumpGunExtendedLeftPose => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpNotMovingGunExt,
             SamusPoseId.NormalJumpAimUpRightPose => ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingUp,
             SamusPoseId.NormalJumpAimUpLeftPose => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingUp,
             SamusPoseId.NormalJumpAimDownRightPose or
-            SamusPoseId.UnusedPoseAE => ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingDown,
-            SamusPoseId.NormalJumpAimDownLeftPose or
-            SamusPoseId.UnusedPoseAF => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingDown,
+            SamusPoseId.GrappleAirborneAimDownRightPose => ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingDown,
+            SamusPoseId.NormalJumpAimDownLeftPose => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingDown,
             SamusPoseId.CrouchingRightPose or
             SamusPoseId.GrappleCrouchingRightPose => ArmCannonDescriptorDefinitions.FacingRightCrouching,
             SamusPoseId.CrouchingLeftPose or
@@ -266,9 +249,8 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.NormalJumpAimDiagonalUpRightPose => ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingUpRight,
             SamusPoseId.NormalJumpAimDiagonalUpLeftPose => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingUpLeft,
             SamusPoseId.NormalJumpAimDiagonalDownRightPose or
-            SamusPoseId.UnusedPoseB0 => ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingDownRight,
-            SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
-            SamusPoseId.UnusedPoseB1 => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingDownLeft,
+            SamusPoseId.GrappleAirborneAimDiagonalDownRightPose => ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingDownRight,
+            SamusPoseId.NormalJumpAimDiagonalDownLeftPose => ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingDownLeft,
             SamusPoseId.FallingAimDiagonalUpRightPose => ArmCannonDescriptorDefinitions.FacingRightFallingAimingUpRight,
             SamusPoseId.FallingAimDiagonalUpLeftPose => ArmCannonDescriptorDefinitions.FacingLeftFallingAimingUpLeft,
             SamusPoseId.FallingAimDiagonalDownRightPose => ArmCannonDescriptorDefinitions.FacingRightFallingAimingDownRight,

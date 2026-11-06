@@ -45,7 +45,7 @@ internal static class ProjectileOriginsVerification
         for (int coordinate = 0; coordinate <= ushort.MaxValue; coordinate++)
             Check(pose, direction, (ushort)coordinate, unchecked((ushort)~coordinate));
         foreach (ushort boundary in new ushort[] { 0, 127, 0x8000, ushort.MaxValue })
-        for (int pose = 0; pose <= 0xfc; pose++)
+        foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
             Check(SamusPoseNumbering.FromNumber(pose), direction, boundary, boundary);
 

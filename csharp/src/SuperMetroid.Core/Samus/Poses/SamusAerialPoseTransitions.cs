@@ -487,8 +487,8 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
                 SamusPoseId.MovingLeftNormalPose or
                 SamusPoseId.MovingRightGunExtendedPose or
                 SamusPoseId.MovingLeftGunExtendedPose or
-                SamusPoseId.UnusedPose65 or
-                SamusPoseId.UnusedPose66 or
+                SamusPoseId.CompactAirborneFallingRightPose or
+                SamusPoseId.CompactAirborneFallingLeftPose or
                 SamusPoseId.MoonwalkFacingLeftPose or
                 SamusPoseId.MoonwalkFacingRightPose or
                 SamusPoseId.MoonwalkAimUpLeftPose or
@@ -517,11 +517,11 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
                 SamusPoseId.DeathSequenceLeftPose or
                 SamusPoseId.XrayingCrouchingRightPose or
                 SamusPoseId.XrayingCrouchingLeftPose or
-                SamusPoseId.UnusedPoseDb or
-                SamusPoseId.UnusedPoseDc or
-                SamusPoseId.UnusedPoseDd or
-                SamusPoseId.UnusedPoseDe or
-                SamusPoseId.UnusedPoseDf or
+                SamusPoseId.CompactMorphingRightPose or
+                SamusPoseId.DraygonHeldMorphingLeftPose or
+                SamusPoseId.CompactStandingUpRightPose or
+                SamusPoseId.DraygonHeldStandingUpLeftPose or
+                SamusPoseId.DraygonHeldBallLeftPose or
                 SamusPoseId.DrainedCrouchingRightPose or
                 SamusPoseId.DrainedCrouchingLeftPose or
                 SamusPoseId.DrainedStandingRightPose or
@@ -698,38 +698,18 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
                 SamusPoseId.NormalLandingLeftPose or
                 SamusPoseId.SpinLandingRightPose or
                 SamusPoseId.SpinLandingLeftPose or
-                SamusPoseId.UnusedPose20 or
-                SamusPoseId.UnusedPose21 or
-                SamusPoseId.UnusedPose22 or
-                SamusPoseId.UnusedPose23 or
-                SamusPoseId.UnusedPose24 or
-                SamusPoseId.UnusedPose39 or
-                SamusPoseId.UnusedPose3A or
-                SamusPoseId.UnusedPose3F or
-                SamusPoseId.UnusedPose40 or
-                SamusPoseId.UnusedPose42 or
-                SamusPoseId.UnusedPose45 or
-                SamusPoseId.UnusedPose46 or
-                SamusPoseId.UnusedPose47 or
-                SamusPoseId.UnusedPose48 or
-                SamusPoseId.UnusedPose5B or
-                SamusPoseId.UnusedPose5C or
-                SamusPoseId.UnusedPose5D or
-                SamusPoseId.UnusedPose5E or
-                SamusPoseId.UnusedPose5F or
-                SamusPoseId.UnusedPose60 or
-                SamusPoseId.UnusedPose61 or
-                SamusPoseId.UnusedPose62 or
-                SamusPoseId.UnusedPose63 or
-                SamusPoseId.UnusedPose64 or
-                SamusPoseId.UnusedPoseAC or
-                SamusPoseId.UnusedPoseAD or
-                SamusPoseId.UnusedPoseAE or
-                SamusPoseId.UnusedPoseAF or
-                SamusPoseId.UnusedPoseB0 or
-                SamusPoseId.UnusedPoseB1 or
-                SamusPoseId.UnusedPoseC5 or
-                SamusPoseId.UnusedPoseC6 => throw new ArgumentOutOfRangeException(
+                SamusPoseId.GlitchBallRightPose or
+                SamusPoseId.GlitchBallMorphingRightPose or
+                SamusPoseId.GlitchBallMorphingLeftPose or
+                SamusPoseId.InstantMorphingRightPose or
+                SamusPoseId.InstantMorphingLeftPose or
+                SamusPoseId.GlitchBallLeftPose or
+                SamusPoseId.CompactAirborneRightPose or
+                SamusPoseId.CompactAirborneLeftPose or
+                SamusPoseId.GrappleAirborneGunExtendedRightPose or
+                SamusPoseId.GrappleAirborneAimDownRightPose or
+                SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
+                SamusPoseId.DraygonGrabbingLeftPose => throw new ArgumentOutOfRangeException(
                 nameof(genericPose),
                 genericPose,
                 "Equipment spin selection requires generic pose $19 or $1A."),

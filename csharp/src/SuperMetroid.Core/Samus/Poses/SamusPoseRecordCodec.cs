@@ -8,21 +8,19 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// one place a facing becomes its byte.
 /// </summary>
 /// <remarks>
-/// The typed definitions give every pose a facing. Four records hold facing bytes that are neither left nor right (the
-/// unused glitch-ball <see cref="SamusPoseId.UnusedPose21"/> and <see cref="SamusPoseId.UnusedPose22"/> and the adjacent-code <see cref="SamusPoseId.AdjacentCodePoseFE"/> and <see cref="SamusPoseId.AdjacentCodePoseFF"/>); this codec carries those bytes so the records
-/// stay exact.
+/// The typed definitions give every pose a facing. Two records hold facing bytes that are neither left nor right (the
+/// adjacent-code <see cref="SamusPoseId.AdjacentCodePoseFE"/> and <see cref="SamusPoseId.AdjacentCodePoseFF"/>); this
+/// codec carries those bytes so the records stay exact.
 /// </remarks>
 [EncodingOwner("Samus pose record facing bytes")]
 internal static class SamusPoseRecordCodec
 {
     /// <summary>
-    /// The poses whose record facing byte is neither forward, left nor right: the unused glitch-ball poses and the
-    /// adjacent-code poses, whose bytes are the neighbouring data and code.
+    /// The poses whose record facing byte is neither forward, left nor right: the adjacent-code poses, whose bytes are
+    /// the neighbouring code.
     /// </summary>
     private static readonly FrozenDictionary<SamusPoseId, byte> IrregularFacingBytes = new Dictionary<SamusPoseId, byte>
     {
-        [SamusPoseId.UnusedPose21] = 0x01,
-        [SamusPoseId.UnusedPose22] = 0x02,
         [SamusPoseId.AdjacentCodePoseFE] = 0x29,
         [SamusPoseId.AdjacentCodePoseFF] = 0x12,
     }.ToFrozenDictionary();

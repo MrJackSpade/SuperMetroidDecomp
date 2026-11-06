@@ -20,6 +20,7 @@ internal static class PoseInputDefinitionsVerification
         var nativeLists = new List<PoseInputDefinitionsNative>[253];
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
+            if (!SamusPoseNumbering.NamesPose(poseIndex)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + SamusPoseNumbering.Number(pose) * 2));
             var native = new List<PoseInputDefinitionsNative>();
@@ -42,6 +43,7 @@ internal static class PoseInputDefinitionsVerification
         // Each pose's input domain runs on one worker; the lookup reads only immutable tables.
         ParallelSweep.For(0, 253, poseIndex =>
         {
+            if (!SamusPoseNumbering.NamesPose(poseIndex)) return;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
             List<PoseInputDefinitionsNative> native = nativeLists[poseIndex];
             // Native conditions reference eight held bits and six rising-edge bits.
@@ -73,8 +75,8 @@ internal static class PoseInputDefinitionsVerification
         });
         AssertEqual(0x0fc0, newMask, "Fixture enumerates every referenced new-input bit");
         AssertEqual(0x0ff0, heldMask, "Fixture enumerates every referenced held-input bit");
-        AssertEqual(86, unique.Count, "All distinct native list identities");
-        AssertEqual(598, conditionCount, "All distinct-list conditions");
+        AssertEqual(79, unique.Count, "All distinct native list identities of the records that name a pose");
+        AssertEqual(590, conditionCount, "All distinct-list conditions of the records that name a pose");
         for (int pose = 253; pose <= byte.MaxValue; pose++)
         {
             SamusPoseId invalidPose = SamusPoseNumbering.FromNumber(pose);
@@ -110,11 +112,14 @@ internal static class PoseInputDefinitionsVerification
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int accepted = 0;
         for (int i = 0; i < 65536; i++)
-            if (SamusPoseTransitionTable.Lookup(SamusPoseNumbering.FromNumber((i % 253)), (ControllerButton)(ushort)i, (ControllerButton)(ushort)~i).Transition.HasValue) accepted++;
+        {
+            if (!SamusPoseNumbering.NamesPose(i % 253)) continue;
+            if (SamusPoseTransitionTable.Lookup(SamusPoseNumbering.FromNumber(i % 253), (ControllerButton)(ushort)i, (ControllerButton)(ushort)~i).Transition.HasValue) accepted++;
+        }
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");
-        Console.WriteLine($"Pose input graph: 253 mappings, 86 lists, 598 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
+        Console.WriteLine($"Pose input graph: the mappings of the records that name a pose, 79 lists, 590 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
     }
 
     /// <summary>Runs the focused pose-input graph comparison.</summary>

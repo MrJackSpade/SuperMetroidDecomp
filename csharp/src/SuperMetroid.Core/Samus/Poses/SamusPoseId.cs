@@ -39,11 +39,11 @@ public enum SamusPoseId
     /// <summary>This pose is the left-moving mirror of <see cref="MovingRightGunExtendedPose"/>.</summary>
     MovingLeftGunExtendedPose,
 
-    /// <summary>Unused movement-type-$0D right-facing pose.</summary>
-    UnusedPose65,
+    /// <summary>A right-facing compact airborne pose whose program repeats; with no input it falls facing right.</summary>
+    CompactAirborneFallingRightPose,
 
-    /// <summary>Unused movement-type-$0D left-facing pose.</summary>
-    UnusedPose66,
+    /// <summary>The left-facing partner of <see cref="CompactAirborneFallingRightPose"/>; with no input it falls facing left.</summary>
+    CompactAirborneFallingLeftPose,
 
     /// <summary>
     /// This pose visually faces left while moonwalking right. Its pose-X byte is deliberately
@@ -136,20 +136,20 @@ public enum SamusPoseId
     /// <summary>Left-facing crouching X-ray body.</summary>
     XrayingCrouchingLeftPose,
 
-    /// <summary>Unused compact right-facing transition pose.</summary>
-    UnusedPoseDb,
+    /// <summary>A right-facing compact posture transition that morphs into the ball, or the Spring Ball, on the ground or falling.</summary>
+    CompactMorphingRightPose,
 
-    /// <summary>Unused compact left-facing transition pose.</summary>
-    UnusedPoseDc,
+    /// <summary>A left-facing compact posture transition that ends in <see cref="DraygonHeldBallLeftPose"/>.</summary>
+    DraygonHeldMorphingLeftPose,
 
-    /// <summary>Unused standing-radius right-facing transition pose.</summary>
-    UnusedPoseDd,
+    /// <summary>A right-facing posture transition at standing height that ends standing facing right.</summary>
+    CompactStandingUpRightPose,
 
-    /// <summary>Unused standing-radius left-facing transition pose.</summary>
-    UnusedPoseDe,
+    /// <summary>A left-facing posture transition at standing height that ends grabbed by Draygon facing left.</summary>
+    DraygonHeldStandingUpLeftPose,
 
-    /// <summary>Unused Draygon-owned compact pose.</summary>
-    UnusedPoseDf,
+    /// <summary>A left-facing compact ball Draygon holds; Up stands it up through <see cref="DraygonHeldStandingUpLeftPose"/>.</summary>
+    DraygonHeldBallLeftPose,
 
     /// <summary>Right-facing drained crouch/fall animation.</summary>
     DrainedCrouchingRightPose,
@@ -701,101 +701,41 @@ public enum SamusPoseId
 
     /// <summary>This pose lands facing left after a spin or wall jump.</summary>
     SpinLandingLeftPose,
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose20,
+    /// <summary>A right-facing ball with the glitch-ball movement; it takes no input and keeps its pose without one.</summary>
+    GlitchBallRightPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose21,
+    /// <summary>A right-facing posture transition that ends at once in <see cref="GlitchBallRightPose"/>.</summary>
+    GlitchBallMorphingRightPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose22,
+    /// <summary>A left-facing posture transition that ends at once in <see cref="GlitchBallLeftPose"/>.</summary>
+    GlitchBallMorphingLeftPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose23,
+    /// <summary>A right-facing posture transition that morphs at once into the grounded ball, or the Spring Ball.</summary>
+    InstantMorphingRightPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose24,
+    /// <summary>The left-facing partner of <see cref="InstantMorphingRightPose"/>.</summary>
+    InstantMorphingLeftPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose39,
+    /// <summary>The left-facing partner of <see cref="GlitchBallRightPose"/>.</summary>
+    GlitchBallLeftPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose3A,
+    /// <summary>A right-facing compact airborne pose whose program repeats and which keeps its pose without input.</summary>
+    CompactAirborneRightPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose3F,
+    /// <summary>The left-facing partner of <see cref="CompactAirborneRightPose"/>.</summary>
+    CompactAirborneLeftPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose40,
+    /// <summary>A right-facing grappling pose aimed right; with no input it falls facing right with the gun extended.</summary>
+    GrappleAirborneGunExtendedRightPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose42,
+    /// <summary>A right-facing grappling pose aimed down; with no input it falls facing right aimed down.</summary>
+    GrappleAirborneAimDownRightPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose45,
+    /// <summary>A right-facing grappling pose aimed diagonally down; with no input it falls aimed diagonally down.</summary>
+    GrappleAirborneAimDiagonalDownRightPose,
 
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose46,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose47,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose48,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose5B,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose5C,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose5D,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose5E,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose5F,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose60,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose61,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose62,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose63,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPose64,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseAC,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseAD,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseAE,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseAF,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseB0,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseB1,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseC5,
-
-    /// <summary>Unused pose; preserves its distinct dispatch record.</summary>
-    UnusedPoseC6,
+    /// <summary>A left-facing Draygon-held pose whose program ends grabbed by Draygon facing left.</summary>
+    DraygonGrabbingLeftPose,
 
     /// <summary>Pose byte $FD, past the definition table: its records read the adjacent code bytes.</summary>
     AdjacentCodePoseFD,

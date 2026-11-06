@@ -23,7 +23,7 @@ internal static class BeamSpeedRowsVerification
     internal static void VerifyBeamSpeedRows()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SamusPoseId AimPose(byte direction) => SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).First(pose =>
+        SamusPoseId AimPose(byte direction) => SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
             retail.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction));
         var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         for (ushort combination = 0; combination < 12; combination++)

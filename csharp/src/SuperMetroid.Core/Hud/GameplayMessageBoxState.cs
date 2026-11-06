@@ -41,7 +41,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// <summary>Updates left in the pause before the window opens or after it closes.</summary>
     private int _pauseUpdatesRemaining;
 
-    /// <summary>The audio processing and per-line effect advance of the update <see cref="Step"/> just ran.</summary>
+    /// <summary>The audio processing and liquid wave and statue advance of the update <see cref="Step"/> just ran.</summary>
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
     /// <summary>Current Shoot binding used when panel artwork includes a button glyph.</summary>
     private ControllerButton _shootBinding = ControllerButton.X;
@@ -190,10 +190,10 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 LastFrameAudio = _pauseUpdatesRemaining switch
                 {
                     // Restoring the screen takes two updates: the first processes no
-                    // audio, the second advances the per-line effects and processes music
+                    // audio, the second advances the liquid wave and statues and processes music
                     // and sound.
                     3 => default,
-                    2 => MessageBoxFrameAudio.MusicAndSounds with { AdvancesPerLineEffects = true },
+                    2 => MessageBoxFrameAudio.MusicAndSounds with { AdvancesLiquidWaveAndStatueDescent = true },
                     // The box returns to gameplay, whose own sound processing follows.
                     0 => MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 },
                     _ => MessageBoxFrameAudio.MusicAndSounds,

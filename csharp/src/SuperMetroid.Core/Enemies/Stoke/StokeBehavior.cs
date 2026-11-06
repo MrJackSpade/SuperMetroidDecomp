@@ -64,15 +64,9 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeStoke(RoomEnemySlot slot)
     {
         StokeSpawnSettings settings = slot.SpawnSettings<StokeSpawnSettings>();
-        if (settings.SpeedIndex >= EnemyLinearSpeedDefinitions.RowCount)
-        {
-            throw new InvalidDataException(
-                $"Stoke speed index {settings.SpeedIndex} exceeds the NTSC common speed table's " +
-                $"{EnemyLinearSpeedDefinitions.RowCount} rows.");
-        }
 
-        // The spawn settings name the row of the shared linear speed table Stoke patrols at.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(settings.SpeedIndex);
+        // The spawn settings name the speed Stoke patrols at either way.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
         var state = new StokeEnemyState
         {
             RightVelocity = speeds.Positive,

@@ -24,8 +24,8 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETank1),
         [
-            new(EnemyDefinitionId.Skultera, new(173, 374), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(576, 300), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(173, 374), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(576, 300), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.Kamer2, new(280, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 32)),
             new(EnemyDefinitionId.Kamer2, new(384, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 32)),
             new(EnemyDefinitionId.Kamer2, new(496, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 32)),

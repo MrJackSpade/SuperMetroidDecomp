@@ -5,6 +5,10 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Negative">The same speed toward decreasing coordinates, leftward or upward.</param>
 public readonly record struct EnemyLinearSpeedRow(SignedSixteenSixteen Positive, SignedSixteenSixteen Negative)
 {
+    /// <summary>The row that moves <paramref name="speed"/> toward increasing coordinates and its exact negation back.</summary>
+    /// <param name="speed">The speed toward increasing coordinates, in pixels per frame.</param>
+    internal static EnemyLinearSpeedRow Moving(SignedSixteenSixteen speed) => new(speed, SignedSixteenSixteen.Zero - speed);
+
     /// <summary>The row's speed in the direction <paramref name="sign"/> names.</summary>
     internal SignedSixteenSixteen Toward(EnemySpeedSign sign) => sign switch
     {

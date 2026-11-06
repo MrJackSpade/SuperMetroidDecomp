@@ -1,10 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Ripper;
 
-/// <summary>How fast a Ripper flies and which way it starts (#1472).</summary>
-/// <param name="SpeedIndex">The common linear-speed record, 0 through 8191, it flies at.</param>
+/// <summary>How fast a Ripper flies and which way it starts (#1472, #1519).</summary>
+/// <param name="Speed">Its flying speed in pixels per update; it flies equally fast either way.</param>
 /// <param name="Direction">The way it starts.</param>
-internal sealed record RipperSpawnSettings(int SpeedIndex, HorizontalDirection Direction) : EnemySpawnSettings
-{
-    /// <summary>The common linear-speed record, 0 through 8191, it flies at.</summary>
-    public int SpeedIndex { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SpeedIndex);
-}
+internal sealed record RipperSpawnSettings(SignedSixteenSixteen Speed, HorizontalDirection Direction) : EnemySpawnSettings;

@@ -56,11 +56,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new SkulteraEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Parameter one's high byte selects initial facing: zero means right, any nonzero
-        // value means left. Its low byte is multiplied by eight because each common speed
-        // magnitude stores adjacent {right whole, right fraction, left whole, left fraction}
-        // words. Keep the byte offset visible; treating it as an array index is a common
-        // source of subtly wrong half-pixel speeds in ports of this AI.
+        // The placement names the way it starts swimming and the speed it swims at either way.
         SkulteraSpawnSettings settings = slot.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
         state.Program = AnimationProgramCursor<SkulteraProgram>.Start(startsLeft
@@ -70,12 +66,11 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
 
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(settings.SpeedIndex);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
         state.RightVelocity = speeds.Positive;
         state.LeftVelocity = speeds.Negative;
 
-        // Parameter two packs radius in its low byte and unsigned initial angle delta in
-        // its high byte. The delta becomes negative only when a turn negates it.
+        // The wave's step starts positive and becomes negative only when a turn negates it.
         state.Radius = settings.Radius;
         state.AngleDelta = settings.AngleDelta;
         state.Angle = RotationAngle.Zero;

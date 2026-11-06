@@ -15,17 +15,17 @@ internal sealed class KraidLimbs
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Provides the body and seven part slots.</summary>
-    private readonly EnemySlotTable _slotTable;
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    private readonly KraidParts _parts;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidLimbs(EnemyRoomBinding room, RoomEarthquake earthquake, EnemySlotTable slotTable, KraidEncounterAccess access)
+    internal KraidLimbs(EnemyRoomBinding room, RoomEarthquake earthquake, KraidParts parts, KraidEncounterAccess access)
     {
         _room = room;
         _earthquake = earthquake;
-        _slotTable = slotTable;
+        _parts = parts;
         _access = access;
     }
 
@@ -38,9 +38,9 @@ internal sealed class KraidLimbs
             KraidEncounterAccess.MarkKraidPartDead(arm);
             return;
         }
-        KraidEncounterAccess.EnsureKraidSlot(arm, 1, "arm");
+        KraidParts.Require(arm, _parts.Arm, "arm");
         KraidEncounterAccess.AttachKraidPart(arm, state);
-        arm.Shading = _slotTable.Slots[0].Shading;
+        arm.Shading = _parts.Body.Shading;
         state.Parts[arm.SlotIndex].Function = KraidAiFunction.NoOperation;
         _access.StartKraidPartProgram(arm, KraidPartProgram.ArmRisingOrSinking);
         state.Parts[arm.SlotIndex].NextFunction = KraidAiFunction.NoOperation;
@@ -55,9 +55,9 @@ internal sealed class KraidLimbs
             KraidEncounterAccess.MarkKraidPartDead(foot);
             return;
         }
-        KraidEncounterAccess.EnsureKraidSlot(foot, 5, "foot");
+        KraidParts.Require(foot, _parts.Foot, "foot");
         KraidEncounterAccess.AttachKraidPart(foot, state);
-        foot.Shading = _slotTable.Slots[0].Shading;
+        foot.Shading = _parts.Body.Shading;
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
         state.Parts[foot.SlotIndex].Function = KraidAiFunction.NoOperation;
         state.Parts[foot.SlotIndex].NextFunction = 0;
@@ -89,7 +89,7 @@ internal sealed class KraidLimbs
     /// <returns>The slow arm program when the speed cue switches the arm; otherwise null.</returns>
     private KraidPartProgram? ApplyKraidPartCue(KraidPartCue cue)
     {
-        RoomEnemySlot body = _slotTable.Slots[0];
+        RoomEnemySlot body = _parts.Body;
         switch (cue)
         {
             case KraidPartCue.RaiseBody:
@@ -135,7 +135,7 @@ internal sealed class KraidLimbs
 
         state.Parts[body.SlotIndex].Function = KraidAiFunction.ProcessHeadInstructionAndTimer;
         state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(180);
-        state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
+        state.Parts[_parts.Body.SlotIndex].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadProgram).Growth;
         state.HeadProgram = KraidHeadAnimations.GrowthResumeCursor(resume);
@@ -143,13 +143,13 @@ internal sealed class KraidLimbs
         _earthquake.EarthquakeType = 4;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(340);
 
-        RoomEnemySlot foot = _slotTable.Slots[5];
+        RoomEnemySlot foot = _parts.Foot;
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
         state.Parts[foot.SlotIndex].Function = KraidAiFunction.NoOperation;
-        RoomEnemySlot arm = _slotTable.Slots[1];
+        RoomEnemySlot arm = _parts.Arm;
         _access.StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
-        for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
-            _slotTable.Slots[lintSlot].Properties = _slotTable.Slots[lintSlot].Properties.With(EnemyProperties.Invisible);
+        foreach (RoomEnemySlot lint in _parts.Lints)
+            lint.Properties = lint.Properties.With(EnemyProperties.Invisible);
         arm.Properties = arm.Properties.With(EnemyProperties.IgnoreSamusCollision);
         return true;
     }
@@ -160,8 +160,8 @@ internal sealed class KraidLimbs
     /// </summary>
     private KraidPartProgram? SelectKraidArmSpeedProgram()
     {
-        RoomEnemySlot body = _slotTable.Slots[0];
-        RoomEnemySlot arm = _slotTable.Slots[1];
+        RoomEnemySlot body = _parts.Body;
+        RoomEnemySlot arm = _parts.Arm;
         int halfHealth = _access.RequireKraidState(body).HealthEighthThreshold(3);
         return body.Health < halfHealth && KraidFunctionGroups.BeforeArmSlow.Contains(KraidPartResidentProgram(arm))
             ? KraidPartProgram.ArmSlow
@@ -172,7 +172,7 @@ internal sealed class KraidLimbs
     internal void RunKraidArmMain(RoomEnemySlot arm, int cameraY)
     {
         KraidEnemyState state = _access.RequireKraidState(arm);
-        RoomEnemySlot body = _slotTable.Slots[0];
+        RoomEnemySlot body = _parts.Body;
         arm.Position = arm.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole - 44)));
 
         // The arm hides only when its anchor leaves the 224-line gameplay
@@ -193,7 +193,7 @@ internal sealed class KraidLimbs
     internal void RunKraidFootMain(RoomEnemySlot foot, int cameraY)
     {
         KraidEnemyState state = _access.RequireKraidState(foot);
-        RoomEnemySlot body = _slotTable.Slots[0];
+        RoomEnemySlot body = _parts.Body;
         foot.Position = foot.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 100)));
         bool onScreen = CoordinateAxis.Difference(foot.Position.Y.Whole, cameraY) >= 0 &&
             CoordinateAxis.Difference(foot.Position.Y.Whole - 224, cameraY) < 0;
@@ -201,7 +201,7 @@ internal sealed class KraidLimbs
             ? foot.Properties.Without(EnemyProperties.Invisible)
             : foot.Properties.With(EnemyProperties.Invisible);
 
-        KraidPartState part = state.Parts[5];
+        KraidPartState part = state.Parts[foot.SlotIndex];
         switch (state.Parts[foot.SlotIndex].Function)
         {
             case KraidAiFunction.NoOperation:
@@ -295,7 +295,7 @@ internal sealed class KraidLimbs
     {
         if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
             return;
-        RoomEnemySlot arm = _slotTable.Slots[1];
+        RoomEnemySlot arm = _parts.Arm;
         if (KraidFunctionGroups.BeforeArmNormalPause.Contains(KraidPartResidentProgram(arm)))
             return;
         _access.StartKraidPartProgram(arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
@@ -359,7 +359,7 @@ internal sealed class KraidLimbs
             return;
         if (body.Position.X.Whole == 176)
         {
-            RoomEnemySlot arm = _slotTable.Slots[1];
+            RoomEnemySlot arm = _parts.Arm;
             _access.StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
             _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
             _access.Part(foot).Function = KraidAiFunction.FootFirstPhaseThinking;

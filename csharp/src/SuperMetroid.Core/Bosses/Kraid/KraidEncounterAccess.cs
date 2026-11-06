@@ -31,16 +31,6 @@ internal sealed class KraidEncounterAccess
     internal void RequestKraidMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Kraid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Rejects a body part loaded outside its defined slot index.</summary>
-    internal static void EnsureKraidSlot(RoomEnemySlot slot, int expectedSlot, string part)
-    {
-        if (slot.SlotIndex != expectedSlot)
-        {
-            throw new InvalidDataException(
-                $"Kraid {part} requires enemy slot {expectedSlot}, not {slot.SlotIndex}.");
-        }
-    }
-
     /// <summary>Marks a Kraid part dead: preserves its upper flags while installing the dead properties.</summary>
     internal static void MarkKraidPartDead(RoomEnemySlot slot) =>
         slot.Properties = slot.Properties.Replace(

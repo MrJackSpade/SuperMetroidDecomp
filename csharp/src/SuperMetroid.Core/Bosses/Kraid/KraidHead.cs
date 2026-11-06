@@ -14,19 +14,19 @@ internal sealed class KraidHead
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Provides the body and seven part slots.</summary>
-    private readonly EnemySlotTable _slotTable;
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    private readonly KraidParts _parts;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, KraidEncounterAccess access, KraidBackground background)
+    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidParts parts, KraidEncounterAccess access, KraidBackground background)
     {
         _room = room;
         _projectiles = projectiles;
-        _slotTable = slotTable;
+        _parts = parts;
         _access = access;
         _background = background;
     }
@@ -60,8 +60,8 @@ internal sealed class KraidHead
         int band = (state.HurtFrame & 1) != 0 ? HurtBand : HealthBand(body, state);
         state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
         PictureShading parts = state.Colours.Parts;
-        for (int part = 0; part < state.Parts.Length; part++)
-            _slotTable.Slots[part].Shading = parts;
+        foreach (RoomEnemySlot part in _parts.All)
+            part.Shading = parts;
     }
 
     /// <summary>The eye colours of health band <paramref name="band"/>, or of the hurt flash for minus one.</summary>
@@ -93,9 +93,9 @@ internal sealed class KraidHead
     internal void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         state.Parts[body.SlotIndex].Function = KraidAiFunction.MainloopThinking;
-        _slotTable.Slots[2].Position = _slotTable.Slots[2].Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
-        _slotTable.Slots[3].Position = _slotTable.Slots[3].Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
-        _slotTable.Slots[4].Position = _slotTable.Slots[4].Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
+        _parts.TopLint.Position = _parts.TopLint.Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
+        _parts.MiddleLint.Position = _parts.MiddleLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
+        _parts.BottomLint.Position = _parts.BottomLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
         state.ThinkingTimer = WrappingCountdown.FromRaw(ReadKraidThinkingTimer());
     }
 
@@ -116,7 +116,7 @@ internal sealed class KraidHead
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
                     state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
-                    state.Parts[0].NextFunction = KraidAiFunction.InitializeEyeGlow;
+                    state.Parts[body.SlotIndex].NextFunction = KraidAiFunction.InitializeEyeGlow;
                     return;
                 }
             }
@@ -218,7 +218,7 @@ internal sealed class KraidHead
             {
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
                 state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
-                state.Parts[0].NextFunction = KraidAiFunction.InitializeEyeGlow;
+                state.Parts[body.SlotIndex].NextFunction = KraidAiFunction.InitializeEyeGlow;
                 return;
             }
         }

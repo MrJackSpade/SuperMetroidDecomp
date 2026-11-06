@@ -17,8 +17,8 @@ internal sealed class KraidDeath
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Provides the body and seven part slots.</summary>
-    private readonly EnemySlotTable _slotTable;
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    private readonly KraidParts _parts;
     /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
@@ -39,7 +39,7 @@ internal sealed class KraidDeath
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
-        _slotTable = dependencies.SlotTable;
+        _parts = dependencies.Parts;
         _presentation = dependencies.Presentation;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
@@ -86,10 +86,10 @@ internal sealed class KraidDeath
             case KraidAiFunction.DeathShowUpperBody:
                 _ = _head.ProcessKraidHeadInstruction(body, state);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathShowLowerBody;
-                for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
+                foreach (RoomEnemySlot lint in _parts.Lints)
                 {
-                    state.Parts[_slotTable.Slots[lintSlot].SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
-                    state.Parts[_slotTable.Slots[lintSlot].SlotIndex].FunctionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+                    state.Parts[lint.SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
+                    state.Parts[lint.SlotIndex].FunctionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
                 }
                 state.ShowBody();
                 return;
@@ -101,9 +101,9 @@ internal sealed class KraidDeath
                 body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
                 _earthquake.EarthquakeType = 1;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
-                _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmRisingOrSinking);
-                _access.StartKraidPartProgram(_slotTable.Slots[5], KraidPartProgram.FootInitial);
-                state.Parts[_slotTable.Slots[5].SlotIndex].Function = KraidAiFunction.NoOperation;
+                _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmRisingOrSinking);
+                _access.StartKraidPartProgram(_parts.Foot, KraidPartProgram.FootInitial);
+                state.Parts[_parts.Foot.SlotIndex].Function = KraidAiFunction.NoOperation;
                 return;
 
             case KraidAiFunction.DeathSink:
@@ -215,17 +215,19 @@ internal sealed class KraidDeath
         if (state.HurtFrame != 0)
             return;
         state.Colours.ShowDeathArm();
-        _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);
+        _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
         state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
         state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.DeathEntryDuration);
         // The death clears the fingernails' respawn bit, then runs EnemyDeath for the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
-        foreach (int slot in new[] { 6, 7 })
-            _slotTable.Slots[slot].Properties = _slotTable.Slots[slot].Properties.Without(EnemyProperties.RespawnIfKilled);
-        foreach (int slot in new[] { 6, 7, 2, 3, 4 })
-            _deathsAndDrops.StartGenericEnemyDeath(_slotTable.Slots[slot], deathAnimation: EnemyDeathExplosion.Small);
+        foreach (RoomEnemySlot nail in _parts.Nails)
+            nail.Properties = nail.Properties.Without(EnemyProperties.RespawnIfKilled);
+        foreach (RoomEnemySlot nail in _parts.Nails)
+            _deathsAndDrops.StartGenericEnemyDeath(nail, deathAnimation: EnemyDeathExplosion.Small);
+        foreach (RoomEnemySlot lint in _parts.Lints)
+            _deathsAndDrops.StartGenericEnemyDeath(lint, deathAnimation: EnemyDeathExplosion.Small);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
         _frameResults.KraidPlms.Add(KraidPlmDefinitions.LiveDeathSpikes);
@@ -247,16 +249,17 @@ internal sealed class KraidDeath
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        EnemyProperties armProperties = _slotTable.Slots[1].Properties.With(
+        EnemyProperties armProperties = _parts.Arm.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
-        _slotTable.Slots[1].Properties = armProperties;
+        _parts.Arm.Properties = armProperties;
         EnemyProperties otherProperties = armProperties.Replace(
             EnemyProperties.SolidToSamus |
                 EnemyProperties.RunsAnimationScript |
                 EnemyProperties.ProcessOffScreen,
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
-        for (int slot = 2; slot <= 5; slot++)
-            _slotTable.Slots[slot].Properties = otherProperties;
+        foreach (RoomEnemySlot lint in _parts.Lints)
+            lint.Properties = otherProperties;
+        _parts.Foot.Properties = otherProperties;
         state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideUpperBody;
         // The death returns the camera to distance index zero before the death drop.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;

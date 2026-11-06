@@ -26,6 +26,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     internal KraidEncounterAccess Access { get; }
 
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    internal KraidParts Parts { get; }
+
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     internal KraidBackground Background { get; }
 
@@ -53,14 +56,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _bossArtwork = dependencies.Presentation.Artwork;
         Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
+        Parts = new KraidParts(dependencies.SlotTable);
         BodyLayer = new KraidBodyLayer(Access, _bossArtwork);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
-        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, dependencies.SlotTable, Access, Background);
-        Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head });
-        Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head });
-        Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, dependencies.SlotTable, Access);
-        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, dependencies.SlotTable, dependencies.Collision, dependencies.DeathsAndDrops, Access);
-        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.SpriteObjects, dependencies.SlotTable, dependencies.Collision, Access);
+        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background);
+        Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head });
+        Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head });
+        Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
+        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
+        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.SpriteObjects, Parts, dependencies.Collision, Access);
     }
 
     /// <summary>The maximum timer the still lint and fingernail parts wait behind before their first frame.</summary>
@@ -235,12 +239,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.HandleFunctionTimer:
-                KraidEncounterAccess.TickKraidFunctionTimer(state.Parts[0]);
+                KraidEncounterAccess.TickKraidFunctionTimer(state.Parts[Parts.Body.SlotIndex]);
                 return;
 
             case KraidAiFunction.ProcessHeadInstructionAndTimer:
                 _ = Head.ProcessKraidHeadInstruction(body, state);
-                KraidEncounterAccess.TickKraidFunctionTimer(state.Parts[0]);
+                KraidEncounterAccess.TickKraidFunctionTimer(state.Parts[Parts.Body.SlotIndex]);
                 return;
 
             case KraidAiFunction.GrowReleaseCamera:

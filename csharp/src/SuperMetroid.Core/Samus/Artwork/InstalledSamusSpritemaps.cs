@@ -17,17 +17,16 @@ public abstract class InstalledSamusSpritemaps
     /// <summary>The body halves each composition's picture shows, at its identity's ordinal.</summary>
     private readonly SamusBodyHalvesShown[] halves;
 
-    /// <summary>Validates that every pose is covered and every composition it shows is installed.</summary>
+    /// <summary>Validates that every composition a pose shows is installed; the import supplies every pose its tables describe.</summary>
     /// <param name="poses">The compositions each of the 253 poses' halves show, by animation frame.</param>
     /// <param name="halves">The body halves each composition's picture shows, each at its composition's ordinal.</param>
-    /// <exception cref="InvalidDataException">A pose is missing or unknown, or a frame names a composition that is not installed.</exception>
+    /// <exception cref="InvalidDataException">A pose has no compositions, or a frame names a composition that is not installed.</exception>
     protected InstalledSamusSpritemaps(IReadOnlyDictionary<SamusPoseId, SamusPoseSpritemaps> poses, SamusBodyHalvesShown[] halves)
     {
         Ensure.NotNull(poses);
         Ensure.NotNull(halves);
-        if (poses.Count != InstalledSamusBodyArtwork.PoseCount || poses.Keys.Any(pose => !SamusPoseNumbering.HasRecord(pose)) ||
-            poses.Values.Any(pose => pose is null))
-            throw new InvalidDataException("Samus spritemaps do not cover exactly the poses with records.");
+        if (poses.Values.Any(pose => pose is null))
+            throw new InvalidDataException("Samus spritemaps name a pose without compositions.");
         this.halves = (SamusBodyHalvesShown[])halves.Clone();
         foreach (SamusPoseSpritemaps pose in poses.Values)
             foreach (SamusSpritemapId? frame in pose.Top.Concat(pose.Bottom))

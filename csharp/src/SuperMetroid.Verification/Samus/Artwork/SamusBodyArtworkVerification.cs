@@ -33,7 +33,7 @@ internal static class SamusBodyArtworkVerification
         SamusDeathTileAtlas stockDeathTiles = SamusBodySheetFixtures.Inputs.DeathTiles;
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             int address = 0x92D94E + pose * 2;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
@@ -85,7 +85,7 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(435, definitions, "complete Samus body DMA definition count");
 
         SamusSpritemapSources sprites = stock.Spritemaps.Source;
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             int topAddress = InstalledSamusSpritemaps.TopBaseAddress + pose * 2;
             int bottomAddress = InstalledSamusSpritemaps.BottomBaseAddress + pose * 2;
@@ -142,7 +142,7 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
         // The installation holds each pose's and frame's placement, decoded once from the cartridge's tables (#1517).
         Dictionary<SamusPoseId, SamusBodyPosePlacement> expectedPlacements = SamusBodyPlacementDecoding.Decode(
-            Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
+            Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4))).ToArray(),
             Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.LandingByteCount).Select(i =>
                 (int)bus.ReadCartridgeByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + i)).ToArray(),
@@ -335,7 +335,7 @@ internal static class SamusBodyArtworkVerification
             }
             AssertTrue(pairFrames > 0, $"death suit {suit} shows the cartridge's death palette pairs");
         }
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             var frames = new SamusBodyFrameState();
             frames.BindArtwork(stock);
@@ -365,7 +365,7 @@ internal static class SamusBodyArtworkVerification
         InstalledSamusBodyArtwork body)
     {
         SamusArmCannonSourceArtwork armCannon = body.ArmCannon.Source;
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             int source = SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
@@ -394,7 +394,7 @@ internal static class SamusBodyArtworkVerification
         }
         int drawingWindowEnd = SamusSourceDefinitions.MovementBank.Value |
             (SamusSourceDefinitions.ArmCannonDrawingData + SamusArmCannonArtworkFormat.DrawingDataByteCount);
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             // The typed placement gameplay reads holds what the pose's native descriptor does (#1463): its drawing mode,
             // its direction at frame zero and, when the direction byte's top bit is set, after it, then one signed X/Y

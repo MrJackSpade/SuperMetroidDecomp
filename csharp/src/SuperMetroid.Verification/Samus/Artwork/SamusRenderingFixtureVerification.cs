@@ -26,7 +26,7 @@ internal static class SamusRenderingFixtureVerification
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
         PlacementTables tables = StockPlacementTables(stock);
-        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), Placements = SamusBodyPlacementDecoding.Decode(Enumerable.Repeat((int)offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), tables.Landing, tables.Posture, tables.Drained), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon }, stock.BodyCharactersContentIdentity);
+        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), Placements = SamusBodyPlacementDecoding.Decode(Enumerable.Repeat((int)offset, SamusBodySources.PoseCount).ToArray(), tables.Landing, tables.Posture, tables.Drained), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon }, stock.BodyCharactersContentIdentity);
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }
@@ -137,8 +137,8 @@ internal static class SamusRenderingFixtureVerification
             return new SamusSpritemapDefinition(parts);
         }).ToArray();
         var sprites = new SamusSpritemapSources(
-            Words(InstalledSamusSpritemaps.TopBaseAddress, InstalledSamusBodyArtwork.PoseCount),
-            Words(InstalledSamusSpritemaps.BottomBaseAddress, InstalledSamusBodyArtwork.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
+            Words(InstalledSamusSpritemaps.TopBaseAddress, SamusBodySources.PoseCount),
+            Words(InstalledSamusSpritemaps.BottomBaseAddress, SamusBodySources.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
         int[] landing = tables.Landing;
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))
@@ -157,7 +157,7 @@ internal static class SamusRenderingFixtureVerification
             ? [.. rises]
             : throw new InvalidDataException($"Stock pose {pose} installs no frame placements.");
         return new PlacementTables(
-            [.. Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => stock.Placements[SamusPoseNumbering.FromNumber(pose)].GraphicsYOffset)],
+            [.. Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => stock.Placements[SamusPoseNumbering.FromNumber(pose)].GraphicsYOffset)],
             Rises(SamusPoseId.NormalLandingRightPose),
             [.. Rises(SamusPoseId.CrouchingTransitionRightPose).Select(rise => -rise)],
             [.. Rises(SamusPoseId.DrainedCrouchingRightPose).Select(rise => -rise)]);

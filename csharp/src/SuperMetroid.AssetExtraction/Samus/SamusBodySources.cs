@@ -14,6 +14,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 public sealed class SamusBodySources : InstalledSamusBodyArtwork
 {
+    /// <summary>Number of poses with records in the game's pose tables: the poses the installed body describes.</summary>
+    public const int PoseCount = SamusPoseNumbering.RecordCount;
     /// <summary>Number of four-byte frame selectors, stored one after another.</summary>
     public const int FrameCount = 1143;
     /// <summary>Number of upper-body definition groups.</summary>

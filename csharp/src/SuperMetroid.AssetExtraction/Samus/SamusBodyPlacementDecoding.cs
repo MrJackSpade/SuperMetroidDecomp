@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.AssetExtraction.Samus.SamusBodyPlacementSourceDefinitions;
@@ -44,11 +43,11 @@ public static class SamusBodyPlacementDecoding
         Ensure.NotNull(landingOffsets);
         Ensure.NotNull(postureOffsets);
         Ensure.NotNull(drainedOffsets);
-        if (graphicsYOffsets.Count != InstalledSamusBodyArtwork.PoseCount || landingOffsets.Count != LandingByteCount ||
+        if (graphicsYOffsets.Count != SamusBodySources.PoseCount || landingOffsets.Count != LandingByteCount ||
             postureOffsets.Count != PostureByteCount || drainedOffsets.Count != DrainedByteCount)
             throw new InvalidDataException("Samus body placement tables have an invalid length.");
         var placements = new Dictionary<SamusPoseId, SamusBodyPosePlacement>();
-        for (int number = 0; number < InstalledSamusBodyArtwork.PoseCount; number++)
+        for (int number = 0; number < SamusBodySources.PoseCount; number++)
         {
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
             int origin = graphicsYOffsets[number];

@@ -62,11 +62,11 @@ public static class SamusBodyArtworkFiles
             SamusBodySources.BottomSetCount);
         ushort[] posePointers = ReadPointers(bus,
             SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
-            InstalledSamusBodyArtwork.PoseCount);
+            SamusBodySources.PoseCount);
         int[] topSetStarts = [.. topPointers.Select(pointer => BodyRecord(pointer))];
         int[] bottomSetStarts = [.. bottomPointers.Select(pointer => BodyRecord(pointer))];
         int[] poseFirstFrames = [.. posePointers.Select(pointer => BodyFrame(pointer))];
-        int[] graphicsYOffsets = Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount)
+        int[] graphicsYOffsets = Enumerable.Range(0, SamusBodySources.PoseCount)
             .Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4)))
@@ -84,9 +84,9 @@ public static class SamusBodyArtworkFiles
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
         ushort[] spritemapTopBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapTopBases.Value, InstalledSamusBodyArtwork.PoseCount);
+            SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodySources.PoseCount);
         ushort[] spritemapBottomBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapBottomBases.Value, InstalledSamusBodyArtwork.PoseCount);
+            SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodySources.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
             SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapSources.EntryCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
@@ -259,7 +259,7 @@ public static class SamusBodyArtworkFiles
             manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodySources.TopSetCount ||
             manifest.Bottom.Length != SamusBodySources.BottomSetCount ||
-            manifest.Placements.Count != InstalledSamusBodyArtwork.PoseCount ||
+            manifest.Placements.Count != SamusBodySources.PoseCount ||
             manifest.Placements.Values.Any(placement => placement is null) ||
             manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||

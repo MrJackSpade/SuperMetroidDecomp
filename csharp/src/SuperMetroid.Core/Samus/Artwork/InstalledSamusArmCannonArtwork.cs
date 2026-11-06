@@ -9,23 +9,23 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public abstract class InstalledSamusArmCannonArtwork
 {
-    /// <summary>Each pose's placement, in pose order.</summary>
-    private readonly SamusArmCannonPlacement[] placements;
+    /// <summary>Each pose's placement.</summary>
+    private readonly Dictionary<SamusPoseId, SamusArmCannonPlacement> placements;
 
     /// <summary>Holds each pose's placement.</summary>
-    /// <param name="placements">One placement per pose with a record, in pose order.</param>
-    /// <exception cref="InvalidDataException">The placements do not cover every pose with a record.</exception>
-    protected InstalledSamusArmCannonArtwork(IReadOnlyList<SamusArmCannonPlacement> placements)
+    /// <param name="placements">The placement of every pose the import's tables describe.</param>
+    /// <exception cref="InvalidDataException">A pose has no placement.</exception>
+    protected InstalledSamusArmCannonArtwork(IReadOnlyDictionary<SamusPoseId, SamusArmCannonPlacement> placements)
     {
         Ensure.NotNull(placements);
-        if (placements.Count != InstalledSamusBodyArtwork.PoseCount || placements.Any(placement => placement is null))
-            throw new InvalidDataException("Arm-cannon placements must cover every pose.");
-        this.placements = [.. placements];
+        if (placements.Values.Any(placement => placement is null))
+            throw new InvalidDataException("Arm-cannon placements name a pose without a placement.");
+        this.placements = placements.ToDictionary();
     }
 
     /// <summary>Where <paramref name="pose"/> draws the cover.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    public SamusArmCannonPlacement Placement(SamusPoseId pose) => SamusPoseNumbering.HasRecord(pose)
-        ? placements[SamusPoseNumbering.Number(pose)]
+    /// <exception cref="ArgumentOutOfRangeException">The pose has no placement.</exception>
+    public SamusArmCannonPlacement Placement(SamusPoseId pose) => placements.TryGetValue(pose, out SamusArmCannonPlacement? placement)
+        ? placement
         : throw new ArgumentOutOfRangeException(nameof(pose));
 }

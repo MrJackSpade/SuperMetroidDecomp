@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -93,10 +94,14 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// the byte after the drawing mode the direction of every later animation frame, then the drawing mode, then one
     /// signed X and Y displacement per animation frame. Poses sharing a descriptor share its placement.
     /// </summary>
-    private static SamusArmCannonPlacement[] Placements(int[] poseDescriptors, byte[] drawingData)
+    private static Dictionary<SamusPoseId, SamusArmCannonPlacement> Placements(int[] poseDescriptors, byte[] drawingData)
     {
+        if (poseDescriptors.Length != SamusBodySources.PoseCount)
+            throw new InvalidDataException("Arm-cannon placements must cover every pose.");
         var placements = new Dictionary<int, SamusArmCannonPlacement>();
-        return [.. poseDescriptors.Select(descriptor =>
+        return poseDescriptors.Select((descriptor, pose) => KeyValuePair.Create(SamusPoseNumbering.FromNumber(pose), Placement(descriptor))).ToDictionary();
+
+        SamusArmCannonPlacement Placement(int descriptor)
         {
             if (placements.TryGetValue(descriptor, out SamusArmCannonPlacement? shared))
                 return shared;
@@ -110,12 +115,12 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
                     unchecked((sbyte)drawingData[at]), unchecked((sbyte)drawingData[at + 1]))));
             placements.Add(descriptor, placement);
             return placement;
-        })];
+        }
     }
 
     /// <summary>Rebinds cover coordinates to installed Samus body compositions while preserving selected edits.</summary>
     internal SamusArmCannonSourceArtwork WithBodyGeometry(SamusSpritemapSources body) => new(
-        Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(PoseDescriptor).ToArray(),
+        Enumerable.Range(0, SamusBodySources.PoseCount).Select(PoseDescriptor).ToArray(),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount).Select(ReadDrawingByte).ToArray(),
         Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(CoverAppearance).ToArray(),
         Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(direction =>
@@ -125,7 +130,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// <summary>SHA-256 of selected cannon placement, cover appearances, tile selectors and characters.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v3", content =>
     {
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++) content.Append("pose descriptor", PoseDescriptor(pose));
+        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++) content.Append("pose descriptor", PoseDescriptor(pose));
         Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];
         for (int index = 0; index < selectedDrawing.Length; index++)
             selectedDrawing[index] = ReadDrawingByte(index);
@@ -154,7 +159,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         document = JsonAssetDocument.Read<SamusArmCannonArtworkDocument>(json, Options, "arm-cannon artwork");
         if (document.Version != SamusArmCannonArtworkFormat.Version ||
             document.PoseDescriptors is null ||
-            document.PoseDescriptors.Length != InstalledSamusBodyArtwork.PoseCount ||
+            document.PoseDescriptors.Length != SamusBodySources.PoseCount ||
             document.DrawingData is null ||
             document.DrawingData.Length != SamusArmCannonArtworkFormat.DrawingDataByteCount ||
             document.CoverAppearances is null ||
@@ -196,7 +201,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// <summary>Gets where pose 0–252's drawing descriptor begins within the drawing data, using an independent supplied edit or the stock pose-table mapping.</summary>
     public int PoseDescriptor(int pose)
     {
-        if ((uint)pose >= InstalledSamusBodyArtwork.PoseCount)
+        if ((uint)pose >= SamusBodySources.PoseCount)
             throw new ArgumentOutOfRangeException(nameof(pose));
         return poseDescriptors.TryGetValue(pose, out int selected) ? selected
             : SamusArmCannonArtworkFormat.StockPoseDescriptor(pose);

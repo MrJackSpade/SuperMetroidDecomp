@@ -619,7 +619,7 @@ internal static class LookupStream1Verification
             foreach (int start in SamusBodyNative.Records(upper)) content.Append("top set start", start);
             foreach (int start in SamusBodyNative.Records(lower)) content.Append("bottom set start", start);
             foreach (int firstFrame in SamusBodyNative.Frames(posePointers)) content.Append("pose first frame", firstFrame);
-            for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+            for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
             {
                 SamusBodyPosePlacement placement = template.Placements[SamusPoseNumbering.FromNumber(pose)];
                 content.Append("graphics y offset", placement.GraphicsYOffset);
@@ -939,7 +939,7 @@ internal static class LookupStream1Verification
                 foreach (int tile in direction) hash.Append("cover tile", tile);
             hash.Append("characters", tiles.Characters.Span);
         });
-        AssertEqual(253, InstalledSamusBodyArtwork.PoseCount, "cannon original 506-byte pointer extent");
+        AssertEqual(253, SamusBodySources.PoseCount, "cannon original 506-byte pointer extent");
         AssertEqual(0, Stored(stock).Count, "cannon pose stock stores no copied pointer overrides");
         AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
         for (int pose = 0; pose < 253; pose++)
@@ -2285,7 +2285,7 @@ internal static class LookupStream1Verification
         // Every pose half's animation frame shows the composition of the native entry its base and frame index, for
         // every frame the body sheets cover that the table holds; a frame past those is outside installed art.
         int poseFrames = 0;
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
         for (int frame = 0; ; frame++)
         {

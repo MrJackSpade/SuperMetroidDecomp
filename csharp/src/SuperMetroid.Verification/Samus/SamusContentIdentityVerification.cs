@@ -30,8 +30,8 @@ internal static class SamusContentIdentityVerification
         int[] topStarts = [.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(index => firstRecord + index)];
         int[] bottomStarts = [.. Enumerable.Range(SamusBodySources.TopSetCount, SamusBodySources.BottomSetCount)
             .Select(index => firstRecord + index)];
-        var poses = new int[InstalledSamusBodyArtwork.PoseCount];
-        var graphics = new int[InstalledSamusBodyArtwork.PoseCount];
+        var poses = new int[SamusBodySources.PoseCount];
+        var graphics = new int[SamusBodySources.PoseCount];
         Dictionary<SamusPoseId, SamusBodyPosePlacement> placements = SamusBodyPlacementDecoding.Decode(graphics,
             new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount],
             new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]);
@@ -39,8 +39,8 @@ internal static class SamusContentIdentityVerification
         SamusBodyTileTransfer[][] Half(int count) => Enumerable.Range(0, count)
             .Select(_ => new[] { new SamusBodyTileTransfer(32, 0, new byte[RoomCharacterAtlasFormat.BytesPerTile]) }).ToArray();
 
-        var topBases = new ushort[InstalledSamusBodyArtwork.PoseCount];
-        var bottomBases = new ushort[InstalledSamusBodyArtwork.PoseCount];
+        var topBases = new ushort[SamusBodySources.PoseCount];
+        var bottomBases = new ushort[SamusBodySources.PoseCount];
         SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapSources.EntryCount)];
         SamusSpritemapDefinition[] definitions =
         [
@@ -63,7 +63,7 @@ internal static class SamusContentIdentityVerification
         var cannonDocument = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,
-            PoseDescriptors = new int[InstalledSamusBodyArtwork.PoseCount],
+            PoseDescriptors = new int[SamusBodySources.PoseCount],
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
             CoverAppearances = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
                 .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),

@@ -13,9 +13,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </remarks>
 public abstract class InstalledSamusBodyArtwork
 {
-    /// <summary>Number of Samus pose entries with body-art selectors.</summary>
-    public const int PoseCount = SamusPoseNumbering.RecordCount;
-
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
     internal readonly Dictionary<SamusPoseId, int> graphicsYOffsets;
     /// <summary>Each pose's installed animation frames, each holding its pictures and placement, or none where not installed.</summary>
@@ -35,9 +32,10 @@ public abstract class InstalledSamusBodyArtwork
 
     /// <summary>Validates a complete Samus body-art catalog.</summary>
     /// <param name="content">The frames each pose shows with their placements, each pose's art origin and the catalogs it binds.</param>
+    /// <remarks>The import supplies every pose the game's tables describe; which poses those are is its knowledge.</remarks>
     /// <exception cref="InvalidDataException">
-    /// The frames do not cover exactly the poses with records, the art origins do not cover the same poses, or an art
-    /// origin lies outside -128 through 127 pixels.
+    /// A pose has no frame list, the art origins do not cover exactly the poses with frames, or an art origin lies outside
+    /// -128 through 127 pixels.
     /// </exception>
     protected InstalledSamusBodyArtwork(SamusBodyArtworkContent content)
     {
@@ -48,9 +46,8 @@ public abstract class InstalledSamusBodyArtwork
         Ensure.NotNull(content.Atmosphere);
         Ensure.NotNull(content.DeathSteps);
         Ensure.NotNull(content.ArmCannon);
-        if (content.Frames.Count != PoseCount || content.Frames.Keys.Any(pose => !SamusPoseNumbering.HasRecord(pose)) ||
-            content.Frames.Values.Any(frames => frames is null))
-            throw new InvalidDataException("Samus body pictures do not cover exactly the poses with records.");
+        if (content.Frames.Values.Any(frames => frames is null))
+            throw new InvalidDataException("Samus body pictures name a pose without a frame list.");
         if (content.GraphicsYOffsets.Count != content.Frames.Count ||
             content.Frames.Keys.Any(pose => !content.GraphicsYOffsets.ContainsKey(pose)))
             throw new InvalidDataException("Samus art origins do not cover exactly the poses with body pictures.");

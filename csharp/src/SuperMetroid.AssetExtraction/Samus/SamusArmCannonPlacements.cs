@@ -373,7 +373,7 @@ internal static class SamusArmCannonPlacements
         int start = -1;
         // Resolve allocation identity through the existing semantic pose dispatch.
         // No second descriptor-position or pose-selection table is introduced.
-        for (int candidate = 0; candidate < InstalledSamusBodyArtwork.PoseCount; candidate++)
+        for (int candidate = 0; candidate < SamusBodySources.PoseCount; candidate++)
         {
             int descriptorStart = SamusArmCannonArtworkFormat.StockPoseDescriptor(candidate);
             if (descriptorStart > position || descriptorStart <= start) continue;

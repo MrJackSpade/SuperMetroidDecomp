@@ -23,12 +23,14 @@ internal static class RidleyInertiaVerification
             byte ceresDivisor = rom.ReadCartridgeByte(0xa6d712 + index);
             AssertEqual(rom.ReadCartridgeByte(0xa6d712 + index), RidleyInertia.Divisor(index), "Ceres native inertia byte");
             AssertEqual(divisor, RidleyInertia.Divisor(index), "Norfair native inertia byte");
-            // Every signed distance, with both reversal directions and zero/saturation boundaries.
+            // Every signed distance a room can hold, either way and across the coordinate wrap, with both reversal
+            // directions and the clamp boundaries. Velocities lie within the five-pixel clamp every seek applies, the
+            // range the seek's signed clamps cover; a velocity near the word's ends is unreachable.
             // Call the production two-axis entry points without an address space attached.
-            for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            for (int raw = 0; raw <= 2 * MaximumRoomDistance; raw++)
             {
-                short distance = unchecked((short)raw);
-                ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => short.MinValue, _ => short.MaxValue }));
+                short distance = (short)(raw - MaximumRoomDistance);
+                ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => -640, _ => 640 }));
                 slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
                 ceres(slot, state, new(0xff00, 0x100), index);
@@ -43,8 +45,14 @@ internal static class RidleyInertiaVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(-1), "Negative inertia index");
         AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(16), "Inertia table boundary");
-        Console.WriteLine("Ridley inertia: 32 native bytes and 2,097,152 real two-axis calls match without a bus.");
+        Console.WriteLine($"Ridley inertia: 32 native bytes and {16 * (2 * MaximumRoomDistance + 1) * 2:N0} real two-axis calls match without a bus.");
     }
+
+    /// <summary>
+    /// The largest distance between two points of one room: sixteen screens of 256 pixels. Ridley and every target
+    /// he seeks lie within his room, so no seek measures a longer distance.
+    /// </summary>
+    private const int MaximumRoomDistance = 16 * 256;
 
     /// <summary>
     /// Computes Ceres Ridley's expected velocity from $A6:D62F/$D6A6. The carry left by

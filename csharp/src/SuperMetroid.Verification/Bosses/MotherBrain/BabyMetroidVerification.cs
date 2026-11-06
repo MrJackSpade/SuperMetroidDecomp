@@ -99,7 +99,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
-    AssertEqual(0, baby.FunctionTimer.RawValue, "Baby dash delay exact zero boundary");
+    AssertEqual(0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
     baby.Step(samus, motherBrain, HeadOf(motherBrain));

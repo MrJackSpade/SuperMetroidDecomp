@@ -62,4 +62,16 @@ internal static class EnemySpawnSelectorDefinitions
 
     /// <summary>A Fireflea's radius in pixels, by its second parameter's high byte: eight pixels a step.</summary>
     public static readonly int[] FirefleaRadii = [8, 16, 24, 32, 40, 48, 56, 64];
+
+    /// <summary>
+    /// The pixels an Owtch walks to either side of its spawn position, by selector: sixteen more for each selector.
+    /// Independently reviewed for #1165 against all eight authored words.
+    /// </summary>
+    public static readonly int[] OwtchTravelDistances = [16, 32, 48, 64, 80, 96, 112, 128];
+
+    /// <summary>
+    /// The updates an Owtch stays buried, by selector: thirty-two more for each selector. Independently reviewed for
+    /// #1165 against all six NTSC J/U v1.0 words; the PAL table differs.
+    /// </summary>
+    public static readonly int[] OwtchUndergroundWaits = [32, 64, 96, 128, 160, 192];
 }

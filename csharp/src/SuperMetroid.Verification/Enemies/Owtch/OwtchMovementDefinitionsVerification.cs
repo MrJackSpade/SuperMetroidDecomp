@@ -33,8 +33,8 @@ internal static class OwtchMovementDefinitionsVerification
                     initialize(slot);
 
                     OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
-                    int distance = SpawnSettingSelectors.OwtchTravelDistance(distanceIndex);
-                    AssertEqual(SpawnSettingSelectors.OwtchUndergroundWait(timerIndex),
+                    int distance = EnemySpawnSelectors.OwtchTravelDistance(distanceIndex);
+                    AssertEqual(EnemySpawnSelectors.OwtchUndergroundWait(timerIndex),
                         state.UndergroundTimer.RawValue,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
                     AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumPosition.X,
@@ -60,7 +60,7 @@ internal static class OwtchMovementDefinitionsVerification
         {
             int address = OwtchMovementDefinitions.DistanceReferenceAddress + index * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, SpawnSettingSelectors.OwtchTravelDistance(index),
+            AssertEqual(native, EnemySpawnSelectors.OwtchTravelDistance(index),
                 $"decoded Owtch travel distance {index}");
         }
     }
@@ -76,7 +76,7 @@ internal static class OwtchMovementDefinitionsVerification
         {
             int address = OwtchMovementDefinitions.TimerReferenceAddress + index * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, SpawnSettingSelectors.OwtchUndergroundWait(index),
+            AssertEqual(native, EnemySpawnSelectors.OwtchUndergroundWait(index),
                 $"decoded Owtch underground wait {index}");
         }
     }

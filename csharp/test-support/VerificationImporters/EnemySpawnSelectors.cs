@@ -87,4 +87,62 @@ internal static class EnemySpawnSelectors
         }
         throw new ArgumentException($"No crawl-speed selector gives {speed.RawValue}.", nameof(crawlSpeed));
     }
+
+    /// <summary>The Fune and Namihe launch speeds, each a quarter pixel per update faster than the last.</summary>
+    private const int FuneNamiheLaunchSpeedCount = 8;
+
+    /// <summary>The quarter pixel per update, in 256ths of a pixel, by which each Fune and Namihe launch speed is faster.</summary>
+    private const int FuneNamiheLaunchSpeedStep = 64;
+
+    /// <summary>The speed at which Fune and Namihe launch selector <paramref name="selector"/> launches fireballs.</summary>
+    /// <exception cref="InvalidDataException">
+    /// <paramref name="selector"/> is eight or more. The game reads past its eight launch velocity pairs for such a
+    /// selector, but no retail placement selects one: every Fune and Namihe placement selects the sixth or eighth.
+    /// </exception>
+    public static SignedEightEight FuneNamiheLaunchSpeed(int selector) => selector is >= 0 and < FuneNamiheLaunchSpeedCount
+        ? new SignedEightEight((selector + 1) * FuneNamiheLaunchSpeedStep)
+        : throw new InvalidDataException($"Population words select Fune/Namihe launch speed {selector}, past its {FuneNamiheLaunchSpeedCount} authored values.");
+
+    /// <summary>The Fune and Namihe launch selector that launches fireballs at <paramref name="speed"/>.</summary>
+    /// <exception cref="ArgumentException">No selector launches at <paramref name="speed"/>.</exception>
+    public static int FuneNamiheLaunchSpeedSelector(SignedEightEight speed)
+    {
+        int selector = speed.RawValue / FuneNamiheLaunchSpeedStep - 1;
+        return selector is >= 0 and < FuneNamiheLaunchSpeedCount && FuneNamiheLaunchSpeed(selector) == speed
+            ? selector
+            : throw new ArgumentException($"No Fune/Namihe launch selector launches at {speed}.", nameof(speed));
+    }
+
+    /// <summary>The Owtch travel distance <paramref name="selector"/> selects.</summary>
+    /// <exception cref="InvalidDataException">
+    /// <paramref name="selector"/> is eight or more. The game reads past its eight distances for such a selector, but
+    /// no retail placement selects one: every Owtch placement selects one of the first four.
+    /// </exception>
+    public static int OwtchTravelDistance(int selector) =>
+        Select("Owtch travel distance", EnemySpawnSelectorDefinitions.OwtchTravelDistances, selector);
+
+    /// <summary>The selector of the Owtch travel distance <paramref name="distance"/>.</summary>
+    public static int OwtchTravelDistanceSelector(int distance) =>
+        SelectorOf("Owtch travel distance", EnemySpawnSelectorDefinitions.OwtchTravelDistances, distance);
+
+    /// <summary>The Owtch underground wait <paramref name="selector"/> selects.</summary>
+    /// <exception cref="InvalidDataException">
+    /// <paramref name="selector"/> is six or more. The game reads past its six waits for such a selector, but no retail
+    /// placement selects one: every Owtch placement selects the second, fourth or sixth.
+    /// </exception>
+    public static int OwtchUndergroundWait(int selector) =>
+        Select("Owtch underground wait", EnemySpawnSelectorDefinitions.OwtchUndergroundWaits, selector);
+
+    /// <summary>The selector of the Owtch underground wait <paramref name="wait"/>.</summary>
+    public static int OwtchUndergroundWaitSelector(int wait) =>
+        SelectorOf("Owtch underground wait", EnemySpawnSelectorDefinitions.OwtchUndergroundWaits, wait);
+
+    /// <summary>
+    /// The accelerating updates <paramref name="steps"/> selects along the shared quadratic speed curve, which has a
+    /// step for each of its rows.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="steps"/> is past the curve.</exception>
+    public static int QuadraticSteps(int steps) => steps is >= 0 and < EnemyQuadraticSpeedDefinitions.RowCount
+        ? steps
+        : throw new InvalidDataException($"Quadratic-speed step {steps} is past the {EnemyQuadraticSpeedDefinitions.RowCount} authored rows.");
 }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -54,14 +54,14 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.BabyMetroid, new(384, 64), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.CorpseSidehopper, new(552, 160), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new DeadSidehopperSpawnSettings(Layout: DeadSidehopperLayout.ShitroidVictim)),
             new(EnemyDefinitionId.CorpseSidehopper, new(160, 64), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new DeadSidehopperSpawnSettings(Layout: DeadSidehopperLayout.AlreadyDead)),
-            new(EnemyDefinitionId.CorpseZoomer, new(240, 64), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.ZoomerCorpse0)),
-            new(EnemyDefinitionId.CorpseZoomer, new(664, 200), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.ZoomerCorpse1)),
-            new(EnemyDefinitionId.CorpseZoomer, new(264, 54), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.ZoomerCorpse2)),
-            new(EnemyDefinitionId.CorpseRipper, new(800, 168), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.RipperCorpse0)),
-            new(EnemyDefinitionId.CorpseRipper, new(194, 200), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.RipperCorpse1)),
-            new(EnemyDefinitionId.CorpseSkree, new(896, 71), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.SkreeCorpse0)),
-            new(EnemyDefinitionId.CorpseSkree, new(608, 71), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.SkreeCorpse1)),
-            new(EnemyDefinitionId.CorpseSkree, new(384, 71), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.SkreeCorpse2)),
+            new(EnemyDefinitionId.CorpseZoomer, new(240, 64), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Zoomer][0])),
+            new(EnemyDefinitionId.CorpseZoomer, new(664, 200), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Zoomer][1])),
+            new(EnemyDefinitionId.CorpseZoomer, new(264, 54), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Zoomer][2])),
+            new(EnemyDefinitionId.CorpseRipper, new(800, 168), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Ripper][0])),
+            new(EnemyDefinitionId.CorpseRipper, new(194, 200), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Ripper][1])),
+            new(EnemyDefinitionId.CorpseSkree, new(896, 71), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Skree][0])),
+            new(EnemyDefinitionId.CorpseSkree, new(608, 71), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Skree][1])),
+            new(EnemyDefinitionId.CorpseSkree, new(384, 71), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Skree][2])),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.MotherBrain01),
         [

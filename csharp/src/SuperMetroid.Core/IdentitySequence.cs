@@ -29,13 +29,6 @@ internal sealed class IdentitySequence<T>
         ? _members[position]
         : throw new ArgumentOutOfRangeException(nameof(position), position, $"No {typeof(T).Name} is at position {position}.");
 
-    /// <summary>The identity at <paramref name="position"/>, when the position is inside the sequence.</summary>
-    internal bool TryAt(int position, out T member)
-    {
-        bool inside = (uint)position < (uint)_members.Length;
-        member = inside ? _members[position] : default;
-        return inside;
-    }
 
     /// <summary>The position of <paramref name="member"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The identity is not in the sequence.</exception>

@@ -463,9 +463,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.MiniKraid),
         [
-            new(EnemyDefinitionId.PirateGreenWalking, new(217, 160), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
-            new(EnemyDefinitionId.PirateGreenWalking, new(288, 160), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
-            new(EnemyDefinitionId.PirateGreenWalking, new(500, 160), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
+            new(EnemyDefinitionId.PirateGreenWalking, new(217, 160), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
+            new(EnemyDefinitionId.PirateGreenWalking, new(288, 160), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
+            new(EnemyDefinitionId.PirateGreenWalking, new(500, 160), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
             new(EnemyDefinitionId.MiniKraid, new(1328, 160), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.SporeSpawn),

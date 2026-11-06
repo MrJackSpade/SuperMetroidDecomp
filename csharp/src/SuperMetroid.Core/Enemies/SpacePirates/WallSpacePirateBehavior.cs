@@ -64,9 +64,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         var state = new WallSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        WallSpacePirateParameterFlags flags = slot.SpawnSettings<WallSpacePirateSpawnSettings>().Options;
-        bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != WallSpacePirateParameterFlags.None;
-        bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != WallSpacePirateParameterFlags.None;
+        WallSpacePirateOptions flags = slot.SpawnSettings<WallSpacePirateSpawnSettings>().Options;
+        bool startsOnRight = (flags & WallSpacePirateOptions.StartsOnRightWall) != WallSpacePirateOptions.None;
+        bool slowJump = (flags & WallSpacePirateOptions.SlowJumpAndLaser) != WallSpacePirateOptions.None;
 
         state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(startsOnRight
             ? WallSpacePirateProgram.MovingDownRightWall
@@ -158,14 +158,14 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToTile(slot);
     }
 
-    /// <summary>Uses sine and cosine products to place the Pirate on a parameter-two-sized jump ellipse.</summary>
+    /// <summary>Uses sine and cosine products to place the Pirate on a jump ellipse sized by its jump span.</summary>
     private static void PositionWallSpacePirateOnArc(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
     {
         // Math rewrites both whole positions every frame and leaves
-        // the fractions untouched. The jump ellipse is parameter2 pixels wide and
-        // parameter2/4 pixels tall.
+        // the fractions untouched. The jump ellipse is the jump span wide and
+        // a quarter of it tall.
         slot.Position = slot.Position.WithWrappedWholeX(
             state.WallJumpArcCenter.X +
             EnemyMath.ReadEightBitNegativeSineProduct(
@@ -256,7 +256,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             $"Wall Pirate climb direction {direction} is not binary."),
     };
 
-    /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from parameter two.</summary>
+    /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from the jump span.</summary>
     private static void PrepareWallSpacePirateJump(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,

@@ -215,7 +215,7 @@ public sealed class SuperMetroidGame
             // The opening update's sound processing runs only once the box closes.
             soundHandlers = 0;
         }
-        IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
+        IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcceptance.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
         IReadOnlyList<AudioRequest> audioRequests = prologueMusicRequests.Count == 0 ? trailingAudioRequests

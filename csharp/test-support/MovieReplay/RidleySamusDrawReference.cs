@@ -83,19 +83,19 @@ internal static class RidleySamusDrawReference
             {
                 if (frame >= 2) yOffset = -1;
             }
-            else if (SamusPoseNumbering.InRange(poseId, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
+            else if (NativePoseNumberRanges.InRange(poseId, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
             {
                 int landingWord = CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.LandingDrawOffsets +
-                    SamusPoseNumbering.Offset(poseId, SamusPoseId.NormalLandingRightPose) * 4 + frame));
+                    NativePoseNumberRanges.Offset(poseId, SamusPoseId.NormalLandingRightPose) * 4 + frame));
                 yOffset = -landingWord;
                 landingDrawnYOffset = -LittleEndianBytes.LowByte(unchecked((ushort)landingWord));
             }
         }
         else if (movement == SamusMovementType.PostureTransition &&
-            !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CrouchingTransitionRightPose) &&
-            SamusPoseNumbering.Precedes(poseId, SamusPoseId.MorphBallGroundLeftPose))
+            !NativePoseNumberRanges.Precedes(poseId, SamusPoseId.CrouchingTransitionRightPose) &&
+            NativePoseNumberRanges.Precedes(poseId, SamusPoseId.MorphBallGroundLeftPose))
             yOffset = unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.PostureDrawOffsets +
-                SamusPoseNumbering.Offset(poseId, SamusPoseId.CrouchingTransitionRightPose) * 2 + frame));
+                NativePoseNumberRanges.Offset(poseId, SamusPoseId.CrouchingTransitionRightPose) * 2 + frame));
         else if (movement == SamusMovementType.Special)
         {
             if (poseId is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
@@ -115,9 +115,9 @@ internal static class RidleySamusDrawReference
                     SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose,
             SamusMovementType.Knockback => frame >= 3 ||
                 poseId is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose),
-            SamusMovementType.PostureTransition => !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
-                (!SamusPoseNumbering.Precedes(poseId, SamusPoseId.CompactStandingUpRightPose) ? frame == 2 :
-                 !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CompactMorphingRightPose) ? frame == 0 :
+            SamusMovementType.PostureTransition => !NativePoseNumberRanges.Precedes(poseId, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
+                (!NativePoseNumberRanges.Precedes(poseId, SamusPoseId.CompactStandingUpRightPose) ? frame == 2 :
+                 !NativePoseNumberRanges.Precedes(poseId, SamusPoseId.CompactMorphingRightPose) ? frame == 0 :
                  poseId is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
                     SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose),
             SamusMovementType.Unused0D => frame == 0 || poseId is not (SamusPoseId.CompactAirborneFallingRightPose or SamusPoseId.CompactAirborneFallingLeftPose),

@@ -20,12 +20,12 @@ public sealed class FirefleaEnemyState
     internal AnimationProgramCursor<FirefleaProgram> Program { get; set; }
 
     /// <summary>
-    /// The signed angular speed selected from the linear speed table, in 256ths of a turn per update with a 16-bit
+    /// The signed angular speed, its spawn speed toward its spawn sign, in 256ths of a turn per update with a 16-bit
     /// fraction.  The circle advances by its middle sixteen bits, an 8.8 turn delta.
     /// </summary>
     public SignedSixteenSixteen AngularSpeed { get; internal set; }
 
-    /// <summary>The movement radius in pixels, 8 through 64, selected by parameter two's high byte.</summary>
+    /// <summary>The movement radius in pixels, 8 through 64, from its spawn settings.</summary>
     public int Radius
     {
         get;
@@ -48,10 +48,10 @@ public sealed class FirefleaEnemyState
     /// <summary>Lower extent of vertical motion, the spawn Y plus the radius with room-coordinate wraparound; only its Y is meaningful. Reaching or passing it, by the wrapped spatial difference, reverses speed without clamping.</summary>
     public Position16<RoomPixels> MaximumYExtent { get; internal set; }
 
-    /// <summary>The row of the shared linear speed table the Fireflea moves at, from parameter two's low byte.</summary>
-    public int SpeedRow { get; internal set; }
+    /// <summary>The speed the Fireflea moves at, from its spawn settings, and its negation.</summary>
+    public EnemyLinearSpeedRow Speeds { get; internal set; }
 
-    /// <summary>Which of the row's speeds the Fireflea moves at; vertical movement reverses it at each extent.</summary>
+    /// <summary>Which of its speeds the Fireflea moves at; vertical movement reverses it at each extent.</summary>
     internal EnemySpeedSign SpeedSign { get; set; }
 
     /// <summary>Whether the spawn settings choose circular motion; otherwise the actor moves vertically between its saved extrema.</summary>

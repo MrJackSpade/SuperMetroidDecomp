@@ -22,11 +22,10 @@ internal static class CacatacMovementDefinitionsVerification
             {
                 int address = distanceTable + distanceIndex * 2;
                 ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(native, CacatacPatrol.TravelDistance(distanceIndex),
-                    $"compiled Cacatac travel distance {distanceIndex}");
-
                 slot.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
                 slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, distanceIndex);
+                AssertEqual(native, slot.SpawnSettings<CacatacSpawnSettings>().TravelDistance,
+                    $"imported Cacatac travel distance {distanceIndex}");
                 slot.Position = slot.Position.WithWholeX(spawnX);
                 initialize(slot);
                 CacatacEnemyState state = (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CacatacStates[0]."));
@@ -37,10 +36,10 @@ internal static class CacatacMovementDefinitionsVerification
             }
         }
 
-        AssertThrows<InvalidDataException>(() => CacatacPatrol.TravelDistance(6),
-            "Cacatac travel distance beyond authored table");
-        AssertThrows<InvalidDataException>(() => CacatacPatrol.TravelDistance(byte.MaxValue),
-            "Cacatac restored travel selector does not read adjacent code");
+        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, 6),
+            "Cacatac import rejects the travel distance past its table");
+        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, byte.MaxValue),
+            "Cacatac import rejects a travel selector that would read adjacent code");
 
         Console.WriteLine(
             "Cacatac travel distances: six native words and 18 wrapped production initializers pass with table reads forbidden.");

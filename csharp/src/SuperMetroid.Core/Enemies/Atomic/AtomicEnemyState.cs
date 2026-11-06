@@ -24,10 +24,10 @@ public sealed class AtomicEnemyState
     /// </summary>
     public AtomicHorizontalMovement? HorizontalMovement { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel speed per AI update for down and right movement, the positive half of the linear-speed record selected by parameter two.</summary>
+    /// <summary>Signed 16.16 room-pixel speed per AI update for down and right movement, the speed its spawn settings give.</summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel speed per AI update for up and left movement, the negative half of the same record.</summary>
+    /// <summary>Signed 16.16 room-pixel speed per AI update for up and left movement, the negation of <see cref="Speed"/>.</summary>
     public SignedSixteenSixteen NegativeSpeed { get; internal set; }
 
     /// <summary>Empties the movement selections the game keeps in the enemy's common record, when a kill empties that record.</summary>

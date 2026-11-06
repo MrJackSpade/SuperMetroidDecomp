@@ -31,7 +31,7 @@ internal static class EvirDeathFrameVerification
             slot.SpritemapPointer = 0x8b59;
             slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision);
             slot.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
-            // The body bobs at speed record 8, one of the two records retail Evirs use.
+            // The body bobs at half a pixel per update, one of the two speeds retail Evirs use.
             if (index == 6) slot.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
             if (index == 8) initializeProjectile(slot); else initialize(slot, samus);
         }

@@ -37,21 +37,16 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 
-        // Parameter one: bit one selects circle versus vertical motion,
-        // bit zero selects the sign half of the speed table, and its high byte is the initial
-        // circle angle. Parameter two (`init1`) packs speed index low and radius index high.
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
-        state.SpeedRow = settings.SpeedIndex;
+        state.Speeds = new EnemyLinearSpeedRow(settings.Speed, SignedSixteenSixteen.Zero - settings.Speed);
         state.SpeedSign = settings.SpeedSign;
-        state.AngularSpeed = EnemyLinearSpeeds.Row(state.SpeedRow).Toward(state.SpeedSign);
-
-        int radiusIndex = settings.RadiusIndex;
-        state.Radius = FirefleaOrbit.Radius(radiusIndex);
+        state.AngularSpeed = state.Speeds.Toward(state.SpeedSign);
+        state.Radius = settings.Radius;
 
         if (state.UsesCircularMovement)
         {
             state.Center = slot.Position.Whole;
-            state.Angle = RotationAngle.FromTableIndex(settings.InitialAngle);
+            state.Angle = settings.InitialAngle.ToAngle();
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
@@ -80,7 +75,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.Position = slot.Position.AdvanceY(EnemyLinearSpeeds.Row(state.SpeedRow).Toward(state.SpeedSign));
+        slot.Position = slot.Position.AdvanceY(state.Speeds.Toward(state.SpeedSign));
 
         // The bounds compare by the sign of the wrapped subtraction, not ordinary host
         // bounds comparisons. The actor is intentionally allowed to overshoot before its

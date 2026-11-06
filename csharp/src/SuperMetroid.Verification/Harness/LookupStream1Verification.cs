@@ -1213,9 +1213,9 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidDataException>(() => BullMotion.ShotAngle(invalid), "stream1 Bull invalid direction");
         AssertThrows<InvalidDataException>(() => BullMotion.Intervals(13), "stream1 Bull invalid interval");
         for (byte index = 0; index < 6; index++)
-            AssertEqual(Word(0xa29f36 + 2 * index), CacatacPatrol.TravelDistance(index), "stream1 Cacatac patrol blocks");
+            AssertEqual(Word(0xa29f36 + 2 * index), CacatacTravelDistance(index), "stream1 Cacatac patrol blocks");
         foreach (byte invalid in new byte[] { 6, byte.MaxValue })
-            AssertThrows<InvalidDataException>(() => CacatacPatrol.TravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
+            AssertThrows<InvalidDataException>(() => CacatacTravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
         for (ushort direction = 0; direction < 20; direction += 2)
             AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Program(
                 CacatacNativeWords.SpikeDirections.Decode(direction, "Cacatac spike direction"))), "stream1 Cacatac named direction program");
@@ -1225,6 +1225,10 @@ internal static class LookupStream1Verification
 
     /// <summary>Reads native Bull and related enemy motion words.</summary>
     private static byte LookupStream1EnemyMovementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>The patrol distance the import decodes from a Cacatac's travel selector.</summary>
+    private static int CacatacTravelDistance(int selector) =>
+        ((CacatacSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Cacatac, PopulationWords.Parameters(0, selector))).TravelDistance;
     /// <summary>Checks charge-flare instruction bytes and related compiled cadence programs.</summary>
     private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
     {

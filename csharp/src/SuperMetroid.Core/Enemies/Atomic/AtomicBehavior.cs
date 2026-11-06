@@ -23,12 +23,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicSpins.InitialProgram(slot.SpawnSettings<AtomicSpawnSettings>().Spin));
+        AtomicSpawnSettings settings = slot.SpawnSettings<AtomicSpawnSettings>();
+        state.Program = AnimationProgramCursor<AtomicProgram>.Start(settings.Spin);
 
-        // The spawn settings name the row of the shared linear speed table the atomic moves at.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<AtomicSpawnSettings>().SpeedIndex);
-        state.Speed = speeds.Positive;
-        state.NegativeSpeed = speeds.Negative;
+        // The atomic moves at its speed toward increasing coordinates and at the same speed back.
+        state.Speed = settings.Speed;
+        state.NegativeSpeed = SignedSixteenSixteen.Zero - settings.Speed;
     }
 
     /// <summary>

@@ -57,29 +57,16 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CacatacSpawnSettings settings = slot.SpawnSettings<CacatacSpawnSettings>();
         CacatacDirection direction = settings.Direction;
-        int distanceIndex = settings.DistanceIndex;
-        int speedIndex = settings.SpeedIndex;
-        if (distanceIndex >= 6)
-        {
-            throw new InvalidDataException(
-                $"Cacatac travel-distance index {distanceIndex} is outside its six-word table.");
-        }
-        if (speedIndex >= EnemyLinearSpeedDefinitions.RowCount)
-        {
-            throw new InvalidDataException(
-                $"Cacatac linear-speed index {speedIndex} is outside the NTSC retail table.");
-        }
 
         bool upsideUp = settings.Mounting == CacatacMounting.Floor;
         slot.Frame = EnemyFrameId.Empty;
 
-        var travel = new Offset16<RoomPixels>(CacatacPatrol.TravelDistance(WordWrap.LowByte(distanceIndex)), 0);
+        var travel = new Offset16<RoomPixels>(settings.TravelDistance, 0);
         Position16<RoomPixels> spawn = slot.Position.Whole;
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedIndex);
         var state = new CacatacEnemyState
         {
-            RightVelocity = speeds.Positive,
-            LeftVelocity = speeds.Negative,
+            RightVelocity = settings.Speed,
+            LeftVelocity = SignedSixteenSixteen.Zero - settings.Speed,
             Direction = direction,
             Function = direction switch
             {

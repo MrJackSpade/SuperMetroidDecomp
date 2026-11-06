@@ -35,6 +35,7 @@ internal static class InterfacePresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IIntroCinematicSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpriteSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresSceneSpriteSheet.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/TypedTextSpriteSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/EndingAnimalEscapeDefinitions.cs")]),
         new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
@@ -66,7 +67,8 @@ internal static class InterfacePresentationContractDefinitions
         "SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource" => [ContractTypeNames.MetadataName(typeof(RoomPaletteFxPresentation)), ContractTypeNames.MetadataName(typeof(TitlePalettePresentation))],
         "SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation" =>
             [ContractTypeNames.MetadataName(typeof(CinematicSpriteSheet)),
-             ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet))],
+             ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet)),
+             ContractTypeNames.MetadataName(typeof(TypedTextSpriteSheet))],
         "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation))],
         "SuperMetroid.Core.Map.IAreaMapSource" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation)),
             ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent))],

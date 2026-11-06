@@ -13,16 +13,22 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="TableType">The type declaring the frame table.</param>
 /// <param name="TableMember">The frame table property: <c>{ key, EnemyFrameId.X }</c> entries.</param>
 /// <param name="ProgramsType">The type declaring the part program set, or null when parts select by key.</param>
-/// <param name="ProgramsMember">The program set property: <c>[P.X] = [steps]</c> entries.</param>
+/// <param name="ProgramsMember">
+/// The program set property: <c>[P.X] = [steps]</c> entries, or a set joining program tables it spreads in (Torizo's joins
+/// four), whose entries are read from those tables.
+/// </param>
 /// <param name="StartCue">The cue record starting every part's program at once, or null.</param>
 /// <param name="StartCueDefinitions">The definition each of the start cue's positional programs is started for.</param>
 /// <param name="EntryPrograms">The programs code starts each definition's slot in, by definition.</param>
-/// <param name="KeySelectors">For a table split by key, the <c>Parameter=Value</c> selectors each definition's keys carry.</param>
+/// <param name="KeySelectors">
+/// For a table split by key, the <c>Parameter=Value</c> selectors each definition's keys carry; an enum key is
+/// <c>EnumType=Member</c>.
+/// </param>
 /// <param name="ExcludedType">The type declaring frames drawn on another layer than the sprites, or null.</param>
 /// <param name="ExcludedMember">That type's set of those frames.</param>
 /// <param name="PopulationChoices">
-/// The population parameters an entry program choice follows from, each checked against every room placement of its
-/// definition.
+/// The population or header parameters an entry program choice follows from, each checked against every room placement
+/// or compiled header of its definition.
 /// </param>
 internal sealed record PartFrameConfiguration(
     string Behaviour, string TableType, string TableMember, string? ProgramsType, string? ProgramsMember, string? StartCue,
@@ -31,11 +37,25 @@ internal sealed record PartFrameConfiguration(
     IReadOnlyList<PopulationChoice> PopulationChoices)
 {
     /// <summary>
+    /// The types besides <see cref="ProgramsType"/> whose step helpers the programs call, as Torizo's programs call
+    /// <c>TorizoProgramSteps.Show(int, int)</c>.
+    /// </summary>
+    public IReadOnlyList<string> StepHelperTypes { get; init; } = [];
+
+    /// <summary>
+    /// Frames outside the table that only the named definitions' own code sets, by frame: a reaction that pins a frozen
+    /// frame for its own definitions only. Every other definition of the behaviour is left without them.
+    /// </summary>
+    public IReadOnlyDictionary<string, string[]> CodeFrames { get; init; } = new Dictionary<string, string[]>(StringComparer.Ordinal);
+
+    /// <summary>
     /// The configured behaviours: Draygon's parts each show the programs its slot runs (the body, eye, tail and arms
     /// started together by <c>StartPartPrograms</c> and separately by the code each program start names), and none of his
     /// sprites shows a pose he draws on his body layer; Kraid's parts each show their own kind of pose, Kraid himself none.
     /// The shutters, crawlers, pipe bugs and dead monsters each run their behaviour's one program set and frame table, of
     /// which each definition shows only the programs its own code, or its rooms' population parameters, start it in.
+    /// Every other behaviour serving several definitions over one shared table, and the Skree and Metaree behaviours sharing
+    /// one, does the same (#1513): each definition shows only the frames its own programs, header variant or placements reach.
     /// </summary>
     public static IReadOnlyList<PartFrameConfiguration> All { get; } =
     [
@@ -154,6 +174,203 @@ internal sealed record PartFrameConfiguration(
                 ["CorpseSkree"] = ["SkreeCorpse0", "SkreeCorpse1", "SkreeCorpse2"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // The Skree and the Metaree are separate behaviours running one program set and frame table: each runs the four
+        // programs its own selector table names (#1513).
+        new("SkreeBehavior", "SkreeMetareeFrameDefinitions", "ShownFrames", "SkreeMetareeAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Skree"] = ["SkreeIdling", "SkreePreparingAttack", "SkreeDiving", "SkreeStopAnimating"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        new("MetareeBehavior", "SkreeMetareeFrameDefinitions", "ShownFrames", "SkreeMetareeAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Metaree"] = ["MetareeIdling", "MetareePreparingAttack", "MetareeDiving", "MetareeStopAnimating"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // A hopper runs the programs of the variant its header names (0 Sidehopper, 1 large Sidehopper, 2 large Dessgeega,
+        // 3 Dessgeega), on the floor or the ceiling its placement mounts it on.
+        new("HoppersBehavior", "HopperFrameDefinitions", "ShownFrames", "HopperAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Dessgeega"] = HopperVariant("Dessgeega"),
+                ["DessgeegaLarge"] = HopperVariant("LargeDessgeega"),
+                ["Sidehopper"] = HopperVariant("Sidehopper"),
+                ["SidehopperLarge"] = HopperVariant("LargeSidehopper"),
+                ["SidehopperTourian"] = HopperVariant("LargeSidehopper"),
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
+            [
+                new("Sidehopper", "RoomEnemyDefinition", "VariantIndex", ["0"]),
+                new("SidehopperLarge", "RoomEnemyDefinition", "VariantIndex", ["1"]),
+                new("SidehopperTourian", "RoomEnemyDefinition", "VariantIndex", ["1"]),
+                new("DessgeegaLarge", "RoomEnemyDefinition", "VariantIndex", ["2"]),
+                new("Dessgeega", "RoomEnemyDefinition", "VariantIndex", ["3"]),
+            ]),
+        // A Fune or Namihe runs the idle and active programs its placements' variant selects, facing either way.
+        new("FuneNamiheBehavior", "FuneNamiheFrameDefinitions", "ShownFrames", "FuneNamiheAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Fune"] = ["FuneIdleLeft", "FuneActiveLeft", "FuneIdleRight", "FuneActiveRight"],
+                ["Namihe"] = ["NamiheIdleLeft", "NamiheActiveLeft", "NamiheIdleRight", "NamiheActiveRight"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
+            [
+                new("Fune", "FuneNamiheSpawnSettings", "Variant", ["0"]),
+                new("Namihe", "FuneNamiheSpawnSettings", "Variant", ["1"]),
+            ]),
+        // Kamer runs the suspensor platform's programs and the Tripper its own, as the platform initializer chooses by
+        // definition; only the Tripper's shot and bomb reactions pin its frozen frames.
+        new("PlatformsBehavior", "PlatformFrameDefinitions", "ShownFrames", "PlatformAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Kamer2"] = ["KamerMovingLeft", "KamerMovingRight", "KamerStillLeft", "KamerStillRight"],
+                ["Tripper"] = ["TripperMovingLeft", "TripperMovingRight", "TripperStillMovingLeft", "TripperStillMovingRight"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
+        {
+            CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["TripperFrozenMovingLeft"] = ["Tripper"],
+                ["TripperFrozenMovingRight"] = ["Tripper"],
+            },
+        },
+        // An Evir placement is its body or its arms; the Evir projectile runs only the spit's programs.
+        new("EvirBehavior", "EvirFrameDefinitions", "ShownFrames", "EvirAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Evir"] = ["BodyFacingLeft", "BodyFacingRight", "ArmsFacingLeft", "ArmsFacingRight"],
+                ["EvirProjectile"] = ["ProjectileNormal", "ProjectileRegenerating"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // The gunship's top is its top hull; its bottom is the bottom hull or the entrance pad, which opens and closes.
+        new("GunshipBehavior", "GunshipFrameDefinitions", "ShownFrames", "GunshipAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["ShipBottomEntrance"] = ["BottomHull", "BottomEntrancePad", "EntrancePadOpening", "EntrancePadClosing"],
+                ["ShipTop"] = ["TopHull"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // The Mama Turtle sleeps, leaves and enters her shell and spins; the baby crawls, hides, leaves its shell and spins.
+        new("MamaTurtleBehavior", "MamaTurtleFrameDefinitions", "ShownFrames", "MamaTurtleAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["BabyTurtle"] =
+                [
+                    "BabyCrawlingLeft", "BabyCrawlingRight", "BabyHidingLeft", "BabyHidingRight", "BabySpinning", "BabyLeaveShellLeft",
+                    "BabyLeaveShellRight",
+                ],
+                ["MamaTurtle"] =
+                [
+                    "MamaAsleep", "MamaLeaveShellLeft", "MamaLeaveShellRight", "MamaEnterShellLeft", "MamaEnterShellRight", "MamaSpinning",
+                ],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // Each Ripper runs its own pair of moving programs; only the GRipper's and Ripper II's reactions pin their shared
+        // frozen frames.
+        new("RipperBehavior", "RipperFrameDefinitions", "ShownFrames", "RipperAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["GRipper"] = ["GRipperMovingLeft", "GRipperMovingRight"],
+                ["Ripper"] = ["RipperMovingLeft", "RipperMovingRight"],
+                ["Ripper2"] = ["Ripper2MovingLeft", "Ripper2MovingRight"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
+        {
+            CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["RipperSharedFrozenLeft"] = ["GRipper", "Ripper2"],
+                ["RipperSharedFrozenRight"] = ["GRipper", "Ripper2"],
+            },
+        },
+        // A Ki-Hunter's body flies, swoops, hops, lands and spits; its wings follow it, or fly off detached.
+        new("KiHunterBehavior", "KiHunterFrameDefinitions", "ShownFrames", "KiHunterAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["KihunterGreen"] = KiHunterBody,
+                ["KihunterGreenWings"] = KiHunterWings,
+                ["KihunterRed"] = KiHunterBody,
+                ["KihunterRedWings"] = KiHunterWings,
+                ["KihunterYellow"] = KiHunterBody,
+                ["KihunterYellowWings"] = KiHunterWings,
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // A robot without power holds one of its unpowered poses; a powered robot stands unpowered until the area boss
+        // falls, then runs every program of its set.
+        new("WorkRobotBehavior", "WorkRobotFrameDefinitions", "ShownFrames", "WorkRobotAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Robot"] =
+                [
+                    "NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight", "Initial", "FacingLeftWalkingForwards",
+                    "FacingLeftHitWallMovingForwards", "FacingLeftShotSamusAhead", "FacingLeftShotSamusBehind", "FacingLeftShotLaserDownLeft",
+                    "FacingLeftShotLaserLeft", "FacingLeftShotLaserUpLeft", "ApproachingFallRight", "FacingRightWalkingForwards",
+                    "FacingRightHitWallMovingForwards", "FacingRightShotSamusAhead", "FacingRightShotSamusBehind", "FacingRightShotLaserDownRight",
+                    "FacingRightShotLaserRight", "FacingRightShotLaserUpRight", "ApproachingFallLeft",
+                ],
+                ["RobotNoPower"] = ["NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // Each Torizo starts in its initial program and resumes after its sleep; its AI, shot reactions and falls start
+        // the rest. Bomb Torizo blows up its gut and face and turns and lands with and without its face; Golden Torizo
+        // turns, dodges and catches Super Missiles; both fall and die. Every branch and choice a program names is followed,
+        // so Golden Torizo shows every pose but Bomb Torizo's dormant statue, which only Bomb Torizo's programs show.
+        // Bomb Torizo's faceless trailing step, which only the sleep's resumption names, is its own.
+        new("BombTorizoBehavior", "TorizoFrameDefinitions", "ShownFrames", "TorizoAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["BombTorizo"] =
+                [
+                    "BombTorizoInitial0", "BombTorizoInitial0Resumed", "FacingLeftFacelessWalkingLeftLegMovingTrailing",
+                    "FacingLeftFacelessWalkingLeftLegMovingTrailingResumed", "SpecialCallableBlowUpBombTorizosGut",
+                    "CallableBlowUpBombTorizosFace", "FacingLeftFacelessTurningLeft", "FacingRightFacelessTurningRight",
+                    "FacingLeftTurningLeft", "FacingRightTurningRight", "FacingLeftFalling0", "FacingRightFalling0", "DeathSequence0",
+                ],
+                ["GoldenTorizo"] =
+                [
+                    "GoldenInitial0", "GoldenInitial0Resumed", "GoldenTurningLeft", "GoldenTurningRight", "GoldenDodgeTurningLeft",
+                    "GoldenDodgeTurningRight", "GoldenCaughtSuperFacingLeftLeftLegFwd", "GoldenCaughtSuperFacingLeftRightLegFwd",
+                    "GoldenCaughtSuperFacingRightLeftLegFwd", "GoldenCaughtSuperFacingRightRightLegFwd", "FacingLeftFalling0",
+                    "FacingRightFalling0", "DeathSequence0",
+                ],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
+        {
+            StepHelperTypes = ["TorizoProgramSteps"],
+        },
+        // Ridley's body poses: Lower Norfair Ridley's programs stand, roar, lift off, breathe fire, turn through the
+        // forward pose and roar as he dies; Ceres Ridley's stand, roar, lift off, lunge, take the Baby and breathe fire,
+        // never turning; his death breakup runs no body program.
+        new("RidleyEntityFactory", "RidleyBodyFrameDefinitions", "ShownFrames", null, null, null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal),
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Ridley"] = [.. RidleyBodyFrames, "BodyFrame=Forward"],
+                ["RidleyCeres"] = RidleyBodyFrames,
+                ["RidleyExplosion"] = [],
+            },
+            null, null, []),
+    ];
+
+    /// <summary>A hopper variant's four programs, as <c>HopperAnimationDefinitions.Programs</c> names them.</summary>
+    private static string[] HopperVariant(string variant) =>
+        [$"{variant}FloorJumping", $"{variant}FloorLanded", $"{variant}CeilingJumping", $"{variant}CeilingLanded"];
+
+    /// <summary>The programs a Ki-Hunter's body is started in.</summary>
+    private static string[] KiHunterBody =>
+    [
+        "FlyingLeft", "FlyingRight", "SwoopLeft", "SwoopRight", "JumpLeft", "JumpRight", "LandLeft", "LandRight", "SpitLeft", "SpitRight",
+    ];
+
+    /// <summary>The programs a Ki-Hunter's wings are started in.</summary>
+    private static string[] KiHunterWings => ["WingsLeft", "WingsRight", "DetachedWings"];
+
+    /// <summary>Ridley's body poses of both facings that both Ridleys show: standing, mouth and legs.</summary>
+    private static string[] RidleyBodyFrames =>
+    [
+        "BodyFrame=Left", "BodyFrame=LeftMouthHalfOpen", "BodyFrame=LeftMouthOpen", "BodyFrame=LeftLegsHalfExtended", "BodyFrame=LeftLegsExtended",
+        "BodyFrame=Right", "BodyFrame=RightMouthHalfOpen", "BodyFrame=RightMouthOpen", "BodyFrame=RightLegsHalfExtended",
+        "BodyFrame=RightLegsExtended",
     ];
 
     /// <summary>A crawler family's four surface programs, as <c>CrawlerAnimationDefinitions.Families</c> names them.</summary>
@@ -162,11 +379,13 @@ internal sealed record PartFrameConfiguration(
 }
 
 /// <summary>
-/// A population parameter an entry program choice follows from (#1513): every room placement of <paramref name="Definition"/>
-/// carries <paramref name="Settings"/> whose <paramref name="Parameter"/> is one of <paramref name="Values"/>.
+/// A population or header parameter an entry program choice follows from (#1513): every room placement of
+/// <paramref name="Definition"/> carries <paramref name="Settings"/> whose <paramref name="Parameter"/> is one of
+/// <paramref name="Values"/>. A compiled header (<c>RoomEnemyDefinitionEntry(definition, new RoomEnemyDefinition(...))</c>)
+/// has the shape of a placement, so a header parameter such as a hopper's variant is checked the same way.
 /// </summary>
 /// <param name="Definition">The definition placed.</param>
-/// <param name="Settings">The spawn-settings record its placements carry.</param>
+/// <param name="Settings">The spawn-settings record its placements carry, or <c>RoomEnemyDefinition</c> for its header.</param>
 /// <param name="Parameter">The record's parameter the choice follows from.</param>
 /// <param name="Values">The parameter values the configured programs follow from: constants, or enum member names.</param>
 internal sealed record PopulationChoice(string Definition, string Settings, string Parameter, string[] Values);
@@ -201,20 +420,45 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             problems.Add($"{definition} has no configured programs or selectors");
         CheckConstantKeys(table, keys, problems);
         CheckPopulations(behaviour, problems);
+        var tableFrames = new HashSet<string>(table.Values, StringComparer.Ordinal);
+        CheckCodeFrames(behaviour, split, tableFrames, problems);
         if (problems.Count > 0)
             throw new InvalidDataException($"{behaviour.Type.Name}'s part frames cannot be split:\n" + string.Join('\n', problems));
 
-        var tableFrames = new HashSet<string>(table.Values, StringComparer.Ordinal);
         var result = new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
         foreach (string definition in behaviour.Definitions)
         {
-            var frames = new HashSet<string>(split[definition].Where(frame => !tableFrames.Contains(frame)), StringComparer.Ordinal);
+            var frames = new HashSet<string>(split[definition].Where(frame => !tableFrames.Contains(frame)
+                && (!configuration.CodeFrames.TryGetValue(frame, out string[]? owners) || owners.Contains(definition, StringComparer.Ordinal))),
+                StringComparer.Ordinal);
             frames.UnionWith(keys[definition].Select(key => table[key]));
             frames.ExceptWith(excluded);
             if (frames.Count > 0)
                 result.Add(definition, frames);
         }
         return result;
+    }
+
+    /// <summary>
+    /// The self-check that each configured code frame is a frame outside the table that the walk gives each of its owning
+    /// definitions, so the configuration names only frames the behaviour's code sets.
+    /// </summary>
+    private void CheckCodeFrames(Behaviour behaviour, IReadOnlyDictionary<string, IReadOnlySet<string>> split, HashSet<string> tableFrames, List<string> problems)
+    {
+        foreach ((string frame, string[] owners) in configuration.CodeFrames)
+        {
+            if (tableFrames.Contains(frame))
+                problems.Add($"code frame {frame} is a frame of {configuration.TableType}.{configuration.TableMember}");
+            if (owners.Length == 0)
+                problems.Add($"code frame {frame} names no definition");
+            foreach (string owner in owners)
+            {
+                if (!split.TryGetValue(owner, out IReadOnlySet<string>? frames))
+                    problems.Add($"code frame {frame} names {owner}, which {behaviour.Type.Name} does not serve");
+                else if (!frames.Contains(frame))
+                    problems.Add($"code frame {frame} is not a frame {owner}'s code reaches");
+            }
+        }
     }
 
     /// <summary>The frame table's entries, by key.</summary>
@@ -246,12 +490,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     {
         if (configuration.ExcludedType is null || configuration.ExcludedMember is null)
             return new HashSet<string>(StringComparer.Ordinal);
-        ExpressionSyntax initializer = Initializer(configuration.ExcludedType, configuration.ExcludedMember);
-        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
-        return new HashSet<string>(initializer.DescendantNodes().OfType<ExpressionSyntax>()
-            .Select(node => semantic.GetSymbolInfo(node).Symbol).OfType<IFieldSymbol>()
-            .Where(field => SymbolEqualityComparer.Default.Equals(field.ContainingType, model.EnemyFrameId))
-            .Select(field => field.Name), StringComparer.Ordinal);
+        return model.EnemyFramesNamed(Initializer(configuration.ExcludedType, configuration.ExcludedMember));
     }
 
     /// <summary>Each definition's keys by its selectors, every key's selector carried by some definition.</summary>
@@ -268,7 +507,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// <summary>Each definition's keys by the closure of the programs its slot is started in.</summary>
     private Dictionary<string, HashSet<string>> ProgramKeys(Dictionary<string, string> table, List<string> problems)
     {
-        (Dictionary<string, PartProgram> programs, INamedTypeSymbol programType, ExpressionSyntax initializer) = Programs(problems);
+        (Dictionary<string, PartProgram> programs, INamedTypeSymbol programType, IReadOnlyList<ExpressionSyntax> initializers) = Programs(problems);
         var keys = configuration.EntryPrograms.Keys.Concat(configuration.StartCueDefinitions).Distinct(StringComparer.Ordinal)
             .ToDictionary(definition => definition, _ => new HashSet<string>(StringComparer.Ordinal), StringComparer.Ordinal);
         HashSet<(string Definition, string Program)> reached = Closure(programs, problems);
@@ -294,7 +533,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             (Dictionary<string, PartProgram> siblingPrograms, _, _) = siblingFrames.Programs(siblingProblems);
             inClosure.UnionWith(siblingFrames.Closure(siblingPrograms, siblingProblems).Select(pair => pair.Program));
         }
-        foreach (string named in NamedOutside(programType, initializer).Where(program => !inClosure.Contains(program)))
+        foreach (string named in NamedOutside(programType, initializers).Where(program => !inClosure.Contains(program)))
             problems.Add($"{programType.Name}.{named} is named outside the program set but no part's closure reaches it");
         return keys;
     }
@@ -381,13 +620,55 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         return null;
     }
 
-    /// <summary>The program set's programs by name, with the program identity type and the set's initializer.</summary>
-    private (Dictionary<string, PartProgram>, INamedTypeSymbol, ExpressionSyntax) Programs(List<string> problems)
+    /// <summary>
+    /// The program set's programs by name, with the program identity type and the initializers they are read from: the
+    /// set's own, and those of the program tables it spreads in.
+    /// </summary>
+    private (Dictionary<string, PartProgram>, INamedTypeSymbol, IReadOnlyList<ExpressionSyntax>) Programs(List<string> problems)
     {
-        ExpressionSyntax initializer = Initializer(configuration.ProgramsType!, configuration.ProgramsMember!);
-        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+        List<ExpressionSyntax> initializers = ProgramInitializers();
         var programs = new Dictionary<string, PartProgram>(StringComparer.Ordinal);
         INamedTypeSymbol? programType = null;
+        foreach (ExpressionSyntax initializer in initializers)
+            programType = ReadPrograms(initializer, programs, programType, problems);
+        if (programType is null)
+            throw new InvalidDataException($"{configuration.ProgramsType}.{configuration.ProgramsMember} has no [Program] = [steps] entries.");
+        return (programs, programType, initializers);
+    }
+
+    /// <summary>
+    /// The program set's initializer, followed by the initializer of every program table it spreads in, in the order
+    /// spread, as <c>TorizoAnimations.Programs</c> joins four tables of programs.
+    /// </summary>
+    private List<ExpressionSyntax> ProgramInitializers()
+    {
+        var initializers = new List<ExpressionSyntax>();
+        var pending = new Queue<ExpressionSyntax>([Initializer(configuration.ProgramsType!, configuration.ProgramsMember!)]);
+        while (pending.TryDequeue(out ExpressionSyntax? initializer))
+        {
+            initializers.Add(initializer);
+            SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+            foreach (SpreadElementSyntax spread in initializer.DescendantNodes().OfType<SpreadElementSyntax>())
+            {
+                if (semantic.GetTypeInfo(spread.Expression).Type is INamedTypeSymbol { Name: "Dictionary" or "IReadOnlyDictionary" }
+                    && semantic.GetSymbolInfo(spread.Expression).Symbol is IPropertySymbol or IFieldSymbol)
+                {
+                    ISymbol table = semantic.GetSymbolInfo(spread.Expression).Symbol ?? throw new InvalidDataException($"{spread} names no member.");
+                    pending.Enqueue(Initializer(table.ContainingType.Name, table.Name));
+                }
+            }
+        }
+        return initializers;
+    }
+
+    /// <summary>
+    /// Reads the <c>[P.X] = [steps]</c> entries of <paramref name="initializer"/> into <paramref name="programs"/>, and
+    /// returns the program identity type.
+    /// </summary>
+    private INamedTypeSymbol? ReadPrograms(ExpressionSyntax initializer, Dictionary<string, PartProgram> programs, INamedTypeSymbol? programType,
+        List<string> problems)
+    {
+        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
         foreach (AssignmentExpressionSyntax entry in initializer.DescendantNodes().OfType<AssignmentExpressionSyntax>())
         {
             if (entry is not { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var name] }, Right: CollectionExpressionSyntax steps }
@@ -407,9 +688,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             if (!programs.TryAdd(identity.Name, program))
                 problems.Add($"program {identity.Name} is listed twice");
         }
-        if (programType is null)
-            throw new InvalidDataException($"{configuration.ProgramsType}.{configuration.ProgramsMember} has no [Program] = [steps] entries.");
-        return (programs, programType, initializer);
+        return programType;
     }
 
     /// <summary>Reads one program step: the keys it shows, the programs it continues into, the programs its start cue starts.</summary>
@@ -447,7 +726,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         // A step shows a key either by constructing it or through one of the program set's own helpers.
         foreach (InvocationExpressionSyntax invocation in step.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>())
         {
-            if (semantic.GetSymbolInfo(invocation).Symbol is not IMethodSymbol helper || helper.ContainingType.Name != configuration.ProgramsType)
+            if (semantic.GetSymbolInfo(invocation).Symbol is not IMethodSymbol helper
+                || (helper.ContainingType.Name != configuration.ProgramsType && !configuration.StepHelperTypes.Contains(helper.ContainingType.Name)))
                 continue;
             foreach (string key in HelperKeys(semantic, invocation, helper))
                 program.Keys.Add(key);
@@ -492,11 +772,18 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             return _keyType;
         ExpressionSyntax initializer = Initializer(configuration.TableType, configuration.TableMember);
         SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+        // A key constructs its type, or is a member of its enum type.
         _keyType = initializer.DescendantNodes().OfType<InitializerExpressionSyntax>()
             .Where(node => node.Expressions.Count == 2 && node.Parent is InitializerExpressionSyntax)
-            .Select(node => semantic.GetSymbolInfo(node.Expressions[0]).Symbol).OfType<IMethodSymbol>()
-            .Select(constructor => constructor.ContainingType.OriginalDefinition).FirstOrDefault()
-            ?? throw new InvalidDataException($"{configuration.TableType}.{configuration.TableMember}'s keys construct no type.");
+            .Select(node => semantic.GetSymbolInfo(node.Expressions[0]).Symbol)
+            .Select(symbol => symbol switch
+            {
+                IMethodSymbol constructor => constructor.ContainingType.OriginalDefinition,
+                IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member => member.ContainingType,
+                _ => null,
+            })
+            .FirstOrDefault(type => type is not null)
+            ?? throw new InvalidDataException($"{configuration.TableType}.{configuration.TableMember}'s keys construct no type and name no enum member.");
         return _keyType;
     }
 
@@ -505,9 +792,13 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// <summary>
     /// The key <paramref name="expression"/> constructs, as <c>Parameter=Value</c> pairs in parameter order, its arguments
     /// constants or, inside a helper, the helper's parameters bound in <paramref name="arguments"/>; null when any is neither.
+    /// A key that is an enum member is <c>EnumType=Member</c>.
     /// </summary>
     private static string? KeyOf(SemanticModel semantic, ExpressionSyntax expression, IReadOnlyDictionary<string, string>? arguments)
     {
+        if (expression is not BaseObjectCreationExpressionSyntax
+            && semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member)
+            return $"{member.ContainingType.Name}={member.Name}";
         if (expression is not BaseObjectCreationExpressionSyntax { ArgumentList: { } list } creation
             || semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol constructor)
             return null;
@@ -548,14 +839,14 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     {
         INamedTypeSymbol keyType = KeyType();
         SyntaxNode tableNode = Initializer(configuration.TableType, configuration.TableMember);
-        SyntaxNode? programsNode = configuration.ProgramsType is null ? null : Initializer(configuration.ProgramsType, configuration.ProgramsMember!);
+        List<ExpressionSyntax> programsNodes = configuration.ProgramsType is null ? [] : ProgramInitializers();
         var shown = new HashSet<string>(keys.Values.SelectMany(selected => selected), StringComparer.Ordinal);
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
         {
             SemanticModel semantic = model.ModelOf(tree);
             foreach (BaseObjectCreationExpressionSyntax creation in tree.GetRoot().DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
             {
-                if (creation.Ancestors().Any(node => node == tableNode || node == programsNode)
+                if (creation.Ancestors().Any(node => node == tableNode || node is ExpressionSyntax expression && programsNodes.Contains(expression))
                     || semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
                     || !SymbolEqualityComparer.Default.Equals(constructor.ContainingType.OriginalDefinition, keyType)
                     || KeyOf(semantic, creation, arguments: null) is not { } key)
@@ -568,8 +859,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         }
     }
 
-    /// <summary>The members of <paramref name="programType"/> Core names outside the program set's initializer.</summary>
-    private IEnumerable<string> NamedOutside(INamedTypeSymbol programType, SyntaxNode initializer)
+    /// <summary>The members of <paramref name="programType"/> Core names outside the program set's initializers.</summary>
+    private IEnumerable<string> NamedOutside(INamedTypeSymbol programType, IReadOnlyList<ExpressionSyntax> initializers)
     {
         var named = new SortedSet<string>(StringComparer.Ordinal);
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
@@ -577,7 +868,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             SemanticModel semantic = model.ModelOf(tree);
             foreach (IdentifierNameSyntax name in tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>())
             {
-                if (name.Ancestors().Any(node => node == initializer || node is AttributeListSyntax or CaseSwitchLabelSyntax)
+                if (name.Ancestors().Any(node => node is ExpressionSyntax expression && initializers.Contains(expression)
+                        || node is AttributeListSyntax or CaseSwitchLabelSyntax)
                     || name.Ancestors().OfType<InvocationExpressionSyntax>().Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.Text: "nameof" })
                     || semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol field
                     || !SymbolEqualityComparer.Default.Equals(field.ContainingType, programType))
@@ -589,26 +881,5 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     }
 
     /// <summary>The initializer value of <paramref name="type"/>'s property or field <paramref name="member"/>.</summary>
-    private ExpressionSyntax Initializer(string type, string member)
-    {
-        INamedTypeSymbol[] types = [.. model.Types.Where(candidate => candidate.Name == type)];
-        if (types is not [var declaring])
-            throw new InvalidDataException($"Expected one Core type {type}; found {types.Length}.");
-        ISymbol symbol = declaring.GetMembers(member) is [var single]
-            ? single
-            : throw new InvalidDataException($"{type} does not declare one member {member}.");
-        foreach (SyntaxReference reference in symbol.DeclaringSyntaxReferences)
-        {
-            switch (reference.GetSyntax())
-            {
-                case PropertyDeclarationSyntax { Initializer.Value: var value }:
-                    return value;
-                case PropertyDeclarationSyntax { ExpressionBody.Expression: var body }:
-                    return body;
-                case VariableDeclaratorSyntax { Initializer.Value: var value }:
-                    return value;
-            }
-        }
-        throw new InvalidDataException($"{type}.{member} has no initializer this generator can read.");
-    }
+    private ExpressionSyntax Initializer(string type, string member) => model.MemberInitializer(type, member);
 }

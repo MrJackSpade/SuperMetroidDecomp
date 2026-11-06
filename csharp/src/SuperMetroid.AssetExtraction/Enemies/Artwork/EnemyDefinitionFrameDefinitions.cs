@@ -480,7 +480,7 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.PhantoonMouth2,
     ];
 
-    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>Ridley</c>, <c>RidleyCeres</c>.</summary>
+    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>Ridley</c>.</summary>
     private static readonly EnemyFrameId[] RidleyFrames =
     [
         EnemyFrameId.RidleyTailSegmentSmall,
@@ -527,6 +527,52 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RidleyBodyForward,
     ];
 
+    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyCeres</c>.</summary>
+    private static readonly EnemyFrameId[] RidleyCeresFrames =
+    [
+        EnemyFrameId.RidleyTailSegmentSmall,
+        EnemyFrameId.RidleyTailSegmentMedium,
+        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailTip12,
+        EnemyFrameId.RidleyTailTip11,
+        EnemyFrameId.RidleyTailTip10,
+        EnemyFrameId.RidleyTailTip9,
+        EnemyFrameId.RidleyTailTip8,
+        EnemyFrameId.RidleyTailTip7,
+        EnemyFrameId.RidleyTailTip6,
+        EnemyFrameId.RidleyTailTip5,
+        EnemyFrameId.RidleyTailTip4,
+        EnemyFrameId.RidleyTailTip3,
+        EnemyFrameId.RidleyTailTip2,
+        EnemyFrameId.RidleyTailTip1,
+        EnemyFrameId.RidleyTailTip0,
+        EnemyFrameId.RidleyTailTip15,
+        EnemyFrameId.RidleyTailTip14,
+        EnemyFrameId.RidleyTailTip13,
+        EnemyFrameId.RidleyWingLeft0,
+        EnemyFrameId.RidleyWingLeft1,
+        EnemyFrameId.RidleyWingLeft2,
+        EnemyFrameId.RidleyWingLeft3,
+        EnemyFrameId.RidleyWingLeft4,
+        EnemyFrameId.RidleyWingLeft5,
+        EnemyFrameId.RidleyWingRight0,
+        EnemyFrameId.RidleyWingRight1,
+        EnemyFrameId.RidleyWingRight2,
+        EnemyFrameId.RidleyWingRight3,
+        EnemyFrameId.RidleyWingRight4,
+        EnemyFrameId.RidleyWingRight5,
+        EnemyFrameId.RidleyBodyLeft,
+        EnemyFrameId.RidleyBodyRight,
+        EnemyFrameId.RidleyBodyLeftMouthHalfOpen,
+        EnemyFrameId.RidleyBodyLeftMouthOpen,
+        EnemyFrameId.RidleyBodyRightMouthHalfOpen,
+        EnemyFrameId.RidleyBodyRightMouthOpen,
+        EnemyFrameId.RidleyBodyLeftLegsHalfExtended,
+        EnemyFrameId.RidleyBodyLeftLegsExtended,
+        EnemyFrameId.RidleyBodyRightLegsHalfExtended,
+        EnemyFrameId.RidleyBodyRightLegsExtended,
+    ];
+
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyExplosion</c>.</summary>
     private static readonly EnemyFrameId[] RidleyExplosionFrames =
     [
@@ -569,17 +615,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RidleyBreakupHeadRight,
         EnemyFrameId.RidleyBreakupClawLeft,
         EnemyFrameId.RidleyBreakupClawRight,
-        EnemyFrameId.RidleyBodyLeft,
-        EnemyFrameId.RidleyBodyRight,
-        EnemyFrameId.RidleyBodyLeftMouthHalfOpen,
-        EnemyFrameId.RidleyBodyLeftMouthOpen,
-        EnemyFrameId.RidleyBodyRightMouthHalfOpen,
-        EnemyFrameId.RidleyBodyRightMouthOpen,
-        EnemyFrameId.RidleyBodyLeftLegsHalfExtended,
-        EnemyFrameId.RidleyBodyLeftLegsExtended,
-        EnemyFrameId.RidleyBodyRightLegsHalfExtended,
-        EnemyFrameId.RidleyBodyRightLegsExtended,
-        EnemyFrameId.RidleyBodyForward,
     ];
 
     /// <summary>The frames <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> shows.</summary>
@@ -599,10 +634,120 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.SporeSpawnOpen2,
     ];
 
-    /// <summary>The frames <c>Bosses/Torizo/BombTorizoBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] BombTorizo =
+    /// <summary>The frames <c>Bosses/Torizo/BombTorizoBehavior.cs</c> shows for <c>BombTorizo</c>.</summary>
+    private static readonly EnemyFrameId[] BombTorizoFrames =
     [
         EnemyFrameId.BombTorizoDormant,
+        EnemyFrameId.GoldenTorizoInitial,
+        EnemyFrameId.GoldenTorizoAwake0,
+        EnemyFrameId.GoldenTorizoAwake1,
+        EnemyFrameId.GoldenTorizoAwake2,
+        EnemyFrameId.GoldenTorizoAwake3,
+        EnemyFrameId.GoldenTorizoAwake4,
+        EnemyFrameId.GoldenTorizoAwake5,
+        EnemyFrameId.GoldenTorizoWalkLeft0,
+        EnemyFrameId.GoldenTorizoWalkLeft1,
+        EnemyFrameId.GoldenTorizoWalkLeft2,
+        EnemyFrameId.GoldenTorizoWalkLeft3,
+        EnemyFrameId.GoldenTorizoWalkLeft4,
+        EnemyFrameId.GoldenTorizoWalkLeft5,
+        EnemyFrameId.GoldenTorizoWalkLeft6,
+        EnemyFrameId.GoldenTorizoWalkLeft7,
+        EnemyFrameId.GoldenTorizoWalkLeft8,
+        EnemyFrameId.GoldenTorizoWalkLeft9,
+        EnemyFrameId.GoldenTorizoRightward0,
+        EnemyFrameId.GoldenTorizoRightward1,
+        EnemyFrameId.GoldenTorizoRightward2,
+        EnemyFrameId.GoldenTorizoRightward3,
+        EnemyFrameId.GoldenTorizoRightward4,
+        EnemyFrameId.GoldenTorizoRightward5,
+        EnemyFrameId.GoldenTorizoRightward6,
+        EnemyFrameId.GoldenTorizoRightward7,
+        EnemyFrameId.GoldenTorizoRightward8,
+        EnemyFrameId.GoldenTorizoRightward9,
+        EnemyFrameId.GoldenTorizoRightward10,
+        EnemyFrameId.TorizoJumpBack0,
+        EnemyFrameId.TorizoJumpBack1,
+        EnemyFrameId.TorizoJumpBack2,
+        EnemyFrameId.GoldenTorizoRightOrb0,
+        EnemyFrameId.GoldenTorizoRightOrb1,
+        EnemyFrameId.GoldenTorizoRightOrb2,
+        EnemyFrameId.GoldenTorizoRightOrb3,
+        EnemyFrameId.GoldenTorizoRightOrb4,
+        EnemyFrameId.GoldenTorizoRightOrb5,
+        EnemyFrameId.GoldenTorizoRightSonic0,
+        EnemyFrameId.GoldenTorizoRightSonic1,
+        EnemyFrameId.GoldenTorizoRightSonic2,
+        EnemyFrameId.GoldenTorizoRightSonic3,
+        EnemyFrameId.GoldenTorizoRightSonic4,
+        EnemyFrameId.GoldenTorizoRightSonic5,
+        EnemyFrameId.GoldenTorizoRightSonic6,
+        EnemyFrameId.GoldenTorizoRightSonic7,
+        EnemyFrameId.GoldenTorizoRightSonic8,
+        EnemyFrameId.GoldenTorizoRightSonic9,
+        EnemyFrameId.GoldenTorizoRightSonic10,
+        EnemyFrameId.GoldenTorizoRightSonic11,
+        EnemyFrameId.GoldenTorizoRightSonic12,
+        EnemyFrameId.GoldenTorizoRightSonic13,
+        EnemyFrameId.GoldenTorizoRightSonic14,
+        EnemyFrameId.GoldenTorizoRightSonic15,
+        EnemyFrameId.GoldenTorizoRightSonic16,
+        EnemyFrameId.GoldenTorizoRightSonic17,
+        EnemyFrameId.GoldenTorizoRightSonic18,
+        EnemyFrameId.GoldenTorizoRightSonic19,
+        EnemyFrameId.GoldenTorizoRightSonic20,
+        EnemyFrameId.TorizoFallingLeft,
+        EnemyFrameId.GoldenTorizoLeftFootOrb0,
+        EnemyFrameId.GoldenTorizoLeftFootOrb1,
+        EnemyFrameId.GoldenTorizoLeftFootOrb2,
+        EnemyFrameId.GoldenTorizoLeftFootOrb3,
+        EnemyFrameId.GoldenTorizoLeftFootOrb4,
+        EnemyFrameId.TorizoJumpBackLeft0,
+        EnemyFrameId.TorizoJumpBackLeft1,
+        EnemyFrameId.GoldenTorizoLeftOrb0,
+        EnemyFrameId.GoldenTorizoLeftOrb1,
+        EnemyFrameId.GoldenTorizoLeftOrb2,
+        EnemyFrameId.GoldenTorizoLeftOrb3,
+        EnemyFrameId.GoldenTorizoLeftOrb4,
+        EnemyFrameId.GoldenTorizoLeftOrb5,
+        EnemyFrameId.GoldenTorizoLeftOrb6,
+        EnemyFrameId.GoldenTorizoLeftOrb7,
+        EnemyFrameId.GoldenTorizoLeftOrb8,
+        EnemyFrameId.GoldenTorizoLeftOrb9,
+        EnemyFrameId.GoldenTorizoLeftOrb10,
+        EnemyFrameId.GoldenTorizoLeftOrb11,
+        EnemyFrameId.TorizoCombat0,
+        EnemyFrameId.TorizoCombat1,
+        EnemyFrameId.TorizoCombat2,
+        EnemyFrameId.TorizoCombat3,
+        EnemyFrameId.TorizoCombat4,
+        EnemyFrameId.TorizoCombat5,
+        EnemyFrameId.TorizoCombat6,
+        EnemyFrameId.TorizoCombat7,
+        EnemyFrameId.TorizoCombat8,
+        EnemyFrameId.TorizoCombat9,
+        EnemyFrameId.TorizoCombat10,
+        EnemyFrameId.TorizoCombat11,
+        EnemyFrameId.TorizoCombat12,
+        EnemyFrameId.TorizoCombat13,
+        EnemyFrameId.TorizoCombat14,
+        EnemyFrameId.TorizoCombat15,
+        EnemyFrameId.TorizoCombat16,
+        EnemyFrameId.TorizoCombat17,
+        EnemyFrameId.TorizoCombat18,
+        EnemyFrameId.TorizoCombat19,
+        EnemyFrameId.TorizoCombat20,
+        EnemyFrameId.TorizoCombat21,
+        EnemyFrameId.TorizoCombat22,
+        EnemyFrameId.TorizoCombat23,
+        EnemyFrameId.TorizoCombat24,
+        EnemyFrameId.TorizoCombat25,
+        EnemyFrameId.TorizoCombat26,
+    ];
+
+    /// <summary>The frames <c>Bosses/Torizo/BombTorizoBehavior.cs</c> shows for <c>GoldenTorizo</c>.</summary>
+    private static readonly EnemyFrameId[] GoldenTorizoFrames =
+    [
         EnemyFrameId.GoldenTorizoInitial,
         EnemyFrameId.GoldenTorizoAwake0,
         EnemyFrameId.GoldenTorizoAwake1,
@@ -767,8 +912,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.Dachora28,
     ];
 
-    /// <summary>The frames <c>Enemies/Animals/EscapeAnimalsBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] EscapeAnimals =
+    /// <summary>The frames <c>Enemies/Animals/EscapeAnimalsBehavior.cs</c> shows for <c>EtecoonEscape</c>.</summary>
+    private static readonly EnemyFrameId[] EtecoonEscapeFrames =
     [
         EnemyFrameId.EscapeEtecoon00,
         EnemyFrameId.EscapeEtecoon01,
@@ -780,6 +925,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.EscapeEtecoon07,
         EnemyFrameId.EscapeEtecoon08,
         EnemyFrameId.EscapeEtecoon09,
+    ];
+
+    /// <summary>The frames <c>Enemies/Animals/EscapeAnimalsBehavior.cs</c> shows for <c>DachoraEscape</c>.</summary>
+    private static readonly EnemyFrameId[] DachoraEscapeFrames =
+    [
         EnemyFrameId.EscapeDachora00,
         EnemyFrameId.EscapeDachora01,
         EnemyFrameId.EscapeDachora02,
@@ -1128,8 +1278,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ElevatorPlatform1,
     ];
 
-    /// <summary>The frames <c>Enemies/Evir/EvirBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Evir =
+    /// <summary>The frames <c>Enemies/Evir/EvirBehavior.cs</c> shows for <c>Evir</c>.</summary>
+    private static readonly EnemyFrameId[] EvirFrames =
     [
         EnemyFrameId.EvirBodyLeft0,
         EnemyFrameId.EvirBodyLeft1,
@@ -1153,6 +1303,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.EvirArmsRight2,
         EnemyFrameId.EvirArmsRight3,
         EnemyFrameId.EvirArmsRight4,
+    ];
+
+    /// <summary>The frames <c>Enemies/Evir/EvirBehavior.cs</c> shows for <c>EvirProjectile</c>.</summary>
+    private static readonly EnemyFrameId[] EvirProjectileFrames =
+    [
         EnemyFrameId.EvirProjectileFlight,
         EnemyFrameId.EvirProjectileRegenerating,
     ];
@@ -1202,8 +1357,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.FlyShared3,
     ];
 
-    /// <summary>The frames <c>Enemies/FuneNamihe/FuneNamiheBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] FuneNamihe =
+    /// <summary>The frames <c>Enemies/FuneNamihe/FuneNamiheBehavior.cs</c> shows for <c>Fune</c>.</summary>
+    private static readonly EnemyFrameId[] FuneFrames =
     [
         EnemyFrameId.FuneLeftIdle,
         EnemyFrameId.FuneLeftActive0,
@@ -1215,6 +1370,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.FuneRightActive1,
         EnemyFrameId.FuneRightActive2,
         EnemyFrameId.FuneRightActive3,
+    ];
+
+    /// <summary>The frames <c>Enemies/FuneNamihe/FuneNamiheBehavior.cs</c> shows for <c>Namihe</c>.</summary>
+    private static readonly EnemyFrameId[] NamiheFrames =
+    [
         EnemyFrameId.NamiheLeftIdle,
         EnemyFrameId.NamiheLeftActive0,
         EnemyFrameId.NamiheLeftActive1,
@@ -1229,8 +1389,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.NamiheRightActive4,
     ];
 
-    /// <summary>The frames <c>Enemies/Gunship/GunshipBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Gunship =
+    /// <summary>The frames <c>Enemies/Gunship/GunshipBehavior.cs</c> shows for <c>ShipBottomEntrance</c>.</summary>
+    private static readonly EnemyFrameId[] ShipBottomEntranceFrames =
     [
         EnemyFrameId.GunshipEntrance00,
         EnemyFrameId.GunshipEntrance01,
@@ -1243,8 +1403,13 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.GunshipEntrance08,
         EnemyFrameId.GunshipEntrance09,
         EnemyFrameId.GunshipEntrance10,
-        EnemyFrameId.GunshipTopHull,
         EnemyFrameId.GunshipBottomHull,
+    ];
+
+    /// <summary>The frames <c>Enemies/Gunship/GunshipBehavior.cs</c> shows for <c>ShipTop</c>.</summary>
+    private static readonly EnemyFrameId[] ShipTopFrames =
+    [
+        EnemyFrameId.GunshipTopHull,
     ];
 
     /// <summary>The frames <c>Enemies/Hibashi/HibashiBehavior.cs</c> shows.</summary>
@@ -1275,8 +1440,30 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.Hibashi22,
     ];
 
-    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Hoppers =
+    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>Dessgeega</c>.</summary>
+    private static readonly EnemyFrameId[] DessgeegaFrames =
+    [
+        EnemyFrameId.DessgeegaJumpFloor,
+        EnemyFrameId.DessgeegaLandFloor0,
+        EnemyFrameId.DessgeegaLandFloor1,
+        EnemyFrameId.DessgeegaJumpCeiling,
+        EnemyFrameId.DessgeegaLandCeiling0,
+        EnemyFrameId.DessgeegaLandCeiling1,
+    ];
+
+    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>DessgeegaLarge</c>.</summary>
+    private static readonly EnemyFrameId[] DessgeegaLargeFrames =
+    [
+        EnemyFrameId.LargeDessgeegaJumpFloor,
+        EnemyFrameId.LargeDessgeegaLandFloor0,
+        EnemyFrameId.LargeDessgeegaLandFloor1,
+        EnemyFrameId.LargeDessgeegaJumpCeiling,
+        EnemyFrameId.LargeDessgeegaLandCeiling0,
+        EnemyFrameId.LargeDessgeegaLandCeiling1,
+    ];
+
+    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>Sidehopper</c>.</summary>
+    private static readonly EnemyFrameId[] SidehopperFrames =
     [
         EnemyFrameId.SidehopperJumpFloor,
         EnemyFrameId.SidehopperLandFloor0,
@@ -1284,24 +1471,17 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.SidehopperJumpCeiling,
         EnemyFrameId.SidehopperLandCeiling0,
         EnemyFrameId.SidehopperLandCeiling1,
-        EnemyFrameId.DessgeegaJumpFloor,
-        EnemyFrameId.DessgeegaLandFloor0,
-        EnemyFrameId.DessgeegaLandFloor1,
-        EnemyFrameId.DessgeegaJumpCeiling,
-        EnemyFrameId.DessgeegaLandCeiling0,
-        EnemyFrameId.DessgeegaLandCeiling1,
+    ];
+
+    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>SidehopperLarge</c>, <c>SidehopperTourian</c>.</summary>
+    private static readonly EnemyFrameId[] SidehopperLargeFrames =
+    [
         EnemyFrameId.LargeSidehopperJumpFloor,
         EnemyFrameId.LargeSidehopperLandFloor0,
         EnemyFrameId.LargeSidehopperLandFloor1,
         EnemyFrameId.LargeSidehopperJumpCeiling,
         EnemyFrameId.LargeSidehopperLandCeiling0,
         EnemyFrameId.LargeSidehopperLandCeiling1,
-        EnemyFrameId.LargeDessgeegaJumpFloor,
-        EnemyFrameId.LargeDessgeegaLandFloor0,
-        EnemyFrameId.LargeDessgeegaLandFloor1,
-        EnemyFrameId.LargeDessgeegaJumpCeiling,
-        EnemyFrameId.LargeDessgeegaLandCeiling0,
-        EnemyFrameId.LargeDessgeegaLandCeiling1,
     ];
 
     /// <summary>The frames <c>Enemies/Inert/InertEnemyFactory.cs</c> shows.</summary>
@@ -1315,22 +1495,15 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KagoCycle2,
     ];
 
-    /// <summary>The frames <c>Enemies/KiHunters/KiHunterBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] KiHunter =
+    /// <summary>The frames <c>Enemies/KiHunters/KiHunterBehavior.cs</c> shows for <c>KihunterGreen</c>, <c>KihunterRed</c>, <c>KihunterYellow</c>.</summary>
+    private static readonly EnemyFrameId[] KihunterGreenFrames =
     [
         EnemyFrameId.KiHunterPose0,
         EnemyFrameId.KiHunterPose1,
         EnemyFrameId.KiHunterPose2,
-        EnemyFrameId.KiHunterPose3,
-        EnemyFrameId.KiHunterPose4,
-        EnemyFrameId.KiHunterPose5,
         EnemyFrameId.KiHunterPose6,
         EnemyFrameId.KiHunterPose7,
         EnemyFrameId.KiHunterPose8,
-        EnemyFrameId.KiHunterPose9,
-        EnemyFrameId.KiHunterPose10,
-        EnemyFrameId.KiHunterPose11,
-        EnemyFrameId.KiHunterPose12,
         EnemyFrameId.KiHunterPose13,
         EnemyFrameId.KiHunterPose14,
         EnemyFrameId.KiHunterPose15,
@@ -1359,6 +1532,18 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KiHunterPose38,
         EnemyFrameId.KiHunterPose39,
         EnemyFrameId.KiHunterPose40,
+    ];
+
+    /// <summary>The frames <c>Enemies/KiHunters/KiHunterBehavior.cs</c> shows for <c>KihunterGreenWings</c>, <c>KihunterRedWings</c>, <c>KihunterYellowWings</c>.</summary>
+    private static readonly EnemyFrameId[] KihunterGreenWingsFrames =
+    [
+        EnemyFrameId.KiHunterPose3,
+        EnemyFrameId.KiHunterPose4,
+        EnemyFrameId.KiHunterPose5,
+        EnemyFrameId.KiHunterPose9,
+        EnemyFrameId.KiHunterPose10,
+        EnemyFrameId.KiHunterPose11,
+        EnemyFrameId.KiHunterPose12,
     ];
 
     /// <summary>The frames <c>Enemies/Kzan/KzanBehavior.cs</c> shows for <c>KzanBottom</c>.</summary>
@@ -1419,8 +1604,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MagdollitePillarPhase7,
     ];
 
-    /// <summary>The frames <c>Enemies/MamaTurtles/MamaTurtleBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] MamaTurtle =
+    /// <summary>The frames <c>Enemies/MamaTurtles/MamaTurtleBehavior.cs</c> shows for <c>BabyTurtle</c>.</summary>
+    private static readonly EnemyFrameId[] BabyTurtleFrames =
     [
         EnemyFrameId.Tatori00,
         EnemyFrameId.Tatori01,
@@ -1433,12 +1618,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.Tatori08,
         EnemyFrameId.Tatori09,
         EnemyFrameId.Tatori10,
-        EnemyFrameId.Tatori11,
-        EnemyFrameId.Tatori12,
-        EnemyFrameId.Tatori13,
-        EnemyFrameId.Tatori14,
-        EnemyFrameId.Tatori15,
-        EnemyFrameId.Tatori16,
         EnemyFrameId.Tatori17,
         EnemyFrameId.Tatori18,
         EnemyFrameId.Tatori19,
@@ -1446,11 +1625,22 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.Tatori21,
         EnemyFrameId.Tatori22,
         EnemyFrameId.Tatori23,
+        EnemyFrameId.Tatori28,
+    ];
+
+    /// <summary>The frames <c>Enemies/MamaTurtles/MamaTurtleBehavior.cs</c> shows for <c>MamaTurtle</c>.</summary>
+    private static readonly EnemyFrameId[] MamaTurtleFrames =
+    [
+        EnemyFrameId.Tatori11,
+        EnemyFrameId.Tatori12,
+        EnemyFrameId.Tatori13,
+        EnemyFrameId.Tatori14,
+        EnemyFrameId.Tatori15,
+        EnemyFrameId.Tatori16,
         EnemyFrameId.Tatori24,
         EnemyFrameId.Tatori25,
         EnemyFrameId.Tatori26,
         EnemyFrameId.Tatori27,
-        EnemyFrameId.Tatori28,
     ];
 
     /// <summary>The frames <c>Enemies/MaridiaSnails/MaridiaLargeSnailBehavior.cs</c> shows.</summary>
@@ -1496,11 +1686,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MetareeIdle2,
         EnemyFrameId.MetareeIdle3,
         EnemyFrameId.MetareePrepare1,
-        EnemyFrameId.SkreeIdle0,
-        EnemyFrameId.SkreeIdle1,
-        EnemyFrameId.SkreeIdle2,
-        EnemyFrameId.SkreeIdle3,
-        EnemyFrameId.SkreePrepare1,
     ];
 
     /// <summary>The frames <c>Enemies/Metroids/MetroidBehavior.cs</c> shows.</summary>
@@ -1635,8 +1820,17 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.PipeBrinstarStrongRiseRight2,
     ];
 
-    /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Platforms =
+    /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>Kamer2</c>.</summary>
+    private static readonly EnemyFrameId[] Kamer2Frames =
+    [
+        EnemyFrameId.TripperKamerPlatform0,
+        EnemyFrameId.TripperKamerPlatform1,
+        EnemyFrameId.TripperKamerPlatform2,
+        EnemyFrameId.TripperKamerPlatform3,
+    ];
+
+    /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>Tripper</c>.</summary>
+    private static readonly EnemyFrameId[] TripperFrames =
     [
         EnemyFrameId.TripperMovingLeft0,
         EnemyFrameId.TripperMovingLeft1,
@@ -1652,10 +1846,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.TripperStillMovingRight2,
         EnemyFrameId.TripperFrozenMovingLeft,
         EnemyFrameId.TripperFrozenMovingRight,
-        EnemyFrameId.TripperKamerPlatform0,
-        EnemyFrameId.TripperKamerPlatform1,
-        EnemyFrameId.TripperKamerPlatform2,
-        EnemyFrameId.TripperKamerPlatform3,
     ];
 
     /// <summary>The frames <c>Enemies/Polyp/PolypBehavior.cs</c> shows.</summary>
@@ -1749,8 +1939,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RioPose7,
     ];
 
-    /// <summary>The frames <c>Enemies/Ripper/RipperBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Ripper =
+    /// <summary>The frames <c>Enemies/Ripper/RipperBehavior.cs</c> shows for <c>GRipper</c>, <c>Ripper2</c>.</summary>
+    private static readonly EnemyFrameId[] GRipperFrames =
     [
         EnemyFrameId.RipperSharedLeft0,
         EnemyFrameId.RipperSharedLeft1,
@@ -1760,6 +1950,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RipperSharedRight2,
         EnemyFrameId.RipperSharedFrozenLeft,
         EnemyFrameId.RipperSharedFrozenRight,
+    ];
+
+    /// <summary>The frames <c>Enemies/Ripper/RipperBehavior.cs</c> shows for <c>Ripper</c>.</summary>
+    private static readonly EnemyFrameId[] RipperFrames =
+    [
         EnemyFrameId.RipperLeft0,
         EnemyFrameId.RipperLeft1,
         EnemyFrameId.RipperLeft2,
@@ -1850,11 +2045,6 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Skree/SkreeBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Skree =
     [
-        EnemyFrameId.MetareeIdle0,
-        EnemyFrameId.MetareeIdle1,
-        EnemyFrameId.MetareeIdle2,
-        EnemyFrameId.MetareeIdle3,
-        EnemyFrameId.MetareePrepare1,
         EnemyFrameId.SkreeIdle0,
         EnemyFrameId.SkreeIdle1,
         EnemyFrameId.SkreeIdle2,
@@ -2078,8 +2268,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.WaverSpinRight3,
     ];
 
-    /// <summary>The frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] WorkRobot =
+    /// <summary>The frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> shows for <c>Robot</c>.</summary>
+    private static readonly EnemyFrameId[] RobotFrames =
     [
         EnemyFrameId.WorkRobotLeft00,
         EnemyFrameId.WorkRobotLeft01,
@@ -2105,6 +2295,14 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.WorkRobotRight09,
         EnemyFrameId.WorkRobotRight10,
         EnemyFrameId.WorkRobotRight11,
+        EnemyFrameId.WorkRobotUnpoweredNeutral,
+        EnemyFrameId.WorkRobotUnpoweredLeft,
+        EnemyFrameId.WorkRobotUnpoweredRight,
+    ];
+
+    /// <summary>The frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> shows for <c>RobotNoPower</c>.</summary>
+    private static readonly EnemyFrameId[] RobotNoPowerFrames =
+    [
         EnemyFrameId.WorkRobotUnpoweredNeutral,
         EnemyFrameId.WorkRobotUnpoweredLeft,
         EnemyFrameId.WorkRobotUnpoweredRight,
@@ -2305,15 +2503,15 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.PhantoonMouth] = Phantoon,
             [EnemyDefinitionId.PhantoonTentacles] = Phantoon,
             [EnemyDefinitionId.Ridley] = RidleyFrames,
-            [EnemyDefinitionId.RidleyCeres] = RidleyFrames,
+            [EnemyDefinitionId.RidleyCeres] = RidleyCeresFrames,
             [EnemyDefinitionId.RidleyExplosion] = RidleyExplosionFrames,
             [EnemyDefinitionId.SporeSpawn] = SporeSpawn,
-            [EnemyDefinitionId.BombTorizo] = BombTorizo,
-            [EnemyDefinitionId.GoldenTorizo] = BombTorizo,
+            [EnemyDefinitionId.BombTorizo] = BombTorizoFrames,
+            [EnemyDefinitionId.GoldenTorizo] = GoldenTorizoFrames,
             [EnemyDefinitionId.Alcoon] = Alcoon,
             [EnemyDefinitionId.Dachora] = Dachora,
-            [EnemyDefinitionId.EtecoonEscape] = EscapeAnimals,
-            [EnemyDefinitionId.DachoraEscape] = EscapeAnimals,
+            [EnemyDefinitionId.EtecoonEscape] = EtecoonEscapeFrames,
+            [EnemyDefinitionId.DachoraEscape] = DachoraEscapeFrames,
             [EnemyDefinitionId.Etecoon] = Etecoon,
             [EnemyDefinitionId.Atomic] = Atomic,
             [EnemyDefinitionId.Beetom] = Beetom,
@@ -2340,38 +2538,38 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Multiviola] = Multiviola,
             [EnemyDefinitionId.Dragon] = Dragon,
             [EnemyDefinitionId.Elevator] = Elevator,
-            [EnemyDefinitionId.Evir] = Evir,
-            [EnemyDefinitionId.EvirProjectile] = Evir,
+            [EnemyDefinitionId.Evir] = EvirFrames,
+            [EnemyDefinitionId.EvirProjectile] = EvirProjectileFrames,
             [EnemyDefinitionId.FaceBlock] = BlueBrinstarFaceBlock,
             [EnemyDefinitionId.Fireflea] = Fireflea,
             [EnemyDefinitionId.Mella] = Flies,
             [EnemyDefinitionId.Mellow] = Flies,
             [EnemyDefinitionId.Menu] = Flies,
-            [EnemyDefinitionId.Fune] = FuneNamihe,
-            [EnemyDefinitionId.Namihe] = FuneNamihe,
-            [EnemyDefinitionId.ShipBottomEntrance] = Gunship,
-            [EnemyDefinitionId.ShipTop] = Gunship,
+            [EnemyDefinitionId.Fune] = FuneFrames,
+            [EnemyDefinitionId.Namihe] = NamiheFrames,
+            [EnemyDefinitionId.ShipBottomEntrance] = ShipBottomEntranceFrames,
+            [EnemyDefinitionId.ShipTop] = ShipTopFrames,
             [EnemyDefinitionId.Hibashi] = Hibashi,
-            [EnemyDefinitionId.Dessgeega] = Hoppers,
-            [EnemyDefinitionId.DessgeegaLarge] = Hoppers,
-            [EnemyDefinitionId.Sidehopper] = Hoppers,
-            [EnemyDefinitionId.SidehopperLarge] = Hoppers,
-            [EnemyDefinitionId.SidehopperTourian] = Hoppers,
+            [EnemyDefinitionId.Dessgeega] = DessgeegaFrames,
+            [EnemyDefinitionId.DessgeegaLarge] = DessgeegaLargeFrames,
+            [EnemyDefinitionId.Sidehopper] = SidehopperFrames,
+            [EnemyDefinitionId.SidehopperLarge] = SidehopperLargeFrames,
+            [EnemyDefinitionId.SidehopperTourian] = SidehopperLargeFrames,
             [EnemyDefinitionId.Respawn] = InertEnemy,
             [EnemyDefinitionId.TourianStatueGhost] = InertEnemy,
             [EnemyDefinitionId.Kago] = Kago,
-            [EnemyDefinitionId.KihunterGreen] = KiHunter,
-            [EnemyDefinitionId.KihunterGreenWings] = KiHunter,
-            [EnemyDefinitionId.KihunterRed] = KiHunter,
-            [EnemyDefinitionId.KihunterRedWings] = KiHunter,
-            [EnemyDefinitionId.KihunterYellow] = KiHunter,
-            [EnemyDefinitionId.KihunterYellowWings] = KiHunter,
+            [EnemyDefinitionId.KihunterGreen] = KihunterGreenFrames,
+            [EnemyDefinitionId.KihunterGreenWings] = KihunterGreenWingsFrames,
+            [EnemyDefinitionId.KihunterRed] = KihunterGreenFrames,
+            [EnemyDefinitionId.KihunterRedWings] = KihunterGreenWingsFrames,
+            [EnemyDefinitionId.KihunterYellow] = KihunterGreenFrames,
+            [EnemyDefinitionId.KihunterYellowWings] = KihunterGreenWingsFrames,
             [EnemyDefinitionId.KzanBottom] = KzanBottomFrames,
             [EnemyDefinitionId.KzanTop] = KzanTopFrames,
             [EnemyDefinitionId.Squeept] = NorfairLavaJumpingEnemy,
             [EnemyDefinitionId.Magdollite] = Magdollite,
-            [EnemyDefinitionId.BabyTurtle] = MamaTurtle,
-            [EnemyDefinitionId.MamaTurtle] = MamaTurtle,
+            [EnemyDefinitionId.BabyTurtle] = BabyTurtleFrames,
+            [EnemyDefinitionId.MamaTurtle] = MamaTurtleFrames,
             [EnemyDefinitionId.Oum] = MaridiaLargeSnail,
             [EnemyDefinitionId.Metaree] = Metaree,
             [EnemyDefinitionId.Metroid] = Metroid,
@@ -2383,17 +2581,17 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Geega] = GeegaFrames,
             [EnemyDefinitionId.Zeb] = ZebFrames,
             [EnemyDefinitionId.Zebbo] = ZebboFrames,
-            [EnemyDefinitionId.Kamer2] = Platforms,
-            [EnemyDefinitionId.Tripper] = Platforms,
+            [EnemyDefinitionId.Kamer2] = Kamer2Frames,
+            [EnemyDefinitionId.Tripper] = TripperFrames,
             [EnemyDefinitionId.LavaRocks] = Polyp,
             [EnemyDefinitionId.Powamp] = Powamp,
             [EnemyDefinitionId.Puyo] = Puyo,
             [EnemyDefinitionId.Holtz] = LowerNorfairRio,
             [EnemyDefinitionId.Geruta] = NorfairRio,
             [EnemyDefinitionId.Rio] = Rio,
-            [EnemyDefinitionId.GRipper] = Ripper,
-            [EnemyDefinitionId.Ripper] = Ripper,
-            [EnemyDefinitionId.Ripper2] = Ripper,
+            [EnemyDefinitionId.GRipper] = GRipperFrames,
+            [EnemyDefinitionId.Ripper] = RipperFrames,
+            [EnemyDefinitionId.Ripper2] = GRipperFrames,
             [EnemyDefinitionId.Sbug] = Sbug,
             [EnemyDefinitionId.Sbug2] = Sbug,
             [EnemyDefinitionId.Shaktool] = Shaktool,
@@ -2425,8 +2623,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Spark] = Spark,
             [EnemyDefinitionId.Stoke] = Stoke,
             [EnemyDefinitionId.Waver] = Waver,
-            [EnemyDefinitionId.Robot] = WorkRobot,
-            [EnemyDefinitionId.RobotNoPower] = WorkRobot,
+            [EnemyDefinitionId.Robot] = RobotFrames,
+            [EnemyDefinitionId.RobotNoPower] = RobotNoPowerFrames,
             [EnemyDefinitionId.Coven] = WreckedShipGhost,
             [EnemyDefinitionId.YappingMaw] = YappingMaw,
             [EnemyDefinitionId.Yard] = YardEnemy,

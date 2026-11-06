@@ -565,8 +565,7 @@ public sealed class SamusBombProjectileSystem
     internal static void InitializeBomb(
         SamusBombProjectileSlot slot)
     {
-        // The non-beam selector is read at the family's row.
-        SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.NonBeam, slot.Type.Family.TableRow);
+        SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
 
         slot.Damage = SamusProjectileDamage.Read(header);
         if (WordWrap.Signed(slot.Damage) < 0)
@@ -1059,7 +1058,7 @@ public sealed class SamusBombProjectileSystem
             return true;
         }
         if (duration == 0)
-            throw new InvalidDataException($"Bomb record {frame.Record} has zero duration.");
+            throw new InvalidDataException($"Bomb record {frame} has zero duration.");
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
         slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;

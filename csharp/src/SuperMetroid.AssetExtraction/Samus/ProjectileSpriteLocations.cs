@@ -14,12 +14,12 @@ internal static class ProjectileSpriteLocations
 {
 
     /// <summary>The bank-$93 address of the composition each timed projectile record draws, by record.</summary>
-    internal static ushort[] RecordSprites(ISnesAddressSpace bus)
+    internal static Dictionary<SamusProjectileFrame, ushort> RecordSprites(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
-        return [.. Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length).Select(record => RomDataReader.ReadWordFixedBank(cartridge,
-            SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(lists.RecordPosition(record) + 2))))];
+        return SamusProjectileRecordDefinitions.Frames.ToDictionary(record => record, record => RomDataReader.ReadWordFixedBank(cartridge,
+            SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(lists.RecordPosition(record) + 2))));
     }
 
     /// <summary>The bank-$93 address of each projectile composition.</summary>

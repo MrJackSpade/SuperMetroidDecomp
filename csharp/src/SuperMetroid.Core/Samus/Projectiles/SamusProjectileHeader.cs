@@ -61,26 +61,14 @@ internal enum SamusProjectileHeader
     PowerBomb,
     /// <summary>ProjectileDataTable_NonBeam_Bomb.</summary>
     Bomb,
-    /// <summary>ProjectileDataTable_NonBeam_BeamExplosion.</summary>
-    BeamExplosion,
-    /// <summary>ProjectileDataTable_NonBeam_MissileExplosion.</summary>
-    MissileExplosion,
-    /// <summary>ProjectileDataTable_NonBeam_BombExplosion.</summary>
-    BombExplosion,
     /// <summary>ProjectileDataTable_NonBeam_PlasmaSBA.</summary>
     PlasmaSBA,
     /// <summary>ProjectileDataTable_NonBeam_WaveSBA.</summary>
     WaveSBA,
     /// <summary>ProjectileDataTable_NonBeam_SpazerSBA.</summary>
     SpazerSBA,
-    /// <summary>ProjectileDataTable_NonBeam_SuperMissileExplosion.</summary>
-    SuperMissileExplosion,
-    /// <summary>ProjectileDataTable_NonBeam_Projectile25.</summary>
-    Projectile25,
     /// <summary>ProjectileDataTable_NonBeam_SpazerSBATrail.</summary>
     SpazerSBATrail,
     /// <summary>ProjectileDataTable_NonBeam_ShinesparkEcho.</summary>
     ShinesparkEcho,
-    /// <summary>ProjectileDataTable_NonBeam_Projectile27.</summary>
-    Projectile27,
 }

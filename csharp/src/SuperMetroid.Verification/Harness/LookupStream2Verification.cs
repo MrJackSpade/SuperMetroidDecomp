@@ -308,7 +308,7 @@ internal static class LookupStream2Verification
         }
         AssertEqual(48, physicalRecords, "All48 physical Plasma startup records including omitted stages");
         AssertEqual(0x93f5e2, physicalAddress, "Native Plasma startup layout end after the final ten-part composition");
-        AssertEqual(417, expected.Count, "Native805 timed records reference417 distinct compositions");
+        AssertEqual(417, expected.Count, "The timed records reference417 distinct compositions");
         int ordinal = 0;
         foreach (ushort pointer in expected)
             AssertEqual(pointer, ProjectileSpriteDefinitions.NativePointers[ordinal++], "Calculated projectile identity equals native sorted selector union");
@@ -1695,7 +1695,7 @@ internal static class LookupStream2Verification
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(json));
         var remaining = (System.Collections.IDictionary)stock.sprites;
-        AssertEqual(0, remaining.Count, "All805 stock selector operands calculate; independent selection policies remain required");
+        AssertEqual(0, remaining.Count, "Every stock selector operand calculates; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
         for (int direction = 0; direction < 8; direction++)
@@ -1739,7 +1739,7 @@ internal static class LookupStream2Verification
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }
-        AssertEqual(797, checkedWaveIce, "All other calculated beam/effect records including18 explicit exceptional policies");
+        AssertEqual(787, checkedWaveIce, "All other calculated beam/effect records including18 explicit exceptional policies");
         AssertEqual(8, checkedAxialEndPairs, "All four reversed axial end-pairs use exact native operands");
         AssertEqual(10, checkedCappedSweep, "All ten capped sweep phases use exact native operands");
         int checkedBombs = 0;
@@ -1755,7 +1755,7 @@ internal static class LookupStream2Verification
         AssertEqual(14, checkedBombs, "Both normal/fast PowerBomb and Bomb visual cycles");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x87c3), "Wave self-jump is not accepted as a timed record");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
-        Console.WriteLine("Stream2 Power bindings: 805calculated beam/effect selectors,805native operands,zero stored stock operands and805actual handler paths pass.");
+        Console.WriteLine($"Stream2 Power bindings: {SamusProjectileRecordDefinitions.TimedRecordAddresses.Count} calculated beam/effect selectors and native operands, zero stored stock operands and actual handler paths pass.");
     }
 
     /// <summary>Checks Golden Torizo foot extended frames and OAM geometry.</summary>

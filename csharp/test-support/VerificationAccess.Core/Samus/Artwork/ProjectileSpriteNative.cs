@@ -71,10 +71,9 @@ internal static class ProjectileSpriteNative
     /// <summary>The timed record stored at bank-$93 <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No timed record is stored there.</exception>
     internal static SamusProjectileFrame Frame(int address) =>
-        Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length)
-            .FirstOrDefault(record => SamusProjectileProgramAddresses.RecordAddress(record) == address, -1) is int record and >= 0
-            ? new SamusProjectileFrame(record)
-            : throw new InvalidDataException($"No timed projectile record is stored at $93:{address:X4}.");
+        SamusProjectileRecordDefinitions.Frames.Where(record => SamusProjectileProgramAddresses.RecordAddress(record) == address)
+            .Select(record => (SamusProjectileFrame?)record).SingleOrDefault()
+            ?? throw new InvalidDataException($"No timed projectile record is stored at $93:{address:X4}.");
 
     /// <summary>Where <paramref name="sprite"/> sits in <paramref name="all"/>.</summary>
     private static int Place(IReadOnlyList<ProjectileSpriteId> all, ProjectileSpriteId sprite)
@@ -100,7 +99,7 @@ internal static class ProjectileSpriteNative
     {
         /// <summary>Every timed record's bank-$93 address, in address order.</summary>
         internal static IReadOnlyList<ushort> TimedRecordAddresses =>
-            [.. Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length).Select(SamusProjectileProgramAddresses.RecordAddress).Order()];
+            [.. SamusProjectileRecordDefinitions.Frames.Select(SamusProjectileProgramAddresses.RecordAddress).Order()];
     }
 
     /// <summary>A timed record's stock composition by address.</summary>
@@ -114,7 +113,7 @@ internal static class ProjectileSpriteNative
     extension(ProjectileFrameBindingFormat)
     {
         /// <summary>The binding key of the timed record stored at bank-$93 <paramref name="address"/>.</summary>
-        internal static string FrameNameAt(int address) => ProjectileFrameBindingFormat.FrameName(Frame(address).Record);
+        internal static string FrameNameAt(int address) => ProjectileFrameBindingFormat.FrameName(Frame(address));
     }
 
     /// <summary>Installed bindings by record address.</summary>

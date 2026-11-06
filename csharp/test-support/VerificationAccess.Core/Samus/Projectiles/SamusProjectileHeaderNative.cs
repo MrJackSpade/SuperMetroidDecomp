@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Verification's native view of Samus projectile headers and selectors: the bank-$93 address of each.</summary>
@@ -35,17 +37,11 @@ internal static class SamusProjectileHeaderNative
         SamusProjectileHeader.SuperMissileLink => 0x866d,
         SamusProjectileHeader.PowerBomb => 0x8671,
         SamusProjectileHeader.Bomb => 0x8675,
-        SamusProjectileHeader.BeamExplosion => 0x8679,
-        SamusProjectileHeader.MissileExplosion => 0x867d,
-        SamusProjectileHeader.BombExplosion => 0x8681,
         SamusProjectileHeader.PlasmaSBA => 0x8685,
         SamusProjectileHeader.WaveSBA => 0x8689,
         SamusProjectileHeader.SpazerSBA => 0x868d,
-        SamusProjectileHeader.SuperMissileExplosion => 0x8691,
-        SamusProjectileHeader.Projectile25 => 0x8695,
         SamusProjectileHeader.SpazerSBATrail => 0x86ab,
         SamusProjectileHeader.ShinesparkEcho => 0x86c1,
-        SamusProjectileHeader.Projectile27 => 0x86d7,
         _ => throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header."),
     };
 
@@ -54,21 +50,43 @@ internal static class SamusProjectileHeaderNative
         Enum.GetValues<SamusProjectileHeader>().Where(header => (0x930000 | Address(header)) == address)
             .Select(header => (SamusProjectileHeader?)header).SingleOrDefault();
 
-    /// <summary>The selector tables by bank-$93 address.</summary>
-    extension(SamusProjectileSelectionDefinitions)
+    /// <summary>$93:83C1: the uncharged beam selectors, by four-bit combination.</summary>
+    private const int UnchargedBeamSelectors = 0x9383c1;
+    /// <summary>$93:83D9: the charged beam selectors, by four-bit combination.</summary>
+    private const int ChargedBeamSelectors = 0x9383d9;
+    /// <summary>$93:83F1: the missile and bomb selectors, by projectile family row.</summary>
+    private const int NonBeamSelectors = 0x9383f1;
+    /// <summary>$93:8403: the echo and trail selectors, by the echo's combination less two.</summary>
+    private const int EchoSelectors = 0x938403;
+    /// <summary>The combinations before the first echo selector's: an echo's entry is its combination's index less two.</summary>
+    private const int EchoSelectorLeadingCombinations = 2;
+    /// <summary>$93:8413: the special-attack selectors, by four-bit combination.</summary>
+    private const int SpecialAttackSelectors = 0x938413;
+    /// <summary>$93:842F: the Super Missile link's selector, the third of its table.</summary>
+    private const int SuperMissileLinkSelector = 0x93842f;
+
+    /// <summary>
+    /// Every selection the port makes and the cartridge selector word that makes it: each combination's uncharged and
+    /// charged shot (a Spazer and Plasma combination's read past its table, into the next), each missile and bomb family's
+    /// row, each echo's entry, each retail special attack with a particle header, and the Super Missile link.
+    /// </summary>
+    internal static IEnumerable<ProjectileSelectorWord> Selectors()
     {
-        /// <summary>
-        /// The word at bank-$93 <paramref name="address"/>: a selector entry's header address (zero for none) or a header's
-        /// leading damage word; anything else fails.
-        /// </summary>
-        internal static ushort ReadWord(int address)
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
         {
-            if (address is >= 0x9383c1 and < 0x938431 && (address & 1) == 1)
-                return SamusProjectileSelection.Entry(SamusProjectileSelectorTable.UnchargedBeam, (address - 0x9383c1) / 2)
-                    is { } header ? Address(header) : (ushort)0;
-            return At(address) is { } damaged ? checked((ushort)SamusProjectileDamage.Read(damaged))
-                : throw new InvalidDataException($"Projectile selector word ${address:X6} is outside the compiled cartridge definitions.");
+            int row = sizeof(ushort) * beams.TableIndex;
+            yield return new(UnchargedBeamSelectors + row, SamusProjectileSelection.BeamShot(beams, charged: false));
+            yield return new(ChargedBeamSelectors + row, SamusProjectileSelection.BeamShot(beams, charged: true));
+            if (beams.IsRetail && SamusProjectileSelection.SpecialAttack(beams) is { } special)
+                yield return new(SpecialAttackSelectors + row, special);
         }
+        foreach (SamusProjectileFamily family in (SamusProjectileFamily[])[
+            SamusProjectileFamily.Missile, SamusProjectileFamily.SuperMissile, SamusProjectileFamily.PowerBomb, SamusProjectileFamily.Bomb])
+            yield return new(NonBeamSelectors + sizeof(ushort) * family.TableRow, SamusProjectileSelection.NonBeam(family));
+        foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
+            yield return new(EchoSelectors + sizeof(ushort) * (SamusProjectileType.EchoOf(echo).BeamCombination.TableIndex - EchoSelectorLeadingCombinations),
+                SamusProjectileSelection.Echo(echo));
+        yield return new(SuperMissileLinkSelector, SamusProjectileHeader.SuperMissileLink);
     }
 
     /// <summary>Header damage by bank-$93 address.</summary>

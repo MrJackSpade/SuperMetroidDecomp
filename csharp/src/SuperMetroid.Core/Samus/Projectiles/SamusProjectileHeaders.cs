@@ -68,29 +68,17 @@ internal static class SamusProjectileHeaders
         // SuperMissile
         SamusProjectileHeader.SuperMissile => new ProjectileHeaderLayout([P.SuperMissileUpFacingRight, P.SuperMissileUpRight, P.SuperMissileRight, P.SuperMissileDownRight, P.SuperMissileDownFacingRight, P.SuperMissileDownFacingRight, P.SuperMissileDownLeft, P.SuperMissileLeft, P.SuperMissileUpLeft, P.SuperMissileUpFacingRight], 0b0000000000),
         // SuperMissileLink
-        SamusProjectileHeader.SuperMissileLink => new ProjectileHeaderLayout([P.SuperMissileLink, null, P.PowerBomb, null, P.Bomb, null, P.BeamExplosion, null, P.MissileExplosion, null], 0b1000000000),
+        SamusProjectileHeader.SuperMissileLink => new ProjectileHeaderLayout([P.SuperMissileLink], 0),
         // PowerBomb
-        SamusProjectileHeader.PowerBomb => new ProjectileHeaderLayout([P.PowerBomb, null, P.Bomb, null, P.BeamExplosion, null, P.MissileExplosion, null, P.BombExplosion, null], 0b0010000000),
+        SamusProjectileHeader.PowerBomb => new ProjectileHeaderLayout([P.PowerBomb], 0),
         // Bomb
-        SamusProjectileHeader.Bomb => new ProjectileHeaderLayout([P.Bomb, null, P.BeamExplosion, null, P.MissileExplosion, null, P.BombExplosion, null, P.PlasmaSBA, null], 0b0000100000),
-        // BeamExplosion
-        SamusProjectileHeader.BeamExplosion => new ProjectileHeaderLayout([P.BeamExplosion, null, P.MissileExplosion, null, P.BombExplosion, null, P.PlasmaSBA, null, P.WaveSBA, null], 0b0000001000),
-        // MissileExplosion
-        SamusProjectileHeader.MissileExplosion => new ProjectileHeaderLayout([P.MissileExplosion, null, P.BombExplosion, null, P.PlasmaSBA, null, P.WaveSBA, null, P.SpazerUpFacingRight, null], 0b0000000010),
-        // BombExplosion
-        SamusProjectileHeader.BombExplosion => new ProjectileHeaderLayout([P.BombExplosion, null, P.PlasmaSBA, null, P.WaveSBA, null, P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null], 0b0000000000),
+        SamusProjectileHeader.Bomb => new ProjectileHeaderLayout([P.Bomb], 0),
         // PlasmaSBA
-        SamusProjectileHeader.PlasmaSBA => new ProjectileHeaderLayout([P.PlasmaSBA, null, P.WaveSBA, null, P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
+        SamusProjectileHeader.PlasmaSBA => new ProjectileHeaderLayout([P.PlasmaSBA], 0),
         // WaveSBA
-        SamusProjectileHeader.WaveSBA => new ProjectileHeaderLayout([P.WaveSBA, null, P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
+        SamusProjectileHeader.WaveSBA => new ProjectileHeaderLayout([P.WaveSBA], 0),
         // SpazerSBA
-        SamusProjectileHeader.SpazerSBA => new ProjectileHeaderLayout([P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
-        // SuperMissileExplosion
-        SamusProjectileHeader.SuperMissileExplosion => new ProjectileHeaderLayout([P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
-        // Projectile27
-        SamusProjectileHeader.Projectile27 => new ProjectileHeaderLayout([P.Projectile27, null, null, null, null, null, P.PowerUpFacingRight, null, null, null], 0b0000010000),
-        // Projectile25
-        SamusProjectileHeader.Projectile25 => new ProjectileHeaderLayout([P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
+        SamusProjectileHeader.SpazerSBA => new ProjectileHeaderLayout([P.SpazerUpFacingRight], 0),
         // SpazerSBATrail
         SamusProjectileHeader.SpazerSBATrail => new ProjectileHeaderLayout([P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight], 0b0000000000),
         // ShinesparkEcho
@@ -103,7 +91,7 @@ internal static class SamusProjectileHeaders
     {
         ProjectileHeaderLayout layout = Layout(header);
         if ((uint)direction >= layout.Fields.Length)
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "A projectile header holds ten list fields.");
+            throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Projectile header {header} keeps {layout.Fields.Length} list fields; no shot reads it in another direction.");
         return layout.Fields[direction] is { } program ? program
             : (layout.Empty & 1 << direction) != 0 ? null
             : throw new InvalidDataException($"Projectile header {header} field {direction} is not a list.");

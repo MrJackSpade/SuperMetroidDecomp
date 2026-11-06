@@ -1284,17 +1284,9 @@ internal static class LookupStream1Verification
     /// <summary>Checks the full bank-$93 projectile selection table against compiled words.</summary>
     internal static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
     {
-        for (int address = 0x9383c1; address < 0x9386db; address += 2)
-        {
-            ushort expected = LittleEndianBytes.Word(LookupStream1SelectionRomByte(rom, address), LookupStream1SelectionRomByte(rom, address + 1));
-            AssertEqual(expected, SamusProjectileProgramsVerification.SelectionWord(address),
-                $"stream1 original projectile selector/header {address:X6}");
-            AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(address + 1),
-                "stream1 unaligned selector/header rejection");
-        }
-        foreach (int invalid in new[] { int.MinValue, 0x9283c1, 0x9383bf, 0x9386db, 0x9483c1, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(invalid),
-                "stream1 selector exact address-domain rejection");
+        SamusProjectileProgramsVerification.VerifySelectionWords(
+            address => LittleEndianBytes.Word(LookupStream1SelectionRomByte(rom, address), LookupStream1SelectionRomByte(rom, address + 1)),
+            "stream1 original projectile selection");
     }
 
     /// <summary>Reads bank-$93 projectile selector words.</summary>
@@ -2020,6 +2012,11 @@ internal static class LookupStream1Verification
         var expected = new List<ushort>();
         for (int address = 0x9386db; address < 0x93a1a1;)
         {
+            if (UnusedProjectileListEnd(address) is { } unusedEnd)
+            {
+                address = unusedEnd;
+                continue;
+            }
             ushort word = Word(address);
             if (address == 0x93a117)
             {
@@ -2038,7 +2035,7 @@ internal static class LookupStream1Verification
                 address += 2;
             }
         }
-        AssertEqual(805, expected.Count, "Independent native timed-record count");
+        AssertEqual(795, expected.Count, "Independent native timed-record count outside the two unused lists");
         AssertTrue(SamusProjectileRecordDefinitions.TimedRecordAddresses.SequenceEqual(expected), "Exact calculated pointer domain/order");
         AssertEqual(expected.Count, SamusProjectileRecordDefinitions.TimedRecordAddresses.Count, "Calculated pointer view count");
         for (int index = 0; index < expected.Count; index++)
@@ -2088,10 +2085,21 @@ internal static class LookupStream1Verification
         AssertEqual((Word(0x93d64c) & 0x1ff) + 4, ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread,
             "Shared initial Spazer lane source");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileRecordDefinitions.TimedRecordAddresses[-1], "Lower indexed view rejection");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileRecordDefinitions.TimedRecordAddresses[805], "Upper indexed view rejection");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileRecordDefinitions.TimedRecordAddresses[expected.Count], "Upper indexed view rejection");
         AssertEqual(Extent16<RoomPixels>.Zero, SamusProjectilePrograms.InitialRadius(null), "A shot with no list (the safe Murder Beam) has zero radii");
-        Console.WriteLine($"Projectile radii:805 native calculated records/1610 bytes,{interpreted} actual projectile/{bombInterpreted} bomb records with zero reads; exact domain/order/bounds pass.");
+        Console.WriteLine($"Projectile radii:{expected.Count} native calculated records/{2 * expected.Count} bytes,{interpreted} actual projectile/{bombInterpreted} bomb records with zero reads; exact domain/order/bounds pass.");
     }
+
+    /// <summary>
+    /// The end of the unused bank-$93 list starting at <paramref name="address"/>, or null when none starts there: the lists
+    /// of the two unused echo-table projectiles, which no header the port keeps names and the port does not define.
+    /// </summary>
+    private static int? UnusedProjectileListEnd(int address) => address switch
+    {
+        0x93a0f3 => 0x93a117,
+        0x93a16d => 0x93a1a1,
+        _ => null,
+    };
 
     /// <summary>Reads native projectile radius words from bank-$93 programs.</summary>
     private static byte LookupStream1ProjectileRadiusLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
@@ -2105,6 +2113,7 @@ internal static class LookupStream1Verification
         int programStart = 0x9386db, ticks = 1;
         for (int address = programStart; address < 0x93a1a1;)
         {
+            if (UnusedProjectileListEnd(address) is { } unusedEnd) { address = unusedEnd; programStart = address; continue; }
             if (address == 0x93a117) { address += 2; programStart = address; continue; }
             ushort word = Word(address);
             mechanics.Add(address);
@@ -2124,9 +2133,9 @@ internal static class LookupStream1Verification
                 programStart = address; ticks = 1;
             }
         }
-        AssertEqual(805, records.Count, "Original timed-record scope");
-        AssertEqual(1816, mechanics.Count, "Original mechanics-word scope");
-        AssertEqual(105, programs.Count, "Independent native complete program domains");
+        AssertEqual(795, records.Count, "Original timed-record scope outside the two unused lists");
+        AssertEqual(1792, mechanics.Count, "Original mechanics-word scope outside the two unused lists");
+        AssertEqual(103, programs.Count, "Independent native complete program domains outside the two unused lists");
         var document = new ProjectileFrameBindingDocument
         {
             Version = ProjectileFrameBindingFormat.Version,
@@ -2189,7 +2198,7 @@ internal static class LookupStream1Verification
             }
             AssertTrue(finished, "Complete native startup and first loop or terminal deletion confirmed");
         }
-        Console.WriteLine($"Projectile programs:1816 native words,805 records,105 complete programs,{actualTicks} exact ticks per owner,{loops} loop returns/{deletions} terminal deletions, zero runtime reads; original domain preserved.");
+        Console.WriteLine($"Projectile programs:{mechanics.Count} native words,{records.Count} records,{programs.Count} complete programs,{actualTicks} exact ticks per owner,{loops} loop returns/{deletions} terminal deletions, zero runtime reads; original domain preserved.");
     }
 
     /// <summary>Reads native projectile program words for control and hold comparison.</summary>

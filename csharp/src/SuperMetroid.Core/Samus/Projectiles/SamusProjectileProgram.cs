@@ -281,8 +281,6 @@ public enum SamusProjectileProgram
     PlasmaSBA,
     /// <summary>The Super Missile explosion animation.</summary>
     SuperMissileExplosion,
-    /// <summary>The projectile 25 up facing right animation.</summary>
-    Projectile25UpFacingRight,
     /// <summary>The Shinespark echo up facing right animation.</summary>
     ShinesparkEchoUpFacingRight,
     /// <summary>The Spazer SBA trail up facing right animation.</summary>
@@ -291,6 +289,4 @@ public enum SamusProjectileProgram
     SpazerSBATrailUpFacingRightLoop,
     /// <summary>The Wave SBA animation.</summary>
     WaveSBA,
-    /// <summary>The projectile 27 animation.</summary>
-    Projectile27,
 }

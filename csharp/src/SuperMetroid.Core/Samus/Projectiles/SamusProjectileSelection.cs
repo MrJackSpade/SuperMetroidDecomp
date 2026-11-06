@@ -3,85 +3,55 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSelectionDefinit
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Which projectile a shot of each beam combination, charge and weapon selects.</summary>
+/// <summary>Which projectile header a beam shot, missile, bomb, special attack or echo starts from.</summary>
 internal static class SamusProjectileSelection
 {
-    /// <summary>The header <paramref name="table"/>'s entry <paramref name="index"/> selects.</summary>
-    /// <exception cref="InvalidDataException">The entry holds no header, or the index reads outside the tables.</exception>
-    internal static SamusProjectileHeader Select(SamusProjectileSelectorTable table, int index) =>
-        Entry(table, index) ?? throw new InvalidDataException($"{table} selector {index} holds no projectile header.");
+    /// <summary>
+    /// The header a shot of <paramref name="beams"/> starts from, charged when <paramref name="charged"/>. A Spazer and
+    /// Plasma combination fires what the game selects past the beam selectors (<see cref="UnauthoredBeamShots{TBeams, TProjectile}"/>).
+    /// </summary>
+    internal static SamusProjectileHeader BeamShot(SamusBeamCombination beams, bool charged) => beams.IsRetail
+        ? Lookup(charged ? ChargedBeamShots : UnchargedBeamShots, beams)
+        : UnauthoredShots.Shot(beams, charged);
 
-    /// <summary>The header <paramref name="table"/>'s entry <paramref name="index"/> holds, or null for an empty entry.</summary>
-    /// <exception cref="InvalidDataException">The index reads outside the tables.</exception>
-    internal static SamusProjectileHeader? Entry(SamusProjectileSelectorTable table, int index)
-    {
-        int position = Start(table) + index;
-        if ((uint)position >= EntryCount)
-            throw new InvalidDataException($"{table} selector {index} reads outside the projectile selector tables.");
-        if (position < 24)
-            return BeamHeader(position >= 12, SamusBeamCombinations.FromTableIndex(position % 12));
-        position -= 24;
-        if (position < 9)
-            return position switch
-            {
-                2 => SamusProjectileHeader.SuperMissile, 3 => SamusProjectileHeader.PowerBomb, 5 => SamusProjectileHeader.Bomb,
-                7 => SamusProjectileHeader.BeamExplosion, 8 => SamusProjectileHeader.MissileExplosion, _ => SamusProjectileHeader.Missile,
-            };
-        position -= 9;
-        if (position < 8)
-            return position switch
-            {
-                2 or 4 => SamusProjectileHeader.SpazerSBATrail, 3 => SamusProjectileHeader.Projectile25,
-                5 => SamusProjectileHeader.Projectile27, 7 => SamusProjectileHeader.ShinesparkEcho, _ => null,
-            };
-        position -= 8;
-        if (position < 12)
-            return SamusBeamCombinations.FromTableIndex(position) switch
-            {
-                SamusBeamCombination.Wave => SamusProjectileHeader.WaveSBA,
-                SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave => SamusProjectileHeader.SpazerSBA,
-                SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave => SamusProjectileHeader.PlasmaSBA,
-                SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.IceWave or
-                    SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
-                    SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => null,
-                SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
-                    SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
-                    throw new InvalidOperationException("The special-attack selector table has twelve rows."),
-                var beams => throw new ArgumentOutOfRangeException(nameof(table), beams, "Undefined beam combination."),
-            };
-        return position - 12 == 2 ? SamusProjectileHeader.SuperMissileLink : null;
-    }
+    /// <summary>
+    /// The animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, runs fired in
+    /// <paramref name="direction"/>, or null for none: its header's list for the direction, except the Murder Beam's,
+    /// which reads past the Power Bomb header it takes its damage from (<see cref="MurderBeamDirectionPrograms{TDirection, TProgram}"/>).
+    /// </summary>
+    internal static SamusProjectileProgram? BeamShotProgram(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>
+        IsMurderBeam(beams, charged)
+            ? MurderBeamPrograms.Program(direction)
+            : SamusProjectileHeaders.Program(BeamShot(beams, charged), direction.ToAimIndex());
 
-    /// <summary>Where <paramref name="table"/> starts among all the selector entries.</summary>
-    private static int Start(SamusProjectileSelectorTable table) => table switch
-    {
-        SamusProjectileSelectorTable.UnchargedBeam => 0,
-        SamusProjectileSelectorTable.ChargedBeam => 12,
-        SamusProjectileSelectorTable.NonBeam => 24,
-        SamusProjectileSelectorTable.EchoAndTrail => 33,
-        SamusProjectileSelectorTable.SpecialAttack => 41,
-        SamusProjectileSelectorTable.SuperMissileLink => 53,
-        _ => throw new ArgumentOutOfRangeException(nameof(table), table, "Undefined projectile selector table."),
-    };
+    /// <summary>Every animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, starts in any direction.</summary>
+    internal static IEnumerable<SamusProjectileProgram> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
+        IsMurderBeam(beams, charged) ? MurderBeamPrograms.Programs : SamusProjectileHeaders.Programs(BeamShot(beams, charged));
 
-    /// <summary>The charged or uncharged header for a supported equipment combination.</summary>
-    private static SamusProjectileHeader BeamHeader(bool charged, SamusBeamCombination beam) => beam switch
-    {
-        SamusBeamCombination.Power => charged ? SamusProjectileHeader.ChargedPower : SamusProjectileHeader.UnchargedPower,
-        SamusBeamCombination.Spazer => charged ? SamusProjectileHeader.ChargedSpazer : SamusProjectileHeader.UnchargedSpazer,
-        SamusBeamCombination.SpazerIce => charged ? SamusProjectileHeader.ChargedSpazerIce : SamusProjectileHeader.UnchargedSpazerIce,
-        SamusBeamCombination.SpazerIceWave => charged ? SamusProjectileHeader.ChargedSpazerIceWave : SamusProjectileHeader.UnchargedSpazerIceWave,
-        SamusBeamCombination.PlasmaIceWave => charged ? SamusProjectileHeader.ChargedPlasmaIceWave : SamusProjectileHeader.UnchargedPlasmaIceWave,
-        SamusBeamCombination.Ice => charged ? SamusProjectileHeader.ChargedIce : SamusProjectileHeader.UnchargedIce,
-        SamusBeamCombination.Wave => charged ? SamusProjectileHeader.ChargedWave : SamusProjectileHeader.UnchargedWave,
-        SamusBeamCombination.Plasma => charged ? SamusProjectileHeader.ChargedPlasma : SamusProjectileHeader.UnchargedPlasma,
-        SamusBeamCombination.IceWave => charged ? SamusProjectileHeader.ChargedIceWave : SamusProjectileHeader.UnchargedIceWave,
-        SamusBeamCombination.SpazerWave => charged ? SamusProjectileHeader.ChargedSpazerWave : SamusProjectileHeader.UnchargedSpazerWave,
-        SamusBeamCombination.PlasmaWave => charged ? SamusProjectileHeader.ChargedPlasmaWave : SamusProjectileHeader.UnchargedPlasmaWave,
-        SamusBeamCombination.PlasmaIce => charged ? SamusProjectileHeader.ChargedPlasmaIce : SamusProjectileHeader.UnchargedPlasmaIce,
-        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
-            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
-            throw new InvalidOperationException($"{beam} has no beam header."),
-        _ => throw new ArgumentOutOfRangeException(nameof(beam), beam, "Undefined beam combination."),
-    };
+    /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
+    private static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;
+
+    /// <summary>The header a fired missile or placed bomb of <paramref name="family"/> starts from.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No missile or bomb is of the family.</exception>
+    internal static SamusProjectileHeader NonBeam(SamusProjectileFamily family) => Lookup(NonBeamProjectiles, family);
+
+    /// <summary>
+    /// The header the particles of the special attack <paramref name="beams"/> fires start from, or null for a combination
+    /// whose attack has no particle header.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The combination pairs Spazer with Plasma, which fires no special attack.</exception>
+    internal static SamusProjectileHeader? SpecialAttack(SamusBeamCombination beams) =>
+        !beams.IsRetail ? throw new InvalidOperationException($"{beams} fires no special attack.")
+            : SpecialAttacks.TryGetValue(beams, out SamusProjectileHeader header) ? header : null;
+
+    /// <summary>The header <paramref name="echo"/> starts from.</summary>
+    internal static SamusProjectileHeader Echo(SamusBeamEcho echo) => Lookup(Echoes, echo);
+
+    /// <summary>The header <paramref name="selections"/> names for <paramref name="key"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The selections name no header for the key.</exception>
+    private static SamusProjectileHeader Lookup<TKey>(IReadOnlyDictionary<TKey, SamusProjectileHeader> selections, TKey key)
+        where TKey : notnull =>
+        selections.TryGetValue(key, out SamusProjectileHeader header)
+            ? header
+            : throw new ArgumentOutOfRangeException(nameof(key), key, "No projectile header is selected for this key.");
 }

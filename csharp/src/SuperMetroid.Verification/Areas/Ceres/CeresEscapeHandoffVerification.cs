@@ -186,11 +186,11 @@ internal static class CeresEscapeHandoffVerification
     {
         var departure = new CeresDepartureState();
         departure.Begin();
-        AssertEqual(60, departure.HoldFramesRemaining.RawValue, "Ceres state 20 starts at 60");
+        AssertEqual(60, departure.HoldFramesRemaining, "Ceres state 20 starts at 60");
 
         StepFrames(59, _ =>
             AssertTrue(!departure.StepHoldAfterGameplay(), "first 59 state-20 calls retain hold"));
-        AssertEqual(1, departure.HoldFramesRemaining.RawValue, "state 20 has one call remaining");
+        AssertEqual(1, departure.HoldFramesRemaining, "state 20 has one call remaining");
         AssertTrue(departure.StepHoldAfterGameplay(), "60th state-20 call enters blackout");
         AssertEqual(CeresDeparturePhase.FadingToBlack, departure.Phase, "state 21 is active");
 

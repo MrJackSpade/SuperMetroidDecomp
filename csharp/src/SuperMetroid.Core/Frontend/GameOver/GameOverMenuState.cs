@@ -36,7 +36,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Current step of the Baby pose program, or null before the first animation update of this visit.</summary>
     internal int? BabyStep { get; private set; }
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
-    internal WrappingCountdown BabyFrameHold { get; private set; }
+    internal int BabyFrameHold { get; private set; }
     /// <summary>
     /// The colours the Baby shows (#1512): those of the pose program's current step, which the step loads as it runs, or
     /// its idle colours before the program's first step.
@@ -157,7 +157,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 audio.QueueMusic(MusicRequest.Stop);
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
                 BabyStep = null;
-                BabyFrameHold = WrappingCountdown.Start(0);
+                BabyFrameHold = 0;
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
                 brightness = 0;
@@ -195,8 +195,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 {
                     // The game holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
-                    BabyFrameHold =
-                        WrappingCountdown.Start(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
+                    BabyFrameHold = GameOverMenuDefinitions.AcceptedAnswerHoldDuration;
                     if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;
                     else
@@ -258,22 +257,22 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Advances the compiled Baby pose stream and queues its sounds; the step reached names the colours the Baby shows.</summary>
     private void StepCompiledBabyMetroid()
     {
-        if (BabyFrameHold.IsZero)
+        if (BabyFrameHold == 0)
         {
             BabyStep = 0;
-            BabyFrameHold = WrappingCountdown.Start(GameOverBabyAnimation.Get(0).Duration);
+            BabyFrameHold = GameOverBabyAnimation.Get(0).Duration;
         }
 
-        BabyFrameHold = BabyFrameHold.Decrement().Remaining;
+        BabyFrameHold--;
         GameOverBabyScriptStep current = GameOverBabyAnimation.Get(BabyStep ??
             throw new InvalidOperationException("The game-over Baby program is held before its first step."));
-        if (BabyFrameHold.IsZero)
+        if (BabyFrameHold == 0)
         {
             if (current.SoundAfter != GameOverBabySound.None)
                 QueueCompiledBabySound(current.SoundAfter);
             current = GameOverBabyAnimation.Get(current.NextStep);
             BabyStep = current.Step;
-            BabyFrameHold = WrappingCountdown.Start(current.Duration);
+            BabyFrameHold = current.Duration;
         }
     }
 

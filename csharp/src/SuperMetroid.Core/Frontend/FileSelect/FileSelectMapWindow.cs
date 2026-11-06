@@ -11,7 +11,7 @@ public sealed class FileSelectMapWindow
     /// <summary>Current 16.16 left, right, top, and bottom clipping positions.</summary>
     internal readonly FixedCoordinate[] edges = new FixedCoordinate[4];
     /// <summary>Signed-underflow countdown controlling the final moving frame.</summary>
-    private WrappingCountdown timer;
+    private int timer;
 
     /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
     /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
@@ -32,8 +32,8 @@ public sealed class FileSelectMapWindow
         var label = installedLabels.Get(area);
         edges[0] = edges[1] = new FixedCoordinate(label.X, 0);
         edges[2] = edges[3] = new FixedCoordinate(label.Y, 0);
-        timer = WrappingCountdown.Start(motion.Timer);
-        if (timer.IsNegative)
+        timer = Ensure.BetweenInclusive(0, ushort.MaxValue, motion.Timer);
+        if (timer > short.MaxValue)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
         velocities[0] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Left));
         velocities[1] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Right));
@@ -62,7 +62,7 @@ public sealed class FileSelectMapWindow
     {
         var window = new FileSelectMapWindow(area, labels);
         window.IsReturning = true;
-        window.timer = window.timer.AddFrames(-FileSelectMapDefinitions.ReturnWindowTimerReduction);
+        window.timer -= FileSelectMapDefinitions.ReturnWindowTimerReduction;
         int inset = FileSelectMapDefinitions.ReturnWindowInset;
         window.edges[0] = window.edges[2] = new FixedCoordinate(inset, 0);
         window.edges[1] = new FixedCoordinate(FrontendFrame.Width - inset, 0);
@@ -88,8 +88,7 @@ public sealed class FileSelectMapWindow
             RaiseWholeWord(2, 1);
             LowerWholeWord(3, 224);
         }
-        timer = timer.Decrement().Remaining;
-        IsComplete = timer.IsNegative;
+        IsComplete = --timer < 0;
         return IsComplete;
     }
 

@@ -19,14 +19,14 @@ internal static class CeresSpawnerScheduleVerification
         {
             var native = new IntroDiscoverySprite(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteProgram.CeresExplosionSpawner);
             ushort countdown = 0;
-            WrappingCountdown actualCountdown = WrappingCountdown.Start(0);
+            int actualCountdown = 0;
             bool disabled = false;
             for (int frame = 1; frame <= 300; frame++)
             {
                 if (frame == reseedFrame)
                 {
                     countdown = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8bc33c);
-                    actualCountdown = WrappingCountdown.Start(CeresExplosionDefinitions.RepeatingCountdownSeed);
+                    actualCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
                 }
                 CeresExplosionSpawnEvents expected = default;
                 if (native.IsActive && native.ListFrameBehavior == CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating && !disabled)
@@ -87,15 +87,15 @@ internal static class CeresSpawnerScheduleVerification
                 });
                 AssertEqual(expected, CeresExplosions.EventsAtFrame(frame, frame < departure, ref actualCountdown),
                     $"native spawner events at frame{frame}, reset{reseedFrame}, departure{departure}");
-                AssertEqual(countdown, actualCountdown.RawValue, "native repeat countdown including late fade reset");
+                AssertEqual(countdown, actualCountdown, "native repeat countdown including late fade reset");
             }
             AssertEqual(false, native.IsActive, "native spawner terminates");
         }
         foreach (int outside in new[] { int.MinValue, -1, 0, 301, int.MaxValue })
         {
-            WrappingCountdown untouched = WrappingCountdown.Start(123);
+            int untouched = 123;
             AssertEqual(default(CeresExplosionSpawnEvents), CeresExplosions.EventsAtFrame(outside, true, ref untouched), "outside finite spawner lifetime");
-            AssertEqual((ushort)123, untouched.RawValue, "inactive countdown is untouched");
+            AssertEqual(123, untouched, "inactive countdown is untouched");
         }
     }
 }

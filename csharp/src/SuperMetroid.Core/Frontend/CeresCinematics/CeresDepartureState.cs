@@ -18,7 +18,7 @@ public sealed class CeresDepartureState
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
     /// <summary>Live state-$20 countdown seeded to 60 by Samus code two.</summary>
-    public WrappingCountdown HoldFramesRemaining { get; private set; }
+    public int HoldFramesRemaining { get; private set; }
 
     /// <summary>
     /// Master brightness during the state-$21 fade, from fifteen (full) down to zero (black); every step is
@@ -33,7 +33,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.Inactive)
             throw new InvalidOperationException("Ceres elevator departure was started twice.");
 
-        HoldFramesRemaining = WrappingCountdown.Start(CeresElevatorShaftRoomMainState.DepartureHoldFrames);
+        HoldFramesRemaining = CeresElevatorShaftRoomMainState.DepartureHoldFrames;
         Brightness = 15;
         Phase = CeresDeparturePhase.HoldingOnElevator;
     }
@@ -48,11 +48,9 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.HoldingOnElevator)
             throw new InvalidOperationException("Ceres departure hold is not active.");
 
-        // The game decrements after GameState_8 returns, then accepts both zero
-        // and signed underflow. Begin() always seeds 60, so zero is the reachable result;
-        // preserving the signed check documents and tests the actual 16-bit contract.
-        HoldFramesRemaining = HoldFramesRemaining.Decrement().Remaining;
-        if (!HoldFramesRemaining.IsZero && !HoldFramesRemaining.IsNegative)
+        // The game decrements after GameState_8 returns, then accepts both zero and a count run past zero. Begin()
+        // always seeds 60 and the hold ends on its expiry, so zero is the reachable result.
+        if (--HoldFramesRemaining > 0)
             return false;
 
         Phase = CeresDeparturePhase.FadingToBlack;

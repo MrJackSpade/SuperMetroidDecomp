@@ -17,10 +17,10 @@ internal static class DisplayPacketInputTests
 {
     /// <summary>
     /// The display model's values that still live in Core's Hardware module until #1422 moves them out: its colours and
-    /// the layers a line shows and a blend's layers. Every other type there is a console memory image, register or layout the backend must not
+    /// the layers a line shows. Every other type there is a console memory image, register or layout the backend must not
     /// take.
     /// </summary>
-    private static readonly HashSet<Type> ModelValues = [typeof(RgbColor), typeof(RgbaPixel), typeof(ScreenLayers), typeof(ColorBlend)];
+    private static readonly HashSet<Type> ModelValues = [typeof(RgbColor), typeof(RgbaPixel), typeof(ScreenLayers)];
 
     /// <summary>Checks the renderer's frame input and every member type of the backend assembly.</summary>
     internal static void Run()

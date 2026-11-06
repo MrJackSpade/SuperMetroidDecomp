@@ -86,8 +86,11 @@ internal static class XrayInputVerification
         AssertTrue(!reveal.Window.IsClosed, "full X-ray publishes a nonempty visible window");
         var pixels = DisplayRendering.Render(captured);
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
-        AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Half, reveal.Blend.Layers,
-            "a reveal room halves its added blend over both backgrounds, the sprites and the backdrop");
+        AssertEqual(BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop, reveal.Blend.Blended,
+            "a reveal room blends both backgrounds, the actors and the backdrop outside the cone");
+        AssertEqual(BlendOperation.Add, reveal.Blend.Operation, "a reveal room's blend adds");
+        AssertEqual(reveal.OverlayBehind is not null, reveal.Blend.Halved,
+            "a reveal room halves toward its liquid lying behind, and adds the X-ray's colour whole where none lies behind");
         AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Backdrop, "setup backdrop reaches the packet");
         // The background shows the reveal over the room's own blocks (#1403, #1431, #1514).
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.XrayReveal
@@ -116,7 +119,7 @@ internal static class XrayInputVerification
         var finishFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(finishFrame.Layers[0] is GameplayBlendLayer,
             "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
-        AssertEqual(0, ((GameplayBlendLayer)finishFrame.Layers[0]).Blend.FixedColor.Red,
+        AssertEqual(0, ((GameplayBlendLayer)finishFrame.Layers[0]).Blend.Colour.Red,
             "phase five clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");
@@ -145,9 +148,9 @@ internal static class XrayInputVerification
             var baseRooms = ((GameplaySceneLayer)baseFrame.Layers[0]).Rooms;
             AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Background == baseRooms.Background
                     && excluded.Gameplay.Rooms.BackgroundImage == baseRooms.BackgroundImage, "excluded room retains the room's own BG2");
-            AssertTrue((excluded.Blend.Layers & ColorBlend.Sprites) == 0, "an excluded room's blend leaves Samus color unchanged");
+            AssertTrue((excluded.Blend.Blended & BlendedLayers.Actors) == 0, "an excluded room's blend leaves Samus color unchanged");
             AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
-                excluded.Gameplay.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "CEFB alone removes BG2");
+                excluded.Gameplay.View.ShownLayers.HasFlag(ScreenLayers.Background), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         }
         Console.WriteLine("  X-ray input: normal Select/Run activation, full beam and release restore gameplay.");

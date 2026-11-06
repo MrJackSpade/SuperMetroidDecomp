@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="ForegroundScroll">The foreground pixel the screen's top-left corner shows.</param>
 /// <param name="BackgroundScroll">The background pixel the screen's top-left corner shows, on every line that has no scroll of its own.</param>
-/// <param name="MainScreenLayers">The layers the frame shows, replaced rather than combined where a per-line choice of layers is captured.</param>
+/// <param name="ShownLayers">The room's layers and the actors the frame shows, on every line no band of the scene shows its own.</param>
 /// <param name="BackgroundFirstLine">The first screen line the background is drawn on, within the gameplay area.</param>
 /// <param name="BackgroundEndLine">The screen line after the last one the background is drawn on.</param>
 /// <param name="BackgroundPixelation">How the background is pixelated.</param>
 public readonly record struct GameplaySceneView(
     Position16<RoomPixels> ForegroundScroll, Position16<BackgroundPixels> BackgroundScroll,
-    ScreenLayers MainScreenLayers,
+    ScreenLayers ShownLayers,
     int BackgroundFirstLine = 32, int BackgroundEndLine = 224,
     BackgroundPixelation BackgroundPixelation = default)
 {

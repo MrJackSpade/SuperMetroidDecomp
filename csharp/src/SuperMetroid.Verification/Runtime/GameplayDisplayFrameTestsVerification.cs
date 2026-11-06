@@ -106,8 +106,8 @@ internal static class GameplayDisplayFrameTestsVerification
         before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { PlacesBodyLayer = true, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
-        AssertPending(runtime, registers => registers.MainScreenLayers == before.MainScreenLayers, "Mother Brain's hidden background");
-        AssertPublished(runtime, registers => registers.MainScreenLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
+        AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
+        AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
             "Mother Brain's hidden background");
         AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.FixedColors.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
@@ -149,12 +149,12 @@ internal static class GameplayDisplayFrameTestsVerification
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(9, darkness.Blend.FixedColor.Red, "Fireflea's fixed colour publishes with its blend");
+        AssertEqual(9, darkness.Blend.Colour.Red, "Fireflea's fixed colour publishes with its blend");
         fixedColor.Color = fixedColor.Color.WithRed(4);
-        AssertEqual(9, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+        AssertEqual(9, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.Red,
             "a fixed colour chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(4, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+        AssertEqual(4, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.Red,
             "the next accepted frame publishes the chosen fixed colour");
         runtime.RoomFxOverlay.Type = originalFx;
         fixedColor.Color = RgbColor.Black;

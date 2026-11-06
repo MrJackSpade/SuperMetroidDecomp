@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The pixel planes of a pre-coloured room sheet, painted one four-bpp tile at a time over a tileset's background colours
-/// (#1392): each pixel's colour, palette index, tile priority and colour group.
+/// (#1392): each pixel's colour, palette index, whether it lies in a front tile (#1514) and colour group.
 /// </summary>
 /// <param name="size">The sheet's size.</param>
 internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
@@ -34,8 +34,8 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>Each pixel's colour group's place times sixteen plus its colour; zero where transparent.</summary>
     internal byte[] PaletteIndices { get; } = new byte[size.X * size.Y];
 
-    /// <summary>Each pixel's tile priority.</summary>
-    internal byte[] Priorities { get; } = new byte[size.X * size.Y];
+    /// <summary>One where the pixel lies in one of its layer's front tiles (#1514), zero elsewhere.</summary>
+    internal byte[] FrontTiles { get; } = new byte[size.X * size.Y];
 
     /// <summary>
     /// Paints <paramref name="tile"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
@@ -66,7 +66,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int index = word.PaletteIndex * RowColours + colour;
                 PaletteIndices[pixel] = (byte)index;
                 Pixels[pixel] = colours[index].ToRgbaPixel();
-                Priorities[pixel] = word.HasPriority ? (byte)1 : (byte)0;
+                FrontTiles[pixel] = word.HasPriority ? (byte)1 : (byte)0;
                 ImageColourGroup group = ImageColourGroup.Numbered(word.PaletteIndex);
                 groups = groups.With(group);
             }
@@ -101,7 +101,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 int pixel = (top + y) * Width + left + x;
                 int index = word.PaletteIndex * TwoBppRowColours + colour;
                 PaletteIndices[pixel] = (byte)index;
-                Priorities[pixel] = word.HasPriority ? (byte)1 : (byte)0;
+                FrontTiles[pixel] = word.HasPriority ? (byte)1 : (byte)0;
                 if (colour == 0)
                 {
                     Pixels[pixel] = default;
@@ -152,7 +152,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>The painted planes as a sheet whose colour groups draw in <paramref name="backgroundSets"/>, or in none named.</summary>
     private ComposedSpriteSheet Sheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets) =>
-        new(Size, Pixels, PaletteIndices, Priorities, new SpriteSheetDocument
+        new(Size, Pixels, PaletteIndices, FrontTiles, new SpriteSheetDocument
         {
             Version = SpriteSheetFile.Version,
             Palette = kind,

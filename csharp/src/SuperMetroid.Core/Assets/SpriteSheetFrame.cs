@@ -38,6 +38,13 @@ public sealed record SpriteSheetFrame
     /// <summary>The image's colour groups the frame's pixels were coloured from.</summary>
     public ImageColourGroups ColourGroups { get; }
 
+    /// <summary>
+    /// Where a gameplay draw of the frame sits among the room's layers (#1514), as the import decided from where the game
+    /// draws the frame as a whole; null for a frame that is not an actor's, such as a picture of a layer's tiles, and for
+    /// an empty frame.
+    /// </summary>
+    public ActorDepth? Depth { get; init; }
+
     /// <summary>Whether the frame is empty: a frame of no parts, which draws nothing.</summary>
     public bool IsEmpty => Size.X == 0;
 }

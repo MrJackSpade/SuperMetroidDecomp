@@ -25,7 +25,7 @@ public static class GameplayDisplayCapture
         LayeredScene basis = latched.ShowsPerspectiveFloor ? CapturePerspectiveFloorBase(frame) : CaptureOrdinaryBase(frame);
         var layers = new List<DisplayLayer>(basis.Layers.ToArray());
         GameplayRenderSnapshot scrolls = latched.Scrolls;
-        bool doorOwnsDisplay = live.DoorTransitionMainScreenLayers is not null;
+        bool doorOwnsDisplay = live.DoorTransitionShownLayers is not null;
         if (!doorOwnsDisplay && CaptureXray(frame, basis) is { } xray) return xray;
         if (!doorOwnsDisplay && latched.Phantoon is { } phantoon)
             layers[0] = CapturePhantoonBlending(phantoon, basis);
@@ -111,7 +111,7 @@ public static class GameplayDisplayCapture
         ScreenLineBand backgroundLines = bosses.DraygonBody is { } draygon
             ? DraygonBodyBand.ShownLines(draygon, scrolls.Layer1Position) : ScreenLineBand.Gameplay;
         Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
-        ScreenLayers displayedMainScreen = latched.MainScreen;
+        ScreenLayers displayedLayers = latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
         // below their cameras, so the backend draws the view with no offset of its own.
         var view = new GameplaySceneView(GameplaySceneView.ShownAtScreenTop(foregroundScroll),
@@ -120,10 +120,10 @@ public static class GameplayDisplayCapture
                 kraidBody is { } kraidY ? Add(kraidY.Y, shake.Background.Y)
                 : crocomireBody is { } crocomireY ? Add(crocomireY.Y, shake.Background.Y)
                 : sky is { } latchedSky ? Add(latchedSky.BackgroundScroll.Y, shake.Background.Y) : backgroundScroll.Y)),
-            live.DoorTransitionMainScreenLayers ??
+            live.DoorTransitionShownLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
-                    : displayedMainScreen),
+                    : displayedLayers),
             backgroundLines.FirstLine, backgroundLines.EndLine,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
         // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
@@ -140,8 +140,8 @@ public static class GameplayDisplayCapture
                     : bosses.ShownBody ?? throw new InvalidOperationException("A boss body is shown once the accepted frame resolves its pictures."),
             };
         var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls { Horizontal = backgroundHorizontal, Vertical = backgroundVertical },
-            live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
-                ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
+            live.DoorTransitionShownLayers is null && live.MotherBrainAscentShowing
+                ? MotherBrainAscentDisplay.Bands : default);
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) },
             DisplayBrightness.Full);
     }
@@ -193,15 +193,21 @@ public static class GameplayDisplayCapture
     /// <summary>Adds signed quake displacement to a 16-bit layer scroll with sixteen-bit wrapping.</summary>
     private static int Add(int scroll, int shake) => CoordinateAxis.Wrap(scroll + shake);
 
-    /// <summary>Normal Fireflea blending, before and after X-ray owns the window.</summary>
-    private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor fixedColor, LayeredScene basis)
+    /// <summary>
+    /// Fireflea's darkness, before and after X-ray owns the window (#1514): its shade darkens the background and the backdrop
+    /// where each is frontmost, everywhere on the screen. The foreground and Samus keep their colours.
+    /// </summary>
+    private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor shade, LayeredScene basis)
     {
         if (basis.Layers[0] is not GameplaySceneLayer ordinary)
-            throw new InvalidOperationException("Fireflea darkness requires ordinary Mode-1 gameplay.");
-        // The source-aware operation is shared with X-ray, but an empty window means
-        // every pixel is eligible. Only the background and the backdrop blend:
-        // foreground and Samus must not be tinted by a whole-frame darkening overlay.
-        return new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = fixedColor });
+            throw new InvalidOperationException("Fireflea darkness requires ordinary gameplay.");
+        return new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new GameplayBlend
+        {
+            Blended = BlendedLayers.Background | BlendedLayers.Backdrop,
+            Operation = BlendOperation.Subtract,
+            Halved = false,
+            Colour = shade,
+        });
     }
 
     /// <summary>Captures the latched perspective floor and the HUD's layer, adding the layer-2 band below the floor during Ridley's getaway.</summary>
@@ -237,15 +243,24 @@ public static class GameplayDisplayCapture
             return ordinary;
         var gameplay = new GameplaySceneLayer(ordinary.View with
         {
-            MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background,
+            ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background,
         }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
-        // Fireflea rooms: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
-        // band; below it BG2 adds to eligible main sources, never occluding BG1.
-        return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
+        // Phantoon's translucent body is the background lying behind the room: it brightens the foreground, the actors taking
+        // part in blends and the backdrop wherever it shows, without ever covering the foreground (#1514).
+        return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new GameplayBlend
+        {
+            Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            Operation = BlendOperation.Add,
+            Halved = false,
+            Colour = RgbColor.Black,
+        }, backgroundBehind: true);
     }
 
-    /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
+    /// <summary>
+    /// The X-ray's scene (#1514): the room, its reveal's blocks inside the cone where the room reveals them, and outside the
+    /// cone the room blended toward its liquid or the X-ray's colour.
+    /// </summary>
     private static LayeredScene? CaptureXray(GameplayDisplayFrame frame, LayeredScene basis)
     {
         if (frame.FrameEnd.Xray is not { } xray) return null;
@@ -273,25 +288,27 @@ public static class GameplayDisplayCapture
         }
         view = view with
         {
-            MainScreenLayers = XrayRoomDisplayRules.RemovesBackground(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
+            ShownLayers = XrayRoomDisplayRules.RemovesBackground(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
                 ? ScreenLayers.Foreground | ScreenLayers.Sprites
                 : ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites,
         };
-        // Reveal BG2 must not inherit the room's parallax or liquid per-line scroll. Excluded
-        // rooms keep their background and its line scrolls.
+        // The reveal must not take the room's parallax or liquid line scrolls. Excluded rooms keep their background and its
+        // line scrolls.
         // The reveal is drawn on the background from block pictures (#1392), so the room's own background is not shown under it.
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = null, Sky = null, XrayReveal = shownReveal })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
-        var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
+        // Outside the cone the room blends with its liquid or fog lying behind it, except in Fireflea's room, whose darkness
+        // blends with its shade alone.
+        OverlayBlendLayer? overlayBehind = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
             ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.ShownFxOverlay) : null;
         // A room with no visible effect blends with nothing behind (#1514): the cleared effect area the original game left
-        // opaque is a presentation quirk the port does not keep.
-        // The arithmetic sign belongs to the room's blend configuration, even when
-        // its liquid plane is currently offscreen/disabled and supplies no pixels.
-        bool subtract = scene.LayerBlendConfiguration is
+        // opaque is a presentation quirk the port does not keep. With nothing lying behind, the room combines with the
+        // blend's colour unhalved, as it does wherever its liquid shows nothing.
+        // Whether the blend darkens belongs to the room's liquid, even when the liquid is currently off screen and shows
+        // nothing.
+        bool roomDarkens = scene.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
-        ColorBlend control = XrayRoomDisplayRules.Blend(mode, subtract);
         RgbColor fixedColor = latched.FixedColors.Shared;
         int red = fixedColor.Red, green = fixedColor.Green, blue = fixedColor.Blue;
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
@@ -307,7 +324,13 @@ public static class GameplayDisplayCapture
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.Layer1Position);
-        var layer = new GameplayBlendLayer(gameplay, window, reveal, new SceneBlend { Layers = control, BlendsWithLayersBehind = mode != XrayRoomBlendMode.Fireflea, FixedColor = new RgbColor(red, green, blue) }, sub);
+        var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
+        {
+            Blended = XrayRoomDisplayRules.Blended(mode),
+            Operation = XrayRoomDisplayRules.Operation(mode, roomDarkens),
+            Halved = XrayRoomDisplayRules.Halves(mode) && overlayBehind is not null,
+            Colour = new RgbColor(red, green, blue),
+        }, overlayBehind);
         return new(paint, new DisplayLayer[] { layer, Hud(latched) }, basis.Brightness);
     }
 }

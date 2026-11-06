@@ -103,7 +103,7 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("shade inks", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Inks.AsSpan()));
                 content.Append("shade colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Colours.AsSpan()));
             }
-            content.AppendBytes("priorities", inks.SelectToArray(ink => ink.Priority));
+            content.AppendBytes("front tiles", inks.SelectToArray(ink => ink.FrontTile ? 1 : 0));
             foreach (string name in sheet.FrameNames.Order(StringComparer.Ordinal))
             {
                 SpriteSheetFrame frame = sheet.Frame(name);
@@ -116,6 +116,7 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("origin y", frame.Origin.Y);
                 foreach (ImageColourGroup group in ImageColourGroup.Every)
                     content.Append("colour group", frame.ColourGroups.Contains(group) ? 1 : 0);
+                content.AppendName("depth", frame.Depth?.ToString() ?? "none");
             }
         }
     }

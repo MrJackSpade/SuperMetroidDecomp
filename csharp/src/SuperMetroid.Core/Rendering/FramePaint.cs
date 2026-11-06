@@ -51,11 +51,15 @@ public sealed class FramePaint
     /// Keeps a gameplay frame's shading and its whole-frame sprite draws (#1512): its background pictures show their
     /// groups' shadings, its backdrop is the shading's, and each sprite draw names its shading, which also shows the
     /// display's fade, unless the fade spares Samus and the draw is hers. An escape timer draw shows its pictures'
-    /// group's shading after its own, as a door's fade keeps it partly lit like the HUD.
+    /// group's shading after its own, as a door's fade keeps it partly lit like the HUD. Each draw sits whole at its
+    /// frame's depth among the room's layers (#1514); among the draws at one depth, an earlier one lies in front.
     /// </summary>
     /// <param name="gameplay">How the frame's background pictures are coloured, and its backdrop.</param>
     /// <param name="spriteDraws">The draws, frontmost first, each naming its shading.</param>
-    /// <exception cref="ArgumentException">The draw list is missing, holds a missing draw, or holds a draw that names no shading.</exception>
+    /// <exception cref="ArgumentException">
+    /// The draw list is missing, holds a missing draw, a draw that names no shading, or a draw of a frame that is not empty
+    /// and has no depth among the room's layers.
+    /// </exception>
     public FramePaint(GameplayShading gameplay, ImmutableArray<SpriteDraw> spriteDraws)
     {
         Ensure.NotNull(gameplay);
@@ -65,6 +69,8 @@ public sealed class FramePaint
         {
             if (draw is not ImageSpriteDraw { Shading: { } shading } image)
                 throw new ArgumentException("A gameplay sprite draw names the shading it shows in.", nameof(spriteDraws));
+            if (image.Depth is null && !image.Image.IsEmpty)
+                throw new ArgumentException($"Gameplay sprite draw {image} shows a frame with no depth among the room's layers.", nameof(spriteDraws));
             draws.Add(image with { Shading = Shown(image, shading, gameplay) });
         }
         Gameplay = gameplay;
@@ -86,7 +92,11 @@ public sealed class FramePaint
     /// <summary>How a gameplay frame's background pictures are coloured (#1512); null for a frontend screen's frame.</summary>
     public GameplayShading? Gameplay { get; }
 
-    /// <summary>The displayed whole-frame sprite draws in emission order, frontmost first, each naming the shading it shows in.</summary>
+    /// <summary>
+    /// The displayed whole-frame sprite draws in emission order, frontmost first, each naming the shading it shows in. A
+    /// gameplay frame's draws each sit at their depth among the room's layers (#1514), the emission order deciding only
+    /// between draws at one depth.
+    /// </summary>
     public ImmutableArray<SpriteDraw> SpriteDraws { get; }
 
     /// <summary>This frame with the backdrop shown in <paramref name="backdrop"/>, as X-ray shows its own.</summary>

@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Line">The screen line the band begins on, counted from the top of the screen.</param>
 /// <param name="Colour">The colour the band blends in.</param>
-/// <param name="Blend">The layers the colour blends with and whether it is subtracted from them.</param>
-public readonly record struct GradientStop(int Line, RgbColor Colour, ColorBlend Blend);
+/// <param name="Blend">What the colour darkens or brightens.</param>
+public readonly record struct GradientStop(int Line, RgbColor Colour, GradientBlend Blend);

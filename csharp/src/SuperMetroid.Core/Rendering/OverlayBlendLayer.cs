@@ -15,13 +15,17 @@ public sealed record OverlayBlendLayer : DisplayLayer
     public OverlayPicture? Picture { get; }
     /// <summary>First participating screen line, inclusive; lines before it are untouched, and 224 disables the overlay for the entire frame.</summary>
     public int FirstLine { get; }
-    /// <summary>How the layer combines with the screen when drawn on its own; within a gameplay blend it follows that blend instead.</summary>
+    /// <summary>
+    /// Whether the overlay brightens the screen under it, adding its colours as lava, acid, fog and rain do, or darkens it,
+    /// subtracting them as water does. Where a gameplay blend combines with the overlay lying behind what it blends
+    /// (<see cref="GameplayBlendLayer.OverlayBehind"/>), that blend's operation applies instead.
+    /// </summary>
     public BlendOperation Operation { get; }
 
     /// <summary>Captures an overlay to blend with its line scrolls, checking the first line and operation.</summary>
     /// <param name="picture">What the overlay shows, or null where it shows nothing.</param>
     /// <param name="firstScanline">Inclusive first screen line from 0 through 224; 224 means no visible lines participate.</param>
-    /// <param name="operation">Addition or subtraction when the layer is drawn on its own.</param>
+    /// <param name="operation">Whether the overlay brightens or darkens the screen under it.</param>
     /// <param name="horizontal">The layer's horizontal scroll line by line.</param>
     /// <param name="vertical">The layer's vertical scroll line by line.</param>
     public OverlayBlendLayer(OverlayPicture? picture, int firstScanline, BlendOperation operation, LineScroll horizontal, LineScroll vertical)

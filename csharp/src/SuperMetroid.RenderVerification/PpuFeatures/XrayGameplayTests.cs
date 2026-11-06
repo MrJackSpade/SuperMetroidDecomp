@@ -49,11 +49,16 @@ internal static class XrayGameplayTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             // The X-ray's window covers the screen's right half (#1468).
             var lines = ScreenWindow.Of(WindowRectangle.Spanning(128, 0, 255, 223));
-            var controls = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop
-                | (half ? ColorBlend.Half : 0) | (subtract ? ColorBlend.Subtract : 0);
             var bg3 = sub ? new OverlayBlendLayer(FxOverlayFixtures.Rows(plane, FxOverlayPlaneConstants.Rows / 2, 32), 32,
                 BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0)) : null;
-            var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithLayersBehind = true, FixedColor = new RgbColor(7, 7, 7) }, bg3);
+            // With no overlay lying behind, the room combines with the X-ray's colour unhalved, as the capture describes it.
+            var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal, new GameplayBlend
+            {
+                Blended = BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
+                Operation = subtract ? BlendOperation.Subtract : BlendOperation.Add,
+                Halved = half && sub,
+                Colour = new RgbColor(7, 7, 7),
+            }, bg3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
             count++;
             var packet = new DisplayPacket(0, scene);
@@ -89,8 +94,14 @@ internal static class XrayGameplayTests
                         : bg1;
                     var additive = new GameplayBlendLayer(new(registers with
                     {
-                        MainScreenLayers = ScreenLayers.Foreground | ScreenLayers.Sprites,
-                    }, bodyRooms), ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
+                        ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites,
+                    }, bodyRooms), ScreenWindow.Closed, false, new GameplayBlend
+                    {
+                        Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
+                        Operation = BlendOperation.Add,
+                        Halved = false,
+                        Colour = RgbColor.Black,
+                    }, backgroundBehind: true);
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = RgbColor.Black;
                     var addScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
@@ -110,7 +121,13 @@ internal static class XrayGameplayTests
                 // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4)))), ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = new RgbColor(18, 18, 18) });
+                var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4)))), ScreenWindow.Closed, false, new GameplayBlend
+                {
+                    Blended = BlendedLayers.Background | BlendedLayers.Backdrop,
+                    Operation = BlendOperation.Subtract,
+                    Halved = false,
+                    Colour = new RgbColor(18, 18, 18),
+                });
                 var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
                 var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
@@ -131,7 +148,8 @@ internal static class XrayGameplayTests
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
             var registers = new GameplaySceneView(new Position16<RoomPixels>(Word(), Word()), new Position16<BackgroundPixels>(Word(), Word()),
-                (ScreenLayers)(random.Next(32) & 0x13));
+                (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Foreground) | (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Background)
+                    | (random.Next(2) == 0 ? ScreenLayers.None : ScreenLayers.Sprites));
             // Every fifth frame's planes draw from block pictures (#1392).
             var gameplay = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(),
                     frame % 2 == 0 ? registers.BackgroundScroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
@@ -151,7 +169,9 @@ internal static class XrayGameplayTests
                 BlendOperation.Add, new ScrollWave(Word(), random.Next(65536), new ByteAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224),
                 new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536)));
             bool bg2Subscreen = frame % 4 == 0;
-            var layer = new GameplayBlendLayer(gameplay, lines, frame % 2 == 0, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithLayersBehind = bg2Subscreen || frame % 3 != 0, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, bg2Subscreen ? null : bg3, bg2Subscreen);
+            // Every fourth frame blends with the background lying behind; most others with the overlay; the rest with the colour.
+            var layer = new GameplayBlendLayer(gameplay, lines, frame % 2 == 0, RandomBlend(random),
+                bg2Subscreen || frame % 3 == 0 ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, obsel);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, (byte)(frame % 16));
@@ -173,7 +193,7 @@ internal static class XrayGameplayTests
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
             var lines = RandomWindow(random);
-            var layer = new GameplayBlendLayer(gameplay, lines, true, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithLayersBehind = false, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, null);
+            var layer = new GameplayBlendLayer(gameplay, lines, true, RandomBlend(random), null);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
             count++;
@@ -187,6 +207,19 @@ internal static class XrayGameplayTests
         {
             if (actual != expected) throw new InvalidOperationException($"{context}: expected {expected}, got {actual}.");
         }
+
+        // A seeded blend (#1514): any of the room's layers, the actors and the backdrop, brightening or darkening, halved or
+        // whole, with any colour.
+        static GameplayBlend RandomBlend(Random random) => new()
+        {
+            Blended = (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Foreground)
+                | (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Background)
+                | (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Actors)
+                | (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Backdrop),
+            Operation = random.Next(2) == 0 ? BlendOperation.Add : BlendOperation.Subtract,
+            Halved = random.Next(2) == 0,
+            Colour = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)),
+        };
 
         // A seeded window (#1468): a cone from an apex on or off the screen joined with a rectangle, within a band of lines.
         static ScreenWindow RandomWindow(Random random)

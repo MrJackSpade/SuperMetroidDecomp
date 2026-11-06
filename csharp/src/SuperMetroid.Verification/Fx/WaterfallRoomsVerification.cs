@@ -37,21 +37,22 @@ internal static class WaterfallRoomsVerification
             runtime.ScreenLayers.Choose(runtime.Room.LoadedScope);
             runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            AssertEqual(ScreenLayers.Foreground | ScreenLayers.Sprites, runtime.ScreenLayers.Displayed, "waterfall main-screen layers");
+            AssertEqual(ScreenLayers.Foreground | ScreenLayers.Sprites, runtime.ScreenLayers.Displayed, "waterfall shown layers");
             var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");
             var math = snapshot.Layers[0] as GameplayBlendLayer
                 ?? throw new InvalidDataException("Waterfall room still captures an ordinary opaque background.");
-            AssertTrue(math.BlendsWithBackground, "waterfall capture admits BG2 subscreen");
-            AssertEqual(ColorBlend.Bg1 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Subtract, math.Blend.Layers,
-                "the waterfall subtracts from the foreground, the sprites and the backdrop, unhalved");
+            AssertTrue(math.BackgroundBehind && math.OverlayBehind is not null, "the waterfall's background and liquid lie behind what it blends");
+            AssertEqual(BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop, math.Blend.Blended,
+                "the waterfall darkens the foreground, the actors and the backdrop");
+            AssertTrue(math.Blend.Operation == BlendOperation.Subtract && !math.Blend.Halved, "the waterfall subtracts unhalved");
             AssertEqual(ScreenLayers.Foreground | ScreenLayers.Sprites,
-                math.Gameplay.View.MainScreenLayers, "waterfall main excludes BG2");
+                math.Gameplay.View.ShownLayers, "the waterfall shows its background only through its blend");
             AssertTrue(!snapshot.Layers.Any(layer => layer is OverlayBlendLayer),
                 "waterfall has no second post-composition liquid overlay");
             var pixels = DisplayRendering.Render(snapshot);
             AssertEqual(256 * 224, pixels.Length, "reported room composes full frame");
-            Console.WriteLine($"Waterfall room {room:X4}: TM=11 TS=06 CGADSUB=B1, combined subscreen capture passed.");
+            Console.WriteLine($"Waterfall room {room:X4}: its background and liquid darken the foreground, the actors and the backdrop.");
         }
     }
 

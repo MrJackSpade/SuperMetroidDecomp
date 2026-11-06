@@ -11,7 +11,7 @@ internal enum D3D11TileOperation : uint
     Brightness = 3,
     /// <summary>Adds a fixed colour to the screen.</summary>
     AddColour = 4,
-    /// <summary>Inserts the sprite layer's pixels of one priority, or all of them, into the screen.</summary>
+    /// <summary>Inserts the sprite layer's pixels of one depth among the room's layers, or all of them, into the screen.</summary>
     InsertSprites = 6,
     /// <summary>Draws the perspective floor from its image.</summary>
     Floor = 7,

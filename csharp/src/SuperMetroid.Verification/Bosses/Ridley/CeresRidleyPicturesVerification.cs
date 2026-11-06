@@ -129,8 +129,8 @@ internal static class CeresRidleyPicturesVerification
                         | (page[address + 16] >> bit & 1) << 2 | (page[address + 17] >> bit & 1) << 3;
                     int pixel = (picture.Picture.Corner.Y + picture.Corner.Y + y) * sheet.Size.X + picture.Picture.Corner.X + picture.Corner.X + x;
                     int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-                    AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority),
-                        $"The warning's word {index}, ${word.Raw:X4}, paints index {sheet.Inks[pixel].PaletteIndex} priority {sheet.Inks[pixel].Priority} " +
+                    AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || sheet.Inks[pixel].FrontTile == word.HasPriority),
+                        $"The warning's word {index}, ${word.Raw:X4}, paints index {sheet.Inks[pixel].PaletteIndex} front tile {sheet.Inks[pixel].FrontTile} " +
                         $"at pixel ({x}, {y}), where its character paints index {expected}");
                 }
             }

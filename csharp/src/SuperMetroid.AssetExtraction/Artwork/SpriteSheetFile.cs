@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public static class SpriteSheetFile
 {
     /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 9;
+    public const int Version = 10;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
@@ -32,7 +32,7 @@ public static class SpriteSheetFile
     /// <param name="manifest">The frame list and standard colours.</param>
     /// <param name="name">The sheet's installed name.</param>
     /// <param name="size">The image's width and height.</param>
-    /// <param name="decode">Produces the image's pixels, palette indices and priorities.</param>
+    /// <param name="decode">Produces the image's pixels, palette indices and front tiles.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<SpriteImageLayers> decode)
     {
@@ -106,7 +106,10 @@ public static class SpriteSheetFile
     {
         try
         {
-            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, ImageColourGroups.FromManifest(document.ColourGroups));
+            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, ImageColourGroups.FromManifest(document.ColourGroups))
+            {
+                Depth = document.Depth,
+            };
         }
         catch (ArgumentException error)
         {

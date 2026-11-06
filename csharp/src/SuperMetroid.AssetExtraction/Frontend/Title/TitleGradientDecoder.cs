@@ -38,11 +38,30 @@ public static class TitleGradientDecoder
             if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(Register) - COLDATA green-select bit
             if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(Register) - COLDATA blue-select bit
             var colour = new RgbColor(red, green, blue);
-            var blend = (ColorBlend)control[line];
+            GradientBlend blend = Blend(control[line], line);
             if (stops.Count == 0 || stops[^1].Colour != colour || stops[^1].Blend != blend)
                 stops.Add(new GradientStop(line, colour, blend));
         }
         return new ScreenGradient(stops.ToImmutable(), ScreenGeometry.ScreenHeightPixels);
+    }
+
+    /// <summary>
+    /// What a line's colour-math control byte has the gradient's colour do (#1514): subtracted from the floor and the
+    /// backdrop, or added to them and the sprites. The title writes no other control.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The byte selects any other blend.</exception>
+    private static GradientBlend Blend(byte control, int line)
+    {
+        const int floor = 0x01; // cartridge-encoding: allow(Register) - CGADSUB BG1 enable bit
+        const int sprites = 0x10; // cartridge-encoding: allow(Register) - CGADSUB OBJ enable bit
+        const int backdrop = 0x20; // cartridge-encoding: allow(Register) - CGADSUB backdrop enable bit
+        const int subtract = 0x80; // cartridge-encoding: allow(Register) - CGADSUB subtract bit
+        if (control == (subtract | backdrop | floor))
+            return GradientBlend.DarkensFloorAndBackdrop;
+        if (control == (backdrop | sprites | floor))
+            return GradientBlend.BrightensFloorBackdropAndSprites;
+        throw new InvalidDataException(
+            $"The title gradient's line {line} blends by control {control}, neither darkening the floor and the backdrop nor brightening them and the sprites.");
     }
 
     /// <summary>Expands one direct-mode HDMA table, retaining the last write after its zero terminator.</summary>

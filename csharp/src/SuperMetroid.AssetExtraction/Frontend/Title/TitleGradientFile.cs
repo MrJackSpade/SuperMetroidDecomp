@@ -81,38 +81,42 @@ public static class TitleGradientFile
         return new TitleGradientPresentation(variants);
     }
 
-    /// <summary>The layers <paramref name="stop"/> blends with and how, as the renderers' colour-math control.</summary>
-    private static ColorBlend Blend(TitleGradientStop stop)
+    /// <summary>
+    /// What <paramref name="stop"/>'s colour does (#1514): subtracted from the floor and the backdrop, it darkens them; added
+    /// to the floor, the backdrop and the sprites, it brightens them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The stop blends with other layers, or another way, than the gradient's two blends.</exception>
+    private static GradientBlend Blend(TitleGradientStop stop) => stop switch
     {
-        ColorBlend blend = default;
-        if (stop.BlendsFloor) blend |= ColorBlend.Bg1;
-        if (stop.BlendsObjects) blend |= ColorBlend.Sprites;
-        if (stop.BlendsBackdrop) blend |= ColorBlend.Backdrop;
-        if (stop.Subtracts) blend |= ColorBlend.Subtract;
-        return blend;
-    }
+        { BlendsFloor: true, BlendsBackdrop: true, BlendsObjects: false, Subtracts: true } => GradientBlend.DarkensFloorAndBackdrop,
+        { BlendsFloor: true, BlendsBackdrop: true, BlendsObjects: true, Subtracts: false } => GradientBlend.BrightensFloorBackdropAndSprites,
+        _ => throw new InvalidDataException(
+            $"Title gradient stop at line {stop.Line} neither darkens the floor and the backdrop nor brightens them and the sprites."),
+    };
 
     /// <summary>
     /// The authored stop for a compiled <paramref name="stop"/>: its line, its colour, the layers it blends with and
-    /// whether it subtracts. A blend naming any layer or mode the title does not use is rejected rather than dropped.
+    /// whether it subtracts.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="stop"/> blends a layer or mode outside the title's four.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="stop"/>'s blend is not a defined gradient blend.</exception>
     public static TitleGradientStop Author(GradientStop stop)
     {
-        const ColorBlend titleBlends = ColorBlend.Bg1 | ColorBlend.Sprites |
-            ColorBlend.Backdrop | ColorBlend.Subtract;
-        if ((stop.Blend & ~titleBlends) != ColorBlend.None)
-            throw new InvalidDataException($"Title gradient stop blends {stop.Blend}, outside the floor, objects, backdrop and subtraction.");
+        bool darkens = stop.Blend switch
+        {
+            GradientBlend.DarkensFloorAndBackdrop => true,
+            GradientBlend.BrightensFloorBackdropAndSprites => false,
+            _ => throw new InvalidDataException($"Title gradient stop blends in undefined way {stop.Blend}."),
+        };
         return new TitleGradientStop
         {
             Line = stop.Line,
             Red = stop.Colour.Red,
             Green = stop.Colour.Green,
             Blue = stop.Colour.Blue,
-            BlendsFloor = (stop.Blend & ColorBlend.Bg1) != ColorBlend.None,
-            BlendsObjects = (stop.Blend & ColorBlend.Sprites) != ColorBlend.None,
-            BlendsBackdrop = (stop.Blend & ColorBlend.Backdrop) != ColorBlend.None,
-            Subtracts = (stop.Blend & ColorBlend.Subtract) != ColorBlend.None,
+            BlendsFloor = true,
+            BlendsObjects = !darkens,
+            BlendsBackdrop = true,
+            Subtracts = darkens,
         };
     }
 

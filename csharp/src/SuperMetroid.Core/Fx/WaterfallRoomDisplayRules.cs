@@ -2,12 +2,9 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Colosseum/Halfie Climb layer blending, configuration $16.</summary>
+/// <summary>Which layers the waterfall rooms (the Colosseum and Halfie Climb) show directly while their waterfall blends.</summary>
 public static class WaterfallRoomDisplayRules
 {
-    /// <summary>The foreground and the sprites are the layers the screen shows directly.</summary>
-    public const ScreenLayers MainScreen = ScreenLayers.Foreground | ScreenLayers.Sprites;
-    /// <summary>The waterfall and the liquid are subtracted from the foreground, the blending sprites and the backdrop, unhalved.</summary>
-    public const ColorBlend Blend = ColorBlend.Bg1 | ColorBlend.Sprites |
-        ColorBlend.Backdrop | ColorBlend.Subtract;
+    /// <summary>The foreground and the actors are the layers the screen shows directly; the background shows only through the waterfall's blend.</summary>
+    public const ScreenLayers ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
 }

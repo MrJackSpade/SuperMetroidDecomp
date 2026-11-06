@@ -12,10 +12,6 @@ internal static class ImageSpriteDrawAccess
         /// </summary>
         public int PaletteIndexAt(Position16<ScreenPixels> cell) =>
             self.SheetIndex(cell) is int index ? self.Image.Sheet.Inks[index].PaletteIndex : 0;
-        /// <summary>The priority against the backgrounds 0..3 of the image pixel shown at <paramref name="cell"/>.</summary>
-        /// <exception cref="InvalidOperationException">A rotting corpse's rot has cleared the row, which shows no pixel.</exception>
-        public int PriorityAt(Position16<ScreenPixels> cell) => self.SheetIndex(cell) is int index ? self.Image.Sheet.Inks[index].Priority
-            : throw new InvalidOperationException($"{self} shows no pixel at ({cell.X},{cell.Y}): its corpse's rot has cleared that row.");
         /// <summary>
         /// Where on the sheet the pixel shown at <paramref name="cell"/> lies, as the renderer samples it: through a rotting
         /// corpse's rows, by the pixel's character column, if the draw shows any (#1531); none where the rot has cleared it.

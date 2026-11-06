@@ -15,7 +15,7 @@ internal static class SpriteSheetComposer
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
-    /// <param name="priority">The priority of parts that do not choose their own.</param>
+    /// <param name="priority">The game's priority of parts that do not choose their own, from which each frame's depth is decided.</param>
     internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, int priority) =>
         Compose(new SpriteSheetLayout(sources, palette, priority));
 
@@ -27,8 +27,8 @@ internal static class SpriteSheetComposer
         int area = size.X * size.Y;
         var pixels = new RgbaPixel[area];
         var paletteIndices = new byte[area];
-        var priorities = new byte[area];
-        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, paletteIndices, priorities));
-        return new ComposedSpriteSheet(size, pixels, paletteIndices, priorities, manifest);
+        var frontTiles = new byte[area];
+        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, paletteIndices, frontTiles));
+        return new ComposedSpriteSheet(size, pixels, paletteIndices, frontTiles, manifest);
     }
 }

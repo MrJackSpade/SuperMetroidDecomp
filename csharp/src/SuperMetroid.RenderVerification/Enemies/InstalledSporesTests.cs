@@ -113,9 +113,10 @@ internal static class InstalledSporesTests
                                 new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
-                    Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&
-                        layer.Window.IsClosed && layer.BlendPlane is not null,
-                        "Spore capture does not blend the background, the sprites and the backdrop with the spores.");
+                    Require(!layer.RevealBlocks && layer.Blend.Blended == (BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop) &&
+                        layer.Blend.Operation == BlendOperation.Add && !layer.Blend.Halved &&
+                        layer.Window.IsClosed && layer.OverlayBehind is not null && !layer.BackgroundBehind,
+                        "Spore capture does not brighten the background, the actors and the backdrop with the spores lying behind them.");
                     packets.Add(new(packets.Count + 1, new LayeredScene(
                         FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []), [layer], 15)));
                 }

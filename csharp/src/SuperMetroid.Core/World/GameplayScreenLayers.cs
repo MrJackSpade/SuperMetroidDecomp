@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The layers gameplay shows on the main screen (#1407): chosen on each main-loop pass, shown from the accepted frame
+/// The room's layers and the actors gameplay shows (#1407): chosen on each main-loop pass, shown from the accepted frame
 /// that latches them. An update without a frame boundary leaves the shown layers in place.
 /// </summary>
 internal sealed class GameplayScreenLayers
@@ -33,15 +33,15 @@ internal sealed class GameplayScreenLayers
     /// </summary>
     internal void Choose(RoomScope room)
     {
-        Chosen = _room.DoorTransitionMainScreenLayers ??
+        Chosen = _room.DoorTransitionShownLayers ??
             (ScreenLayers.Foreground | ScreenLayers.Sprites |
                 (room.Enemies.DisplaySources.MotherBrain?.DeathHidesBodyLayer == true
                     ? ScreenLayers.None
                     : ScreenLayers.Background));
-        if (_room.DoorTransitionMainScreenLayers is null &&
+        if (_room.DoorTransitionShownLayers is null &&
             room.FxOverlay.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
         {
-            Chosen = WaterfallRoomDisplayRules.MainScreen;
+            Chosen = WaterfallRoomDisplayRules.ShownLayers;
         }
     }
 

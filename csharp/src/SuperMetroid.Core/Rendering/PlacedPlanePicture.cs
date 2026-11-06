@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>An installed picture placed on a pictured plane (#1467).</summary>
-/// <param name="Picture">The picture, pre-coloured under the palette its screen shows it in, each pixel in its own priority tier.</param>
+/// <param name="Picture">The picture, pre-coloured under the palette its screen shows it in, drawn whole at its plane's place.</param>
 /// <param name="Corner">The plane pixel the picture's upper-left corner sits on.</param>
 /// <param name="Shading">
 /// The shades and colour effects its screen shows it in (#1512); <see cref="PictureShading.Standard"/> where the screen

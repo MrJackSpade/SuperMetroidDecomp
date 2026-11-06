@@ -9,8 +9,9 @@ namespace SuperMetroid.RenderVerification.Bosses;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.FrameRendering;
+using System.Collections.Immutable;
 
-/// <summary>Checks Mother Brain ascent's per-line layer mask, floor occlusion, and CPU/GPU packet parity.</summary>
+/// <summary>Checks the bands Mother Brain's ascent shows (#1514), the floor's band hiding the actors, and CPU/GPU packet parity.</summary>
 internal static class MotherBrainAscentMaskTests
 {
     /// <summary>Compares ascent and ordinary visibility at representative band and floor pixels.</summary>
@@ -32,10 +33,16 @@ internal static class MotherBrainAscentMaskTests
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
         var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
             ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-        ScreenLayers[] masks = Enumerable.Range(32, 192).Select(y => (ScreenLayers)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05)).ToArray();
+        // The upper band hides her body, the middle band shows it and the floor's band shows the foreground alone.
+        ImmutableArray<ShownBand> bands =
+        [
+            new(new ScreenLineBand(32, 56), ScreenLayers.Foreground | ScreenLayers.Sprites),
+            new(new ScreenLineBand(56, 216), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
+            new(new ScreenLineBand(216, 224), ScreenLayers.Foreground),
+        ];
         foreach (bool active in new[] { true, false })
         {
-            var layer = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1)), mainScreenLayersByLine: active ? masks : []);
+            var layer = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1)), bands: active ? bands : []);
             var scene = new LayeredScene(memory, [layer], 15);
             var pixels = DisplayRendering.Render(scene);
             Check(16, 218, active ? 1 : 129, "leg hidden by floor only during ascent");
@@ -44,7 +51,8 @@ internal static class MotherBrainAscentMaskTests
             Check(0, 80, 2, "middle band retains BG2");
             var packet = new DisplayPacket(0, scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
-            var math = new GameplayBlendLayer(layer, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.None, BlendsWithLayersBehind = false, FixedColor = RgbColor.Black });
+            var math = new GameplayBlendLayer(layer, ScreenWindow.Closed, false,
+                new GameplayBlend { Blended = BlendedLayers.None, Operation = BlendOperation.Add, Halved = false, Colour = RgbColor.Black });
             var mathScene = new LayeredScene(memory, [math], 15);
             var mathPacket = new DisplayPacket(0, mathScene);
             PixelComparison.Verify(mathPacket, pixels, DisplayRendering.Render(mathScene), "CPU source-aware ascent mask");

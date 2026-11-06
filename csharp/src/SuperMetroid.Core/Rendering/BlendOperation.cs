@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>How a layer drawn on its own combines with the screen behind it.</summary>
+/// <summary>Whether a blend brightens what it covers by adding a colour or darkens it by subtracting one.</summary>
 public enum BlendOperation
 {
-    /// <summary>Adds the layer's colour to the screen's, each eight-bit channel clamped at 255, keeping the screen's opacity.</summary>
+    /// <summary>Adds the colour, brightening what it covers, each channel clamped at full.</summary>
     Add,
-    /// <summary>Subtracts the layer's colour from the screen's, each eight-bit channel clamped at zero, keeping the screen's opacity.</summary>
+    /// <summary>Subtracts the colour, darkening what it covers, each channel clamped at zero.</summary>
     Subtract
 }

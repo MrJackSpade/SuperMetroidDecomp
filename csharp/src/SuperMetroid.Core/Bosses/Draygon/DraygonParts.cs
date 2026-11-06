@@ -178,13 +178,13 @@ internal sealed class DraygonParts
         {
             case AnimationProgramAdvance<DraygonFrame>.Show shown:
                 state.SetCursor(part, cursor);
-                part.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                part.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
                 part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
                 state.SetCursor(part, cursor);
-                part.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
+                part.FrameHold = WrappingCountdown.FromRaw(waiting.Duration);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Hold:
                 // The script's sleep: the timer wraps from zero and the last frame stays.
@@ -291,7 +291,7 @@ internal sealed class DraygonParts
             new Offset16<RoomPixels>(CoordinateAxis.AsSigned(facing == HorizontalDirection.Right ? 24 : -24), -32);
         int angle = EnemyMath.CalculateBearing(samus.Position.Whole - gaze).RawValue;
         DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
-        if (angle == WordWrap.LowByte(eyeState.LookAngle))
+        if (angle == eyeState.LookAngle)
             return;
 
         eyeState.LookAngle = angle;
@@ -323,7 +323,7 @@ internal sealed class DraygonParts
         RoomSpriteObjectKind kind)
     {
         int random = _room.Random.Generate();
-        Offset16<RoomPixels> scatter = new(WordWrap.Signed((random & 127) - 64), WordWrap.Signed((SharedRandomState.UpperByte(random) & 127) - 64));
+        Offset16<RoomPixels> scatter = new((random & 127) - 64, (SharedRandomState.UpperByte(random) & 127) - 64);
         if (_spriteObjects.SpawnRoomSpriteObject(
                 state.Body.Position.Whole + scatter,
                 kind,
@@ -378,7 +378,7 @@ internal sealed class DraygonParts
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 
         int random = _room.Random.Generate();
-        ByteAngle angle = new(WordWrap.LowByte((random & 63) + (movingRight ? 192 : 128)));
+        ByteAngle angle = new((random & 63) + (movingRight ? 192 : 128));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }

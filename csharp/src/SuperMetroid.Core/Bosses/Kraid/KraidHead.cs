@@ -84,7 +84,7 @@ internal sealed class KraidHead
     private static int HealthBand(RoomEnemySlot body, KraidEnemyState state)
     {
         int band = KraidHealthThresholdDefinitions.EighthCount - 1;
-        while (band != 0 && WordWrap.Signed(body.Health - state.HealthEighthThreshold(band)) < 0)
+        while (band != 0 && body.Health < state.HealthEighthThreshold(band))
             band--;
         return band;
     }
@@ -283,6 +283,6 @@ internal sealed class KraidHead
         int value = random & 7;
         if (value == 0)
             value = 2;
-        return WordWrap.Unsigned(value << 6);
+        return value << 6;
     }
 }

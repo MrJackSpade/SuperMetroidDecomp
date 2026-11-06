@@ -9,11 +9,11 @@ internal sealed class DraygonEyeState
     /// <summary>The eye's function; none once a kill has emptied the record.</summary>
     public DraygonEyeFunction? Function { get; internal set; }
 
-    /// <summary>The original game angle toward Samus the eye last looked along; only its low byte is compared.</summary>
+    /// <summary>The bearing toward Samus the eye last looked along, 0 through 255.</summary>
     public int LookAngle
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>Empties the values the game keeps in the eye's common record.</summary>

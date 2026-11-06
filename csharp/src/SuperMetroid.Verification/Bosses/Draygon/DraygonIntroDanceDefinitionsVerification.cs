@@ -93,8 +93,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        Action<DraygonEnemyState, SamusState?, byte> run = (danceState, danceSamus, frameCounterLow) =>
-            enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounterLow);
+        Action<DraygonEnemyState, SamusState?, byte> run = (danceState, danceSamus, frameCounter) =>
+            enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
         ushort[] expectedX = new ushort[4];
@@ -166,8 +166,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
         // A restored dance step can be corrupt while the owner is still inside its native duration. Exercise the
         // production dispatcher so this cannot regress into reading past the traced path.
         var malformedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<DraygonEnemyState, SamusState?, byte> malformedRun = (danceState, danceSamus, frameCounterLow) =>
-            malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounterLow);
+        Action<DraygonEnemyState, SamusState?, byte> malformedRun = (danceState, danceSamus, frameCounter) =>
+            malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
         var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {
             // Slot 31 waits the shortest, so it reaches one step past the path's end first.

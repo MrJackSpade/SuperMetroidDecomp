@@ -76,67 +76,67 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>MainAI_DraygonBody</c>.</summary>
-    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounterLow)
+    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounter)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
         switch (state.Function)
         {
             case DraygonAiFunction.IntroInitialDelay:
-                Intro.RunDraygonIntroInitialDelay(state, samus, frameCounterLow);
+                Intro.RunDraygonIntroInitialDelay(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.IntroDance:
-                Intro.RunDraygonIntroDance(state, samus, frameCounterLow);
+                Intro.RunDraygonIntroDance(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.SwoopRightSetup:
-                Swoops.SetupDraygonRightSwoop(state, samus, frameCounterLow);
+                Swoops.SetupDraygonRightSwoop(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.SwoopRightDescending:
-                Swoops.DescendDraygonSwoop(state, samus, frameCounterLow, RightSwoop);
+                Swoops.DescendDraygonSwoop(state, samus, frameCounter, RightSwoop);
                 break;
             case DraygonAiFunction.SwoopRightApex:
-                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounterLow);
+                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.SwoopRightAscending:
-                Swoops.AscendDraygonSwoop(state, samus, frameCounterLow, RightSwoop);
+                Swoops.AscendDraygonSwoop(state, samus, frameCounter, RightSwoop);
                 break;
             case DraygonAiFunction.SwoopLeftSetup:
-                Swoops.SetupDraygonLeftSwoop(state, samus, frameCounterLow);
+                Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.SwoopLeftDescending:
-                Swoops.DescendDraygonSwoop(state, samus, frameCounterLow, LeftSwoop);
+                Swoops.DescendDraygonSwoop(state, samus, frameCounter, LeftSwoop);
                 break;
             case DraygonAiFunction.SwoopLeftApex:
-                Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounterLow);
+                Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.SwoopLeftAscending:
-                Swoops.AscendDraygonSwoop(state, samus, frameCounterLow, LeftSwoop);
+                Swoops.AscendDraygonSwoop(state, samus, frameCounter, LeftSwoop);
                 break;
             case DraygonAiFunction.GoopRightSetup:
-                Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Right, samus, frameCounterLow);
+                Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Right, samus, frameCounter);
                 break;
             case DraygonAiFunction.GoopRight:
-                Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounterLow);
+                Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounter);
                 break;
             case DraygonAiFunction.GoopRightTail:
-                Goop.FireDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounterLow);
+                Goop.FireDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounter);
                 break;
             case DraygonAiFunction.GoopRightRecovery:
                 Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Right);
                 break;
             case DraygonAiFunction.GoopLeftSetup:
-                Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Left, samus, frameCounterLow);
+                Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Left, samus, frameCounter);
                 break;
             case DraygonAiFunction.GoopLeft:
-                Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounterLow);
+                Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounter);
                 break;
             case DraygonAiFunction.GoopLeftTail:
-                Goop.FireDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounterLow);
+                Goop.FireDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounter);
                 break;
             case DraygonAiFunction.GoopLeftRecovery:
                 Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Left, samus);
                 break;
             case DraygonAiFunction.TryGrabSamus:
-                Grab.ChaseAndTryToGrabSamus(state, samus, frameCounterLow);
+                Grab.ChaseAndTryToGrabSamus(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.GrabbedSamus:
                 DraygonGrab.RepelDraygonWithGrapple(state, samus);
@@ -160,16 +160,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Grab.ReleaseSamusFromDraygon(state, samus);
                 break;
             case DraygonAiFunction.FlyStraightUp:
-                Swoops.FlyDraygonStraightUp(state, samus, frameCounterLow);
+                Swoops.FlyDraygonStraightUp(state, samus, frameCounter);
                 break;
             case DraygonAiFunction.Dying:
                 Death.DriftDyingDraygonToBurialPoint(state);
                 break;
             case DraygonAiFunction.DyingSink:
-                Death.WaitForDraygonBurialEvirs(state, frameCounterLow);
+                Death.WaitForDraygonBurialEvirs(state, frameCounter);
                 break;
             case DraygonAiFunction.DyingFinish:
-                Death.SinkDraygonBelowTheRoom(state, frameCounterLow);
+                Death.SinkDraygonBelowTheRoom(state, frameCounter);
                 break;
             case DraygonAiFunction.None:
             default:
@@ -237,7 +237,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Draygon times turrets and smoke from the frame counter, never the separate
         // byte-wide frame counter; only its low bits are tested.
-        RunDraygonBodyMain(slot, frame.Samus, WordWrap.LowByte(_frameContext.FrameCounter));
+        RunDraygonBodyMain(slot, frame.Samus, _frameContext.FrameCounter);
     }
 
     /// <summary>Ports DraygonEye's main AI.</summary>

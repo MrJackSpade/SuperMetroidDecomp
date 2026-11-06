@@ -53,7 +53,7 @@ internal sealed class KraidProjectiles
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
         _parts.StateOf(state, lint).Function = KraidAiFunction.LintInactive;
-        _parts.StateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : WordWrap.Unsigned(-16);
+        _parts.StateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : -16;
     }
 
     /// <summary>
@@ -157,10 +157,10 @@ internal sealed class KraidProjectiles
             CoordinateAxis.Difference(samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
                 lint.Position.Y.Whole, KraidContactDefinitions.LintBottom) >= 0)
             return;
-        int push = CoordinateAxis.Wrap(~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
-            samus.Kinematics.ExtraDisplacement.X.WholePixels);
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(WordWrap.Signed(
-            WordWrap.Signed(push - KraidContactDefinitions.LintPush) < 0 ? push : KraidContactDefinitions.LintPush));
+        int push = ~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
+            samus.Kinematics.ExtraDisplacement.X.WholePixels;
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(
+            Math.Min(push, KraidContactDefinitions.LintPush));
         _collision.ResolveNormalEnemyTouch(lint, samus);
         lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
@@ -322,13 +322,18 @@ internal sealed class KraidProjectiles
             _access.Part(nail).NailVelocity.X.WholePixels >= 0;
     }
 
+    /// <summary>The units of a 16.16 velocity's fraction in one whole pixel.</summary>
+    private const int FractionUnitsPerPixel = 65536;
+
     /// <summary>
     /// Horizontal wall/contour reflections and the nail's reflection negate
-    /// each word independently. Do not propagate fractional borrow as a normal
-    /// fixed-point negation would; the resulting nonzero-fraction quirk is the original's.
+    /// each part independently: the whole pixels change sign and a nonzero fraction becomes its complement within
+    /// the pixel. Do not propagate fractional borrow as a normal fixed-point negation would; the resulting
+    /// nonzero-fraction quirk is the original's.
     /// </summary>
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) =>
-        SignedSixteenSixteen.FromParts(WordWrap.Signed(-velocity.WholeWord), WordWrap.Unsigned(-velocity.Fraction));
+        SignedSixteenSixteen.FromParts(-velocity.WholePixels,
+            velocity.Fraction == 0 ? 0 : FractionUnitsPerPixel - velocity.Fraction);
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
     internal void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
@@ -425,8 +430,8 @@ internal sealed class KraidProjectiles
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         lint.Position = lint.Position.WithWrappedWholeX(
             _access.Part(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.Part(lint).LintTravel);
-        _access.Part(lint).LintTravel = WordWrap.Unsigned(_access.Part(lint).LintTravel + 1);
-        if (WordWrap.Signed(_access.Part(lint).LintTravel - 32) >= 0)
+        _access.Part(lint).LintTravel++;
+        if (_access.Part(lint).LintTravel >= 32)
         {
             _access.Part(lint).Function = KraidAiFunction.LintCharge;
             _access.Part(lint).FunctionTimer = WrappingCountdown.Start(30);
@@ -499,7 +504,7 @@ internal sealed class KraidProjectiles
             return;
         }
 
-        int horizontal = WordWrap.Signed(rock.Velocity.X.RawValue + 8);
+        int horizontal = rock.Velocity.X.SignedRawValue + 8;
         if (horizontal >= 256)
             horizontal = -256;
         rock.Velocity = rock.Velocity.WithX(SignedEightEight.Wrapped(horizontal));

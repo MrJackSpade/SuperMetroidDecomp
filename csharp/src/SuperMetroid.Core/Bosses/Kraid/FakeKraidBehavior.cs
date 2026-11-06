@@ -312,7 +312,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int oldVelocity = projectile.Velocity.Y.SignedRawValue;
-        int nextVelocity = WordWrap.Signed(oldVelocity + 64);
+        int nextVelocity = oldVelocity + 64;
         if (nextVelocity >= 0 && oldVelocity >= 960)
             nextVelocity = 1024;
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(nextVelocity));

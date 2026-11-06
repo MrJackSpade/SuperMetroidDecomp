@@ -29,9 +29,9 @@ internal sealed class DraygonIntro
     internal void RunDraygonIntroInitialDelay(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (state.IntroFrames < 256)
         {
             if (state.IntroFrames == 0)
@@ -68,9 +68,9 @@ internal sealed class DraygonIntro
     internal void RunDraygonIntroDance(
         DraygonEnemyState state,
         SamusState? samus,
-        int frameCounterLow)
+        int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
+        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (state.IntroFrames >= DraygonIntroDanceDefinitions.DurationFrames)
         {
             state.Function = DraygonAiFunction.SwoopRightSetup;

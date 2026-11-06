@@ -106,7 +106,7 @@ public sealed class HyperBeamPaletteFxState
 
         colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));
 
-        FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         CurrentFrameIndex = frameIndex;
         return new HyperBeamPaletteFxStepResult();
     }

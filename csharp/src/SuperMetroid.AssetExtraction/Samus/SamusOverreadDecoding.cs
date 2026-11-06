@@ -361,7 +361,7 @@ internal static class SamusOverreadDecoding
         {
             int place = SamusOverreadSourceDefinitions.ChainsawPaletteStart + colour * ColourWordCodec.ByteCount;
             int word = colour == 0
-                ? LittleEndianWord.Unsigned(SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte, cartridge.ReadCartridgeByte(place + 1))
+                ? SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte | cartridge.ReadCartridgeByte(place + 1) << LittleEndianBytes.BitsPerByte
                 : cartridge.ReadCartridgeWord(place);
             return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         })];

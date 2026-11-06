@@ -56,10 +56,9 @@ internal static class SpeedBoosterWordRangeVerification
         AssertThrows<ArgumentOutOfRangeException>(() => range.DecelerationMultiplier = byte.MaxValue + 1,
             "the multiplier never holds more than eight bits");
 
-        // The crash leaves its orbit radius plus 256 times its orbit stage in the echo index. The
-        // next boost capture sees a nonzero index, writes the second slot first, and the step past
-        // slot two returns the index to zero, as the cartridge's signed comparison does.
-        const int crashResidue = 16 + 2 * 256;
+        // An unfinished crash leaves its orbit stage and radius in the echo cursor. The next boost
+        // capture writes the second slot first, and the step past it returns the cursor to the first slot.
+        SpeedEchoCursor crashResidue = SpeedEchoCursor.CrashOrbit(SuperMetroid.Core.Samus.Abilities.ShinesparkCrashOrbitStage.Contracting, 16);
         var boosted = new SamusHorizontalSpeedState
         {
             SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage,
@@ -70,12 +69,12 @@ internal static class SpeedBoosterWordRangeVerification
         AssertEqual(new Position16<RoomPixels>(40, 50), boosted.SecondSpeedEchoPosition,
             "a nonzero residue captures into the second slot");
         AssertEqual(Position16<RoomPixels>.Zero, boosted.FirstSpeedEchoPosition, "the first slot is untouched");
-        AssertEqual(0, boosted.SpeedEchoIndex, "stepping past the second slot returns the index to zero");
+        AssertEqual(SpeedEchoCursor.FirstSlot, boosted.SpeedEchoIndex, "stepping past the second slot returns the cursor to the first");
 
         // Cancellation publishes the departure index, which stops capture.
         boosted.CancelRunningMomentum(SamusFacingDirection.Right);
-        AssertEqual(ushort.MaxValue, boosted.SpeedEchoIndex, "cancellation publishes the largest index");
-        AssertTrue(boosted.SpeedEchoesDeparting, "the largest index is the departure state");
+        AssertEqual(SpeedEchoCursor.Departing, boosted.SpeedEchoIndex, "cancellation sends the echoes departing");
+        AssertTrue(boosted.SpeedEchoesDeparting, "the departing cursor is the departure state");
         AssertTrue(!boosted.CaptureSpeedEchoPosition(4, new(60, 70)), "departing echoes are not recaptured");
     }
 

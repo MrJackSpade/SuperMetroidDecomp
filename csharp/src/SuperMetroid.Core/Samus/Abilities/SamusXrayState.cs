@@ -651,7 +651,7 @@ public sealed class SamusXrayState
         // turn stand-up glitch. It does not consume an ordinary input slot.
         samus.CommitPoseHistory();
         if (radiusDifference >= 0)
-            samus.Position -= new Offset16<RoomPixels>(0, WordWrap.Signed(radiusDifference));
+            samus.Position -= new Offset16<RoomPixels>(0, radiusDifference);
 
         // The teardown restores both normal Samus handler pointers. X-Mode can arrange for
         // an active spark to own the movement word while the old visor effect reaches this

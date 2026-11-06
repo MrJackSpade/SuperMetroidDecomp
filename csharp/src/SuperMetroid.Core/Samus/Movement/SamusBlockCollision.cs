@@ -103,7 +103,7 @@ public static class SamusBlockCollision
                 state.InteractiveEnemies,
                 direction,
                 FixedCoordinate.WholeOf(unchecked((int)magnitude)),
-                WordWrap.Unsigned(magnitude));
+                (int)SixteenSixteen.FractionOf(magnitude));
             state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
@@ -357,8 +357,8 @@ public static class SamusBlockCollision
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
             move.AlignToSlopeAfterMovement)
             mover.ProjectileInheritance.Record(
-                move.Displacement < 0 ? SamusCollisionDirection.Left : SamusCollisionDirection.Right,
-                acceptedDisplacement);
+                move.Displacement < 0 ? HorizontalDirection.Left : HorizontalDirection.Right,
+                SignedSixteenSixteen.FromRaw(acceptedDisplacement));
 
         // Align Y to whole pixels after both collision and non-collision paths.
         // Direct callers (notably the prospective-running-pose probe)
@@ -419,7 +419,7 @@ public static class SamusBlockCollision
                 state.InteractiveEnemies,
                 direction,
                 FixedCoordinate.WholeOf(unchecked((int)magnitude)),
-                WordWrap.Unsigned(magnitude));
+                (int)SixteenSixteen.FractionOf(magnitude));
             state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
@@ -451,8 +451,8 @@ public static class SamusBlockCollision
         if (owner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe)
             mover.ProjectileInheritance.Record(
-                move.Displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down,
-                acceptedDisplacement);
+                move.Displacement < 0 ? VerticalDirection.Up : VerticalDirection.Down,
+                SignedSixteenSixteen.FromRaw(acceptedDisplacement));
         // Publishes sand contact after either signed movement direction.
         // Pose probes instead consume only the block handler's carry result.
         if (move.PublishQuicksandGrounding && sandContact)
@@ -870,14 +870,11 @@ public static class SamusBlockCollision
         int totalRows,
         out int clippedDisplacement)
     {
-        int shape = block.Behavior.SlopeShape;
-        int orientation = block.Behavior.SlopeOrientation;
-
-        // ci_r32 is the leading X boundary. Its bit three selects the left/right 8-pixel
-        // half; behaviour orientation occupies the same two-bit quadrant coordinate. XOR is
-        // literal indexing, not a geometric simplification.
-        int quadrant = 4 * shape + (orientation ^ ((leadingBoundary & 8) >> 3));
-        bool selectedSolid = SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
+        // The leading X boundary's eight-pixel half selects the column; the scan starts in the top row and then
+        // tests the row below it.
+        SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: (leadingBoundary & 8) != 0, bottomHalf: false);
+        bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
         if (remainingRows == 0)
@@ -891,7 +888,7 @@ public static class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopes.ReadSamusQuadrant(quadrant ^ 2) != 0;
+            collide = selectedSolid || SquareSlopes.IsSolid(shape, quadrant.OtherRow);
         }
         else
         {
@@ -906,7 +903,7 @@ public static class SamusBlockCollision
                 }
             }
 
-            collide = SquareSlopes.ReadSamusQuadrant(quadrant ^ 2) != 0;
+            collide = SquareSlopes.IsSolid(shape, quadrant.OtherRow);
         }
 
         if (!collide)
@@ -935,14 +932,11 @@ public static class SamusBlockCollision
         int totalColumns,
         out int clippedDisplacement)
     {
-        int shape = block.Behavior.SlopeShape;
-        int orientation = block.Behavior.SlopeOrientation;
-
-        // Vertical collision uses leading Y bit three as the high quadrant-coordinate bit,
-        // hence >>2 yields zero or two. The horizontal counter is the number of
-        // physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
-        int quadrant = 4 * shape + (orientation ^ ((leadingBoundary & 8) >> 2));
-        bool selectedSolid = SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
+        // Vertical collision takes the row from the leading Y boundary's eight-pixel half. The horizontal counter is
+        // the number of physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
+        SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: false, bottomHalf: (leadingBoundary & 8) != 0);
+        bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
         // A blocks-left count of zero always denotes the physical rightmost block, independent of
@@ -956,7 +950,7 @@ public static class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
+            collide = selectedSolid || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
         }
         else
         {
@@ -969,7 +963,7 @@ public static class SamusBlockCollision
                 }
             }
 
-            collide = SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
+            collide = SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
         }
 
         if (!collide)
@@ -1165,7 +1159,7 @@ public static class SamusBlockCollision
         int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
         if (up == 0 || down != 0) return;
-        state.Position -= new Offset16<RoomPixels>(0, WordWrap.Signed(up));
+        state.Position -= new Offset16<RoomPixels>(0, up);
         // Tall bodies may overlap two rows. Retail repeats once, not until clear.
         if (state.Radius.Y >= 16)
             state.Position = state.Position.WithWrappedWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
@@ -1206,15 +1200,16 @@ public static class SamusBlockCollision
             }
             else
             {
-                int quadrant = 4 * block.Behavior.SlopeShape + (block.Behavior.SlopeOrientation ^ ((boundary & 8) >> 2));
-                bool selected = SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
+                SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
+                SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: false, bottomHalf: (boundary & 8) != 0);
+                bool selected = SquareSlopes.IsSolid(shape, quadrant);
                 bool collides;
                 if (column == lastColumn)
-                    collides = (right & 8) == 0 ? selected : selected || SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                    collides = (right & 8) == 0 ? selected : selected || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
                 else if (column != firstColumn || (left & 8) == 0)
-                    collides = selected || SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                    collides = selected || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
                 else
-                    collides = SquareSlopes.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                    collides = SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
                 depth = collides ? (direction == VerticalDirection.Down ? boundary & 7 : (boundary & 7) ^ 7) : -1;
             }
             maximum = Math.Max(maximum, depth + 1);

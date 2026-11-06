@@ -40,7 +40,7 @@ internal sealed class ProjectileAnimation
             return true;
         }
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
+        slot.FrameHold = WrappingCountdown.FromRaw(duration);
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.AnimationFrame = record.AnimationFrame;
@@ -99,7 +99,7 @@ internal sealed class ProjectileAnimation
         if (timer.IsNonNegative)
             return;
 
-        int frame = WordWrap.Unsigned(_charge.FlareFrame(component) + 1);
+        int frame = ChargeFlareAnimations.StepFrame(_charge.FlareFrame(component), 1);
         int delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
         if (ChargeFlareAnimations.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
         {
@@ -111,7 +111,7 @@ internal sealed class ProjectileAnimation
                     break;
                 case ChargeFlareDelayCommand.Rewind:
                     int rewind = ChargeFlareAnimations.ReadDelay(component, frame + 1, _flareDelaysBelow);
-                    frame = WordWrap.Unsigned(frame - rewind);
+                    frame = ChargeFlareAnimations.StepFrame(frame, -rewind);
                     delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
                     break;
                 default:
@@ -133,7 +133,7 @@ internal sealed class ProjectileAnimation
         if (direction == SamusPoseAimDefinitions.ShootingDisabled)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = WordWrap.LowByte(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = ChargeFlarePose.RiseOf(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
@@ -165,8 +165,7 @@ internal sealed class ProjectileAnimation
         int indexOffset = CoordinateAxis.Wrap(pose.FacingLeft
             ? component switch { 0 => 0, 1 => 42, _ => 48 }
             : component switch { 0 => 0, 1 => 30, _ => 36 });
-        // The flare draw keeps only the low byte of the frame word before adding the offset.
-        int tableIndex = CoordinateAxis.Wrap(indexOffset + WordWrap.LowByte(_charge.FlareFrame(component)));
+        int tableIndex = CoordinateAxis.Wrap(indexOffset + ChargeFlareAnimations.DrawnFrame(_charge.FlareFrame(component)));
         // A frame that wrapped to 255 selects a pointer past the end of the flare table. The game then
         // draws a "spritemap" out of unrelated memory (into the sprite list only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no

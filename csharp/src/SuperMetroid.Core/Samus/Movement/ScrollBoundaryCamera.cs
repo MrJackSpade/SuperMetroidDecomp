@@ -196,7 +196,7 @@ public sealed class ScrollBoundaryCamera
         if (IdealPosition.X == Position.X.Whole)
             return;
 
-        if (SignedDifference(IdealPosition.X, Position.X.Whole) < 0)
+        if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
         {
             Position = Position.WithX((SignedSixteenSixteen.Zero - Speed.X).AddTo(Position.X.Whole, Position.X.Fraction));
             HandleScrollingLeft();
@@ -271,7 +271,7 @@ public sealed class ScrollBoundaryCamera
         if (IdealPosition.Y == Position.Y.Whole)
             return;
 
-        if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
+        if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
             Position = Position.WithY((SignedSixteenSixteen.Zero - Speed.Y).AddTo(Position.Y.Whole, Position.Y.Fraction));
             HandleScrollingUp();
@@ -318,7 +318,7 @@ public sealed class ScrollBoundaryCamera
             // If the next cell is also red, discard the fractional screen position and stay
             // on this cell's left edge instead of allowing the viewport to enter it.
             int rightBoundary = NextScreenStart(Position.X.Whole);
-            int candidate = WordWrap.Unsigned(proposed + Speed.X.WholeWord + 2);
+            int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholeWord + 2);
             if (candidate >= rightBoundary)
             {
                 SetWholeX(rightBoundary);
@@ -340,8 +340,8 @@ public sealed class ScrollBoundaryCamera
         // toward the current cell's left edge. If the candidate itself lands in red, round
         // up to the next screen boundary. The comparison is signed.
         int leftBoundary = ScreenStart(Position.X.Whole);
-        int leftCandidate = WordWrap.Unsigned(proposed - Speed.X.WholeWord - 2);
-        if (SignedDifference(leftCandidate, leftBoundary) < 0)
+        int leftCandidate = CoordinateAxis.Wrap(proposed - Speed.X.WholeWord - 2);
+        if (CoordinateAxis.Difference(leftCandidate, leftBoundary) < 0)
         {
             SetWholeX(leftBoundary);
             return;
@@ -386,7 +386,7 @@ public sealed class ScrollBoundaryCamera
             // A red current cell pushes downward toward its bottom boundary. As in the X
             // routine, a second red cell beyond the candidate causes screen-edge rounding.
             int bottomBoundary = NextScreenStart(Position.Y.Whole);
-            int candidate = WordWrap.Unsigned(proposed + Speed.Y.WholeWord + 2);
+            int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholeWord + 2);
             if (candidate >= bottomBoundary)
             {
                 SetWholeY(bottomBoundary);
@@ -412,8 +412,8 @@ public sealed class ScrollBoundaryCamera
         if (topBoundary >= Position.Y.Whole)
             return;
 
-        int upwardCandidate = WordWrap.Unsigned(proposed - Speed.Y.WholeWord - 2);
-        if (SignedDifference(upwardCandidate, topBoundary) < 0)
+        int upwardCandidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholeWord - 2);
+        if (CoordinateAxis.Difference(upwardCandidate, topBoundary) < 0)
         {
             SetWholeY(topBoundary);
             return;
@@ -433,7 +433,7 @@ public sealed class ScrollBoundaryCamera
 
         // The signed comparison of ideal against current: if movement overshot the ideal in signed
         // 16-bit space, snap to it and discard the fractional camera position.
-        if (SignedDifference(IdealPosition.X, Position.X.Whole) < 0)
+        if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
@@ -454,8 +454,8 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = ScreenStart(Position.X.Whole);
-        int candidate = WordWrap.Unsigned(proposed - Speed.X.WholeWord - 2);
-        if (SignedDifference(candidate, boundary) < 0)
+        int candidate = CoordinateAxis.Wrap(proposed - Speed.X.WholeWord - 2);
+        if (CoordinateAxis.Difference(candidate, boundary) < 0)
             candidate = boundary;
         SetWholeX(candidate);
     }
@@ -464,7 +464,7 @@ public sealed class ScrollBoundaryCamera
     internal void HandleScrollingLeft()
     {
         int proposed = Position.X.Whole;
-        if (SignedDifference(Position.X.Whole, IdealPosition.X) < 0)
+        if (CoordinateAxis.Difference(Position.X.Whole, IdealPosition.X) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
@@ -482,7 +482,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.X.Whole);
-        int candidate = WordWrap.Unsigned(proposed + Speed.X.WholeWord + 2);
+        int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholeWord + 2);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeX(candidate);
@@ -499,7 +499,7 @@ public sealed class ScrollBoundaryCamera
             ? 0
             : 31;
 
-        if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
+        if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
@@ -524,8 +524,8 @@ public sealed class ScrollBoundaryCamera
 
         if (beyondRoomBottom || blockedBelow)
         {
-            int candidate = WordWrap.Unsigned(proposed - Speed.Y.WholeWord - 2);
-            if (SignedDifference(candidate, boundary) < 0)
+            int candidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholeWord - 2);
+            if (CoordinateAxis.Difference(candidate, boundary) < 0)
                 candidate = boundary;
             SetWholeY(candidate);
         }
@@ -535,7 +535,7 @@ public sealed class ScrollBoundaryCamera
     internal void HandleScrollingUp()
     {
         int proposed = Position.Y.Whole;
-        if (SignedDifference(Position.Y.Whole, IdealPosition.Y) < 0)
+        if (CoordinateAxis.Difference(Position.Y.Whole, IdealPosition.Y) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
@@ -552,7 +552,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.Y.Whole);
-        int candidate = WordWrap.Unsigned(proposed + Speed.Y.WholeWord + 2);
+        int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholeWord + 2);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeY(candidate);
@@ -565,9 +565,6 @@ public sealed class ScrollBoundaryCamera
         int yScreen = EightEight.WholeOf(Position.Y.Whole);
         return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
-
-    /// <summary>Interprets modular coordinate subtraction with the game's signed 16-bit comparison.</summary>
-    private static int SignedDifference(int left, int right) => WordWrap.Signed(left - right);
 
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the 256-pixel alignment).</summary>
     private static int ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
@@ -585,7 +582,7 @@ public sealed class ScrollBoundaryCamera
         FixedCoordinate previous,
         FixedCoordinate current)
     {
-        uint distance = SignedDifference(current.Whole, previous.Whole) >= 0
+        uint distance = CoordinateAxis.Difference(current.Whole, previous.Whole) >= 0
             ? unchecked(current.RawValue - previous.RawValue + 65536u)
             : unchecked(previous.RawValue - current.RawValue + 65536u);
         return SignedSixteenSixteen.FromRaw(unchecked((int)distance));

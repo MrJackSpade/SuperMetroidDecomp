@@ -481,8 +481,7 @@ public sealed class SamusBombProjectileSystem
             samus.BombSpreadChargeTimeoutCounter % MorphBallBombDefinitions.DownChargeTimeoutCycle <
                 MorphBallBombDefinitions.DownChargeTimeoutUpdates)
         {
-            samus.BombSpreadChargeTimeoutCounter =
-                WordWrap.Unsigned(samus.BombSpreadChargeTimeoutCounter + 1);
+            samus.BombSpreadChargeTimeoutCounter++;
             return BombSpreadAdmission.Charging;
         }
 
@@ -507,10 +506,9 @@ public sealed class SamusBombProjectileSystem
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForSlot(index);
             slot.BombTimer = WrappingCountdown.FromRaw(launch.FuseTimer);
             slot.BombSpreadHorizontal = launch.XVelocity;
-            // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
-            // wraps exactly as the game's sixteen-bit subtraction from zero does.
+            // The held charge adds up to three whole pixels of upward launch speed.
             slot.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
-                WordWrap.Signed(-(launch.YSpeed.Whole + verticalModifier)), launch.YSpeed.Fraction);
+                -(launch.YSpeed.Whole + verticalModifier), launch.YSpeed.Fraction);
             slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
         }
 
@@ -568,8 +566,6 @@ public sealed class SamusBombProjectileSystem
         SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
 
         slot.Damage = SamusProjectileDamage.Read(header);
-        if (WordWrap.Signed(slot.Damage) < 0)
-            throw new InvalidDataException($"Bomb header {header} has crash-marker damage ${slot.Damage:X4}.");
 
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -681,10 +677,9 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         SamusKinematicsState samus)
     {
-        // Gravity adds with the fraction carrying into the whole word and the whole word wrapping at sixteen bits,
-        // which is the signed 16.16 value's wrapping addition.
+        // Gravity adds with the fraction carrying into the whole pixels.
         slot.BombSpreadVerticalVelocity += SignedSixteenSixteen.FromParts(
-            WordWrap.Signed(samus.YAcceleration.Whole), samus.YAcceleration.Fraction);
+            samus.YAcceleration.Whole, samus.YAcceleration.Fraction);
 
         int previousY = slot.Position.Y.Whole;
         int previousYSub = slot.Position.Y.Fraction;
@@ -1060,7 +1055,7 @@ public sealed class SamusBombProjectileSystem
         if (duration == 0)
             throw new InvalidDataException($"Bomb record {frame} has zero duration.");
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
+        slot.FrameHold = WrappingCountdown.FromRaw(duration);
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.Cursor = cursor;

@@ -93,25 +93,15 @@ public sealed class SamusHorizontalSpeedState
     public bool NormalSuitPaletteRestoreRequested { get; private set; }
 
     /// <summary>
-    /// Speed echo index, 0 through 65535. Ordinary active Speed Booster echoes alternate
-    /// between slot offsets zero and two. Cancellation writes the largest index while the two
-    /// stored bodies travel back toward Samus; the shinespark crash temporarily shares the
-    /// same value as its orbit radius plus 256 times its orbit stage, and that residue decides
-    /// which slot the next boost captures first.
+    /// The speed echo cursor. Ordinary active Speed Booster echoes alternate between the first and second slots;
+    /// cancellation sends them departing while the two stored bodies travel back toward Samus; the shinespark crash
+    /// shares the cursor for its orbit, and what an unfinished crash leaves decides which slot the next boost captures
+    /// first.
     /// </summary>
-    public int SpeedEchoIndex { get; private set; }
+    public SpeedEchoCursor SpeedEchoIndex { get; private set; }
 
-    /// <summary>
-    /// The index cancellation publishes while the echoes depart: every bit of the sixteen-bit
-    /// index set, the largest value it can hold.
-    /// </summary>
-    private const int DepartingSpeedEchoIndex = ushort.MaxValue;
-
-    /// <summary>
-    /// Whether the echoes are departing toward Samus: the index lies in the upper half of its
-    /// sixteen-bit range, which only cancellation writes.
-    /// </summary>
-    public bool SpeedEchoesDeparting => SpeedEchoIndex > short.MaxValue;
+    /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
+    public bool SpeedEchoesDeparting => SpeedEchoIndex.IsDeparting;
 
     /// <summary>First captured Speed Booster echo position. X zero marks the slot empty.</summary>
     public Position16<RoomPixels> FirstSpeedEchoPosition { get; private set; }
@@ -379,7 +369,7 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            if (WordWrap.Signed(frame.AnimationFrame - 27) >= 0)
+            if (frame.AnimationFrame >= 27)
             {
                 // Carry clear asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
@@ -489,15 +479,12 @@ public sealed class SamusHorizontalSpeedState
             return false;
         }
 
-        if (SpeedEchoIndex == 0)
+        if (SpeedEchoIndex.CapturesFirstSlot)
             FirstSpeedEchoPosition = position;
         else
             SecondSpeedEchoPosition = position;
 
-        // A capturing index is at most 32767 here, so stepping one slot stays in range.
-        SpeedEchoIndex += 2;
-        if (SpeedEchoIndex >= 4)
-            SpeedEchoIndex = 0;
+        SpeedEchoIndex = SpeedEchoIndex.AfterCapture();
         return true;
     }
 
@@ -513,7 +500,7 @@ public sealed class SamusHorizontalSpeedState
     /// </remarks>
     public void ResetSpeedEchoPositionsForShinespark()
     {
-        SpeedEchoIndex = 0;
+        SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
         FirstSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = FirstSpeedEchoPosition.WithX(0);
@@ -534,17 +521,15 @@ public sealed class SamusHorizontalSpeedState
     /// Publishes the overloaded echo words owned by the shinespark-crash handler.
     /// </summary>
     /// <remarks>
-    /// The game reuses the ordinary boost-echo index as an 8-bit radius plus an
-    /// 8-bit crash subphase, and reuses the two captured positions as orbiting sprites.
-    /// Keeping the write centralized prevents desktop-only crash fields from drifting away
-    /// from the exact words consumed by the translated draw handler.
+    /// The crash shares the ordinary boost-echo cursor for its orbit stage and radius, and reuses the two captured
+    /// positions as orbiting sprites.
     /// </remarks>
     public void SetShinesparkCrashEchoState(
-        int encodedIndex,
+        SpeedEchoCursor cursor,
         Position16<RoomPixels> first,
         Position16<RoomPixels> second)
     {
-        SpeedEchoIndex = encodedIndex;
+        SpeedEchoIndex = cursor;
         FirstSpeedEchoPosition = first;
         SecondSpeedEchoPosition = second;
     }
@@ -587,7 +572,7 @@ public sealed class SamusHorizontalSpeedState
         // the echo index is negative must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
-            SpeedEchoIndex = DepartingSpeedEchoIndex;
+            SpeedEchoIndex = SpeedEchoCursor.Departing;
             Offset16<RoomPixels> velocity = new(facing == SamusFacingDirection.Left ? -8 : 8, 0);
             FirstSpeedEchoVelocity = velocity;
             SecondSpeedEchoVelocity = velocity;
@@ -617,7 +602,7 @@ public sealed class SamusHorizontalSpeedState
         SpecialPaletteTimer = WrappingCountdown.Start(0);
         CyclePaletteStep = 0;
         SpeedBoostCounter = default;
-        SpeedEchoIndex = 0;
+        SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
         FirstSpeedEchoVelocity = SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = SecondSpeedEchoPosition = Position16<RoomPixels>.Zero;
     }
@@ -731,7 +716,7 @@ public sealed class SamusHorizontalSpeedState
             FirstSpeedEchoPosition.X == 0 &&
             SecondSpeedEchoPosition.X == 0)
         {
-            SpeedEchoIndex = 0;
+            SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
         }
     }
 
@@ -783,7 +768,7 @@ public sealed class SamusHorizontalSpeedState
 
             // The sign test reads only the high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
-            if (WordWrap.Signed(BaseSpeed.Whole) < 0)
+            if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
                 BaseSpeed = default;
                 AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -827,7 +812,7 @@ public sealed class SamusHorizontalSpeedState
             // the deceleration-allowed routine. The distinction between the two
             // entry points is the bit test above and their carry result, not the subtract.
             SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
-            if (WordWrap.Signed(BaseSpeed.Whole) < 0)
+            if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
                 BaseSpeed = default;
                 AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -843,9 +828,9 @@ public sealed class SamusHorizontalSpeedState
         // deliberately *not* considered a cap: the routine reports no cap in that case.
         int maximumWhole = entry.MaximumSpeed.WholeWord;
         int maximumFraction = entry.MaximumSpeed.Fraction;
-        bool exceedsMaximum = WordWrap.Signed(BaseSpeed.Whole - maximumWhole) > 0 ||
+        bool exceedsMaximum = SamusSpeedMagnitude.Exceeds(BaseSpeed.Whole, maximumWhole) ||
             (BaseSpeed.Whole == maximumWhole &&
-             WordWrap.Signed(BaseSpeed.Fraction - maximumFraction) > 0);
+             SamusSpeedMagnitude.Exceeds(BaseSpeed.Fraction, maximumFraction));
         if (exceedsMaximum)
         {
             SetBaseFixed(unchecked((uint)entry.MaximumSpeed.RawValue));
@@ -908,7 +893,7 @@ public sealed class SamusHorizontalSpeedState
         int fractionProduct = DecelerationMultiplier * EightEight.WholeOf(entry.Deceleration.Fraction);
         return SignedSixteenSixteen.FromParts(
             CoordinateAxis.AsSigned(EightEight.WholeOf(wholeProduct)),
-            WordWrap.Unsigned(fractionProduct));
+            fractionProduct);
     }
 
     /// <summary>Compares split words with the game's signed subtraction and strict low-word tie rule.</summary>
@@ -918,30 +903,18 @@ public sealed class SamusHorizontalSpeedState
         int comparisonHigh,
         int comparisonLow)
     {
-        if (WordWrap.Signed(valueHigh - comparisonHigh) < 0)
+        if (!SamusSpeedMagnitude.IsAtLeast(valueHigh, comparisonHigh))
             return false;
 
-        return valueHigh != comparisonHigh ||
-               (WordWrap.Signed(valueLow - comparisonLow) >= 0 && valueLow != comparisonLow);
+        return valueHigh != comparisonHigh || SamusSpeedMagnitude.Exceeds(valueLow, comparisonLow);
     }
 
     /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
     private static int ClampDisplacement(int displacement)
     {
-        int high = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement));
-        int low = WordWrap.Unsigned(displacement);
-
-        if (high < 0)
-        {
-            if (WordWrap.Signed(high + 15) < 0)
-                high = -15;
-        }
-        else if (WordWrap.Signed(high - 16) >= 0)
-        {
-            high = 15;
-        }
-
-        return unchecked((int)(SixteenSixteen.Compose(WordWrap.Unsigned(high), low)));
+        SignedSixteenSixteen requested = SignedSixteenSixteen.FromRaw(displacement);
+        int high = Math.Clamp(requested.WholePixels, -15, 15);
+        return SignedSixteenSixteen.FromParts(high, requested.Fraction).RawValue;
     }
 
 }

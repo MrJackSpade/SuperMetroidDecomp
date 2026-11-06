@@ -3,9 +3,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>The acceleration each projectile reads from its motion table.</summary>
 internal static class SamusProjectileAccelerations
 {
-    /// <summary>Resolves an aligned word of the missile, Super Missile and beam acceleration tables.</summary>
-    /// <param name="offset">The word's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
-    internal static int ReadWord(int offset)
+    /// <summary>
+    /// The signed acceleration, in 8.8 pixels per update per update, of the missile, Super Missile and beam acceleration
+    /// table entry at <paramref name="offset"/>.
+    /// </summary>
+    /// <param name="offset">The entry's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
+    internal static int Read(int offset)
     {
         // The stored data starts at an odd offset. Only aligned words in that layout belong to this catalog.
         int tableOffset = offset - SamusFiringTableDefinitions.MissileAccelerations;
@@ -37,6 +40,6 @@ internal static class SamusProjectileAccelerations
         int sign = yAxis
             ? octant is 0 or 1 or 7 ? -1 : octant is 3 or 4 or 5 ? 1 : 0
             : octant is >= 1 and <= 3 ? 1 : octant is >= 5 and <= 7 ? -1 : 0;
-        return WordWrap.Unsigned(sign * ((octant & 1) == 0 ? cardinal : diagonal));
+        return sign * ((octant & 1) == 0 ? cardinal : diagonal);
     }
 }

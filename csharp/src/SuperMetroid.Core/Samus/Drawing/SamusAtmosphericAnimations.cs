@@ -29,7 +29,7 @@ internal static class SamusAtmosphericAnimations
             SamusAtmosphericEffectType.LavaSurfaceDamage => LavaSurfaceFrameTicks,
             SamusAtmosphericEffectType.Bubbles => BubbleFrameTicks,
             SamusAtmosphericEffectType.Dust or SamusAtmosphericEffectType.AlternateDust =>
-                WordWrap.Unsigned(DustInitialFrameTicks + DustFrameTickIncrement * frame),
+                DustInitialFrameTicks + DustFrameTickIncrement * frame,
             SamusAtmosphericEffectType.Inactive or _ =>
                 throw new InvalidOperationException($"Undefined atmospheric type {type}."),
         };

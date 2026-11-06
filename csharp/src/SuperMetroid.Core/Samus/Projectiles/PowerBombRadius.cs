@@ -54,6 +54,9 @@ public readonly record struct PowerBombRadius
         return true;
     }
 
-    /// <summary>Reduces an intermediate sum to its sixteen-bit wrapped value.</summary>
-    private static PowerBombRadius Wrap(int value) => new(WordWrap.Unsigned(value));
+    /// <summary>The values a radius or speed counts through before it continues from zero.</summary>
+    private const int Steps = 65536;
+
+    /// <summary>An intermediate sum continued through the ends of the range: past the top from zero, below zero from the top.</summary>
+    private static PowerBombRadius Wrap(int value) => new((value % Steps + Steps) % Steps);
 }

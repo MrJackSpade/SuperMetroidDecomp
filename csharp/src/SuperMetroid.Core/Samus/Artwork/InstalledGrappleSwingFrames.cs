@@ -9,7 +9,7 @@ public sealed class InstalledGrappleSwingFrames
     internal InstalledGrappleSwingFrames(int[] frames)
     {
         for (int angle = 0; angle < frames.Length; angle++)
-            if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle(new ByteAngle(WordWrap.LowByte(angle))))
+            if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle(new ByteAngle(angle)))
             { this.frames = frames; return; }
     }
     /// <summary>Selects the editable displayed orientation frame for one high angle byte, independently of the compiled body-placement frame and the runtime's separate straight-down animation handling.</summary>

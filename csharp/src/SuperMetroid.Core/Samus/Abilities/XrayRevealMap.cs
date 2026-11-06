@@ -36,7 +36,7 @@ public static class XrayRevealMap
         for (int row = 0; row < XrayRevealLayout.Rows; row++)
         for (int col = 0; col < XrayRevealLayout.Columns; col++)
             Place(col, row, Copied(col, row));
-        int firstBlock = WordWrap.LowByte(foregroundPosition.Y >> 4) * level.Size.X + (foregroundPosition.X >> 4);
+        int firstBlock = BlockScanCycle.RowStart(foregroundPosition.Y >> 4, level.Size.X) + (foregroundPosition.X >> 4);
         for (int row = 0; row < XrayRevealLayout.Rows; row++)
         {
             int first = firstBlock + row * level.Size.X;

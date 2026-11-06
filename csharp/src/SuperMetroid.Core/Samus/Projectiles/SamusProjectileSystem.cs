@@ -201,13 +201,10 @@ public sealed class SamusProjectileSystem
         if (Charge.ChargedShotGlowTimer.IsZero)
         {
             // The charge palette admits the continuously cycling charge palette only while
-            // grapple's function pointer is exactly inactive and the flare counter has
-            // reached 60. The game's test is a signed subtraction, retained literally
-            // so Hyper's 32768 sentinel follows game behavior too.
+            // grapple is inactive and the flare counter, which never passes its 120-update clamp, has reached 60.
             bool chargePaletteActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                Charge.FlareCounter != 0 &&
-                WordWrap.Signed(Charge.FlareCounter - 60) >= 0;
+                Charge.FlareCounter >= 60;
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;

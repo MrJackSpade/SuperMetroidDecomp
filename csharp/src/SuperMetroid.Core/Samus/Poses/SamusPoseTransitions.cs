@@ -51,7 +51,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return;
         }
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         // Command five's no-floor branch preserves an ascending
         // velocity, even if a special handler left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
@@ -107,8 +107,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Kinematics.Radius.Y > oldRadius)
         {
-            int difference = CoordinateAxis.Wrap(samus.Kinematics.Radius.Y - oldRadius);
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, WordWrap.Signed(difference));
+            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, samus.Kinematics.Radius.Y - oldRadius);
         }
 
         ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack);
@@ -149,7 +148,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             samus.Pose = targetPose;
             // Correct the center now, but retain the movement frame's live radius
             // until alpha, including when landing on a frozen enemy.
-            samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
+            samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
             SamusPresentation.InitializeAnimation(samus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -276,7 +275,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             // Leaves the collision radius at the compact body's radius: this frame's enemy and
             // projectile collision still use it, and alpha's SetSamusRadius takes the
             // landing body only next frame, as for an ordinary landing.
-            samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
+            samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)

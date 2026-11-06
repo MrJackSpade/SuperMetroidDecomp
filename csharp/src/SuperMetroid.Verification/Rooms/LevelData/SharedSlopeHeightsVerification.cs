@@ -33,7 +33,7 @@ internal static class SharedSlopeHeightsVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var enemy = enemies.SlotTable.Slots[0];
         var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
-        var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>(ProjectileMotion.MissileSlopePointReaction);
+        var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bomb = new Func<RoomLevelData, SamusBombProjectileSlot, bool>(SamusBombProjectileSystem.BombSpreadCollides);
         var projectile = new SamusProjectileSlot(0);
         var spread = new SamusBombProjectileSlot(0);
@@ -56,8 +56,7 @@ internal static class SharedSlopeHeightsVerification
                     bool solid = height <= edge;
                     spread.Position = spread.Position.WithWhole(new(x, y));
                     projectile.Position = projectile.Position.WithWhole(new(x, y));
-                    AssertEqual(solid, missile(block, projectile, true), "Missile horizontal slope point collision");
-                    AssertEqual(solid, missile(block, projectile, false), "Missile vertical slope point collision");
+                    AssertEqual(solid, missile(block, projectile), "Missile slope point collision");
                     AssertEqual(solid, bomb(level, spread), "Bomb spread real slope collision");
                     enemy.Position = enemy.Position.WithY(new(128, 0x1234));
                     int adjustment = height - edge - 1;

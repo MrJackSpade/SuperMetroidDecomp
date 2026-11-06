@@ -19,9 +19,6 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </remarks>
 public static class SamusHurtFlashPalette
 {
-    /// <summary>How many values the hurt-flash counter counts through before it returns to zero, as the game's word does.</summary>
-    private const int HurtFlashCounterPeriod = 65536;
-
     /// <summary>
     /// Advances one hurt-flash call, optionally showing the flash's or the restored suit's shade as the suit's colours
     /// (#1512) and publishing the exact recovery sound side effects.
@@ -59,7 +56,7 @@ public static class SamusHurtFlashPalette
         // Only calls one through six write colors. Odd calls select the fixed hurt palette;
         // even calls restore either the intro palette or the equipment-selected suit. Once
         // counter seven is reached the existing colours deliberately remain untouched.
-        if (WordWrap.Signed(counterBefore - 7) < 0)
+        if (counterBefore < 7)
         {
             if ((counterBefore & 1) != 0)
             {
@@ -75,16 +72,15 @@ public static class SamusHurtFlashPalette
             }
         }
 
-        // The game stores the increment before either comparison. The signed branch against
-        // sixty is preserved rather than simplified to an unsigned host range, retaining
-        // the exact wrap behavior for counters already past sixty.
-        int counterAfter = (counterBefore + 1) % HurtFlashCounterPeriod;
+        // The game stores the increment before either comparison. The counter starts at one or eight and is
+        // cleared at sixty, so it never leaves 0 through 60.
+        int counterAfter = counterBefore + 1;
         samus.HurtFlashCounter = counterAfter;
 
         if (counterAfter == 40)
             RecoverInterruptedSound(samus, controllerInput);
 
-        if (WordWrap.Signed(counterAfter - 60) >= 0)
+        if (counterAfter >= 60)
         {
             samus.HurtFlashCounter = 0;
         }

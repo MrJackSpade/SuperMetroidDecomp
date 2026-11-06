@@ -110,23 +110,50 @@ public static class SamusGrappleMovement
         grapple.Anchor = samus.Position.Whole + grapple.OriginOffset;
     }
 
+    /// <summary>The 16.16 steps of a quarter of one 8.8 velocity step: an 8.8 velocity's quarter is the velocity times this.</summary>
+    private const int QuarterOfVelocityStep = 64;
+
+    /// <summary>The coarse whole pixels the previous quarter leaks a part of: its whole pixels in multiples of 256.</summary>
+    private const int CoarseWholePixels = 256;
+
+    /// <summary>The fine fraction steps the previous quarter leaks a part of: its fraction below 1/256 of a pixel.</summary>
+    private const int FineFractionSteps = 256;
+
+    /// <summary>The whole pixels each of the previous quarter's coarse 256-pixel steps leaks as.</summary>
+    private const int LeakedWholePerCoarseStep = 64;
+
+    /// <summary>The fine fraction steps that leak as one fraction step of the new quarter.</summary>
+    private const int FineStepsPerLeakedStep = 4;
+
+    /// <summary>The whole pixels an odd previous fraction moves a rising quarter by: half the whole range, downward.</summary>
+    private const int OddFractionWholeShift = 32768;
+
     /// <summary>
-    /// The rope collision's velocity quarter (and its Y twin): the velocity word is stored one byte into the
-    /// four-byte quarter pair, which is then rotated right twice as 32 bits. The pair's low
-    /// and high bytes are last frame's, and the second rotate carries the low bit into the
-    /// top. A negative velocity then sets the top ten bits.
+    /// The rope's extension step for one of its four substeps, on one axis: a quarter of
+    /// <paramref name="velocity"/>, rounded toward negative infinity, into which part of last update's quarter
+    /// <paramref name="previous"/> leaks. The quarter's fraction always keeps the top six of the previous fraction's eight
+    /// finest bits below its own, the previous fraction's 256ths quartered. A velocity that is not negative also takes the
+    /// previous whole pixels' multiples of 256, each as 64 pixels, and an odd previous fraction moves its whole pixels
+    /// half the range down; a negative velocity's quarter keeps only its own whole pixels.
     /// </summary>
+    /// <remarks>
+    /// The rope keeps the four substeps' quarter in the storage that held last update's, and builds it there without
+    /// clearing what the velocity does not cover, so the substeps need not add up to the update's velocity.
+    /// </remarks>
     private static SignedSixteenSixteen QuarterExtensionVelocity(
-        int velocity, SignedSixteenSixteen previous)
+        SignedEightEight velocity, SignedSixteenSixteen previous)
     {
-        uint pair = ((uint)((ushort)previous.WholePixels & 0xff00) << 16) | // cartridge-encoding: allow(ByteLane) - the game's rotate over the packed whole-high, velocity, fraction-low bytes
-            ((uint)(ushort)velocity << 8) | // cartridge-encoding: allow(ByteLane) - the game's rotate over the packed whole-high, velocity, fraction-low bytes
-            (uint)(previous.Fraction & 0x00ff); // cartridge-encoding: allow(ByteLane) - the game's rotate over the packed whole-high, velocity, fraction-low bytes
-        uint rotated = (pair >> 2) | ((pair & 1) << 31);
-        int whole = FixedCoordinate.WholeOf(unchecked((int)rotated));
-        if (velocity < 0)
-            whole |= ushort.MaxValue & ~63; // The rotate's sign fills the top ten bits.
-        return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), WordWrap.Unsigned(rotated));
+        SignedSixteenSixteen quarter = SignedSixteenSixteen.FromRaw(velocity.SignedRawValue * QuarterOfVelocityStep);
+        int whole = quarter.WholePixels;
+        if (velocity.SignedRawValue >= 0)
+        {
+            whole += previous.WholeWord / CoarseWholePixels * LeakedWholePerCoarseStep;
+            if (previous.Fraction % 2 != 0)
+                whole -= OddFractionWholeShift;
+        }
+
+        int fraction = quarter.Fraction + previous.Fraction % FineFractionSteps / FineStepsPerLeakedStep;
+        return SignedSixteenSixteen.FromParts(whole, fraction);
     }
 
     /// <summary>
@@ -209,8 +236,8 @@ public static class SamusGrappleMovement
         // keeps stale bytes from the previous frame, so the four steps need not add up to
         // exactly one authored per-frame velocity.
         grapple.QuarterVelocity = new(
-            QuarterExtensionVelocity(grapple.ExtensionVelocity.X.SignedRawValue, grapple.QuarterVelocity.X),
-            QuarterExtensionVelocity(grapple.ExtensionVelocity.Y.SignedRawValue, grapple.QuarterVelocity.Y));
+            QuarterExtensionVelocity(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
+            QuarterExtensionVelocity(grapple.ExtensionVelocity.Y, grapple.QuarterVelocity.Y));
         GrappleBlockReaction finalReaction = GrappleBlockReaction.Passes;
         for (int substep = 0; substep < 4; substep++)
         {
@@ -687,11 +714,11 @@ public static class SamusGrappleMovement
     /// <summary>Limits one axis of the previous position to twelve pixels using wrapped 16-bit displacement.</summary>
     private static int ClampPreviousAxis(int current, int previous)
     {
-        int displacement = WordWrap.Signed(current - previous);
+        int displacement = CoordinateAxis.Difference(current, previous);
         if (displacement >= 13)
-            return WordWrap.Unsigned(current - 12);
+            return CoordinateAxis.Wrap(current - 12);
         if (displacement < -12)
-            return WordWrap.Unsigned(current + 12);
+            return CoordinateAxis.Wrap(current + 12);
         return Ensure.BetweenInclusive(0, ushort.MaxValue, previous);
     }
 
@@ -1119,7 +1146,7 @@ public static class SamusGrappleMovement
         return RotationAngle.NormalizeTableIndex(quadrant switch
         {
             0 => RotationAngle.HalfTurn.TableIndex - reciprocalEighths,
-            1 => WordWrap.LowByte(reciprocalEighths),
+            1 => reciprocalEighths,
             2 => reciprocalEighths + RotationAngle.HalfTurn.TableIndex,
             _ => 256 - reciprocalEighths,
         });

@@ -73,8 +73,7 @@ public sealed class SamusArmCannonState
         }
         else
         {
-            int incremented = WordWrap.Unsigned(StableSelectionUpdates + 1);
-            StableSelectionUpdates = incremented < 3 ? incremented : 2;
+            StableSelectionUpdates = Math.Min(StableSelectionUpdates + 1, 2);
         }
 
         if (IsTransitioning || TryStartTransition(samus.SelectedHudItem))
@@ -157,10 +156,9 @@ public sealed class SamusArmCannonState
     {
         if (IsOpen)
         {
-            int incremented = WordWrap.Unsigned(Frame + 1);
-            if (WordWrap.Signed(incremented - 3) < 0)
+            if (Frame + 1 < 3)
             {
-                Frame = incremented;
+                Frame++;
                 return;
             }
 
@@ -168,10 +166,9 @@ public sealed class SamusArmCannonState
         }
         else
         {
-            int decremented = WordWrap.Unsigned(Frame - 1);
-            if (decremented != 0 && WordWrap.Signed(decremented) >= 0)
+            if (Frame > 1)
             {
-                Frame = decremented;
+                Frame--;
                 return;
             }
 

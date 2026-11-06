@@ -17,6 +17,22 @@ internal static class SquareSlopeDefinitionsVerification
         Suite(nameof(VerifyEnemySquareSlopeAlgorithm), () => VerifyEnemySquareSlopeAlgorithm(rom));
     }
 
+    /// <summary>The square slope shapes in the order the native tables hold them, four quadrant bytes each.</summary>
+    private static readonly SquareSlopeShape[] NativeShapeOrder =
+    [
+        SquareSlopeShape.BottomHalf, SquareSlopeShape.RightHalf, SquareSlopeShape.BottomRightQuarter,
+        SquareSlopeShape.AllButTopLeft, SquareSlopeShape.Full,
+    ];
+
+    /// <summary>The native solid quadrant byte's solidity bit.</summary>
+    private const byte NativeSolidBit = 0x80;
+
+    /// <summary>The quadrant a native table's byte describes: bit zero the right half, bit one the bottom half.</summary>
+    private static SquareSlopeQuadrant NativeQuadrant(int index) => new(right: (index & 1) != 0, bottom: (index & 2) != 0);
+
+    /// <summary>Whether the shape and quadrant the native index names are solid.</summary>
+    private static bool SolidAtNativeIndex(int index) => SquareSlopes.IsSolid(NativeShapeOrder[index / 4], NativeQuadrant(index));
+
     /// <summary>Checks all native Samus quadrant bytes and actual missile reactions for five shapes and BTS orientations.</summary>
     private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -24,13 +40,19 @@ internal static class SquareSlopeDefinitionsVerification
         for (int i = 0; i < native.Length; i++)
         {
             native[i] = rom.ReadCartridgeByte(SamusProjectileRomDataCollision.SquareSlopeDefinitions + i);
-            AssertEqual(native[i], SquareSlopes.ReadSamusQuadrant(i), "Native Samus square quadrant byte");
+            AssertEqual(native[i], SolidAtNativeIndex(i) ? NativeSolidBit : (byte)0, "Native Samus square quadrant byte");
         }
-        foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopes.ReadSamusQuadrant(invalid),
-                $"Samus square quadrant rejects {invalid}");
+        for (int shape = 0; shape < 32; shape++)
+        {
+            var behavior = new RoomBlockBehavior(shape);
+            if (shape < NativeShapeOrder.Length)
+                AssertEqual(NativeShapeOrder[shape], SquareSlopes.ShapeOf(behavior), $"square slope shape {shape}");
+            else
+                AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopes.ShapeOf(behavior),
+                    $"non-square slope shape {shape} has no square quadrants");
+        }
 
-        var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>(ProjectileMotion.MissileSlopePointReaction);
+        var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bus = NewSlopeHeightNoReadBus();
         var projectile = new SamusProjectileSlot(0);
         int cases = 0;
@@ -47,13 +69,12 @@ internal static class SquareSlopeDefinitionsVerification
                 int row = (raw & 128) != 0 ? 15 - y : y;
                 bool expected = native[shape * 4 + row / 8 * 2 + column / 8] != 0;
                 projectile.Position = projectile.Position.WithWhole(new(x, y));
-                AssertEqual(expected, missile(block, projectile, true), "Actual horizontal missile square quadrant");
-                AssertEqual(expected, missile(block, projectile, false), "Actual vertical missile square quadrant");
+                AssertEqual(expected, missile(block, projectile), "Actual missile square quadrant");
                 cases++;
             }
         }
         AssertEqual(10240, cases, "Every square shape/BTS orientation/pixel");
-        Console.WriteLine("Samus square-slope algorithm: 20 native bytes, bounds and 10240 real missile point cases in both axes pass without ROM reads.");
+        Console.WriteLine("Samus square-slope algorithm: 20 native bytes, shape bounds and 10240 real missile point cases pass without ROM reads.");
     }
 
     /// <summary>Compares both native enemy quadrant copies and rejects indices outside their twenty-byte range.</summary>
@@ -61,15 +82,13 @@ internal static class SquareSlopeDefinitionsVerification
     {
         for (int index = 0; index < 20; index++)
         {
-            byte actual = SquareSlopes.ReadEnemyQuadrant(index);
-            AssertEqual(rom.ReadCartridgeByte(SquareSlopes.EnemyReferenceAddress + index), actual,
+            // The enemy copies also keep the quadrant's own index in their two low bits.
+            byte expected = (byte)((SolidAtNativeIndex(index) ? NativeSolidBit : 0) | (index & 3));
+            AssertEqual(expected, rom.ReadCartridgeByte(SquareSlopes.EnemyReferenceAddress + index),
                 $"enemy square quadrant byte {index}, including identity bits");
-            AssertEqual(rom.ReadCartridgeByte(SquareSlopes.ProjectileReferenceAddress + index), actual,
+            AssertEqual(expected, rom.ReadCartridgeByte(SquareSlopes.ProjectileReferenceAddress + index),
                 $"enemy-projectile square quadrant copy {index}");
         }
-        foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopes.ReadEnemyQuadrant(invalid),
-                $"enemy square quadrant rejects {invalid}");
-        Console.WriteLine("Enemy square-slope algorithm: both twenty-byte native copies and bounds pass.");
+        Console.WriteLine("Enemy square-slope algorithm: both twenty-byte native copies pass.");
     }
 }

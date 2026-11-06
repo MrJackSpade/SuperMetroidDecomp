@@ -67,13 +67,30 @@ internal static class SamusComboMechanics
     /// lookup of its own; preserve this existing algorithm.</remarks>
     internal static Offset16<RoomPixels> GetSineOffset(ByteAngle angle, int amplitude)
     {
+        Ensure.BetweenInclusive(0, OrbitRadiusCycle - 1, amplitude);
         int Component(int phase)
         {
             int sample = Trigonometry.SignedSine(new ByteAngle(phase));
-            int magnitude = EightEight.Multiply(Math.Abs(sample), WordWrap.LowByte(amplitude));
-            return WordWrap.Signed(sample < 0 ? -magnitude : magnitude);
+            int magnitude = EightEight.Multiply(Math.Abs(sample), amplitude);
+            return sample < 0 ? -magnitude : magnitude;
         }
 
         return new(Component(angle.RawValue), Component(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue).RawValue));
+    }
+
+    /// <summary>The orbit radii a combo particle holds, in pixels; a radius grown past the last restarts from zero.</summary>
+    private const int OrbitRadiusCycle = 256;
+
+    /// <summary>
+    /// The orbit radius after growing <paramref name="radius"/> by <paramref name="step"/> pixels. An orbit radius is held
+    /// within a cycle of 256 pixels, so an Ice or Plasma ring that is still on screen when its radius passes 255
+    /// collapses onto Samus and grows outward again.
+    /// </summary>
+    /// <param name="radius">The current radius, 0 through 255; other values are rejected.</param>
+    /// <param name="step">The signed growth; a shrink must not pass below zero.</param>
+    internal static int GrownOrbitRadius(int radius, int step)
+    {
+        int grown = Ensure.BetweenInclusive(0, OrbitRadiusCycle - 1, radius) + step;
+        return grown >= OrbitRadiusCycle ? grown - OrbitRadiusCycle : Ensure.BetweenInclusive(0, OrbitRadiusCycle - 1, grown);
     }
 }

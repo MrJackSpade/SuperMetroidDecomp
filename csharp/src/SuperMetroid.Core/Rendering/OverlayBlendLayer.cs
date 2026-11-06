@@ -20,7 +20,11 @@ public sealed record OverlayBlendLayer : DisplayLayer
     public int MapHeightTiles { get; }
     /// <summary>First participating screen line, inclusive; lines before it are untouched, and 224 disables the plane for the entire frame.</summary>
     public int FirstLine { get; }
-    /// <summary>How the layer combines with the screen when drawn on its own; within a gameplay blend it follows that blend instead.</summary>
+    /// <summary>
+    /// Whether the overlay brightens the screen under it, adding its colours as lava, acid, fog and rain do, or darkens it,
+    /// subtracting them as water does. Where a gameplay blend combines with the overlay lying behind what it blends
+    /// (<see cref="GameplayBlendLayer.OverlayBehind"/>), that blend's operation applies instead.
+    /// </summary>
     public BlendOperation Operation { get; }
 
     /// <summary>Captures a four-colour overlay to blend with its line scrolls, checking the map height, first line and operation.</summary>
@@ -28,7 +32,7 @@ public sealed record OverlayBlendLayer : DisplayLayer
     /// <param name="firstRow">The plane row the layer's tilemap begins on.</param>
     /// <param name="mapHeightTiles">The map's height, either 32 or 64 eight-pixel rows.</param>
     /// <param name="firstScanline">Inclusive first screen line from 0 through 224; 224 means no visible lines participate.</param>
-    /// <param name="operation">Addition or subtraction when the layer is drawn on its own.</param>
+    /// <param name="operation">Whether the overlay brightens or darkens the screen under it.</param>
     /// <param name="horizontal">The layer's horizontal scroll line by line.</param>
     /// <param name="vertical">The layer's vertical scroll line by line.</param>
     public OverlayBlendLayer(FxOverlayCells plane, int firstRow, int mapHeightTiles,

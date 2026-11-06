@@ -1,10 +1,24 @@
-// A room under the X-ray: its layers and sprites in their order, the reveal's window (Window.hlsli), the layers each line shows, and
-// the blend with the fixed colour or what lies behind. D3D11FrameRenderer.DispatchXrayRoom packs the header and lines;
-// D3D11XrayBehindLayers names what lies behind.
-static const uint BehindLayer3 = 1;
-static const uint BehindLayer2 = 2;
-static const uint BehindLayer2AndLayer3 = 3;
-// The colour and front flag a shown picture's pixel draws, or nothing where no picture or a transparent pixel lies.
+// A room under a gameplay blend (#1514): its layers and actors in the gameplay scene's order, the window inside which it
+// shows unblended (Window.hlsli), the layers each line shows, and outside the window the blend of the frontmost thing
+// with what lies behind it or with the blend's colour. D3D11FrameRenderer.DispatchXrayRoom packs the header and lines;
+// D3D11BlendBehind names what lies behind.
+static const uint BehindOverlay = 1;
+static const uint BehindBackground = 2;
+static const uint BehindBackgroundAndOverlay = 3;
+// The layers a line shows, in the third word of its row's high half (D3D11FrameRenderer.ShownWord).
+static const uint ShowsForeground = 1, ShowsBackground = 2, ShowsActors = 4;
+// What the blend changes and how, in the Level word (D3D11FrameRenderer.BlendWord). The frontmost thing at a pixel is
+// marked with its bit: the foreground, the background, an actor taking part in blends, or the backdrop; an actor that
+// never blends is marked with none.
+static const uint BlendsForeground = 1, BlendsBackground = 2, BlendsActors = 16, BlendsBackdrop = 32;
+static const uint BlendHalves = 64, BlendSubtracts = 128;
+// The gameplay scene's layers from back to front (GameplaySceneLayer.Order): the place each holds decides which is
+// frontmost at a pixel.
+static const int RankActorsBehindRoom = 0, RankBackgroundBackTiles = 1, RankForegroundBackTiles = 2;
+static const int RankActorsBehindFrontTiles = 3, RankBackgroundFrontTiles = 4, RankForegroundFrontTiles = 5;
+static const int RankActorsInFront = 6;
+// The colour a shown picture's pixel draws, with whether it lies in a front tile, or nothing where no picture or a
+// transparent pixel lies.
 uint2 XraySample(bool shown, uint picture, uint2 within)
 {
     uint2 sample = uint2(0, 0);
@@ -13,9 +27,9 @@ uint2 XraySample(bool shown, uint picture, uint2 within)
     {
         // A block picture (#1392) keeps no row for its transparent pixels, which show nothing.
         uint index;
-        bool high;
-        uint colour = PicturePixel(picture, within, index, high);
-        if (shown && index != 0) sample = uint2(colour, high ? 1 : 0);
+        bool front;
+        uint colour = PicturePixel(picture, within, index, front);
+        if (shown && index != 0) sample = uint2(colour, front ? 1 : 0);
     }
     return sample;
 }
@@ -54,11 +68,19 @@ uint2 XrayBackground(uint roomSource, uint2 position)
     return XraySample(shown, picture, within);
 }
 
+// Keeps `candidate` as the frontmost thing when it is opaque and lies at or in front of the frontmost so far.
 void XrayInsert(uint2 candidate, int candidateRank, uint candidateSource,
     inout uint winner, inout int rank, inout uint source)
 {
     if ((candidate.x >> 24) == 0 || candidateRank < rank) return;
     winner = candidate.x; rank = candidateRank; source = candidateSource;
+}
+
+// The rank of the actors' layer at depth `depth` (SpriteLayer.hlsli's Depth constants).
+int ActorRank(uint depth)
+{
+    return depth == DepthBehindRoom ? RankActorsBehindRoom
+        : depth == DepthBehindFrontTiles ? RankActorsBehindFrontTiles : RankActorsInFront;
 }
 
 uint XrayGameplay(uint2 screen)
@@ -68,48 +90,53 @@ uint XrayGameplay(uint2 screen)
     if (screen.y >= 32)
     {
     uint4 scan = ScanlineParameters[screen.y];
-    uint mainScreen = scan.z >> 16;
-    uint2 bg2Screen = screen;
-    if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
-    // Layer 2's line scroll, from its described line scrolls (#1468).
+    uint shownLayers = scan.z >> 16;
+    uint2 backgroundScreen = screen;
+    if (Reserved27 > 1) backgroundScreen -= backgroundScreen % Reserved27;
+    // The background's line scroll, from its described line scrolls (#1468).
     uint2 backgroundScroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
-    // Inside the window (the X-ray cone, #1468) the room shows unblended.
+    // Inside the window the room shows unblended.
     bool inside = InWindow(screen);
-    uint source = 32;
+    uint source = BlendsBackdrop;
     int rank = -1;
-    if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
+    // The reveal's blocks, on the background, show only inside the window; the foreground shows only outside it.
+    if ((TransparentZero == 0 || inside) && (shownLayers & ShowsBackground) != 0)
     {
-        uint2 bg = XrayBackground(RoomSource, bg2Screen + backgroundScroll);
-        XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
+        uint2 background = XrayBackground(RoomSource, backgroundScreen + backgroundScroll);
+        XrayInsert(background, background.y != 0 ? RankBackgroundFrontTiles : RankBackgroundBackTiles, BlendsBackground,
+            winner, rank, source);
     }
-    if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
+    if ((TransparentZero == 0 || !inside) && (shownLayers & ShowsForeground) != 0)
     {
-        uint2 bg = XrayBackground(SourceLayer1, screen + uint2(HorizontalScroll,VerticalScroll));
-        XrayInsert(bg, bg.y != 0 ? 6 : 3, 1, winner, rank, source);
+        uint2 foreground = XrayBackground(SourceLayer1, screen + uint2(HorizontalScroll, VerticalScroll));
+        XrayInsert(foreground, foreground.y != 0 ? RankForegroundFrontTiles : RankForegroundBackTiles, BlendsForeground,
+            winner, rank, source);
     }
-    if ((mainScreen & 16) != 0)
+    if ((shownLayers & ShowsActors) != 0)
     {
         bool blends;
         uint2 obj = SpriteAt(screen, blends);
-        int objRank = obj.y < 2 ? (int)obj.y : obj.y == 2 ? 4 : 7;
-        if (obj.y != NoSprite) XrayInsert(uint2(obj.x, obj.y), objRank, blends ? 16 : 0, winner, rank, source);
+        if (obj.y != NoSprite) XrayInsert(uint2(obj.x, 1), ActorRank(obj.y), blends ? BlendsActors : 0, winner, rank, source);
     }
     if (!inside && (Level & source) != 0)
     {
-        uint sub = 0;
-        if (OffsetX != 0 && (Reserved3 == BehindLayer2 || Reserved3 == BehindLayer2AndLayer3))
-            sub = XrayBackground(RoomSource, bg2Screen + backgroundScroll).x;
-        if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
+        // OffsetX marks that layers lie behind what blends, Reserved3 which: the background, the overlay or both, the
+        // overlay's front tiles over the background and its back tiles under it.
+        uint behind = 0;
+        if (OffsetX != 0 && (Reserved3 == BehindBackground || Reserved3 == BehindBackgroundAndOverlay))
+            behind = XrayBackground(RoomSource, backgroundScreen + backgroundScroll).x;
+        if (OffsetX != 0 && (Reserved3 == BehindOverlay || Reserved3 == BehindBackgroundAndOverlay) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayOverlay((uint)MatrixC, (uint)CenterX,
+            uint2 overlay = XrayOverlay((uint)MatrixC, (uint)CenterX,
                 screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
-            if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
+            if ((overlay.x >> 24) != 0 && (overlay.y != 0 || (behind >> 24) == 0)) behind = overlay.x;
         }
-        bool useSub = OffsetX != 0 && (sub >> 24) != 0;
-        int3 other = useSub ? int3(Unpack(sub) >> 3) : int3(AddR,AddG,AddB);
+        // Where nothing lies behind, the blend combines with its colour, unhalved where layers lie behind.
+        bool combinesBehind = OffsetX != 0 && (behind >> 24) != 0;
+        int3 other = combinesBehind ? int3(Unpack(behind) >> 3) : int3(AddR,AddG,AddB);
         int3 value = int3(Unpack(winner) >> 3);
-        value = (Level & 128) != 0 ? value - other : value + other;
-        if ((Level & 64) != 0 && (OffsetX == 0 || useSub)) value >>= 1;
+        value = (Level & BlendSubtracts) != 0 ? value - other : value + other;
+        if ((Level & BlendHalves) != 0 && (OffsetX == 0 || combinesBehind)) value >>= 1;
         uint3 c = (uint3)clamp(value, 0, 31);
         winner = Pack((c << 3) | (c >> 2), winner >> 24);
     }

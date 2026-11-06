@@ -295,57 +295,126 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Composes a room under the X-ray: its layers in their order, the reveal's window, the layers each line shows, and
-    /// the blend with the fixed colour or the layers behind.
+    /// Composes a room under a gameplay blend (#1514): its layers in their order, the window inside which it shows
+    /// unblended, the layers each line shows, and outside the window the blend of the frontmost thing with the layers lying
+    /// behind it or with the blend's colour.
     /// </summary>
     private unsafe void DispatchXrayRoom(GameplayBlendLayer layer)
     {
         var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayRoom;
-        // Xray.hlsli reads layer 1's scroll and the blend from the layer header words.
+        // Xray.hlsli reads the foreground's scroll and the blend from the layer header words.
         data[3] = r.ForegroundScroll.X;
         data[4] = unchecked((ushort)(r.ForegroundScroll.Y + D3D11Screen.LayerLineOffset));
-        data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
-        data[9] = (uint)layer.Blend.Layers;
-        data[10] = (uint)layer.Blend.FixedColor.Red; data[11] = (uint)layer.Blend.FixedColor.Green; data[12] = (uint)layer.Blend.FixedColor.Blue;
-        // Layer 1 is always the room's; layer 2 is what the room publishes for it (#1403).
+        data[8] = layer.RevealBlocks ? 1u : 0u;
+        data[9] = BlendWord(layer.Blend);
+        data[10] = (uint)layer.Blend.Colour.Red; data[11] = (uint)layer.Blend.Colour.Green; data[12] = (uint)layer.Blend.Colour.Blue;
+        // The foreground is always the room's; the background is what the room publishes for it (#1403).
         data[14] = D3D11RoomSources.Layer2Of(layer.Gameplay.Rooms);
-        data[22] = layer.Blend.BlendsWithLayersBehind ? 1u : 0u;
+        // What lies behind what blends: nothing (the blend's colour), the overlay, the background or both.
+        D3D11BlendBehind? behind = (layer.BackgroundBehind, layer.OverlayBehind is not null) switch
+        {
+            (false, false) => null,
+            (false, true) => D3D11BlendBehind.Overlay,
+            (true, false) => D3D11BlendBehind.Background,
+            (true, true) => D3D11BlendBehind.BackgroundAndOverlay,
+        };
+        data[22] = behind is null ? 0u : 1u;
+        data[15] = behind is { } lying ? (uint)lying : 0u;
         data[26] = 224;
         data[27] = (uint)r.BackgroundPixelation.Size;
-        // What the blend draws from behind: nothing, layer 3, layer 2 or both.
-        if (layer.BlendsWithBackground) data[15] = (uint)D3D11XrayBehindLayers.Layer2;
-        if (layer.BlendPlane is { } sub)
+        if (layer.OverlayBehind is { } overlay)
         {
-            data[15] = (uint)(layer.BlendsWithBackground
-                ? D3D11XrayBehindLayers.Layer2AndLayer3
-                : D3D11XrayBehindLayers.Layer3);
-            data[18] = (uint)sub.FirstRow;
-            data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstLine;
+            data[18] = (uint)overlay.FirstRow;
+            data[20] = (uint)overlay.MapHeightTiles; data[21] = (uint)overlay.FirstLine;
         }
         for (int y = 32; y < 224; y++)
         {
-            int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4, line = y - 32;
+            int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
             // The third byte holds the layers this line shows.
-            var mainScreen = layer.Gameplay.LayersShownByLine.IsEmpty
-                ? r.MainScreenLayers : layer.Gameplay.LayersShownByLine[line];
-            // Draygon's room hides layer 2 outside its band even while the X-ray blends.
-            if (y < r.BackgroundFirstLine || y >= r.BackgroundEndLine) mainScreen &= ~ScreenLayers.Background;
-            data[offset + 2] = D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
+            ScreenLayers shown = layer.Gameplay.ShownLayersAt(y);
+            // Draygon's room hides its background outside his band even while the X-ray blends.
+            if (y < r.BackgroundFirstLine || y >= r.BackgroundEndLine) shown &= ~ScreenLayers.Background;
+            data[offset + 2] = D3D11ConstantPacking.Bytes(0, 0, (byte)ShownWord(shown), 0);
         }
-        // The X-ray's cone (#1468): inside it the room shows unblended.
+        // The window (#1468): inside it the room shows unblended.
         D3D11WindowPacking.Pack(data, layer.Window);
-        // Layer 2's scrolls and the blend plane's, described line by line (#1468).
+        // The background's scrolls and the overlay's, described line by line (#1468).
         PackBackgroundScrolls(data, layer.Gameplay);
-        if (layer.BlendPlane is { } bg3)
+        if (layer.OverlayBehind is { } lyingOverlay)
         {
-            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, bg3.Horizontal, 0, 0);
-            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, bg3.Vertical, 0, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, lyingOverlay.Horizontal, 0, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, lyingOverlay.Vertical, 0, 0);
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
+
+    /// <summary>Xray.hlsli's bit for a line showing the room's foreground.</summary>
+    private const uint ShowsForeground = 1;
+    /// <summary>Xray.hlsli's bit for a line showing the room's background.</summary>
+    private const uint ShowsBackground = 2;
+    /// <summary>Xray.hlsli's bit for a line showing the actors.</summary>
+    private const uint ShowsActors = 4;
+
+    /// <summary>The bits Xray.hlsli tests for the layers a line shows.</summary>
+    private static uint ShownWord(ScreenLayers shown) =>
+        ((shown & ScreenLayers.Foreground) != 0 ? ShowsForeground : 0)
+        | ((shown & ScreenLayers.Background) != 0 ? ShowsBackground : 0)
+        | ((shown & ScreenLayers.Sprites) != 0 ? ShowsActors : 0);
+
+    /// <summary>Xray.hlsli's bit for a blend changing the frontmost foreground; the shader marks the foreground's pixels with it.</summary>
+    private const uint BlendsForeground = 1;
+    /// <summary>Xray.hlsli's bit for a blend changing the frontmost background.</summary>
+    private const uint BlendsBackground = 2;
+    /// <summary>Xray.hlsli's bit for a blend changing the frontmost actors that take part in blends.</summary>
+    private const uint BlendsActors = 16;
+    /// <summary>Xray.hlsli's bit for a blend changing the backdrop.</summary>
+    private const uint BlendsBackdrop = 32;
+    /// <summary>Xray.hlsli's bit for a blend halving what it combines.</summary>
+    private const uint BlendHalves = 64;
+    /// <summary>Xray.hlsli's bit for a blend subtracting what it combines.</summary>
+    private const uint BlendSubtracts = 128;
+
+    /// <summary>The bits Xray.hlsli tests for what a blend changes and how.</summary>
+    /// <exception cref="InvalidOperationException">The blend's operation is not defined.</exception>
+    private static uint BlendWord(GameplayBlend blend) =>
+        ((blend.Blended & BlendedLayers.Foreground) != 0 ? BlendsForeground : 0)
+        | ((blend.Blended & BlendedLayers.Background) != 0 ? BlendsBackground : 0)
+        | ((blend.Blended & BlendedLayers.Actors) != 0 ? BlendsActors : 0)
+        | ((blend.Blended & BlendedLayers.Backdrop) != 0 ? BlendsBackdrop : 0)
+        | (blend.Halved ? BlendHalves : 0)
+        | blend.Operation switch
+        {
+            Core.Rendering.BlendOperation.Add => 0u,
+            Core.Rendering.BlendOperation.Subtract => BlendSubtracts,
+            _ => throw new InvalidOperationException($"Undefined blend operation {blend.Operation}."),
+        };
+
+    /// <summary>
+    /// The depth a gameplay draw sits at among the room's layers (#1514): its frame's. An empty frame draws nothing, so it is
+    /// packed with the actors behind the room.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The draw shows a frame that is not empty and has no depth.</exception>
+    internal static ActorDepth DepthOf(ImageSpriteDraw draw) => draw.Depth ?? (draw.Image.IsEmpty ? ActorDepth.BehindRoom
+        : throw new InvalidDataException($"Gameplay sprite draw {draw} shows a frame with no depth among the room's layers."));
+
+    /// <summary>The sprite layer's word for a depth: Sprites.hlsl writes it and SpriteLayer.hlsli's Depth constants name it.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="depth"/> is not a defined depth.</exception>
+    internal static uint DepthWord(ActorDepth depth) => depth switch
+    {
+        ActorDepth.BehindRoom => 0,
+        ActorDepth.BehindFrontTiles => 1,
+        ActorDepth.InFront => 2,
+        _ => throw new InvalidOperationException($"Undefined actor depth {depth}."),
+    };
+
+    /// <summary>The <see cref="D3D11TileDispatch.DrawnPart"/> of a pass inserting the sprites at <paramref name="depth"/>.</summary>
+    private static uint Inserting(ActorDepth depth) => DepthWord(depth) + 1;
+
+    /// <summary>The <see cref="D3D11TileDispatch.DrawnPart"/> of a room layer pass drawing its back or its front tiles.</summary>
+    private static uint Tiles(bool front) => front ? 2u : 1u;
 
     /// <summary>Draws the message box's text image, coloured in the message's text colours (#1408).</summary>
     private unsafe void DispatchMessage(MessageBoxLayer layer)
@@ -361,8 +430,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Composes a room with a perspective floor below the HUD's lines: the floor, the sprites and layer 2 by priority. The
-    /// HUD is its own layer (#1466).
+    /// Composes a room with a perspective floor below the HUD's lines (#1514): the floor with the actors over it, and on the
+    /// band below it the background's layers and the actors in <see cref="GameplaySceneLayer.Order"/>. The HUD is its own
+    /// layer (#1466).
     /// </summary>
     private void DispatchFloorRoom(TurningRoomLayer layer)
     {
@@ -371,68 +441,94 @@ public sealed class D3D11FrameRenderer : IDisposable
         int floorStart = layer.Floor?.FirstLine ?? 224;
         DispatchFloor(layer.Transform, layer.HudLines, floorStart);
         DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart });
-        if (layer.Floor is { } floor)
+        if (layer.Floor is not { } floor)
+            return;
+        // Only the band below the floor shows the background; transparent pixels keep the backdrop. The band shows no
+        // foreground.
+        foreach (GameplayLayer shown in GameplaySceneLayer.Order)
         {
-            // Only the middle band shows the floor. Transparent floor pixels keep the backdrop; every priority pass
-            // inserts from the same sprite layer.
-            Sprites(0); Sprites(1);
-            Background(false);
-            Sprites(2);
-            Background(true);
-            Sprites(3);
-
-            void Sprites(uint priority) => DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)floorStart });
-            void Background(bool high) => DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(), Priority = Priority(high), FirstScanline = (uint)floorStart });
+            switch (shown)
+            {
+                case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontTiles or GameplayLayer.ActorsInFront:
+                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnPart = Inserting(ActorsAt(shown)), FirstScanline = (uint)floorStart });
+                    break;
+                case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
+                    DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
+                    {
+                        RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(),
+                        DrawnPart = Tiles(shown == GameplayLayer.BackgroundFrontTiles), FirstScanline = (uint)floorStart,
+                    });
+                    break;
+                case GameplayLayer.ForegroundBackTiles or GameplayLayer.ForegroundFrontTiles:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined gameplay layer {shown}.");
+            }
         }
     }
 
+    /// <summary>The depth of the actors a gameplay actor layer shows.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="layer"/> shows no actors.</exception>
+    private static ActorDepth ActorsAt(GameplayLayer layer) => layer switch
+    {
+        GameplayLayer.ActorsBehindRoom => ActorDepth.BehindRoom,
+        GameplayLayer.ActorsBehindFrontTiles => ActorDepth.BehindFrontTiles,
+        GameplayLayer.ActorsInFront => ActorDepth.InFront,
+        _ => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
+    };
+
     /// <summary>
-    /// Composes a room: sprites of priority 0 and 1, layer 2 then layer 1 at low priority, sprites of priority 2, layer 2
-    /// then layer 1 at high priority, sprites of priority 3; in bands split where the layers a line shows change, below
-    /// the HUD's band. The HUD is its own layer (#1466).
+    /// Composes a room (#1514): its layers in <see cref="GameplaySceneLayer.Order"/>, in bands split where the layers a line
+    /// shows change, below the HUD's band. The HUD is its own layer (#1466).
     /// </summary>
     private void DispatchOrdinaryGameplay(GameplaySceneLayer layer)
     {
         GameplaySceneView r = layer.View;
-        // Every pass inserts from the same sprite layer, so a sprite hidden by one in front never shows at another
-        // priority.
-        int first = D3D11Screen.HudHeight, end;
-        ScreenLayers activeLayers;
+        int first = D3D11Screen.HudHeight;
         while (first < D3D11Screen.Height)
         {
-            activeLayers = layer.LayersShownByLine.IsEmpty ? r.MainScreenLayers
-                : layer.LayersShownByLine[first - D3D11Screen.HudHeight];
-            end = first + 1;
-            while (end < D3D11Screen.Height && (layer.LayersShownByLine.IsEmpty ||
-                layer.LayersShownByLine[end - D3D11Screen.HudHeight] == activeLayers)) end++;
-            Sprites(0); Sprites(1); Background2(false); Background1(false);
-            Sprites(2); Background2(true); Background1(true); Sprites(3);
+            ScreenLayers shownLayers = layer.ShownLayersAt(first);
+            int end = first + 1;
+            while (end < D3D11Screen.Height && layer.ShownLayersAt(end) == shownLayers) end++;
+            foreach (GameplayLayer shown in GameplaySceneLayer.Order)
+            {
+                switch (shown)
+                {
+                    case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontTiles or GameplayLayer.ActorsInFront:
+                        if ((shownLayers & ScreenLayers.Sprites) != 0)
+                            DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnPart = Inserting(ActorsAt(shown)), FirstScanline = (uint)first, EndScanline = (uint)end });
+                        break;
+                    case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
+                        if ((shownLayers & ScreenLayers.Background) != 0)
+                            DispatchRoomBackground(layer, shown == GameplayLayer.BackgroundFrontTiles, first, end);
+                        break;
+                    case GameplayLayer.ForegroundBackTiles or GameplayLayer.ForegroundFrontTiles:
+                        if ((shownLayers & ScreenLayers.Foreground) != 0)
+                            DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
+                            {
+                                RoomSource = D3D11RoomSource.Layer1,
+                                Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset),
+                                DrawnPart = Tiles(shown == GameplayLayer.ForegroundFrontTiles), FirstScanline = (uint)first, EndScanline = (uint)end,
+                            });
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Undefined gameplay layer {shown}.");
+                }
+            }
             first = end;
-        }
-
-        void Sprites(uint priority)
-        {
-            if ((activeLayers & ScreenLayers.Sprites) != 0)
-                DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)first, EndScanline = (uint)end });
-        }
-        void Background1(bool high)
-        {
-            if ((activeLayers & ScreenLayers.Foreground) != 0)
-                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
-        }
-        void Background2(bool high)
-        {
-            if ((activeLayers & ScreenLayers.Background) != 0) DispatchRoomLayer2(layer, high, first, end);
         }
     }
 
-    /// <summary>Draws the room's layer 2 at one priority in a band, each line at the scroll its line scrolls give it (#1468), with its mosaic.</summary>
-    private unsafe void DispatchRoomLayer2(GameplaySceneLayer layer, bool high, int first, int end)
+    /// <summary>
+    /// Draws the room's background's back or front tiles in a band, each line at the scroll its line scrolls give it (#1468),
+    /// with its pixelation.
+    /// </summary>
+    private unsafe void DispatchRoomBackground(GameplaySceneLayer layer, bool frontTiles, int first, int end)
     {
         var r = layer.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
-        data[7] = Priority(high); data[8] = 1; data[15] = 1;
+        data[7] = Tiles(frontTiles); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.Layer2Of(layer.Rooms);
         data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
         // Header word 27 is the mosaic's block size (zero elsewhere).
@@ -587,8 +683,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             }
             else if (layer is OverlayBlendLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
-            else if (layer is GameplayBlendLayer { BlendPlane: { } sub })
-                bg3 = SameBg3(bg3, sub.Plane);
+            else if (layer is GameplayBlendLayer { OverlayBehind: { } overlay })
+                bg3 = SameBg3(bg3, overlay.Plane);
         }
         var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.WrittenOverForeground, rooms?.Sky, bg3,
             rooms?.WrittenOverBackground, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
@@ -601,8 +697,11 @@ public sealed class D3D11FrameRenderer : IDisposable
         roomLevels.Collect(levels, images.Needed);
         images.Hold(images.Needed);
         // Every draw the frame shows, the paint's then each sprite layer's, packed once; each sprite layer draws its own
-        // run of them (#1514).
-        spriteDraws.Pack(scene.SpriteDraws.AsSpan(), images);
+        // run of them (#1514). The paint's draws are packed by depth, the actors in front first and each depth's in emission
+        // order, so the sprite layer keeps the frontmost actor among the layers at each pixel.
+        bool composesGameplay = !scene.Layers.IsEmpty && scene.Layers[0] is GameplaySceneLayer or GameplayBlendLayer or TurningRoomLayer;
+        PackOrder(scene, composesGameplay);
+        spriteDraws.Pack(CollectionsMarshal.AsSpan(packedDraws), CollectionsMarshal.AsSpan(packedDepths), images);
         SpriteRun[] runs = SpriteRuns(scene);
         var allSprites = new SpriteRun(0, scene.SpriteDraws.Length);
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
@@ -774,7 +873,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         Extent16<TilemapCells> size = tile.MapSize ?? new Extent16<TilemapCells>(32, 32);
         var data = ClearUploadConstants();
         data[0] = (uint)operation; data[1] = tile.Map; data[3] = tile.Scroll.X;
-        data[4] = tile.Scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = tile.Priority;
+        data[4] = tile.Scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = tile.DrawnPart;
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
         data[14] = (uint)tile.RoomSource;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
@@ -788,8 +887,49 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Encodes unspecified, low, or high tile priority for the compute shader.</summary>
-    private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
+    /// <summary>The actor depths from the front back: the order the paint's draws are packed in (#1514).</summary>
+    private static readonly ActorDepth[] FrontToBack = [ActorDepth.InFront, ActorDepth.BehindFrontTiles, ActorDepth.BehindRoom];
+
+    /// <summary>The frame's draws in the order they are packed, reused from frame to frame.</summary>
+    private readonly List<SpriteDraw> packedDraws = [];
+
+    /// <summary>The depth each of <see cref="packedDraws"/> is packed at, reused from frame to frame.</summary>
+    private readonly List<ActorDepth> packedDepths = [];
+
+    /// <summary>
+    /// Lays out <paramref name="scene"/>'s draws and their depths in the order they are packed (#1514): the paint's draws
+    /// grouped by depth from the front back, each depth's in emission order, then every sprite layer's as the scene lists
+    /// them, in front, since a sprite layer is drawn whole at its place among the scene's layers. The draws a whole-gameplay
+    /// layer composes sit at their frames' depths; a frontend screen's paint draws, which only a turning floor's glow
+    /// composes, sit at their frames' depths where their frames have one and in front of the floor otherwise.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A gameplay draw shows a frame that is not empty and has no depth.</exception>
+    /// <exception cref="InvalidOperationException">A paint draw is not an image draw.</exception>
+    private void PackOrder(LayeredScene scene, bool composesGameplay)
+    {
+        packedDraws.Clear();
+        packedDepths.Clear();
+        ReadOnlySpan<SpriteDraw> draws = scene.SpriteDraws.AsSpan();
+        int paintDraws = scene.Paint.SpriteDraws.Length;
+        foreach (ActorDepth depth in FrontToBack)
+        {
+            foreach (SpriteDraw draw in draws[..paintDraws])
+            {
+                if (draw is not ImageSpriteDraw image)
+                    throw new InvalidOperationException($"A frame's paint holds a {draw.GetType().Name}, not an image draw.");
+                ActorDepth shown = composesGameplay ? DepthOf(image) : image.Depth ?? ActorDepth.InFront;
+                if (shown != depth)
+                    continue;
+                packedDraws.Add(draw);
+                packedDepths.Add(shown);
+            }
+        }
+        foreach (SpriteDraw draw in draws[paintDraws..])
+        {
+            packedDraws.Add(draw);
+            packedDepths.Add(ActorDepth.InFront);
+        }
+    }
 
     /// <summary>
     /// Uploads the frame's floor (#1514): the matrix that turns each screen pixel's distance from the floor's centre into a
@@ -820,6 +960,22 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>ScreenGradient.hlsl's bit for a stop changing the floor and the backdrop where no sprite shows.</summary>
+    private const uint GradientChangesFloorAndBackdrop = 1;
+    /// <summary>ScreenGradient.hlsl's bit for a stop changing the sprites that take part in blends.</summary>
+    private const uint GradientChangesSprites = 16;
+    /// <summary>ScreenGradient.hlsl's bit for a stop darkening what it changes.</summary>
+    private const uint GradientDarkens = 128;
+
+    /// <summary>The bits ScreenGradient.hlsl tests for a stop's blend (#1514).</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="blend"/> is not a defined gradient blend.</exception>
+    private static uint GradientBlendWord(GradientBlend blend) => blend switch
+    {
+        GradientBlend.DarkensFloorAndBackdrop => GradientChangesFloorAndBackdrop | GradientDarkens,
+        GradientBlend.BrightensFloorBackdropAndSprites => GradientChangesFloorAndBackdrop | GradientChangesSprites,
+        _ => throw new InvalidOperationException($"Undefined gradient blend {blend}."),
+    };
+
     /// <summary>
     /// Draws a gradient over the composed layers (#1468): its band in the header's first and end scanline words, its
     /// stop count in the level word, and each stop as a row: its colour's channels, then its blend with the line its
@@ -836,7 +992,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + stop * 4;
             data[offset] = (uint)shown.Colour.Red; data[offset + 1] = (uint)shown.Colour.Green;
             data[offset + 2] = (uint)shown.Colour.Blue;
-            data[offset + 3] = (uint)shown.Blend | (uint)shown.Line << D3D11ShaderLayout.GradientStopLineShift;
+            data[offset + 3] = GradientBlendWord(shown.Blend) | (uint)shown.Line << D3D11ShaderLayout.GradientStopLineShift;
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(screenGradientShader);

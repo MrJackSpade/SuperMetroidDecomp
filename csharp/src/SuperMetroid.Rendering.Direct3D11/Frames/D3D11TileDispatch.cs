@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
-/// <summary>A layer pass's constants: what it draws and where, its scroll and map size, priority, transparency, brightness, colour and line range (#633).</summary>
+/// <summary>A layer pass's constants: what it draws and where, its scroll and map size, the part it draws, transparency, brightness, colour and line range (#633).</summary>
 internal sealed record D3D11TileDispatch
 {
     /// <summary>Map.</summary>
@@ -16,8 +16,11 @@ internal sealed record D3D11TileDispatch
     /// <summary>Map size.</summary>
     public Extent16<TilemapCells>? MapSize { get; init; } = null;
 
-    /// <summary>Priority.</summary>
-    public uint Priority { get; init; } = 0;
+    /// <summary>
+    /// The part of the layer the pass draws (#1514): zero for all of it, otherwise one more than the actor depth a sprite
+    /// insertion inserts (<see cref="D3D11FrameRenderer.DepthOf"/>) or than whether a room layer pass draws its front tiles.
+    /// </summary>
+    public uint DrawnPart { get; init; } = 0;
 
     /// <summary>Transparent zero.</summary>
     public uint TransparentZero { get; init; } = 1;

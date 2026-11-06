@@ -1,7 +1,8 @@
 // The sprite layer (#1408): each whole-frame sprite draw is an instanced quad over its image in the image texture,
 // drawn back to front so the frontmost draw's opaque pixel is the one the layer keeps. The layer holds, per pixel, the
-// colour shown and, below it, the pixel's priority against the backgrounds with whether it blends above that; a pixel
-// no draw covers keeps the cleared "none" value. D3D11SpriteDrawBuffer packs the records.
+// colour shown and, below it, the draw's depth among the room's layers (#1514) with whether the pixel blends above that;
+// a pixel no draw covers keeps the cleared "none" value. D3D11SpriteDrawBuffer packs the records, a gameplay frame's
+// draws by depth from the front back, so the frontmost draw is the one at the frontmost depth.
 StructuredBuffer<uint> SpriteDraws : register(t1);
 // The run of draws this pass draws (#1514): a sprite layer's own, or every draw of the frame. FirstDraw counts from the
 // frontmost packed draw; D3D11FrameRenderer.DrawSpriteLayer uploads both.
@@ -9,11 +10,14 @@ cbuffer SpriteRun : register(b0)
 {
     uint FirstDraw, DrawCount;
 };
-// Each texel: the image's pre-coloured pixel, then its ink (D3D11ImageAtlas): its ink index with its priority above it.
+// Each texel: the image's pre-coloured pixel, then its ink (D3D11ImageAtlas): its ink index in the low byte.
 // Compiled apart from Tiles.hlsl, which declares the same texture.
 Texture2D<uint2> Images : register(t4);
 static const uint SpriteRecordWords = 6;
 static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteRecolour = 512;
+// Where a record's flags keep the draw's depth among the room's layers (#1514), two bits: D3D11SpriteDrawBuffer's
+// DepthShift, holding D3D11FrameRenderer.DepthWord.
+static const uint SpriteDepthShift = 3, SpriteDepthMask = 3;
 // A rotting corpse's row word naming a row its rot has cleared (#1531), which draws nothing.
 static const uint SpriteClearedRow = 0xffffffffu;
 // The pixels of one of a rotting corpse's character columns, each with its own table of rows.
@@ -73,14 +77,14 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     }
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + source, 0));
     uint ink = texel.y & 255;
-    uint priority = (texel.y >> 8) & 3;
+    uint depth = (flags >> SpriteDepthShift) & SpriteDepthMask;
     uint blends = (ink / SpriteGroupInks) >= FirstColourMathGroup || (flags & SpriteColourMath) != 0 ? SpriteBlends : 0;
     if ((flags & SpriteRecolour) != 0)
     {
         if (ink == 0) discard;
         // A shaded draw's pixel shows its ink's colour under the draw's shading (#1512).
-        return uint2(SpriteDraws[SpriteDraws[record + 4] + ink], priority | blends);
+        return uint2(SpriteDraws[SpriteDraws[record + 4] + ink], depth | blends);
     }
     if ((texel.x >> 24) == 0) discard;
-    return uint2(texel.x | 0xff000000, priority | blends);
+    return uint2(texel.x | 0xff000000, depth | blends);
 }

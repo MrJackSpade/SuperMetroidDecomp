@@ -9,9 +9,11 @@ static const uint OpMessageText = 12;
 static const uint OpXrayRoom = 14;
 cbuffer TileParameters : register(b0)
 {
-    // LayerWindowed marks a layer pass drawn only within its window (#1514), whose shapes WindowShapes holds.
+    // LayerWindowed marks a layer pass drawn only within its window (#1514), whose shapes WindowShapes holds. DrawnPart
+    // is the part of the layer a pass draws (#1514): zero for all of it; for a sprite insertion, one more than the depth
+    // whose sprites it inserts; for a layer pass, one more than whether it draws the layer's front tiles.
     uint Operation, TilemapWord, LayerWindowed, HorizontalScroll;
-    uint VerticalScroll, MapWidth, MapHeight, PriorityFilter;
+    uint VerticalScroll, MapWidth, MapHeight, DrawnPart;
     uint TransparentZero, Level, AddR, AddG;
     uint AddB, Reserved2, RoomSource, Reserved3;
     int MatrixA, MatrixB, MatrixC, MatrixD;
@@ -65,10 +67,11 @@ static const uint RevealColumns = 17, RevealRows = 16;
 // A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
 // x below y.
 static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord = 2;
-// The installed images (D3D11ImageAtlas), each texel the image's pre-coloured pixel, then its ink word: the ink, its
-// tile priority above it, and above that whether it is colour zero and whether it keeps its group.
+// The installed images (D3D11ImageAtlas), each texel the image's pre-coloured pixel, then its ink word: the ink, above
+// it whether the pixel lies in one of its layer's front tiles (#1514), and above that whether it is colour zero and
+// whether it keeps its group.
 Texture2D<uint2> Images : register(t4);
-static const uint InkColourZero = 65536, InkKeepsGroup = 131072;
+static const uint InkFrontTile = 256, InkColourZero = 65536, InkKeepsGroup = 131072;
 // The perspective floor's image (D3D11FloorImage): the 1024-pixel floor with its states' pictures laid over it. Each
 // texel's ink word keeps the index of the floor picture it comes from.
 Texture2D<uint2> Floor : register(t5);
@@ -311,13 +314,14 @@ uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
 // The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512): whether it shows a
-// colour other than colour zero (`index`), its tile priority, and its ink's colour under the slot's shading. A
-// colour-zero pixel shows nothing, or, where it keeps its group, that group's colour zero when its layer shows it.
-uint TexelColour(uint2 texel, uint slot, out uint index, out bool high)
+// colour other than colour zero (`index`), whether it lies in a front tile (#1514), and its ink's colour under the slot's
+// shading. A colour-zero pixel shows nothing, or, where it keeps its group, that group's colour zero when its layer
+// shows it.
+uint TexelColour(uint2 texel, uint slot, out uint index, out bool front)
 {
     uint meta = texel.y;
     uint ink = meta & 255;
-    high = ((meta >> 8) & 3) != 0;
+    front = (meta & InkFrontTile) != 0;
     uint table = Colours[1 + slot];
     if ((meta & InkColourZero) != 0)
     {
@@ -328,11 +332,11 @@ uint TexelColour(uint2 texel, uint slot, out uint index, out bool high)
     return Colours[table + ink];
 }
 // A picture's pixel (#1392, #1408), as TexelColour colours it from the picture's colour slot.
-uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
+uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool front)
 {
     uint place = RoomLevels[picture + PicturePlaceWord];
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + pixel, 0));
-    return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index, high);
+    return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index, front);
 }
 
 /// A pass's described line scrolls (#1468, D3D11LineScrolls): LineScrolls' first four rows are slots, each one axis of
@@ -442,9 +446,9 @@ bool GlowCovers(uint2 screen)
     uint2 coverWithin;
     uint coverPicture;
     uint coverIndex = 0;
-    bool coverHigh = false;
+    bool coverFront = false;
     bool coverShown = PlanePicture(map.x, (screen + map.zw) & 65535, coverWithin, coverPicture);
-    return coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverHigh) != 0 && coverIndex != 0;
+    return coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverFront) != 0 && coverIndex != 0;
 }
 
 [numthreads(8, 8, 1)]
@@ -462,8 +466,8 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint height = RoomLevels[picture + PictureSizeWord] >> 16;
         if (picture == 0 || id.y < TilemapWord || id.y >= TilemapWord + height) return;
         uint index;
-        bool high;
-        uint shown = PicturePixel(picture, uint2(id.x, id.y - TilemapWord), index, high);
+        bool front;
+        uint shown = PicturePixel(picture, uint2(id.x, id.y - TilemapWord), index, front);
         if (index != 0) Output[id.xy] = shown;
         return;
     }
@@ -505,17 +509,17 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint2 texel = Floor.Load(int3(at, 0));
         // `shown` is the colour a nonzero pixel shows.
         uint index;
-        bool high;
-        uint shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index, high);
+        bool front;
+        uint shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index, front);
         uint color = index;
         if (transparentOutside) color = 0;
         if (Reserved27 == 2)
         {
-            // The floor shows over sprites of priority zero; the frontmost of the two is then brightened by the
+            // The floor shows over sprites drawn behind it (#1514); the frontmost of the two is then brightened by the
             // floor's own colour, unless it is a sprite that does not blend.
             bool blends;
             uint2 obj = SpriteAt(id.xy, blends);
-            bool objWins = obj.y != NoSprite && (obj.y != 0 || color == 0);
+            bool objWins = obj.y != NoSprite && (obj.y != DepthBehindRoom || color == 0);
             uint main = objWins ? obj.x : color != 0 ? shown : Output[id.xy];
             if (color != 0 && (!objWins || blends))
             {
@@ -543,7 +547,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         bool blends;
         uint2 winner = SpriteAt(id.xy, blends);
-        if (winner.y != NoSprite && (PriorityFilter == 0 || PriorityFilter - 1 == winner.y))
+        if (winner.y != NoSprite && (DrawnPart == 0 || DrawnPart - 1 == winner.y))
         {
             // AddR makes the sprites glow, adding each one's colour to the screen's; AddG tints the sprites that blend by
         // AddB's five-bit colour. The sums are of five-bit channels, before brightness (#1514).
@@ -623,10 +627,11 @@ void Main(uint3 id : SV_DispatchThreadID)
     // Every background draws from pictures (#1403); a position without one shows nothing.
     if (picture == 0) return;
     uint color;
-    bool high;
+    bool front;
     // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
-    uint sampled = PicturePixel(picture, within, color, high);
-    if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
+    uint sampled = PicturePixel(picture, within, color, front);
+    // A room layer's back tiles and its front tiles are drawn as layers of their own (#1514).
+    if (DrawnPart != 0 && (front ? 1u : 0u) != DrawnPart - 1) return;
     if (color == 0 && TransparentZero != 0) return;
     if (Operation == OpAddLayerBehind)
     {

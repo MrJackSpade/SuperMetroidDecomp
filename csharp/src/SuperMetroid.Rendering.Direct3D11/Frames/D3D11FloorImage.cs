@@ -74,7 +74,7 @@ internal sealed class D3D11FloorImage : IDisposable
                 bool colourZero = sheet.IsColourZero(ink);
                 int target = TexelWords * ((top + y) * Side + left + x);
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;
-                texels[target + 1] = (uint)ink.PaletteIndex | (uint)ink.Priority << 8 | sheetIndex
+                texels[target + 1] = (uint)ink.PaletteIndex | (ink.FrontTile ? D3D11ImageAtlas.FrontTileInk : 0) | sheetIndex
                     | (colourZero ? D3D11ImageAtlas.ColourZeroInk : 0)
                     | (colourZero && sheet.ColourZeroKeepsGroup ? D3D11ImageAtlas.KeepsGroupInk : 0);
             }

@@ -15,12 +15,12 @@ to the WARP reference.
 
 | Resource | Shader binding | What it holds |
 |---|---|---|
-| Image texture (`D3D11ImageAtlas`) | `Images`, t4 | Every installed image a scene draws: sprite frames, block pictures, background images, tile sheets, the message box. Each texel holds the image's pre-coloured pixel and its ink word: the ink, the pixel's priority, its part row, whether it is colour zero and whether colour zero keeps its group. An image keeps its place while later scenes show it; a scene that does not fit empties the texture and lays its images tallest first on a skyline. |
+| Image texture (`D3D11ImageAtlas`) | `Images`, t4 | Every installed image a scene draws: sprite frames, block pictures, background images, tile sheets, the message box. Each texel holds the image's pre-coloured pixel and its ink word: the ink, whether the pixel lies in one of its layer's front tiles, whether it is colour zero and whether colour zero keeps its group. An image keeps its place while later scenes show it; a scene that does not fit empties the texture and lays its images tallest first on a skyline. |
 | Floor image (`D3D11FloorImage`) | `Floor`, t5 | The perspective floor, 1024 pixels square, laid out from its tiles' pictures whenever the floor changes, with its first tile's picture beside it. |
 | Scene colours (`D3D11SceneColourBuffer`) | `Colours`, t0 | The backdrop, then one colour table per image and colouring: a bit per sixteen-ink group still showing the image's own colours, then the colour each ink shows now. |
-| Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, image place, colours), front to back. |
+| Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, depth among the room's layers, image place, colours), front to back: the paint's draws grouped by depth from the front back, then each sprite layer's. |
 | Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' cells and block grids, each picture's place, size and colour slot, the overlays, sky rows, door window and the floor's sheets. |
-| Sprite layer | `SpriteLayer`, u1 / render target | Per pixel, the frontmost sprite pixel's colour and its priority, with whether it blends. |
+| Sprite layer | `SpriteLayer`, u1 / render target | Per pixel, the frontmost sprite pixel's colour and its draw's depth, with whether it blends. |
 | Output | `Output`, u0 | The composed 256 by 224 frame, eight bits a channel. |
 
 ## Colour
@@ -42,27 +42,29 @@ The message box's text is coloured as the room's art is, with its two text colou
 Each pass runs over the screen, or over a band of lines, in the order the scene lists its layers.
 
 - **Sprite layer** (`Sprites.hlsl`). Each sprite draw is an instanced quad over its image, drawn back to front into the
-  sprite layer, so each pixel keeps the frontmost draw's opaque pixel whatever its priority. A sprite hidden by one in
-  front therefore never shows at another priority.
+  sprite layer, so each pixel keeps the frontmost draw's opaque pixel. A gameplay frame's draws are packed by depth from
+  the front back (#1514), so the frontmost draw is one at the frontmost depth, and each pixel records its draw's depth: a
+  whole draw sits at one depth among the room's layers.
 - **Backdrop.** Fills the screen with the backdrop colour.
 - **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the layer-3 plane, a boss body, the
   X-ray reveal, a library background, or a frontend layer's cells. Each pixel of the layer shows its picture's pixel at
-  the scrolled position. Options: a priority filter (only the low- or high-priority pixels), opaque colour zero, a scroll
-  per line, a mosaic that groups screen pixels into blocks before the line's scroll, and words written over the layer
-  drawn on top.
-- **Room order.** A room composes, per band of lines with the same visible layers: sprites of priority 0 and 1, layer 2
-  then layer 1 at low priority, sprites of priority 2, layer 2 then layer 1 at high priority, sprites of priority 3; then
-  the HUD, layer 3, opaque, over the top 32 lines. Each scrolled layer shows the line one past its scroll on each screen
+  the scrolled position. Options: only the layer's back tiles or only its front tiles (each picture's pixels say which
+  tile they lie in), opaque colour zero, a scroll per line, a mosaic that groups screen pixels into blocks before the
+  line's scroll, and words written over the layer drawn on top.
+- **Room order.** A room composes, per band of lines with the same shown layers (`GameplaySceneLayer.Bands`), the
+  gameplay scene's layers in `GameplaySceneLayer.Order` (#1514): the actors behind the room, the background's back tiles,
+  the foreground's back tiles, the actors behind the front tiles, the background's front tiles, the foreground's front
+  tiles and the actors in front; then the HUD, opaque, over the top 32 lines. Each scrolled layer shows the line one past its scroll on each screen
   row (`D3D11Screen.LayerLineOffset`).
-- **Insert sprites.** Writes the sprite layer's pixels of one priority, or all, over the screen. Options: add the sprite's
+- **Insert sprites.** Writes the sprite layer's pixels of one depth, or all, over the screen. Options: add the sprite's
   colour to the screen's, or add a fixed colour to a sprite that blends.
 - **Floor** (the perspective floor, `FloorView`). The display model describes the floor as an angle, a scale, a centre
   and a scroll; the backend turns the angle and scale into a matrix of four floats. For each screen pixel, the floor
   position is the centre plus that matrix applied to the pixel's distance from the centre once scrolled, rounded down to
   the floor pixel. The shader computes it with `precise` arithmetic, so every device lands each pixel on the same floor
   pixel. Outside the floor it shows nothing or repeats. Options: add the floor's colour to whichever of the floor and the sprites is in front
-  (the floor shows over priority-zero sprites; a sprite that does not blend is left as it is), or subtract the sprite
-  layer's colour from the floor.
+  (the floor shows over sprites drawn behind the room; a sprite that does not blend is left as it is), or subtract the
+  sprite layer's colour from the floor.
 - **Add colour.** Adds a fixed colour to every pixel, in five-bit channels, clamped.
 - **Line colour add.** Adds each line's colour within that line's window.
 - **Add / subtract layer.** Adds or subtracts the room effect's layer-3 rows, each line at its own scroll, eight bits a
@@ -70,13 +72,15 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
 - **Add layer behind.** Adds a frontend layer's colours where the layer covering it shows (and, optionally, where a
   sprite that blends shows over it), each line at its own scroll, in five-bit channels.
 - **Message text.** Draws the message box's text image from its top line, within the reveal window's lines.
-- **X-ray room** (`Xray.hlsli`). Composes a room under the X-ray in one pass: layers 1 and 2 and the sprites in room
-  order, layer 2 hidden or shown inside the reveal window and layer 1 outside it, the layers each line shows, and outside
-  the window the blend of the frontmost pixel with the fixed colour or with what lies behind (layer 2, layer 3 or both):
-  add or subtract, halved where the blend halves.
+- **Blended room** (`Xray.hlsli`). Composes a room under a gameplay blend (`GameplayBlendLayer`: the X-ray, Phantoon,
+  Fireflea, the waterfall rooms, the spores) in one pass: the foreground, the background and the actors in room order,
+  the reveal shown inside the window and the foreground outside it, the layers each line shows, and outside the window
+  the blend of the frontmost thing the blend names with the layers lying behind it (the background, the effect overlay,
+  whose front tiles lie over the background, or both) or with the blend's colour where none lies behind: added or
+  subtracted, halved where the blend halves, and the colour unhalved where the layers lying behind show nothing.
 - **Gradient** (`ScreenGradient.hlsl`, #1468). A gradient is its stops and the band of lines they cover. Each line of
-  the band takes the last stop beginning on or above it and adds or subtracts that stop's colour to the pixels whose
-  layer the stop's blend names: the floor or backdrop, or a sprite that blends.
+  the band takes the last stop beginning on or above it: its colour darkens the floor and the backdrop, or brightens
+  them and the sprites that blend, as the stop's blend says.
 - **Brightness and fades.** Scales every opaque pixel's channels by the level over fifteen, the scene's brightness first
   and then each fade in order, each rounding its own result.
 - **Windowed scene.** Composes a child scene with its own resources and copies its window's rectangle into the screen.

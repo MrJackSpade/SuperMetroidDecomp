@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A sprite draw of a finished, pre-coloured image: one frame of a sheet placed at an origin and mirrored about it. Its
-/// colours and each pixel's priority against the backgrounds come from the image, under the shading its owner names
-/// (#1392, #1512).
+/// colours come from the image, under the shading its owner names (#1392, #1512), and a gameplay draw sits whole at its
+/// frame's depth among the room's layers (#1514).
 /// </summary>
 public sealed record ImageSpriteDraw : SpriteDraw
 {
@@ -40,6 +40,11 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <summary>Mirrors the frame about its origin.</summary>
     public SpriteMirror Mirror { get; }
 
+    /// <summary>
+    /// Where a gameplay draw sits among the room's layers (#1514): its frame's depth, the whole draw at one depth. Null for a
+    /// frame that is not an actor's or is empty; a frontend screen places its draws by the sprite layer holding them instead.
+    /// </summary>
+    public ActorDepth? Depth => Image.Depth;
 
     /// <summary>
     /// The screen position of the frame rectangle's top-left pixel. Mirroring the frame mirrors its rectangle about the

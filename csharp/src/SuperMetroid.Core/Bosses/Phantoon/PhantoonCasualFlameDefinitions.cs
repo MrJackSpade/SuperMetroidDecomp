@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon mouth schedules retain the header and reverse-read timer layout.</summary>
+/// <summary>Phantoon's casual-flame bursts.</summary>
 public static class PhantoonCasualFlameDefinitions
 {
     /// <summary>
@@ -8,18 +8,19 @@ public static class PhantoonCasualFlameDefinitions
     /// </summary>
     public const int NoActiveSchedule = -1;
 
+    /// <summary>Mouth-scheduler updates every burst waits after its last flame.</summary>
+    private const int BurstCooldown = 180;
+
     /// <summary>
-    /// The casual-flame tables, selected by the casual-flame update: flame count,
-    /// 180-update cooldown, then one interval per flame. The update selects five-, three-, seven-flame uniform bursts,
-    /// then an irregular seven-flame burst whose seven reverse-read intervals are independent timing. Uniform holds are
-    /// 16 ticks per burst rank, with rank 1..3 containing 2*rank+1 flames. Timing words count mouth-scheduler updates;
-    /// the scheduler reads intervals from the end toward the header before starting each flame's mouth animation.
+    /// The casual-flame bursts, selected by the casual-flame update: uniform bursts of five, three and seven flames,
+    /// then an irregular seven-flame burst. Uniform waits are 16 updates per burst rank, with rank 1..3 containing
+    /// 2*rank+1 flames. Each burst's intervals are listed in the order the mouth waits them.
     /// </summary>
-    internal static readonly ushort[][] Schedules =
+    internal static readonly PhantoonCasualFlameSchedule[] Schedules =
     [
-        [5, 180, 32, 32, 32, 32, 32],
-        [3, 180, 16, 16, 16],
-        [7, 180, 48, 48, 48, 48, 48, 48, 48],
-        [7, 180, 16, 64, 32, 64, 32, 16, 32],
+        new() { Cooldown = BurstCooldown, Intervals = [32, 32, 32, 32, 32] },
+        new() { Cooldown = BurstCooldown, Intervals = [16, 16, 16] },
+        new() { Cooldown = BurstCooldown, Intervals = [48, 48, 48, 48, 48, 48, 48] },
+        new() { Cooldown = BurstCooldown, Intervals = [32, 16, 32, 64, 32, 64, 16] },
     ];
 }

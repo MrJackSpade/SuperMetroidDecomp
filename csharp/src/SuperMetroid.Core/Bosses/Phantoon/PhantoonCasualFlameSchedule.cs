@@ -1,28 +1,27 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// A read-only view of one casual-flame table: flame count, cooldown, then one interval per flame.
+/// One burst of Phantoon's casual flames: the waits before each flame in the order the mouth spends them, then the
+/// cooldown after the last flame before the next burst is chosen.
 /// </summary>
-/// <param name="words">The table's words in forward storage order.</param>
-public readonly struct PhantoonCasualFlameSchedule(ushort[] words) : IReadOnlyList<ushort>
+public sealed record PhantoonCasualFlameSchedule
 {
-    /// <summary>Number of stored words, including the two header words; not the number of flames.</summary>
-    public int Count => words.Length;
+    /// <summary>Mouth-scheduler updates waited after the burst's last flame before a new burst is chosen.</summary>
+    public required int Cooldown { get; init; }
 
-    /// <summary>Reads a table word: flame count at 0, 180-update cooldown at 1, or an interval thereafter.</summary>
-    /// <param name="index">Zero-based word index, less than <see cref="Count"/>.</param>
-    /// <returns>The unsigned count or scheduler-update duration at the requested position.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is negative or at least <see cref="Count"/>.</exception>
-    public ushort this[int index] =>
-        (uint)index < (uint)words.Length ? words[index] : throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>
+    /// Mouth-scheduler updates waited before each flame, first flame first; the burst spits one flame per entry.
+    /// </summary>
+    public required IReadOnlyList<int> Intervals { get; init; }
 
-    /// <summary>Enumerates the header and interval words in forward storage order, not chronological flame order.</summary>
-    /// <returns>An enumerator over all <see cref="Count"/> words without exposing mutable storage.</returns>
-    public IEnumerator<ushort> GetEnumerator()
-    {
-        for (int index = 0; index < Count; index++) yield return this[index];
-    }
+    /// <summary>Number of flames the burst spits.</summary>
+    public int FlameCount => Intervals.Count;
 
-    /// <summary>Exposes the same storage order through non-generic enumeration.</summary>
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    /// <summary>
+    /// The wait before the next flame when <paramref name="remainingFlames"/> flames of the burst are still to come:
+    /// the first interval when the whole burst remains, the last when one flame remains.
+    /// </summary>
+    /// <param name="remainingFlames">Flames still to come, from one to <see cref="FlameCount"/>.</param>
+    public int IntervalBefore(int remainingFlames) =>
+        Intervals[FlameCount - Ensure.BetweenInclusive(1, FlameCount, remainingFlames)];
 }

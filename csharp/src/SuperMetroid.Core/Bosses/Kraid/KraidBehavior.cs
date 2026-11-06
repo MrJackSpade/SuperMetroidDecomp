@@ -55,8 +55,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
-        Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
         Parts = new KraidParts(dependencies.SlotTable);
+        Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio, Parts);
         BodyLayer = new KraidBodyLayer(Access, _bossArtwork);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background);
@@ -99,7 +99,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(
             CoordinateAxis.Wrap(camera.X - body.Position.X.Whole + body.Radius.X),
             CoordinateAxis.Wrap(camera.Y - body.Position.Y.Whole + 152));
-        KraidAiFunction function = state.Parts[body.SlotIndex].Function;
+        KraidAiFunction function = Parts.StateOf(state, body).Function;
         if (KraidFunctionGroups.Rise.Contains(function))
         {
             Rise.RunKraidRiseFunction(body, state, samus);
@@ -207,14 +207,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         KraidEnemyState state,
         int cameraX)
     {
-        switch (state.Parts[body.SlotIndex].Function)
+        switch (Parts.StateOf(state, body).Function)
         {
             case KraidAiFunction.MainloopThinking:
                 if (!state.ThinkingTimer.IsZero && (state.ThinkingTimer = state.ThinkingTimer.Decrement().Remaining).IsZero)
                 {
-                    state.Parts[body.SlotIndex].Function = KraidAiFunction.MainAttackWithMouthOpen;
+                    Parts.StateOf(state, body).Function = KraidAiFunction.MainAttackWithMouthOpen;
                     state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-                    state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
+                    Parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
                 }
                 return;
 
@@ -239,12 +239,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.HandleFunctionTimer:
-                KraidEncounterAccess.TickKraidFunctionTimer(state.Parts[Parts.Body.SlotIndex]);
+                KraidEncounterAccess.TickKraidFunctionTimer(state.Part(KraidPart.Kraid));
                 return;
 
             case KraidAiFunction.ProcessHeadInstructionAndTimer:
                 _ = Head.ProcessKraidHeadInstruction(body, state);
-                KraidEncounterAccess.TickKraidFunctionTimer(state.Parts[Parts.Body.SlotIndex]);
+                KraidEncounterAccess.TickKraidFunctionTimer(state.Part(KraidPart.Kraid));
                 return;
 
             case KraidAiFunction.GrowReleaseCamera:
@@ -305,7 +305,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");
+                    $"Kraid body function {Parts.StateOf(state, body).Function} is not translated.");
         }
     }
 }

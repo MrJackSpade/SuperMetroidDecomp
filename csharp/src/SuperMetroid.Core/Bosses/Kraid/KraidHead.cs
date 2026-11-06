@@ -92,7 +92,7 @@ internal sealed class KraidHead
     /// <summary>Restores the small-body thinking state after an attack.</summary>
     internal void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
-        state.Parts[body.SlotIndex].Function = KraidAiFunction.MainloopThinking;
+        _parts.StateOf(state, body).Function = KraidAiFunction.MainloopThinking;
         _parts.TopLint.Position = _parts.TopLint.Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
         _parts.MiddleLint.Position = _parts.MiddleLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
         _parts.BottomLint.Position = _parts.BottomLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
@@ -105,7 +105,7 @@ internal sealed class KraidHead
         if (ProcessKraidHeadInstruction(body, state) == KraidHeadProgramResult.ProgramEnded)
         {
             SetupKraidFirstPhaseThinking(body, state);
-            state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(90);
+            _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(90);
 
             // Bits 2 and 8-15 are populated by body/mouth projectile handling. Preserve
             // the original game arithmetic now so adding collision cannot change sequencing.
@@ -114,9 +114,9 @@ internal sealed class KraidHead
                 state.RemoveOneMouthReopen();
                 if (state.PendingMouthReopens != 0)
                 {
-                    state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
-                    state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
-                    state.Parts[_parts.Body.SlotIndex].NextFunction = KraidAiFunction.InitializeEyeGlow;
+                    _parts.StateOf(state, body).Function = KraidAiFunction.HandleFunctionTimer;
+                    _parts.StateOf(state, body).FunctionTimer = WrappingCountdown.Start(64);
+                    state.Part(KraidPart.Kraid).NextFunction = KraidAiFunction.InitializeEyeGlow;
                     return;
                 }
             }
@@ -127,7 +127,7 @@ internal sealed class KraidHead
         // The open-mouth tilemap remains installed for 64 frames. Retail emits a rock on
         // every sixteenth timer value, including the entry frame after the open-mouth setup reloads it.
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
-            state.Parts[body.SlotIndex].HeadTimer.IsOnMultipleOf(16))
+            _parts.StateOf(state, body).HeadTimer.IsOnMultipleOf(16))
         {
             state.SpitRockRequestCount++;
             if (SpawnKraidSpitRock(body))
@@ -142,11 +142,11 @@ internal sealed class KraidHead
     /// </summary>
     internal KraidHeadProgramResult ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
-        WrappingCountdown headTimer = state.Parts[body.SlotIndex].HeadTimer;
+        WrappingCountdown headTimer = _parts.StateOf(state, body).HeadTimer;
         if (headTimer.IsZero)
             return KraidHeadProgramResult.PoseHeld;
         CountdownStep step = headTimer.Decrement();
-        state.Parts[body.SlotIndex].HeadTimer = step.Remaining;
+        _parts.StateOf(state, body).HeadTimer = step.Remaining;
         return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : KraidHeadProgramResult.PoseHeld;
     }
 
@@ -172,7 +172,7 @@ internal sealed class KraidHead
                 return KraidHeadProgramResult.ProgramEnded;
 
             case AnimationProgramAdvance<KraidHeadFrame>.Show shown:
-                state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(shown.Duration);
+                _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(shown.Duration);
                 // His body layer shows the pose over his body from here (#1515).
                 state.DisplayedHeadFrame = shown.Frame;
                 return KraidHeadProgramResult.PoseShown;
@@ -209,16 +209,16 @@ internal sealed class KraidHead
     {
         if (ProcessKraidHeadInstruction(body, state) != KraidHeadProgramResult.ProgramEnded)
             return;
-        state.Parts[body.SlotIndex].Function = KraidAiFunction.MainloopThinking;
-        state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(90);
+        _parts.StateOf(state, body).Function = KraidAiFunction.MainloopThinking;
+        _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(90);
         if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)
             {
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
-                state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
-                state.Parts[_parts.Body.SlotIndex].NextFunction = KraidAiFunction.InitializeEyeGlow;
+                _parts.StateOf(state, body).Function = KraidAiFunction.HandleFunctionTimer;
+                _parts.StateOf(state, body).FunctionTimer = WrappingCountdown.Start(64);
+                state.Part(KraidPart.Kraid).NextFunction = KraidAiFunction.InitializeEyeGlow;
                 return;
             }
         }
@@ -228,9 +228,9 @@ internal sealed class KraidHead
     /// <summary>Seeds eye-glow palette state after a body hit.</summary>
     internal void InitializeKraidEyeGlow(RoomEnemySlot body, KraidEnemyState state)
     {
-        state.Parts[body.SlotIndex].Function = KraidAiFunction.GlowEye;
+        _parts.StateOf(state, body).Function = KraidAiFunction.GlowEye;
         state.HeadProgram = KraidHeadAnimations.EyeGlowAfterEntryFrame;
-        state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.EyeGlowEntryDuration);
+        _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.EyeGlowEntryDuration);
         GlowKraidEye(body, state);
     }
 
@@ -240,7 +240,7 @@ internal sealed class KraidHead
         _ = ProcessKraidHeadInstruction(body, state);
         // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
         if (state.Colours.EyeGlow.Glow())
-            state.Parts[body.SlotIndex].Function = KraidAiFunction.UnglowEye;
+            _parts.StateOf(state, body).Function = KraidAiFunction.UnglowEye;
     }
 
     /// <summary>Restores the eye palette after the reaction completes.</summary>
@@ -250,9 +250,9 @@ internal sealed class KraidHead
         bool unglowed = state.Colours.EyeGlow.Unglow(BandEyes(HealthBand(body, state)));
         if (unglowed)
         {
-            state.Parts[body.SlotIndex].Function = KraidAiFunction.MouthOpenReaction;
+            _parts.StateOf(state, body).Function = KraidAiFunction.MouthOpenReaction;
             state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-            state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
+            _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
         }
     }
 

@@ -34,7 +34,7 @@ internal static class KraidReportedCollisionsVerification
             runtime.Projectiles.Reset();
             samus.Position = samus.Position.WithWhole(new(120, 491));
             body.Position = body.Position.WithWhole(new(176, 592));
-            state.Parts[0].Function = KraidAiFunction.MainloopThinking;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = WrappingCountdown.Start(100);
             // The closed case starts the roar; the open case stands just past the roar cry, on the fully open pose.
             state.HeadProgram = closed
@@ -91,7 +91,7 @@ internal static class KraidReportedCollisionsVerification
             var lint = runtime.Enemies.SlotTable.Slots[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Properties = lint.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-            state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
+            runtime.Enemies.KraidBehavior.Parts.StateOf(state, lint).Function = KraidAiFunction.LintInactive;
             ResetSamus(100, 400);
             runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, samus);
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
@@ -102,7 +102,7 @@ internal static class KraidReportedCollisionsVerification
         {
             runtime.Projectiles.Reset();
             body.Position = body.Position.WithWhole(new(176, 457));
-            state.Parts[0].Function = KraidAiFunction.RaiseBody;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.RaiseBody;
             state.DisplayedHeadFrame = null;
             runtime.Enemies.KraidBehavior.Rise.RunKraidRiseFunction(body, state, samus);
             AssertEqual((AnimationProgramCursor<KraidHeadProgram>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadProgram, "Rise selects native next head cursor");
@@ -118,7 +118,7 @@ internal static class KraidReportedCollisionsVerification
         Check("Kraid body contact", () =>
         {
             body.Position = body.Position.WithWhole(new(176, 592));
-            state.Parts[0].Function = KraidAiFunction.MainloopThinking;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = WrappingCountdown.Start(100);
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null);
@@ -132,7 +132,7 @@ internal static class KraidReportedCollisionsVerification
             Position16<RoomPixels> smallFormLimit = state.EjectionLimit;
             state.EjectionLimit = new Position16<RoomPixels>(0, 496);
             body.Position = body.Position.WithWhole(new(176, 592));
-            state.Parts[0].Function = KraidAiFunction.MainloopThinking;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = WrappingCountdown.Start(100);
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null);

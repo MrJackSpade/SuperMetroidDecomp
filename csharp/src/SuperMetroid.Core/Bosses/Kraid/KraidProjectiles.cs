@@ -47,13 +47,13 @@ internal sealed class KraidProjectiles
             return;
         }
         KraidParts.Require(lint, _parts.Lint(expected), "lint");
-        KraidEncounterAccess.AttachKraidPart(lint, state);
+        _access.AttachKraidPart(lint, state);
         lint.Shading = _parts.Body.Shading;
         lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
-        state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
-        state.Parts[lint.SlotIndex].LintXOffset = expected == KraidLintPart.Top ? 0 : WordWrap.Unsigned(-16);
+        _parts.StateOf(state, lint).Function = KraidAiFunction.LintInactive;
+        _parts.StateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : WordWrap.Unsigned(-16);
     }
 
     /// <summary>
@@ -65,17 +65,17 @@ internal sealed class KraidProjectiles
     {
         KraidEnemyState state = _access.RequireKraidState(nail);
         KraidParts.Require(nail, expected, "fingernail");
-        KraidEncounterAccess.AttachKraidPart(nail, state);
+        _access.AttachKraidPart(nail, state);
         nail.Shading = _parts.Body.Shading;
-        KraidPartState nailPart = state.Parts[nail.SlotIndex];
+        KraidPartState nailPart = _parts.StateOf(state, nail);
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         nail.Frame = EnemyFrameId.KraidNail0;
-        state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
-        state.Parts[nail.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
-        state.Parts[nail.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
+        _parts.StateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
+        _parts.StateOf(state, nail).Function = KraidAiFunction.HandleFunctionTimer;
+        _parts.StateOf(state, nail).FunctionTimer = WrappingCountdown.Start(64);
     }
 
     /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
@@ -176,8 +176,8 @@ internal sealed class KraidProjectiles
             return;
         }
 
-        KraidPartState part = state.Parts[nail.SlotIndex];
-        switch (state.Parts[nail.SlotIndex].Function)
+        KraidPartState part = _parts.StateOf(state, nail);
+        switch (_parts.StateOf(state, nail).Function)
         {
             case KraidAiFunction.HandleFunctionTimer:
                 KraidEncounterAccess.TickKraidFunctionTimer(part);
@@ -190,7 +190,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.FingernailWaitForLint:
                 if (CoordinateAxis.Difference(_parts.TopLint.Position.X.Whole, 256) >= 0)
                 {
-                    state.Parts[nail.SlotIndex].Function = part.NextFunction;
+                    _parts.StateOf(state, nail).Function = part.NextFunction;
                     nail.Properties = nail.Properties.Without(
                         EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 }
@@ -258,7 +258,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid fingernail function {state.Parts[nail.SlotIndex].Function} is not translated.");
+                    $"Kraid fingernail function {_parts.StateOf(state, nail).Function} is not translated.");
         }
     }
 
@@ -268,7 +268,7 @@ internal sealed class KraidProjectiles
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
         RoomEnemySlot sibling = ReferenceEquals(nail, _parts.FirstNail) ? _parts.SecondNail : _parts.FirstNail;
-        KraidPartState siblingPart = _access.RequireKraidState(nail).Parts[sibling.SlotIndex];
+        KraidPartState siblingPart = _parts.StateOf(_access.RequireKraidState(nail), sibling);
         int random = _room.Random.Read();
         part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
         part.NailLaunched = true;
@@ -337,8 +337,8 @@ internal sealed class KraidProjectiles
         if (samus is not null)
             ResolveKraidLintContact(lint, samus);
         lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
-        KraidPartState part = state.Parts[lint.SlotIndex];
-        switch (state.Parts[lint.SlotIndex].Function)
+        KraidPartState part = _parts.StateOf(state, lint);
+        switch (_parts.StateOf(state, lint).Function)
         {
             case KraidAiFunction.LintInactive:
                 return;
@@ -406,7 +406,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid lint slot {lint.SlotIndex} function {state.Parts[lint.SlotIndex].Function} " +
+                    $"Kraid lint slot {lint.SlotIndex} function {_parts.StateOf(state, lint).Function} " +
                     "is not translated.");
         }
     }

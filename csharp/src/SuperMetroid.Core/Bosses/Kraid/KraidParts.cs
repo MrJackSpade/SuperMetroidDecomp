@@ -62,6 +62,22 @@ internal sealed class KraidParts
     /// <summary>His second fingernail, which runs last.</summary>
     internal RoomEnemySlot SecondNail => _enemies.Slots[SecondNailPlace];
 
+    /// <summary>Which of Kraid's parts <paramref name="slot"/> is.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="slot"/> is not one of his parts' places.</exception>
+    internal KraidPart PartAt(RoomEnemySlot slot) =>
+        ReferenceEquals(slot, Body) ? KraidPart.Kraid
+        : ReferenceEquals(slot, Arm) ? KraidPart.Arm
+        : ReferenceEquals(slot, TopLint) ? KraidPart.LintTop
+        : ReferenceEquals(slot, MiddleLint) ? KraidPart.LintMiddle
+        : ReferenceEquals(slot, BottomLint) ? KraidPart.LintBottom
+        : ReferenceEquals(slot, Foot) ? KraidPart.Foot
+        : ReferenceEquals(slot, FirstNail) ? KraidPart.Nail
+        : ReferenceEquals(slot, SecondNail) ? KraidPart.NailBad
+        : throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's parts.");
+
+    /// <summary>The workspace <paramref name="state"/> keeps for whichever of Kraid's parts <paramref name="slot"/> is.</summary>
+    internal KraidPartState StateOf(KraidEnemyState state, RoomEnemySlot slot) => state.Part(PartAt(slot));
+
     /// <summary>His lint part <paramref name="part"/>.</summary>
     internal RoomEnemySlot Lint(KraidLintPart part) => part switch
     {

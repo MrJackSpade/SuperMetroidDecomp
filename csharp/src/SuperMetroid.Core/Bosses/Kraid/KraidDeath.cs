@@ -66,7 +66,7 @@ internal sealed class KraidDeath
         KraidEnemyState state,
         int cameraX)
     {
-        switch (state.Parts[body.SlotIndex].Function)
+        switch (_parts.StateOf(state, body).Function)
         {
             case KraidAiFunction.DeathInitialize:
                 InitializeKraidDeath(body, state);
@@ -76,7 +76,7 @@ internal sealed class KraidDeath
                 _ = _head.ProcessKraidHeadInstruction(body, state);
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
-                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathShowUpperBody;
+                    _parts.StateOf(state, body).Function = KraidAiFunction.DeathShowUpperBody;
                     state.HurtFrameTimer = WrappingCountdown.Start(1);
                     state.HurtFrame = 1;
                     state.ShowBody();
@@ -85,25 +85,25 @@ internal sealed class KraidDeath
 
             case KraidAiFunction.DeathShowUpperBody:
                 _ = _head.ProcessKraidHeadInstruction(body, state);
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathShowLowerBody;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathShowLowerBody;
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
-                    state.Parts[lint.SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
-                    state.Parts[lint.SlotIndex].FunctionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+                    _parts.StateOf(state, lint).Function = KraidAiFunction.AlignPartToKraid;
+                    _parts.StateOf(state, lint).FunctionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
                 }
                 state.ShowBody();
                 return;
 
             case KraidAiFunction.DeathShowLowerBody:
                 _ = _head.ProcessKraidHeadInstruction(body, state);
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathSink;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = WrappingCountdown.Start(43);
                 body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
                 _earthquake.EarthquakeType = 1;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
                 _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmRisingOrSinking);
                 _access.StartKraidPartProgram(_parts.Foot, KraidPartProgram.FootInitial);
-                state.Parts[_parts.Foot.SlotIndex].Function = KraidAiFunction.NoOperation;
+                state.Part(KraidPart.Foot).Function = KraidAiFunction.NoOperation;
                 return;
 
             case KraidAiFunction.DeathSink:
@@ -111,24 +111,24 @@ internal sealed class KraidDeath
                 return;
 
             case KraidAiFunction.DeathHideUpperBody:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideLowerBody;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathHideLowerBody;
                 HideKraidBody(state);
                 return;
             case KraidAiFunction.DeathHideLowerBody:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn1;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathWaitBeforeFadeIn1;
                 return;
             // The death waits four updates before the room fades back in.
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn2;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathWaitBeforeFadeIn2;
                 return;
             case KraidAiFunction.DeathWaitBeforeFadeIn2:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn3;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathWaitBeforeFadeIn3;
                 return;
             case KraidAiFunction.DeathWaitBeforeFadeIn3:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn4;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathWaitBeforeFadeIn4;
                 return;
             case KraidAiFunction.DeathWaitBeforeFadeIn4:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeInBackground;
+                _parts.StateOf(state, body).Function = KraidAiFunction.DeathFadeInBackground;
                 return;
             case KraidAiFunction.DeathFadeInBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
@@ -136,13 +136,13 @@ internal sealed class KraidDeath
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(3));
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
                 {
-                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFinishedWasDead;
+                    _parts.StateOf(state, body).Function = KraidAiFunction.DeathFinishedWasDead;
                 }
                 else
                 {
                     _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
                     state.BossDefeatPersisted = true;
-                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFinishedWasAlive;
+                    _parts.StateOf(state, body).Function = KraidAiFunction.DeathFinishedWasAlive;
                 }
                 state.DeathSequenceComplete = true;
                 return;
@@ -194,7 +194,7 @@ internal sealed class KraidDeath
             case KraidAiFunction.RaiseBody:
             case KraidAiFunction.None:
             default:
-                throw new InvalidOperationException($"Kraid body function {state.Parts[body.SlotIndex].Function} is not a death function.");
+                throw new InvalidOperationException($"Kraid body function {_parts.StateOf(state, body).Function} is not a death function.");
         }
     }
 
@@ -216,9 +216,9 @@ internal sealed class KraidDeath
             return;
         state.Colours.ShowDeathArm();
         _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
-        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeOut;
+        _parts.StateOf(state, body).Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
-        state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.DeathEntryDuration);
+        _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.DeathEntryDuration);
         // The death clears the fingernails' respawn bit, then runs EnemyDeath for the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
@@ -260,7 +260,7 @@ internal sealed class KraidDeath
         foreach (RoomEnemySlot lint in _parts.Lints)
             lint.Properties = otherProperties;
         _parts.Foot.Properties = otherProperties;
-        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideUpperBody;
+        _parts.StateOf(state, body).Function = KraidAiFunction.DeathHideUpperBody;
         // The death returns the camera to distance index zero before the death drop.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
 

@@ -1013,23 +1013,23 @@ internal static class LookupStream2Verification
         body.Position = body.Position.WithWhole(new(200, 300));
         KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];
         foreach (KraidLintPart lintPart in lintParts)
-            state.Parts[enemies.KraidBehavior.Parts.Lint(lintPart).SlotIndex].LintTravel = 17;
+            enemies.KraidBehavior.Parts.StateOf(state, enemies.KraidBehavior.Parts.Lint(lintPart)).LintTravel = 17;
         finish(body, state);
         for (int native = 0; native < lintParts.Length; native++)
         {
             var lint = enemies.KraidBehavior.Parts.Lint(lintParts[native]);
-            int slot = lint.SlotIndex;
+            KraidPartState lintState = enemies.KraidBehavior.Parts.StateOf(state, lint);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + native * 2));
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
-            AssertEqual(expected, state.Parts[lint.SlotIndex].FunctionTimer.RawValue, "Actual post-growth timer write");
-            AssertEqual(0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
-            AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
+            AssertEqual(expected, lintState.FunctionTimer.RawValue, "Actual post-growth timer write");
+            AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
+            AssertEqual(KraidAiFunction.LintProduce, lintState.NextFunction, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
-                align(lint, state.Parts[slot]);
-                AssertEqual((ushort)remaining, state.Parts[lint.SlotIndex].FunctionTimer.RawValue, "Actual per-part countdown");
+                align(lint, lintState);
+                AssertEqual((ushort)remaining, lintState.FunctionTimer.RawValue, "Actual per-part countdown");
                 AssertEqual((remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
-                    state.Parts[lint.SlotIndex].Function, "Actual lint transition occurs on its own final tick");
+                    lintState.Function, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }
         }

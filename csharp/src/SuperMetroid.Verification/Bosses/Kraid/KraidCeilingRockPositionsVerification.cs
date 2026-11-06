@@ -45,14 +45,14 @@ internal static class KraidCeilingRockPositionsVerification
             requests.Clear();
             state.CeilingRockSpawnCount = 0;
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
-            state.Parts[0].CeilingRock = index;
-            state.Parts[0].Function = KraidAiFunction.GrowBreakCeilingPlatforms;
+            state.Part(KraidPart.Kraid).CeilingRock = index;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.GrowBreakCeilingPlatforms;
             step(body, state);
             ushort y = unchecked((ushort)(raw - 1));
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");
             AssertEqual(spawn ? 1 : 0, requests.Count, "Ceiling PLM cadence");
-            AssertEqual(index + (spawn ? 1 : 0), state.Parts[0].CeilingRock, "Ceiling rock advances only on emission");
+            AssertEqual(index + (spawn ? 1 : 0), state.Part(KraidPart.Kraid).CeilingRock, "Ceiling rock advances only on emission");
             if (!spawn) continue;
             var rock = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");

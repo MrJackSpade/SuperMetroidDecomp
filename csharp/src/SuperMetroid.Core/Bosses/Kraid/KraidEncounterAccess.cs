@@ -12,12 +12,15 @@ internal sealed class KraidEncounterAccess
     private readonly EnemyRoomBinding _room;
     /// <summary>Receives Kraid's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Kraid's eight parts in his room, which name each part's workspace.</summary>
+    private readonly KraidParts _parts;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidEncounterAccess(EnemyRoomBinding room, EnemyAudioQueue audio)
+    internal KraidEncounterAccess(EnemyRoomBinding room, EnemyAudioQueue audio, KraidParts parts)
     {
         _room = room;
         _audio = audio;
+        _parts = parts;
     }
 
     /// <summary>
@@ -30,16 +33,6 @@ internal sealed class KraidEncounterAccess
     /// <summary>Requests Kraid's music change at the end of the enemy update.</summary>
     internal void RequestKraidMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Kraid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
-
-    /// <summary>Rejects a body part loaded outside its defined slot index.</summary>
-    internal static void EnsureKraidSlot(RoomEnemySlot slot, int expectedSlot, string part)
-    {
-        if (slot.SlotIndex != expectedSlot)
-        {
-            throw new InvalidDataException(
-                $"Kraid {part} requires enemy slot {expectedSlot}, not {slot.SlotIndex}.");
-        }
-    }
 
     /// <summary>Marks a Kraid part dead: preserves its upper flags while installing the dead properties.</summary>
     internal static void MarkKraidPartDead(RoomEnemySlot slot) =>
@@ -56,7 +49,7 @@ internal sealed class KraidEncounterAccess
 
     /// <summary>Installs <paramref name="program"/> as the part's program, as a list-pointer store does; the caller sets the timer.</summary>
     internal void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
-        RequireKraidState(part).Parts[part.SlotIndex].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(program);
+        _parts.StateOf(RequireKraidState(part), part).Cursor = AnimationProgramCursor<KraidPartProgram>.Start(program);
 
     /// <summary>Sets a part's program and runs its first instruction on the next frame.</summary>
     internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
@@ -107,12 +100,12 @@ internal sealed class KraidEncounterAccess
     }
 
     /// <summary>The state of the Kraid part in <paramref name="slot"/>.</summary>
-    internal KraidPartState Part(RoomEnemySlot slot) => RequireKraidState(slot).Parts[slot.SlotIndex];
+    internal KraidPartState Part(RoomEnemySlot slot) => _parts.StateOf(RequireKraidState(slot), slot);
 
     /// <summary>Installs a part's state with its slot, so a kill empties its record values.</summary>
-    internal static void AttachKraidPart(RoomEnemySlot slot, KraidEnemyState state)
+    internal void AttachKraidPart(RoomEnemySlot slot, KraidEnemyState state)
     {
-        KraidPartState part = state.Parts[slot.SlotIndex];
+        KraidPartState part = _parts.StateOf(state, slot);
         slot.SetSpeciesState(part, part.ClearWithRecord);
     }
 }

@@ -26,7 +26,7 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
         var unstarted = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
-        Func<RoomEnemySlot, KraidEnemyState, int> run = unstarted.KraidBehavior.Head.ExecuteKraidHeadInstruction;
+        Func<RoomEnemySlot, KraidEnemyState, KraidHeadProgramResult> run = unstarted.KraidBehavior.Head.ExecuteKraidHeadInstruction;
         AssertThrows<InvalidDataException>(() => run(unstarted.SlotTable.Slots[0], new KraidEnemyState()),
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
@@ -43,14 +43,14 @@ internal static class KraidHeadInstructionsVerification
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            Func<RoomEnemySlot, KraidEnemyState, int> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
+            Func<RoomEnemySlot, KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new KraidEnemyState { HeadProgram = record.Cursor };
 
-            int result = execute(body, state);
+            KraidHeadProgramResult result = execute(body, state);
             if (record.IsTerminator)
             {
-                AssertEqual(ushort.MaxValue, result, $"Kraid terminator ${record.Pointer:X4} result");
+                AssertEqual(KraidHeadProgramResult.ProgramEnded, result, $"Kraid terminator ${record.Pointer:X4} result");
                 AssertEqual(record.Cursor, state.HeadProgram, $"Kraid terminator ${record.Pointer:X4} keeps cursor");
             }
             else
@@ -59,8 +59,8 @@ internal static class KraidHeadInstructionsVerification
                 KraidHeadNativeRecord displayed = record.IsPose
                     ? record
                     : native.RecordAt(native.CursorAt(unchecked((ushort)(record.Pointer + 2))));
-                AssertEqual(1, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
-                AssertEqual(displayed.Opcode, state.Parts[0].HeadTimer.RawValue, $"Kraid command ${record.Pointer:X4} installs duration");
+                AssertEqual(KraidHeadProgramResult.PoseShown, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
+                AssertEqual(displayed.Opcode, state.Part(KraidPart.Kraid).HeadTimer.RawValue, $"Kraid command ${record.Pointer:X4} installs duration");
                 KraidHeadFrame shown = state.DisplayedHeadFrame
                     ?? throw new InvalidOperationException("Verification requires a displayed Kraid head pose.");
                 AssertEqual(displayed.Tilemap, KraidHeadFrameDefinitions.PresentationKey(shown),
@@ -96,37 +96,37 @@ internal static class KraidHeadInstructionsVerification
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            state.Parts[0].Function = KraidAiFunction.MainloopThinking;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = WrappingCountdown.FromRaw((ushort)raw);
-            state.Parts[0].HeadTimer = WrappingCountdown.Start(999);
+            state.Part(KraidPart.Kraid).HeadTimer = WrappingCountdown.Start(999);
             combat(body, state, 0);
             AssertEqual(raw == 1
                     ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,
-                state.Parts[0].HeadTimer.RawValue, "Roar timer loads only on thinker expiry");
+                state.Part(KraidPart.Kraid).HeadTimer.RawValue, "Roar timer loads only on thinker expiry");
 
-            state.Parts[0].Function = KraidAiFunction.SecondPhaseThinking;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.SecondPhaseThinking;
             state.ThinkingTimer = WrappingCountdown.FromRaw((ushort)raw);
-            state.Parts[0].HeadTimer = WrappingCountdown.Start(999);
+            state.Part(KraidPart.Kraid).HeadTimer = WrappingCountdown.Start(999);
             combat(body, state, 0);
             AssertEqual(raw == 1
                     ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,
-                state.Parts[0].HeadTimer.RawValue, "Second-phase roar timer loads only on thinker expiry");
+                state.Part(KraidPart.Kraid).HeadTimer.RawValue, "Second-phase roar timer loads only on thinker expiry");
         }
 
         glow(body, state);
         AssertEqual(
             unchecked(KraidHeadAnimations.EyeGlowEntryDuration - 1),
-            state.Parts[0].HeadTimer.RawValue, "Eye glow consumes one timer tick on initialization");
+            state.Part(KraidPart.Kraid).HeadTimer.RawValue, "Eye glow consumes one timer tick on initialization");
         state.HurtFrame = 1;
-        state.Parts[0].HeadTimer = WrappingCountdown.Start(999);
+        state.Part(KraidPart.Kraid).HeadTimer = WrappingCountdown.Start(999);
         death(body, state);
-        AssertEqual(999, state.Parts[0].HeadTimer.RawValue,
+        AssertEqual(999, state.Part(KraidPart.Kraid).HeadTimer.RawValue,
             "Active hurt frame delays death timer setup");
         state.HurtFrame = 0;
         death(body, state);
-        AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.Parts[0].HeadTimer.RawValue,
+        AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.Part(KraidPart.Kraid).HeadTimer.RawValue,
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");

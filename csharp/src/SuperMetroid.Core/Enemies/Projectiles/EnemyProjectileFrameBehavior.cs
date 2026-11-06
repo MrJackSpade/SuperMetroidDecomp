@@ -12,9 +12,6 @@ internal enum EnemyProjectileFrameBehavior
     /// </summary>
     Stationary,
 
-    /// <summary>Holds the pre-Phantoon room's second background layer at no vertical offset on every pass.</summary>
-    PrePhantoonBackgroundPin,
-
     /// <summary>Slides the downward gate by its signed 8.8 vertical velocity.</summary>
     DownwardGateDescent,
 

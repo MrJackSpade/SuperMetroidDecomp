@@ -1011,27 +1011,30 @@ internal static class LookupStream2Verification
         Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.Projectiles.AlignKraidPart;
         var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(200, 300));
-        for (int slot = 2; slot <= 4; slot++) state.Parts[slot].LintTravel = 17;
+        KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];
+        foreach (KraidLintPart lintPart in lintParts)
+            enemies.KraidBehavior.Parts.StateOf(state, enemies.KraidBehavior.Parts.Lint(lintPart)).LintTravel = 17;
         finish(body, state);
-        for (int slot = 2; slot <= 4; slot++)
+        for (int native = 0; native < lintParts.Length; native++)
         {
-            var lint = enemies.SlotTable.Slots[slot];
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
-            AssertEqual(expected, KraidLints.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
-            AssertEqual(expected, state.Parts[lint.SlotIndex].FunctionTimer.RawValue, "Actual post-growth timer write");
-            AssertEqual(0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
-            AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
+            var lint = enemies.KraidBehavior.Parts.Lint(lintParts[native]);
+            KraidPartState lintState = enemies.KraidBehavior.Parts.StateOf(state, lint);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + native * 2));
+            AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
+            AssertEqual(expected, lintState.FunctionTimer.RawValue, "Actual post-growth timer write");
+            AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
+            AssertEqual(KraidAiFunction.LintProduce, lintState.NextFunction, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
-                align(lint, state.Parts[slot]);
-                AssertEqual((ushort)remaining, state.Parts[lint.SlotIndex].FunctionTimer.RawValue, "Actual per-part countdown");
+                align(lint, lintState);
+                AssertEqual((ushort)remaining, lintState.FunctionTimer.RawValue, "Actual per-part countdown");
                 AssertEqual((remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
-                    state.Parts[lint.SlotIndex].Function, "Actual lint transition occurs on its own final tick");
+                    lintState.Function, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }
         }
-        foreach (KraidLintPart invalid in new[] { (KraidLintPart)0, (KraidLintPart)1, (KraidLintPart)5 })
-            AssertThrows<InvalidOperationException>(() => KraidLints.InitialDelay(invalid), "Only lint slots have launch policy");
+        foreach (KraidLintPart invalid in new[] { (KraidLintPart)(-1), (KraidLintPart)3 })
+            AssertThrows<InvalidOperationException>(() => KraidLints.InitialDelay(invalid), "Only the three lints have launch policy");
         Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
     }
 

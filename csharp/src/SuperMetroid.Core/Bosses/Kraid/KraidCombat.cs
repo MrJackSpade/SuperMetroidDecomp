@@ -18,20 +18,20 @@ internal sealed class KraidCombat
     private readonly EnemyAudioQueue _audio;
     /// <summary>Spawns room sprite objects for Kraid's visual effects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Provides the body and seven part slots.</summary>
-    private readonly EnemySlotTable _slotTable;
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects, EnemySlotTable slotTable, EnemyCollision collision, KraidEncounterAccess access)
+    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects, KraidParts parts, EnemyCollision collision, KraidEncounterAccess access)
     {
         _projectiles = projectiles;
         _audio = audio;
         _spriteObjects = spriteObjects;
-        _slotTable = slotTable;
+        _parts = parts;
         _collision = collision;
         _access = access;
     }
@@ -94,15 +94,13 @@ internal sealed class KraidCombat
                                EnemyCollision.TouchAi(slot) == EnemyReaction.KraidArmTouch,
             context =>
             {
-                // The arm's push deliberately addresses physical enemy slot four,
-                // rather than searching for a particular lint definition. The encounter's
-                // eight-record layout makes that the bottom lint; forcing its firing function here
-                // causes it to fire immediately after the arm launches Samus up and right.
+                // The arm's push forces the bottom lint's firing function, so it fires immediately after
+                // the arm launches Samus up and right.
                 // Writes only the whole displacement words, so preserve both
                 // fractional words exactly as they were before contact.
                 _ = _access.RequireKraidState(context.Slot);
                 context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
-                _access.Part(_slotTable.Slots[4]).Function = KraidAiFunction.LintFire;
+                _access.Part(_parts.BottomLint).Function = KraidAiFunction.LintFire;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
             });
     }
@@ -203,7 +201,7 @@ internal sealed class KraidCombat
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&
-                KraidFunctionGroups.BeforeDeath.Contains(state.Parts[body.SlotIndex].Function))
+                KraidFunctionGroups.BeforeDeath.Contains(_parts.StateOf(state, body).Function))
                 BeginKraidDeath(body, state);
         }
 
@@ -240,9 +238,9 @@ internal sealed class KraidCombat
             }
         }
 
-        if (bodyHits != 0 && state.Parts[body.SlotIndex].Function == KraidAiFunction.MainloopThinking)
+        if (bodyHits != 0 && _parts.StateOf(state, body).Function == KraidAiFunction.MainloopThinking)
         {
-            state.Parts[body.SlotIndex].Function = KraidAiFunction.InitializeEyeGlow;
+            _parts.StateOf(state, body).Function = KraidAiFunction.InitializeEyeGlow;
             if ((state.MouthFlags & KraidMouthFlags.Hit) != KraidMouthFlags.None)
             {
                 state.MouthFlags |= KraidMouthFlags.ReopenArmed;
@@ -287,17 +285,12 @@ internal sealed class KraidCombat
     /// <summary>Switches the body from combat to its scripted death function.</summary>
     private void BeginKraidDeath(RoomEnemySlot body, KraidEnemyState state)
     {
-        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathInitialize;
+        _parts.StateOf(state, body).Function = KraidAiFunction.DeathInitialize;
         state.ClearMouthReactions();
-        for (int slot = 0; slot < 6; slot++)
-        {
-            // The intangible property disables the ordinary touch list while the private
-            // death state owns body movement and breakup effects.
-            // Nails are separate projectile-like actors and delete themselves from HP zero.
-            // Keeping this six-slot bound preserves that exact division.
-            _slotTable.Slots[slot].Properties = _slotTable.Slots[slot].Properties.With(
-                EnemyProperties.IgnoreSamusCollision);
-        }
+        // The intangible property disables the ordinary touch list while the private death state owns body movement
+        // and breakup effects. The fingernails are left out: they delete themselves once his health reads zero.
+        foreach (RoomEnemySlot part in _parts.AllButNails)
+            part.Properties = part.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
@@ -305,7 +298,7 @@ internal sealed class KraidCombat
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
-        if (!KraidFunctionGroups.BeforeDeath.Contains(state.Parts[body.SlotIndex].Function))
+        if (!KraidFunctionGroups.BeforeDeath.Contains(_parts.StateOf(state, body).Function))
             return;
         int relativeY = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
         if (CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -

@@ -113,8 +113,12 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public bool DrawBrain { get; internal set; }
 
-    /// <summary>Byte cursor into Mother Brain's rainbow palette list: an even offset from zero to two bytes per rainbow frame.</summary>
-    public int RainbowPaletteCursor { get; internal set; }
+    /// <summary>
+    /// The rainbow frame Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame palette
+    /// step fires, from zero to one below <see cref="Artwork.MotherBrainRainbowPaletteFormat.RainbowFrameCount"/>; the
+    /// step advances it and returns to the first frame after the last.
+    /// </summary>
+    public int NextRainbowFrame { get; internal set; }
 
     /// <summary>Whether the active draw hook appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }

@@ -225,20 +225,19 @@ internal sealed class PhantoonPatterns
         if (state.Parts[mouth.SlotIndex].CasualFlameCount >= 0)
         {
             int remaining = state.Parts[mouth.SlotIndex].CasualFlameCount - 1;
-            // Zero and negative remaining counts both end the pattern. The
-            // inter-pattern delay is word one; word zero is never a timer.
+            // Zero and negative remaining counts both end the burst and start its cooldown.
             bool exhausted = remaining <= 0;
+            PhantoonCasualFlameSchedule schedule = PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern);
             state.Parts[mouth.SlotIndex].CasualFlameCount = exhausted ? PhantoonCasualFlameDefinitions.NoActiveSchedule : remaining;
-            int timerIndex = exhausted ? 1 : remaining + 1;
-            state.Parts[mouth.SlotIndex].CasualFlameHold = WrappingCountdown.Start(PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern)[timerIndex]);
+            state.Parts[mouth.SlotIndex].CasualFlameHold = WrappingCountdown.Start(exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining));
             PhantoonPresentation.InstallPhantoonProgram(state, mouth, PhantoonPartProgram.MouthSpawnFlame);
             return;
         }
 
         state.Parts[mouth.SlotIndex].CasualFlamePattern = WordWrap.Unsigned(_room.Random.Generate() & 3);
         PhantoonCasualFlameSchedule pattern = PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern);
-        state.Parts[mouth.SlotIndex].CasualFlameCount = pattern[0];
-        state.Parts[mouth.SlotIndex].CasualFlameHold = WrappingCountdown.Start(pattern[state.Parts[mouth.SlotIndex].CasualFlameCount + 1]);
+        state.Parts[mouth.SlotIndex].CasualFlameCount = pattern.FlameCount;
+        state.Parts[mouth.SlotIndex].CasualFlameHold = WrappingCountdown.Start(pattern.IntervalBefore(pattern.FlameCount));
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>

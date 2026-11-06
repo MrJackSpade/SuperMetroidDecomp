@@ -17,8 +17,8 @@ internal sealed class KraidProjectiles
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves nail and foot movement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Provides the body and seven part slots.</summary>
-    private readonly EnemySlotTable _slotTable;
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
@@ -27,18 +27,18 @@ internal sealed class KraidProjectiles
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidProjectiles(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, KraidEncounterAccess access)
+    internal KraidProjectiles(EnemyRoomBinding room, EnemyTerrain terrain, KraidParts parts, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, KraidEncounterAccess access)
     {
         _room = room;
         _terrain = terrain;
-        _slotTable = slotTable;
+        _parts = parts;
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;
         _access = access;
     }
 
-    /// <summary>Initializes one lint part and verifies its expected physical slot.</summary>
-    private void InitializeKraidLint(RoomEnemySlot lint, int expectedSlot)
+    /// <summary>Initializes one lint part and verifies it is in that part's place.</summary>
+    private void InitializeKraidLint(RoomEnemySlot lint, KraidLintPart expected)
     {
         KraidEnemyState state = _access.RequireKraidState(lint);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
@@ -46,14 +46,14 @@ internal sealed class KraidProjectiles
             KraidEncounterAccess.MarkKraidPartDead(lint);
             return;
         }
-        KraidEncounterAccess.EnsureKraidSlot(lint, expectedSlot, "lint");
-        KraidEncounterAccess.AttachKraidPart(lint, state);
-        lint.Shading = _slotTable.Slots[0].Shading;
+        KraidParts.Require(lint, _parts.Lint(expected), "lint");
+        _access.AttachKraidPart(lint, state);
+        lint.Shading = _parts.Body.Shading;
         lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
-        state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
-        state.Parts[lint.SlotIndex].LintXOffset = expectedSlot == 2 ? 0 : WordWrap.Unsigned(-16);
+        _parts.StateOf(state, lint).Function = KraidAiFunction.LintInactive;
+        _parts.StateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : WordWrap.Unsigned(-16);
     }
 
     /// <summary>
@@ -61,21 +61,21 @@ internal sealed class KraidProjectiles
     /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
     /// deleting themselves only once slot zero's health reads below one.
     /// </summary>
-    internal void InitializeKraidNail(RoomEnemySlot nail, int expectedSlot)
+    internal void InitializeKraidNail(RoomEnemySlot nail, RoomEnemySlot expected)
     {
         KraidEnemyState state = _access.RequireKraidState(nail);
-        KraidEncounterAccess.EnsureKraidSlot(nail, expectedSlot, "fingernail");
-        KraidEncounterAccess.AttachKraidPart(nail, state);
-        nail.Shading = _slotTable.Slots[0].Shading;
-        KraidPartState nailPart = state.Parts[nail.SlotIndex];
+        KraidParts.Require(nail, expected, "fingernail");
+        _access.AttachKraidPart(nail, state);
+        nail.Shading = _parts.Body.Shading;
+        KraidPartState nailPart = _parts.StateOf(state, nail);
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         nail.Frame = EnemyFrameId.KraidNail0;
-        state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
-        state.Parts[nail.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
-        state.Parts[nail.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
+        _parts.StateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
+        _parts.StateOf(state, nail).Function = KraidAiFunction.HandleFunctionTimer;
+        _parts.StateOf(state, nail).FunctionTimer = WrappingCountdown.Start(64);
     }
 
     /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
@@ -95,31 +95,31 @@ internal sealed class KraidProjectiles
     /// <summary>Ports KraidLintTop's initialization AI.</summary>
     internal void RunKraidLintTopInitializationAi(RoomEnemySlot slot)
     {
-        InitializeKraidLint(slot, expectedSlot: 2);
+        InitializeKraidLint(slot, KraidLintPart.Top);
     }
 
     /// <summary>Ports KraidLintMiddle's initialization AI.</summary>
     internal void RunKraidLintMiddleInitializationAi(RoomEnemySlot slot)
     {
-        InitializeKraidLint(slot, expectedSlot: 3);
+        InitializeKraidLint(slot, KraidLintPart.Middle);
     }
 
     /// <summary>Ports KraidLintBottom's initialization AI.</summary>
     internal void RunKraidLintBottomInitializationAi(RoomEnemySlot slot)
     {
-        InitializeKraidLint(slot, expectedSlot: 4);
+        InitializeKraidLint(slot, KraidLintPart.Bottom);
     }
 
     /// <summary>Ports KraidNail's initialization AI.</summary>
     internal void RunKraidNailInitializationAi(RoomEnemySlot slot)
     {
-        InitializeKraidNail(slot, expectedSlot: 6);
+        InitializeKraidNail(slot, _parts.FirstNail);
     }
 
     /// <summary>Ports KraidNailBad's initialization AI.</summary>
     internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot)
     {
-        InitializeKraidNail(slot, expectedSlot: 7);
+        InitializeKraidNail(slot, _parts.SecondNail);
     }
 
     /// <summary>Registers the spat rock's typed burst and the rock programs' cues.</summary>
@@ -169,15 +169,15 @@ internal sealed class KraidProjectiles
     internal void RunKraidNailMain(RoomEnemySlot nail, RoomLevelData? level)
     {
         KraidEnemyState state = _access.RequireKraidState(nail);
-        if (_slotTable.Slots[0].Health == 0)
+        if (_parts.Body.Health == 0)
         {
             nail.Properties = nail.Properties.With(
                 EnemyProperties.Deleted | EnemyProperties.Invisible);
             return;
         }
 
-        KraidPartState part = state.Parts[nail.SlotIndex];
-        switch (state.Parts[nail.SlotIndex].Function)
+        KraidPartState part = _parts.StateOf(state, nail);
+        switch (_parts.StateOf(state, nail).Function)
         {
             case KraidAiFunction.HandleFunctionTimer:
                 KraidEncounterAccess.TickKraidFunctionTimer(part);
@@ -188,9 +188,9 @@ internal sealed class KraidProjectiles
                 return;
 
             case KraidAiFunction.FingernailWaitForLint:
-                if (CoordinateAxis.Difference(_slotTable.Slots[2].Position.X.Whole, 256) >= 0)
+                if (CoordinateAxis.Difference(_parts.TopLint.Position.X.Whole, 256) >= 0)
                 {
-                    state.Parts[nail.SlotIndex].Function = part.NextFunction;
+                    _parts.StateOf(state, nail).Function = part.NextFunction;
                     nail.Properties = nail.Properties.Without(
                         EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 }
@@ -258,7 +258,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid fingernail function {state.Parts[nail.SlotIndex].Function} is not translated.");
+                    $"Kraid fingernail function {_parts.StateOf(state, nail).Function} is not translated.");
         }
     }
 
@@ -267,8 +267,8 @@ internal sealed class KraidProjectiles
     {
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
-        int siblingIndex = nail.SlotIndex == 6 ? 7 : 6;
-        KraidPartState siblingPart = _access.RequireKraidState(nail).Parts[siblingIndex];
+        RoomEnemySlot sibling = ReferenceEquals(nail, _parts.FirstNail) ? _parts.SecondNail : _parts.FirstNail;
+        KraidPartState siblingPart = _parts.StateOf(_access.RequireKraidState(nail), sibling);
         int random = _room.Random.Read();
         part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
         part.NailLaunched = true;
@@ -281,9 +281,9 @@ internal sealed class KraidProjectiles
         if ((random & 1) == 0 || siblingPart.AlternateSpawn)
         {
             part.AlternateSpawn = false;
-            RoomEnemySlot body = _slotTable.Slots[0];
+            RoomEnemySlot body = _parts.Body;
             nail.Position = nail.Position.WithWhole(new(CoordinateAxis.Wrap(
-                (body.Position.X.Whole - body.Radius.X - nail.Radius.X) & ~15), CoordinateAxis.Wrap(_slotTable.Slots[1].Position.Y.Whole + 128)));
+                (body.Position.X.Whole - body.Radius.X - nail.Radius.X) & ~15), CoordinateAxis.Wrap(_parts.Arm.Position.Y.Whole + 128)));
             return;
         }
 
@@ -312,7 +312,7 @@ internal sealed class KraidProjectiles
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
     internal bool KraidBodyContourReflectsNail(RoomEnemySlot nail)
     {
-        RoomEnemySlot body = _slotTable.Slots[0];
+        RoomEnemySlot body = _parts.Body;
         int relativeY = CoordinateAxis.Wrap(nail.Position.Y.Whole - body.Position.Y.Whole);
         // A nail above every ledge is pushed back at the record the contour walk reads after them.
         int leftOffset = KraidNailContour.LedgeLeftOffset(relativeY) ??
@@ -337,8 +337,8 @@ internal sealed class KraidProjectiles
         if (samus is not null)
             ResolveKraidLintContact(lint, samus);
         lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
-        KraidPartState part = state.Parts[lint.SlotIndex];
-        switch (state.Parts[lint.SlotIndex].Function)
+        KraidPartState part = _parts.StateOf(state, lint);
+        switch (_parts.StateOf(state, lint).Function)
         {
             case KraidAiFunction.LintInactive:
                 return;
@@ -406,7 +406,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid lint slot {lint.SlotIndex} function {state.Parts[lint.SlotIndex].Function} " +
+                    $"Kraid lint slot {lint.SlotIndex} function {_parts.StateOf(state, lint).Function} " +
                     "is not translated.");
         }
     }
@@ -414,7 +414,7 @@ internal sealed class KraidProjectiles
     /// <summary>Places a physical part at its body-relative offset.</summary>
     internal void AlignKraidPart(RoomEnemySlot partSlot, KraidPartState part)
     {
-        partSlot.Position = partSlot.Position.WithWrappedWholeX(_slotTable.Slots[0].Position.X.Whole - partSlot.Radius.X);
+        partSlot.Position = partSlot.Position.WithWrappedWholeX(_parts.Body.Position.X.Whole - partSlot.Radius.X);
         KraidEncounterAccess.TickKraidFunctionTimer(part);
     }
 
@@ -424,7 +424,7 @@ internal sealed class KraidProjectiles
         lint.Properties = lint.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         lint.Position = lint.Position.WithWrappedWholeX(
-            _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel);
+            _access.Part(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.Part(lint).LintTravel);
         _access.Part(lint).LintTravel = WordWrap.Unsigned(_access.Part(lint).LintTravel + 1);
         if (WordWrap.Signed(_access.Part(lint).LintTravel - 32) >= 0)
         {
@@ -440,7 +440,7 @@ internal sealed class KraidProjectiles
             ? _access.RequireKraidState(lint).Colours.Parts
             : EnemyShades.HitFlashed;
         lint.Position = lint.Position.WithWrappedWholeX(
-            _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel);
+            _access.Part(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.Part(lint).LintTravel);
         CountdownStep charge = _access.Part(lint).FunctionTimer.Decrement();
         _access.Part(lint).FunctionTimer = charge.Remaining;
         if (charge.IsZero)

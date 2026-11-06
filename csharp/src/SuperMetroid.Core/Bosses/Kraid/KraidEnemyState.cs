@@ -12,16 +12,16 @@ public sealed class KraidEnemyState
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
     internal KraidColours Colours { get; } = new();
 
-    /// <summary>Gets eight part workspaces in slot order: body, arm, three lints, foot, and two fingernails; they remain owned by the room after the body is deleted.</summary>
-    public KraidPartState[] Parts { get; } = Enumerable.Range(0, 8)
-        .Select(_ => new KraidPartState())
-        .ToArray();
-
     /// <summary>
-    /// An unresolved encounter value: mouth-reopen continuations set it to two and nothing reads it.
-    /// It holds zero or two.
+    /// Each part's own workspace: his body's, his arm's, his three lints', his foot's and his two fingernails'. They remain
+    /// owned by the room after the body is deleted.
     /// </summary>
-    public int Unknown2 { get; internal set; }
+    private readonly Dictionary<KraidPart, KraidPartState> _parts =
+        Enum.GetValues<KraidPart>().ToDictionary(part => part, _ => new KraidPartState());
+
+    /// <summary>The workspace of Kraid's part <paramref name="part"/>.</summary>
+    internal KraidPartState Part(KraidPart part) => Ensure.Listed(_parts, part);
+
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public WrappingCountdown ThinkingTimer { get; internal set; }
     /// <summary>

@@ -150,7 +150,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 7),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarElev),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 162), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 0, ArrivalY: 320)),
+            new(EnemyDefinitionId.Elevator, new(128, 162), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.FinalMissile0),
         [
@@ -265,7 +265,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 6),
         new(nameof(RoomEnemyPopulationDefinitions.RedBinstarElev),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 194), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 0, ArrivalY: 320)),
+            new(EnemyDefinitionId.Elevator, new(128, 194), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.GauntletETank),
         [
@@ -306,11 +306,11 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.ElevToBlueBrinstar),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 162), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 0, ArrivalY: 320)),
+            new(EnemyDefinitionId.Elevator, new(128, 162), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.ForgottenHighwayElev),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 192), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 0, ArrivalY: 320)),
+            new(EnemyDefinitionId.Elevator, new(128, 192), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.PreMapFlyway),
         [

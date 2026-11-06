@@ -67,7 +67,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.Statues),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 432), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 0, ArrivalY: 576)),
+            new(EnemyDefinitionId.Elevator, new(128, 432), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 576)),
             new(EnemyDefinitionId.TourianStatue, new(120, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.BaseDecoration)),
             new(EnemyDefinitionId.TourianStatue, new(142, 85), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.Ridley)),
             new(EnemyDefinitionId.TourianStatue, new(132, 136), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.Phantoon)),
@@ -129,7 +129,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 8),
         new(nameof(RoomEnemyPopulationDefinitions.MorphBall1),
         [
-            new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.SidehopperLarge, new(152, 678), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
             new(EnemyDefinitionId.SidehopperLarge, new(380, 678), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
             new(EnemyDefinitionId.SidehopperLarge, new(263, 620), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
@@ -145,7 +145,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountDirection: 0)),
             new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Left, Part: MorphBallEyePart.Eye, MountDirection: 0)),
-            new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(1160, 696), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
@@ -287,7 +287,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.WarehouseEntrance),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 0, ArrivalY: 320)),
+            new(EnemyDefinitionId.Elevator, new(128, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.WarehouseKihunter),
         [
@@ -302,7 +302,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarMainShaft),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.Zeela, new(218, 715), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideUp, SpeedIndex: 1, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(112, 920), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 1, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Ripper2, new(108, 1014), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new RipperSpawnSettings(SpeedIndex: 24, Direction: HorizontalDirection.Right)),
@@ -454,7 +454,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.Caterpillar),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.Zero, new(95, 1928), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 0, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Zero, new(23, 1758), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideDown, SpeedIndex: 0, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Zero, new(120, 1679), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, SpeedIndex: 0, SurfaceTableOffset: 0)),

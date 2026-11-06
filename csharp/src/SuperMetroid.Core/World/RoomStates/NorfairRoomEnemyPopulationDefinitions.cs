@@ -130,7 +130,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairElev),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 0, ArrivalY: 320)),
+            new(EnemyDefinitionId.Elevator, new(128, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.LNSave),
         [
@@ -396,7 +396,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 6),
         new(nameof(RoomEnemyPopulationDefinitions.MainHall),
         [
-            new(EnemyDefinitionId.Elevator, new(1152, 674), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(1152, 674), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.Dragon, new(720, 760), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new DragonSpawnSettings(Part: DragonPart.Body)),
             new(EnemyDefinitionId.Dragon, new(720, 760), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new DragonSpawnSettings(Part: DragonPart.Wing)),
             new(EnemyDefinitionId.Dragon, new(816, 760), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new DragonSpawnSettings(Part: DragonPart.Body)),
@@ -628,7 +628,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.BusinessCenter),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.Sova, new(123, 856), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 1, SurfaceTableOffset: 4)),
             new(EnemyDefinitionId.Sova, new(144, 1000), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 1, SurfaceTableOffset: 4)),
             new(EnemyDefinitionId.Sova, new(97, 1080), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 1, SurfaceTableOffset: 4)),

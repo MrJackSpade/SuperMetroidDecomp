@@ -66,7 +66,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.MaridiaElev),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 704), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(128, 704), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.Ripper, new(208, 788), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new RipperSpawnSettings(SpeedIndex: 16, Direction: HorizontalDirection.Left)),
             new(EnemyDefinitionId.Ripper, new(112, 900), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new RipperSpawnSettings(SpeedIndex: 16, Direction: HorizontalDirection.Right)),
             new(EnemyDefinitionId.Ripper, new(128, 1012), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new RipperSpawnSettings(SpeedIndex: 16, Direction: HorizontalDirection.Left)),

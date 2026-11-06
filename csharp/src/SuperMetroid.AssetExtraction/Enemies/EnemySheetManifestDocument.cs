@@ -13,8 +13,8 @@ internal sealed record EnemySheetManifestDocument
     public required Dictionary<string, Dictionary<string, string>> Sets { get; init; }
 
     /// <summary>
-    /// For each graphics set whose spawned objects draw from sheets, by name, the spawned-object sheet of each tile base
-    /// they draw at, by the base in decimal.
+    /// For each graphics set whose spawned objects draw from sheets, by name, where each owner of its spawned objects, by
+    /// owner name, draws its pictures from: the set's own sheet and the common sheets holding common art once (#1513).
     /// </summary>
     public required Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>> Spawned { get; init; }
 

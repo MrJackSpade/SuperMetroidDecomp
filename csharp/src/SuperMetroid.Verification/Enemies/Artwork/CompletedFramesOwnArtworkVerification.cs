@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
@@ -33,12 +32,13 @@ internal static class CompletedFramesOwnArtworkVerification
             foreach ((EnemySheetKey key, SpriteSheet sheet) in sheets.sheets)
             {
                 if (Plays(key.Set, drawing.Sequence))
-                    checkedFrames += Check($"{key.Set} {key.Enemy}", sheet, frames, completing, findings);
+                    checkedFrames += Check($"{key.Set} {key.Enemy}", sheet.frames, frames, completing, findings);
             }
+            // A set's spawned-object pictures are on its own sheet and the common sheets (#1513).
             foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet sheet) in sheets.spawned)
             {
                 if (Plays(key.Set, drawing.Sequence))
-                    checkedFrames += Check($"{key.Set} spawned {key.Owner}", sheet.Sheet, frames, completing, findings);
+                    checkedFrames += Check($"{key.Set} spawned {key.Owner}", sheet.frames, frames, completing, findings);
             }
         }
         AssertTrue(checkedFrames > 0, "some sheet holds a frame whose artwork an encounter's pages complete");
@@ -49,18 +49,19 @@ internal static class CompletedFramesOwnArtworkVerification
     }
 
     /// <summary>
-    /// Counts the frames of <paramref name="frames"/> that <paramref name="sheet"/> holds in any picture, and records each it
-    /// pictures under its plain name, as the room's load leaves it.
+    /// Counts the frames of <paramref name="frames"/> that <paramref name="pictures"/>, a sheet's or a set's spawned-object
+    /// pictures by name, hold in any picture, and records each they picture under its plain name, as the room's load leaves it.
     /// </summary>
-    private static int Check(string label, SpriteSheet sheet, string[] frames, EncounterArtworkSource completing, List<string> findings)
+    private static int Check(string label, Dictionary<string, SpriteSheetFrame> pictures, string[] frames, EncounterArtworkSource completing,
+        List<string> findings)
     {
         int held = 0;
         foreach (string frame in frames)
         {
-            if (sheet.frames.Keys.Any(picture => picture == frame || picture.StartsWith(frame + "|", StringComparison.Ordinal)))
+            if (pictures.Keys.Any(picture => picture == frame || picture.StartsWith(frame + "|", StringComparison.Ordinal)))
                 held++;
-            if (sheet.frames.ContainsKey(frame))
-                findings.Add($"{label} ({sheet.Image.Name}) pictures {frame} over its room's load, which {completing}'s pages never write");
+            if (pictures.TryGetValue(frame, out SpriteSheetFrame? plain))
+                findings.Add($"{label} ({plain.Sheet.Name}) pictures {frame} over its room's load, which {completing}'s pages never write");
         }
         return held;
     }

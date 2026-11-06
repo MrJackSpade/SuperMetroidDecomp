@@ -38,12 +38,20 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("enemy", System.Text.Encoding.UTF8.GetBytes(key.Enemy.ToString()));
                 sheet.AppendIdentity(content);
             }
-            foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet sheet) in installed.spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
+            // Each spawned-object sheet once, own and common alike, then the sheet each set's owner draws each picture from (#1513).
+            foreach (SpriteSheet sheet in installed.spawned.Values.SelectMany(spawned => spawned.Sheets).Distinct<SpriteSheet>(ReferenceEqualityComparer.Instance)
+                         .OrderBy(sheet => sheet.Image.Name, StringComparer.Ordinal))
+                sheet.AppendIdentity(content);
+            foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet spawned) in installed.spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
                          .ThenBy(entry => SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), StringComparer.Ordinal))
             {
                 content.Append("spawned-set", System.Text.Encoding.UTF8.GetBytes(key.Set));
                 content.Append("owner", System.Text.Encoding.UTF8.GetBytes(SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(key.Owner)));
-                sheet.Sheet.AppendIdentity(content);
+                foreach ((string picture, SpriteSheetFrame frame) in spawned.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                {
+                    content.AppendName("picture", picture);
+                    content.AppendName("held on", frame.Sheet.Name);
+                }
             }
             AppendPictures(content, "variations", installed.variations.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
             AppendPictures(content, "spawned-variations", installed.spawnedVariations.Select(entry => new PictureOwner(entry.Key.Set,

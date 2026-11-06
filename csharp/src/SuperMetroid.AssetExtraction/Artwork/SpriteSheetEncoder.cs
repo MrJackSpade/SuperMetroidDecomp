@@ -30,6 +30,15 @@ internal sealed class SpriteSheetEncoder : IDisposable
         return Encode(planes, manifest);
     }
 
+    /// <summary>Paints a sheet of pictures already painted (#1513) on the reused canvas and encodes it.</summary>
+    internal EncodedSpriteSheet Encode(PictureSheetLayout layout)
+    {
+        Ensure.NotNull(layout);
+        SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
+        SpriteSheetDocument manifest = layout.Paint(planes);
+        return Encode(planes, manifest);
+    }
+
     /// <summary>Encodes one sheet's image, palette-index image and frame manifest.</summary>
     /// <param name="planes">The sheet's pixel planes.</param>
     /// <param name="manifest">The sheet's frame manifest.</param>

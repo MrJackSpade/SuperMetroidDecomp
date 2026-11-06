@@ -123,7 +123,7 @@ internal static class SamusOverreadDecoding
     /// record's animation frame and every word before a projectile list, which a trail spawned at a list's start reads.
     /// </summary>
     private static int[] TrailFramesPastRecords(ProjectileTrailPlacementList list, SamusProjectileListLayout lists) =>
-        [.. SamusProjectileRecordDefinitions.Records.Select(record => record.AnimationFrame)
+        [.. SamusProjectileRecordDefinitions.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
             .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)lists.Prefix(program)))
             .Distinct()
             .Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length)

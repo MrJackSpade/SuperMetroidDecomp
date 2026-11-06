@@ -30,6 +30,7 @@ internal static class SamusProjectileProgramsVerification
             AssertEqual(Word(entry - sizeof(ushort)), SamusProjectileProgramAddresses.Prefix(program), $"projectile {program}: word before its list");
             var programSteps = SamusProjectileAnimations.Programs.Steps(program);
             ushort cursor = entry;
+            int shown = 0;
             for (int index = 0; index < programSteps.Count; index++, steps++)
             {
                 string at = $"projectile {program} step {index} at $93:{cursor:X4}";
@@ -47,8 +48,9 @@ internal static class SamusProjectileProgramsVerification
                 {
                     var show = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>(step, $"{at}: timed record");
                     AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(new SamusProjectileFrame(program, shown++), show.Frame, $"{at}: the program's next record");
                     SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Frame);
-                    AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Frame.Record), $"{at}: record address");
+                    AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Frame), $"{at}: record address");
                     AssertEqual(Word(cursor + 2), record.Spritemap, $"{at}: spritemap");
                     ushort radii = Word(cursor + 4);
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
@@ -76,8 +78,13 @@ internal static class SamusProjectileProgramsVerification
         AssertTrue(records.SequenceEqual(SamusProjectileRecordDefinitions.TimedRecordAddresses), "the record addresses are the timed records in address order");
 
         int fields = 0;
-        foreach (ushort header in Headers())
-            for (int field = 0; field < HeaderListFields; field++, fields++)
+        foreach (SamusProjectileHeader kind in Enum.GetValues<SamusProjectileHeader>())
+        {
+            ushort header = SamusProjectileHeaderNative.Address(kind);
+            int kept = FirstListReadHeaders.Contains(kind) ? 1 : HeaderListFields;
+            if (kept < HeaderListFields)
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.Program(kind, kept), $"{kind} keeps only the list field its shots read");
+            for (int field = 0; field < kept; field++, fields++)
             {
                 ushort native = Word(header + sizeof(ushort) * (1 + field));
                 string at = $"projectile header $93:{header:X4} field {field}";
@@ -88,15 +95,23 @@ internal static class SamusProjectileProgramsVerification
                 else
                     AssertThrows<InvalidDataException>(() => SamusProjectileHeaders.Program(header, field), $"{at}: a word that is not a list fails");
             }
+        }
         Console.WriteLine($"  Samus projectile programs: {byEntry.Count} programs ({steps} steps, {records.Count} records) and {fields} header fields match bank $93.");
     }
 
     /// <summary>The list fields a header's selection may read: the ten a directional header holds.</summary>
     private const int HeaderListFields = 10;
 
-    /// <summary>Every projectile header: the 24 beam headers, then the named ones.</summary>
-    internal static IEnumerable<ushort> Headers() =>
-        Enum.GetValues<SamusProjectileHeader>().Select(SamusProjectileHeaderNative.Address);
+    /// <summary>
+    /// The headers every shot reads in its first list field only: the Super Missile link, a bomb and the special-attack
+    /// particles; the port keeps none of the words after it. A Power Bomb header, which a charged Spazer and Plasma shot
+    /// reads in its own direction, keeps all ten.
+    /// </summary>
+    private static readonly HashSet<SamusProjectileHeader> FirstListReadHeaders =
+    [
+        SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.Bomb,
+        SamusProjectileHeader.PlasmaSBA, SamusProjectileHeader.WaveSBA, SamusProjectileHeader.SpazerSBA,
+    ];
 
     /// <summary>The headers that hold only their first list field; every other header holds all ten.</summary>
     private static readonly HashSet<SamusProjectileHeader> FirstListOnlyHeaders =

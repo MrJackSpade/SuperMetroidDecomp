@@ -20,23 +20,23 @@ public static class ProjectileFrameBindingFile
     /// <summary>Validates every timed-record visual assignment and compiles only bindings that differ from the reviewed stock composition selection.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled visual bindings detached from the document dictionary, with no duration, radius, trail, or damage overrides.</returns>
-    /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, an incomplete 805-record set, or a composition outside the required set.</exception>
+    /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, an incomplete record set, or a composition outside the required set.</exception>
     public static InstalledProjectileFrameBindings Load(Stream json)
     {
         ProjectileFrameBindingDocument document;
         document = JsonAssetDocument.Read<ProjectileFrameBindingDocument>(json, Options, "projectile frame-binding");
         if (document.Version != ProjectileFrameBindingFormat.Version || document.Frames is null ||
             document.Frames.Count != ProjectileFrameBindingFormat.FrameCount)
-            throw new InvalidDataException($"Projectile frame bindings require version {ProjectileFrameBindingFormat.Version} and all 805 timed records.");
+            throw new InvalidDataException($"Projectile frame bindings require version {ProjectileFrameBindingFormat.Version} and all {ProjectileFrameBindingFormat.FrameCount} timed records.");
         Dictionary<string, ProjectileSpriteId> named = ProjectileSpriteDefinitions.All.ToDictionary(sprite => sprite.Name, StringComparer.Ordinal);
-        var compiled = new Dictionary<int, ProjectileSpriteId>();
-        for (int record = 0; record < SamusProjectileRecordDefinitions.Records.Length; record++)
+        var compiled = new Dictionary<SamusProjectileFrame, ProjectileSpriteId>();
+        foreach (SamusProjectileFrame record in SamusProjectileRecordDefinitions.Frames)
         {
             string key = ProjectileFrameBindingFormat.FrameName(record);
             if (!document.Frames.TryGetValue(key, out string? spriteName) || spriteName is null ||
                 !named.TryGetValue(spriteName, out ProjectileSpriteId sprite))
                 throw new InvalidDataException($"Projectile frame {key} has no legal sprite identity.");
-            if (sprite != SamusProjectileRecordDefinitions.Records[record].Sprite)
+            if (sprite != SamusProjectileRecordDefinitions.Get(record).Sprite)
                 compiled.Add(record, sprite);
         }
         return new(compiled);

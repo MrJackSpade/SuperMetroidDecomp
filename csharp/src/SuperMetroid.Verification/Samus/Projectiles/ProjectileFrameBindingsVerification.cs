@@ -15,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed projectile sprite bindings independently of timed mechanics.</summary>
 internal static class ProjectileFrameBindingsVerification
 {
-    /// <summary>Checks 805 native sprite references, both projectile handlers, the installed bindings and malformed binding documents.</summary>
+    /// <summary>Checks every timed record's native sprite reference, both projectile handlers, the installed bindings and malformed binding documents.</summary>
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);

@@ -36,5 +36,5 @@ internal static class SamusProjectileProgramAddresses
     internal static AnimationProgramCursor<SamusProjectileProgram>? CursorAt(ushort address) => Layout.CursorAt(address);
 
     /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>
-    internal static ushort RecordAddress(int record) => Layout.RecordPosition(record);
+    internal static ushort RecordAddress(SamusProjectileFrame record) => Layout.RecordPosition(record);
 }

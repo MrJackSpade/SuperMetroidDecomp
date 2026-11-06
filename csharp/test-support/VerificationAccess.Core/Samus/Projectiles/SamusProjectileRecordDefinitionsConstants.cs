@@ -4,5 +4,5 @@
 internal static class SamusProjectileRecordDefinitionsConstants
 {
     /// <summary>The number of records.</summary>
-    internal static int RecordCount => SamusProjectileRecordDefinitions.Records.Length;
+    internal static int RecordCount => SamusProjectileRecordDefinitions.Frames.Count;
 }

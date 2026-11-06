@@ -66,8 +66,7 @@ internal sealed class SamusRoomView(SamusState samus) : IRoomSamus
     public IRoomSamusControl Control => samus.Control;
 
     /// <inheritdoc/>
-    public bool IsShinesparking =>
-        SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.ShinesparkHorizontalRightPose, SamusPoseId.ShinesparkDiagonalLeftPose);
+    public bool IsShinesparking => SamusPoseMetadata.IsShinesparkPose(samus.Pose);
 
     /// <inheritdoc/>
     public bool IsActivelySpeedBoosting => samus.HorizontalSpeed.IsActivelySpeedBoosting;

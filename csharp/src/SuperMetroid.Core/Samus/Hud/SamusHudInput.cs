@@ -12,10 +12,14 @@ internal static class SamusHudInput
     public static bool PostureTransitionAdmitsWeapons(SamusPoseId pose, bool grappleActive,
         PostureAdmissionBeyondTransitions<SamusPoseId> beyond)
     {
-        if (!SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.StandardTransitionStart))
-            return true;
-        if (!SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.NonFiringTransitionStart))
-            return false;
-        return SamusHudObservations.PostureAdmitsWeapons(pose, beyond) || grappleActive;
+        SamusPostureTransitionAdmission admission = SamusPoseMetadata.PostureTransitionAdmission(pose);
+        return admission switch
+        {
+            SamusPostureTransitionAdmission.AlwaysAdmits => true,
+            SamusPostureTransitionAdmission.NeverAdmits => false,
+            SamusPostureTransitionAdmission.TableAdmits or SamusPostureTransitionAdmission.TablePreservesCharge or
+                SamusPostureTransitionAdmission.BeyondTable => SamusHudObservations.PostureAdmitsWeapons(pose, beyond) || grappleActive,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusPostureTransitionAdmission)} {admission}."),
+        };
     }
 }

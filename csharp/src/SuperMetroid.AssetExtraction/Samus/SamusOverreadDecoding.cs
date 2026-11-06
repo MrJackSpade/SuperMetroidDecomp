@@ -295,8 +295,7 @@ internal static class SamusOverreadDecoding
     /// </summary>
     private static Dictionary<string, bool> PostureAdmissions(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusPoseId>()
-            .Where(pose => SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.NonFiringTransitionStart) &&
-                !SamusPoseNumbering.InRange(pose, SamusHudDefinitions.FirstTransitionPose, SamusPoseId.UnusedPose40))
+            .Where(pose => SamusPoseMetadata.PostureTransitionAdmission(pose) == SamusPostureTransitionAdmission.BeyondTable)
             .OrderBy(SamusPoseNumbering.Number)
             .ToDictionary(pose => pose.ToString(), pose =>
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbering.Number(pose)) == 0);
@@ -351,7 +350,7 @@ internal static class SamusOverreadDecoding
         DrainedCrashPoses.ToDictionary(pose => pose.ToString(), pose =>
         {
             int pair = SamusOverreadSourceDefinitions.CrashDepartureTable +
-                SamusPoseNumbering.Offset(pose, SamusPoseId.ShinesparkHorizontalRightPose) * 2;
+                (SamusPoseNumbering.Number(pose) - SamusPoseNumbering.Number(SamusPoseId.ShinesparkHorizontalRightPose)) * 2;
             return new SamusOverreadDocument.CrashDepartures(cartridge.ReadCartridgeByte(pair), cartridge.ReadCartridgeByte(pair + 1));
         });
 

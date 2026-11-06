@@ -21,22 +21,31 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks compiled Samus HUD posture and movement policy against retail definitions and live consumers.</summary>
 internal static class SamusHudDefinitionsVerification
 {
+    /// <summary>The cartridge's first posture-transition pose number: the transition flags are indexed from it.</summary>
+    private const int FirstTransitionNumber = 0x35;
+
+    /// <summary>The cartridge's first pose number the posture-transition handler never admits weapons for.</summary>
+    private const int NonFiringTransitionNumber = 0xDB;
+
+    /// <summary>The cartridge's first pose number the posture-transition handler hands to the standard weapon handler.</summary>
+    private const int StandardTransitionNumber = 0xF1;
+
     /// <summary>Compares every native handler and posture branch, then checks Grapple admission and charged-shot preservation.</summary>
     internal static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
-        bool Transition(SamusPoseId pose, bool active) => !SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.StandardTransitionStart) ||
-            (SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.NonFiringTransitionStart) &&
+        bool Transition(SamusPoseId pose, bool active) => SamusPoseNumbering.Number(pose) >= StandardTransitionNumber ||
+            (SamusPoseNumbering.Number(pose) < NonFiringTransitionNumber &&
                 (rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + SamusPoseNumbering.Number(pose) -
-                    SamusPoseNumbering.Number(SamusHudDefinitions.FirstTransitionPose)) == 0 || active));
+                    FirstTransitionNumber) == 0 || active));
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
         var bus = NewHudPolicyReadGuard(metadata);
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         foreach (bool active in new[] { false, true })
         {
-            if (pose < SamusPoseNumbering.Number(SamusHudDefinitions.NonFiringTransitionStart))
+            if (pose < NonFiringTransitionNumber)
                 AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
-                        SamusPoseNumbering.Number(SamusHudDefinitions.FirstTransitionPose)) == 0,
+                        FirstTransitionNumber) == 0,
                     SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     "Complete bounded posture-index admission: the byte read is zero");
             AssertEqual(Transition(SamusPoseNumbering.FromNumber(pose), active),
@@ -84,9 +93,7 @@ internal static class SamusHudDefinitionsVerification
             metadataPose = samus.Pose = pose;
             setTurn(samus, turn);
             SamusHudHandler handler = HandlerOf(rom, movement);
-            bool ball = SamusPoseNumbering.InRange(pose, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallMovingLeftPose) ||
-                pose is SamusPoseId.MorphBallFallingRightPose or SamusPoseId.MorphBallFallingLeftPose or SamusPoseId.MorphBallGroundLeftPose ||
-                SamusPoseNumbering.InRange(pose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallJumpLeftPose);
+            bool ball = SamusPoseMetadata.IsStableBallPose(pose);
             bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == SamusHudHandler.Jump ||
                 handler == SamusHudHandler.Turning && turn == 0 || handler == SamusHudHandler.Transition && !Transition(pose, false);
             shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
@@ -97,7 +104,7 @@ internal static class SamusHudDefinitionsVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(
             () => SamusHudObservations.PostureAdmitsWeapons(
-                SamusHudDefinitions.NonFiringTransitionStart, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
+                SamusPoseId.DrainedCrouchingRightPose, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
             "posture observation rejects the native prefiltered range");
         Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
     }
@@ -140,11 +147,8 @@ internal static class SamusHudDefinitionsVerification
     /// <summary>Forbids converted movement-handler and posture-flag ROM reads during HUD policy checks.</summary>
     private static MutableCartridgeReadGuard NewHudPolicyReadGuard(ISnesAddressSpace source)
     {
-        int postureStart = SamusCartridgeTablesConstants.HudTransitionFlags -
-            SamusPoseNumbering.Number(SamusHudDefinitions.FirstTransitionPose);
-        int postureEnd = SamusCartridgeTablesConstants.HudTransitionFlags +
-            SamusPoseNumbering.Number(SamusHudDefinitions.NonFiringTransitionStart) -
-            SamusPoseNumbering.Number(SamusHudDefinitions.FirstTransitionPose);
+        int postureStart = SamusCartridgeTablesConstants.HudTransitionFlags - FirstTransitionNumber;
+        int postureEnd = SamusCartridgeTablesConstants.HudTransitionFlags + NonFiringTransitionNumber - FirstTransitionNumber;
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address >= SamusCartridgeTablesConstants.HudMovementHandlers && address < 0x90dd3d ||
                 address >= postureStart && address < postureEnd,

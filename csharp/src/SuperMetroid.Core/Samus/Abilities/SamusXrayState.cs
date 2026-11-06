@@ -157,10 +157,8 @@ public sealed class SamusXrayState
             return false;
 
         // Landing art (the normal and spin landings and the aimed and firing landings) is explicitly
-        // excluded even though its movement type is otherwise standing. The pose families are
-        // tested as unsigned ranges of pose numbers.
-        if (SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose) ||
-            SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.LandingAimUpRightPose, SamusPoseId.FiringLandingLeftPose))
+        // excluded even though its movement type is otherwise standing.
+        if (SamusPoseMetadata.IsLandingPose(samus.Pose))
             return false;
 
         if (conditions.GameState != SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||

@@ -2,8 +2,9 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The bank-$86 routine addresses that stand for each enemy-projectile pre-instruction, for tools and verification that
-/// read or emit native words; the simulation names pre-instructions by identity only. Every empty routine, and the
-/// word zero of a freed slot, stands for <see cref="EnemyProjectileFrameBehavior.Stationary"/>.
+/// read or emit native words; the simulation names pre-instructions by identity only. Every empty routine, the
+/// pre-Phantoon room projectile's (whose background pin the room's background-scroll rule performs, not the
+/// projectile), and the word zero of a freed slot, stand for <see cref="EnemyProjectileFrameBehavior.Stationary"/>.
 /// </summary>
 internal static class EnemyProjectileFrameBehaviorWords
 {
@@ -11,7 +12,7 @@ internal static class EnemyProjectileFrameBehaviorWords
     internal static readonly Dictionary<ushort, EnemyProjectileFrameBehavior> Identities = new()
     {
         [0x0000] = EnemyProjectileFrameBehavior.Stationary,
-        [0xa3a3] = EnemyProjectileFrameBehavior.PrePhantoonBackgroundPin,
+        [0xa3a3] = EnemyProjectileFrameBehavior.Stationary,
         [0x8170] = EnemyProjectileFrameBehavior.Stationary,
         [0xa327] = EnemyProjectileFrameBehavior.Stationary,
         [0x84fb] = EnemyProjectileFrameBehavior.Stationary,

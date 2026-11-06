@@ -1283,7 +1283,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(samus);
-        PrePhantoonRoomBehavior.BindBackgroundScroll(backgroundScroll);
+        // The pre-Phantoon room's background rule applies at the start of the projectile update.
+        PrePhantoonRoomBehavior.ApplyBackgroundScrollRule(backgroundScroll);
         // A projectile pass starts with no drop or death sound pending: the previous pass's, published or not, are dropped.
         Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyPickup);
         Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyDeath);

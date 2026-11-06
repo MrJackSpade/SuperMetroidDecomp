@@ -162,7 +162,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeRinkaLife(RoomEnemySlot slot, RinkaEnemyState state)
     {
         state.Function = RinkaEnemyFunction.WatchForLeavingViewport;
-        state.DelayTimer = WrappingCountdown.Start(RinkaInitialDelay);
+        state.DelayTimer = RinkaInitialDelay;
         state.Velocity = default;
 
         if (IsSpecialRinka(slot))
@@ -229,8 +229,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaEnemyFunction.AimDelay:
-                state.DelayTimer = state.DelayTimer.Decrement().Remaining;
-                if (!state.DelayTimer.IsNegative)
+                if (--state.DelayTimer >= 0)
                     return;
                 if (samus is null)
                     throw new InvalidOperationException("Rinka homing requires the active Samus actor.");
@@ -259,8 +258,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaEnemyFunction.DeathRespawnDelay:
-                state.DelayTimer = state.DelayTimer.Decrement().Remaining;
-                if (!state.DelayTimer.IsNegative)
+                if (--state.DelayTimer >= 0)
                     return;
                 slot.Health = RinkaHealth;
                 ReinitializeRinka(slot, state);
@@ -292,12 +290,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Special Mother Brain Rinkas do not clear their enemy slot. They hide, emit the
         // room-graphics dust/explosion with parameter three, wait for
-        // the wrapping 1, 0, -1 countdown, restore ten health, and select a spawn.
+        // the 1, 0, -1 countdown, restore ten health, and select a spawn.
         slot.Properties = slot.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         SpawnRinkaDustExplosion(slot.Position.Whole);
         state.Function = RinkaEnemyFunction.DeathRespawnDelay;
-        state.DelayTimer = WrappingCountdown.Start(1);
+        state.DelayTimer = 1;
     }
 
     /// <summary>Runs Rinka's private frozen-AI prelude/tail around common frozen handling.</summary>

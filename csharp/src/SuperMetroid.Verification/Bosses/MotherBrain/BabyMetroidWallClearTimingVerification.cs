@@ -38,7 +38,7 @@ internal static class BabyMetroidWallClearTimingVerification
 
         var shitroid = runtime.Enemies.ShitroidBehavior.Shitroid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.ShitroidBehavior._shitroid.");
         shitroid.Function = ShitroidAiFunction.RiseAfterFeeding;
-        shitroid.StateTimer = WrappingCountdown.Start(0);
+        shitroid.StateTimer = 0;
 
         // A dash like the movie's: the wall's left edge is three pixels ahead and she moves 2.F000.
         SamusState samus = runtime.Player.IntroducedSamus;

@@ -297,7 +297,7 @@ internal sealed class MotherBrainFakeDeath
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,
             FloorY = tubeBody.Floor,
-            FallDelay = WrappingCountdown.Start(settings.FallDelay),
+            FallDelay = settings.FallDelay,
         };
         tube.SetSpeciesState(state, state.ClearWithRecord);
     }
@@ -313,9 +313,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
             case MotherBrainTubeFunction.MainTube_WaitingToFall:
                 // The main tube's fall delay expires when it passes zero.
-                CountdownStep fallDelay = tubeState.FallDelay.Decrement();
-                tubeState.FallDelay = fallDelay.Remaining;
-                if (fallDelay.IsNonNegative)
+                if (--tubeState.FallDelay >= 0)
                     return;
                 tubeState.Function = MotherBrainTubeFunction.MainTube_Falling;
                 FallMotherBrainMainTube(tube);
@@ -391,12 +389,10 @@ internal sealed class MotherBrainFakeDeath
     {
         // The smoke cadence counts down and emits when it passes zero.
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        CountdownStep smokeDelay = tubeState.SmokeDelay.Decrement();
-        tubeState.SmokeDelay = smokeDelay.Remaining;
-        if (smokeDelay.IsNonNegative)
+        if (--tubeState.SmokeDelay >= 0)
             return;
 
-        tubeState.SmokeDelay = WrappingCountdown.Start(8);
+        tubeState.SmokeDelay = 8;
         tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) & 3;
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex]), 208),

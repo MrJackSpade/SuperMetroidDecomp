@@ -152,7 +152,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAiFunction.BeginEntranceDelay:
                 state.Function = ShitroidAiFunction.EntranceDelay;
-                state.StateTimer = WrappingCountdown.Start(464);
+                state.StateTimer = 464;
                 goto case ShitroidAiFunction.EntranceDelay;
 
             case ShitroidAiFunction.EntranceDelay:
@@ -196,7 +196,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot));
                 state.VictimActivationFlag = true;
                 state.Function = ShitroidAiFunction.RiseAfterFeeding;
-                state.StateTimer = WrappingCountdown.Start(192);
+                state.StateTimer = 192;
                 goto case ShitroidAiFunction.RiseAfterFeeding;
 
             case ShitroidAiFunction.RiseAfterFeeding:
@@ -241,14 +241,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAiFunction.BeginPostDrainPause:
                 state.Function = ShitroidAiFunction.PostDrainPause;
-                state.StateTimer = WrappingCountdown.Start(120);
+                state.StateTimer = 120;
                 goto case ShitroidAiFunction.PostDrainPause;
 
             case ShitroidAiFunction.PostDrainPause:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.RiseAfterDrainingSamus;
-                    state.StateTimer = WrappingCountdown.Start(192);
+                    state.StateTimer = 192;
                     goto case ShitroidAiFunction.RiseAfterDrainingSamus;
                 }
                 return;
@@ -261,7 +261,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
                     state.Function = ShitroidAiFunction.FlyLeft;
-                    state.StateTimer = WrappingCountdown.Start(88);
+                    state.StateTimer = 88;
                     SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
                     goto case ShitroidAiFunction.FlyLeft;
                 }
@@ -280,7 +280,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.FlyRight;
-                    state.StateTimer = WrappingCountdown.Start(88);
+                    state.StateTimer = 88;
                     goto case ShitroidAiFunction.FlyRight;
                 }
                 return;
@@ -298,7 +298,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
-                    state.StateTimer = WrappingCountdown.Start(256);
+                    state.StateTimer = 256;
                     SetShitroidProgram(slot, ShitroidProgram.Remorse);
                 }
                 return;
@@ -398,7 +398,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
         state.ReactsToSamus = false;
-        state.StateTimer = WrappingCountdown.Start(320);
+        state.StateTimer = 320;
     }
 
     /// <summary>Shakes above the victim for 320 ticks before activating its corpse sequence.</summary>
@@ -408,9 +408,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
         slot.Position = slot.Position.WithWhole(
             victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
-        CountdownStep timer = state.StateTimer.Decrement();
-        state.StateTimer = timer.Remaining;
-        if (timer.IsZero)
+        if (--state.StateTimer == 0)
         {
             state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
             SetShitroidProgram(slot, ShitroidProgram.FinishDraining);
@@ -443,13 +441,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Alternates between a timed followed point and the followed X at authored height 80, using the room RNG.</summary>
     private Position16<RoomPixels> SelectShitroidHoverTarget(ShitroidEnemyState state, Position16<RoomPixels> followed)
     {
-        if (!state.HoverTimer.IsZero)
+        if (state.HoverTimer != 0)
         {
-            state.HoverTimer = state.HoverTimer.Decrement().Remaining;
+            state.HoverTimer--;
             return followed;
         }
         if ((_room.Random.Read() & 4095) >= 4064)
-            state.HoverTimer = WrappingCountdown.Start(32);
+            state.HoverTimer = 32;
         return followed.WithY(80);
     }
 
@@ -771,13 +769,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SamusState RequireShitroidSamus(SamusState? samus) => samus ??
         throw new InvalidOperationException("The active Shitroid state requires Samus.");
 
-    /// <summary>Applies the wrapping countdown and reports its signed-negative transition.</summary>
-    private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state)
-    {
-        CountdownStep timer = state.StateTimer.Decrement();
-        state.StateTimer = timer.Remaining;
-        return timer.IsNegative;
-    }
+    /// <summary>Counts the state timer down and reports whether it ran past zero.</summary>
+    private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state) => --state.StateTimer < 0;
 
     /// <summary>Uses bomb damage for recoil strength but ordinary slot zero for its direction, without health loss.</summary>
     internal void AddShitroidBombReactions(EnemySharedReactions table)

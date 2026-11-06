@@ -66,9 +66,9 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"production Mother Brain turret starts turning forward {parameter}");
             AssertTrue(turret.Animation is MotherBrainTurretAnimation { Program: MotherBrainTurretProgram.TurretPose },
                 $"production Mother Brain turret {parameter} starts its typed pose");
-            AssertEqual(MotherBrainTurretDefinitions.MinimumRotationDelay, (int)turretState.RotationWait.RawValue,
+            AssertEqual(MotherBrainTurretDefinitions.MinimumRotationDelay, turretState.RotationWait,
                 $"production Mother Brain turret rotation timer {parameter}");
-            AssertEqual(MotherBrainTurretDefinitions.MinimumFiringCooldown, (int)turretState.FiringWait.RawValue,
+            AssertEqual(MotherBrainTurretDefinitions.MinimumFiringCooldown, turretState.FiringWait,
                 $"production Mother Brain turret cooldown {parameter}");
 
             // Every position a turret may face: a turn never leaves its allowed sector.

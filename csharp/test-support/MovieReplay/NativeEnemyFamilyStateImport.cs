@@ -752,9 +752,7 @@ internal static class NativeEnemyFamilyStateImport
             puyo.HopCooldownTimer = WrappingCountdown.FromRaw(words.B);
             puyo.Function = words.C == 0 ? null : PuyoNativeWords.PuyoEnemyFunctions.Decode(words.C, "recorded PuyoEnemyFunction");
             puyo.AirborneFunction = words.D == 0 ? null : PuyoNativeWords.PuyoAirborneFunctions.Decode(words.D, "recorded PuyoAirborneFunction");
-            puyo.HopRecord = words.E % PuyoHopDefinitions.RecordSize == 0
-                ? Index(words.E, 6 * PuyoHopDefinitions.RecordSize, "Puyo hop record offset") / PuyoHopDefinitions.RecordSize
-                : throw new InvalidDataException($"Recorded Puyo hop record offset ${words.E:X4} is not a record.");
+            puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
         }
     }
 

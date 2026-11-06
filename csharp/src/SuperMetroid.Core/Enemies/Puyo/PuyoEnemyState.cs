@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// The state of one Puyo. The vertical speed index, hop cooldown, both functions and the selected hop record are
+/// The state of one Puyo. The vertical speed index, hop cooldown, both functions and the hop being made are
 /// values the game keeps in the enemy's common record, so they are emptied with that record when the enemy is
 /// killed (<see cref="ClearWithRecord"/>); the rest outlive the kill.
 /// </summary>
@@ -27,8 +27,11 @@ public sealed class PuyoEnemyState
     /// <summary>The current hop's airborne behaviour; none until the first hop, and once a kill has emptied the record.</summary>
     public PuyoAirborneFunction? AirborneFunction { get; internal set; }
 
-    /// <summary>The selected record of the seven-record hop table (0 through 6), kept when a collision changes the hop type.</summary>
-    public int HopRecord { get; internal set; }
+    /// <summary>
+    /// The hop being made, whose definition drives the airborne motion; it is kept when a collision changes
+    /// <see cref="HopType"/>, and a kill empties it back to the small ordinary hop.
+    /// </summary>
+    public PuyoHopType CurrentHop { get; internal set; }
 
     /// <summary>The record selected for the next hop.</summary>
     public PuyoHopType HopType { get; internal set; }
@@ -79,6 +82,6 @@ public sealed class PuyoEnemyState
         HopCooldownTimer = WrappingCountdown.Start(0);
         Function = null;
         AirborneFunction = null;
-        HopRecord = 0;
+        CurrentHop = PuyoHopType.NormalSmall;
     }
 }

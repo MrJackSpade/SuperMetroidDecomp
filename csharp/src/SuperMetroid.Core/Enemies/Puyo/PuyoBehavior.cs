@@ -11,10 +11,9 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 [RoomLifetime]
 internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The hop types in the order of the hop records they select.</summary>
-    private static readonly IdentitySequence<PuyoHopType> HopRecords = new(
-        PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalHigh, PuyoHopType.Giant,
-        PuyoHopType.Dropping, PuyoHopType.DroppedSmall, PuyoHopType.DroppedBig);
+    /// <summary>The three ordinary hops in the order the random roll of zero, one or two chooses them.</summary>
+    private static readonly IdentitySequence<PuyoHopType> NormalHopsByRoll = new(
+        PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalHigh);
 
     /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
     private static bool IsNormalHop(PuyoHopType type) =>
@@ -58,7 +57,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             // cleared enemy allocation therefore leaves them empty until InitiateHop owns
             // them; do not pre-populate plausible values the game has not written.
             AirborneFunction = null,
-            HopRecord = 0,
+            CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             HoppingAnimationActive = false,
             Direction = PuyoDirection.Right,
@@ -146,10 +145,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 randomChoice &= 1;
             if (randomChoice >= 2)
                 randomChoice = 2;
-            state.HopType = HopRecords.At(randomChoice);
+            state.HopType = NormalHopsByRoll.At(randomChoice);
         }
 
-        state.HopRecord = HopRecords.PositionOf(state.HopType);
+        state.CurrentHop = state.HopType;
         state.AirborneFunction = Hop(state).Function;
         CalculateInitialPuyoHopSpeed(state);
     }
@@ -185,13 +184,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         throw new InvalidDataException(
-            $"Puyo hop record {state.HopRecord} never reached " +
+            $"Puyo hop {state.CurrentHop} never reached " +
             "its authored jump-height threshold.");
     }
 
-    /// <summary>The hop-table record <paramref name="state"/> has selected.</summary>
-    private static PuyoHopDefinition Hop(PuyoEnemyState state) =>
-        PuyoHops.FromByteIndex(Ensure.BetweenInclusive(0, ushort.MaxValue, state.HopRecord * PuyoHopDefinitions.RecordSize));
+    /// <summary>The definition of the hop <paramref name="state"/> is making.</summary>
+    private static PuyoHopDefinition Hop(PuyoEnemyState state) => PuyoHopDefinitions.Hops[state.CurrentHop];
 
     /// <summary>Runs the indirect airborne dispatcher.</summary>
     private void RunAirbornePuyo(

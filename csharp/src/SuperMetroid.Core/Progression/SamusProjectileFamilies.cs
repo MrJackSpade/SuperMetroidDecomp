@@ -2,13 +2,13 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Ranking predicates over the game's projectile family order (<see cref="SamusProjectileFamilyDefinitions.Order"/>) and
-/// each family's row in the per-family projectile tables. The game's ordered family comparisons ("explosions and
-/// later", "bombs and later") are these predicates; a family's value is never compared.
+/// Ranking predicates over the game's projectile family order (<see cref="SamusProjectileFamilyDefinitions.Order"/>).
+/// The game's ordered family comparisons ("explosions and later", "bombs and later") are these predicates; a family's
+/// value is never compared.
 /// </summary>
 public static class SamusProjectileFamilies
 {
-    /// <summary>The ranking predicates and table row of a family.</summary>
+    /// <summary>The ranking predicates of a family.</summary>
     extension(SamusProjectileFamily family)
     {
         /// <summary>The family's position in the game's family order.</summary>
@@ -27,8 +27,5 @@ public static class SamusProjectileFamilies
 
         /// <summary>Whether the family is a fired shot: a beam, missile or Super Missile.</summary>
         public bool IsBeamOrMissile => !family.IsBombOrExplosion;
-
-        /// <summary>The family's row in the per-family projectile tables (the non-beam selector and cooldown rows).</summary>
-        internal int TableRow => SamusProjectileFamilyDefinitions.TableRows[family.Rank];
     }
 }

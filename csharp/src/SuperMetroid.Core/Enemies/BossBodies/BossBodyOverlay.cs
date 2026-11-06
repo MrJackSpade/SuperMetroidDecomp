@@ -18,7 +18,7 @@ public sealed class BossBodyOverlay
     public BossBodyOverlay(ArtworkAnimation animation, Position16<BackgroundPixels> corner, ImmutableArray<BossBodyRectangle> covers,
         IReadOnlyDictionary<string, SpriteSheetFrame> pictures)
     {
-        Animation = Ensure.NotNull(animation);
+        Animation = animation;
         if (covers.IsDefaultOrEmpty)
             throw new ArgumentException($"The overlay of {animation.Name} covers nothing.", nameof(covers));
         if (Ensure.NotNull(pictures).Count == 0)

@@ -35,8 +35,6 @@ internal sealed class CrocomireFight
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Updates boss completion and room-state flags.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
-    private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
@@ -52,7 +50,6 @@ internal sealed class CrocomireFight
         _collision = dependencies.Collision;
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
         _roomStatus = dependencies.RoomStatus;
-        _bodyLayer = dependencies.BodyLayer;
         _access = dependencies.Access;
     }
 

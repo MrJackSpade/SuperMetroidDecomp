@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 
@@ -24,7 +23,6 @@ internal static class EndingPostCreditsScrollVerification
     internal static void VerifyEndingPostCreditsScroll()
     {
         EndingCreditsState ending = CreateRetailEndingFixture(new AudioQueues(), gameTimeHours: 2, gameTimeMinutes: 0);
-        var installation = RepositoryInstallation.Installation;
 
         // The post-shot is reached only after the reward has shown the producer panel and replaced it with the
         // copyright, which the white flash then clears; the production steps write that page before the shot begins.

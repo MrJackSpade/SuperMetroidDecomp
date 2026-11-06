@@ -17,9 +17,11 @@ internal sealed class BossBodyParts
     /// <summary>The body as it stands, until a part shows another frame or the body is cleared or hidden.</summary>
     private BossBodyLayer? published;
 
-    /// <summary>A body no part shows a frame on yet, shown from the start unless <paramref name="shown"/> is false.</summary>
-    /// <param name="shown">Whether the room shows the body from the start; Mother Brain's shows only once her second phase begins.</param>
-    public BossBodyParts(bool shown = true) => IsShown = shown;
+    /// <summary>A body no part shows a frame on yet, which the room shows from the start.</summary>
+    public BossBodyParts() => IsShown = true;
+
+    /// <summary>A body no part shows a frame on yet, which the room shows only once it is revealed, as Mother Brain's second phase begins.</summary>
+    public static BossBodyParts Hidden() => new() { IsShown = false };
 
     /// <summary>Whether the room shows the body: false only while Mother Brain readies hers before her second phase (#1356).</summary>
     public bool IsShown { get; private set; }

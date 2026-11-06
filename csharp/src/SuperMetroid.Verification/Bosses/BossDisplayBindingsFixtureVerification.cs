@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -12,7 +11,6 @@ using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Builds a RAM-only boss actor fixture for queued OAM checks.</summary>

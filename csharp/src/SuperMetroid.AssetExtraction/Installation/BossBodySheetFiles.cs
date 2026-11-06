@@ -102,15 +102,14 @@ public static class BossBodySheetFiles
     }
 
     /// <summary>The manifest entry of <paramref name="rectangle"/>.</summary>
-    private static AreaDocument Area(BossBodyRectangle rectangle) => new(rectangle.Left, rectangle.Top, rectangle.Size.X, rectangle.Size.Y);
+    private static AreaDocument Area(BossBodyRectangle rectangle) => new(rectangle.Corner, rectangle.Size);
 
     /// <summary>The rectangles <paramref name="documents"/> name.</summary>
     /// <exception cref="InvalidDataException">A rectangle is missing, empty or lies off the body.</exception>
     private static ImmutableArray<BossBodyRectangle> Rectangles(AreaDocument?[] documents, string manifestPath) =>
-        [.. documents.Select(document => document is { Width: > 0, Height: > 0 } area
-                && area.X is >= 0 and <= ushort.MaxValue && area.Y is >= 0 and <= ushort.MaxValue
-                && area.X + area.Width <= ushort.MaxValue && area.Y + area.Height <= ushort.MaxValue
-            ? BossBodyRectangle.Between(area.X, area.Y, area.X + area.Width, area.Y + area.Height)
+        [.. documents.Select(document => document is { Corner: { } corner, Size: { X: > 0, Y: > 0 } size }
+                && corner.X + size.X <= ushort.MaxValue && corner.Y + size.Y <= ushort.MaxValue
+            ? new BossBodyRectangle(corner, size)
             : throw new InvalidDataException($"Boss body manifest {manifestPath} has a rectangle that is missing, empty or off the body."))];
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
@@ -137,11 +136,9 @@ public static class BossBodySheetFiles
     private sealed record OverlayDocument(string? Animation, Position16<BackgroundPixels>? Corner, AreaDocument?[]? Covers, Dictionary<string, string>? Pictures);
 
     /// <summary>A rectangle of the body.</summary>
-    /// <param name="X">The column of its left edge.</param>
-    /// <param name="Y">The row of its top edge.</param>
-    /// <param name="Width">Its width in pixels.</param>
-    /// <param name="Height">Its height in pixels.</param>
-    private sealed record AreaDocument(int X, int Y, int Width, int Height);
+    /// <param name="Corner">The body pixel of its top-left corner.</param>
+    /// <param name="Size">Its width and height in body pixels.</param>
+    private sealed record AreaDocument(Position16<BackgroundPixels>? Corner, Extent16<BackgroundPixels>? Size);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

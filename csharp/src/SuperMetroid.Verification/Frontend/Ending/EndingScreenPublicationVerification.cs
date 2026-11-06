@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Rendering;

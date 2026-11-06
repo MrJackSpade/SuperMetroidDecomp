@@ -123,7 +123,7 @@ internal static class MotherBrainRoomColorsVerification
     /// </summary>
     private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies)
     {
-        enemies.Presentation.AttachBossBody(new BossBodyParts(shown: false));
+        enemies.Presentation.AttachBossBody(BossBodyParts.Hidden());
         return new(enemies.SlotTable.Slots[0]);
     }
 

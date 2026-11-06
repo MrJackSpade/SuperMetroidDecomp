@@ -201,7 +201,7 @@ internal sealed class KraidLimbs
             ? foot.Properties.Without(EnemyProperties.Invisible)
             : foot.Properties.With(EnemyProperties.Invisible);
 
-        KraidPartState part = state.Parts[foot.SlotIndex];
+        KraidPartState part = state.Parts[_parts.Foot.SlotIndex];
         switch (state.Parts[foot.SlotIndex].Function)
         {
             case KraidAiFunction.NoOperation:

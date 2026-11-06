@@ -28,7 +28,7 @@ internal sealed class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;
-    /// <summary>Captures the foreground and the background scroll registers visible with the frame boundary.</summary>
+    /// <summary>Captures the foreground's and the background's scrolls visible with the frame boundary.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains the frame-boundary display latch.</summary>
     private readonly GameplayDisplayState _display;

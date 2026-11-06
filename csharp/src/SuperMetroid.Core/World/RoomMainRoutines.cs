@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class RoomMainRoutines
 {
-    /// <summary>The foreground scroll registers adjusted during Crocomire's hidden-wall rumble.</summary>
+    /// <summary>The layer scrolls adjusted during Crocomire's hidden-wall rumble.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Samus state consulted for X-ray animation suspension.</summary>
     private readonly SamusFrameState _player;

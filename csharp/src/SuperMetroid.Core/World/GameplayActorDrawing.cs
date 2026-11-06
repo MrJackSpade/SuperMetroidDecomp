@@ -399,7 +399,7 @@ internal sealed class GameplayActorDrawing
             // run, so the body must use the same final camera as the appendage sprites above.
             // Placing it during enemy AI instead detaches the torso whenever scrolling
             // changes the camera between AI and drawing (especially during a grab). The
-            // placement is Draygon's own published body position (#1354), not the background's registers.
+            // placement is Draygon's own published body position (#1354), not the background's scroll.
             draygon.BodyLayerPlacement = new Position16<BackgroundPixels>(
                 CoordinateAxis.Wrap(draygon.BodyGraphicsDisplacement.X + _room.Camera.PixelPosition.X -
                     draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin),

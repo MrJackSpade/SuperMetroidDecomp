@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class BackgroundScrollPhase
 {
-    /// <summary>Scroll-register owner driven by the camera.</summary>
+    /// <summary>Layer scroll owner driven by the camera.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Active room camera and door mode.</summary>
     private readonly ActiveRoomState _room;

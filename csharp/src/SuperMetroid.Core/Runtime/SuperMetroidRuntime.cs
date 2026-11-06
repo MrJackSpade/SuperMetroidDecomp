@@ -839,7 +839,7 @@ internal sealed class SuperMetroidRuntime
             Room.LoadedScope.Enemies.RoomMainHooks.RunSporeSpawnScrollingFinishedHook(camera);
             camera.FinishSamusScrolling(currentCameraPoint);
 
-            // The scroll registers follow the camera in the same main-loop pass, so the
+            // The layer scrolls follow the camera in the same main-loop pass, so the
             // following frame shows the room from level data at the new position.
             BackgroundPhase.UpdateBackgroundScrollingFromCamera(Freeze.TimeIsFrozen);
 

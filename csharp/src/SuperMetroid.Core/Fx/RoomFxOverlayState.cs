@@ -139,7 +139,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
     public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
 
-    /// <summary>Live effect overlay scroll-register shadows (the effect overlay's scroll).</summary>
+    /// <summary>The effect overlay's live scroll.</summary>
     public Position16<OverlayPixels> Scroll { get; private set; }
 
     /// <summary>Whether the translated effect supplies a gameplay-region effect overlay plane.</summary>

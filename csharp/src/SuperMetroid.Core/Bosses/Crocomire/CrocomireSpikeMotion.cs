@@ -8,9 +8,9 @@ internal static class CrocomireSpikeMotion
 
     /// <summary>The maximum acceleration of <paramref name="slot"/>, in 1/65536 pixels/frame squared.</summary>
     internal static int MaximumAcceleration(int slot) =>
-        WordWrap.Unsigned(AccelerationDelta(slot) << CrocomireSpikeMotionDefinitions.MaximumAccelerationShift);
+        AccelerationDelta(slot) << CrocomireSpikeMotionDefinitions.MaximumAccelerationShift;
 
-    /// <summary>The maximum velocity low-byte view of <paramref name="slot"/>.</summary>
+    /// <summary>The fastest whole-pixel horizontal speed of <paramref name="slot"/>, in pixels per frame.</summary>
     internal static int MaximumVelocity(int slot) => CrocomireSpikeMotionDefinitions.MaximumVelocities[ValidateSlot(slot)];
 
     /// <summary>Rejects positions outside the eighteen physical spike slots shared by the motion tables.</summary>

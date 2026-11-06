@@ -18,7 +18,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// Issue1165 retains this order as the narrow nonsense exception: replacing the
     /// chosen destruction choreography with an invented shuffle would change the effect.
     /// </remarks>
-    private static ReadOnlySpan<byte> AuthoredCrumbleColumnOrder => [8, 3, 9, 4, 11, 6, 10, 7, 1, 5, 2];
+    private static ReadOnlySpan<int> AuthoredCrumbleColumnOrder => [8, 3, 9, 4, 11, 6, 10, 7, 1, 5, 2];
 
     /// <summary>The eleven floor columns begin at X1808 with16-pixel spacing.</summary>
     private const int FirstColumnX = 1808;

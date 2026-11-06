@@ -44,7 +44,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             "Draygon burial Evir entry past table");
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // Draygon dies on a white hurt frame here, so his burial Evirs, which draw in his own row, spawn in the flash.
         var draygon = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
         draygon.Colours.ShowHurt(true);

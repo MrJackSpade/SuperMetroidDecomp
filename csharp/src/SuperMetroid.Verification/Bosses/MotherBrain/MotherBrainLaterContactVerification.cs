@@ -20,7 +20,7 @@ internal static class MotherBrainLaterContactVerification
     internal static int VerifyMotherBrainLaterContact()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         body.Bind(body.DefinitionId, RoomEnemyHeaders.Get(body.DefinitionId));
@@ -47,7 +47,7 @@ internal static class MotherBrainLaterContactVerification
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
             AssertEqual(4, samus.Kinematics.ExtraDisplacement.Y.WholePixels, $"{contact} vertical displacement");
             AssertEqual((ushort)96, samus.InvincibilityTimer.RawValue, "Native contact invincibility timer");
-            AssertEqual((ushort)5, samus.KnockbackTimer.RawValue, "Native contact knockback timer");
+            AssertEqual((ushort)5, samus.KnockbackTimer, "Native contact knockback timer");
         }
         // Isolate the actual body callback in the ordinary radius collision pass.
         // Shot blocking is native behavior and must remain a dud, not body damage.

@@ -48,7 +48,7 @@ internal sealed class TorizoCombat
             // a guarded path, which accepts common damage only outside the active flash and while
             // `toriz_var_04` is zero. This transitional callback never arms the later
             // counterattack bits or captures a projectile family.
-            if (isBombTorizo || !torizo.FlashTimer.IsZero || state.AnimationLocked)
+            if (isBombTorizo || torizo.FlashTimer != 0 || state.AnimationLocked)
                 return;
 
             _collision.ApplyCommonNormalBombDamage(torizo, bomb, runGenericDeath: false);
@@ -69,7 +69,7 @@ internal sealed class TorizoCombat
         // Both normal callbacks return during the hurt flash. Bomb Torizo also uses its
         // awakening guard as a hard rejection; Golden's nonzero guard deliberately falls
         // through to common damage instead.
-        if (!torizo.FlashTimer.IsZero || isBombTorizo && state.AnimationLocked)
+        if (torizo.FlashTimer != 0 || isBombTorizo && state.AnimationLocked)
             return;
 
         if (isGoldenTorizo && !state.AnimationLocked)
@@ -103,7 +103,7 @@ internal sealed class TorizoCombat
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
-        if (!torizo.FlashTimer.IsInAlternatePhase(1))
+        if (torizo.FlashTimer % 2 == 0)
         {
             if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
                 LoadGoldenTorizoHealthPalette(torizo, state, torizo.Health);
@@ -207,13 +207,13 @@ internal sealed class TorizoCombat
             // no-death shot damage only while both the flash timer and `toriz_var_04` are zero. Crucially it
             // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and parameter-two
             // counterattack bits are not armed through these transitional body rectangles.
-            if (isBombTorizo || !enemy.FlashTimer.IsZero || torizoState.AnimationLocked)
+            if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
             {
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                 return true;
             }
         }
-        if (!enemy.FlashTimer.IsZero || isBombTorizo && torizoState.AnimationLocked)
+        if (enemy.FlashTimer != 0 || isBombTorizo && torizoState.AnimationLocked)
         {
             // Both callbacks return during a damage flash. Bomb Torizo also rejects shots while its awakening guard
             // is set; Golden Torizo's nonzero guard instead routes through common damage below.

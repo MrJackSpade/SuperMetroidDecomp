@@ -44,7 +44,7 @@ public static class SamusKnockbackMovement
         // Requires a live producer timer, unfrozen time, and zero in the
         // installed direction word. A nonzero direction means a previous request already
         // owns the special movement handler; it must finish instead of being restarted.
-        if (samus.KnockbackTimer.IsZero ||
+        if (samus.KnockbackTimer == 0 ||
             timeIsFrozen ||
             samus.KnockbackDirection != SamusKnockbackDirection.None ||
             samus.KnockbackActive)
@@ -76,7 +76,7 @@ public static class SamusKnockbackMovement
         Ensure.NotNull(launch);
         if (!Enum.IsDefined(launch.KnockbackXDirection))
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackXDirection));
-        if (launch.KnockbackTimer.IsZero)
+        if (launch.KnockbackTimer == 0)
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackTimer));
         if (samus.KnockbackActive || samus.KnockbackDirection != SamusKnockbackDirection.None)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
@@ -354,7 +354,7 @@ level, targetPose, frameCounter, plms))
     public static bool IsExpiredHitInterruptionPending(SamusState samus)
     {
         Ensure.NotNull(samus);
-        return samus.KnockbackTimer.IsZero && samus.KnockbackDirection != SamusKnockbackDirection.None;
+        return samus.KnockbackTimer == 0 && samus.KnockbackDirection != SamusKnockbackDirection.None;
     }
 
     /// <summary>

@@ -46,7 +46,7 @@ internal static class IntroEyeInstructionsVerification
             objects.Step(0);
             native.Step();
             string at = $"intro eye {phase} update {update}";
-            AssertEqual(native.Timer, objects.EyeFrameHold.RawValue, $"{at}: countdown");
+            AssertEqual(native.Timer, objects.EyeFrameHold, $"{at}: countdown");
             AssertEqual<IntroEyeFrame?>(frames[native.Frame], objects.EyeFrame, $"{at}: portrait eye frame");
         }
     }

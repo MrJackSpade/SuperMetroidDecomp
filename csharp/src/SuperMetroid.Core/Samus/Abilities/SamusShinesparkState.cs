@@ -47,7 +47,7 @@ public sealed class SamusShinesparkState
     public SamusSpecialPaletteType PaletteType { get; private set; }
 
     /// <summary>The special-palette timer: 180 stored, 60 windup, and 15 during active motion.</summary>
-    public WrappingCountdown ShineTimer { get; private set; }
+    public int ShineTimer { get; private set; }
 
     /// <summary>
     /// The next step of the shine colour cycle, below the stored-shine list's six steps for the stored shine and below the
@@ -56,7 +56,7 @@ public sealed class SamusShinesparkState
     public int PaletteStep { get; private set; }
 
     /// <summary>The shared 30-frame windup/crash countdown.</summary>
-    public WrappingCountdown StartStopTimer { get; internal set; }
+    public int StartStopTimer { get; internal set; }
 
     /// <summary>
     /// The upward spark's 16.16 acceleration in pixels per frame per frame: 7.0 when windup begins, raised by
@@ -103,7 +103,7 @@ public sealed class SamusShinesparkState
     internal void RelinquishToCrystalFlash()
     {
         Phase = ShinesparkPhase.Inactive;
-        ShineTimer = WrappingCountdown.Start(0);
+        ShineTimer = 0;
         PaletteType = SamusSpecialPaletteType.None;
         PaletteStep = 0;
     }
@@ -229,7 +229,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     internal void RelinquishPaletteToXray()
     {
-        ShineTimer = WrappingCountdown.Start(0);
+        ShineTimer = 0;
         PaletteType = SamusSpecialPaletteType.None;
         PaletteStep = 0;
         if (Phase == ShinesparkPhase.Stored)
@@ -257,7 +257,7 @@ public sealed class SamusShinesparkState
         if (!speedBoostCounter.IsAtFullStage)
             return false;
 
-        ShineTimer = WrappingCountdown.Start(180);
+        ShineTimer = 180;
         PaletteType = SamusSpecialPaletteType.SpeedBoosterShine;
         PaletteStep = 0;
         Phase = ShinesparkPhase.Stored;
@@ -325,8 +325,8 @@ public sealed class SamusShinesparkState
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
         VerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
-        StartStopTimer = WrappingCountdown.Start(30);
-        ShineTimer = WrappingCountdown.Start(60);
+        StartStopTimer = 30;
+        ShineTimer = 60;
         PaletteType = SamusSpecialPaletteType.Shinesparking;
         PaletteStep = 0;
         Phase = ShinesparkPhase.Windup;
@@ -623,9 +623,7 @@ public sealed class SamusShinesparkState
         if (Phase == ShinesparkPhase.Windup)
         {
             // The windup countdown: exact zero and signed underflow both launch up.
-            CountdownStep timer = StartStopTimer.Decrement();
-            StartStopTimer = timer.Remaining;
-            bool timedOut = timer.IsZeroOrNegative;
+            bool timedOut = --StartStopTimer <= 0;
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
@@ -718,15 +716,13 @@ false);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
 
-        if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer.IsAt(170))
+        if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer == 170)
         {
             StoredShineWarningSoundRequested = true;
             StoredShineWarningSoundSuppressed = _audioPowerBomb?.IsActive == true;
         }
 
-        CountdownStep timer = ShineTimer.Decrement();
-        ShineTimer = timer.Remaining;
-        bool expired = timer.IsZeroOrNegative;
+        bool expired = --ShineTimer <= 0;
         if (expired)
         {
             PaletteType = SamusSpecialPaletteType.None;
@@ -802,7 +798,7 @@ false);
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
-        ShineTimer = WrappingCountdown.Start(15);
+        ShineTimer = 15;
         switch (CrashOrbitStage)
         {
             case ShinesparkCrashOrbitStage.Expanding:
@@ -832,7 +828,7 @@ false);
                 if (CrashRadius == 0)
                 {
                     Phase = ShinesparkPhase.CrashEchoCircle;
-                    StartStopTimer = WrappingCountdown.Start(30);
+                    StartStopTimer = 30;
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
                     FirstCrashEchoAngle = RotationAngle.Zero;
                     SecondCrashEchoAngle = RotationAngle.Zero;
@@ -861,10 +857,8 @@ false);
     /// <summary>Runs the 30-frame center echo hold.</summary>
     private ShinesparkMovementResult StepCrashEchoCircle()
     {
-        ShineTimer = WrappingCountdown.Start(15);
-        CountdownStep timer = StartStopTimer.Decrement();
-        StartStopTimer = timer.Remaining;
-        if (timer.IsZeroOrNegative)
+        ShineTimer = 15;
+        if (--StartStopTimer <= 0)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
 false);
@@ -900,7 +894,7 @@ false);
             projectiles?.Shinespark.InitializeShinesparkEcho(4, departureAngles.Second);
         }
 
-        ShineTimer = WrappingCountdown.Start(1);
+        ShineTimer = 1;
         VerticalAcceleration = SignedSixteenSixteen.Zero;
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
@@ -1043,7 +1037,7 @@ false,             CrashSequenceFinished: true);
         SamusState samus,
         ISamusRoomPlms? plms)
     {
-        ShineTimer = WrappingCountdown.Start(15);
+        ShineTimer = 15;
         uint accelerated = unchecked(SixteenSixteen.Compose(
             samus.HorizontalSpeed.ExtraRunSpeed.Whole,
             samus.HorizontalSpeed.ExtraRunSpeed.Fraction) + SixteenSixteen.Compose(
@@ -1067,7 +1061,7 @@ false,             CrashSequenceFinished: true);
         int frameCounter,
         ISamusRoomPlms? plms)
     {
-        ShineTimer = WrappingCountdown.Start(15);
+        ShineTimer = 15;
         VerticalAcceleration += SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteen.Compose(
             samus.Kinematics.YAcceleration.Whole,
             samus.Kinematics.YAcceleration.Fraction)));

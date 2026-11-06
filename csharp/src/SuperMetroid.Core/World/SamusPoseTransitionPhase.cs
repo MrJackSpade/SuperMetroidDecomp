@@ -50,7 +50,7 @@ internal sealed class SamusPoseTransitionPhase
         // Hit interruption observes the old movement type before UpdateSamusPose.
         // Its carry-clear bomb rejection still occurs when an animation transition
         // wins pose selection; otherwise a stale request survives unmorph/morph.
-        if (samus.KnockbackTimer.IsZero && samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None)
+        if (samus.KnockbackTimer == 0 && samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None)
             SamusPoseMetadata.RejectUnsupportedPublishedBombJump(samus, _freeze.TimeIsFrozen);
 
         // Command $F8's command-three “super-special” transition wins at this seam.
@@ -208,7 +208,7 @@ internal sealed class SamusPoseTransitionPhase
         // expiry owns this frame even after clearing those words. This permits
         // a later bomb launch to retain the damaged pose, with input locked by
         // special command three rather than an early speculative pose change.
-        if (!animationTransitionApplied && samus.KnockbackTimer.IsZero &&
+        if (!animationTransitionApplied && samus.KnockbackTimer == 0 &&
             samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None &&
             SamusPoseMetadata.TrySetupPublishedBombJump(samus, 
 

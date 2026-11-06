@@ -36,7 +36,7 @@ internal sealed class CrocomireCombat
     /// <summary>Ports Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtPalette(RoomEnemySlot body)
     {
-        bool white = !body.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0;
+        bool white = body.FlashTimer != 0 && (_frameContext.RandomEnemyCounter & 2) != 0;
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
         (_access.Crocomire ?? throw new InvalidOperationException("Crocomire's hurt flash runs once Crocomire is loaded."))
             .Colours.ShowBody(white);
@@ -185,7 +185,7 @@ internal sealed class CrocomireCombat
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile)
     {
-        body.InvincibilityTimer = WrappingCountdown.Start(0);
+        body.InvincibilityTimer = 0;
 
         // The off-screen branch bypasses projectile-family selection and still publishes
         // the pending-hit state. This wrapped signed comparison is the game's exact
@@ -234,7 +234,7 @@ internal sealed class CrocomireCombat
             state.ReactionTimer = 10;
         }
 
-        body.FlashTimer = body.FlashTimer.AddFrames(14);
+        body.FlashTimer += 14;
         body.AiStates |= EnemyAiStates.Hurt;
     }
 
@@ -264,7 +264,7 @@ internal sealed class CrocomireCombat
         state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
             CrocomireFightFlags.Engaged;
         state.ReactionTimer = 10;
-        body.FlashTimer = body.FlashTimer.AddFrames(4);
+        body.FlashTimer += 4;
         body.AiStates |= EnemyAiStates.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 

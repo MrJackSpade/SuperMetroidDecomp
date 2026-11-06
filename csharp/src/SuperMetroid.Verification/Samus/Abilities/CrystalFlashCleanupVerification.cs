@@ -126,7 +126,7 @@ internal static class CrystalFlashCleanupVerification
                 AssertTrue(contactDamage > 0, "constructed contact actor has nonzero retail damage");
                 AssertEqual(expected, samus.Health, "enemy contact damages Crystal Flash before its energy refill");
                 AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash clears immunity after actual contact");
-                AssertEqual(0, samus.KnockbackTimer.RawValue, "Crystal Flash suppresses the contact knockback request");
+                AssertEqual(0, samus.KnockbackTimer, "Crystal Flash suppresses the contact knockback request");
                 AssertTrue(!samus.KnockbackActive, "contact does not install ordinary knockback during ammo drain");
                 (contactEnemy ?? throw new InvalidOperationException("Verification requires contactEnemy.")).Position = contactEnemy.Position.WithWholeX(unchecked((ushort)(contactEnemy.Position.X.Whole + (128))));
                 contactVerified = true;

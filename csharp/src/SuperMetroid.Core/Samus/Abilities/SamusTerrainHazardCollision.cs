@@ -103,7 +103,7 @@ public static class SamusTerrainHazardCollision
     {
         samus.LiquidPhysics.AccumulatePeriodicDamage(subDamage: 0, wholeDamage);
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
-        samus.KnockbackTimer = WrappingCountdown.Start(SpikeHazardDefinitions.KnockbackFrames);
+        samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
 
         // The game's facing test maps right-facing records to leftward knockback and both
         // left/front-special records to the other direction. A switch over the proven pose discriminator states that intent.

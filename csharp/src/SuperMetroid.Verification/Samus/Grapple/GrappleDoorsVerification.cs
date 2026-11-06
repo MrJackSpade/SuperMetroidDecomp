@@ -36,7 +36,7 @@ internal static class GrappleDoorsVerification
                     ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension);
                 bts[origin + offset * stride] = RoomBlockBehavior.OfExtensionOffset(-offset);
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {

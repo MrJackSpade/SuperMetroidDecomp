@@ -14,7 +14,7 @@ internal static class ReportedShaftMomentumVerification
     /// <remarks>#1158: native $90:906C accepts carry from the speed calculation in a left spin pose and mode two, even with a neutral controller.</remarks>
     internal static void VerifyReportedShaftMomentum()
     {
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32], new RoomBlockAppearance[32 * 32]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32], new RoomBlockAppearance[32 * 32]), RoomLevelData.NothingBeyondGrid());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.SpinJumpLeftPose,

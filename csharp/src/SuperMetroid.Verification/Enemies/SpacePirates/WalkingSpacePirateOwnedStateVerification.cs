@@ -13,7 +13,7 @@ internal static class WalkingSpacePirateOwnedStateVerification
     /// </summary>
     internal static void VerifyWalkingSpacePirateOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

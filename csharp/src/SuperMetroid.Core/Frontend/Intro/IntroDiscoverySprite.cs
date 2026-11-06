@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroDiscoverySprite
 {
     /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
-    private WrappingCountdown frameHold = WrappingCountdown.Start(1);
+    private int frameHold = 1;
 
     /// <summary>Creates an actor at a whole-pixel origin with the drawn shade of the colouring it starts drawing in (#1512) and its program.</summary>
     public IntroDiscoverySprite(
@@ -83,7 +83,7 @@ internal sealed class IntroDiscoverySprite
     public void Start(CinematicSpriteProgram program)
     {
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
-        frameHold = WrappingCountdown.Start(1);
+        frameHold = 1;
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ internal sealed class IntroDiscoverySprite
     {
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A frame hold must be nonzero.");
-        frameHold = WrappingCountdown.Start(frames);
+        frameHold = Ensure.BetweenInclusive(0, ushort.MaxValue, frames);
     }
 
     /// <summary>Installs the pre-instruction the actor's owner selects, or none.</summary>
@@ -128,8 +128,7 @@ internal sealed class IntroDiscoverySprite
         if (!IsActive)
             return;
 
-        frameHold = frameHold.Decrement().Remaining;
-        if (!frameHold.IsZero)
+        if (--frameHold != 0)
             return;
 
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
@@ -149,7 +148,7 @@ internal sealed class IntroDiscoverySprite
         switch (advance)
         {
             case AnimationProgramAdvance<CinematicSpritePose>.Show shown:
-                frameHold = WrappingCountdown.FromRaw(shown.Duration);
+                frameHold = shown.Duration;
                 Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CinematicSpritePose>.Hold:

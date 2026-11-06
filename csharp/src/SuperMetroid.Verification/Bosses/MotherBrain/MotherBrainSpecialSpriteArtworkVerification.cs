@@ -114,7 +114,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static void VerifyMotherBrainLegLoadPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
             (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
         var shownSteps = new List<int>();
@@ -168,7 +168,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         EscapeTimerCharacters timer = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, 
         };
@@ -219,7 +219,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static SnesVram ShowMotherBrainSpecialPages(
         InstalledEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
             (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
         MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, sheet.PageCount).Select(page => MotherBrainSpritePage.Of(sheet.Sheet, page))];

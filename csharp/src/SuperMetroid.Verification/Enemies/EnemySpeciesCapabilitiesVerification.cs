@@ -163,7 +163,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             EnemyReaction.CrocomireMouthShot, EnemyReaction.CrocomireAlternateDustHitboxShot,
         ];
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
         int bound = 0;
         int answers = 0;

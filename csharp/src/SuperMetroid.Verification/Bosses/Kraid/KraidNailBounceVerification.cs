@@ -15,8 +15,8 @@ internal static class KraidNailBounceVerification
     internal static void VerifyKraidNailBounce()
     {
         var terrain = new RoomTerrainBlock[32 * 32];
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], new RoomBlockAppearance[terrain.Length]));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], new RoomBlockAppearance[terrain.Length]), RoomLevelData.NothingBeyondGrid());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         Action<RoomEnemySlot, RoomLevelData> tick = enemies.KraidBehavior.Projectiles.TickKraidNailFlight;
@@ -34,7 +34,7 @@ internal static class KraidNailBounceVerification
         }
         var wallTerrain = new RoomTerrainBlock[32 * 32];
         for (int row = 0; row < 32; row++) wallTerrain[row * 32 + 9] = Solid;
-        var wallRoom = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(wallTerrain, new RoomBlockBehavior[wallTerrain.Length], new RoomBlockAppearance[wallTerrain.Length]));
+        var wallRoom = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(wallTerrain, new RoomBlockBehavior[wallTerrain.Length], new RoomBlockAppearance[wallTerrain.Length]), RoomLevelData.NothingBeyondGrid());
         // A wall hit must skip the contour lookup entirely, not bounce twice.
         for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
         {

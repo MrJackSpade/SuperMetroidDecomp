@@ -124,16 +124,16 @@ internal sealed class MotherBrainCombat
         // The flash step deliberately alternates odd/even flash parity when a second hit
         // arrives during the existing flash. The common no-death damage helper then owns
         // health, hurt-AI, and the final authored hurt duration.
-        head.FlashTimer = WrappingCountdown.FromRaw(!head.FlashTimer.IsZero && head.FlashTimer.IsInAlternatePhase(1)
+        head.FlashTimer = head.FlashTimer != 0 && (head.FlashTimer % 2 != 0)
             ? 14
-            : 13);
+            : 13;
 
         EnemyWeaponVulnerability vulnerability = EnemyCollision.ReadProjectileVulnerability(head, projectileType);
         if (vulnerability.FreezesWithoutDamage)
         {
-            head.FrozenTimer = WrappingCountdown.Start(400);
+            head.FrozenTimer = 400;
             head.AiStates = head.AiStates | EnemyAiStates.Frozen;
-            head.InvincibilityTimer = WrappingCountdown.Start(10);
+            head.InvincibilityTimer = 10;
             return;
         }
 
@@ -144,7 +144,7 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        head.FlashTimer = WrappingCountdown.Start(head.HurtFlashFrames + 8);
+        head.FlashTimer = head.HurtFlashFrames + 8;
         head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         head.Health = damage >= head.Health
             ? 0
@@ -215,9 +215,9 @@ internal sealed class MotherBrainCombat
         EnemyCollision.NormalShotVulnerability vulnerability = EnemyCollision.ReadNormalShotVulnerability(head, projectileType);
         if (vulnerability.FreezeImmediately)
         {
-            head.FrozenTimer = WrappingCountdown.Start(400);
+            head.FrozenTimer = 400;
             head.AiStates = head.AiStates | EnemyAiStates.Frozen;
-            head.InvincibilityTimer = WrappingCountdown.Start(10);
+            head.InvincibilityTimer = 10;
             return;
         }
 
@@ -228,12 +228,12 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        head.FlashTimer = WrappingCountdown.Start(head.HurtFlashFrames + 8);
+        head.FlashTimer = head.HurtFlashFrames + 8;
         head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         // The shared no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.
         if (projectileType.BeamCombination.HasPlasma)
-            head.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
+            head.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
         head.Health = damage >= head.Health
             ? 0
             : head.Health - damage;
@@ -283,9 +283,9 @@ internal sealed class MotherBrainCombat
                 // cadence; every other movement type returns without changing either actor.
                 RoomEnemySlot slot = context.Slot;
                 if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
-                    slot.FlashTimer = WrappingCountdown.FromRaw(!slot.FlashTimer.IsZero && slot.FlashTimer.IsInAlternatePhase(1)
+                    slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer % 2 != 0)
                         ? 14
-                        : 13);
+                        : 13;
             });
     }
 

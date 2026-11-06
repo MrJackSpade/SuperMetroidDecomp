@@ -27,7 +27,7 @@ internal sealed class KraidRoomPlms(PlmSlotTable slotTable)
         slot.Header = plm;
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new KraidRoomPlmAnimation(program));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
 
         // The deactivating setup keeps a solid block solid and turns every other block to air.
         level.SetTerrain(blockIndex, level.GetCollisionBlockByIndex(blockIndex).Terrain.Deactivated());

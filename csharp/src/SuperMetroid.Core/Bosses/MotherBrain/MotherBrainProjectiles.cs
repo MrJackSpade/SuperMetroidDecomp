@@ -637,7 +637,7 @@ internal sealed class MotherBrainProjectiles
                 ? 0
                 : samus.Health - damage;
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
-            samus.KnockbackTimer = WrappingCountdown.Start(5);
+            samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0
                 ? KnockbackHorizontalDirection.Right
                 : KnockbackHorizontalDirection.Left;

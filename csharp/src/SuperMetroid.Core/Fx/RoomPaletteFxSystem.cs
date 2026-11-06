@@ -205,10 +205,9 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             if (slot.Object is null)
                 continue;
 
-            // The timer decrements before comparing with one. Unsigned underflow is
-            // intentional game behavior for malformed or externally edited state.
-            slot.FrameHold = slot.FrameHold.Decrement().Remaining;
-            if (!slot.FrameHold.IsZero)
+            // The timer decrements before comparing with one; every colour record lasts at least one update and a
+            // spawned or redirected object starts at one, so a running object's timer never steps from zero.
+            if (--slot.FrameHold != 0)
                 continue;
 
             ExecuteProgram(slot, show);
@@ -241,7 +240,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         slot.Target = null;
         slot.FrameBehavior = PaletteFxFrameBehavior.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         slot.Timer = WrappingCountdown.Start(0);
 
         PaletteFxSetup setup = compiled.SetupCallback;
@@ -297,7 +296,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.FrameHold = WrappingCountdown.Start(1);
+                    slot.FrameHold = 1;
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.Crateria11);
                 }
                 return;
@@ -306,7 +305,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.FrameHold = WrappingCountdown.Start(1);
+                    slot.FrameHold = 1;
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaAboveY380Second);
                 }
                 return;
@@ -372,7 +371,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             return;
 
         _session.PreviousSamusInHeatPaletteIndex = _session.SamusInHeatPaletteIndex;
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxHeatPrograms.Phase(
             PaletteFxHeatPrograms.SuitFor(equippedItems),
             _session.SamusInHeatPaletteIndex));
@@ -394,7 +393,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         switch (advance)
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
+                slot.FrameHold = shown.Duration;
                 show(slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:
@@ -526,7 +525,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         /// <summary>Where this object's typed program resumes.</summary>
         public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
         /// <summary>Frames remaining before this object's next bytecode step.</summary>
-        public WrappingCountdown FrameHold { get; set; }
+        public int FrameHold { get; set; }
         /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
         public WrappingCountdown Timer { get; set; }
 
@@ -537,7 +536,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             Target = null;
             FrameBehavior = null;
             Cursor = default;
-            FrameHold = WrappingCountdown.Start(0);
+            FrameHold = 0;
             Timer = WrappingCountdown.Start(0);
         }
     }

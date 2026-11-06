@@ -65,7 +65,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
     private static SnesVram TransferMotherBrainEscapeTextPages(
         InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
             (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
         MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, EscapeTextArtworkDefinitions.PageCount)

@@ -21,7 +21,7 @@ internal static class SparkTimerVerification
         AssertTrue(!SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at zero does not expire");
         AssertEqual(-1, state.FunctionTimer, "a countdown at zero steps below zero");
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         state.Function = SparkEnemyFunction.AlwaysActive;
         state.BaseFunctionTime = 0x8000;

@@ -32,7 +32,7 @@ internal static class HopperHopArcVerification
                      new VerifyHopperHopArcRecordCase(true, 62, 4, 64, true),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Sidehopper, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(64, 48));

@@ -30,7 +30,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes(
                 [RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
                 [new RoomBlockBehavior(behavior)],
-                [RoomBlockAppearance.Of(0, BlockMirroring.None)]));
+                [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid());
             var plms = PlmFixtures.Unbound();
             var terrain = new EnemyTerrain();
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(0);

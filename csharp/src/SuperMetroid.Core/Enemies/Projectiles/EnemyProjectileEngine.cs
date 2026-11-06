@@ -295,7 +295,7 @@ internal sealed class EnemyProjectileEngine
         if (finalKnockbackXDirection.HasValue)
         {
             samus.KnockbackXDirection = finalKnockbackXDirection.Value;
-            samus.KnockbackTimer = WrappingCountdown.Start(5);
+            samus.KnockbackTimer = 5;
         }
     }
 

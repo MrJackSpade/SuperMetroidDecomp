@@ -127,7 +127,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Cycles the authored offsets for repeating small explosions.</summary>
     private int explosionOffsetIndex;
     /// <summary>Countdown carried between repeating explosion spawn calls; it fires on reaching zero or below.</summary>
-    private WrappingCountdown explosionRepeatCountdown;
+    private int explosionRepeatCountdown;
     /// <summary>Selects the turning floor or the planet-reveal page.</summary>
     private bool usesFloor = true;
     /// <summary>Whether the turning floor shows during the turning-floor scenes, or only the sprites do.</summary>
@@ -248,7 +248,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepSlowFadeIn();
                 if (brightness == 15)
                 {
-                    explosionRepeatCountdown = WrappingCountdown.Start(CeresExplosionDefinitions.RepeatingCountdownSeed);
+                    explosionRepeatCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
                     Phase = CeresDestructionPhase.ApproachExplosion;
                 }
                 break;

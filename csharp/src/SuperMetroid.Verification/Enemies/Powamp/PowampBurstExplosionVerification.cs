@@ -25,7 +25,7 @@ internal static class PowampBurstExplosionVerification
         AssertEqual(EnemyDeathExplosion.Small, ExplosionAfter(17), "a last spike in the pool's last place selects the small explosion");
         AssertEqual(EnemyDeathExplosion.Small, ExplosionAfter(null), "a burst that found the pool full selects the small explosion");
 
-        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyProjectileSlot[] pool = [.. enemies.Projectiles.EnemyProjectiles];
         // Occupy every place above the ninth and the first, so the eight spikes take the second through ninth places.
         foreach (RoomEnemyProjectileSlot occupied in pool.Where(slot => slot.SlotIndex is 0 or > 8))

@@ -80,7 +80,7 @@ internal static class FullBodyPalettePointerListsVerification
                 var speed = new SamusHorizontalSpeedState
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-                    SpecialPaletteTimer = WrappingCountdown.Start(1),
+                    SpecialPaletteTimer = 1,
                     CyclePaletteStep = phase,
                 };
                 var actual = new SamusColours();
@@ -140,7 +140,7 @@ internal static class FullBodyPalettePointerListsVerification
         var adjacentBoost = new SamusHorizontalSpeedState
         {
             SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-            SpecialPaletteTimer = WrappingCountdown.Start(1),
+            SpecialPaletteTimer = 1,
             CyclePaletteStep = 4,
         };
         var adjacentBoostColors = new SamusColours();

@@ -133,10 +133,10 @@ internal static class RunningCadenceVerification
         speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, true);
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "First running frame seeds native countdown");
         AssertEqual(0x1000, speed.ExtraRunSpeed.Fraction, "Cadence migration leaves run acceleration intact");
-        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0); speed.SpecialPaletteTimer = WrappingCountdown.Start(8); speed.CyclePaletteStep = 3;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0); speed.SpecialPaletteTimer = 8; speed.CyclePaletteStep = 3;
         speed.ReconcilePauseSpeedBoosterState(true);
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "Pause equipment reconciliation seeds native countdown");
-        AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "Pause reconciliation palette timer differs from initial run");
+        AssertEqual(0, speed.SpecialPaletteTimer, "Pause reconciliation palette timer differs from initial run");
         AssertEqual(0, speed.CyclePaletteStep, "Pause reconciliation palette frame reset");
         Console.WriteLine("Running cadence: six typed cadences and six restarts match the cartridge, the unauthored cadence reads the residue, and 10240 command/gate cases and 1536 queue reports pass.");
     }

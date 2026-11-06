@@ -359,7 +359,7 @@ internal static class ShotBlockPlmProgramsVerification
         ShotBlockPlmProgramsRenderResult Render(
             InstalledRoomPlmShotBlockVisuals visuals)
         {
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, SamusProjectileType.None, true),
                 "visual-only test allocates the production shot-block PLM");
@@ -413,7 +413,7 @@ internal static class ShotBlockPlmProgramsVerification
         const int blockIndex = 3 + 3 * width;
         var words = new RoomTerrainBlock[width * height];
         words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnProjectileShotBlock(
                 level, blockIndex, behavior, SamusProjectileType.None, solidBlock: true),

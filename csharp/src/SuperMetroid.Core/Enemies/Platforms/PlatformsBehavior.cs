@@ -337,7 +337,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = c =>
             {
-                if (!c.Enemy.FrozenTimer.IsZero)
+                if (c.Enemy.FrozenTimer != 0)
                     c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
             },
         });

@@ -12,7 +12,7 @@ internal sealed class CinematicTextGlowSystem
         for (int i = slots.Length - 1; i >= 0; i--)
         {
             if (slots[i].Active) continue;
-            slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = WrappingCountdown.Start(1) };
+            slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = 1 };
             return;
         }
     }
@@ -27,7 +27,7 @@ internal sealed class CinematicTextGlowSystem
         for (int i = slots.Length - 1; i >= 0; i--)
         {
             ref GlowSlot slot = ref slots[i];
-            if (!slot.Active || !(slot.Timer = slot.Timer.Decrement().Remaining).IsZero) continue;
+            if (!slot.Active || --slot.Timer != 0) continue;
             for (int row = 0; row < slot.Size.Y; row++)
             for (int column = 0; column < slot.Size.X; column++)
                 text.Recolour(new(slot.Cell.X + column, slot.Cell.Y + row), slot.Palette);
@@ -36,7 +36,7 @@ internal sealed class CinematicTextGlowSystem
             else
             {
                 slot.Palette++;
-                slot.Timer = WrappingCountdown.Start(CinematicTextGlowDefinitions.PaletteDuration);
+                slot.Timer = CinematicTextGlowDefinitions.PaletteDuration;
             }
         }
     }
@@ -51,7 +51,7 @@ internal sealed class CinematicTextGlowSystem
         /// <summary>Number of text cells recoloured along each axis.</summary>
         public Extent16<TilemapCells> Size;
         /// <summary>Frames until this rectangle's next colour phase.</summary>
-        public WrappingCountdown Timer;
+        public int Timer;
         /// <summary>
         /// Current colour variant given to the rectangle's cells: zero when the glow starts, raised by one each phase up to
         /// <see cref="CinematicTextGlowDefinitions.FinalPalette"/>, where the glow ends.

@@ -24,25 +24,25 @@ public sealed class AudioQueues
         new MusicQueueDelay[AudioQueueDefinitions.MusicCapacity];
     /// <summary>Three independent unread sound rings, one per sound library; a position holds no sound until one is queued there.</summary>
     internal readonly SoundEffectId?[,] SoundQueues = new SoundEffectId?[
-        AudioQueueDefinitions.SoundLibraryCount,
+        SoundEffectLibraries.Count,
         AudioQueueDefinitions.SoundCapacity];
     /// <summary>Next unread position in each library's SFX ring.</summary>
     internal readonly int[] SoundReadPositions =
-        new int[AudioQueueDefinitions.SoundLibraryCount];
+        new int[SoundEffectLibraries.Count];
     /// <summary>Next insertion position in each library's SFX ring.</summary>
     internal readonly int[] SoundWritePositions =
-        new int[AudioQueueDefinitions.SoundLibraryCount];
+        new int[SoundEffectLibraries.Count];
     /// <summary>Per-library request phase, from request through acknowledged withdrawal.</summary>
-    internal readonly byte[] SoundStates = new byte[AudioQueueDefinitions.SoundLibraryCount];
+    internal readonly byte[] SoundStates = new byte[SoundEffectLibraries.Count];
     /// <summary>The sound currently awaiting each library's acknowledgement, or none.</summary>
-    private readonly SoundEffectId?[] _currentSounds = new SoundEffectId?[AudioQueueDefinitions.SoundLibraryCount];
+    private readonly SoundEffectId?[] _currentSounds = new SoundEffectId?[SoundEffectLibraries.Count];
 
     /// <summary>The sound each of the three sound dispatchers last asked its library for, as an acknowledgement of it, or none.</summary>
     internal SoundAcknowledgements<SoundEffectId> SentSoundRequests =>
         SoundAcknowledgements<SoundEffectId>.Of(_currentSounds[0], _currentSounds[1], _currentSounds[2]);
     /// <summary>Two-frame hold before a recognized sound request is withdrawn from its library.</summary>
     private readonly byte[] _soundClearDelays =
-        new byte[AudioQueueDefinitions.SoundLibraryCount];
+        new byte[SoundEffectLibraries.Count];
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
@@ -51,10 +51,10 @@ public sealed class AudioQueues
     /// <summary>Insertion slot of the circular delayed-music command queue, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
     internal int MusicWritePosition { get; private set; }
     /// <summary>
-    /// The music delay countdown. It expires on reaching zero, and a cleared timer wraps negative on the
-    /// next call, which is what fetches the next queued entry.
+    /// The music delay countdown, in music-handler calls. It expires on reaching zero, and a cleared timer runs
+    /// negative on the next call, which is what fetches the next queued entry.
     /// </summary>
-    internal WrappingCountdown MusicTimer { get; private set; }
+    internal int MusicTimer { get; private set; }
     /// <summary>Music request currently awaiting delay expiry and dispatch.</summary>
     private MusicRequest _musicEntry = MusicRequest.Stop;
     /// <summary>Sound-handler calls, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/>, for which a music change withdraws every library's sound request.</summary>
@@ -89,7 +89,7 @@ public sealed class AudioQueues
     {
         get
         {
-            for (int library = 0; library < AudioQueueDefinitions.SoundLibraryCount; library++)
+            for (int library = 0; library < SoundEffectLibraries.Count; library++)
             {
                 if (UnreadSounds(library) != 0)
                 {
@@ -325,10 +325,9 @@ public sealed class AudioQueues
     /// <summary>Advances the music handler's delay countdown and requests either a data set change or a track at expiry.</summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
-        CountdownStep step = MusicTimer.Decrement();
-        MusicTimer = step.Remaining;
-        bool timerExpired = step.IsZero;
-        if (step.IsNonNegative)
+        MusicTimer--;
+        bool timerExpired = MusicTimer == 0;
+        if (MusicTimer >= 0)
         {
             if (!timerExpired)
                 return;
@@ -359,7 +358,7 @@ public sealed class AudioQueues
         }
 
         _musicEntry = _musicEntries[MusicReadPosition];
-        MusicTimer = WrappingCountdown.Start(MusicDelays[MusicReadPosition].Updates);
+        MusicTimer = MusicDelays[MusicReadPosition].Updates;
     }
 
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
@@ -380,7 +379,7 @@ public sealed class AudioQueues
             // Guarded by the nonzero test above: the downtime counts down to zero and never wraps.
             _soundHandlerDowntime = Ensure.AtLeastZero(_soundHandlerDowntime - 1);
             for (int queue = 0;
-                queue < AudioQueueDefinitions.SoundLibraryCount;
+                queue < SoundEffectLibraries.Count;
                 queue++)
             {
                 requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
@@ -389,7 +388,7 @@ public sealed class AudioQueues
             return;
         }
 
-        for (int queue = 0; queue < AudioQueueDefinitions.SoundLibraryCount; queue++)
+        for (int queue = 0; queue < SoundEffectLibraries.Count; queue++)
             HandleSoundEffectQueue(
                 queue,
                 acknowledgements[queue],

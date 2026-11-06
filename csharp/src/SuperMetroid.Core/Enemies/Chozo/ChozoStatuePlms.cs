@@ -86,7 +86,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         slot.Header = definition.Header;
         slot.BlockIndex = index;
         definition.Program.StartOn(slot);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameHold = 1;
         if (request.Header == PlmHeaderId.WreckedShipChozoHand)
             WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
                 ChozoStatueRoomDefinitions.WreckedShipHandBehavior);

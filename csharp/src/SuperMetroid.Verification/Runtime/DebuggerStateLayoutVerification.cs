@@ -14,7 +14,7 @@ internal static class DebuggerStateLayoutVerification
     /// </summary>
     internal static void VerifyDebuggerStateRejectsStaleLayouts()
     {
-        var state = new SamusGrappleState { PoseChangeAutoFireTimer = WrappingCountdown.Start(7) };
+        var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };
         byte[] current = SerializeDebuggerGraph(state);
         AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer.RawValue,
             "a current-layout graph round-trips");

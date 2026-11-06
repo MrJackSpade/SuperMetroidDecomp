@@ -113,7 +113,7 @@ public sealed class SamusXrayState
     public int VisorShade { get; private set; }
 
     /// <summary>The shared five-frame palette cadence timer.</summary>
-    public WrappingCountdown CommonPaletteTimer { get; private set; }
+    public int CommonPaletteTimer { get; private set; }
 
     /// <summary>Set by command five when sound-library-one effect nine would be queued.</summary>
     public bool ActivationSoundRequested { get; private set; }
@@ -261,7 +261,7 @@ public sealed class SamusXrayState
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
         VisorShade = 0;
-        CommonPaletteTimer = WrappingCountdown.Start(1);
+        CommonPaletteTimer = 1;
         ActivationSoundRequested = true;
         OwnsSamusControl = true;
     }
@@ -317,7 +317,7 @@ public sealed class SamusXrayState
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         SpecialPaletteKind = SamusSpecialPaletteType.None;
         VisorShade = 0;
-        CommonPaletteTimer = WrappingCountdown.Start(0);
+        CommonPaletteTimer = 0;
     }
 
     /// <summary>Another special-palette handler replaces the shared special-palette words.</summary>
@@ -325,7 +325,7 @@ public sealed class SamusXrayState
     {
         SpecialPaletteKind = SamusSpecialPaletteType.None;
         VisorShade = 0;
-        CommonPaletteTimer = WrappingCountdown.Start(0);
+        CommonPaletteTimer = 0;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
     }
 
@@ -510,7 +510,7 @@ public sealed class SamusXrayState
             SamusNormalSuitPalette.Load(colours, equippedItems);
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             VisorShade = 0;
-            CommonPaletteTimer = WrappingCountdown.Start(0);
+            CommonPaletteTimer = 0;
             VisorPaletteMode = XrayVisorPaletteMode.Widening;
             return true;
         }
@@ -522,16 +522,14 @@ public sealed class SamusXrayState
         {
             // The visor enters the full-beam three-color loop at its first shade.
             VisorShade = XrayScopeDefinitions.Palette.FullCycleFirstShade;
-            CommonPaletteTimer = WrappingCountdown.Start(1);
+            CommonPaletteTimer = 1;
             VisorPaletteMode = XrayVisorPaletteMode.FullBeam;
         }
 
-        CountdownStep timer = CommonPaletteTimer.Decrement();
-        CommonPaletteTimer = timer.Remaining;
-        if (!timer.IsZero && timer.IsNonNegative)
+        if (--CommonPaletteTimer > 0)
             return false;
 
-        CommonPaletteTimer = WrappingCountdown.Start(XrayScopeDefinitions.Palette.FrameDelay);
+        CommonPaletteTimer = XrayScopeDefinitions.Palette.FrameDelay;
         colours.ShowVisor(SamusShades.Visor(VisorShade));
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening)

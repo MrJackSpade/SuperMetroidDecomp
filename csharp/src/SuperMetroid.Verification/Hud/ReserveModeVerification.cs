@@ -92,7 +92,7 @@ internal static class ReserveModeVerification
         SamusPoseMetadata.RefreshCollisionRadii(knockbackVariant);
         SamusPresentation.InitializeAnimation(knockbackVariant);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
         AssertTrue(SamusPosturePoseTransitions.TryApplyPostureTransition(knockbackVariant, 
 
                 level,

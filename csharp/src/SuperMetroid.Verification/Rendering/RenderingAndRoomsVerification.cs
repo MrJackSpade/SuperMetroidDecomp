@@ -787,7 +787,7 @@ internal static void VerifyRoomLevelData()
     ];
     RoomBlockBehavior[] behavior = [new(0x00), new(0x45), new(0x80), new(0x11), new(0x22), new(0x33)];
     RoomBlockAppearance[] background = [.. Enumerable.Range(0, width * height).Select(block => RoomBlockAppearance.Of(block))];
-    var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background));
+    var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), RoomLevelData.NothingBeyondGrid());
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(4, block.Index, "room collision row-major index");

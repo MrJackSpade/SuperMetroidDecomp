@@ -12,7 +12,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// waiting state during an update; the replay reproduces exactly that outcome. Music
 /// (port 0), updates without native evidence, and normal play keep the session's SPC model.
 /// </remarks>
-internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTiming<SoundEffectId>
+internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<SoundEffectId>
 {
     /// <summary>$0649..$064B: APU_SoundStateLib1..3.</summary>
     private const int SoundStateLib1 = 0x0649;
@@ -29,13 +29,10 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
         ClearAcknowledgement = 3,
     }
 
-    /// <summary>The three sound-effect libraries occupy adjacent handler-state bytes.</summary>
-    private const int LibraryCount = 3;
-
     /// <summary>Last captured APU_SoundStateLib values used to detect waiting-state exits.</summary>
-    private readonly byte[] states = new byte[LibraryCount];
+    private readonly byte[] states = new byte[SoundEffectLibraries.Count];
     /// <summary>Last captured APU_CurrentSoundLib values, decoded to the sounds each waiting state compares with port echoes.</summary>
-    private readonly SoundEffectId?[] currents = new SoundEffectId?[LibraryCount];
+    private readonly SoundEffectId?[] currents = new SoundEffectId?[SoundEffectLibraries.Count];
     /// <summary>False after an update without a native checkpoint, until the next capture.</summary>
     private bool captured;
     /// <summary>Native memory expected after the current update, captured once that update completes.</summary>
@@ -54,8 +51,8 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     public void Invalidate() => captured = false;
 
     /// <inheritdoc/>
-    public SoundAcknowledgements<SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectId> modeled, SoundAcknowledgements<SoundEffectId> portWrites) =>
-        captured && expectedAfter is not null ? ForUpdate(modeled, expectedAfter) : modeled;
+    public SoundAcknowledgements<SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectId> clocked, SoundAcknowledgements<SoundEffectId> requested) =>
+        captured && expectedAfter is not null ? ForUpdate(clocked, expectedAfter) : clocked;
 
     /// <summary>
     /// Acknowledgements for the update whose native result is <paramref name="nativeAfter"/>.
@@ -64,7 +61,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     public SoundAcknowledgements<SoundEffectId> ForUpdate(SoundAcknowledgements<SoundEffectId> spc, NativeCheckpointMemory nativeAfter)
     {
         SoundAcknowledgement<SoundEffectId>[] ports = [spc[0], spc[1], spc[2]];
-        for (int library = 0; library < LibraryCount; library++)
+        for (int library = 0; library < SoundEffectLibraries.Count; library++)
         {
             byte before = states[library];
             // Other handler states send or clear requests without awaiting an echo.
@@ -100,7 +97,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     /// <summary>Records the native sound-handler state after an update.</summary>
     public void Capture(NativeCheckpointMemory nativeMemory)
     {
-        for (int library = 0; library < LibraryCount; library++)
+        for (int library = 0; library < SoundEffectLibraries.Count; library++)
         {
             states[library] = nativeMemory[SoundStateLib1 + library];
             currents[library] = SoundEffectCommands.DecodeOptional(

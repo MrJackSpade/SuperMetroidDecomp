@@ -717,7 +717,7 @@ public sealed class SamusProjectileSystem
         foreach (SamusProjectileTrailSlot trail in SlotTable.TrailSlots)
             trail.ClearFields();
         SlotTable.ProjectileCounter = 0;
-        Firing.ProjectileInvincibilityTimer = WrappingCountdown.Start(0);
+        Firing.ProjectileInvincibilityTimer = 0;
         Earthquakes.EarthquakeType = 0;
         Earthquakes.EarthquakeTimer = 0;
         LastFrameResult = default;

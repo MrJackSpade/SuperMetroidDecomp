@@ -36,7 +36,7 @@ public sealed class HyperBeamPaletteFxState
     /// Per-object frame hold. Spawn initializes it to one; the handler
     /// decrements before testing, so the first palette record executes on its first call.
     /// </summary>
-    public WrappingCountdown FrameHold { get; private set; }
+    public int FrameHold { get; private set; }
 
     /// <summary>Last palette record written, or -1 before the first handler call.</summary>
     public int CurrentFrameIndex { get; private set; } = -1;
@@ -57,7 +57,7 @@ public sealed class HyperBeamPaletteFxState
         // one, then calls the object's no-op setup routine. This specialized state has no
         // reusable slot fields to clear, but preserves every observable field and delay.
         IsActive = true;
-        FrameHold = WrappingCountdown.Start(1);
+        FrameHold = 1;
         CurrentFrameIndex = -1;
         CompletedCycles = 0;
         Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
@@ -84,8 +84,8 @@ public sealed class HyperBeamPaletteFxState
 
         // The handler decrements before testing. A timer of two therefore displays a frame
         // on the load call and one following call, then advances on the third handler call.
-        FrameHold = FrameHold.Decrement().Remaining;
-        if (!FrameHold.IsZero)
+        FrameHold--;
+        if (FrameHold != 0)
         {
             return new HyperBeamPaletteFxStepResult();
         }
@@ -106,7 +106,7 @@ public sealed class HyperBeamPaletteFxState
 
         colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));
 
-        FrameHold = WrappingCountdown.FromRaw(shown.Duration);
+        FrameHold = shown.Duration;
         CurrentFrameIndex = frameIndex;
         return new HyperBeamPaletteFxStepResult();
     }

@@ -297,7 +297,7 @@ public static class SamusGrappleSwing
         // Inputs here are normalized: A is Jump, B is Run. The Jump-binding test
         // must agree with the release-window check, or tight anchors become inescapable
         // using Jump even though the unrelated Run button accidentally supplies the kick.
-        if (!grapple.CollisionBounceTimer.IsZero &&
+        if (grapple.CollisionBounceTimer != 0 &&
             (newlyPressedInput & ControllerButton.A) != ControllerButton.None)
         {
             grapple.JumpImpulse = grapple.AngularVelocity switch
@@ -369,7 +369,7 @@ public static class SamusGrappleSwing
                 }
                 else
                 {
-                    grapple.CollisionBounceTimer = WrappingCountdown.Start(16);
+                    grapple.CollisionBounceTimer = 16;
                     grapple.AngularVelocity = NegatedArithmeticHalf(grapple.AngularVelocity);
                     grapple.JumpImpulse = NegatedArithmeticHalf(grapple.JumpImpulse);
                 }
@@ -390,7 +390,7 @@ public static class SamusGrappleSwing
         grapple.MirroredAngle = targetAngle;
         grapple.SpecialAngleHandling = false;
 
-        grapple.CollisionBounceTimer = grapple.CollisionBounceTimer.DecrementToZero();
+        grapple.CollisionBounceTimer = Math.Max(0, grapple.CollisionBounceTimer - 1);
 
         // The angular movement damps the temporary jump impulse toward zero by six after a successful
         // angle step. This word is separate from angular velocity and must not be folded in.
@@ -584,7 +584,7 @@ public static class SamusGrappleSwing
             subDamage: 0,
             wholeDamage: damage);
         samus.InvincibilityTimer = WrappingCountdown.Start(60);
-        samus.KnockbackTimer = WrappingCountdown.Start(10);
+        samus.KnockbackTimer = 10;
     }
 
 

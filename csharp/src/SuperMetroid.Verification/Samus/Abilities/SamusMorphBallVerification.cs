@@ -90,7 +90,7 @@ internal static void VerifySamusMorphBallMovement()
     var floorBlocks = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
         floorBlocks[4 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-    RoomLevelData floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new RoomBlockBehavior[floorBlocks.Length], new RoomBlockAppearance[floorBlocks.Length]));
+    RoomLevelData floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new RoomBlockBehavior[floorBlocks.Length], new RoomBlockAppearance[floorBlocks.Length]), RoomLevelData.NothingBeyondGrid());
 
     var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
@@ -190,7 +190,7 @@ floor, samus, frameCounter: 0);
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
-    RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
+    RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, SamusPoseId.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
@@ -421,7 +421,7 @@ floor, SamusPoseId.UnmorphingTransitionLeftPose, frameCounter: 0),
     var tunnelBlocks = (RoomTerrainBlock[])floorBlocks.Clone();
     for (int x = 0; x < width; x++)
         tunnelBlocks[2 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-    RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length], new RoomBlockAppearance[tunnelBlocks.Length]));
+    RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length], new RoomBlockAppearance[tunnelBlocks.Length]), RoomLevelData.NothingBeyondGrid());
     var boxedBall = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
@@ -1025,7 +1025,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     reactionBts[reactionParentIndex] = new RoomBlockBehavior(0);
     reactionWords[reactionExtensionIndex] = RoomTerrainBlock.Of(88, BlockMirroring.None, RoomCollisionType.HorizontalExtension);
     reactionBts[reactionExtensionIndex] = new RoomBlockBehavior(0xff);
-    RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new RoomBlockAppearance[reactionWords.Length]));
+    RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new RoomBlockAppearance[reactionWords.Length]), RoomLevelData.NothingBeyondGrid());
     var reactionPlms = PlmFixtures.Unbound();
     var reactionBombs = CreateBombFixture();
     var reactionSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -1096,7 +1096,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     const int integratedRevealIndex = 3 * width + 3;
     integratedRevealWords[integratedRevealIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
     integratedRevealBts[integratedRevealIndex] = new RoomBlockBehavior(8);
-    RoomLevelData integratedRevealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedRevealWords, integratedRevealBts, new RoomBlockAppearance[integratedRevealWords.Length]));
+    RoomLevelData integratedRevealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedRevealWords, integratedRevealBts, new RoomBlockAppearance[integratedRevealWords.Length]), RoomLevelData.NothingBeyondGrid());
     var integratedRevealPlms = PlmFixtures.Unbound();
     var integratedRevealBombs = CreateBombFixture();
     var integratedRevealSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -1136,7 +1136,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     const int bombDoorIndex = 3 * width + 3;
     bombDoorWords[bombDoorIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
     bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight;
-    RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]));
+    RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]), RoomLevelData.NothingBeyondGrid());
     var bombDoorPlms = PlmFixtures.Unbound();
     var bombDoorBombs = CreateBombFixture();
     var bombDoorSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -1157,7 +1157,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         bombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
         "normal bomb synchronously runs blue-door setup");
 
-    RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]));
+    RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]), RoomLevelData.NothingBeyondGrid());
     var powerBombDoorPlms = PlmFixtures.Unbound();
     AssertTrue(!powerBombDoorPlms.DoorPlms.TrySpawnBlueDoorOpening(
             powerBombDoorLevel,
@@ -1176,7 +1176,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     var shotWords = new RoomTerrainBlock[width * height];
     const int shotIndex = 3 * width + 3;
     shotWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-    RoomLevelData shotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
+    RoomLevelData shotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]), RoomLevelData.NothingBeyondGrid());
     var shotPlms = PlmFixtures.Unbound();
     AssertTrue(
         shotPlms.TrySpawnBombedShootableBlock(shotLevel, shotIndex, 0, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
@@ -1212,7 +1212,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // max-one sound opcode rather than ordinary shot block `$8C79`. Following the entire
     // reverse animation proves RestoreLevelWord is the setup-produced `$C057`, never the
     // fixture's original visual block `$C321`.
-    RoomLevelData powerBombShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
+    RoomLevelData powerBombShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]), RoomLevelData.NothingBeyondGrid());
     var powerBombShotPlms = PlmFixtures.Unbound();
     AssertTrue(
         powerBombShotPlms.TrySpawnProjectileShotBlock(
@@ -1249,7 +1249,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     var integratedPowerBombBts = new RoomBlockBehavior[integratedPowerBombWords.Length];
     integratedPowerBombWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
     integratedPowerBombBts[shotIndex] = new RoomBlockBehavior(8);
-    RoomLevelData integratedPowerBombLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedPowerBombWords, integratedPowerBombBts, new RoomBlockAppearance[integratedPowerBombWords.Length]));
+    RoomLevelData integratedPowerBombLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedPowerBombWords, integratedPowerBombBts, new RoomBlockAppearance[integratedPowerBombWords.Length]), RoomLevelData.NothingBeyondGrid());
     var integratedPowerBombPlms = PlmFixtures.Unbound();
     var integratedPowerBombs = CreateBombFixture();
     var integratedPowerBombSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -1291,7 +1291,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     var collisionProbeBts = new RoomBlockBehavior[collisionProbeWords.Length];
     collisionProbeWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
     collisionProbeBts[shotIndex] = new RoomBlockBehavior(0x10);
-    RoomLevelData collisionProbeLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(collisionProbeWords, collisionProbeBts, new RoomBlockAppearance[collisionProbeWords.Length]));
+    RoomLevelData collisionProbeLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(collisionProbeWords, collisionProbeBts, new RoomBlockAppearance[collisionProbeWords.Length]), RoomLevelData.NothingBeyondGrid());
     var collisionProbePlms = PlmFixtures.Unbound();
     RunPowerBombToInitialBoundary(
             collisionProbeLevel,
@@ -1309,7 +1309,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame
     // blank hold. An ordinary missile must fail that setup without touching terrain or
     // leaving an apparently occupied host PLM slot.
-    RoomLevelData superShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
+    RoomLevelData superShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]), RoomLevelData.NothingBeyondGrid());
     var superShotPlms = PlmFixtures.Unbound();
     AssertTrue(!superShotPlms.TrySpawnProjectileShotBlock(
             superShotLevel,
@@ -1354,7 +1354,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         new VerifySamusMorphBallMovementCase(11, 0x0200, "Super-Missile"),
     })
     {
-        RoomLevelData permanentWeaponLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
+        RoomLevelData permanentWeaponLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]), RoomLevelData.NothingBeyondGrid());
         var permanentWeaponPlms = PlmFixtures.Unbound();
         AssertTrue(permanentWeaponPlms.TrySpawnProjectileShotBlock(
                 permanentWeaponLevel,
@@ -1378,7 +1378,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // has a collision-nibble asymmetry instead: type C allocates an area-table no-op, while
     // type four returns before Spawn_PLM. These slots are visually invisible, but retaining
     // their one-handler lifetime prevents the finite 40-slot pool from behaving differently.
-    RoomLevelData noOpShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
+    RoomLevelData noOpShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]), RoomLevelData.NothingBeyondGrid());
     var noOpShotPlms = PlmFixtures.Unbound();
     AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
             noOpShotLevel,
@@ -1427,7 +1427,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     revealWords[powerRevealIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableAir);
     revealWords[superRevealIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
     revealWords[areaNoOpIndex] = RoomTerrainBlock.Of(546, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-    RoomLevelData revealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(revealWords, new RoomBlockBehavior[revealWords.Length], new RoomBlockAppearance[revealWords.Length]));
+    RoomLevelData revealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(revealWords, new RoomBlockBehavior[revealWords.Length], new RoomBlockAppearance[revealWords.Length]), RoomLevelData.NothingBeyondGrid());
     var revealPlms = PlmFixtures.Unbound();
     AssertTrue(
         revealPlms.TrySpawnBombedShootableBlock(revealLevel, powerRevealIndex, 8, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
@@ -1465,7 +1465,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     const int speedIndex = 5 * width + 5;
     specialWords[crumbleIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialBlock);
     specialWords[speedIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialBlock);
-    RoomLevelData specialLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(specialWords, new RoomBlockBehavior[specialWords.Length], new RoomBlockAppearance[specialWords.Length]));
+    RoomLevelData specialLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(specialWords, new RoomBlockBehavior[specialWords.Length], new RoomBlockAppearance[specialWords.Length]), RoomLevelData.NothingBeyondGrid());
     // #320: the cartridge's normal table extends through BTS $4F, not $0F.
     // Exercise actual bomb collision dispatch and assert the resulting terrain.
     for (byte behavior = 16; behavior < 80; behavior++)
@@ -1474,7 +1474,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         var behaviors = new RoomBlockBehavior[words.Length];
         words[crumbleIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialBlock);
         behaviors[crumbleIndex] = new RoomBlockBehavior(behavior);
-        var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]));
+        var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var tablePlms = PlmFixtures.Unbound();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
             new(2, 2), new(), tablePlms, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.Bomb));
@@ -1575,7 +1575,7 @@ empty, bombJump, frameCounter: 1, PlmFixtures.Unbound());
     var ceilingBlocks = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
         ceilingBlocks[2 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-    RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new RoomBlockBehavior[ceilingBlocks.Length], new RoomBlockAppearance[ceilingBlocks.Length]));
+    RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new RoomBlockBehavior[ceilingBlocks.Length], new RoomBlockAppearance[ceilingBlocks.Length]), RoomLevelData.NothingBeyondGrid());
     var straightBombJump = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.MorphBallGroundLeftPose,

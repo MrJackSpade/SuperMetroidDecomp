@@ -38,7 +38,7 @@ internal static class SuperMetroidRuntimeAccess
         internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyDefinitionSource definitions,
             IRoomEnemyServices services, IRoomEnemyLoad request)
         {
-            var enemies = new RoomEnemySystem(self.EnemySession, definitions: definitions, services: services);
+            var enemies = new RoomEnemySystem(self.EnemySession, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: definitions, services: services);
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
             return enemies;
@@ -54,7 +54,7 @@ internal static class SuperMetroidRuntimeAccess
         {
             RoomScope scope = self.Room.LoadedScope;
             RoomEnemySystem loaded = scope.Enemies;
-            var enemies = new RoomEnemySystem(self.EnemySession, loaded.Room.Definitions, layer(loaded.Room.Services),
+            var enemies = new RoomEnemySystem(self.EnemySession, RoomEnemyCompatibilityFixtures.ForNewRoom(), loaded.Room.Definitions, layer(loaded.Room.Services),
                 loaded.BossArtworkBinding);
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies });

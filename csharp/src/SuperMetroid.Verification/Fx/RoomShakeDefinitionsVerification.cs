@@ -20,7 +20,7 @@ internal static class RoomShakeDefinitionsVerification
         const ushort renderedTypeCount = 36;
 
         var guarded = NewRoomShakeReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         for (ushort type = 0; type < renderedTypeCount; type++)
         {

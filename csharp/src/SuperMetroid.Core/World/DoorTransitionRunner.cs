@@ -28,8 +28,8 @@ internal sealed class DoorTransitionRunner
     private readonly GameplayDisplayState _display;
     /// <summary>Runs the enemy main phase while Samus gameplay is suspended.</summary>
     private readonly EnemyFramePhase _enemyPhase;
-    /// <summary>Advances the per-line effects at the start of a door update.</summary>
-    private readonly PerLineEffectPhase _perLineEffects;
+    /// <summary>Advances the liquid wave and the statues at the start of a door update.</summary>
+    private readonly LiquidWaveAndStatueDescent _liquidWaveAndStatueDescent;
     /// <summary>Provides the frame counters to enemy projectile processing.</summary>
     private readonly FrameClock _clock;
     /// <summary>Shows the previous frame and latches input at the start of each sound-wait update, before the door's step.</summary>
@@ -50,7 +50,7 @@ internal sealed class DoorTransitionRunner
         _backgroundScroll = dependencies.BackgroundScroll;
         _display = dependencies.Display;
         _enemyPhase = dependencies.EnemyPhase;
-        _perLineEffects = dependencies.PerLineEffects;
+        _liquidWaveAndStatueDescent = dependencies.LiquidWaveAndStatueDescent;
         _clock = dependencies.Clock;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
@@ -254,7 +254,7 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>
-    /// The opening of a door's sound-wait update: the frame boundary, then the per-line effects and the random draw.
+    /// The opening of a door's sound-wait update: the frame boundary, then the liquid wave and statue descent and the random draw.
     /// The door's first update and each sound-wait update open this way while Samus is locked. On the first update it
     /// precedes the door's own step, so its room-FX sound requests are queued before the door cancels and disables
     /// sounds.
@@ -304,14 +304,14 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>
-    /// The opening of an update without gameplay: the per-line effects, unless a door transition has stopped them
+    /// The opening of an update without gameplay: the liquid wave and statue descent, unless a door transition has stopped them
     /// (<see cref="EffectPhaseRandomOrder"/>), then the update's random draw.
     /// </summary>
     internal void AdvanceEffectsAndRandom(RoomPlmSystem plms, RoomScope room)
     {
-        if (_perLineEffects.RunsThisUpdate)
+        if (_liquidWaveAndStatueDescent.RunsThisUpdate)
         {
-            _perLineEffects.Advance(plms, room);
+            _liquidWaveAndStatueDescent.Advance(plms, room);
             if (_player.Samus is not null && room.FxOverlay.MovesLiquidBeforeMainLoop)
                 _player.Samus.LiquidPhysics.ConfigureFor(room.FxOverlay);
         }

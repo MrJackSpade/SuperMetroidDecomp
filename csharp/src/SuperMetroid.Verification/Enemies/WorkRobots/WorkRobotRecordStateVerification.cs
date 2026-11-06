@@ -13,7 +13,7 @@ internal static class WorkRobotRecordStateVerification
     /// </summary>
     internal static void VerifyWorkRobotRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new WorkRobotEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

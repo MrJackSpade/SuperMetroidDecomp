@@ -79,7 +79,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 return;
 
             case NorfairLavaJumpingEnemyFunction.BeginJump:
-                state.YVelocity = new SignedEightEight(NorfairLavaJumpDefinitions.InitialVerticalVelocity(random));
+                state.YVelocity = NorfairLavaJumps.InitialVerticalVelocity(random);
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
                 slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NorfairLavaJumpingEnemy, EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound, priority: SoundRequestPriority.Normal);

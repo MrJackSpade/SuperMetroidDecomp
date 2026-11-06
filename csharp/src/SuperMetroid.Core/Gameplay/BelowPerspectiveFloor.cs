@@ -7,5 +7,5 @@ public enum BelowPerspectiveFloor
     Nothing,
 
     /// <summary>The room's layer 2, in a band below the floor, as Ridley's getaway shows it.</summary>
-    Layer2,
+    RoomBackground,
 }

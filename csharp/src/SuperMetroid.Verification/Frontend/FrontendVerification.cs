@@ -389,7 +389,7 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     // `$8B:A66F` installs BG1VOFS eight for the illustrated page. The two following
     // gameplay-style setup functions replace BG1SC but leave that scroll word untouched.
     // Lock the inherited value independently of any host-authored actor coordinates.
-    AssertEqual(8, IntroCinematicState.GameplayFlashbackBg1VerticalScroll,
+    AssertEqual(8, IntroCinematicState.GameplayFlashbackVerticalScroll,
         "intro gameplay flashback inherited BG1 vertical scroll");
 
     var motherBrain = new IntroMotherBrainSpriteState();

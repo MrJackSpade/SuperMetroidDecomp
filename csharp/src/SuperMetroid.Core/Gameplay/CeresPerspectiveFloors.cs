@@ -18,5 +18,5 @@ internal static class CeresPerspectiveFloors
 
     /// <summary>The floor Ceres Ridley's getaway flies over, with the room's layer 2 below it.</summary>
     /// <param name="ridley">How the getaway's floor appears as its room main last turned and moved it (<see cref="CeresRidleyGetaway.FloorTransform"/>).</param>
-    internal static PerspectiveFloor RidleyGetaway(FloorView ridley) => new(ridley, BelowPerspectiveFloor.Layer2);
+    internal static PerspectiveFloor RidleyGetaway(FloorView ridley) => new(ridley, BelowPerspectiveFloor.RoomBackground);
 }

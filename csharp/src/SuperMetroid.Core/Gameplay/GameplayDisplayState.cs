@@ -41,7 +41,7 @@ internal sealed class GameplayDisplayState
     internal void PublishDoorElevatorFloor(TurningFloorTransform? transform) =>
         Latched = Latched with
         {
-            PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } getaway ? getaway
+            PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.RoomBackground } getaway ? getaway
                 : transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, Latched.Scrolls.ForegroundScroll)
                 : null,
         };

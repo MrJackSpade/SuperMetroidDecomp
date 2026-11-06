@@ -131,7 +131,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
     private bool usesFloor = true;
     /// <summary>Whether the turning floor shows during the Mode 7 scenes, or only the sprites do.</summary>
-    private ScreenLayers mainScreenLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
+    private ScreenLayers shownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
 
@@ -360,7 +360,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     // The game disables the ship's BG1 plane before the hold, not
                     // when the later pan starts. Planet and star OBJ remain enabled.
-                    mainScreenLayers = ScreenLayers.Sprites;
+                    shownLayers = ScreenLayers.Sprites;
                     phaseTimer = CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }
@@ -839,7 +839,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         PrepareRenderSprites();
         var sprites = new SpritesLayer(objects.Draws);
         DisplayLayer[] layers;
-        if (usesFloor && (mainScreenLayers & ScreenLayers.Foreground) == ScreenLayers.None)
+        if (usesFloor && (shownLayers & ScreenLayers.Foreground) == ScreenLayers.None)
         {
             layers = [sprites];
         }

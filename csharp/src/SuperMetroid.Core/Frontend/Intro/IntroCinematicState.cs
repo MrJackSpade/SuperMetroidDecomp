@@ -126,7 +126,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// BG1VOFS inherited by both gameplay flashbacks from the first illustrated page.
     /// Their actor coordinates remain screen-relative and are not shifted with the background.
     /// </summary>
-    internal const int GameplayFlashbackBg1VerticalScroll = 8;
+    internal const int GameplayFlashbackVerticalScroll = 8;
 
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
     private readonly AudioQueues? audio;
@@ -1271,13 +1271,13 @@ level, samus, FrameCounterWord(elapsedUpdates));
             sprites = PrepareMotherBrainSprites();
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, paletteFader.SceneShading),
                 (CurrentFlashbackMotherBrain?.Background ??
-                    new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsPlaneScroll());
+                    new Position16<RoomPixels>(0, GameplayFlashbackVerticalScroll)).AsPlaneScroll());
         }
         else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
         {
             sprites = PrepareBabyDiscoverySprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, paletteFader.SceneShading), new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, paletteFader.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
             IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
@@ -1298,10 +1298,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
         else
         {
             sprites = PrepareIllustratedPageSprites();
-            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, paletteFader.SceneShading), new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, paletteFader.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
 
-        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), new(0, GameplayFlashbackBg1VerticalScroll));
+        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), new(0, GameplayFlashbackVerticalScroll));
         // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
         // and sprite is drawn whole at its layer's place; the per-tile and per-sprite-part priority tiers that once
         // interleaved them are a presentation quirk the port does not keep.

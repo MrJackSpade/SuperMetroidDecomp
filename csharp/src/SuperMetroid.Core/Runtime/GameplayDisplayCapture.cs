@@ -225,7 +225,7 @@ public static class GameplayDisplayCapture
                 CoordinateAxis.AsSigned(perspective.Transform.Scroll.X + shake.Foreground.X),
                 CoordinateAxis.AsSigned(perspective.Transform.Scroll.Y + shake.Foreground.Y)),
         };
-        TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
+        TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.BackgroundScroll + shake.Background,
                 latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;

@@ -59,7 +59,7 @@ internal sealed class IntroMotherBrainSpriteState
 
     /// <summary>The flashback room's BG1 scroll, shaken vertically while Mother Brain explodes.</summary>
     public Position16<RoomPixels> Background { get; private set; } =
-        new(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll);
+        new(0, IntroCinematicState.GameplayFlashbackVerticalScroll);
 
     /// <summary>True when the exploding behaviour switches the actor to its page-two animation.</summary>
     public bool PageTwoRequested { get; private set; }

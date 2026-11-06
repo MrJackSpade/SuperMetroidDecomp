@@ -17,11 +17,6 @@ public sealed class KraidEnemyState
         .Select(_ => new KraidPartState())
         .ToArray();
 
-    /// <summary>
-    /// An unresolved encounter value: mouth-reopen continuations set it to two and nothing reads it.
-    /// It holds zero or two.
-    /// </summary>
-    public int Unknown2 { get; internal set; }
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public WrappingCountdown ThinkingTimer { get; internal set; }
     /// <summary>

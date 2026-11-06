@@ -117,7 +117,6 @@ internal sealed class KraidHead
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
                     state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
                     state.Parts[0].NextFunction = KraidAiFunction.InitializeEyeGlow;
-                    state.Unknown2 = 2;
                     return;
                 }
             }
@@ -220,7 +219,6 @@ internal sealed class KraidHead
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
                 state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
                 state.Parts[0].NextFunction = KraidAiFunction.InitializeEyeGlow;
-                state.Unknown2 = 2;
                 return;
             }
         }

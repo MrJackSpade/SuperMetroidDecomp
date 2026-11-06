@@ -42,7 +42,7 @@ uint2 XrayOverlay(uint2 position)
     return XraySample(shown, picture, within);
 }
 // A room layer (RoomTile), boss body, reveal or library background; a position the room does not cover is transparent.
-// Pictures written over the background cover it when roomSource carries SourceLayer2Overlay.
+// Pictures written over the background cover it when roomSource carries SourceWrittenOverBackground.
 uint2 XrayBackground(uint roomSource, uint2 position)
 {
     uint entry = 0;
@@ -50,7 +50,7 @@ uint2 XrayBackground(uint roomSource, uint2 position)
     uint2 within = uint2(0, 0);
     bool shown = true;
     uint source = roomSource & 255;
-    bool overlaid = (roomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(position & 65535, picture, within);
+    bool overlaid = (roomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(position & 65535, picture, within);
     if (!overlaid)
     {
         if (source == SourceBossBody)
@@ -61,7 +61,7 @@ uint2 XrayBackground(uint roomSource, uint2 position)
         else if (source == SourceXrayReveal)
             shown = RevealPicture(position & 65535, picture, within);
         else if (source == SourceLibraryBackground)
-            shown = Bg2ImagePicture(position & 65535, picture, within);
+            shown = LibraryBackgroundPicture(position & 65535, picture, within);
         else
             shown = RoomTile(source, position, entry, within, picture);
     }
@@ -108,7 +108,7 @@ uint XrayGameplay(uint2 screen)
     }
     if ((TransparentZero == 0 || !inside) && (shownLayers & ShowsForeground) != 0)
     {
-        uint2 foreground = XrayBackground(SourceLayer1, screen + uint2(HorizontalScroll, VerticalScroll));
+        uint2 foreground = XrayBackground(SourceForeground, screen + uint2(HorizontalScroll, VerticalScroll));
         XrayInsert(foreground, foreground.y != 0 ? RankForegroundFrontTiles : RankForegroundBackTiles, BlendsForeground,
             winner, rank, source);
     }

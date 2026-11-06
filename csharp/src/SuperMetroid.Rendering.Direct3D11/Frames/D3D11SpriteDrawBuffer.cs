@@ -32,7 +32,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <summary>Flags bit marking a draw whose pixels show its shading's ink colours rather than its image's own.</summary>
     private const uint RecolourFlag = 1 << 9;
     /// <summary>Flags bit marking a draw whose shading takes part in colour math over every part (#1512).</summary>
-    private const uint ColourMathFlag = 1 << 10;
+    private const uint ShadingBlendsFlag = 1 << 10;
     /// <summary>Where the flags keep the draw's depth among the room's layers (#1514), two bits; Sprites.hlsl's SpriteDepthShift.</summary>
     private const int DepthShift = 3;
 
@@ -148,7 +148,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | (colourWords != 0 ? RecolourFlag : 0) | (TakesColourMath(draw) ? ColourMathFlag : 0)
+            | (colourWords != 0 ? RecolourFlag : 0) | (ShadingBlends(draw) ? ShadingBlendsFlag : 0)
             | D3D11FrameRenderer.DepthWord(depth) << DepthShift;
         record[3] = place;
         record[4] = (uint)colourWords;
@@ -172,13 +172,13 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private static int CorpseRotWords(ImageSpriteDraw draw) => CorpseRotOf(draw) is { } rot ? rot.Columns + rot.Tables * rot.Rows : 0;
 
     /// <summary>Whether a shade of <paramref name="draw"/>'s shading takes part in colour math over the draw's every part.</summary>
-    private static bool TakesColourMath(ImageSpriteDraw draw)
+    private static bool ShadingBlends(ImageSpriteDraw draw)
     {
         if (draw.Shading is not { } shading)
             return false;
         foreach (PictureShade shade in shading.Shades)
         {
-            if (draw.Image.Sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.TakesColourMath)
+            if (draw.Image.Sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.Blends)
                 return true;
         }
         return false;

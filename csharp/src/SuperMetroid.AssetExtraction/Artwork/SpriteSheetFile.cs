@@ -70,7 +70,7 @@ public static class SpriteSheetFile
                 shade => PictureShade.FromKey(shade.Key),
                 shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])
                 {
-                    TakesColourMath = shade.Value.ColourMath,
+                    Blends = shade.Value.ColourMath,
                 }),
         };
 

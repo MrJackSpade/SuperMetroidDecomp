@@ -24,12 +24,12 @@ static const uint SpriteClearedRow = 0xffffffffu;
 static const uint SpriteCorpseColumnPixels = 8;
 // A record flag marking a draw whose colouring's set takes part in colour math, which the cartridge ORs into every
 // part's palette, so each of its pixels blends whatever its ink's own group (#1512).
-static const uint SpriteColourMath = 1024;
+static const uint SpriteShadingBlends = 1024;
 // The inks of one sprite colour group.
 static const uint SpriteGroupInks = 16;
 // The first of a sprite sheet's colour groups whose pixels take part in colour math, as every later group's do (#1514
 // owns colour math): an ink's group is its index over SpriteGroupInks.
-static const uint FirstColourMathGroup = 4;
+static const uint FirstBlendingGroup = 4;
 // A layer pixel's flag marking a sprite pixel that blends.
 static const uint SpriteBlends = 16;
 
@@ -78,7 +78,7 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + source, 0));
     uint ink = texel.y & 255;
     uint depth = (flags >> SpriteDepthShift) & SpriteDepthMask;
-    uint blends = (ink / SpriteGroupInks) >= FirstColourMathGroup || (flags & SpriteColourMath) != 0 ? SpriteBlends : 0;
+    uint blends = (ink / SpriteGroupInks) >= FirstBlendingGroup || (flags & SpriteShadingBlends) != 0 ? SpriteBlends : 0;
     if ((flags & SpriteRecolour) != 0)
     {
         if (ink == 0) discard;

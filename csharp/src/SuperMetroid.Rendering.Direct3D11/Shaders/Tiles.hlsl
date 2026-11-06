@@ -35,8 +35,8 @@ StructuredBuffer<uint> Colours : register(t0);
 StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: what a layer pass draws: the room's layer 1 or 2 as level data shows it, the sky's rows, the effect
 // overlay, a boss body, the X-ray reveal, a library background, the HUD, a pictured plane or a picture grid.
-// SourceLayer2Overlay added to it lays words written over layer 2 on top.
-static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceFxOverlay = 4;
+// SourceWrittenOverBackground added to it lays words written over layer 2 on top.
+static const uint SourceForeground = 1, SourceBackground = 2, SourceSky = 3, SourceFxOverlay = 4;
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
@@ -48,11 +48,11 @@ static const uint SourcePicturedPlane = 11;
 // vertical mirroring in bits 30 and 31. The grid wraps at its edges.
 static const uint SourcePictureGrid = 12;
 static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMask = 1073741823;
-static const uint SourceLayer2Overlay = 256;
+static const uint SourceWrittenOverBackground = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
-static const uint RoomFxOverlayWord = 21, RoomBg2OverlayWord = 22, RoomFloorSheetsWord = 23, RoomBossBodyWord = 24, RoomXrayRevealWord = 25;
+static const uint RoomFxOverlayWord = 21, RoomWrittenOverBackgroundWord = 22, RoomFloorSheetsWord = 23, RoomBossBodyWord = 24, RoomXrayRevealWord = 25;
 // A library background (RoomBackgroundImagePlane): its image picture's offset, then each 16x16 cell's picture offset.
-static const uint RoomBg2ImageWord = 26;
+static const uint RoomLibraryBackgroundWord = 26;
 // The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
 static const uint RoomSkyImageWord = 27;
 // Pixels down one band of the scrolling sky, which shows one page or none (SkyPictures.BandPixels).
@@ -78,6 +78,9 @@ static const uint InkFrontTile = 256, InkColourZero = 65536, InkKeepsGroup = 131
 // texel's ink word keeps the index of the floor picture it comes from.
 Texture2D<uint2> Floor : register(t5);
 static const uint FloorSheetShift = 20;
+// How a floor pass blends, in Reserved27 (D3D11FrameRenderer.FloorBlendWord): not at all, subtracting the frontmost
+// sprite, or adding the floor's own colour over itself and the blending sprites.
+static const uint FloorBlendsNot = 0, FloorSubtractsSprites = 1, FloorAddsOwnColour = 2;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> SpriteLayer : register(u1);
 
@@ -218,9 +221,9 @@ bool WrittenPicture(uint table, uint2 scrolled, out uint2 within, out uint pictu
     return false;
 }
 // The picture written over the background at a scrolled position (#1348, #1514), as WrittenPicture finds it.
-bool Bg2OverlayPicture(uint2 scrolled, out uint picture, out uint2 within)
+bool WrittenOverBackgroundPicture(uint2 scrolled, out uint picture, out uint2 within)
 {
-    return WrittenPicture(RoomLevels[RoomBg2OverlayWord], scrolled, within, picture);
+    return WrittenPicture(RoomLevels[RoomWrittenOverBackgroundWord], scrolled, within, picture);
 }
 // A boss body (ShownBossBody, #1466, #1514) at a scrolled position of its layer: the body's area, in its table's second
 // word, x below y, repeats beyond its edges, and the piece covering the position gives `picture` and `within`, its pixel
@@ -272,9 +275,9 @@ bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
 // The picture and pixel a room's library background shows at a scrolled position of the background (#1392): the image's
 // area (#1514), in its record's second word, x below y, repeats beyond its edges and holds its 256-pixel pages left to right
 // and then downward; a rebound cell's picture, or the image of the pages.
-bool Bg2ImagePicture(uint2 scrolled, out uint picture, out uint2 within)
+bool LibraryBackgroundPicture(uint2 scrolled, out uint picture, out uint2 within)
 {
-    uint image = RoomLevels[RoomBg2ImageWord];
+    uint image = RoomLevels[RoomLibraryBackgroundWord];
     uint area = RoomLevels[image + 1];
     uint2 extent = uint2(area & 65535, area >> 16);
     uint2 position = (scrolled & 65535) % extent;
@@ -293,9 +296,9 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
     picture = 0;
     within = uint2(0, 0);
     scrolled &= 65535;
-    uint slot = source == SourceLayer2 ? 1 : 0;
+    uint slot = source == SourceBackground ? 1 : 0;
     bool overlaid = false;
-    if (source != SourceLayer2 && source != SourceSky)
+    if (source != SourceBackground && source != SourceSky)
     {
         uint door = RoomLevels[RoomDoorWindowWord];
         uint2 doorWithin = (scrolled - uint2(door & 65535, door >> 16)) & 65535;
@@ -516,33 +519,33 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index, front);
         uint color = index;
         if (transparentOutside) color = 0;
-        if (Reserved27 == 2)
+        if (Reserved27 == FloorAddsOwnColour)
         {
             // The floor shows over sprites drawn behind it (#1514); the frontmost of the two is then brightened by the
             // floor's own colour, unless it is a sprite that does not blend.
             bool blends;
-            uint2 obj = SpriteAt(id.xy, blends);
-            bool objWins = obj.y != NoSprite && (obj.y != DepthBehindRoom || color == 0);
-            uint main = objWins ? obj.x : color != 0 ? shown : Output[id.xy];
-            if (color != 0 && (!objWins || blends))
+            uint2 sprite = SpriteAt(id.xy, blends);
+            bool spriteInFront = sprite.y != NoSprite && (sprite.y != DepthBehindRoom || color == 0);
+            uint composed = spriteInFront ? sprite.x : color != 0 ? shown : Output[id.xy];
+            if (color != 0 && (!spriteInFront || blends))
             {
-                uint3 sum = min(31, (Unpack(main) >> 3) + (Unpack(shown) >> 3));
-                main = Pack((sum << 3) | (sum >> 2), 255);
+                uint3 sum = min(31, (Unpack(composed) >> 3) + (Unpack(shown) >> 3));
+                composed = Pack((sum << 3) | (sum >> 2), 255);
             }
-            Output[id.xy] = main;
+            Output[id.xy] = composed;
             return;
         }
         if (color != 0)
         {
-            uint main = shown;
-            uint2 sub = SpriteAt(id.xy);
-            if (Reserved27 != 0 && sub.y != NoSprite)
+            uint composed = shown;
+            uint2 sprite = SpriteAt(id.xy);
+            if (Reserved27 == FloorSubtractsSprites && sprite.y != NoSprite)
             {
-                int3 difference = max(0, (int3)(Unpack(main) >> 3) - (int3)(Unpack(sub.x) >> 3));
+                int3 difference = max(0, (int3)(Unpack(composed) >> 3) - (int3)(Unpack(sprite.x) >> 3));
                 uint3 result = (uint3)difference;
-                main = Pack((result << 3) | (result >> 2), 255);
+                composed = Pack((result << 3) | (result >> 2), 255);
             }
-            Output[id.xy] = main;
+            Output[id.xy] = composed;
         }
         return;
     }
@@ -593,7 +596,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
     // A word written over layer 2 shows its picture over whatever layer 2 shows there (#1403).
-    bool overlaid = (RoomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(scrolled, picture, within);
+    bool overlaid = (RoomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(scrolled, picture, within);
     if (!overlaid)
     {
         if (source == SourceFxOverlay)
@@ -608,7 +611,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         }
         else if (source == SourceLibraryBackground)
         {
-            if (!Bg2ImagePicture(scrolled, picture, within)) return;
+            if (!LibraryBackgroundPicture(scrolled, picture, within)) return;
         }
         else if (source == SourceHud)
         {

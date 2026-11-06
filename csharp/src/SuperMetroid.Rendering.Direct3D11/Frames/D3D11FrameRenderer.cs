@@ -312,7 +312,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[9] = BlendWord(layer.Blend);
         data[10] = (uint)layer.Blend.Colour.Red; data[11] = (uint)layer.Blend.Colour.Green; data[12] = (uint)layer.Blend.Colour.Blue;
         // The foreground is always the room's; the background is what the room publishes for it (#1403).
-        data[14] = D3D11RoomSources.Layer2Of(layer.Gameplay.Rooms);
+        data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Gameplay.Rooms);
         // What lies behind what blends: nothing (the blend's colour), the overlay, the background or both.
         D3D11BlendBehind? behind = (layer.BackgroundBehind, layer.OverlayBehind is not null) switch
         {
@@ -456,7 +456,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsPlaneScroll(),
+                        RoomSource = D3D11RoomSource.Background, Scroll = floor.Scroll.AsPlaneScroll(),
                         DrawnPart = Tiles(shown == GameplayLayer.BackgroundFrontTiles), FirstScanline = (uint)floorStart,
                     });
                     break;
@@ -509,7 +509,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                         if ((shownLayers & ScreenLayers.Foreground) != 0)
                             DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                             {
-                                RoomSource = D3D11RoomSource.Layer1,
+                                RoomSource = D3D11RoomSource.Foreground,
                                 Scroll = r.ForegroundScroll.AsPlaneScroll(),
                                 DrawnPart = Tiles(shown == GameplayLayer.ForegroundFrontTiles), FirstScanline = (uint)first, EndScanline = (uint)end,
                             });
@@ -532,7 +532,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
         data[7] = Tiles(frontTiles); data[8] = 1; data[15] = 1;
-        data[14] = D3D11RoomSources.Layer2Of(layer.Rooms);
+        data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Rooms);
         data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
         // Header word 27 is the mosaic's block size (zero elsewhere).
         data[27] = (uint)r.BackgroundPixelation.Size;
@@ -766,8 +766,9 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case TurningRoomLayer gameplay:
                     DispatchFloorRoom(gameplay);
                     break;
-                case TurningFloorLayer mode7:
-                    DispatchFloor(mode7.Transform, subtractSprites: mode7.SubtractsSprites, addLayer1: mode7.AddsForeground);
+                case TurningFloorLayer turning:
+                    DispatchFloor(turning.Transform, blend: turning.AddsForeground ? FloorColorBlend.AddForeground
+                        : turning.SubtractsSprites ? FloorColorBlend.SubtractSprites : FloorColorBlend.None);
                     break;
                 case SpritesLayer sprites:
                     // The layer's sprites over what lies behind them, or glowing over it; a tint brightens those that blend (#1514).
@@ -936,10 +937,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>
     /// Uploads the frame's floor (#1514): the matrix that turns each screen pixel's distance from the floor's centre into a
     /// distance across the floor, built from the floor's angle and scale, then the centre, the scroll, what shows outside
-    /// the floor, and optional color math. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
+    /// the floor, and how the floor blends. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
     /// </summary>
     private unsafe void DispatchFloor(FloorView view, int firstScanline = 0, int endScanline = 224,
-        bool subtractSprites = false, bool addLayer1 = false)
+        FloorColorBlend blend = FloorColorBlend.None)
     {
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Floor;
@@ -956,11 +957,27 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => throw new ArgumentOutOfRangeException(nameof(view), view.Outside, "Unknown floor overflow."),
         };
         data[25] = firstScanline; data[26] = endScanline;
-        data[27] = (int)(addLayer1 ? FloorColorBlend.AddForeground
-            : subtractSprites ? FloorColorBlend.SubtractSprites : FloorColorBlend.None);
+        data[27] = (int)FloorBlendWord(blend);
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
+
+    /// <summary>Tiles.hlsl's word for a floor drawn without blending.</summary>
+    private const uint FloorBlendsNot = 0;
+    /// <summary>Tiles.hlsl's word for a floor that subtracts the frontmost sprite.</summary>
+    private const uint FloorSubtractsSprites = 1;
+    /// <summary>Tiles.hlsl's word for a floor that adds its own colour over itself and the blending sprites.</summary>
+    private const uint FloorAddsOwnColour = 2;
+
+    /// <summary>The word Tiles.hlsl tests for how a floor blends (#1514).</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="blend"/> is not a defined floor blend.</exception>
+    private static uint FloorBlendWord(FloorColorBlend blend) => blend switch
+    {
+        FloorColorBlend.None => FloorBlendsNot,
+        FloorColorBlend.SubtractSprites => FloorSubtractsSprites,
+        FloorColorBlend.AddForeground => FloorAddsOwnColour,
+        _ => throw new InvalidOperationException($"Undefined floor blend {blend}."),
+    };
 
     /// <summary>ScreenGradient.hlsl's bit for a stop changing the floor and the backdrop where no sprite shows.</summary>
     private const uint GradientChangesFloorAndBackdrop = 1;

@@ -55,12 +55,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Words of the effect overlay's record.</summary>
     private const int FxOverlayWords = 5;
     /// <summary>Header word of the pictures written over the background, laid out as <see cref="OverlayWord"/>'s, or zero without any (#1348).</summary>
-    private const int Bg2OverlayWord = FxOverlayWord + 1;
+    private const int WrittenOverBackgroundWord = FxOverlayWord + 1;
     /// <summary>
     /// Header word of the perspective floor's pictures' colour slots, one word each in the order the floor image numbers
     /// its pictures, or zero without a floor (#1408, #1467).
     /// </summary>
-    private const int FloorSheetsWord = Bg2OverlayWord + 1;
+    private const int FloorSheetsWord = WrittenOverBackgroundWord + 1;
     /// <summary>
     /// Header word of a boss body's pieces (#1352, #1466, #1514), or zero without one: the count of pieces, the area the
     /// body covers, x below y, then four words each: its picture's offset, the body pixel its rectangle's top-left corner
@@ -78,9 +78,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, the area its
     /// pages cover, x below y (#1514), then each 16x16 cell's picture offset, zero where the image shows.
     /// </summary>
-    private const int Bg2ImageWord = XrayRevealWord + 1;
-    /// <summary>Header word of the scrolling sky's image, laid out as <see cref="Bg2ImageWord"/>'s, or zero without one (#1392).</summary>
-    private const int SkyImageWord = Bg2ImageWord + 1;
+    private const int LibraryBackgroundImageWord = XrayRevealWord + 1;
+    /// <summary>Header word of the scrolling sky's image, laid out as <see cref="LibraryBackgroundImageWord"/>'s, or zero without one (#1392).</summary>
+    private const int SkyImageWord = LibraryBackgroundImageWord + 1;
     /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
     private const int MessagePictureWord = SkyImageWord + 1;
     /// <summary>
@@ -319,7 +319,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackPlane(upload, plane, offset, pictureWords);
         foreach ((PictureGrid grid, int offset) in gridTables)
             PackGrid(upload, grid, offset, pictureWords);
-        upload[Bg2ImageWord] = (uint)imageOffset;
+        upload[LibraryBackgroundImageWord] = (uint)imageOffset;
         upload[SkyImageWord] = (uint)skyImageOffset;
         foreach ((RoomBackgroundImagePlane? plane, int offset) in new[] { (image, imageOffset), (skyImage, skyImageOffset) })
         {
@@ -338,7 +338,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (sky is not null)
             for (int band = 0; band < SkyPictures.Bands; band++)
                 upload[skyOffset + band] = sky.BandsShown[band] ? 1u : 0u;
-        upload[Bg2OverlayWord] = (uint)backgroundWrittenOffset;
+        upload[WrittenOverBackgroundWord] = (uint)backgroundWrittenOffset;
         PackWritten(upload, writtenOverBackground, backgroundWrittenOffset, pictureWords);
         upload[FloorSheetsWord] = (uint)floorOffset;
         if (mode7 is not null)

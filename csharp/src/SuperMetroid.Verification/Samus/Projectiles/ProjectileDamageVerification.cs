@@ -20,7 +20,7 @@ internal static class ProjectileDamageVerification
     /// <summary>Bank-$93 projectile headers after the 24 evenly spaced beam headers.</summary>
     private static readonly int[] LaterProjectileHeaders =
         [0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681, 0x938685, 0x938689,
-        0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7];
+        0x93868d, 0x938691, 0x9386ab, 0x9386c1];
 
     /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
     internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
@@ -31,16 +31,12 @@ internal static class ProjectileDamageVerification
         var bus = NewProjectileDamageReadGuard(rom);
         foreach (int address in headers)
             AssertEqual(Word(address), SamusProjectileDamage.Read(address), "Compiled native damage header");
-        for (int address = 0x9383c1; address < 0x9386db; address += 2)
-            AssertEqual(Word(address), SamusProjectileProgramsVerification.SelectionWord(address), "All 357 selectors and 40 adjacent damage headers avoid ROM reads");
+        int selectionWords = SamusProjectileProgramsVerification.VerifySelectionWords(Word, "Every selection and header word avoids ROM reads");
         foreach (int address in new[] { 0x938000, 0x938432, 0x9386db, 0x93ffff })
         {
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileDamage.Read(address),
                 "Unknown damage address fails instead of reading arbitrary cartridge data");
-            AssertThrows<InvalidDataException>(
-                () => SamusProjectileSelectionDefinitions.ReadWord(address),
-                "Unknown selector address fails instead of reading arbitrary cartridge data");
         }
 
         var room = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
@@ -110,7 +106,7 @@ internal static class ProjectileDamageVerification
             rejectedMarker = true;
         }
         AssertTrue(rejectedMarker, "The unused negative echo entry is unreachable: no projectile is a Spazer+Wave echo");
-        Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, loud non-catalog rejection and all seven initializer paths pass with selection/damage reads forbidden.");
+        Console.WriteLine($"Projectile initialization: {selectionWords} selection and header words, {headers.Length} damage headers, loud non-catalog rejection and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 
     /// <summary>Runs cost, angle, sine-offset, and activation checks for compiled special beam data.</summary>

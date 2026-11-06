@@ -122,11 +122,15 @@ internal sealed class BeamCombos
     /// <summary>Selects damage and instruction data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
     internal static void InitializeComboData(SamusProjectileSlot slot, BeamComboData comboData)
     {
-        bool echo = comboData == BeamComboData.Echo;
-        SamusProjectileSelectorTable table = comboData == BeamComboData.Charged ? SamusProjectileSelectorTable.ChargedBeam :
-            echo ? SamusProjectileSelectorTable.EchoAndTrail : SamusProjectileSelectorTable.SpecialAttack;
-        int index = echo ? EchoTableIndex(slot.Type) : slot.Type.BeamCombination.TableIndex;
-        SamusProjectileHeader header = SamusProjectileSelection.Select(table, index);
+        SamusProjectileHeader header = comboData switch
+        {
+            BeamComboData.Charged => SamusProjectileSelection.BeamShot(slot.Type.BeamCombination, charged: true),
+            BeamComboData.Echo => SamusProjectileSelection.Echo(
+                slot.Type.Echo ?? throw new InvalidOperationException("Echo data initializes an echo projectile.")),
+            BeamComboData.Combo => SamusProjectileSelection.SpecialAttack(slot.Type.BeamCombination)
+                ?? throw new InvalidDataException($"{slot.Type.BeamCombination}'s special attack has no particle header."),
+            _ => throw new ArgumentOutOfRangeException(nameof(comboData), comboData, "Undefined combo data."),
+        };
         slot.Damage = SamusProjectileDamage.Read(header);
         if (WordWrap.Signed(slot.Damage) < 0) throw new InvalidDataException("Negative combo projectile damage.");
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction.ToAimIndex() : 0);
@@ -135,9 +139,6 @@ internal sealed class BeamCombos
         if (comboData == BeamComboData.Charged)
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
-    /// <summary>The echo-and-trail selector entry an echo reads: its beam-table row past the table's two leading rows.</summary>
-    private static int EchoTableIndex(SamusProjectileType echo) =>
-        echo.BeamTableRow - SamusFiringTableDefinitions.EchoRowOffset - BeamComboDefinitions.EchoTableLeadingRows;
 
     /// <summary>Runs one Ice combo slot and returns its optional library-one sound request.</summary>
     internal SoundEffectId? StepIceCombo(SamusState samus,

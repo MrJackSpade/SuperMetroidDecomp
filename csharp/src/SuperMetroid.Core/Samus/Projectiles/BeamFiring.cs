@@ -282,10 +282,9 @@ internal sealed class BeamFiring
         // composition in one projectile slot, so no child projectiles are created here.
         SamusBeamCombination beamType = slot.Type.BeamCombination;
 
-        // The projectile setup indexes a data-table pointer by beam type, stores damage, chooses the
+        // The projectile setup selects the combination's header, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
-        SamusProjectileHeader header = SamusProjectileSelection.Select(
-            charged ? SamusProjectileSelectorTable.ChargedBeam : SamusProjectileSelectorTable.UnchargedBeam, beamType.TableIndex);
+        SamusProjectileHeader header = SamusProjectileSelection.BeamShot(beamType, charged);
         slot.Damage = SamusProjectileDamage.Read(header);
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, direction);
         slot.Cursor = SamusProjectilePrograms.Start(program);
@@ -381,8 +380,7 @@ internal sealed class BeamFiring
         // first instruction record executes.
         slot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
-        SamusProjectileHeader header = SamusProjectileSelection.Select(
-            SamusProjectileSelectorTable.ChargedBeam, hyperBeamType.TableIndex);
+        SamusProjectileHeader header = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
         slot.Damage = SamusProjectileDamage.Read(header);
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
@@ -475,8 +473,8 @@ internal sealed class BeamFiring
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
-        SamusProjectileHeader header = SamusProjectileSelection.Select(
-            SamusProjectileSelectorTable.NonBeam, samus.SelectedHudItem.ToWord());
+        // The selected HUD item chose the missile family above; the family selects the header.
+        SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
         slot.Damage = SamusProjectileDamage.Read(header);
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);

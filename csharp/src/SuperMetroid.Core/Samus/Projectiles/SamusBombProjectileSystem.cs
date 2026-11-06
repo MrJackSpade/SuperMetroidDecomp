@@ -565,8 +565,7 @@ public sealed class SamusBombProjectileSystem
     internal static void InitializeBomb(
         SamusBombProjectileSlot slot)
     {
-        // The non-beam selector is read at the family's row.
-        SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.NonBeam, slot.Type.Family.TableRow);
+        SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
 
         slot.Damage = SamusProjectileDamage.Read(header);
         if (WordWrap.Signed(slot.Damage) < 0)

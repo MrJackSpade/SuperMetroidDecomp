@@ -10,12 +10,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <item>the lists of the combination's uncharged and charged shots in every direction, its special attack's first list,
 /// and, for the combination the Hyper Beam loads, the charged Plasma lists the Hyper Beam fires;</item>
 /// <item>the missiles' and Super Missiles' lists in every direction, the bombs', Power Bombs' and the Super Missile
-/// link's first lists, and every echo and trail list;</item>
+/// link's first lists, and the Spazer special attack's trail and Shinespark echo lists in every direction;</item>
 /// <item>the explosions projectiles turn into and the bombs' fast lists;</item>
 /// <item>every list those continue into.</item>
 /// </list>
-/// The glitched Chainsaw and SpaceTime combinations select their shots the same way, reading past the beam rows into the
-/// charged rows and the missiles' rows, and have no special attack: the combo tables hold only the retail combinations.
+/// The glitched Chainsaw and SpaceTime combinations fire what the game selects past the beam selectors (a charged shot of
+/// another combination, or a missile or bomb: <see cref="UnauthoredBeamShots{TBeams, TProjectile}"/>), and have no special
+/// attack: the combo tables hold only the retail combinations.
 /// Their shots' callbacks move no animation. SpaceTime's copies the beam palette on over saved progress. Chainsaw's runs the Power Bomb
 /// fuse over the shot from a stopped fuse, which the fuse leaves stopped, so the shot never reaches the fast stage whose
 /// move would land its animation in another list (<see cref="SuperMetroid.Core.Compatibility.ChainsawFuseAnimationShift{TCursor}"/>).
@@ -28,17 +29,11 @@ internal static class LoadedBeamProjectilePrograms
     /// <summary>The combination the Hyper Beam's shots take their lists from: charged Plasma.</summary>
     private const SamusBeamCombination HyperBeamFired = SamusBeamCombination.Plasma;
 
-    /// <summary>The non-beam selector entries a missile reads, by the HUD item it is fired with: missile and Super Missile.</summary>
-    private static readonly int[] MissileEntries = [1, 2];
+    /// <summary>The families a fired missile is: missile and Super Missile.</summary>
+    private static readonly SamusProjectileFamily[] MissileFamilies = [SamusProjectileFamily.Missile, SamusProjectileFamily.SuperMissile];
 
-    /// <summary>The non-beam selector entries a placed bomb reads: Power Bomb and bomb.</summary>
-    private static readonly int[] BombEntries = [3, 5];
-
-    /// <summary>The echo and trail selector entries.</summary>
-    private const int EchoAndTrailEntries = 8;
-
-    /// <summary>The Super Missile link's selector entry.</summary>
-    private const int SuperMissileLinkEntry = 2;
+    /// <summary>The families a placed bomb is: Power Bomb and bomb.</summary>
+    private static readonly SamusProjectileFamily[] BombFamilies = [SamusProjectileFamily.PowerBomb, SamusProjectileFamily.Bomb];
 
     /// <summary>The lists projectiles turn into: the beam, missile, Super Missile and bomb explosions.</summary>
     private static readonly SamusProjectileProgram[] Explosions =
@@ -51,20 +46,20 @@ internal static class LoadedBeamProjectilePrograms
     internal static IReadOnlySet<SamusProjectileProgram> Of(SamusBeamCombination beams)
     {
         var starts = new List<SamusProjectileProgram>();
-        AddEveryDirection(starts, SamusProjectileSelectorTable.UnchargedBeam, beams.TableIndex);
-        AddEveryDirection(starts, SamusProjectileSelectorTable.ChargedBeam, beams.TableIndex);
+        foreach (bool charged in (bool[])[false, true])
+            AddEveryDirection(starts, SamusProjectileSelection.BeamShot(beams, charged));
         if (beams == HyperBeamLoaded)
-            AddEveryDirection(starts, SamusProjectileSelectorTable.ChargedBeam, HyperBeamFired.TableIndex);
+            AddEveryDirection(starts, SamusProjectileSelection.BeamShot(HyperBeamFired, charged: true));
         // Only a retail combination has a special attack.
-        if (beams.IsRetail)
-            AddFirst(starts, SamusProjectileSelectorTable.SpecialAttack, beams.TableIndex);
-        foreach (int entry in MissileEntries)
-            AddEveryDirection(starts, SamusProjectileSelectorTable.NonBeam, entry);
-        foreach (int entry in BombEntries)
-            AddFirst(starts, SamusProjectileSelectorTable.NonBeam, entry);
-        for (int entry = 0; entry < EchoAndTrailEntries; entry++)
-            AddEveryDirection(starts, SamusProjectileSelectorTable.EchoAndTrail, entry);
-        AddFirst(starts, SamusProjectileSelectorTable.SuperMissileLink, SuperMissileLinkEntry);
+        if (beams.IsRetail && SamusProjectileSelection.SpecialAttack(beams) is { } specialAttack)
+            AddFirst(starts, specialAttack);
+        foreach (SamusProjectileFamily family in MissileFamilies)
+            AddEveryDirection(starts, SamusProjectileSelection.NonBeam(family));
+        foreach (SamusProjectileFamily family in BombFamilies)
+            AddFirst(starts, SamusProjectileSelection.NonBeam(family));
+        foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
+            AddEveryDirection(starts, SamusProjectileSelection.Echo(echo));
+        AddFirst(starts, SamusProjectileHeader.SuperMissileLink);
         starts.AddRange(Explosions);
         starts.AddRange(SamusPowerBombFuseData.FastCounterparts.Values.Select(cursor => cursor.Program));
         return Continued(starts);
@@ -77,17 +72,14 @@ internal static class LoadedBeamProjectilePrograms
             .Select(show => show.Frame)
             .Distinct();
 
-    /// <summary>Adds every list the header at <paramref name="table"/>'s entry <paramref name="index"/> names, when it holds one.</summary>
-    private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileSelectorTable table, int index)
-    {
-        if (SamusProjectileSelection.Entry(table, index) is { } header)
-            starts.AddRange(SamusProjectileHeaders.Programs(header));
-    }
+    /// <summary>Adds every list <paramref name="header"/> names.</summary>
+    private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
+        starts.AddRange(SamusProjectileHeaders.Programs(header));
 
-    /// <summary>Adds the first list of the header at <paramref name="table"/>'s entry <paramref name="index"/>, when it holds one.</summary>
-    private static void AddFirst(List<SamusProjectileProgram> starts, SamusProjectileSelectorTable table, int index)
+    /// <summary>Adds the first list of <paramref name="header"/>, when it names one.</summary>
+    private static void AddFirst(List<SamusProjectileProgram> starts, SamusProjectileHeader header)
     {
-        if (SamusProjectileSelection.Entry(table, index) is { } header && SamusProjectileHeaders.Program(header, 0) is { } program)
+        if (SamusProjectileHeaders.Program(header, 0) is { } program)
             starts.Add(program);
     }
 

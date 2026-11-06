@@ -17,9 +17,4 @@ public static class BeamComboDefinitions
     public static readonly SoundEffectId WaveRemovalSound = Library1Sound.WaveSpecialAttackEnd;
     /// <summary>ProjPreInstr_WaveSba: the sound of the oscillator's pulse.</summary>
     public static readonly SoundEffectId WavePulseSound = Library1Sound.WaveSpecialAttack;
-    /// <summary>
-    /// The echo-and-trail selector table's entries trail the echo beam-table rows by two: an echo's entry is its
-    /// beam combination's table index less two.
-    /// </summary>
-    internal const int EchoTableLeadingRows = 2;
 }

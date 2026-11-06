@@ -98,34 +98,44 @@ internal static class SamusProjectileProgramsVerification
     internal static IEnumerable<ushort> Headers() =>
         Enum.GetValues<SamusProjectileHeader>().Select(SamusProjectileHeaderNative.Address);
 
-    /// <summary>
-    /// The word the selection tables hold at <paramref name="address"/>: a header's list field is the entry of the typed
-    /// program it selects (zero for none); every other word is the selection definitions'.
-    /// </summary>
-    internal static ushort SelectionWord(int address)
-    {
-        if (HeaderListField(address) is not { } field)
-            return SamusProjectileSelectionDefinitions.ReadWord(address);
-        return SamusProjectileHeaders.Program(field.Header, field.Index) is { } program
-            ? SamusProjectileProgramAddresses.Entry(program) : (ushort)0;
-    }
+    /// <summary>The headers that hold only their first list field; every other header holds all ten.</summary>
+    private static readonly HashSet<SamusProjectileHeader> FirstListOnlyHeaders =
+    [
+        SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.PowerBomb, SamusProjectileHeader.Bomb,
+        SamusProjectileHeader.BeamExplosion, SamusProjectileHeader.MissileExplosion, SamusProjectileHeader.BombExplosion,
+        SamusProjectileHeader.PlasmaSBA, SamusProjectileHeader.WaveSBA, SamusProjectileHeader.SpazerSBA,
+        SamusProjectileHeader.SuperMissileExplosion, SamusProjectileHeader.Projectile27,
+    ];
 
-    /// <summary>The header and list field <paramref name="address"/> lies in, or null outside the headers' list fields.</summary>
-    private static HeaderListFieldResult? HeaderListField(int address)
+    /// <summary>
+    /// Compares every selection the port makes with the cartridge selector word that makes it, a Spazer and Plasma
+    /// combination's read past its table included, and every header's own words (its damage, and each list field it
+    /// holds as the entry of the typed program the field selects, zero for none) with the cartridge's.
+    /// </summary>
+    /// <param name="word">Reads the cartridge word at a bank-$93 address.</param>
+    /// <param name="label">Names the check in its failures.</param>
+    /// <returns>The number of words compared.</returns>
+    internal static int VerifySelectionWords(Func<int, ushort> word, string label)
     {
-        int link = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.SuperMissileLink);
-        int projectile25 = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.Projectile25);
-        int projectile27 = 0x930000 | SamusProjectileHeaderNative.Address(SamusProjectileHeader.Projectile27);
-        if (address < SamusProjectileDamage.BeamHeaderStart || address >= projectile27 + 2 * sizeof(ushort))
-            return null;
-        (int start, int stride) = address < link
-            ? new HeaderListFieldCase(SamusProjectileDamage.BeamHeaderStart, SamusProjectileDamage.BeamHeaderStride)
-            : address < projectile25 ? new HeaderListFieldCase(link, 2 * sizeof(ushort))
-            : address < projectile27 ? new HeaderListFieldCase(projectile25, SamusProjectileDamage.BeamHeaderStride)
-            : new HeaderListFieldCase(projectile27, 2 * sizeof(ushort));
-        int header = start + (address - start) / stride * stride;
-        int offset = address - header;
-        return offset == 0 ? null : new HeaderListFieldResult((ushort)header, offset / sizeof(ushort) - 1);
+        Ensure.NotNull(word);
+        int compared = 0;
+        foreach (ProjectileSelectorWord selector in SamusProjectileHeaderNative.Selectors())
+        {
+            AssertEqual(word(selector.Address), SamusProjectileHeaderNative.Address(selector.Header), $"{label}: selector {selector.Address:X6} selects {selector.Header}");
+            compared++;
+        }
+        foreach (SamusProjectileHeader header in Enum.GetValues<SamusProjectileHeader>())
+        {
+            int at = SamusSourceDefinitions.ProjectileDataBank.Value | SamusProjectileHeaderNative.Address(header);
+            AssertEqual(word(at), checked((ushort)SamusProjectileDamage.Read(header)), $"{label}: {header} damage");
+            compared++;
+            int fields = FirstListOnlyHeaders.Contains(header) ? 1 : HeaderListFields;
+            for (int field = 0; field < fields; field++, compared++)
+                AssertEqual(word(at + sizeof(ushort) * (1 + field)),
+                    SamusProjectileHeaders.Program(header, field) is { } program ? SamusProjectileProgramAddresses.Entry(program) : (ushort)0,
+                    $"{label}: {header} list field {field}");
+        }
+        return compared;
     }
 
     /// <summary>The typed record at bank-$93 record address <paramref name="address"/>.</summary>

@@ -1298,17 +1298,9 @@ internal static class LookupStream1Verification
     /// <summary>Checks the full bank-$93 projectile selection table against compiled words.</summary>
     internal static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
     {
-        for (int address = 0x9383c1; address < 0x9386db; address += 2)
-        {
-            ushort expected = LittleEndianBytes.Word(LookupStream1SelectionRomByte(rom, address), LookupStream1SelectionRomByte(rom, address + 1));
-            AssertEqual(expected, SamusProjectileProgramsVerification.SelectionWord(address),
-                $"stream1 original projectile selector/header {address:X6}");
-            AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(address + 1),
-                "stream1 unaligned selector/header rejection");
-        }
-        foreach (int invalid in new[] { int.MinValue, 0x9283c1, 0x9383bf, 0x9386db, 0x9483c1, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(invalid),
-                "stream1 selector exact address-domain rejection");
+        SamusProjectileProgramsVerification.VerifySelectionWords(
+            address => LittleEndianBytes.Word(LookupStream1SelectionRomByte(rom, address), LookupStream1SelectionRomByte(rom, address + 1)),
+            "stream1 original projectile selection");
     }
 
     /// <summary>Reads bank-$93 projectile selector words.</summary>

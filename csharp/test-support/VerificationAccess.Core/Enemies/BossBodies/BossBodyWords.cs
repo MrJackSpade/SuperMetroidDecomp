@@ -4,58 +4,59 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
-/// The cartridge's view of a boss body layer (#1466): the tilemap entry each cell shows, read back from the installed
-/// frame documents the import composed each part from, so checks can compare a layer with the cartridge's words.
+/// The cartridge's view of a boss body (#1466, #1515): the tilemap entry each cell of the boss's layer shows, read back
+/// from the cells the import composed each shown frame from, so checks can compare a body with the cartridge's words.
 /// </summary>
 internal static class BossBodyWords
 {
+    /// <summary>Rows of the layer Phantoon, Draygon, Crocomire and Mother Brain show their bodies on: two screens.</summary>
+    internal const int SharedLayerRows = 2 * BossBodySourceDefinitions.ScreenRows;
+
+    /// <summary>Rows of Kraid's layer: four screens.</summary>
+    internal const int KraidLayerRows = 4 * BossBodySourceDefinitions.ScreenRows;
+
     /// <summary>
-    /// The tilemap entry each cell of <paramref name="layer"/> shows, row by row, 32 to a row: the word the frame a part was
-    /// cut from writes at the cell, or where the blank shows, <paramref name="blankWord"/> or else <paramref name="owner"/>'s blank.
+    /// The tilemap entry each cell of <paramref name="layer"/> shows, row by row, 32 to a row: the word the frame shown over
+    /// the cell writes there, a later frame over an earlier, or where no frame shows, <paramref name="blankWord"/> or else
+    /// <paramref name="owner"/>'s blank. A cell whose top lies at or below the row the body is hidden from shows the blank.
     /// </summary>
-    /// <exception cref="InvalidDataException">A part names a frame <paramref name="bosses"/> does not hold, or a cell the frame does not write.</exception>
+    /// <exception cref="InvalidDataException">The layer shows a frame <paramref name="bosses"/> does not compose.</exception>
     internal static ushort[] Of(BossBodyLayer layer, BossBodyOwner owner, BossArtworkCatalog bosses, ushort? blankWord = null)
     {
         Dictionary<string, BossBodyFrameSource> frames = FramesOf(bosses.Sources, owner);
         ushort blank = blankWord ?? BossBodySheetComposer.BlankOf(owner).PackedWord;
-        // A cell no part shows holds the blank, which the layer leaves undrawn when the blank shows nothing.
-        // Every boss draws on a canvas of the shared body's rows but Kraid, whose layout has its own.
-        int rows = owner == BossBodyOwner.Kraid ? SuperMetroid.Core.Bosses.Kraid.KraidBodyLayout.LayerRows : BossBodyDefinitions.SharedBodyRows;
-        var words = new ushort[rows * BossBodyDefinitions.ColumnCount];
+        int rows = owner == BossBodyOwner.Kraid ? KraidLayerRows : SharedLayerRows;
+        var words = new ushort[rows * BossBodySourceDefinitions.LayerColumns];
         Array.Fill(words, blank);
-        foreach (BossBodyPlacement placement in layer.Placements)
+        foreach (BossBodyFrame shown in layer.Frames)
         {
-            string frameName = placement.Part.Name.Split('~')[0];
-            BossBodyFootprint shows = placement.Shows;
-            for (int row = shows.Top; row < shows.End; row++)
+            BossBodyFrameSource frame = frames.TryGetValue(shown.Name, out BossBodyFrameSource? found) ? found
+                : throw new InvalidDataException($"{owner}'s body shows frame {shown.Name}, which no installed frame composes.");
+            foreach ((int cell, BackgroundTile tile) in frame.Cells)
+                words[cell] = tile.PackedWord;
+        }
+        if (layer.HiddenFrom is { } hidden)
+        {
+            for (int cell = 0; cell < words.Length; cell++)
             {
-                for (int column = 0; column < BossBodyDefinitions.ColumnCount; column++)
-                {
-                    if (!shows.Covers(row, column))
-                        continue;
-                    int cell = row * BossBodyDefinitions.ColumnCount + column;
-                    words[cell] = frameName == BossBodyPainter.BlankPartName ? blank
-                        : frames.TryGetValue(frameName, out BossBodyFrameSource? frame) && frame.Cells.TryGetValue(cell, out BackgroundTile tile)
-                            ? tile.PackedWord
-                            : throw new InvalidDataException($"{owner}'s body part {placement.Part.Name} shows cell {cell}, which no installed frame writes.");
-                }
+                if (BossBodyPainter.PixelOf(cell).Y >= hidden)
+                    words[cell] = blank;
             }
         }
         return words;
     }
 
     /// <summary>
-    /// The frames composed from each installed artwork, by boss: installed artwork never changes, so a check reading a layer
+    /// The frames composed from each installed artwork, by boss: installed artwork never changes, so a check reading a body
     /// every frame composes its boss's frames once rather than once per read.
     /// </summary>
     private static readonly ConditionalWeakTable<BossSourceArtwork, ConcurrentDictionary<BossBodyOwner, Dictionary<string, BossBodyFrameSource>>> composed = new();
 
-    /// <summary>The frames <paramref name="owner"/> draws in <paramref name="sources"/>, by name, composed on first use.</summary>
+    /// <summary>The frames <paramref name="owner"/> shows in <paramref name="sources"/>, by name, composed on first use.</summary>
     private static Dictionary<string, BossBodyFrameSource> FramesOf(BossSourceArtwork sources, BossBodyOwner owner) =>
         composed.GetValue(sources, _ => new()).GetOrAdd(owner, boss =>
             BossBodySheetComposer.Frames(sources, boss).ToDictionary(frame => frame.Name, StringComparer.Ordinal));

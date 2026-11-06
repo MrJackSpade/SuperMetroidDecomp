@@ -80,9 +80,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         Combat.Phantoon = new PhantoonEnemyState(body);
 
-        // Phantoon shows his body on a cleared body layer (#1353, #1466): his body, eye, tentacle and mouth frames are
-        // drawn on it.
-        _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Phantoon), BossBodyDefinitions.SharedBodyRows));
+        // Phantoon shows his body, eye, tentacle and mouth frames on his body (#1353, #1466, #1515), nothing at first.
+        _presentation.AttachBossBody(new BossBodyParts());
 
         // His body is black as the fight starts, which his later fades start from (#1512).
         Combat.Phantoon.Colours.Show(PhantoonBodyLook.Black);

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
@@ -8,12 +7,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 public sealed class CrocomireDeathState
 {
-    /// <summary>
-    /// The canvas Crocomire's death assembles his body on before showing it (#1466): his melt images over a blank, and the
-    /// body frames he draws meanwhile.
-    /// </summary>
-    internal BossBodyCanvas? WorkingBody { get; init; }
-
     /// <summary>
     /// Bridge fragments the collapse has launched so far, zero through
     /// <see cref="CrocomireBridgeFragmentDefinitions.FragmentCount"/>; it advances once per collapse frame and stops

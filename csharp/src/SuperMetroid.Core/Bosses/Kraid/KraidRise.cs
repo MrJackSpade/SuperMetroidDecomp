@@ -87,8 +87,7 @@ internal sealed class KraidRise
         state.EjectionLimit = new Position16<RoomPixels>(0, 324);
         state.InitialHealth = body.Health;
 
-        // Kraid's initialization readies his body, whose halves rise, head, growth and death functions show on independently
-        // timed updates.
+        // Kraid's initialization readies his body layer, on which his body shows once he rises.
         state.InitializeBodyLayer();
         state.HurtFrame = 0;
         state.HurtFrameTimer = WrappingCountdown.Start(0);
@@ -175,7 +174,7 @@ internal sealed class KraidRise
                 _slotTable.Slots[1].Properties = _slotTable.Slots[1].Properties.Without(
                     EnemyProperties.IgnoreSamusCollision);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowShowLowerBodyInFront;
-                state.ShowUpperBody();
+                state.ShowBody();
                 return;
 
             case KraidAiFunction.GrowShowLowerBodyInFront:
@@ -187,7 +186,6 @@ internal sealed class KraidRise
                     _access.SetKraidPartProgram(_slotTable.Slots[lintSlot], KraidPartProgram.LintPostGrowth);
                     _slotTable.Slots[lintSlot].Frame = KraidPartFrameDefinitions.ShownFrames.Of(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
                 }
-                state.ShowLowerBody();
                 return;
 
             case KraidAiFunction.GrowDrawRoomBackground:
@@ -334,7 +332,8 @@ internal sealed class KraidRise
             case KraidAiFunction.RaiseKraidThroughFloor:
                 RestrictSamusToKraidFirstScreen(samus);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseShowLowerBody;
-                state.ShowUpperBody();
+                // His body shows from here, as he rises through the floor (#1515).
+                state.ShowBody();
                 return;
 
             case KraidAiFunction.RaiseShowLowerBody:
@@ -343,7 +342,6 @@ internal sealed class KraidRise
                 state.Parts[body.SlotIndex].RisingRockTimer = WrappingCountdown.Start(120);
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(5));
-                state.ShowLowerBody();
                 return;
 
             case KraidAiFunction.RaiseRocksEvery16Frames:

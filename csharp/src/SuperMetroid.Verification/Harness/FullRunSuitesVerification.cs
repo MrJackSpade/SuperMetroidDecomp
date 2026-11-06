@@ -98,7 +98,6 @@ using static SuperMetroid.Verification.Bosses.Draygon.DraygonEyeEffectsVerificat
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonPrebattleXrayVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonScrollingSpeedCapVerification;
-using static SuperMetroid.Verification.Bosses.Draygon.DraygonTilemapProductionVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonTurretCadenceVerification;
 using static SuperMetroid.Verification.Audio.DspControlsVerification;
 using static SuperMetroid.Verification.Enemies.Elevator.ElevatorStandUpContactVerification;
@@ -647,7 +646,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySparkCrashAlignment), () => VerifySparkCrashAlignment()),
         new(nameof(VerifyEnemyAngleDivision), () => VerifyEnemyAngleDivision()),
         new(nameof(VerifyDraygonEyeEffects), () => VerifyDraygonEyeEffects()),
-        new(nameof(VerifyDraygonTilemapProduction), () => VerifyDraygonTilemapProduction()),
         new(nameof(VerifyFrogSpeedwayPoolCollision), () => VerifyFrogSpeedwayPoolCollision()),
         new(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv")),
         new(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv", 9)),

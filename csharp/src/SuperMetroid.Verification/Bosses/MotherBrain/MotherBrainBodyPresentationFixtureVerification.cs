@@ -70,14 +70,11 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         }
 
         /// <summary>The tilemap entry each cell of the body layer her body draws on shows, from the frames her artwork installs (#1466).</summary>
-        internal ushort[] Bg2Words => BossBodyWords.Of(Inner.Enemies.Presentation.RequireBossBody().Publish(Sheets), BossBodyOwner.MotherBrain,
+        internal ushort[] Bg2Words => BossBodyWords.Of(Inner.Enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.MotherBrain,
             bodies.Frames);
 
-        /// <summary>The tile her body layer shows where none of her frames has drawn.</summary>
-        internal static BackgroundTile Bg2FillTile => BossBodySheetComposer.BlankOf(BossBodyOwner.MotherBrain);
-
-        /// <summary>Clears the first cell of her body layer, which a later redraw of a frame writing it would cover.</summary>
-        internal void MarkBg2() => Inner.Enemies.Presentation.RequireBossBody().Clear(0, 1);
+        /// <summary>Clears her body, which a later frame shown on it would replace (#1515).</summary>
+        internal void MarkBg2() => Inner.Enemies.Presentation.RequireBossBody().Clear();
 
         /// <summary>The fixture's boss frames and the body sheets composed from them, which her body draws from.</summary>
         private readonly BossBodyArtworkFixture bodies;
@@ -86,7 +83,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         private BossBodySheets Sheets => bodies.Sheets;
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
-        /// <summary>Attaches a fresh body layer showing her blank, as her phase-two transition does, before checking fresh publication.</summary>
-        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyCanvas(Sheets.Of(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows));
+        /// <summary>Attaches a fresh body showing nothing, as her phase-two transition reveals it, before checking fresh publication.</summary>
+        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts());
     }
 }

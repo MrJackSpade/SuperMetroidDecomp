@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireMelting
 {
-    /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
+    /// <summary>Crocomire's body layer: where it is placed, what his body shows on it, the tongue placed with it and the acid smoke drawn with it.</summary>
     private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
@@ -53,8 +53,7 @@ internal sealed class CrocomireMelting
             tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + 16)));
         }
 
-        // The first melting stage clears the first sixteen rows.
-        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.First, clearedCells: 512);
+        ShowCrocomireMeltingImage(state, CrocomireMeltingIllustration.First);
     }
 
     /// <summary>
@@ -66,8 +65,7 @@ internal sealed class CrocomireMelting
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
         StartCrocomireMeltingBodyProgram(state, CrocomireBodyProgram.MeltingTwoTopRow);
-        // The second melting stage clears the first thirty-two rows.
-        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second, clearedCells: 1024);
+        ShowCrocomireMeltingImage(state, CrocomireMeltingIllustration.Second);
     }
 
     /// <summary>
@@ -86,18 +84,9 @@ internal sealed class CrocomireMelting
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, bodyProgram);
     }
 
-    /// <summary>
-    /// Assembles melt image <paramref name="illustration"/> on the working canvas below its first
-    /// <paramref name="clearedCells"/> cleared cells and shows it, with the first sixteen rows of the canvas before it.
-    /// </summary>
-    private void ShowCrocomireMeltingImage(CrocomireMeltingIllustration illustration, int clearedCells)
-    {
-        BossBodyCanvas working = _bodyLayer.WorkingBody;
-        working.Clear(0, clearedCells);
-        working.Draw(RequireCrocomireMeltingImage(illustration));
-        // The image is shown with the sixteen rows the game's transfer leads it with, and what follows it there.
-        _bodyLayer.ShowCrocomireWorkingCells(0, CrocomireMeltingDefinitions.ShownMeltCells);
-    }
+    /// <summary>Shows melt image <paramref name="illustration"/> as his whole body, in place of the body frame it showed (#1515).</summary>
+    private void ShowCrocomireMeltingImage(CrocomireEnemyState state, CrocomireMeltingIllustration illustration) =>
+        _bodyLayer.ShowCrocomireBodyFrame(state, RequireCrocomireMeltingImage(illustration));
 
     /// <summary>
     /// Begins <paramref name="pass"/>'s melt: resets the background scroll table and the distortion, and starts
@@ -267,8 +256,7 @@ internal sealed class CrocomireMelting
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
-        _bodyLayer.ClearCrocomireWorkingBody();
-        _bodyLayer.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
+        _bodyLayer.ClearCrocomireBody();
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 }

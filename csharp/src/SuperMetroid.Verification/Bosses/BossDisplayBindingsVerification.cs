@@ -50,15 +50,13 @@ internal static class BossDisplayBindingsVerification
     /// </summary>
     internal static void AssertBossBg2(BossDisplayFixture fixture, EnemyBg2WriteDocument[] writes)
     {
-        // The boss draws on the body layer it owns (#1446); cells no frame reaches keep the layer's blank.
+        // The boss shows each frame whole on the body it owns (#1446, #1515): every word a frame writes shows, and a frame
+        // the cartridge writes over another shows that frame elsewhere, so only the written cells are compared.
         ushort[] actual = fixture.Bg2Words;
-        var expected = Enumerable.Repeat(BackgroundTileWords.ToWord(fixture.Bg2FillTile),
-            EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight).ToArray();
         foreach (EnemyBg2WriteDocument write in writes)
             for (int index = 0; index < write.Tiles.Length; index++)
-                expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + index] = write.Tiles[index].PackedWord;
-        for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], actual[index], "boss BG2 exact ordered destinations and payload");
+                AssertEqual(write.Tiles[index].PackedWord, actual[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + index],
+                    "boss BG2 exact ordered destinations and payload");
     }
 
     /// <summary>Runs the boss display checks.</summary>

@@ -141,15 +141,14 @@ internal static class MotherBrainBodyPresentationVerification
     /// <summary>Checks the exact BG2 tilemap words, each authored cell's tile encoded through the codec, and destinations written for a selected body pose.</summary>
     private static void AssertBodyBg2(ushort[] actual, EnemyBg2FrameDocument authored, string oamName)
     {
-        // Her body draws into the BG2 image she owns (#1459); cells no write reaches keep the image's fill.
-        var expected = Enumerable.Repeat(BackgroundTileWordBytes.Words([MotherBrainPresentationFixture.Bg2FillTile])[0],
-            EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight).ToArray();
-        if (authored.Frames.TryGetValue(oamName.Replace("_oam_", "_bg2_", StringComparison.Ordinal), out var writes))
-            foreach (EnemyBg2WriteDocument write in writes)
-                for (int tile = 0; tile < write.Tiles.Length; tile++)
-                    expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + tile] = write.Tiles[tile].PackedWord;
-        for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], actual[index], "body BG2 exact ordered runs and destinations");
+        // Her body shows each of her frames whole (#1459, #1515): every word a frame writes shows, and a frame the cartridge
+        // writes over another shows that frame elsewhere, so only the written cells are compared.
+        if (!authored.Frames.TryGetValue(oamName.Replace("_oam_", "_bg2_", StringComparison.Ordinal), out var writes))
+            return;
+        foreach (EnemyBg2WriteDocument write in writes)
+            for (int tile = 0; tile < write.Tiles.Length; tile++)
+                AssertEqual(write.Tiles[tile].PackedWord, actual[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + tile],
+                    "body BG2 exact ordered runs and destinations");
     }
 
     /// <summary>Invokes import-only parsers for the 17 statically inventoried body roots.</summary>

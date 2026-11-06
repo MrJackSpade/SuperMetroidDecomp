@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Escape;
 
@@ -178,16 +177,10 @@ public sealed class MotherBrainEnemyState
     public bool PlacesBodyLayer { get; internal set; }
     /// <summary>ADF41C's death flicker hiding her body layer this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
-    /// <summary>One-shot latch for the AFE0 clearing of her body layer.</summary>
+    /// <summary>One-shot latch for her death clearing her body.</summary>
     public bool DeathBodyLayerCleared { get; internal set; }
     /// <summary>Live escape message owner installed by the escape setup.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
-
-    /// <summary>
-    /// The body Mother Brain stages from her initialization until her phase-two transition shows it (#1356, #1466): her
-    /// body frames are drawn on it meanwhile.
-    /// </summary>
-    internal BossBodyCanvas? StagedBody { get; init; }
 
     /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
     public WrappingCountdown BodySubFunctionTimer { get; internal set; }

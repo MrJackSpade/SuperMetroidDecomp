@@ -40,8 +40,8 @@ internal static class EnemyTileArtworkKraidVerification
             "installed Kraid BG2 construction preserves all native working words");
         KraidEnemyState initialized = InitializeKraidBackground();
         AssertTrue(initialized.ShowsBodyLayer, "Kraid's body initialization shows his body layer");
-        AssertTrue(initialized.BodyAppearance == KraidBodyAppearance.BehindSprites,
-            "Kraid's body initialization readies his body behind the sprites");
+        AssertTrue(initialized.BodyAppearance == KraidBodyAppearance.BehindSprites && !initialized.BodyShown,
+            "Kraid's body initialization readies his body behind the sprites, shown once he rises");
         ushort[] nativeShown = KraidBodyFixtures.Tilemap(native.AsSpan(0, KraidWorkingMapDefinitions.PageCells), [],
             native.AsSpan(KraidWorkingMapDefinitions.LowerPageFirstCell, KraidWorkingMapDefinitions.PageCells));
         AssertTrue(ShowKraidVisiblePages(stock).SequenceEqual(nativeShown),
@@ -66,11 +66,11 @@ internal static class EnemyTileArtworkKraidVerification
                 AssertEqual(LittleEndianBytes.Word(native[word * 2], native[word * 2 + 1]),
                     installed[word], $"Kraid head ${pointer:X4} word {word}");
 
-            (KraidEnemyState baseline, ushort[] nativeShown) = ReadImportedKraidHeadFrame(rom, pointer);
-            (KraidEnemyState selected, ushort[] installedShown) = RunKraidHeadFrame(stock, pointer);
-            AssertTrue(selected.BodyAppearance == baseline.BodyAppearance,
-                $"Kraid head ${pointer:X4} leaves how his body appears");
-            AssertTrue(installedShown.SequenceEqual(nativeShown),
+            (KraidEnemyState _, ushort[] nativeShown) = ReadImportedKraidHeadFrame(rom, pointer);
+            (KraidEnemyState _, ushort[] installedShown) = RunKraidHeadFrame(stock, pointer);
+            // His head shows over his body's top rows (#1515).
+            AssertTrue(installedShown.AsSpan(0, KraidWorkingMapDefinitions.HeadImageCells)
+                    .SequenceEqual(nativeShown.AsSpan(0, KraidWorkingMapDefinitions.HeadImageCells)),
                 $"Kraid head ${pointer:X4} preserves the shown head");
         }
 
@@ -105,12 +105,12 @@ internal static class EnemyTileArtworkKraidVerification
             ?? throw new InvalidOperationException("Verification requires installed Kraid background characters.")));
     }
 
-    /// <summary>The BG2 tilemap a selected installed head frame shows over blank pages.</summary>
+    /// <summary>The BG2 tilemap a selected installed head pose shows over his risen body.</summary>
     private static RunKraidHeadFrameResult RunKraidHeadFrame(InstalledEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadTilemapFormat.HeadsByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
-        var state = new KraidEnemyState();
-        state.ShowHead(frame);
+        var state = new KraidEnemyState { BodyAppearance = KraidBodyAppearance.BehindSprites, DisplayedHeadFrame = frame };
+        state.ShowBody();
         return new RunKraidHeadFrameResult(state, KraidBodyFixtures.Shown(artwork.Bosses, state));
     }
 
@@ -125,14 +125,11 @@ internal static class EnemyTileArtworkKraidVerification
         return state;
     }
 
-    /// <summary>Shows both halves of Kraid's readied body and checks that they are what his body layer shows.</summary>
+    /// <summary>What his body layer shows once Kraid's readied body has risen behind the sprites (#1515).</summary>
     private static ushort[] ShowKraidVisiblePages(InstalledEnemyArtwork artwork)
     {
         KraidEnemyState state = InitializeKraidBackground();
-        state.ShowUpperBody();
-        state.ShowLowerBody();
-        AssertTrue(state.ShownBody.Upper == state.BodyAppearance && state.ShownBody.Lower == state.BodyAppearance,
-            "Kraid shows both halves of his body");
+        state.ShowBody();
         return KraidBodyFixtures.Shown(artwork.Bosses, state);
     }
 }

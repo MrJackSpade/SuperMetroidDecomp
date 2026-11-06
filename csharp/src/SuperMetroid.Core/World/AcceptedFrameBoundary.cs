@@ -272,7 +272,7 @@ internal sealed class AcceptedFrameBoundary
                 ? background.Image.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
         }
         // A boss body shows each part's picture for the frame its animation selected (#1466).
-        ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames, BossBodyArea(latched.Bosses));
+        ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames, BossBodyExtent(latched.Bosses));
         // Pictures written over the background draw from the written picture sheet's frames for the inputs they depend on (#1466).
         RoomOverlayPictures? writtenOverBackground = scope.WrittenOverBackground is { } overlay
             ? new RoomOverlayPictures((scope.BackgroundWrittenPictures ?? throw new InvalidDataException(
@@ -306,13 +306,13 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The area a boss body's pages cover (#1514): Kraid's four, two across and two down; Mother Brain's first while she
-    /// places her body; any other body's two side by side.
+    /// The area a boss body covers before it repeats (#1514): Kraid's two screens across and two down; one screen while
+    /// Mother Brain places her body; any other body's two screens side by side.
     /// </summary>
-    private static Extent16<BackgroundPixels> BossBodyArea(GameplayLatchedBossBackgrounds bosses) =>
+    private static Extent16<BackgroundPixels> BossBodyExtent(GameplayLatchedBossBackgrounds bosses) =>
         bosses.KraidBodyPlacement is not null ? KraidBackgroundDefinitions.BodyArea
-        : bosses.MotherBrainBody is { LayerPlacement: not null } ? BossBodyDefinitions.FirstPageArea
-        : BossBodyDefinitions.SideBySideArea;
+        : bosses.MotherBrainBody is { LayerPlacement: not null } ? ShownBossBody.OneScreenArea
+        : ShownBossBody.SideBySideArea;
 
     /// <summary>The effect overlay plane this frame boundary displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
     internal FxOverlayPlane CaptureFxOverlayPlane() => _room.FxOverlay?.EffectPlane ?? FxOverlayPlane.Cleared;

@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's body layer (#1352, #1466): his body frame drawn from his installed body sheet, the upper body over the
-/// top-left page with his head over it, and the lower body over the bottom-left page.
+/// Kraid's body layer (#1352, #1466, #1515): his whole body as he now appears, from his installed body sheet, with his
+/// head at its current pose over it.
 /// </summary>
 [RoomLifetime]
 internal sealed class KraidBodyLayer
@@ -16,7 +16,7 @@ internal sealed class KraidBodyLayer
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
-    /// <summary>The last body frame drawn, and its layer.</summary>
+    /// <summary>The body last shown, and its layer.</summary>
     private KraidShownBody? shown;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -28,33 +28,38 @@ internal sealed class KraidBodyLayer
 
     /// <summary>
     /// The body layer Kraid shows while he owns it (#1352); null when he does not. Drawn from his installed body sheet once
-    /// per distinct body frame.
+    /// per distinct appearance and head pose.
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
+    /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows.</exception>
     internal BossBodyLayer? CaptureBodyLayer()
     {
         if (_access.Kraid is not { ShowsBodyLayer: true } state)
             return null;
         BossBodySheet sheet = _bossArtwork.Body(BossBodyOwner.Kraid);
-        if (shown is not { } cached || cached.Frame != state.ShownBody || !ReferenceEquals(cached.Sheet, sheet))
-            shown = cached = new KraidShownBody(state.ShownBody, sheet, Draw(state.ShownBody, sheet));
+        KraidBodyAppearance appearance = state.BodyShown ? state.BodyAppearance : KraidBodyAppearance.Hidden;
+        if (shown is not { } cached || cached.Appearance != appearance || cached.Head != state.DisplayedHeadFrame
+            || !ReferenceEquals(cached.Sheet, sheet))
+        {
+            shown = cached = new KraidShownBody(appearance, state.DisplayedHeadFrame, sheet, Draw(appearance, state.DisplayedHeadFrame, sheet));
+        }
         return cached.Layer;
     }
 
     /// <summary>Where Kraid's body layer is placed while it is shown (#1352); otherwise null.</summary>
     internal Position16<BackgroundPixels>? BodyPlacement => _access.Kraid is { ShowsBodyLayer: true } state ? state.BodyLayerPlacement : null;
 
-    /// <summary>The layer <paramref name="frame"/> shows: its pages and head drawn from <paramref name="sheet"/> over his blank.</summary>
-    /// <exception cref="InvalidDataException">The sheet lacks a frame the body frame shows.</exception>
-    private static BossBodyLayer Draw(KraidBodyFrame frame, BossBodySheet sheet)
+    /// <summary>
+    /// The body <paramref name="appearance"/> shows, drawn from <paramref name="sheet"/>: nothing while it is hidden, and
+    /// otherwise his whole body with <paramref name="head"/>, when his head has shown a pose, over it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows.</exception>
+    private static BossBodyLayer Draw(KraidBodyAppearance appearance, KraidHeadFrame? head, BossBodySheet sheet)
     {
-        var canvas = new BossBodyCanvas(sheet, KraidBodyLayout.LayerRows);
-        if (KraidBodyFrameNames.Of(frame.Upper, KraidBodyHalf.Upper) is { } upper)
-            canvas.Draw(sheet.Frame(upper));
-        if (frame.Head is { } head)
-            canvas.Draw(sheet.Frame(KraidBodyFrameNames.Head(head.MouthStage)));
-        if (KraidBodyFrameNames.Of(frame.Lower, KraidBodyHalf.Lower) is { } lower)
-            canvas.Draw(sheet.Frame(lower));
-        return canvas.Publish(sheet);
+        if (KraidBodyFrameNames.Of(appearance) is not { } body)
+            return BossBodyLayer.Empty;
+        return head is { } pose
+            ? new BossBodyLayer([sheet.Frame(body), sheet.Frame(KraidBodyFrameNames.Head(pose.MouthStage))])
+            : new BossBodyLayer([sheet.Frame(body)]);
     }
 }

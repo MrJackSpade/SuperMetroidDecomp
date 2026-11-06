@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
+/// <summary>Crocomire's body layer: where it is placed, what his body shows on it, the tongue placed with it and the acid smoke drawn with it.</summary>
 [RoomLifetime]
 internal sealed class CrocomireBodyLayer
 {
@@ -39,18 +39,15 @@ internal sealed class CrocomireBodyLayer
         tongue.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>The canvas Crocomire's death assembles his body on.</summary>
-    /// <exception cref="InvalidOperationException">Crocomire has no death state, or it has no working canvas.</exception>
-    internal BossBodyCanvas WorkingBody => _access.RequireCrocomireDeath().WorkingBody
-        ?? throw new InvalidOperationException("Crocomire's death has no working body canvas.");
+    /// <summary>His body shows <paramref name="frame"/> from now on in place of whatever it showed (#1355, #1515), as a melt image replaces it.</summary>
+    internal void ShowCrocomireBodyFrame(CrocomireEnemyState state, BossBodyFrame frame) =>
+        _presentation.RequireBossBody().Show(state.Body.SlotIndex, frame);
 
-    /// <summary>Clears the whole working canvas before a melt image is assembled on it.</summary>
-    internal void ClearCrocomireWorkingBody() => WorkingBody.Clear(0, WorkingBody.Rows * BossBodyDefinitions.ColumnCount);
+    /// <summary>His body shows nothing from now on, until a frame is shown on it again (#1515).</summary>
+    internal void ClearCrocomireBody() => _presentation.RequireBossBody().Clear();
 
-    /// <summary>Shows the working canvas's <paramref name="cellCount"/> cells from <paramref name="startCell"/> on his body layer (#1355).</summary>
-    /// <exception cref="InvalidDataException">The cells leave the canvas.</exception>
-    internal void ShowCrocomireWorkingCells(int startCell, int cellCount) =>
-        _presentation.RequireBossBody().Copy(WorkingBody, startCell, cellCount);
+    /// <summary>Hides his body from body row <paramref name="top"/> down, until a frame is shown on it again (#1515).</summary>
+    internal void HideCrocomireBodyFrom(int top) => _presentation.RequireBossBody().HideFrom(top);
 
     /// <summary>Levels the melt's stretch: every line of his body layer shows <paramref name="verticalScroll"/> (#1468).</summary>
     /// <param name="verticalScroll">The vertical scroll every line shows, 0 through 65535.</param>

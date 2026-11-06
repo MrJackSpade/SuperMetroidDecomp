@@ -32,10 +32,4 @@ internal static class CrocomireMeltingDefinitions
     /// them, and those below the screen are never shown.
     /// </summary>
     public const int DistortionLines = 256;
-
-    /// <summary>
-    /// The body-layer cells a melt image's drawing shows, from the layer's first: the sixteen rows the game's transfer
-    /// leads the image with, then the eight rows the image covers.
-    /// </summary>
-    public const int ShownMeltCells = 768;
 }

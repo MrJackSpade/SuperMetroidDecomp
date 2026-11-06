@@ -1,11 +1,46 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
-/// One thing a boss draws on its body layer at once (#1466): a body pose, a part of one, a melt image or a head, as the
-/// parts its installed sheet split it into. Drawing it places every part, each over the cells it covers.
+/// One whole frame of a boss's body (#1466, #1515): a body pose, Kraid's head at a mouth stage, an eye, a mouth or a melt
+/// image, as one pre-coloured picture placed on the body's area. Where it is shown it covers the rectangles it lists, so
+/// whatever lies beneath it there is hidden, and a pixel of them its picture leaves clear shows nothing. The pixels a room
+/// animation paints are its overlays.
 /// </summary>
-/// <param name="Name">The frame's name in its sheet.</param>
-/// <param name="Parts">Its parts: its still cells, and a part for the cells of each animation they show.</param>
-public sealed record BossBodyFrame(string Name, ImmutableArray<BossBodyPart> Parts);
+public sealed class BossBodyFrame
+{
+    /// <summary>Holds the frame's picture, where it lies, what it covers and its overlays.</summary>
+    /// <exception cref="ArgumentException">The frame has no name or covers nothing.</exception>
+    public BossBodyFrame(string name, SpriteSheetFrame? picture, Position16<BackgroundPixels> corner, ImmutableArray<BossBodyRectangle> covers,
+        ImmutableArray<BossBodyOverlay> overlays)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        if (covers.IsDefaultOrEmpty)
+            throw new ArgumentException($"Boss body frame {name} covers nothing.", nameof(covers));
+        Name = name;
+        Picture = picture;
+        Corner = corner;
+        Covers = covers;
+        Overlays = overlays.IsDefault ? [] : overlays;
+    }
+
+    /// <summary>The frame's name in its sheet.</summary>
+    public string Name { get; }
+
+    /// <summary>
+    /// The frame's picture, its animated pixels as the room loads them; null when nothing it covers shows anything, so it
+    /// hides what lies beneath it and shows nothing there (#1513).
+    /// </summary>
+    public SpriteSheetFrame? Picture { get; }
+
+    /// <summary>The body pixel the picture's top-left corner lies on.</summary>
+    public Position16<BackgroundPixels> Corner { get; }
+
+    /// <summary>The rectangles of the body the frame covers.</summary>
+    public ImmutableArray<BossBodyRectangle> Covers { get; }
+
+    /// <summary>The frame's pixels each room animation paints, shown over its picture once their animation selects a frame.</summary>
+    public ImmutableArray<BossBodyOverlay> Overlays { get; }
+}

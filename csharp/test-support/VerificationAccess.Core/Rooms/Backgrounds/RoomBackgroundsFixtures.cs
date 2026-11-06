@@ -96,8 +96,9 @@ internal static class RoomBackgroundsFixtures
         SeededImage(random, scene, RoomBackgroundImageGeometry.Words / RoomBackgroundImage.PageTiles);
 
     /// <summary>
-    /// A seeded boss body of <paramref name="rows"/> rows (#1466, #1514) whose pages cover <paramref name="area"/>: every four
-    /// rows one part, showing a seeded block picture repeated across them, placed where it shows.
+    /// A seeded boss body of <paramref name="rows"/> eight-pixel rows (#1466, #1514, #1515) whose screens of rows cover
+    /// <paramref name="area"/> left to right and then downward: every four rows one piece, showing a seeded block picture
+    /// repeated across them.
     /// </summary>
     internal static ShownBossBody SeededBody(Random random, RgbColor[] scene, int rows, Extent16<BackgroundPixels> area)
     {
@@ -106,8 +107,10 @@ internal static class RoomBackgroundsFixtures
         var pieces = new List<ShownBossBodyPiece>();
         for (int top = 0; top < rows; top += partRows)
         {
-            pieces.AddRange(ShownBossBody.PiecesOf(blocks.Picture(random.Next(Definitions))
-                ?? throw new InvalidOperationException("A seeded block has no picture."), top, BossBodyFootprint.OfRows(top, Math.Min(partRows, rows - top)), area));
+            SpriteSheetFrame picture = blocks.Picture(random.Next(Definitions))
+                ?? throw new InvalidOperationException("A seeded block has no picture.");
+            for (int row = top; row < Math.Min(top + partRows, rows); row++)
+                pieces.Add(RunPiece(picture, row, 0, BodyColumns, top, area));
         }
         return new ShownBossBody([.. pieces], area);
     }
@@ -132,18 +135,18 @@ internal static class RoomBackgroundsFixtures
             definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
         RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
         var pieces = new List<ShownBossBodyPiece>();
-        for (int index = 0; index < distinct.Length; index++)
+        Extent16<BackgroundPixels> area = AreaOf(size);
+        for (int cell = 0; cell < words.Length;)
         {
-            var masks = new uint[words.Length / BossBodyDefinitions.ColumnCount];
-            for (int cell = 0; cell < words.Length; cell++)
-            {
-                if (words[cell] == distinct[index])
-                    masks[cell / BossBodyDefinitions.ColumnCount] |= 1u << (cell % BossBodyDefinitions.ColumnCount);
-            }
-            pieces.AddRange(ShownBossBody.PiecesOf(painted.Picture(index) ?? throw new InvalidOperationException("A painted word has no picture."), 0,
-                new BossBodyFootprint(0, [.. masks]), AreaOf(size)));
+            // Each run of a row's cells showing one word is one piece of that word's picture.
+            int first = cell, row = cell / BodyColumns;
+            while (cell < words.Length && cell / BodyColumns == row && words[cell] == words[first])
+                cell++;
+            SpriteSheetFrame picture = painted.Picture(Array.IndexOf(distinct, words[first]))
+                ?? throw new InvalidOperationException("A painted word has no picture.");
+            pieces.Add(RunPiece(picture, row, first % BodyColumns, cell - first, 0, area));
         }
-        return new ShownBossBody([.. pieces], AreaOf(size));
+        return new ShownBossBody([.. pieces], area);
     }
 
     /// <summary>
@@ -158,13 +161,35 @@ internal static class RoomBackgroundsFixtures
         definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
-        int rows = size.X * size.Y / BossBodyDefinitions.ColumnCount;
-        return new ShownBossBody([.. ShownBossBody.PiecesOf(block, 0, BossBodyFootprint.OfRows(0, rows), AreaOf(size))], AreaOf(size));
+        Extent16<BackgroundPixels> area = AreaOf(size);
+        return new ShownBossBody([new ShownBossBodyPiece(block, default, area, default)], area);
     }
 
     /// <summary>The area a body loaded as a <paramref name="size"/> tilemap covers.</summary>
     private static Extent16<BackgroundPixels> AreaOf(Extent16<TilemapCells> size) =>
-        new(checked((ushort)(size.X * BossBodyDefinitions.CellPixels)), checked((ushort)(size.Y * BossBodyDefinitions.CellPixels)));
+        new(checked((ushort)(size.X * BodyCellPixels)), checked((ushort)(size.Y * BodyCellPixels)));
+
+    /// <summary>Cells across one screen of a fixture's body tilemap, the cells of a row in reading order.</summary>
+    private const int BodyColumns = 32;
+
+    /// <summary>Pixels across and down one cell of a fixture's body tilemap.</summary>
+    private const int BodyCellPixels = 8;
+
+    /// <summary>
+    /// The piece of <paramref name="picture"/> over <paramref name="count"/> cells of tilemap row <paramref name="row"/> from
+    /// column <paramref name="column"/>, the picture repeating across from the body's left edge and down from row
+    /// <paramref name="top"/>: the tilemap's screens of rows lie left to right and then downward across <paramref name="area"/>.
+    /// </summary>
+    private static ShownBossBodyPiece RunPiece(SpriteSheetFrame picture, int row, int column, int count, int top, Extent16<BackgroundPixels> area)
+    {
+        const int screenPixels = BodyColumns * BodyCellPixels;
+        int screen = row / BodyColumns, screensAcross = area.X / screenPixels;
+        return new ShownBossBodyPiece(picture,
+            new Position16<BackgroundPixels>(screen % screensAcross * screenPixels + column * BodyCellPixels,
+                screen / screensAcross * screenPixels + row % BodyColumns * BodyCellPixels),
+            new Extent16<BackgroundPixels>(count * BodyCellPixels, BodyCellPixels),
+            new Position16<ImagePixels>(column * BodyCellPixels % picture.Size.X, (row - top) * BodyCellPixels % picture.Size.Y));
+    }
 
     /// <summary>
     /// A seeded run of words written over a background (#1392, #1403), drawn from seeded pictures as

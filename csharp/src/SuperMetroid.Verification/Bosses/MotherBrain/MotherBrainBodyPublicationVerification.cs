@@ -37,22 +37,20 @@ internal static class MotherBrainBodyPublicationVerification
         AssertTrue(runtime.Display.Latched.Bosses.Body is null && runtime.Display.Latched.Bosses.MotherBrainBody is null,
             "phase one publishes no body over the pipe background");
 
-        // Phase two: the transition publishes the staged body's first page; her posture scroll places it.
-        BossBodySheets sheets = runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("The retail runtime installs boss body sheets.");
-        ushort[] staged = Words((state.StagedBody ?? throw new InvalidOperationException("Mother Brain stages her body.")).Publish(sheets), runtime)
-            [..MotherBrainBodyDefinitions.ShownCells];
+        // Phase two: the transition reveals her body as it stands (#1515); her posture scroll places it.
+        ushort[] staged = Words(runtime.Enemies.Presentation.RequireBossBody().Publish(), runtime);
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(unchecked((ushort)-27), unchecked((ushort)-217));
         state.PlacesBodyLayer = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         BossBodyLayer image = runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException("The phase-two transition publishes her body image.");
-        AssertTrue(Words(image, runtime).AsSpan(0, staged.Length).SequenceEqual(staged), "phase two publishes the staged body image");
+        AssertTrue(Words(image, runtime).SequenceEqual(staged), "phase two publishes her body as it stood");
         AssertEqual(new MotherBrainBodyPlacement(state.BodyLayerPlacement, false), runtime.Display.Latched.Bosses.MotherBrainBody,
             "phase two publishes her body at her posture scroll");
         AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(SuperMetroid.Core.Enemies.BossBodies.BossBodyDefinitions.FirstPageArea, drawn.Rooms.BossBody?.Area, "her body shows its first page");
+        AssertEqual(SuperMetroid.Core.Enemies.BossBodies.ShownBossBody.OneScreenArea, drawn.Rooms.BossBody?.Area, "her body shows one screen");
         // The view shows the body row below her placement at the screen's top (#1514).
         AssertEqual(GameplaySceneView.ShownAtScreenTop(state.BodyLayerPlacement + runtime.Display.Latched.Scrolls.RoomShake.Background), drawn.View.BackgroundScroll, "her scroll places her body");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");

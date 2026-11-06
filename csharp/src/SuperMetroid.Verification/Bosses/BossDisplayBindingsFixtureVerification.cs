@@ -37,11 +37,8 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>The boss whose body layer the actor draws on.</summary>
         private BossBodyOwner BodyOwner => bodyOwner ?? throw new InvalidOperationException($"{Actor.DefinitionId} draws no body layer.");
 
-        /// <summary>The tile the boss's body layer shows where none of its frames has drawn.</summary>
-        internal BackgroundTile Bg2FillTile => BossBodySheetComposer.BlankOf(BodyOwner);
-
         /// <summary>The tilemap entry each cell of the boss's body layer shows now, from the frames its artwork installs (#1466).</summary>
-        internal ushort[] Bg2Words => BossBodyWords.Of(Enemies.Presentation.RequireBossBody().Publish(Sheets), BodyOwner, bodies.Frames);
+        internal ushort[] Bg2Words => BossBodyWords.Of(Enemies.Presentation.RequireBossBody().Publish(), BodyOwner, bodies.Frames);
 
         /// <summary>The fixture's boss frames and the body sheets composed from them, which its bosses draw from.</summary>
         private readonly BossBodyArtworkFixture bodies;
@@ -117,11 +114,11 @@ internal static class BossDisplayBindingsFixtureVerification
 
         /// <summary>Advances the selected actor's production instruction interpreter once.</summary>
         internal void Step() => instructions(Actor, null, null, Position16<RoomPixels>.Zero, 0);
-        /// <summary>Clears the boss body layer before a presentation check.</summary>
+        /// <summary>Attaches a body showing nothing before a presentation check.</summary>
         internal void ClearBg2()
         {
-            if (bodyOwner is { } owner)
-                Enemies.Presentation.AttachBossBody(new BossBodyCanvas(Sheets.Of(owner), BossBodyDefinitions.SharedBodyRows));
+            if (bodyOwner is not null)
+                Enemies.Presentation.AttachBossBody(new BossBodyParts());
         }
     }
 }

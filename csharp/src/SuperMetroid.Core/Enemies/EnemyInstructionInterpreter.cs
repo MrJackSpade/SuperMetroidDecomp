@@ -8,43 +8,34 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The enemy instruction interpreter: common instructions, owner-private instruction dispatch,
-/// visual selectors and mechanics words, animation tile transfers, and the body frames bosses draw on their body layer.
+/// visual selectors and mechanics words, animation tile transfers, and the body frames bosses show on their bodies.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyInstructionInterpreter
 {
-    /// <summary>The body canvases bosses assemble besides the shown one, which a body frame is also drawn into.</summary>
-    private readonly IBossBodyCopies _bossCopies;
-    /// <summary>Holds the body layer the room's boss shows.</summary>
+    /// <summary>Holds the body the room's boss shows its parts' frames on.</summary>
     private readonly EnemyPresentation _presentation;
 
-    /// <summary>Captures the presentation and the bosses' body canvases for instruction execution.</summary>
-    internal EnemyInstructionInterpreter(IBossBodyCopies bossCopies, EnemyPresentation presentation)
-    {
-        _bossCopies = bossCopies;
-        _presentation = presentation;
-    }
+    /// <summary>Captures the presentation for instruction execution.</summary>
+    internal EnemyInstructionInterpreter(EnemyPresentation presentation) => _presentation = presentation;
 
     /// <summary>
-    /// Draws the body frame the already resolved visual frame draws on its boss's body layer (#1466), on the update its
-    /// instruction selects a new frame. The common writer draws its sprite half, which may be empty for a pose drawn only
-    /// on the body layer. Selecting a pose with no body frame draws nothing; it does not invent a clear.
+    /// Shows the body frame the already resolved visual frame shows on its boss's body (#1466, #1515), on the update its
+    /// instruction selects a new frame: from then on it is the frame that part of the boss shows. The common writer draws
+    /// its sprite half, which may be empty for a pose shown only on the body. Selecting a pose with no body frame leaves
+    /// the part's frame as it was.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed body sheet lacks the frame.</exception>
-    /// <exception cref="InvalidOperationException">The frame is drawn before its boss attached the body layer it draws on.</exception>
+    /// <exception cref="InvalidOperationException">The frame is shown before its boss attached the body it shows on.</exception>
     internal void DrawBossBodyFrame(RoomEnemySlot slot, EnemyFrameId selected)
     {
         if ((slot.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
             return;
         if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
             return;
-        _bossCopies.Draw(frame);
-        // A boss that shows a body layer draws into it; every owner attaches it at initialization. Mother Brain only
-        // stages her body until her phase-two transition shows it (#1356).
-        if (_presentation.BossBody is { } body)
-            body.Draw(frame);
-        else if (!_bossCopies.StagesBody)
-            throw new InvalidOperationException("A boss body frame was drawn before its owner attached the body layer it draws on.");
+        // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
+        (_presentation.BossBody ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on."))
+            .Show(slot.SlotIndex, frame);
     }
 
     /// <summary>

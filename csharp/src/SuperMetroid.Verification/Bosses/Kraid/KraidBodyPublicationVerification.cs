@@ -20,8 +20,8 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidBodyPublicationVerification
 {
     /// <summary>
-    /// Constructed Kraid states publish their body frame at Kraid's BG2 scroll: the risen body's two pages, then the open
-    /// mouth's head over the upper page; once his death releases BG2, no body publishes and BG2 shows the room again.
+    /// Constructed Kraid states publish their body at Kraid's BG2 scroll: the risen whole body, then the open mouth's head
+    /// over it; once his death hides it, the body shows nothing and BG2 does not show the room again.
     /// </summary>
     internal static void VerifyKraidBodyPublication()
     {
@@ -41,13 +41,15 @@ internal static class KraidBodyPublicationVerification
         ReadOnlySpan<ushort> lower = working.AsSpan(KraidWorkingMapDefinitions.LowerPageFirstCell, KraidWorkingMapDefinitions.PageCells);
         AssertTrue(state.ShowsBodyLayer, "Kraid's body layer shows when his room loads");
 
-        // Risen: both halves of his body shown, at the placement his body position computed.
-        state.ShowUpperBody();
-        state.ShowLowerBody();
+        // Risen: his whole body shown as it now appears, before his head shows a pose, at the placement his body position
+        // computed (#1515).
+        state.BodyAppearance = KraidBodyAppearance.BehindSprites;
+        state.ShowBody();
+        state.DisplayedHeadFrame = null;
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(320, 88);
         GameplayLatchedBossBackgrounds risen = Published(runtime);
-        AssertEqual(new KraidBodyFrame(KraidBodyAppearance.BehindSprites, null, KraidBodyAppearance.BehindSprites), state.ShownBody,
-            "the risen body shows both halves");
+        AssertTrue((risen.Body?.Frames.Select(frame => frame.Name) ?? []).SequenceEqual(["Body"]),
+            "the risen body shows his whole body as one frame");
         AssertTrue(Words(risen, art).AsSpan().SequenceEqual(KraidBodyFixtures.Tilemap(upper, [], lower)),
             "the risen body publishes both working pages, blank elsewhere");
         AssertTrue(risen.KraidBodyPlacement == state.BodyLayerPlacement, "the body publishes at Kraid's body layer placement");
@@ -55,8 +57,8 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime) && drawn.Rooms.BossBody?.Area == KraidBackgroundDefinitions.BodyArea,
             "the capture draws the published body on the background across its four pages");
 
-        // Mouth open: the head frame shows over the upper page, which a later upload would cover.
-        state.ShowHead(KraidHeadFrame.Open);
+        // Mouth open: his head's current pose shows over his body (#1515).
+        state.DisplayedHeadFrame = KraidHeadFrame.Open;
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(300, 96);
         GameplayLatchedBossBackgrounds roaring = Published(runtime);
         ReadOnlySpan<ushort> head = (art.Sources.KraidBackground ?? throw new InvalidOperationException("Kraid art installs his BG2."))
@@ -66,7 +68,7 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(roaring.KraidBodyPlacement == state.BodyLayerPlacement, "the roaring body publishes at its moved placement");
 
         // Dead: the death clear keeps BG2 as Kraid's map, every word blank; the room's own BG2 never returns (#1427).
-        state.ShownBody = KraidBodyFrame.Hidden;
+        state.BodyAppearance = KraidBodyAppearance.Hidden;
         GameplayLatchedBossBackgrounds cleared = Published(runtime);
         AssertTrue(Words(cleared, art).All(word => word == KraidWorkingMapDefinitions.BlankTile.PackedWord),
             "the cleared body publishes only the blank tile");

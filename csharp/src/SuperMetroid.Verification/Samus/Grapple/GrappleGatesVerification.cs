@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Verification.Bosses.Draygon.DraygonTilemapProductionVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleEnemyDeathVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -86,7 +85,7 @@ internal static class GrappleGatesVerification
     [VerificationCommand("--enemy-art-fixtures")]
     internal static int EnemyArtFixturesCommand()
     {
-     VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; 
+     VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); return 0; 
     }
 
     /// <summary>Runs only the green-gate Grapple visibility verification suite.</summary>

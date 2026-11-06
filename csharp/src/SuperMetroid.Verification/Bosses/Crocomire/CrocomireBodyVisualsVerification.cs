@@ -177,10 +177,8 @@ internal static class CrocomireBodyVisualsVerification
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-            // His fight binds the installed body sheets and attaches the body layer his body frames draw on.
-            BossBodySheets bodySheets = InstalledFixtures.BossBodySheets;
-            enemies.BossArtworkBinding.BodySheets = bodySheets;
-            BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, bodySheets, BossBodyOwner.Crocomire);
+            // His fight binds the installed body sheets and attaches the body his body frames show on.
+            BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets);
             enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
@@ -197,7 +195,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
-            return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
+            return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Crocomire, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
         }
 
         // The graphics set Crocomire's room loads, which gives the tile base and colours his room draws him at.

@@ -36,32 +36,47 @@ internal static class ObjSubscreenVerification
         AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "a glowing sprite's transparent pixels leave the backdrop");
     }
 
-    /// <summary>Checks Mode 7 BG1 self-addition and OBJ palette eligibility after main-screen priority selection.</summary>
+    /// <summary>
+    /// Checks a floor that adds its own colour: it shows over the sprites drawn behind the room and adds its colour to
+    /// itself and to the blending sprites in front of it (#1514). A sprite's depth is its frame's, which the import takes
+    /// from its priority: priorities zero and one draw behind the whole room, two and three in front of the floor.
+    /// </summary>
     private static void VerifyMode7Bg1Addition()
     {
+        var registers = new FloorView(0, FloorView.OwnSize, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
         foreach (bool opaqueBg in new[] { false, true })
-        foreach (byte palette in new byte[] { 0, 4 })
-        foreach (byte priority in new byte[] { 0, 1, 2, 3 })
         {
             byte[] vram = new byte[SnesVram.ByteCount];
             if (opaqueBg) for (int pixel = 0; pixel < 64; pixel++) vram[pixel * 2 + 1] = 1;
             for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
-            ushort[] colors = new ushort[256];
-            colors[0] = 3 << 10; colors[1] = 8 << 5; colors[129 + palette * 16] = 12;
-            byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
-            oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
-            var registers = new FloorView(0, FloorView.OwnSize, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
-            var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
-            var packet = new DisplayPacket(0, new LayeredScene(memory,
-                new DisplayLayer[] { new TurningFloorLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddsForeground: true) }, 15));
-            var pixels = DisplayRendering.Render(packet);
-            RgbaPixel expected = opaqueBg && priority == 0 ? new(0, 132, 0)
-                : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
-            AssertEqual(expected, pixels[8 * 256 + 8], "Mode7 main priority and OBJ palette eligibility before addition");
-            AssertEqual(opaqueBg ? new RgbaPixel(0, 132, 0) : new RgbaPixel(0, 0, 24), pixels[0],
-                "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
-            AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                new DisplayLayer[] { new TurningFloorLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), true, true) }, 15), "reject contradictory Mode7 math modes");
+            ushort[] floorColors = new ushort[256];
+            floorColors[0] = 3 << 10; floorColors[1] = 8 << 5;
+            // The floor's pixels ink only colours zero and one, so it is built once per image; the sprite's palette and
+            // priority change only its draw.
+            var floor = AffineFloorFixtures.Floor(vram, ToColors(floorColors));
+            foreach (byte palette in new byte[] { 0, 4 })
+            {
+                ushort[] colors = (ushort[])floorColors.Clone();
+                colors[129 + palette * 16] = 12;
+                var shownColours = ToColors(colors);
+                foreach (byte priority in new byte[] { 0, 1, 2, 3 })
+                {
+                    byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
+                    oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
+                    var memory = FramePaint.FromOam(vram, shownColours, oam, 1, 3);
+                    var packet = new DisplayPacket(0, new LayeredScene(memory,
+                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, AddsForeground: true) }, 15));
+                    var pixels = DisplayRendering.Render(packet);
+                    bool behindFloor = opaqueBg && priority < 2;
+                    RgbaPixel expected = behindFloor ? new(0, 132, 0)
+                        : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
+                    AssertEqual(expected, pixels[8 * 256 + 8], "a sprite behind the room lies under the floor; a blending sprite in front takes its colour");
+                    AssertEqual(opaqueBg ? new RgbaPixel(0, 132, 0) : new RgbaPixel(0, 0, 24), pixels[0],
+                        "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
+                    AssertThrows<ArgumentException>(() => new LayeredScene(memory,
+                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, true, true) }, 15), "reject contradictory Mode7 math modes");
+                }
+            }
         }
     }
 

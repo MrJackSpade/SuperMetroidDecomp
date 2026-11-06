@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
-using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCloudPlacementVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingExplosionSlotOrderVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingRewardGestureVerification;
@@ -57,12 +56,14 @@ internal static class EndingDmaVerification
             "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");
     }
 
-    /// <summary>Runs ending DMA and render-snapshot checks together.</summary>
+    /// <summary>
+    /// Runs the ending DMA checks. The ending's render snapshots are their own suite of the full run
+    /// (<see cref="EndingSnapshotTestsVerification.VerifyEndingRenderSnapshots"/>), which this command no longer repeats (#1532).
+    /// </summary>
     [VerificationCommand("--ending-dma")]
     internal static int EndingDmaCommand()
     {
         Suite(nameof(VerifyEndingDma), () => VerifyEndingDma());
-        Suite(nameof(VerifyEndingRenderSnapshots), () => VerifyEndingRenderSnapshots());
         return 0;
     }
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -22,4 +23,16 @@ internal static class DraygonCannonDefinitions
 
     /// <summary>The hits a shielded cannon takes before it is destroyed.</summary>
     internal const int HitsToDestroy = 3;
+
+    /// <summary>
+    /// The cannon each of the room's cannon PLMs sets up: the live right-facing cannon, the right-facing cannon that starts
+    /// destroyed, and the live left-facing cannon. No other PLM is a cannon.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<PlmHeaderId, DraygonCannonSetup> Setups =
+        new Dictionary<PlmHeaderId, DraygonCannonSetup>
+        {
+            [PlmHeaderId.DraygonCannonFacingRight] = new(DraygonCannonOrientation.Right, StartsDestroyed: false),
+            [PlmHeaderId.DraygonCannonFacingRightDestroyed] = new(DraygonCannonOrientation.Right, StartsDestroyed: true),
+            [PlmHeaderId.DraygonCannonFacingLeft] = new(DraygonCannonOrientation.Left, StartsDestroyed: false),
+        };
 }

@@ -49,7 +49,15 @@ internal static class BackgroundMosaicTests
                     (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None),
                 BackgroundPixelation: new(size));
             var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls { Horizontal = horizontal, Vertical = vertical });
-            DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithLayersBehind = mode == 2, FixedColor = RgbColor.Black }, subscreenUsesBg2: mode == 2);
+            // Mode two shows the pixelated background only lying behind the backdrop, which it brightens; mode one blends nothing.
+            DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false,
+                new GameplayBlend
+                {
+                    Blended = mode == 2 ? BlendedLayers.Backdrop : BlendedLayers.None,
+                    Operation = BlendOperation.Add,
+                    Halved = false,
+                    Colour = RgbColor.Black,
+                }, backgroundBehind: mode == 2);
             var scene = new LayeredScene(memory, [layer], 15);
             cases++;
             var packet = new DisplayPacket(0, scene);

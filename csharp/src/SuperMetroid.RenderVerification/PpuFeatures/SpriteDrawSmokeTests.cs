@@ -41,7 +41,8 @@ internal static class SpriteDrawSmokeTests
             var size = new Extent16<ImagePixels>(Frames * Side, Side);
             var sheetPixels = new RgbaPixel[size.X * size.Y];
             var indices = new byte[sheetPixels.Length];
-            var priorities = new byte[sheetPixels.Length];
+            // An actor's frame lies in no layer's front tile (#1514).
+            var frontTiles = new byte[sheetPixels.Length];
             for (int frame = 0; frame < Frames; frame++)
             for (int y = 0; y < Side; y++)
             for (int x = 0; x < Side; x++)
@@ -50,11 +51,10 @@ internal static class SpriteDrawSmokeTests
                     continue;
                 int pixel = y * size.X + frame * Side + x;
                 indices[pixel] = (byte)(frame * 16 + 1);
-                priorities[pixel] = 3;
                 sheetPixels[pixel] = palette[128 + indices[pixel]].ToRgbaPixel();
             }
             var sheet = SpriteImageFixtures.Copied("Ordering", size, sheetPixels, indices,
-                new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), priorities);
+                new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), frontTiles);
             SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default,
                 ImageColourGroups.Of(ImageColourGroup.Numbered(frame)));
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
@@ -93,7 +93,7 @@ internal static class SpriteDrawSmokeTests
                 .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             var draws = ImmutableArray.CreateBuilder<SpriteDraw>();
             // Pre-coloured image draws (#1392): a sheet with transparent pixels, frames cut anywhere on it, any origin,
-            // mirroring and rows, with per-pixel priorities and colour math. In about half the scenes the sheet's standard
+            // mirroring and rows, with colour math. In about half the scenes the sheet's standard
             // colours differ from the scene's, as under a palette effect, so frames whose rows differ show the live
             // colours through their palette indices.
             bool effect = random.Next(2) == 0;
@@ -102,17 +102,16 @@ internal static class SpriteDrawSmokeTests
                 standard[colour] = effect ? RgbColor.FromWord((ushort)random.Next(32768)) : palette[128 + colour];
             var sheetPixels = new RgbaPixel[64 * 48];
             var sheetIndices = new byte[64 * 48];
-            var sheetPriorities = new byte[64 * 48];
+            var sheetFrontTiles = new byte[64 * 48];
             for (int pixel = 0; pixel < sheetPixels.Length; pixel++)
             {
                 if (random.Next(3) == 0)
                     continue;
                 sheetIndices[pixel] = (byte)(random.Next(8) * 16 + random.Next(1, 16));
-                sheetPriorities[pixel] = (byte)random.Next(4);
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgbaPixel();
             }
             var sheet = SpriteImageFixtures.Copied("Seeded", new(64, 48), sheetPixels, sheetIndices, new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]),
-                sheetPriorities);
+                sheetFrontTiles);
             for (int index = random.Next(1, 6); index > 0; index--)
             {
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));

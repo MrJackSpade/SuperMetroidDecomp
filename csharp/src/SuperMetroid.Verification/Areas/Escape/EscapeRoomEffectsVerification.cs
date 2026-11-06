@@ -44,7 +44,7 @@ internal static class EscapeRoomEffectsVerification
                     var layer = (GameplaySceneLayer)capture.Layers[0];
                     var actual = DisplayRendering.Render(capture);
                     var noObjects = new GameplaySceneLayer(layer.View with
-                    { MainScreenLayers = layer.View.MainScreenLayers & ~ScreenLayers.Sprites }, layer.Rooms,
+                    { ShownLayers = layer.View.ShownLayers & ~ScreenLayers.Sprites }, layer.Rooms,
                         layer.BackgroundLineScrolls);
                     // The HUD is its own layer after the room (#1466); both renders keep it.
                     var baseline = DisplayRendering.Render(new LayeredScene(capture.Paint, [noObjects, capture.Layers[1]], capture.Brightness));

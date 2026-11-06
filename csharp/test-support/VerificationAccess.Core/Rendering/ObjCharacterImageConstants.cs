@@ -14,11 +14,15 @@ internal static class ObjCharacterImageConstants
     /// <summary>The values of OAM's eight-bit Y.</summary>
     internal const int YRange = 256;
 
+    /// <summary>The depth among a gameplay room's layers each record priority draws at, from priority zero up (#1514).</summary>
+    private static readonly ActorDepth[] DepthOfPriority =
+        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontTiles, ActorDepth.InFront];
+
     /// <summary>Images pictured from OAM so far, which keeps each one's name its own.</summary>
     private static int pictured;
     /// <summary>
     /// The draws <paramref name="oam"/>'s finalized records stand for (#1392): one pre-coloured image per record, in
-    /// record order so record 0 is frontmost, each pixel carrying the record's palette row, priority and the colour its
+    /// record order so record 0 is frontmost, each pixel carrying the record's palette row and the colour its
     /// characters name, with the record's flips applied. The images' standard colours are black, so a screen whose
     /// colours differ shows each pixel through its palette index, as its characters show it.
     /// </summary>
@@ -51,7 +55,8 @@ internal static class ObjCharacterImageConstants
             var cellParts = ImmutableArray.CreateBuilder<SpriteFramePart>(cells);
             var pixels = new RgbaPixel[size.X * size.Y];
             var indices = new byte[pixels.Length];
-            var priorities = new byte[pixels.Length];
+            // An actor's frame lies in no layer's front tile (#1514).
+            var frontTiles = new byte[pixels.Length];
             for (int cell = 0; cell < cells; cell++)
             {
                 SpriteScreenPart placed = composition.Place(part + cell);
@@ -66,17 +71,17 @@ internal static class ObjCharacterImageConstants
                         continue;
                     int pixel = (placed.Position.Y - top + row) * size.X + placed.Position.X - left + column;
                     indices[pixel] = (byte)(placed.Palette * 16 + colour);
-                    priorities[pixel] = (byte)placed.Priority;
                     pixels[pixel] = black;
                 }
             }
             var image = SpriteImageFixtures.Copied($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new(size.X, size.Y),
-                pixels, indices, standard, priorities);
+                pixels, indices, standard, frontTiles);
             // Each ink is the record's own palette row and colour, with no palette bits ORed in, as an installed sheet's
             // manifest would record it (#1512).
             SuperMetroid.AssetExtraction.Artwork.InstalledPictureColours.Record(image, [], paletteBits: 0);
+            // A record is drawn whole at the depth its priority places it among a gameplay room's layers (#1514).
             var frame = new SpriteSheetFrame(image, default, new(size.X, size.Y), default,
-                ImageColourGroups.Of(ImageColourGroup.Numbered(corner.Palette)));
+                ImageColourGroups.Of(ImageColourGroup.Numbered(corner.Palette))) { Depth = DepthOfPriority[corner.Priority] };
             // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,
                 new SpriteFrame(image.Name, cellParts.MoveToImmutable()), composition.Artwork, sizes);

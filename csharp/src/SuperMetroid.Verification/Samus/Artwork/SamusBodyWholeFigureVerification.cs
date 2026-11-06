@@ -58,7 +58,7 @@ internal static class SamusBodyWholeFigureVerification
         byte[] inks = SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image);
         var colourZero = new bool[InkValues];
         for (int ink = 0; ink < InkValues; ink++)
-            colourZero[ink] = image.IsColourZero(new SpriteImageInk(ink, 0));
+            colourZero[ink] = image.IsColourZero(new SpriteImageInk(ink, frontTile: false));
         var opaque = new OpaquePixels(inks, image.Size.X, colourZero);
 
         InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;

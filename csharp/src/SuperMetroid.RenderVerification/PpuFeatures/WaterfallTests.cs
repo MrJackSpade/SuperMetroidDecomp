@@ -47,10 +47,17 @@ internal static class WaterfallTests
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 2, 0);
         FxOverlayCells plane = FxOverlayCellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
         var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
-            WaterfallRoomDisplayRules.MainScreen);
+            WaterfallRoomDisplayRules.ShownLayers);
         var bg3 = new OverlayBlendLayer(plane, FxOverlayPlane.Rows / 2, 32, 32,
             BlendOperation.Subtract, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
-        var layer = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { FxOverlay = plane }), ScreenWindow.Closed, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, bg3, subscreenUsesBg2: true);
+        var layer = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { FxOverlay = plane }), ScreenWindow.Closed, false,
+            new GameplayBlend
+            {
+                Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
+                Operation = BlendOperation.Subtract,
+                Halved = false,
+                Colour = RgbColor.Black,
+            }, bg3, backgroundBehind: true);
         var scene = new LayeredScene(memory, [layer], 15);
         var pixels = DisplayRendering.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");

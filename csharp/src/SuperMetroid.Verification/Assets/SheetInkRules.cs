@@ -60,7 +60,7 @@ internal static class SheetInkRules
         bool[] emptySets = EmptySets(image.StandardColours, setColours, [.. users.SelectMany(user => user.DefinedSets)]);
         var colourZero = new bool[InkValues];
         for (int ink = 0; ink < InkValues; ink++)
-            colourZero[ink] = image.IsColourZero(new SpriteImageInk(ink, 0));
+            colourZero[ink] = image.IsColourZero(new SpriteImageInk(ink, frontTile: false));
         string owner = users.Length == 1 ? users[0].Label : $"{users[0].Label} and {users.Length - 1} more";
         var emptyFrames = new List<string>();
         var emptyRowFrames = new List<string>();

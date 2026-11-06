@@ -29,10 +29,10 @@ using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// <summary>Checks extracted title graphics, palettes, and HDMA gradient through installed presentation and retail oracles.</summary>
 internal static class TitleGradientVerification
 {
-    /// <summary>The title's upper CGADSUB setting: subtract the fixed color from BG1 and the backdrop.</summary>
-    private const ColorBlend SubtractFromBackground = ColorBlend.Subtract | ColorBlend.Backdrop | ColorBlend.Bg1;
-    /// <summary>The title's lower CGADSUB setting: add the fixed color to BG1, the backdrop and the OBJs.</summary>
-    private const ColorBlend AddToBackgroundAndObjects = ColorBlend.Backdrop | ColorBlend.Sprites | ColorBlend.Bg1;
+    /// <summary>The title's upper bands darken the floor and the backdrop (#1514).</summary>
+    private const GradientBlend SubtractFromBackground = GradientBlend.DarkensFloorAndBackdrop;
+    /// <summary>The title's lower bands brighten the floor, the backdrop and the sprites (#1514).</summary>
+    private const GradientBlend AddToBackgroundAndObjects = GradientBlend.BrightensFloorBackdropAndSprites;
 
     /// <summary>Creates the production title owner with selected installed graphics, palette, and gradient overrides.</summary>
     private static TitleSequenceState CreateTitlePresentationFixture(TitleGradientPresentation? titleGradientPresentation = null,

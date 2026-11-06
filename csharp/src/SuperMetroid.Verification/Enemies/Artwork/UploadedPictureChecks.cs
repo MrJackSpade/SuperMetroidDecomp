@@ -19,8 +19,9 @@ internal static class UploadedPictureChecks
 {
     /// <summary>
     /// Asserts <paramref name="pictures"/> show exactly the inks <paramref name="parts"/> show over their characters: at
-    /// every on-screen pixel the same palette entry, which decides the colour and whether it blends (#1405), and the same
-    /// priority, with at least one pixel inked where <paramref name="requirePixels"/> asks for it.
+    /// every on-screen pixel the same palette entry, which decides the colour and whether it blends (#1405), with at least
+    /// one pixel inked where <paramref name="requirePixels"/> asks for it. A picture is drawn whole at its frame's depth
+    /// (#1514), so no pixel keeps its part's priority.
     /// </summary>
     /// <returns>The on-screen pixels the parts ink.</returns>
     internal static int AssertPaintsLikeParts(ImmutableArray<SpriteDraw> pictures, ImmutableArray<CharacterSpriteDraw> parts,
@@ -32,14 +33,14 @@ internal static class UploadedPictureChecks
 
     /// <summary>
     /// Asserts <paramref name="images"/> show exactly the inks <paramref name="parts"/> show over their characters at every
-    /// on-screen pixel: the frontmost inked pixel's palette entry and priority, with at least one pixel inked where
+    /// on-screen pixel: the frontmost inked pixel's palette entry, with at least one pixel inked where
     /// <paramref name="requirePixels"/> asks for it (a sheet may hold a frame that draws nothing).
     /// </summary>
     /// <returns>The on-screen pixels the parts ink.</returns>
     internal static int AssertSameInks(IReadOnlyList<ImageSpriteDraw> images, IReadOnlyList<CharacterSpriteDraw> parts, string message,
         bool requirePixels = true)
     {
-        Dictionary<(int X, int Y), (int Entry, int Priority)> expected = [], actual = [];
+        Dictionary<(int X, int Y), int> expected = [], actual = [];
         foreach (CharacterSpriteDraw draw in parts)
         {
             for (int part = 0; part < draw.Frame.Parts.Length; part++)
@@ -51,7 +52,7 @@ internal static class UploadedPictureChecks
                     int character = placed.CharacterAt(new(x, y), out Position16<CharacterPixels> within);
                     int colour = draw.Artwork.ColorIndex(character, within);
                     if (colour != 0)
-                        Ink(expected, placed.Position.X + x, placed.Position.Y + y, placed.Palette * 16 + colour, placed.Priority);
+                        Ink(expected, placed.Position.X + x, placed.Position.Y + y, placed.Palette * 16 + colour);
                 }
             }
         }
@@ -79,12 +80,12 @@ internal static class UploadedPictureChecks
                     entry = InstalledPictureColoursConstants.CartridgeColourOf(image.Image.Sheet, entry) - GameplayColourPositionDefinitions.SpriteSetsFirst;
                 }
                 if (entry != 0)
-                    Ink(actual, screenX, screenY, entry, image.PriorityAt(cell));
+                    Ink(actual, screenX, screenY, entry);
             }
         }
         foreach ((int X, int Y) pixel in expected.Keys.Union(actual.Keys))
         {
-            (int Entry, int Priority)? want = expected.TryGetValue(pixel, out var e) ? e : null, got = actual.TryGetValue(pixel, out var g) ? g : null;
+            int? want = expected.TryGetValue(pixel, out int e) ? e : null, got = actual.TryGetValue(pixel, out int g) ? g : null;
             if (want != got)
                 throw new InvalidOperationException($"{message}: the picture differs from the frame over the live characters at screen pixel " +
                     $"({pixel.X},{pixel.Y}): ink {got?.ToString() ?? "none"} for {want?.ToString() ?? "none"}.");
@@ -112,10 +113,10 @@ internal static class UploadedPictureChecks
         }
 
         // The frontmost ink at an on-screen pixel; a later, further-back draw does not replace it.
-        static void Ink(Dictionary<(int X, int Y), (int Entry, int Priority)> inks, int x, int y, int entry, int priority)
+        static void Ink(Dictionary<(int X, int Y), int> inks, int x, int y, int entry)
         {
             if (x is >= 0 and < ScreenGeometry.ScreenWidthPixels && y is >= 0 and < ScreenGeometry.ScreenHeightPixels)
-                inks.TryAdd((x, y), (entry, priority));
+                inks.TryAdd((x, y), entry);
         }
     }
 

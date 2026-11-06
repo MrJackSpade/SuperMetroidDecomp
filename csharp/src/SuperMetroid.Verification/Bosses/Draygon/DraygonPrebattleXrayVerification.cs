@@ -53,7 +53,7 @@ internal static class DraygonPrebattleXrayVerification
         AssertEqual(32, r.BackgroundFirstLine, "native offscreen TM table begins below HUD");
         AssertEqual(32, r.BackgroundEndLine, "native offscreen TM table hides all Draygon BG2 lines");
         var pixels = DisplayRendering.Render(scene);
-        var hidden = RenderWithRegisters(r with { MainScreenLayers = r.MainScreenLayers & ~ScreenLayers.Background });
+        var hidden = RenderWithRegisters(r with { ShownLayers = r.ShownLayers & ~ScreenLayers.Background });
         var unmasked = RenderWithRegisters(r with { BackgroundFirstLine = 32, BackgroundEndLine = 224 });
         int exposed = pixels.Zip(hidden, (first, second) => first != second).Count(differs => differs);
         int wrapped = unmasked.Zip(hidden, (first, second) => first != second).Count(differs => differs);
@@ -77,7 +77,7 @@ internal static class DraygonPrebattleXrayVerification
         // The HUD is its own layer after the room (#1466); both renders keep it.
         var combatWithoutBg2 = new LayeredScene(combat.Paint,
             new DisplayLayer[] { new GameplaySceneLayer(ordinary.View with
-                { MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background }, ordinary.Rooms, ordinary.BackgroundLineScrolls),
+                { ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background }, ordinary.Rooms, ordinary.BackgroundLineScrolls),
                 combat.Layers[1] }, combat.Brightness);
         int visible = DisplayRendering.Render(combat).Zip(DisplayRendering.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
@@ -85,8 +85,8 @@ internal static class DraygonPrebattleXrayVerification
 
         RgbaPixel[] RenderWithRegisters(GameplaySceneView registers)
         {
-            var gameplay = new GameplaySceneLayer(registers, math.Gameplay.Rooms, math.Gameplay.BackgroundLineScrolls, math.Gameplay.LayersShownByLine);
-            var changed = new GameplayBlendLayer(gameplay, math.Window, math.RevealBlocks, math.Blend, math.BlendPlane, math.BlendsWithBackground);
+            var gameplay = new GameplaySceneLayer(registers, math.Gameplay.Rooms, math.Gameplay.BackgroundLineScrolls, math.Gameplay.Bands);
+            var changed = new GameplayBlendLayer(gameplay, math.Window, math.RevealBlocks, math.Blend, math.OverlayBehind, math.BackgroundBehind);
             // The scene's later layers, the HUD's among them (#1466), stay as captured.
             DisplayLayer[] layers = scene.Layers.ToArray();
             layers[0] = changed;

@@ -177,27 +177,30 @@ internal static class FirefleaFxVerification
         AssertTrue(ordinaryDarkness.Layers[0] is GameplayBlendLayer,
             "normal Fireflea display retains source identity for darkness subtraction");
         var darkLayer = (GameplayBlendLayer)ordinaryDarkness.Layers[0];
-        AssertEqual(ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, darkLayer.Blend.Layers,
-            "normal Fireflea darkens BG2/backdrop, not foreground or Samus");
+        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, darkLayer.Blend.Blended,
+            "normal Fireflea darkens the background and the backdrop, not the foreground or Samus");
+        AssertEqual(BlendOperation.Subtract, darkLayer.Blend.Operation, "normal Fireflea darkness subtracts its shade");
         AssertTrue(darkLayer.Window.IsClosed,
             "ordinary Fireflea darkness has no X-ray exemption window");
-        AssertTrue(!darkLayer.RevealBlocks && !darkLayer.Blend.BlendsWithLayersBehind,
-            "ordinary Fireflea keeps both room maps and subtracts fixed color");
+        AssertTrue(!darkLayer.RevealBlocks && darkLayer.OverlayBehind is null && !darkLayer.BackgroundBehind,
+            "ordinary Fireflea keeps both room maps and subtracts its shade, with nothing lying behind");
         AssertTrue(samus.Xray.TryBegin(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "Fireflea display fixture activates X-ray");
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(packet.Layers[0] is GameplayBlendLayer, "Fireflea capture uses source-aware X-ray compositor");
         var layer = (GameplayBlendLayer)packet.Layers[0];
-        AssertTrue(!layer.RevealBlocks && !layer.Blend.BlendsWithLayersBehind, "Fireflea preserves room maps and uses fixed-color subtraction");
-        AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Subtract,
-            layer.Blend.Layers, "Fireflea X-ray subtracts from both backgrounds, the sprites and the backdrop");
-        AssertEqual(shade, layer.Blend.FixedColor.Red, "Fireflea fixed red survives 90 frozen runtime frames");
-        AssertEqual(shade, layer.Blend.FixedColor.Green, "Fireflea fixed green survives 90 frozen runtime frames");
-        AssertEqual(shade, layer.Blend.FixedColor.Blue, "Fireflea fixed blue survives 90 frozen runtime frames");
+        AssertTrue(!layer.RevealBlocks && layer.OverlayBehind is null && !layer.BackgroundBehind,
+            "Fireflea preserves room maps and subtracts its shade, with nothing lying behind");
+        AssertEqual(BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            layer.Blend.Blended, "Fireflea X-ray darkens both backgrounds, the actors and the backdrop");
+        AssertTrue(layer.Blend.Operation == BlendOperation.Subtract && !layer.Blend.Halved, "Fireflea X-ray subtracts its shade whole");
+        AssertEqual(shade, layer.Blend.Colour.Red, "Fireflea fixed red survives 90 frozen runtime frames");
+        AssertEqual(shade, layer.Blend.Colour.Green, "Fireflea fixed green survives 90 frozen runtime frames");
+        AssertEqual(shade, layer.Blend.Colour.Blue, "Fireflea fixed blue survives 90 frozen runtime frames");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "Fireflea X-ray teardown releases gameplay");
         var restored = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        AssertEqual(ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, ((GameplayBlendLayer)restored.Layers[0]).Blend.Layers,
+        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, ((GameplayBlendLayer)restored.Layers[0]).Blend.Blended,
             "Fireflea teardown restores room subtraction rather than unblended rendering");
     }
 

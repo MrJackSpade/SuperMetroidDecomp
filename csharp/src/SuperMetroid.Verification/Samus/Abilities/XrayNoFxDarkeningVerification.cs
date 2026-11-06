@@ -47,7 +47,8 @@ internal static class XrayNoFxDarkeningVerification
         int[] samples = [.. new[] { 80, 120, 180 }.Select(row => FirstLitPixel(unblended, row))];
         var math = (GameplayBlendLayer)snapshot.Layers[0];
         // A room with no visible effect blends with nothing behind (#1514): the cleared effect area is not drawn.
-        AssertTrue(math.BlendPlane is null, "no-FX X-ray blends with no effect overlay");
+        AssertTrue(math.OverlayBehind is null && !math.BackgroundBehind && !math.Blend.Halved,
+            "no-FX X-ray blends with nothing lying behind, so it adds its colour whole");
         // Where nothing lies behind, colour math takes the fixed colour without halving.
         RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
         foreach (int index in samples)
@@ -58,8 +59,8 @@ internal static class XrayNoFxDarkeningVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var firefleaMath = (GameplayBlendLayer)fireflea.Layers[0];
-        AssertTrue(!firefleaMath.Blend.BlendsWithLayersBehind && firefleaMath.BlendPlane is null,
-            "Fireflea retains fixed-color subtraction without a BG3 operand");
+        AssertTrue(firefleaMath.OverlayBehind is null && !firefleaMath.BackgroundBehind && firefleaMath.Blend.Operation == BlendOperation.Subtract,
+            "Fireflea retains its shade's subtraction with nothing lying behind");
         RgbaPixel[] darkPixels = DisplayRendering.Render(fireflea);
         RgbaPixel[] firefleaMain = Unblended(fireflea);
         foreach (int index in samples)

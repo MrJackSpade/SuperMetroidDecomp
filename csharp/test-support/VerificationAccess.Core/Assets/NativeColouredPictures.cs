@@ -35,17 +35,17 @@ internal static class NativeColouredPictures
         ReadOnlySpan<SpriteImageInk> inks = picture.Inks;
         var shown = new RgbaPixel[pixels.Length];
         var indices = new byte[pixels.Length];
-        var priorities = new byte[pixels.Length];
+        var frontTiles = new byte[pixels.Length];
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
             SpriteImageInk ink = inks[pixel];
             // A transparent pixel stays transparent; every other pixel shows its ink's native colour.
             shown[pixel] = pixels[pixel].A == 0 ? pixels[pixel] : standard[ink.PaletteIndex].ToRgbaPixel() with { A = pixels[pixel].A };
             indices[pixel] = checked((byte)ink.PaletteIndex);
-            priorities[pixel] = checked((byte)ink.Priority);
+            frontTiles[pixel] = ink.FrontTile ? (byte)1 : (byte)0;
         }
         return SpriteImageFixtures.Copied(picture.Name, picture.Size, shown, indices,
-            new SpriteImagePalette(picture.Colours, [.. standard]), priorities);
+            new SpriteImagePalette(picture.Colours, [.. standard]), frontTiles);
     }
 
     /// <summary>The sprite row <paramref name="draw"/>'s colouring ORs into its parts, or zero for a draw in no frontend colouring.</summary>
@@ -60,12 +60,12 @@ internal static class NativeColouredPictures
             ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.DrawnShadeRows.RowOf(shading) ?? 0
             : 0;
 
-    /// <summary><paramref name="frame"/> cut from <paramref name="picture"/>, a native-coloured copy of its sheet.</summary>
+    /// <summary><paramref name="frame"/> cut from <paramref name="picture"/>, a native-coloured copy of its sheet, at the frame's depth (#1514).</summary>
     internal static SpriteSheetFrame Of(SpriteSheetFrame frame, SpriteImage picture)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(picture);
-        return new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin, frame.ColourGroups);
+        return new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin, frame.ColourGroups) { Depth = frame.Depth };
     }
 
     /// <summary>

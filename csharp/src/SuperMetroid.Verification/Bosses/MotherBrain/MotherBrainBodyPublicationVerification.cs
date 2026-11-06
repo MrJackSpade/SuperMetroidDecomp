@@ -55,7 +55,7 @@ internal static class MotherBrainBodyPublicationVerification
         AssertEqual(SuperMetroid.Core.Enemies.BossBodies.BossBodyDefinitions.FirstPageArea, drawn.Rooms.BossBody?.Area, "her body shows its first page");
         AssertEqual(state.BodyLayerPlacement + runtime.Display.Latched.Scrolls.RoomShake.Background, drawn.View.BackgroundScroll, "her scroll places her body");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
-        AssertTrue(drawn.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "her shown body keeps BG2 on the main screen");
+        AssertTrue(drawn.View.ShownLayers.HasFlag(ScreenLayers.Background), "her shown body keeps BG2 on the main screen");
 
         // Death: the flicker hides her body.
         state.DeathHidesBodyLayer = true;
@@ -63,7 +63,7 @@ internal static class MotherBrainBodyPublicationVerification
         AssertEqual(new MotherBrainBodyPlacement(state.BodyLayerPlacement, true), runtime.Display.Latched.Bosses.MotherBrainBody,
             "the death flicker publishes her body hidden");
         var hidden = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(!hidden.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "a hidden body leaves BG2 off the main screen");
+        AssertTrue(!hidden.View.ShownLayers.HasFlag(ScreenLayers.Background), "a hidden body leaves BG2 off the main screen");
         Console.WriteLine("  Mother Brain body: phase one shows the pipes; phase two publishes her placed body; death hides it.");
     }
 

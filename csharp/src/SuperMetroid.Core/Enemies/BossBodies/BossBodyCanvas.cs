@@ -111,7 +111,7 @@ internal sealed class BossBodyCanvas
                 if (placement.Part is { } part)
                     shown.Add(new BossBodyPlacement(sheet.Part(part), placement.Shows));
             }
-            published = new BossBodyLayer(Rows, [.. shown]);
+            published = new BossBodyLayer([.. shown]);
             publishedFrom = sheet;
         }
         return published;

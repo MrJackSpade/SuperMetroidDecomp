@@ -53,7 +53,7 @@ internal static class BackgroundMosaicTests
             DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false,
                 new GameplayBlend
                 {
-                    Blended = mode == 2 ? BlendedLayers.Backdrop : BlendedLayers.None,
+                    Blended = mode == 2 ? BlendedLayers.Backdrop : default,
                     Operation = BlendOperation.Add,
                     Halved = false,
                     Colour = RgbColor.Black,

@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Rendering;
 [Flags]
 public enum BlendedLayers
 {
-    /// <summary>Nothing blends.</summary>
-    None = 0,
     /// <summary>The room's foreground blends where it is frontmost.</summary>
     Foreground = 1 << 0,
     /// <summary>The room's background blends where it is frontmost.</summary>

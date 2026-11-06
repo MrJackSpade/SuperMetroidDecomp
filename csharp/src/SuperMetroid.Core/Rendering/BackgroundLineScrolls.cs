@@ -13,7 +13,4 @@ public readonly record struct BackgroundLineScrolls
 
     /// <summary>The background's vertical scroll line by line, or null for its own scroll on every line.</summary>
     public LineScroll? Vertical { get; init; }
-
-    /// <summary>The number of gameplay lines below the HUD a room effect moves.</summary>
-    public static int GameplayLines => ScreenGeometry.ScreenHeightPixels - ScreenGeometry.GameplayHudHeightPixels;
 }

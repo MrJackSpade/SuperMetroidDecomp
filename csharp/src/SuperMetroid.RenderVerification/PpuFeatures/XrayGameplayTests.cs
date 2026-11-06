@@ -212,10 +212,10 @@ internal static class XrayGameplayTests
         // whole, with any colour.
         static GameplayBlend RandomBlend(Random random) => new()
         {
-            Blended = (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Foreground)
-                | (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Background)
-                | (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Actors)
-                | (random.Next(2) == 0 ? BlendedLayers.None : BlendedLayers.Backdrop),
+            Blended = (random.Next(2) == 0 ? default : BlendedLayers.Foreground)
+                | (random.Next(2) == 0 ? default : BlendedLayers.Background)
+                | (random.Next(2) == 0 ? default : BlendedLayers.Actors)
+                | (random.Next(2) == 0 ? default : BlendedLayers.Backdrop),
             Operation = random.Next(2) == 0 ? BlendOperation.Add : BlendOperation.Subtract,
             Halved = random.Next(2) == 0,
             Colour = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)),

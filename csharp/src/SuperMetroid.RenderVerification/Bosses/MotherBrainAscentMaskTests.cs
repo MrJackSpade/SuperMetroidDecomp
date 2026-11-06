@@ -52,7 +52,7 @@ internal static class MotherBrainAscentMaskTests
             var packet = new DisplayPacket(0, scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
             var math = new GameplayBlendLayer(layer, ScreenWindow.Closed, false,
-                new GameplayBlend { Blended = BlendedLayers.None, Operation = BlendOperation.Add, Halved = false, Colour = RgbColor.Black });
+                new GameplayBlend { Blended = default, Operation = BlendOperation.Add, Halved = false, Colour = RgbColor.Black });
             var mathScene = new LayeredScene(memory, [math], 15);
             var mathPacket = new DisplayPacket(0, mathScene);
             PixelComparison.Verify(mathPacket, pixels, DisplayRendering.Render(mathScene), "CPU source-aware ascent mask");

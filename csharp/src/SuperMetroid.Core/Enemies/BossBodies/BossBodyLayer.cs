@@ -4,13 +4,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
-/// A boss body layer as an accepted frame latched it (#1466): its rows, in pages of thirty-two, and the parts the boss
-/// has drawn on it, each over cells no other shows. A part that clears its cells shows nothing over them, and a cell no
+/// A boss body layer as an accepted frame latched it (#1466): the parts the boss has drawn on it, each over cells no other shows. A part that clears its cells shows nothing over them, and a cell no
 /// part shows draws nothing (#1513). The frame shows it as pictures placed where they show (<see cref="Show"/>, #1514).
 /// </summary>
-/// <param name="Rows">The layer's rows.</param>
 /// <param name="Placements">The parts showing and the cells each shows.</param>
-public sealed record BossBodyLayer(int Rows, ImmutableArray<BossBodyPlacement> Placements)
+public sealed record BossBodyLayer(ImmutableArray<BossBodyPlacement> Placements)
 {
     /// <summary>
     /// The layer as the frame shows it: each part's picture for the frame its animation shows in

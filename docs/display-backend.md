@@ -45,7 +45,7 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   sprite layer, so each pixel keeps the frontmost draw's opaque pixel whatever its priority. A sprite hidden by one in
   front therefore never shows at another priority.
 - **Backdrop.** Fills the screen with the backdrop colour.
-- **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the layer-3 plane, a boss body, the
+- **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the effect overlay, a boss body, the
   X-ray reveal, a library background, or a frontend layer's cells. Each pixel of the layer shows its picture's pixel at
   the scrolled position. Options: a priority filter (only the low- or high-priority pixels), opaque colour zero, a scroll
   per line, a mosaic that groups screen pixels into blocks before the line's scroll, and words written over the layer
@@ -66,8 +66,9 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   layer's colour from the floor.
 - **Add colour.** Adds a fixed colour to every pixel, in five-bit channels, clamped.
 - **Line colour add.** Adds each line's colour within that line's window.
-- **Add / subtract layer.** Adds or subtracts the room effect's layer-3 rows, each line at its own scroll, eight bits a
-  channel, clamped.
+- **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own scroll, eight bits a
+  channel, clamped. The overlay is a rectangle of its picture placed in an area that repeats across and down
+  (`OverlayPicture`, #1514); nothing shows outside the rectangle.
 - **Add layer behind.** Adds a frontend layer's colours where the layer covering it shows (and, optionally, where a
   sprite that blends shows over it), each line at its own scroll, in five-bit channels.
 - **Message text.** Draws the message box's text image from its top line, within the reveal window's lines.

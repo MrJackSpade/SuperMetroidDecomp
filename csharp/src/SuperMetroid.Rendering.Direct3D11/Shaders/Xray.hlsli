@@ -19,12 +19,12 @@ uint2 XraySample(bool shown, uint picture, uint2 within)
     }
     return sample;
 }
-// The effect overlay's `rows` rows from row `map`; a position it does not cover is transparent.
-uint2 XrayOverlay(uint map, uint rows, uint2 position)
+// The effect overlay (FxOverlayPicture, #1514); a position it does not cover is transparent.
+uint2 XrayOverlay(uint2 position)
 {
     uint picture = 0;
     uint2 within = uint2(0, 0);
-    bool shown = Bg3Picture(map, rows, position & 65535, within, picture);
+    bool shown = FxOverlayPicture(position & 65535, within, picture);
     return XraySample(shown, picture, within);
 }
 // A room layer (RoomTile), boss body, reveal or library background; a position the room does not cover is transparent.
@@ -101,8 +101,7 @@ uint XrayGameplay(uint2 screen)
             sub = XrayBackground(RoomSource, bg2Screen + backgroundScroll).x;
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayOverlay((uint)MatrixC, (uint)CenterX,
-                screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
+            uint2 bg3 = XrayOverlay(screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }
         bool useSub = OffsetX != 0 && (sub >> 24) != 0;

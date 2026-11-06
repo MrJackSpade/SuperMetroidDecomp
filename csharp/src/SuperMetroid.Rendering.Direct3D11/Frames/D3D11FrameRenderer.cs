@@ -11,7 +11,6 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
@@ -223,20 +222,22 @@ public sealed class D3D11FrameRenderer : IDisposable
         return bytes.ToArray();
     }
 
-    /// <summary>The one layer-3 plane a frame shows (#1348): every layer that reads layer 3 reads the same plane.</summary>
-    private static FxOverlayCells SameBg3(FxOverlayCells? shown, FxOverlayCells plane) =>
-        shown is null || ReferenceEquals(shown, plane) ? plane
-            : throw new InvalidOperationException("A frame's layers show two different layer-3 planes.");
+    /// <summary>
+    /// The one effect overlay a frame shows (#1348, #1514): every layer that blends with the overlay shows the same
+    /// picture, placed the same way.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Two of the frame's layers show different overlays.</exception>
+    private static OverlayBlendLayer SameOverlay(OverlayBlendLayer? shown, OverlayBlendLayer overlay) =>
+        shown is null || Equals(shown.Picture, overlay.Picture) ? overlay
+            : throw new InvalidOperationException("A frame's layers show two different effect overlays.");
 
-    /// <summary>Adds or subtracts the room effect's layer-3 rows, each line at the scroll its described line scrolls give it (#1468).</summary>
+    /// <summary>Adds or subtracts the room effect's overlay, each line at the scroll its described line scrolls give it (#1468); the room buffer places its picture (#1514).</summary>
     private unsafe void DispatchBackgroundMath(OverlayBlendLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)(layer.Operation == Core.Rendering.BlendOperation.Add
             ? D3D11TileOperation.AddLayer : D3D11TileOperation.SubtractLayer);
-        // The plane's rows shown: the first in the layer word, how many in the map height (#1348).
-        data[1] = (uint)layer.FirstRow;
-        data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
+        data[8] = 1;
         data[14] = (uint)D3D11RoomSource.FxOverlay;
         data[25] = (uint)layer.FirstLine; data[26] = 224;
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.Horizontal, 0);
@@ -321,8 +322,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[15] = (uint)(layer.BlendsWithBackground
                 ? D3D11XrayBehindLayers.Layer2AndLayer3
                 : D3D11XrayBehindLayers.Layer3);
-            data[18] = (uint)sub.FirstRow;
-            data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstLine;
+            // The overlay's first line; the room buffer places its picture (#1514).
+            data[21] = (uint)sub.FirstLine;
         }
         for (int y = 32; y < 224; y++)
         {
@@ -338,10 +339,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         D3D11WindowPacking.Pack(data, layer.Window);
         // Layer 2's scrolls and the blend plane's, described line by line (#1468).
         PackBackgroundScrolls(data, layer.Gameplay);
-        if (layer.BlendPlane is { } bg3)
+        if (layer.BlendPlane is { } overlayBlend)
         {
-            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, bg3.Horizontal, 0);
-            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, bg3.Vertical, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, overlayBlend.Horizontal, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, overlayBlend.Vertical, 0);
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
@@ -463,7 +464,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.AddLayerBehind;
         data[1] = roomLevels.PlaneTable(layer.Plane);
-        data[5] = layer.Plane.Size.X; data[6] = layer.Plane.Size.Y; data[8] = 1; data[15] = 1; data[26] = 224;
+        data[8] = 1; data[15] = 1; data[26] = 224;
         data[14] = (uint)D3D11RoomSource.PicturedPlane;
         data[11] = layer.GlowsOverSprites is null ? 0u : 1u;
         if (layer.GlowsOver is { } covered)
@@ -553,7 +554,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => null,
         };
         RoomBackgroundLayer? floor = null;
-        FxOverlayCells? bg3 = rooms?.FxOverlay;
+        // The effect overlay the frame's blends show (#1514), if any.
+        OverlayBlendLayer? overlay = null;
         AffineFloor? floorMap = null;
         // A gameplay room's turning floor shows the room's shading; a frontend screen's the shading its floor names (#1512).
         D3D11PictureColouring floorColouring = D3D11PictureColouring.OwnShading;
@@ -586,11 +588,11 @@ public sealed class D3D11FrameRenderer : IDisposable
                 floorColouring = D3D11PictureColouring.Room;
             }
             else if (layer is OverlayBlendLayer math)
-                bg3 = SameBg3(bg3, math.Plane);
+                overlay = SameOverlay(overlay, math);
             else if (layer is GameplayBlendLayer { BlendPlane: { } sub })
-                bg3 = SameBg3(bg3, sub.Plane);
+                overlay = SameOverlay(overlay, sub);
         }
-        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.WrittenOverForeground, rooms?.Sky, bg3,
+        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.WrittenOverForeground, rooms?.Sky, overlay?.Picture,
             rooms?.WrittenOverBackground, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
@@ -692,7 +694,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     // The plane's placed pictures, every pixel of each (#1467, #1514).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        Map = roomLevels.PlaneTable(pictured.Plane), Scroll = pictured.Scroll, MapSize = pictured.Plane.Size,
+                        Map = roomLevels.PlaneTable(pictured.Plane), Scroll = pictured.Scroll,
                         RoomSource = D3D11RoomSource.PicturedPlane, TransparentZero = pictured.ShowsColourZero ? 0u : 1u,
                     });
                     break;
@@ -769,12 +771,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Upload the complete allocated cbuffer, so UpdateSubresource cannot read past
         // a short managed array. The trailing header words supply scanline clipping.
-        // The tile shader's header words three through six are the BG scroll and map size;
-        // unmapped operations keep the shader's default 32x32-cell plane.
-        Extent16<TilemapCells> size = tile.MapSize ?? new Extent16<TilemapCells>(32, 32);
+        // The tile shader's header words three and four are the layer's scroll; what a layer shows says where it repeats (#1514).
         var data = ClearUploadConstants();
         data[0] = (uint)operation; data[1] = tile.Map; data[3] = tile.Scroll.X;
-        data[4] = tile.Scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = tile.Priority;
+        data[4] = tile.Scroll.Y; data[7] = tile.Priority;
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
         data[14] = (uint)tile.RoomSource;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;

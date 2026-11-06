@@ -20,7 +20,7 @@ internal static class ColorWindowSmokeTests
         var vram = new byte[SnesVram.ByteCount]; random.NextBytes(vram);
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = FramePaint.FromNative(palette, []);
-        FxOverlayCells bg3 = FxOverlayCellsFixtures.FromVram(vram, palette, 0x7ff8);
+        SuperMetroid.Core.Assets.SpriteSheetFrame bg3 = FxOverlayFixtures.PlaneFromVram(vram, palette, 0x7ff8);
         var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
             new Position16<TilePlanePixels>(3, 11));
         PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedPicturedPlaneLayer.MapSize);
@@ -52,7 +52,7 @@ internal static class ColorWindowSmokeTests
         foreach (ushort offset in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
             // Each line scrolls on both axes by a described sixteen-sample ramp (#1468).
-            var math = new OverlayBlendLayer(bg3, height == 32 ? 32 : 0, height, first, operation,
+            var math = new OverlayBlendLayer(FxOverlayFixtures.Rows(bg3, height == 32 ? 32 : 0, height), first, operation,
                 new SampledScrollWave(offset, [.. Enumerable.Range(0, 16)], 7 * 256, 0, 0, 224),
                 new SampledScrollWave(offset, [.. Enumerable.Range(0, 16).Select(sample => -sample)], 3 * 256, 0, 0, 224));
             count++;

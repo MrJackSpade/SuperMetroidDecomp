@@ -210,7 +210,7 @@ internal static class RoomFxRomDataVerification
         RoomFxOverlayState state = LoadSyntheticRoomFx(session, bus, record);
         Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, session, state, record, type));
         AssertEqual(FxOverlayPlaneConstants.ClearedCell.PackedWord,
-            state.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(RetailPresentationFixture()))[FxOverlayPlaneConstants.HudRows * FxOverlayPlane.Columns],
+            state.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(RetailPresentationFixture()))[FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns],
             $"{type} room shows the cleared word in the first gameplay BG3 FX word");
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -250,7 +250,7 @@ internal static class RoomFxRomDataVerification
                 {
                     Surface = new(0, ushort.MaxValue),
                     WaterSurfaceScreenY = -1,
-                }, RoomBackgroundsFixtures.BlankBg3()) is null,
+                }, RoomBackgroundsFixtures.BlankFxOverlay()) is null,
                 $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
             // The described BG2 wave (#1468), evaluated on each gameplay line.
@@ -311,7 +311,7 @@ internal static class RoomFxRomDataVerification
         };
         AssertThrows<InvalidDataException>(
             () => GameplayEffectCapture.CaptureRoomFxOverlay(
-                snapshot with { LayerBlendConfiguration = wrongBlend }, RoomBackgroundsFixtures.BlankBg3()),
+                snapshot with { LayerBlendConfiguration = wrongBlend }, RoomBackgroundsFixtures.BlankFxOverlay()),
             $"{type} rejects another FX type's layer-blending route");
     }
 

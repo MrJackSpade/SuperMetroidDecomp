@@ -133,8 +133,11 @@ public static class GameplayEffectCapture
         return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay), subscreenUsesBg2: true);
     }
 
-    /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
-    public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayCells plane)
+    /// <summary>
+    /// Resolves the room effect's type, its liquid's visibility and its wave's phase into the effect overlay's blend: what
+    /// the overlay shows of the effect's <paramref name="page"/>, its line scrolls and how it combines.
+    /// </summary>
+    public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayPage page)
     {
         LayerBlendingConfiguration required = fx.Type switch
         {
@@ -160,7 +163,7 @@ public static class GameplayEffectCapture
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         if (liquid && CoordinateAxis.AsSigned(fx.Surface.Y) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
-        // Below a water surface the plane moves sideways with the water waveform, one sample a line counted from the line
+        // Below a water surface the overlay moves sideways with the water waveform, one sample a line counted from the line
         // below the surface and drawn back by the wave's phase (#1468).
         int belowSurface = fx.WaterSurfaceScreenY + 1;
         LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
@@ -168,15 +171,34 @@ public static class GameplayEffectCapture
                 SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
                 Math.Clamp(belowSurface, HudHeight, Height), Height)
             : ScrollBands.Uniform(fx.Scroll.X);
-        // A liquid's lines above the tile row holding its surface show the plane's top row.
+        // A liquid's lines above the tile row holding its surface show the overlay's top, above the page, where nothing shows.
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (ScreenGeometry.BackgroundTileSizePixels - 1);
         LineScroll vertical = liquid ? ScrollBands.Split(0, firstSurfaceLine, fx.Scroll.Y) : ScrollBands.Uniform(fx.Scroll.Y);
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
-        // Liquids sample the whole plane; atmospheres repeat its lower 32 rows.
-        return new(plane, atmosphere ? FxOverlayPlane.Rows / 2 : 0,
-            atmosphere ? FxOverlayPlane.Rows / 2 : FxOverlayPlane.Rows,
-            HudHeight, subtract ? BlendOperation.Subtract : BlendOperation.Add, horizontal, vertical);
+        return new(OverlayOf(Ensure.NotNull(page), atmosphere), HudHeight, subtract ? BlendOperation.Subtract : BlendOperation.Add,
+            horizontal, vertical);
+    }
+
+    /// <summary>
+    /// What the effect overlay shows of <paramref name="page"/> (#1514), or nothing without a page: a liquid's whole page
+    /// below a band of nothing, repeating down every two pages' height; an atmosphere's page from below its first row,
+    /// repeating every page.
+    /// </summary>
+    private static OverlayPicture? OverlayOf(FxOverlayPage page, bool atmosphere)
+    {
+        if (page.Picture is not { } picture)
+            return null;
+        if (atmosphere)
+        {
+            int first = FxOverlayPageDefinitions.AtmosphereFirstPageRow;
+            return new OverlayPicture(picture, new Position16<ImagePixels>(0, first),
+                new Extent16<OverlayPixels>(picture.Size.X, picture.Size.Y - first), Position16<OverlayPixels>.Zero,
+                new Extent16<OverlayPixels>(FxOverlayPageDefinitions.RepeatWidth, FxOverlayPageDefinitions.AtmosphereRepeatHeight));
+        }
+        return new OverlayPicture(picture, Position16<ImagePixels>.Zero, new Extent16<OverlayPixels>(picture.Size.X, picture.Size.Y),
+            new Position16<OverlayPixels>(0, FxOverlayPageDefinitions.LiquidPageTop),
+            new Extent16<OverlayPixels>(FxOverlayPageDefinitions.RepeatWidth, FxOverlayPageDefinitions.LiquidRepeatHeight));
     }
 
     /// <summary>

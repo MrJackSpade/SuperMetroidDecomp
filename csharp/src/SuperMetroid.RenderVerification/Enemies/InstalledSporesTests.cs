@@ -109,7 +109,7 @@ internal static class InstalledSporesTests
                     var gameplay = new GameplaySceneLayer(new(default, default,
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
-                            FxOverlay = FxOverlayCellsFixtures.FromWords(baseline.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(stock)),
+                            FxOverlay = FxOverlayFixtures.PageOf(baseline.EffectPlane, InstalledAreaMapPresentation.RoomFxPagesOf(stock),
                                 new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
@@ -207,7 +207,7 @@ internal static class InstalledSporesTests
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
             var layer = GameplayEffectCapture.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
-                    FxOverlay = FxOverlayCellsFixtures.FromVram(vram.Bytes, colors, 0x4000),
+                    FxOverlay = FxOverlayFixtures.PageFromVram(vram.Bytes, colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors, oam, 1, 0), [layer], 15);

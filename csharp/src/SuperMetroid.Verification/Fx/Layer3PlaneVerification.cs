@@ -41,8 +41,8 @@ internal static class Layer3PlaneVerification
         ShownHud first = runtime.AcceptedHud;
         ushort[] firstWords = runtime.AcceptedHudWords;
         ushort[] topRow = BackgroundTileWordBytes.Words(artwork.TopRowTiles());
-        AssertTrue(firstWords[..FxOverlayPlane.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
-        AssertTrue(firstWords[FxOverlayPlane.Columns..(FxOverlayPlaneConstants.HudRows * FxOverlayPlane.Columns)].SequenceEqual(runtime.Hud.TileWords),
+        AssertTrue(firstWords[..FxOverlayPlaneConstants.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
+        AssertTrue(firstWords[FxOverlayPlaneConstants.Columns..(FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns)].SequenceEqual(runtime.Hud.TileWords),
             "rows one through three are the rows the HUD's values draw");
 
         // A HUD change reaches the next NMI's plane; the published one keeps its rows. Lost energy redraws the energy
@@ -54,8 +54,8 @@ internal static class Layer3PlaneVerification
         ushort[] after = runtime.Hud.TileWords;
         int cell = Enumerable.Range(0, after.Length).First(index => after[index] != before[index]);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(after[cell], runtime.AcceptedHudWords[FxOverlayPlane.Columns + cell], "the next NMI's HUD shows the HUD change");
-        AssertEqual(before[cell], BackgroundTileWordBytes.Words(artwork.Rows(first))[FxOverlayPlane.Columns + cell], "an earlier latched HUD keeps its images");
+        AssertEqual(after[cell], runtime.AcceptedHudWords[FxOverlayPlaneConstants.Columns + cell], "the next NMI's HUD shows the HUD change");
+        AssertEqual(before[cell], BackgroundTileWordBytes.Words(artwork.Rows(first))[FxOverlayPlaneConstants.Columns + cell], "an earlier latched HUD keeps its images");
         Console.WriteLine("  BG3 plane: the HUD's images publish from the HUD's values at each NMI.");
     }
 
@@ -76,25 +76,30 @@ internal static class Layer3PlaneVerification
         RoomFxLayer3Pages pages = InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps);
         ushort[] plane = shownPlane.WordsIn(pages);
         ReadOnlySpan<byte> page = pages.ResolveBytes(RoomFxType.Water);
-        for (int row = FxOverlayPlaneConstants.HudRows; row < FxOverlayPlane.Rows; row++)
-        for (int column = 0; column < FxOverlayPlane.Columns; column++)
+        for (int row = FxOverlayPlaneConstants.HudRows; row < FxOverlayPlaneConstants.Rows; row++)
+        for (int column = 0; column < FxOverlayPlaneConstants.Columns; column++)
         {
-            int pageWord = (row - FxOverlayPlane.EffectPageFirstRow) * FxOverlayPlane.Columns + column;
+            int pageWord = (row - FxOverlayPlaneConstants.EffectPageFirstRow) * FxOverlayPlaneConstants.Columns + column;
             ushort expected = pageWord >= 0 && pageWord * 2 < page.Length
                 ? LittleEndianBytes.Word(page[pageWord * 2], page[pageWord * 2 + 1])
                 : FxOverlayPlaneConstants.ClearedCell.PackedWord;
-            AssertEqual(expected, plane[row * FxOverlayPlane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
+            AssertEqual(expected, plane[row * FxOverlayPlaneConstants.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
-        AssertTrue(plane[..(FxOverlayPlaneConstants.HudRows * FxOverlayPlane.Columns)].All(word => word == FxOverlayPlaneConstants.ClearedCell.PackedWord),
+        AssertTrue(plane[..(FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns)].All(word => word == FxOverlayPlaneConstants.ClearedCell.PackedWord),
             "the rows the HUD's images cover stay cleared above the effect");
 
         RoomFxOverlayRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual((ushort)0x0080, shown.Surface.Y, "the published effect carries the constructed liquid level");
-        FxOverlayCells cells = FxOverlayCellsFixtures.FromWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
-        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, cells)
+        FxOverlayPage page = FxOverlayFixtures.PageFromPlaneWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
+        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, page)
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");
-        AssertTrue(ReferenceEquals(cells, layer.Plane) && layer.FirstRow == 0 && layer.MapHeightTiles == FxOverlayPlane.Rows,
-            "liquid BG3 samples the whole published plane");
+        // The overlay shows the whole page from the row the cartridge writes it to, repeating every two pages (#1514).
+        OverlayPicture overlay = layer.Picture ?? throw new InvalidOperationException("Water shows its page.");
+        AssertTrue(ReferenceEquals(page.Picture, overlay.Picture) && overlay.Source == Position16<ImagePixels>.Zero
+            && overlay.Size.Y == overlay.Picture.Size.Y
+            && overlay.Place.Y == FxOverlayPlaneConstants.EffectPageFirstRow * 8
+            && overlay.Repeat.Y == FxOverlayPlaneConstants.Rows * 8,
+            "a liquid's overlay shows its whole page where the published plane holds it");
         Console.WriteLine("  BG3 plane: a water effect shows its page under the HUD and captures from the plane.");
     }
 

@@ -296,8 +296,8 @@ internal sealed class AcceptedFrameBoundary
                 WrittenOverForeground = writtenOverForeground,
                 // The room effect's page draws from the effect overlay sheet's pictures, as the effects' animations select them; the
                 // plane holds nothing else (#1466).
-                FxOverlay = new FxOverlayCells(scope.FxOverlayPictures.Resolve(latched.FxOverlay ?? throw new InvalidOperationException("A room's frame boundary latches its effect overlay plane."),
-                    appearance)),
+                FxOverlay = scope.FxOverlayPictures.Resolve(latched.FxOverlay ?? throw new InvalidOperationException("A room's frame boundary latches its effect overlay plane."),
+                    appearance),
             },
             // The HUD's images draw from the same sheet, on the HUD's own layer (#1466).
             PicturedHud = HudPicturesIn(scope.FxOverlayPictures.Sheet.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),

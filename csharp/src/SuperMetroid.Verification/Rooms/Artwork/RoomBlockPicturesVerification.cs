@@ -313,13 +313,18 @@ internal static class RoomBlockPicturesVerification
             IReadOnlyList<AppearanceOption> effects = UploadsOf(runtime).Bg3Options;
             RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
                 ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.");
-            ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver((runtime.Room.Scope
+            // The overlay shows the effect's page picture (#1514): each of its cells paints the word the cartridge writes
+            // there, from the row it writes the page to.
+            FxOverlayPage page = new WrittenPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).FxOverlayPictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
-            for (int index = 0; index < FxOverlayPlane.Columns * FxOverlayPlane.Rows; index++)
+            SpriteSheetFrame shownPage = page.Picture ?? throw new InvalidOperationException($"{room.Name}: BG3 shows no effect page.");
+            int firstWord = FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns;
+            for (int index = firstWord; index < FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows; index++)
             {
-                BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
+                int cellX = (index - firstWord) % FxOverlayPlaneConstants.Columns * CharacterPixels;
+                int cellY = (index - firstWord) / FxOverlayPlaneConstants.Columns * CharacterPixels;
                 var word = new SnesBgTilemapWord(planeWords[index]);
-                SpriteImage sheet = picture.Picture.Sheet;
+                SpriteImage sheet = shownPage.Sheet;
                 for (int y = 0; y < CharacterPixels; y++)
                 for (int x = 0; x < CharacterPixels; x++)
                 {
@@ -331,7 +336,7 @@ internal static class RoomBlockPicturesVerification
                     int address = pixelRow * 2;
                     int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1;
                     int expected = word.PaletteIndex * 4 + colour;
-                    int at = (picture.Picture.Corner.Y + picture.Corner.Y + y) * sheet.Size.X + picture.Picture.Corner.X + picture.Corner.X + x;
+                    int at = (shownPage.Corner.Y + cellY + y) * sheet.Size.X + shownPage.Corner.X + cellX + x;
                     AssertTrue(sheet.Inks[at].PaletteIndex == expected && (sheet.Inks[at].Priority != 0) == word.HasPriority
                             && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel()),
                         $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {sheet.Inks[at].PaletteIndex} where its character, "

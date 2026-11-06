@@ -499,7 +499,7 @@ internal static class RoomFxRetailInventoryVerification
         ushort[] plane)
     {
         OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(snapshot,
-            FxOverlayCellsFixtures.FromWords(plane, image, cgram));
+            FxOverlayFixtures.PageFromPlaneWords(plane, image, cgram));
         return DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }

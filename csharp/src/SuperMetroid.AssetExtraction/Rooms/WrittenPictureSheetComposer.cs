@@ -32,6 +32,12 @@ internal static class WrittenPictureSheetComposer
     private const int SheetTiles = 32;
 
     /// <summary>
+    /// The name of the effect overlay sheet's picture of the cell the cartridge clears the effect area to. The game shows
+    /// nothing where no effect's page lies (#1514) and reads no such picture.
+    /// </summary>
+    internal const string ClearedPicture = "Cleared";
+
+    /// <summary>
     /// Tiles across the widest sheet the installation can hold, which pictures are packed into: a BG3 sheet pictures each
     /// room effect's whole page again for each frame its effects animate, more than a page-wide sheet could hold.
     /// </summary>
@@ -67,7 +73,7 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
         HudSheetLayout hud = HudImageSheet.Layout(GameplayHudArtwork.Of(inputs.Maps.GameplayHud), HudImageSheet.Maps(inputs.Maps));
-        List<WrittenSubject> subjects = [new WrittenSubject(FxOverlayPlane.ClearedPicture, [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(Layer3ClearedCellDefinitions.ClearedCell)))]),
+        List<WrittenSubject> subjects = [new WrittenSubject(ClearedPicture, [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(Layer3ClearedCellDefinitions.ClearedCell)))]),
             .. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPlane.EffectPagePicture(type),
                 Rows(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
         return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),

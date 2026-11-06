@@ -34,7 +34,7 @@ internal static class LookupLiquidWaveVerification
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.BackgroundWave, WaterOverlayWavePhase: phase,
                 WaterBackgroundWavePhase: phase, WaterSurfaceScreenY: 100);
-            var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankBg3());
+            var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankFxOverlay());
             for (int y = DisplayScreen.HudHeight; y < DisplayScreen.Height; y++)
             {
                 int offset = y > 100 ? Water((y - 101 - phase + 16) % 16) : 0;

@@ -105,7 +105,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
-      "files": 918,
+      "files": 920,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -135,7 +135,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 1433,
+      "files": 1435,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -27722,9 +27722,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Compatibility"
       ]
     },
     {
@@ -30917,6 +30914,19 @@
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAscentDustDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -34334,6 +34344,9 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -34354,6 +34367,9 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -35183,6 +35199,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Ridley",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyWingDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
       "namespace": "SuperMetroid.Core.Bosses.Ridley",
@@ -36616,7 +36642,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -43689,6 +43714,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyDrawLayer.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyDropChances.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -47569,6 +47607,19 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Programs",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumps.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.LavaJumpers",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },

@@ -46997,6 +46997,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAscentDustDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAscentDustDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAttackPhase",
       "kind": "enum",
       "scope": "product",
@@ -52597,6 +52610,19 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/CeresRidleyPaletteDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyWingDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyWingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -66423,6 +66449,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyDrawLayer",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyDrawLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyDropChances",
       "kind": "record struct",
       "scope": "product",
@@ -71849,7 +71888,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumpDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperAnimations",
@@ -71983,6 +72022,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumps",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumps.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Magdollite.Artwork.MagdolliteFrameDefinitions",

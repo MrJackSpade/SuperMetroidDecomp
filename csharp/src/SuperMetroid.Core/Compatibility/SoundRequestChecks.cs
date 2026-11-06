@@ -14,7 +14,7 @@ public readonly struct SoundRequestChecks<TLibrary, TSound> : IEquatable<SoundRe
     where TSound : struct, IEquatable<TSound>
 {
     /// <summary>Each listed library's check.</summary>
-    private readonly SoundLibraryValues<TLibrary, SoundRequestCheck<TSound>> byLibrary;
+    private readonly PerSoundLibrary<TLibrary, SoundRequestCheck<TSound>> byLibrary;
 
     /// <summary>The check of each of <paramref name="libraries"/>.</summary>
     /// <param name="libraries">The libraries, distinct.</param>
@@ -22,10 +22,10 @@ public readonly struct SoundRequestChecks<TLibrary, TSound> : IEquatable<SoundRe
     /// <exception cref="ArgumentException"><paramref name="libraries"/> is default or holds a library twice.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="checkOf"/> is null.</exception>
     public SoundRequestChecks(ImmutableArray<TLibrary> libraries, Func<TLibrary, SoundRequestCheck<TSound>> checkOf) =>
-        byLibrary = new SoundLibraryValues<TLibrary, SoundRequestCheck<TSound>>(libraries, checkOf);
+        byLibrary = new PerSoundLibrary<TLibrary, SoundRequestCheck<TSound>>(libraries, checkOf);
 
     /// <summary>Holds <paramref name="byLibrary"/>.</summary>
-    private SoundRequestChecks(SoundLibraryValues<TLibrary, SoundRequestCheck<TSound>> byLibrary) => this.byLibrary = byLibrary;
+    private SoundRequestChecks(PerSoundLibrary<TLibrary, SoundRequestCheck<TSound>> byLibrary) => this.byLibrary = byLibrary;
 
     /// <summary>The check of <paramref name="library"/>; no request and no change for a library left unlisted.</summary>
     public SoundRequestCheck<TSound> this[TLibrary library] => byLibrary[library];

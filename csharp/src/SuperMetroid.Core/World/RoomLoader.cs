@@ -537,7 +537,7 @@ internal sealed class RoomLoader
         _backgroundScroll.ConfigureDoorOpeningOffsets(retainedForegroundScroll, stagedForeground);
         _pendingDoorOpeningSourceView = null;
         // The source screen stays where it was while the destination scrolls in around it.
-        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsBgPlaneScroll());
+        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsPlaneScroll());
         PublishDoorOpeningLayers(_doorOpeningScroll);
         // Each directional setup immediately takes its first step, which recomputes the
         // layer scrolls from the already-advanced layer positions. Down's first update
@@ -783,7 +783,7 @@ internal sealed class RoomLoader
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
             RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsBgPlaneOffset(),
+                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsPlaneOffset(),
                     SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),

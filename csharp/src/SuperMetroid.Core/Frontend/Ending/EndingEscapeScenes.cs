@@ -50,7 +50,7 @@ internal sealed class EndingEscapeScenes
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
-        _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;
+        _stage.PostCreditsScroll = Position16<PlanePixels>.Zero;
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
         audio.ScheduleMusic(

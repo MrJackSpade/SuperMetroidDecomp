@@ -279,12 +279,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The map page shows the area map from the map row below its scroll position: the position names the row above
         // the screen's top, the row Samus's marker and the map's icons are placed from. The equipment page's pictures are
         // placed where the screen shows them, so its plane is not scrolled.
-        Position16<TilePlanePixels> mapScroll = ScreenMode == PauseScreenMode.Map
+        Position16<PlanePixels> mapScroll = ScreenMode == PauseScreenMode.Map
             ? new(MapScrollPosition.X, CoordinateAxis.Wrap(MapScrollPosition.Y + 1))
-            : Position16<TilePlanePixels>.Zero;
+            : Position16<PlanePixels>.Zero;
         // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what it last uploaded
         // and the frame the area's backdrop and button pictures (#1467).
-        var frame = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), Position16<TilePlanePixels>.Zero);
+        var frame = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), Position16<PlanePixels>.Zero);
         // The map scrolls inside the frame's opening, its border framing it (#1514); the frame's pictures lie their page's
         // rows above the screen's top, and its opening with them. The equipment page lies within the frame and is drawn
         // over it whole.

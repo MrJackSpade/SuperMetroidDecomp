@@ -128,7 +128,7 @@ internal sealed class EndingCreditsRoll
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         PostCreditsTextTilemap = EndingTextScreen.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
-        _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;
+        _stage.PostCreditsScroll = Position16<PlanePixels>.Zero;
         // E48A clears the copyright's two rows.
         postCreditsPage.Erase(EndingPictureNames.CopyrightPanel);
         UploadPostCreditsTilemap();

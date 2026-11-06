@@ -26,7 +26,7 @@ internal static class EndingCreditsPresentation
             bool crossfading = ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted;
             if (crossfading)
                 layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo,
-                    ending.screen.LogoShown), Position16<TilePlanePixels>.Zero));
+                    ending.screen.LogoShown), Position16<PlanePixels>.Zero));
             // While the logo's picture fades in, its sprites glow over it. The logo is drawn from the shooting scene's
             // sheet, which holds it.
             layers.Add(Sprites(ending, EndingObjectSheet.RewardFalling, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));

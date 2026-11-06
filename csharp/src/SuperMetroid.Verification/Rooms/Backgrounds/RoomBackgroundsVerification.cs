@@ -41,7 +41,7 @@ internal static class RoomBackgroundsVerification
         for (int block = 0; block < blocks.Length; block++)
             blocks[block] = RoomBlockAppearance.Of(block, mirrorings[block % mirrorings.Length]);
         var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks);
-        var offset = new Offset16<TilePlanePixels>(0x10, -0x08);
+        var offset = new Offset16<PlanePixels>(0x10, -0x08);
         // The destination and the door's source room draw block pictures of different characters (#1403).
         var random = new Random(1346);
         var palette = new RgbColor[SnesCgram.ColorCount];
@@ -56,32 +56,32 @@ internal static class RoomBackgroundsVerification
         for (int y = 0; y < Side * RoomLevelPlane.BlockPixels; y += 3)
         for (int x = 0; x < Side * RoomLevelPlane.BlockPixels; x += 5)
         {
-            var level = new Position16<TilePlanePixels>((ushort)x, (ushort)y);
+            var level = new Position16<PlanePixels>((ushort)x, (ushort)y);
             RoomBlockAppearance shown = blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels];
-            AssertTrue(layer.Blocks.TryCellAt(level, out RoomBlockCell cell, out Position16<TilePlanePixels> within),
+            AssertTrue(layer.Blocks.TryCellAt(level, out RoomBlockCell cell, out Position16<PlanePixels> within),
                 $"level pixel {x},{y} is inside the room");
             AssertEqual(new RoomBlockCell(shown.Block, shown.Mirroring), cell,
                 $"level pixel {x},{y} shows the appearance's block and mirroring");
-            AssertEqual(new Position16<TilePlanePixels>((ushort)(x % RoomLevelPlane.BlockPixels), (ushort)(y % RoomLevelPlane.BlockPixels)), within,
+            AssertEqual(new Position16<PlanePixels>((ushort)(x % RoomLevelPlane.BlockPixels), (ushort)(y % RoomLevelPlane.BlockPixels)), within,
                 $"level pixel {x},{y} lies at its place within the block");
             checks++;
         }
-        AssertTrue(!layer.Blocks.TryCellAt(new Position16<TilePlanePixels>(0, Side * RoomLevelPlane.BlockPixels), out _, out _),
+        AssertTrue(!layer.Blocks.TryCellAt(new Position16<PlanePixels>(0, Side * RoomLevelPlane.BlockPixels), out _, out _),
             "a level pixel below the room shows no block");
-        AssertTrue(!layer.Blocks.TryCellAt(new Position16<TilePlanePixels>(0, 0) + new Offset16<TilePlanePixels>(-1, 0), out _, out _),
+        AssertTrue(!layer.Blocks.TryCellAt(new Position16<PlanePixels>(0, 0) + new Offset16<PlanePixels>(-1, 0), out _, out _),
             "a scroll left of the room shows no block");
 
         // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
         var sourceBlocks = Enumerable.Repeat(RoomBlockAppearance.Of(15), Side * Side).ToArray();
         RoomBlockPictureTable sourcePictures = RoomBlockFixtures.Pictures(definitions, sourceImage, palette);
         var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks).Cells,
-            new Offset16<TilePlanePixels>(0, 0), sourcePictures);
-        var sourceScroll = new Position16<TilePlanePixels>(0, 0);
+            new Offset16<PlanePixels>(0, 0), sourcePictures);
+        var sourceScroll = new Position16<PlanePixels>(0, 0);
         var door = RoomDoorBackground.Begin(source, sourceScroll);
-        var top = new Position16<TilePlanePixels>(0x18, ScreenGeometry.LayerRowsAboveSprites + ScreenGeometry.GameplayHudHeightPixels);
+        var top = new Position16<PlanePixels>(0x18, ScreenGeometry.LayerRowsAboveSprites + ScreenGeometry.GameplayHudHeightPixels);
         AssertTrue(door.Covers(top) && ReferenceEquals(door.SourceRoom.Pictures, sourcePictures),
             "the door window's first gameplay line shows the source room");
-        AssertTrue(!door.Covers(top + new Offset16<TilePlanePixels>(0, -1)),
+        AssertTrue(!door.Covers(top + new Offset16<PlanePixels>(0, -1)),
             "the line above the window shows the destination room");
 
         Console.WriteLine($"  Room backgrounds: {checks} level samples and the door window agree.");
@@ -124,20 +124,20 @@ internal static class RoomBackgroundsVerification
                 ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.");
             RoomLevelData level = runtime.Room.LoadedLevelData;
             AssertTrue(ReferenceEquals(level.ForegroundPlane.Cells, published.Foreground.Blocks), $"{room.Name} BG1 is the room's foreground plane");
-            AssertEqual(runtime.BackgroundScroll.ForegroundOffset.AsBgPlaneOffset(), published.Foreground.ScrollOffset, $"{room.Name} BG1 offset");
+            AssertEqual(runtime.BackgroundScroll.ForegroundOffset.AsPlaneOffset(), published.Foreground.ScrollOffset, $"{room.Name} BG1 offset");
             AssertEqual(streams, published.Background is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");
             if (published.Background is { } bg2)
             {
                 AssertTrue(ReferenceEquals(level.BackgroundPlane.Cells, bg2.Blocks), $"{room.Name} BG2 is the room's layer-2 plane");
-                AssertEqual(runtime.BackgroundScroll.BackgroundOffset.AsBgPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
+                AssertEqual(runtime.BackgroundScroll.BackgroundOffset.AsPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
             }
-            Position16<TilePlanePixels> scroll = runtime.BackgroundScroll.ForegroundScroll.AsBgPlaneScroll();
-            Position16<TilePlanePixels> camera = runtime.BackgroundScroll.ForegroundPosition.AsBgPlaneScroll();
+            Position16<PlanePixels> scroll = runtime.BackgroundScroll.ForegroundScroll.AsPlaneScroll();
+            Position16<PlanePixels> camera = runtime.BackgroundScroll.ForegroundPosition.AsPlaneScroll();
             for (int y = 0; y < 192; y += 37)
             for (int x = 0; x < 256; x += 41)
             {
                 // The block BG1 shows at a screen pixel, through its scroll and offset, is the level's block at the camera.
-                var screen = new Offset16<TilePlanePixels>((short)x, (short)y);
+                var screen = new Offset16<PlanePixels>((short)x, (short)y);
                 AssertTrue(published.Foreground.Blocks.TryCellAt(scroll - published.Foreground.ScrollOffset + screen, out RoomBlockCell shown, out var shownWithin) &&
                         level.ForegroundPlane.Cells.TryCellAt(camera + screen, out RoomBlockCell expected, out var expectedWithin)
                         && shown == expected && shownWithin == expectedWithin,

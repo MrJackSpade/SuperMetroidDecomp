@@ -410,7 +410,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 // Function 148 moves BG1 down two pixels per call from zero through -80.
                 // The software renderer applies the equivalent scroll while preserving the
                 // already-built tilemap until the final object is spawned.
-                Stage.PostCreditsScroll -= new Offset16<TilePlanePixels>(0, 2);
+                Stage.PostCreditsScroll -= new Offset16<PlanePixels>(0, 2);
                 if (--Stage.PhaseTimer <= 0)
                 {
                     InstalledArtwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = CreditsRoll.PostCreditsTextTilemap, Presentation = InstalledArtwork.EndingText, InstalledSequence = InstalledArtwork.EndingText is null ? null : EndingTextSequence.FinalMessage }));
@@ -506,7 +506,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         ];
         return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
 
-        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Position16<TilePlanePixels>.Zero);
+        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Position16<PlanePixels>.Zero);
     }
 
     /// <summary>One screen of cells, the size of every whole-screen ending picture.</summary>
@@ -520,7 +520,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <paramref name="loaded"/>, otherwise nothing (#1467, #1512).
     /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, bool loaded) => loaded
-        ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<TilePlanePixels>.Zero, screen.Colours.Shading)])
+        ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<PlanePixels>.Zero, screen.Colours.Shading)])
         : PicturedPlane.Empty(ScreenCells);
 
     /// <summary>
@@ -533,7 +533,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         if (!screen.ExplosionMapsLoaded)
             return PicturedPlane.Empty(ScreenCells);
         int height = ScreenCells.Y * ScreenGeometry.BackgroundTileSizePixels;
-        var corner = new Position16<TilePlanePixels>(0, height - EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
+        var corner = new Position16<PlanePixels>(0, height - EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
         return new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
             EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.Shading)]);
     }
@@ -543,7 +543,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
     /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane, once the post-credits art is loaded (#1467), in the ending's colours (#1512).</summary>
     internal PicturedPlane WaitingPlane(Extent16<TilemapCells> size) => new(size, screen.PostCreditsArtLoaded
-        ? [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<TilePlanePixels>.Zero,
+        ? [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<PlanePixels>.Zero,
             screen.Colours.Shading)]
         : []);
 
@@ -577,7 +577,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         void Place(ImmutableArray<WrittenPicture> text, int firstRow)
         {
             foreach (WrittenPicture shown in text)
-                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<TilePlanePixels>(
+                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<PlanePixels>(
                     shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
                     (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels), shading));
         }
@@ -590,7 +590,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private LayeredScene CaptureExplosionBurst()
     {
         EndingObjectSheet sheet = EndingCreditsPresentation.CurrentEscapeObjectSheet(this);
-        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap), Position16<TilePlanePixels>.Zero);
+        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap), Position16<PlanePixels>.Zero);
         SpritesLayer debris = EndingCreditsPresentation.Sprites(this, sheet, EndingSpriteLayer.Actors);
         DisplayLayer[] layers =
         [

@@ -220,9 +220,9 @@ internal sealed class AcceptedFrameBoundary
         BackgroundScrollModes backgroundModes = _backgroundScroll.BackgroundScrollModes;
         // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsBgPlaneOffset(), null),
+            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsPlaneOffset(), null),
             backgroundModes.Horizontal.Streams || backgroundModes.Vertical.Streams
-                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsBgPlaneOffset(), null)
+                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsPlaneOffset(), null)
                 : null,
             null,
             _room.DoorSourceBackground,

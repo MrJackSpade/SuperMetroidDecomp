@@ -38,7 +38,7 @@ different types; moving between spaces is always a named conversion.
 | `SpritePixels` | Sprite placement coordinates relative to the screen: every spritemap draw origin and every authored sprite anchor. |
 | `Bg2Pixels`, `Bg3Pixels` | BG2/BG3 scroll-register pixels, which follow their own parallax/FX rules. |
 | `Bg3Subpixels` | BG3 room-FX texture drift in 1/256 pixels (the 8.8 rain, fog and spores accumulators). |
-| `BgPlanePixels` | The scroll words of whichever background plane a generic render layer samples. |
+| `PlanePixels` | Pixels of a pictured plane, as the plane pixel shown at the screen's top-left selects. |
 | `RoomBlocks` | The sixteen-pixel collision/level-data grid. |
 | `RoomScreens` | The 256-pixel scroll-region grid. |
 | `TilemapBlocks` | The sixteen-pixel block grid of a wrapping BG tilemap (bank-$80 `BG1/BG2 X/Y block`), distinct from room blocks. |
@@ -125,7 +125,7 @@ left unwrapped fails where it is stored instead of being truncated there.
     `ToRoomBlocks`: a room size in screens as blocks.
   - `BackgroundBlockConversions.ToTilemapBlocks` / `ToSourceBlocks`: layer pixels to the wrapping
     tilemap block and to the room source block (sign-extended), as the bank-$80 streamer does.
-  - `BgPlaneConversions.AsBgPlaneScroll`: a BG1, BG2 or area-map scroll as the generic plane's scroll words.
+  - `PlaneConversions.AsPlaneScroll`: a foreground, background or area-map scroll as the plane pixel shown at the screen's top-left.
   - `FxOverlayConversions.AsOverlayScroll` / `WholePixels`: the layer-one anchor of the room effect overlay and
     the signed high bytes of its 8.8 drift.
   - `FloorConversions.AsFloorWord`: a layer-one room point as a signed floor offset;

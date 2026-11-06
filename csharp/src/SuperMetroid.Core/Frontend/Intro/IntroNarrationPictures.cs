@@ -60,7 +60,7 @@ public static class IntroNarrationPictures
     }
 
     /// <summary>The plane position of the cell at <paramref name="column"/> of <paramref name="row"/>.</summary>
-    private static Position16<TilePlanePixels> At(int column, int row) =>
+    private static Position16<PlanePixels> At(int column, int row) =>
         new(column * ScreenGeometry.BackgroundTileSizePixels, row * ScreenGeometry.BackgroundTileSizePixels);
 
     /// <summary>The installed narration picture sheet.</summary>

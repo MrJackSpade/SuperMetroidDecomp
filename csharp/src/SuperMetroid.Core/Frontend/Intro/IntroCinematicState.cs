@@ -1271,7 +1271,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             sprites = PrepareMotherBrainSprites();
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, paletteFader.SceneShading),
                 (CurrentFlashbackMotherBrain?.Background ??
-                    new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll());
+                    new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsPlaneScroll());
         }
         else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
@@ -1285,7 +1285,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             sprites = PrepareScientistSprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), paletteFader.SceneShading), ScientistCutscene.Background.AsBgPlaneScroll());
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), paletteFader.SceneShading), ScientistCutscene.Background.AsPlaneScroll());
         }
         else if (CurrentObjects is null)
         {
@@ -1356,7 +1356,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>The scene plane showing <paramref name="pictures"/> at the selected scroll (#1467).</summary>
-    private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<TilePlanePixels> scroll) => new(pictures, scroll);
+    private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<PlanePixels> scroll) => new(pictures, scroll);
 
     /// <summary>The installed sheets the scene pictures are drawn from.</summary>
     private InstalledSpriteSheets SceneSheets =>

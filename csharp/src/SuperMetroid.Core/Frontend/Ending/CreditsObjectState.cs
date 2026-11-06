@@ -21,11 +21,11 @@ internal sealed class CreditsObjectState
     /// <summary>The roll's plane in cells: a screen wide, and as tall as the sixteen-bit scroll reaches.</summary>
     private static readonly Extent16<TilemapCells> PlaneCells = new(32, PicturedPlane.MaximumCells);
     /// <summary>16.16 credits scroll; only the vertical axis moves, half a pixel per accepted update, wrapping at sixteen bits.</summary>
-    private FixedPosition<TilePlanePixels> scroll;
+    private FixedPosition<PlanePixels> scroll;
     /// <summary>Last whole scroll position that caused a row to be taken.</summary>
-    private Position16<TilePlanePixels> previousCopiedScroll;
+    private Position16<PlanePixels> previousCopiedScroll;
     /// <summary>The scroll advance, one eight-pixel row, after which the next row is taken.</summary>
-    private static readonly Offset16<TilePlanePixels> RowAdvance = new(0, ScreenGeometry.BackgroundTileSizePixels);
+    private static readonly Offset16<PlanePixels> RowAdvance = new(0, ScreenGeometry.BackgroundTileSizePixels);
     /// <summary>The roll's rows.</summary>
     private readonly int rowCount;
     /// <summary>Next row of the roll to take.</summary>
@@ -39,7 +39,7 @@ internal sealed class CreditsObjectState
     /// <summary>Set when scrolling reaches the end of the roll.</summary>
     public bool Finished { get; private set; }
     /// <summary>Whole-pixel credits scroll position the roll's plane is drawn at.</summary>
-    public Position16<TilePlanePixels> ScrollPosition => scroll.Whole;
+    public Position16<PlanePixels> ScrollPosition => scroll.Whole;
 
     /// <summary>Runs one <c>CreditsObject_Process</c> call: scrolls, and takes the next row or finishes on each row boundary.</summary>
     public void Step()
@@ -81,7 +81,7 @@ internal sealed class CreditsObjectState
             if (pictures[row] is not { } picture)
                 continue;
             int top = (row + RowsHeld) * ScreenGeometry.BackgroundTileSizePixels;
-            placed.Add(new PlacedPlanePicture(rows.Frame(picture), new Position16<TilePlanePixels>(0, top), shading));
+            placed.Add(new PlacedPlanePicture(rows.Frame(picture), new Position16<PlanePixels>(0, top), shading));
         }
         return new PicturedPlane(PlaneCells, placed.ToImmutable());
     }

@@ -53,7 +53,7 @@ internal static class VramTilemapImage
     /// </summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image, or the tilemap does not fill the map.</exception>
     internal static RgbaPixel[] Draw(ReadOnlySpan<BackgroundTile> rows, Extent16<TilemapCells> size, ReadOnlySpan<byte> image, int characterWord,
-        TileInkDepth depth, ReadOnlySpan<RgbColor> colours, Position16<TilePlanePixels> scroll, bool? priority, RgbColor backdrop)
+        TileInkDepth depth, ReadOnlySpan<RgbColor> colours, Position16<PlanePixels> scroll, bool? priority, RgbColor backdrop)
     {
         Ensure.LengthEqual(image, SnesVram.ByteCount);
         Ensure.LengthEqual(rows, size.X * size.Y);

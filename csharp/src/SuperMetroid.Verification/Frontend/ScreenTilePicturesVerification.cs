@@ -262,8 +262,8 @@ internal static class ScreenTilePicturesVerification
     /// shows them, while the cartridge leaves the page's tilemap unscrolled and the hardware shows a background from the row
     /// below its scroll, so the oracle reads the tilemap one row down.
     /// </summary>
-    private static Position16<TilePlanePixels> CartridgePageScroll(PicturedPlaneLayer plane) =>
-        plane.Scroll + new Offset16<TilePlanePixels>(0, 1);
+    private static Position16<PlanePixels> CartridgePageScroll(PicturedPlaneLayer plane) =>
+        plane.Scroll + new Offset16<PlanePixels>(0, 1);
 
     /// <summary>
     /// The turning floor the cartridge's floor map and tile characters in <paramref name="vram"/> compose, in the native
@@ -281,7 +281,7 @@ internal static class ScreenTilePicturesVerification
     /// <param name="Rows">The tilemap's cells, row by row from the top-left cell.</param>
     /// <param name="Size">The tilemap's size in cells.</param>
     /// <param name="Scroll">The layer's scroll.</param>
-    private sealed record ShownTilemap(BackgroundTile[] Rows, Extent16<TilemapCells> Size, Position16<TilePlanePixels> Scroll);
+    private sealed record ShownTilemap(BackgroundTile[] Rows, Extent16<TilemapCells> Size, Position16<PlanePixels> Scroll);
 
     /// <summary>Asserts <paramref name="pictured"/> and <paramref name="characters"/> are the same screen, naming the first pixel where they differ.</summary>
     private static void AssertSamePixels(RgbaPixel[] pictured, RgbaPixel[] characters, string property)

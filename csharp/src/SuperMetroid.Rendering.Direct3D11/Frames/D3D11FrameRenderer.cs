@@ -456,7 +456,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(),
+                        RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsPlaneScroll(),
                         DrawnPart = Tiles(shown == GameplayLayer.BackgroundFrontTiles), FirstScanline = (uint)floorStart,
                     });
                     break;
@@ -510,7 +510,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                             DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                             {
                                 RoomSource = D3D11RoomSource.Layer1,
-                                Scroll = r.ForegroundScroll.AsBgPlaneScroll(),
+                                Scroll = r.ForegroundScroll.AsPlaneScroll(),
                                 DrawnPart = Tiles(shown == GameplayLayer.ForegroundFrontTiles), FirstScanline = (uint)first, EndScanline = (uint)end,
                             });
                         break;

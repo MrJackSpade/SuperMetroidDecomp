@@ -185,7 +185,7 @@ internal static class RoomBackgroundsFixtures
         {
             pictures.Add(new PlacedWrittenPicture(blocks.Picture(random.Next(Definitions))
                 ?? throw new InvalidOperationException("A seeded block has no picture."),
-                new Position16<TilePlanePixels>(random.Next(64) * 8, random.Next(32) * 8)));
+                new Position16<PlanePixels>(random.Next(64) * 8, random.Next(32) * 8)));
         }
         return new RoomOverlayPictures(pictures.MoveToImmutable());
     }
@@ -336,10 +336,10 @@ internal static class RoomBackgroundsFixtures
     /// The scene's 256 CGRAM colours the planes' seeded block pictures (#1392) keep as standard in their even rows, odd rows
     /// differing as under a palette effect; null for black.
     /// </param>
-    internal static RoomBackgrounds Seeded(Random random, Position16<TilePlanePixels> foregroundScroll,
-        Position16<TilePlanePixels>? backgroundScroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
+    internal static RoomBackgrounds Seeded(Random random, Position16<PlanePixels> foregroundScroll,
+        Position16<PlanePixels>? backgroundScroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
     {
-        RoomBackgroundLayer Layer(Position16<TilePlanePixels> scroll)
+        RoomBackgroundLayer Layer(Position16<PlanePixels> scroll)
         {
             // Each draw is a seeded sixteen-bit value: its low ten bits name the block and the next two its mirroring.
             var blocks = new RoomBlockAppearance[SideBlocks * SideBlocks];
@@ -350,7 +350,7 @@ internal static class RoomBackgroundsFixtures
                     ((draw & (1 << 10)) != 0 ? BlockMirroring.Horizontal : BlockMirroring.None) |
                     ((draw & (1 << 11)) != 0 ? BlockMirroring.Vertical : BlockMirroring.None));
             }
-            var inside = new Position16<TilePlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
+            var inside = new Position16<PlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
                 (ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2));
             return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks).Cells,
                 scroll - inside, SeededPictures(random, pictureColours ?? new RgbColor[SnesCgram.ColorCount]));
@@ -358,7 +358,7 @@ internal static class RoomBackgroundsFixtures
         RoomBackgroundLayer bg1 = Layer(foregroundScroll);
         RoomBackgroundLayer? bg2 = backgroundScroll is { } scroll2 ? Layer(scroll2) : null;
         RoomDoorBackground? source = door
-            ? RoomDoorBackground.Begin(Layer(foregroundScroll), foregroundScroll + new Offset16<TilePlanePixels>((short)random.Next(-128, 128), 0))
+            ? RoomDoorBackground.Begin(Layer(foregroundScroll), foregroundScroll + new Offset16<PlanePixels>((short)random.Next(-128, 128), 0))
             : null;
         RgbColor[] scene = pictureColours ?? new RgbColor[SnesCgram.ColorCount];
         RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;

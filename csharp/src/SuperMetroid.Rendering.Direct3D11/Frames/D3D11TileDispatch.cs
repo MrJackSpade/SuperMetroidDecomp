@@ -11,7 +11,7 @@ internal sealed record D3D11TileDispatch
 
 
     /// <summary>Scroll.</summary>
-    public Position16<TilePlanePixels> Scroll { get; init; } = default;
+    public Position16<PlanePixels> Scroll { get; init; } = default;
 
     /// <summary>
     /// The part of the layer the pass draws (#1514): zero for all of it, otherwise one more than the actor depth a sprite

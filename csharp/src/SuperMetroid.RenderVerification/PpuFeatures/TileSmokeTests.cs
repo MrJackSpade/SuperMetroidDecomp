@@ -33,7 +33,7 @@ internal static class TileSmokeTests
             PictureGrid grid = VramPictureFixtures.Grid(bytes, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours, size);
             foreach (ushort scroll in new ushort[] { 0, 7, 255, 511, ushort.MaxValue })
             {
-                var scrolled = new Position16<TilePlanePixels>(scroll, scroll);
+                var scrolled = new Position16<PlanePixels>(scroll, scroll);
                 Check([new PicturedPlaneLayer(plane, scrolled)], "4bpp plane geometry/scroll");
                 Check([new PictureGridLayer(grid, scrolled)], "4bpp grid geometry/scroll/mirroring");
                 Check([new PictureGridLayer(grid, scrolled) { Window = ScreenWindow.Of(WindowRectangle.Spanning(8, 40, 247, 183)) }],
@@ -44,17 +44,17 @@ internal static class TileSmokeTests
         PictureGrid fontGrid = VramPictureFixtures.Grid(bytes, palette, 0x7fff, 0x7ff8, TileInkDepth.FourColours, new Extent16<TilemapCells>(32, 32));
         foreach (ushort scroll in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
         {
-            Check([new PicturedPlaneLayer(font, new Position16<TilePlanePixels>(0, scroll))], "2bpp plane vertical scroll");
-            Check([new PictureGridLayer(fontGrid, new Position16<TilePlanePixels>(0, scroll))], "2bpp grid vertical scroll/mirroring");
+            Check([new PicturedPlaneLayer(font, new Position16<PlanePixels>(0, scroll))], "2bpp plane vertical scroll");
+            Check([new PictureGridLayer(fontGrid, new Position16<PlanePixels>(0, scroll))], "2bpp grid vertical scroll/mirroring");
         }
         PicturedPlane lower = VramPictureFixtures.Plane(bytes, palette, 0x4000, 0, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(64, 32));
         PicturedPlane upper = VramPictureFixtures.Plane(bytes, palette, 0x4800, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 64));
         PicturedPlane text = VramPictureFixtures.Plane(bytes, palette, 0x5800, 0x4000, TileInkDepth.FourColours, new Extent16<TilemapCells>(32, 32));
         for (byte brightness = 0; brightness <= 15; brightness++)
             Check([
-                new PicturedPlaneLayer(lower, new Position16<TilePlanePixels>(3, 11)),
-                new PicturedPlaneLayer(upper, new Position16<TilePlanePixels>(65535, 255)),
-                new PicturedPlaneLayer(text, new Position16<TilePlanePixels>(0, 13)),
+                new PicturedPlaneLayer(lower, new Position16<PlanePixels>(3, 11)),
+                new PicturedPlaneLayer(upper, new Position16<PlanePixels>(65535, 255)),
+                new PicturedPlaneLayer(text, new Position16<PlanePixels>(0, 13)),
                 new ScreenTintLayer(3, 17, 31)], "ordered planes/fixed-color/fades", brightness);
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} pictured-background/color-math GPU comparisons passed.");
 
@@ -90,7 +90,7 @@ internal static class TileSmokeTests
         var memory = FramePaint.FromNative(palette, []);
         var frame = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new PictureGridLayer(VramPictureFixtures.Grid(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
-                new Position16<TilePlanePixels>(0, 0)) }, 15));
+                new Position16<PlanePixels>(0, 0)) }, 15));
         var expected = DisplayRendering.Render(frame);
         if (expected[0] != new RgbaPixel(255, 0, 0))
             throw new InvalidOperationException("Fourth-plane fixture no longer selects color two.");

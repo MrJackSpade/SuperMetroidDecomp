@@ -61,26 +61,30 @@ internal static class CeresCinematicPictureSheetComposer
         IntroCinematicSourceArtwork.Of(intro).IntroObjectCharacters.Characters.Span[..CeresFlightArtworkFileFormat.SharedObjectCharacterBytes].CopyTo(zebes);
         IntroCinematicSourceArtwork.Of(intro).ZebesReveal.Characters.Characters.Span[..ZebesRevealArtworkFormat.CharacterByteCount].CopyTo(zebes);
         int letters = SpaceColonyCaptionDefinitions.LetterCount;
+        // Each caption letter's glyph is pictured once, however many of the caption's letters draw it (#1513).
+        BackgroundTile[] glyphs = [.. Enumerable.Range(0, letters).Select(letter => Ensure.Listed(SpaceColonyCaptionTileDefinitions.Glyphs, CaptionCharacter(letter))).Distinct()];
         int japaneseRows = SpaceColonyCaptionTileDefinitions.JapaneseTiles.Length / JapaneseWidth;
-        int captionWidth = (letters + JapaneseWidth) * CharacterPixels;
+        int captionWidth = (glyphs.Length + JapaneseWidth) * CharacterPixels;
         int width = Math.Max(captionWidth, PlanetCells * CharacterPixels);
         int captionHeight = japaneseRows * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)(captionHeight + PlanetCells * CharacterPixels))));
         RgbColor[] colours = ScreenPaletteColours.FlightColours(ceresFlight)[..SpriteImage.SpriteColourCount].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        // The caption letters side by side, then the katakana caption beside them, then the planet below.
+        // The caption's glyphs side by side, then the katakana caption beside them, then the planet below.
+        var glyphGroups = new ImageColourGroups[glyphs.Length];
+        for (int glyph = 0; glyph < glyphs.Length; glyph++)
+            glyphGroups[glyph] = Paint(canvas, glyph * CharacterPixels, 0, glyphs[glyph], flight, colours);
         for (int letter = 0; letter < letters; letter++)
         {
-            BackgroundTile glyph = Ensure.Listed(SpaceColonyCaptionTileDefinitions.Glyphs, CaptionCharacter(letter));
-            frames.Add(CeresCinematicPictures.CaptionLetter(letter), Frame(letter * CharacterPixels, 0, 1, 1,
-                Paint(canvas, letter * CharacterPixels, 0, glyph, flight, colours)));
+            int glyph = Array.IndexOf(glyphs, Ensure.Listed(SpaceColonyCaptionTileDefinitions.Glyphs, CaptionCharacter(letter)));
+            frames.Add(CeresCinematicPictures.CaptionLetter(letter), Frame(glyph * CharacterPixels, 0, 1, 1, glyphGroups[glyph]));
         }
         ImageColourGroups japanese = ImageColourGroups.None;
         ReadOnlySpan<BackgroundTile> japaneseTiles = SpaceColonyCaptionTileDefinitions.JapaneseTiles;
         for (int cell = 0; cell < japaneseTiles.Length; cell++)
-            japanese = japanese.Union(Paint(canvas, (letters + cell % JapaneseWidth) * CharacterPixels,
+            japanese = japanese.Union(Paint(canvas, (glyphs.Length + cell % JapaneseWidth) * CharacterPixels,
                 cell / JapaneseWidth * CharacterPixels, japaneseTiles[cell], flight, colours));
-        frames.Add(CeresCinematicPictures.JapaneseCaption, Frame(letters * CharacterPixels, 0, JapaneseWidth, japaneseRows, japanese));
+        frames.Add(CeresCinematicPictures.JapaneseCaption, Frame(glyphs.Length * CharacterPixels, 0, JapaneseWidth, japaneseRows, japanese));
         ReadOnlySpan<BackgroundTile> planet = IntroCinematicSourceArtwork.Of(intro).ZebesReveal.Map.Tiles.Span[..(ZebesRevealArtworkFormat.MapByteCount / sizeof(ushort))];
         ImageColourGroups planetGroups = ImageColourGroups.None;
         for (int cell = 0; cell < planet.Length; cell++)

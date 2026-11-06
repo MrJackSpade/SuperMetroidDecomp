@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -47,7 +48,8 @@ internal static class TitleSheetComposer
         {
             IReadOnlyList<TitleSprite> reveals = TitleTypedCards.Steps(card);
             SpriteFramePart[][] glyphs = TypedTextGlyphs.Of(card.ToString(),
-                [.. reveals.Select(sprite => characters.Frame(sprite, TitleSpriteDefinitions.FrameName(sprite)))]);
+                [.. reveals.Select(sprite => characters.Frame(sprite, TitleSpriteDefinitions.FrameName(sprite)))],
+                Offset16<ScreenPixels>.Of(TitleCardDefinitions.TypedScroll.X, TitleCardDefinitions.TypedScroll.Y));
             for (int glyph = 0; glyph < glyphs.Length; glyph++)
             {
                 string name = TitleSpriteDefinitions.GlyphFrameName(card, glyph);

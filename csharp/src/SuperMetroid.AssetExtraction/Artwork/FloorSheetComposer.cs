@@ -92,13 +92,27 @@ internal static class FloorSheetComposer
             throw new InvalidDataException("A floor sheet holds at least one picture.");
         int width = Math.Max(AffineFloor.SidePixels, pictures.Max(picture => picture.Columns * TilePixels));
         var places = new List<Position16<ImagePixels>>(pictures.Count);
+        // A picture showing the same cells as one laid before it is held where that one is, under its own name and origin,
+        // so the sheet holds each picture once (#1513).
+        var placeOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var firstOf = new int[pictures.Count];
         int left = 0, top = 0, rowHeight = 0;
-        foreach (FloorPicture picture in pictures)
+        for (int index = 0; index < pictures.Count; index++)
         {
+            FloorPicture picture = pictures[index];
             if (picture.Columns <= 0 || picture.Cells.Length == 0 || picture.Cells.Length % picture.Columns != 0)
                 throw new InvalidDataException($"Floor picture {picture.Name} is not whole rows of cells.");
             if (picture.Column < 0 || picture.Row < 0 || picture.Column + picture.Columns > Side || picture.Row + picture.Rows > Side)
                 throw new InvalidDataException($"Floor picture {picture.Name} leaves the floor.");
+            string shown = Shown(picture);
+            if (placeOf.TryGetValue(shown, out int first))
+            {
+                firstOf[index] = first;
+                places.Add(places[first]);
+                continue;
+            }
+            placeOf.Add(shown, index);
+            firstOf[index] = index;
             int pictureWidth = picture.Columns * TilePixels;
             if (left + pictureWidth > width)
             {
@@ -121,7 +135,11 @@ internal static class FloorSheetComposer
             for (int cell = 0; cell < picture.Cells.Length; cell++)
             {
                 int cellLeft = corner.X + cell % picture.Columns * TilePixels, cellTop = corner.Y + cell / picture.Columns * TilePixels;
-                coloured = coloured.Union(PaintTile(canvas, cellLeft, cellTop, picture.Cells[cell], picture.TilePixels, colours));
+                // A picture held where an earlier one is paints the same pixels; painting them again changes nothing.
+                if (firstOf[index] == index)
+                    coloured = coloured.Union(PaintTile(canvas, cellLeft, cellTop, picture.Cells[cell], picture.TilePixels, colours));
+                else
+                    coloured = coloured.Union(TileGroups(picture.Cells[cell], picture.TilePixels));
             }
             var frame = new SpriteSheetFrameDocument
             {
@@ -160,6 +178,33 @@ internal static class FloorSheetComposer
     /// <summary>Paints tile <paramref name="tile"/>'s pixels with their top-left at (<paramref name="left"/>, <paramref name="top"/>), returning the colour groups they name.</summary>
     private static ImageColourGroups PaintTile(RoomTileCanvas canvas, int left, int top, int tile, ReadOnlySpan<byte> tilePixels, RgbColor[] colours)
     {
+        for (int pixel = 0; pixel < TileBytes; pixel++)
+        {
+            int source = tile * TileBytes + pixel;
+            int index = source < tilePixels.Length ? tilePixels[source] : 0;
+            canvas.PaintIndex(new(checked((ushort)(left + pixel % TilePixels)), checked((ushort)(top + pixel / TilePixels))), index, colours);
+        }
+        return TileGroups(tile, tilePixels);
+    }
+
+    /// <summary>What <paramref name="picture"/> shows, spelled for telling pictures apart: its width and each cell's tile's pixels.</summary>
+    private static string Shown(FloorPicture picture)
+    {
+        var shown = new System.Text.StringBuilder().Append(picture.Columns).Append(':');
+        foreach (int tile in picture.Cells)
+        {
+            for (int pixel = 0; pixel < TileBytes; pixel++)
+            {
+                int source = tile * TileBytes + pixel;
+                shown.Append((char)(source < picture.TilePixels.Length ? picture.TilePixels[source] : 0));
+            }
+        }
+        return shown.ToString();
+    }
+
+    /// <summary>The colour groups tile <paramref name="tile"/>'s pixels name.</summary>
+    private static ImageColourGroups TileGroups(int tile, ReadOnlySpan<byte> tilePixels)
+    {
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int pixel = 0; pixel < TileBytes; pixel++)
         {
@@ -167,7 +212,6 @@ internal static class FloorSheetComposer
             int index = source < tilePixels.Length ? tilePixels[source] : 0;
             if (index % ColourGroupSize != 0 && index < SpriteImage.SpriteColourCount)
                 coloured = coloured.With(ImageColourGroup.OfInk(index));
-            canvas.PaintIndex(new(checked((ushort)(left + pixel % TilePixels)), checked((ushort)(top + pixel / TilePixels))), index, colours);
         }
         return coloured;
     }

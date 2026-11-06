@@ -16,7 +16,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hud;

@@ -4,15 +4,12 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks that Ceres gunship engine colors remain bound after a debugger state restore and artwork rebind.</summary>
 internal static class CeresEnginePaletteBindingVerification
@@ -21,12 +18,12 @@ internal static class CeresEnginePaletteBindingVerification
     /// Reproduces #1150 at the Ceres-to-Zebes palette handoff, without replaying
     /// the escape or giving production simulation access to a cartridge.
     /// </summary>
-    internal static void VerifyCeresEnginePaletteBinding(string installationRoot)
+    internal static void VerifyCeresEnginePaletteBinding()
     {
-        var installation = new GameInstallation(Path.GetFullPath(installationRoot));
-        AreaMapPresentation stock = MapPresentationFiles.Load(installation.MapDirectory);
-        IntroCinematicArtwork artwork = installation.LoadIntroCinematicArt();
-        InstalledSpriteSheets sheets = installation.LoadSpriteSheets();
+        // The repository installation's shared loads: the scene reads them and never writes them.
+        AreaMapPresentation stock = InstalledFixtures.Maps;
+        IntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
+        InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         RgbColor[] nativeColors = [RgbColor.White, RgbColor.Black]; // Pinned $8D:C880/$C886, not runtime ROM reads.
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
@@ -107,8 +104,7 @@ internal static class CeresEnginePaletteBindingVerification
     [VerificationCommand("--ceres-engine-palette-binding")]
     internal static int CeresEnginePaletteBindingCommand()
     {
-        string ceresPaletteInstallation = RepositoryInstallation.Installation.Root;
-        Suite(nameof(VerifyCeresEnginePaletteBinding), () => VerifyCeresEnginePaletteBinding(ceresPaletteInstallation));
+        Suite(nameof(VerifyCeresEnginePaletteBinding), VerifyCeresEnginePaletteBinding);
         return 0;
     }
 }

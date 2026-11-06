@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -132,7 +133,8 @@ internal static class EndingSpriteSheetComposer
         foreach (CinematicSpriteProgram text in EndingTypedTexts.Texts.Texts)
         {
             IReadOnlyList<CinematicSpritePose> steps = EndingTypedTexts.Texts.Steps(text);
-            SpriteFramePart[][] glyphs = TypedTextGlyphs.Of(text.ToString(), [.. steps.Select(pose => family.Frames[pose].ToFrame(text.ToString(), 0, sizes))]);
+            SpriteFramePart[][] glyphs = TypedTextGlyphs.Of(text.ToString(), [.. steps.Select(pose => family.Frames[pose].ToFrame(text.ToString(), 0, sizes))],
+                Offset16<ScreenPixels>.Zero);
             for (int glyph = 0; glyph < glyphs.Length; glyph++)
             {
                 string name = TypedTextSpriteSheet.GlyphFrameName(family.Family, text, glyph);

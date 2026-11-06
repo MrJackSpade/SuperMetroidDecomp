@@ -105,15 +105,33 @@ internal static class EndingPictureSheetComposer
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
         characters.Load(EndingTextLayerDefinitions.FontFirstCharacter, font);
         CreditsRow[] rows = [.. CreditsRows()];
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)(rows.Length * CharacterPixels))));
-        RgbColor[] colours = Colours(sources, EndingPaletteId.Credits);
-        var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
+        // Rows writing the same tiles, such as two lines naming one person, are one picture on one sheet row (#1513).
+        var sheetRowOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        int[] sheetRows = new int[rows.Length];
         for (int index = 0; index < rows.Length; index++)
         {
-            ReadOnlySpan<BackgroundTile> row = credits.GetRow(rows[index].Row);
-            for (int column = 0; column < row.Length; column++)
-                characters.Paint(canvas, column * CharacterPixels, index * CharacterPixels, row[column], colours);
-            frames.Add(rows[index].Name, WrittenPictureSheetComposer.Frame(canvas, index, EndingTextDefinitions.SmallGlyphHeight, WrittenPictureLayer.WrittenOverRoom));
+            string written = string.Join(';', credits.GetRow(rows[index].Row).ToArray());
+            if (!sheetRowOf.TryGetValue(written, out int sheetRow))
+            {
+                sheetRow = sheetRowOf.Count;
+                sheetRowOf.Add(written, sheetRow);
+            }
+            sheetRows[index] = sheetRow;
+        }
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)(sheetRowOf.Count * CharacterPixels))));
+        RgbColor[] colours = Colours(sources, EndingPaletteId.Credits);
+        var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
+        var painted = new HashSet<int>();
+        for (int index = 0; index < rows.Length; index++)
+        {
+            int sheetRow = sheetRows[index];
+            if (painted.Add(sheetRow))
+            {
+                ReadOnlySpan<BackgroundTile> row = credits.GetRow(rows[index].Row);
+                for (int column = 0; column < row.Length; column++)
+                    characters.Paint(canvas, column * CharacterPixels, sheetRow * CharacterPixels, row[column], colours);
+            }
+            frames.Add(rows[index].Name, WrittenPictureSheetComposer.Frame(canvas, sheetRow, EndingTextDefinitions.SmallGlyphHeight, WrittenPictureLayer.WrittenOverRoom));
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }

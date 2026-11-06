@@ -83,7 +83,8 @@ internal static class WrittenPictureSheetComposer
         for (int shelf = 0; shelf < hud.ShelfRows.Length; shelf++)
         {
             var words = new List<SubjectWord>();
-            foreach (HudSheetPlacement placed in hud.Placements.Where(placed => placed.Shelf == shelf))
+            // Images showing one picture share its place; its tiles are written there once.
+            foreach (HudSheetPlacement placed in hud.Placements.Where(placed => placed.Shelf == shelf).DistinctBy(placed => placed.Cell))
             {
                 HudImageTiles image = placed.Image;
                 for (int row = 0; row < image.Size.Y; row++)

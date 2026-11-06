@@ -21,6 +21,10 @@ internal static class MapCellCharacters
     /// <summary>Each cell's first classified character and mirroring, which the import pictures it from.</summary>
     private static readonly Dictionary<MapCell, MapCellSource> SourcesByCell = IndexCells();
 
+    /// <summary>The shade each shade's colour row shows a cell in.</summary>
+    private static readonly Dictionary<int, MapCellShade> ShadesByRow =
+        MapCellCharacterDefinitions.ShadeRows.ToDictionary(entry => entry.Value, entry => entry.Key);
+
     /// <summary>The colour row characters are painted in to compare their pixels: any one row shows the same colour numbers.</summary>
     private const int ComparedRow = 0;
 
@@ -40,13 +44,14 @@ internal static class MapCellCharacters
         MapCell cell = Picture(word.CharacterIndex, word.Mirroring);
         if (cell.Kind == MapCellKind.Empty)
             return cell;
-        if (word.PaletteIndex == MapCellCharacterDefinitions.UnexploredRow)
+        MapCellShade? stored = ShadeIn(word.PaletteIndex);
+        if (stored == MapCellShade.Unexplored)
         {
-            if (word.AsExplored().PaletteIndex != MapCellCharacterDefinitions.ExploredRow)
+            if (ShadeIn(word.AsExplored().PaletteIndex) != MapCellShade.Explored)
                 throw new InvalidDataException($"Area-map word {word.Raw:x4} does not show its cell in the explored row once explored.");
             return cell;
         }
-        if (word.PaletteIndex == MapCellCharacterDefinitions.ExploredRow && MapCellCharacterDefinitions.StoredExplored.Contains(cell))
+        if (stored == MapCellShade.Explored && MapCellCharacterDefinitions.StoredExplored.Contains(cell))
             return cell;
         throw new InvalidDataException($"Area-map word {word.Raw:x4} colours {cell.Name} in row {word.PaletteIndex}, which no retail map stores it in.");
     }
@@ -65,12 +70,12 @@ internal static class MapCellCharacters
         : throw new InvalidDataException($"No map character pictures the map cell {cell.Name}.");
 
     /// <summary>The colour row the map screens show a cell in under <paramref name="shade"/>.</summary>
-    internal static int Row(MapCellShade shade) => shade switch
-    {
-        MapCellShade.Unexplored => MapCellCharacterDefinitions.UnexploredRow,
-        MapCellShade.Explored => MapCellCharacterDefinitions.ExploredRow,
-        _ => throw new ArgumentOutOfRangeException(nameof(shade), shade, "Undefined map cell shade."),
-    };
+    internal static int Row(MapCellShade shade) => MapCellCharacterDefinitions.ShadeRows.TryGetValue(shade, out int row)
+        ? row
+        : throw new ArgumentOutOfRangeException(nameof(shade), shade, "Undefined map cell shade.");
+
+    /// <summary>The shade colour row <paramref name="row"/> shows a cell in, or none for a row no shade shows.</summary>
+    private static MapCellShade? ShadeIn(int row) => ShadesByRow.TryGetValue(row, out MapCellShade shade) ? shade : null;
 
     /// <summary>The tile the map screens' sheets picture <paramref name="shown"/> from: its cell's source in its shade's row.</summary>
     /// <exception cref="InvalidDataException">No map character pictures the cell.</exception>
@@ -93,7 +98,7 @@ internal static class MapCellCharacters
         foreach (MapCellCharacter entry in MapCellCharacterDefinitions.Characters)
         {
             byte[] pixels = Paint(characters, entry.Source, ComparedRow, Unshaded).PaletteIndices;
-            if (!painted.TryAdd(entry.Cell, pixels) && !painted[entry.Cell].AsSpan().SequenceEqual(pixels))
+            if (!painted.TryAdd(entry.Cell, pixels) && !painted[entry.Cell].SequenceEqual(pixels))
                 throw new InvalidDataException(
                     $"Map character {entry.Source.Character} mirrored {entry.Source.Mirroring} paints other pixels than the first source of the map cell {entry.Cell.Name}, so the cell is two pictures.");
         }
@@ -111,9 +116,9 @@ internal static class MapCellCharacters
         foreach (MapCell cell in MapCellCharacterDefinitions.StoredExplored)
         {
             MapCellSource source = Source(cell);
-            RgbaPixel[] unexplored = Paint(characters, source, MapCellCharacterDefinitions.UnexploredRow, palette).Pixels;
-            RgbaPixel[] explored = Paint(characters, source, MapCellCharacterDefinitions.ExploredRow, palette).Pixels;
-            if (!unexplored.AsSpan().SequenceEqual(explored))
+            RgbaPixel[] unexplored = Paint(characters, source, Row(MapCellShade.Unexplored), palette).Pixels;
+            RgbaPixel[] explored = Paint(characters, source, Row(MapCellShade.Explored), palette).Pixels;
+            if (!unexplored.SequenceEqual(explored))
                 throw new InvalidDataException($"The map cell {cell.Name}, which a retail map stores explored, shows differently explored and unexplored.");
         }
     }

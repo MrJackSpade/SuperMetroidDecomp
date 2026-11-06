@@ -16,6 +16,12 @@ internal static class TitleCardDefinitions
     /// <summary>The final hold of the Metroid 3 card, in title updates.</summary>
     private const int MetroidThreeHoldFrames = 120;
 
+    /// <summary>
+    /// How far a card's text moves each time it types a letter (a space included): one letter's width leftward, so each new
+    /// letter appears at the same place on the right while the letters before it scroll left.
+    /// </summary>
+    internal static readonly Offset16<SpritePixels> TypedScroll = Offset16<SpritePixels>.Of(-8, 0);
+
     /// <summary>The Year card's 60-update blank opening, its four letters and the scene-zero trigger.</summary>
     internal static readonly TitleCardStep[] Year =
     [

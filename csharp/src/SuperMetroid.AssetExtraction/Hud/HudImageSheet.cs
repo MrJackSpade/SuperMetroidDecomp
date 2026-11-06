@@ -79,17 +79,26 @@ internal static class HudImageSheet
 
     /// <summary>
     /// Lays every one of <paramref name="hud"/>'s images out on shelves across the HUD's width, each image left of the next
-    /// until a shelf has no room for it.
+    /// until a shelf has no room for it. An image showing the same tiles as one laid before it, such as an ammo numeral
+    /// and the energy numeral it matches, or each cleared AUTO cell, is placed where that one is, so the sheet holds each
+    /// picture once (#1513).
     /// </summary>
     internal static HudSheetLayout Layout(GameplayHudArtwork hud, IEnumerable<IAreaMapView> maps)
     {
         Ensure.NotNull(hud);
         var shelves = new List<int>();
         var placements = ImmutableArray.CreateBuilder<HudSheetPlacement>();
+        var placedTiles = new Dictionary<string, HudSheetPlacement>(StringComparer.Ordinal);
         int column = ShelfCells;
         foreach (HudImage image in Images(maps))
         {
             HudImageTiles tiles = hud.Tiles(image);
+            string shown = $"{tiles.Size.X}x{tiles.Size.Y}:{string.Join(';', tiles.Tiles)}";
+            if (placedTiles.TryGetValue(shown, out HudSheetPlacement? first))
+            {
+                placements.Add(first with { Image = tiles });
+                continue;
+            }
             if (column + tiles.Size.X > ShelfCells)
             {
                 shelves.Add(0);
@@ -97,7 +106,9 @@ internal static class HudImageSheet
             }
             int shelf = shelves.Count - 1;
             shelves[shelf] = Math.Max(shelves[shelf], tiles.Size.Y);
-            placements.Add(new HudSheetPlacement(tiles, shelf, new Position16<TilemapCells>((ushort)column, 0)));
+            var placement = new HudSheetPlacement(tiles, shelf, new Position16<TilemapCells>((ushort)column, 0));
+            placedTiles.Add(shown, placement);
+            placements.Add(placement);
             column += tiles.Size.X;
         }
         return new HudSheetLayout([.. shelves], placements.ToImmutable());

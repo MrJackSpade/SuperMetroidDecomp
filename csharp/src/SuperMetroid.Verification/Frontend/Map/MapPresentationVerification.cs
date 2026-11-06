@@ -90,7 +90,6 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 

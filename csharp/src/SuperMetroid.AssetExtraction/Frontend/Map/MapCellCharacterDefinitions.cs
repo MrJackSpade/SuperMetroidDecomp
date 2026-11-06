@@ -22,11 +22,15 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </remarks>
 internal static class MapCellCharacterDefinitions
 {
-    /// <summary>The colour row the cartridge's area maps store every mapped cell in, which shows it unexplored.</summary>
-    internal const int UnexploredRow = 3;
-
-    /// <summary>The colour row an unexplored cell's row becomes once <c>$82:943D</c> clears its explored bit.</summary>
-    internal const int ExploredRow = 2;
+    /// <summary>
+    /// The colour row each shade shows a cell in: the area maps store every mapped cell in the unexplored row, and a cell's
+    /// row becomes the explored one once <c>$82:943D</c> clears its explored bit.
+    /// </summary>
+    internal static readonly ImmutableDictionary<MapCellShade, int> ShadeRows = ImmutableDictionary.CreateRange(
+    [
+        new KeyValuePair<MapCellShade, int>(MapCellShade.Unexplored, 3),
+        new KeyValuePair<MapCellShade, int>(MapCellShade.Explored, 2),
+    ]);
 
     /// <summary>An open edge.</summary>
     private const MapCellEdge O = MapCellEdge.Open;
@@ -118,7 +122,7 @@ internal static class MapCellCharacterDefinitions
     ];
 
     /// <summary>
-    /// The cells a retail map stores in <see cref="ExploredRow"/> although they are unexplored: Brinstar's up arrow to
+    /// The cells a retail map stores in the explored row of <see cref="ShadeRows"/> although they are unexplored: Brinstar's up arrow to
     /// Crateria. The arrow paints only the ink both rows colour alike, so it shows the same in either shade; the import
     /// shows it by its exploration like every other cell, and requires that it shows alike
     /// (<see cref="MapCellCharacters.RequireStoredExploredCellsShowAlike"/>).

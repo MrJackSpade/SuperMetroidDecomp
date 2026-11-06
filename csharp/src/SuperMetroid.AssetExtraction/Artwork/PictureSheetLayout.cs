@@ -15,7 +15,13 @@ internal sealed class PictureSheetLayout
     /// <summary>The pictures in order, each with the frame names that show it.</summary>
     private readonly NamedSheetPicture[] pictures;
 
-    /// <summary>Each picture's top-left corner on the sheet.</summary>
+    /// <summary>Each distinct rectangle the pictures paint, in the order a picture first paints it.</summary>
+    private readonly SheetPicture[] laid;
+
+    /// <summary>Each picture's rectangle, by its place among <see cref="laid"/>.</summary>
+    private readonly int[] rectangles;
+
+    /// <summary>Each rectangle's top-left corner on the sheet.</summary>
     private readonly Position16<ImagePixels>[] corners;
 
     /// <summary>The colouring the sheet installs.</summary>
@@ -46,8 +52,25 @@ internal sealed class PictureSheetLayout
                 throw new InvalidDataException($"Sheet {sheet}'s colouring leaves out a colour group frame {picture.Names[0]} uses.");
         }
         this.pictures = pictures;
-        corners = new Position16<ImagePixels>[this.pictures.Length];
-        Size = SheetPacking.Pack([.. this.pictures.Select(picture => picture.Picture.Size)], corners, $"Sheet {sheet}'s {this.pictures.Length} pictures");
+        // Pictures painting the same rectangle are laid once there, each frame keeping its own origin, colour groups and
+        // depth (#1513).
+        var rectangleOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var distinct = new List<SheetPicture>();
+        rectangles = new int[pictures.Length];
+        for (int index = 0; index < pictures.Length; index++)
+        {
+            SheetPicture picture = pictures[index].Picture;
+            if (!rectangleOf.TryGetValue(picture.Pixels, out int rectangle))
+            {
+                rectangle = distinct.Count;
+                rectangleOf.Add(picture.Pixels, rectangle);
+                distinct.Add(picture);
+            }
+            rectangles[index] = rectangle;
+        }
+        laid = [.. distinct];
+        corners = new Position16<ImagePixels>[laid.Length];
+        Size = SheetPacking.Pack([.. laid.Select(picture => picture.Size)], corners, $"Sheet {sheet}'s {laid.Length} pictures");
     }
 
     /// <summary>The sheet's width and height.</summary>
@@ -59,11 +82,12 @@ internal sealed class PictureSheetLayout
     /// </summary>
     internal SpriteSheetDocument Paint(SpriteSheetPlanes planes)
     {
+        for (int rectangle = 0; rectangle < laid.Length; rectangle++)
+            laid[rectangle].Paint(planes, corners[rectangle]);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < pictures.Length; index++)
         {
-            pictures[index].Picture.Paint(planes, corners[index]);
-            SpriteSheetFrameDocument document = pictures[index].Picture.Document(corners[index]);
+            SpriteSheetFrameDocument document = pictures[index].Picture.Document(corners[rectangles[index]]);
             foreach (string name in pictures[index].Names)
                 frames.Add(name, document);
         }

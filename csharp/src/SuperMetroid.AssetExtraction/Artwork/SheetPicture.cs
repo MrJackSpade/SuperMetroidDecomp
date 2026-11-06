@@ -44,6 +44,7 @@ internal sealed class SheetPicture
         }
         Rows = rows;
         Content = ContentOf();
+        Pixels = PixelsOf();
     }
 
     /// <summary>The rectangle's width and height; zero for an empty picture.</summary>
@@ -69,6 +70,12 @@ internal sealed class SheetPicture
     /// front-tile mark. Pictures with one content show alike in one colouring.
     /// </summary>
     internal string Content { get; }
+
+    /// <summary>
+    /// A hash of the rectangle alone: its size and each pixel's colour, ink and front-tile mark. Pictures with one such
+    /// hash are one rectangle of a sheet, whatever origin, colour groups and depth each of their frames names (#1513).
+    /// </summary>
+    internal string Pixels { get; }
 
     /// <summary>The picture <paramref name="frame"/> places on <paramref name="planes"/>, copied out of them.</summary>
     /// <exception cref="InvalidDataException">The frame's rectangle leaves the planes.</exception>
@@ -126,6 +133,21 @@ internal sealed class SheetPicture
             writer.Write(Origin.Y);
             writer.Write(ColourGroups.ManifestMembers);
             writer.Write(Depth?.ToString() ?? "none");
+            writer.Write(System.Runtime.InteropServices.MemoryMarshal.AsBytes(pixels.AsSpan()));
+            writer.Write(inks);
+            writer.Write(frontTiles);
+        }
+        return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
+    }
+
+    /// <summary>Hashes the rectangle's size and planes into <see cref="Pixels"/>.</summary>
+    private string PixelsOf()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
+        {
+            writer.Write(Size.X);
+            writer.Write(Size.Y);
             writer.Write(System.Runtime.InteropServices.MemoryMarshal.AsBytes(pixels.AsSpan()));
             writer.Write(inks);
             writer.Write(frontTiles);

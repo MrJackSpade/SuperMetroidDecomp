@@ -56,9 +56,10 @@ internal static class GenericSpriteArtworkVerification
         foreach (TitleSpriteFrame frame in document.Sprites)
         foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
         foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
-        // Two title colourings, whose sprite sets the cartridge oracle takes as its palette bits.
-        foreach (TitleSpriteColouring colouring in new[] { TitleSpriteColouring.Text, TitleSpriteColouring.Logo })
         {
+            // The colouring the title draws the composition in, whose sprite set the cartridge oracle takes as its palette
+            // bits; the sheet pictures each composition only as it is drawn (#1513).
+            TitleSpriteColouring colouring = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSpriteColourings.Of(frame.Sprite);
             int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
             title.ActiveSprite = frame.Sprite;
             title.ActiveOrigin = new(x, y);
@@ -69,7 +70,11 @@ internal static class GenericSpriteArtworkVerification
                 (int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]), new(x, y),
                 SnesObjAttributeWord.Create(0, palette, 0).PaletteBits);
             expected.FinalizeFrame();
-            EqualSprites(expected, title.objects, "title composition/coordinate/palette parity");
+            string titleCase = $"title composition/coordinate/palette parity of {frame.Sprite} at ({x}, {y}) in {colouring}";
+            if (TitleTypedCards.Find(frame.Sprite) is null)
+                EqualSprites(expected, title.objects, titleCase);
+            else
+                EqualTypedReveal(expected, title.objects, titleCase);
             titleCases++;
         }
         title.ActiveSprite = null;
@@ -175,6 +180,30 @@ internal static class GenericSpriteArtworkVerification
         {
             AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");
             AssertTrue(expected.ImageEquals(actual), context + " packed bytes");
+        }
+
+        // A typed reveal is its glyphs placed side by side (#1513). The cartridge lists one reveal's letters newest first
+        // and the next's oldest first; the glyphs never overlap, so the order they are listed in shows nothing, and the
+        // reveal must place exactly the cartridge's objects, each an eight-pixel square clear of every other.
+        static void EqualTypedReveal(OamBuffer expected, ScreenSprites actual, string context)
+        {
+            OamBuffer drawn = ScreenSpritesFixtures.ToOam(actual);
+            AssertEqual(expected.LastFinalizedSpriteCount, drawn.LastFinalizedSpriteCount, context + " count");
+            OamEntry[] expectedEntries = [.. Enumerable.Range(0, expected.LastFinalizedSpriteCount).Select(expected.GetEntry)];
+            OamEntry[] drawnEntries = [.. Enumerable.Range(0, drawn.LastFinalizedSpriteCount).Select(drawn.GetEntry)];
+            AssertTrue(expectedEntries.OrderBy(entry => entry.ToString(), StringComparer.Ordinal).SequenceEqual(drawnEntries.OrderBy(entry => entry.ToString(), StringComparer.Ordinal)), context + " objects");
+            // Only objects on the screen's rows can show over one another; those below it show nothing.
+            OamEntry[] shown = [.. drawnEntries.Where(entry => entry.Position.Y < ScreenGeometry.ScreenHeightPixels)];
+            for (int first = 0; first < shown.Length; first++)
+            {
+                AssertTrue(!shown[first].IsLarge, $"{context}: object {first} is a small object");
+                for (int second = first + 1; second < shown.Length; second++)
+                {
+                    int across = Math.Abs(shown[first].Position.X - shown[second].Position.X);
+                    int down = Math.Abs(shown[first].Position.Y - shown[second].Position.Y);
+                    AssertTrue(across >= 8 || down >= 8, $"{context}: objects {first} and {second} do not overlap");
+                }
+            }
         }
 
         static void EqualParts(PlacedSpritePart[] expected, PlacedSpritePart[] actual, string context)

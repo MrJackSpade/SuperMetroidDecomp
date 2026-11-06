@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// How far Ceres's escape has progressed. Each stage replaces the previous one; the elevator door's destruction
 /// replaces the self-destruct stage, so a reader that asks whether Ridley has escaped sees every later stage as
-/// escaped, and only <see cref="RidleyEscaped"/> itself reveals the Mode 7 wall overlay in Ridley's room.
+/// escaped, and only <see cref="RidleyEscaped"/> itself reveals the turning-floor wall overlay in Ridley's room.
 /// </summary>
 public enum CeresEscapeStatus
 {

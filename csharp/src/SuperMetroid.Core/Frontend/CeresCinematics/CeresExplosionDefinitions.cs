@@ -64,7 +64,7 @@ internal static class CeresExplosionDefinitions
     /// same small blast, then advances modulo eight even if allocation fails. These
     /// points describe the particular scattered sequence around the station, not sampled
     /// motion, actor dispatch, or hull attachment points: the offsets stay in screen space
-    /// while the underlying Mode7 image changes scale. A per-index switch or fitted curve
+    /// while the underlying turning-floor image changes scale. A per-index switch or fitted curve
     /// would just encode this same layout. The initial square/center layout, final X rule,
     /// instruction delays and shared actor motion are calculated separately.
     /// </remarks>

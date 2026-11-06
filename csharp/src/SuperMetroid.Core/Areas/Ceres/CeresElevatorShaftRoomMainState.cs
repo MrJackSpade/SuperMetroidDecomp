@@ -56,7 +56,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// Builds one room's shaft owner, selecting whether the room runs the shaft's main behaviour. An active entry is the elevator
     /// door, whose setup writes the rotation index and timer.
     /// </summary>
-    /// <param name="active">Whether the room's main routine is the shaft and its entry door uses Mode 7.</param>
+    /// <param name="active">Whether the room's main routine is the shaft and its entry door uses the turning floor.</param>
     /// <param name="carryover">The room-main value the following room inherits, which receives the initial turn step.</param>
     public CeresElevatorShaftRoomMainState(bool active, RoomMainCarryover carryover)
     {
@@ -71,7 +71,7 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>
-    /// Door setup code leaving the elevator's Mode-7 rendering: the destination's shaft no longer owns the room.
+    /// Door setup code leaving the elevator's turning-floor rendering: the destination's shaft no longer owns the room.
     /// </summary>
     public void Deactivate() => IsActive = false;
 

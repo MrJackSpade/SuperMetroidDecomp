@@ -85,7 +85,7 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>
-    /// Draws the direction-specific small OBJ bound to its selected cover character. The caller chooses
+    /// Draws the direction-specific small sprite bound to its selected cover character. The caller chooses
     /// before/after-body order from <see cref="DrawOrder"/>.
     /// </summary>
     public SamusArmCannonDrawResult Draw(

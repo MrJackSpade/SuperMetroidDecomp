@@ -21,7 +21,7 @@ internal sealed class CeresRidleyBabyScene
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
+    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
     private readonly EnemyPresentation _presentation;

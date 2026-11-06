@@ -31,9 +31,9 @@ public enum SpriteSheetId
     IntroSprites,
     /// <summary>The Ceres approach's stars and rear-view gunship and station.</summary>
     CeresFlightSprites,
-    /// <summary>The Ceres destruction scene's actors over the Ceres scene's OBJ characters.</summary>
+    /// <summary>The Ceres destruction scene's actors over the Ceres scene's sprite characters.</summary>
     CeresDestructionSprites,
-    /// <summary>The Ceres destruction scene's actors over the Zebes reveal's OBJ characters.</summary>
+    /// <summary>The Ceres destruction scene's actors over the Zebes reveal's sprite characters.</summary>
     ZebesRevealSprites,
 
     /// <summary>The ending's escape clouds.</summary>

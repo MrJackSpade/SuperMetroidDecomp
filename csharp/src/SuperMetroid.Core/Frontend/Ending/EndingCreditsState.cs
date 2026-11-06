@@ -81,13 +81,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>Zebes exploding in the ending: the finale and burst displays and the crossfade between them.</summary>
     internal EndingZebesExplosion Explosion { get; }
 
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     internal EndingStage Stage { get; }
 
     /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
     internal EndingFlyaway Flyaway { get; }
 
-    /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
     internal EndingArtwork InstalledArtwork { get; }
 
     /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>
@@ -457,7 +457,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             : throw new InvalidDataException($"Palette-FX record {record.Record}'s first colour has no installed definition.");
     }
 
-    /// <summary>Rotates Mode 7 every other cinematic call while applying the current zoom delta.</summary>
+    /// <summary>Rotates the turning floor every other cinematic call while applying the current zoom delta.</summary>
     private void StepAtmosphericTransform(int scaleDelta)
     {
         // Func111/114 run during both fades as well as the fully visible interval.

@@ -13,6 +13,6 @@ public readonly record struct CeresRidleyGetawayFrame(int Zoom, Offset16<FloorPi
     /// <summary>Whether this is <see cref="Finished"/>, the frame that ends the getaway.</summary>
     public bool IsFinished { get; private init; }
 
-    /// <summary>The frame's Mode 7 zoom word, 0 through 65535.</summary>
+    /// <summary>The frame's turning-floor zoom word, 0 through 65535.</summary>
     public int Zoom { get; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Zoom);
 }

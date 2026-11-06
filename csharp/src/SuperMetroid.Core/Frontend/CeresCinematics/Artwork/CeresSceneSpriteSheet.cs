@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// Draws the Ceres destruction scene's actors from the scene's current sheet (#1392): a destruction pose from the
 /// destruction family's frames, any other from the shared Ceres flight family's.
 /// </summary>
-/// <param name="sheet">The sheet over the OBJ characters the scene's uploads have left.</param>
+/// <param name="sheet">The sheet over the sprite characters the scene's uploads have left.</param>
 internal sealed class CeresSceneSpriteSheet(SpriteSheet sheet) : IIntroCinematicSpritePresentation
 {
     /// <summary>The poses the destruction family shows; the scene's other poses are the Ceres flight's.</summary>

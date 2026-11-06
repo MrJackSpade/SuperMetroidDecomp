@@ -16,7 +16,7 @@ public enum SpriteImageColours
     TwoBppBackground,
 
     /// <summary>
-    /// All 256 colours, as a Mode 7 tile names its colours directly: the Ceres rooms' Mode 7 tiles, some of whose
+    /// All 256 colours, as a turning-floor tile names its colours directly: the Ceres rooms' turning-floor tiles, some of whose
     /// pixels name the sprite colour sets every room load restores (#1392).
     /// </summary>
     FullPalette,

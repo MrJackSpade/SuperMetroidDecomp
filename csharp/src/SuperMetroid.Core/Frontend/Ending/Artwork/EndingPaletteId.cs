@@ -13,7 +13,7 @@ public enum EndingPaletteId
     Explosion,
     /// <summary>16 background colors restored at colour index 80 for the final gunship view before the operation text.</summary>
     FinalGunship,
-    /// <summary>16 colors initially loaded into OBJ palette 7 for the assembling logo.</summary>
+    /// <summary>16 colors initially loaded into sprite palette 7 for the assembling logo.</summary>
     LogoInitial,
     /// <summary>Sixteen successive background and sprite palette pairs of the logo crossfade, flattened as [step][background then sprites][16 colors].</summary>
     LogoCrossfade,

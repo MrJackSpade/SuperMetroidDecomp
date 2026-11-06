@@ -20,7 +20,7 @@ internal sealed class CeresRidleyFlight
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
+    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -103,7 +103,7 @@ internal sealed class CeresRidleyFlight
         // the live colours, matching the established Ceres-door palette seam.
         _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresStart);
 
-        // The loop clears OBJ palette seven's colours one through fifteen, which the eye and body fades then reveal.
+        // The loop clears sprite palette seven's colours one through fifteen, which the eye and body fades then reveal.
         _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresHidden);
     }
 
@@ -579,7 +579,7 @@ internal sealed class CeresRidleyFlight
         state.WingFrame = (state.WingFrame + 1) % 10;
     }
 
-    /// <summary>Allocates two real enemy records for the OBJ wall strips shown during Mode 7.</summary>
+    /// <summary>Allocates two real enemy records for the sprite wall strips shown while the floor turns.</summary>
     private void SpawnCeresRidleyGetawayWalls()
     {
         // SpawnEnemy consumes the first two free slots and initializes the literal
@@ -594,7 +594,7 @@ internal sealed class CeresRidleyFlight
     private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, CeresDoorVariant variant)
     {
         RoomEnemySlot wall = _slotTable.FindFreeSlot() ??
-            throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
+            throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a turning-floor wall.");
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.CeresDoor);
         RoomEnemyPopulationRecord population = new(

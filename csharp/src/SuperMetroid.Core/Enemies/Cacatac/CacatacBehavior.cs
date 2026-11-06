@@ -18,7 +18,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Supplies shared room RNG for the three-in-256 spike attack gate.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocates spike projectiles with source position and OBJ attributes.</summary>
+    /// <summary>Allocates spike projectiles with source position and sprite attributes.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>

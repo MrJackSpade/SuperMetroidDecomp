@@ -153,7 +153,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         renderedDisplay = packet;
     }
 
-    /// <summary>Selects layered, Mode 7, or solid-color composition and submits its compute passes.</summary>
+    /// <summary>Selects layered, turning-floor or solid-color composition and submits its compute passes.</summary>
     private unsafe void RenderCore(DisplayPacket packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
@@ -657,9 +657,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         AffineFloor? floorMap = null;
         // A gameplay room's turning floor shows the room's shading; a frontend screen's the shading its floor names (#1512).
         D3D11PictureColouring floorColouring = D3D11PictureColouring.OwnShading;
-        // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
+        // A frame shows one turning floor, which every floor dispatch draws from the room buffer (#1403).
         AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
-            : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
+            : throw new InvalidOperationException("A frame shows two different turning floors.");
         List<PicturedPlane> planes = framePlanes;
         planes.Clear();
         List<PictureGrid> grids = frameGrids;

@@ -869,7 +869,7 @@ internal sealed class SuperMetroidRuntime
         // EnemyMain can install the gunship's beta handler on this frame.
         // It omits the normal timer-drawing call: neither countdown nor its sprites
         // survives boarding, even though timer status stays active. Decide after the
-        // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
+        // actor transition, before liftoff can repurpose the timer's sprite tiles as dust.
         bool runEscapeTimerHandler = frameTail?.Mode.Beta != SamusBetaHandler.Gunship;
         if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {

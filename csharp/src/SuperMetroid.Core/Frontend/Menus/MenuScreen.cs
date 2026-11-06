@@ -79,7 +79,7 @@ internal sealed class MenuScreen
     /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>
     public RgbColor Backdrop { get; set; }
 
-    /// <summary>The menu's sprite entries over the installed menu OBJ page.</summary>
+    /// <summary>The menu's sprite entries over the installed menu sprite page.</summary>
     public ScreenSprites Objects { get; }
 
     /// <summary>Rebinds the world characters, keeping tilemaps and the screen's backdrop.</summary>

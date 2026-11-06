@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>
 /// Creates the session's gameplay runtimes. Lifetime: a runtime lives from a selected-game, attract or saved-Ceres start
 /// until title, game over or soft reset; the immutable artwork it binds is host-owned and shared, and the frame clock and
-/// Mode 7 residue it counts on belong to the session.
+/// turning-floor residue it counts on belong to the session.
 /// </summary>
 internal static class GameplayRuntimeFactory
 {

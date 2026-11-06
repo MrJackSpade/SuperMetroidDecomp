@@ -56,7 +56,7 @@ public enum RidleyAiFunction
     CeresRealRetreatRising,
     /// <summary>Prepares retreat palettes and walls while waiting to publish the getaway.</summary>
     CeresRetreatDelay,
-    /// <summary>Publishes the Ceres Mode-7 getaway handoff.</summary>
+    /// <summary>Publishes the Ceres turning-floor getaway handoff.</summary>
     CeresPublishEscapeHandoff,
     /// <summary>The inactive Ceres body entry while its getaway presentation owns the scene.</summary>
     CeresInactive,

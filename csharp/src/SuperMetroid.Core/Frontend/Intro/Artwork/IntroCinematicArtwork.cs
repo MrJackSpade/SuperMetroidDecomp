@@ -13,7 +13,7 @@ public abstract class IntroCinematicArtwork
 {
     /// <summary>Retains the selected opening backdrop and Ceres artwork.</summary>
     /// <param name="backdrop">The colour the opening shows where nothing is drawn, at full brightness: its first background colour.</param>
-    /// <param name="ceresFlight">Mode-7 and OBJ visual streams used after the narration fades to Ceres.</param>
+    /// <param name="ceresFlight">Turning-floor and sprite visual streams used after the narration fades to Ceres.</param>
     /// <param name="ceresDestruction">The destruction and Zebes-reveal actors' placements.</param>
     /// <exception cref="ArgumentNullException">The Ceres artwork is null.</exception>
     internal IntroCinematicArtwork(RgbColor backdrop, CeresFlightArtwork ceresFlight, CeresDestructionArtwork ceresDestruction)
@@ -25,7 +25,7 @@ public abstract class IntroCinematicArtwork
 
     /// <summary>The colour the opening shows where nothing is drawn, at full brightness: its first background colour (#1512).</summary>
     public RgbColor Backdrop { get; }
-    /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>
+    /// <summary>Turning-floor and sprite visual streams used after the narration fades to Ceres.</summary>
     public CeresFlightArtwork CeresFlight { get; }
     /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
     public CeresDestructionArtwork CeresDestruction { get; }

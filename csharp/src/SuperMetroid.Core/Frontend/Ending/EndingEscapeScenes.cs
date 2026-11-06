@@ -18,9 +18,9 @@ internal sealed class EndingEscapeScenes
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -35,7 +35,7 @@ internal sealed class EndingEscapeScenes
         _artwork = artwork;
     }
 
-    /// <summary>Loads the first cloud scene, resets its Mode-7 transform and queues escape music.</summary>
+    /// <summary>Loads the first cloud scene, resets its turning-floor transform and queues escape music.</summary>
     internal void SetupEscapeSceneA()
     {
         _stage.LoadColours(EndingColourLoad.Escape);

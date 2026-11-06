@@ -7,7 +7,7 @@ internal enum EndingCreditsPhase
     SetupEscapeFromZebes,
     /// <summary>Holds the cloud scene until the queued escape music finishes loading.</summary>
     WaitForEscapeMusic,
-    /// <summary>Reveals the first rotating Mode-7 cloud scene.</summary>
+    /// <summary>Reveals the first rotating turning-floor cloud scene.</summary>
     FadeInEscapeSceneA,
     /// <summary>Continues zooming the first cloud scene to its authored threshold.</summary>
     EscapeSceneA,

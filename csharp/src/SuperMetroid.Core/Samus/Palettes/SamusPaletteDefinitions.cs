@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </remarks>
 public static class SamusPaletteDefinitions
 {
-    /// <summary>Shared full-body OBJ palette layout and suit selection table.</summary>
+    /// <summary>Shared full-body sprite palette layout and suit selection table.</summary>
     public static class Common
     {
         /// <summary>The colours in each of Samus's colour sets: her suit's, her beams' and every palette her effects show.</summary>

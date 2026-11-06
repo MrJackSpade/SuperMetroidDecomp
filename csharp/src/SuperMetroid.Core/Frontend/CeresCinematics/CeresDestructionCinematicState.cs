@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 /// <remarks>
 /// The cinematic owns this sequence. The state deliberately retains the
-/// game's phase boundaries, counters, 16.16 camera motion, Mode-7 matrix values, and
+/// game's phase boundaries, counters, 16.16 camera motion, turning-floor matrix values, and
 /// compiled sprite animation scripts, so the scene's progress is game state:
 /// there is no host-authored video or timer that merely happens to end at the
 /// same gameplay room.
@@ -65,7 +65,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// flicker has shown one.
     /// </summary>
     private PaletteFxFrame? engineRecord;
-    /// <summary>The live actors' sprite entries over the OBJ characters the uploads leave (#1358).</summary>
+    /// <summary>The live actors' sprite entries over the sprite characters the uploads leave (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed art, bound when the game is bound to its installed content.</summary>
     internal IntroCinematicArtwork? Artwork { get; private set; }
@@ -73,7 +73,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private InstalledSpriteSheets spriteSheets;
 
     /// <summary>
-    /// The actors' sheet over the OBJ characters the uploads have left: the Ceres scene's until the Zebes reveal loads
+    /// The actors' sheet over the sprite characters the uploads have left: the Ceres scene's until the Zebes reveal loads
     /// its characters over them, then the reveal's.
     /// </summary>
     private CeresSceneSpriteSheet Sprites => new(spriteSheets.Get(ZebesRevealed
@@ -93,10 +93,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
     /// <summary>Star actor whose offscreen deletion completes the cinematic.</summary>
     private IntroDiscoverySprite? zebesCompletionStarActor;
-    /// <summary>Title actor whose instruction starts the Mode-7 flight toward Zebes.</summary>
+    /// <summary>Title actor whose instruction starts the turning-floor flight toward Zebes.</summary>
     private IntroDiscoverySprite? zebesTitleActor;
 
-    /// <summary>Signed 16.16 camera offset applied to the Mode-7 Ceres or Zebes scene.</summary>
+    /// <summary>Signed 16.16 camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
     internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(WordWrap.Unsigned(-44), 0), new(WordWrap.Unsigned(-112), 0));
     /// <summary>
     /// The floor's zoom in 256ths of a floor pixel per screen pixel (256 shows it at its own size). Every producer keeps it within zero through
@@ -128,9 +128,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private int explosionOffsetIndex;
     /// <summary>Countdown carried between repeating explosion spawn calls; it fires on reaching zero or below.</summary>
     private WrappingCountdown explosionRepeatCountdown;
-    /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
+    /// <summary>Selects the turning floor or the planet-reveal page.</summary>
     private bool usesFloor = true;
-    /// <summary>Whether the turning floor shows during the Mode 7 scenes, or only the sprites do.</summary>
+    /// <summary>Whether the turning floor shows during the turning-floor scenes, or only the sprites do.</summary>
     private ScreenLayers shownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
@@ -442,13 +442,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
-    /// <summary>Stages the planet-reveal Mode-1 map and resets camera, angle, fade, and mosaic state.</summary>
+    /// <summary>Stages the planet-reveal map and resets camera, angle, fade, and mosaic state.</summary>
     private void SetupZebesReveal()
     {
         if (Artwork is null)
             throw new InvalidOperationException("Zebes reveal requires installed cinematic artwork.");
 
-        // C699 starts in Mode 1. It also stages the rear-gunship view, which becomes visible
+        // C699 starts on the planet-reveal page. It also stages the rear-gunship view, which becomes visible
         // only when C7CA later selects the floor again.
         ZebesRevealed = true;
         FloorShot = CeresFloorShot.ZebesApproach;
@@ -463,7 +463,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         usesFloor = false;
     }
 
-    /// <summary>Creates the planet, stars, and title sprites for the later Mode-7 flight.</summary>
+    /// <summary>Creates the planet, stars, and title sprites for the later turning-floor flight.</summary>
     private void SetupZebesFloorActors()
     {
         usesFloor = true;
@@ -861,7 +861,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         else
         {
-            // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
+            // Preserve the existing non-mosaicked path. Mosaic implementation
             // is a game-correctness change, not an implicit part of this extraction.
             // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
             layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed, EngineShading),

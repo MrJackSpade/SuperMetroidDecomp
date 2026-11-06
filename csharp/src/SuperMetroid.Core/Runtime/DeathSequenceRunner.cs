@@ -14,7 +14,7 @@ internal sealed class DeathSequenceRunner
 {
     /// <summary>Provides installed death palettes and explosion sprite compositions.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Supplies the active Samus Mode-7 transform during death drawing.</summary>
+    /// <summary>Supplies the active Samus turning-floor transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one frame boundary before each isolated death-state frame.</summary>
     private readonly AcceptedFrameBoundary _frameBoundary;

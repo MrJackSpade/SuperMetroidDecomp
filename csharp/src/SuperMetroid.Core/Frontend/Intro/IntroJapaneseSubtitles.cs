@@ -69,7 +69,7 @@ internal sealed class IntroJapaneseSubtitles
         return true;
     }
 
-    /// <summary>Runs <c>Handle_Mode7Objects</c> for one frame.</summary>
+    /// <summary>Runs the floor objects for one frame.</summary>
     /// <param name="newlyPressed">This frame's controller rising edges ($8F), read by the second subtitle's pre-instruction.</param>
     /// <param name="startInputWait">Receives each page whose second subtitle has started its input wait.</param>
     public void Step(ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
@@ -80,7 +80,7 @@ internal sealed class IntroJapaneseSubtitles
     }
 
     /// <summary>
-    /// <c>Spawn_Mode7Objects</c> takes the highest free slot. The intro never has
+    /// Spawning takes the highest free slot. The intro never has
     /// more than one subtitle alive, so a full table would be a modelling error.
     /// </summary>
     private void Spawn(SubtitleObject subtitle)
@@ -116,7 +116,7 @@ internal sealed class IntroJapaneseSubtitles
         private WrappingCountdown frameHold = WrappingCountdown.Start(1);
 
         /// <summary>
-        /// <c>Process_Mode7Objects_InstList</c>: the pre-instruction, then the
+        /// Runs the pre-instruction, then the
         /// instruction list once the timer reaches zero. Returns true when the object deleted itself.
         /// </summary>
         public bool Process(IntroJapaneseSubtitles owner, ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)

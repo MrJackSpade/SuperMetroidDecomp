@@ -143,7 +143,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
     /// <summary>
     /// The frame the common grapple wrapper hands to main AI: the enemy's own camera, Samus,
-    /// input and room, but no Samus projectiles, Mode 7 transform, shared bombs or tile transfer queue,
+    /// input and room, but no Samus projectiles, turning-floor transform, shared bombs or tile transfer queue,
     /// exactly as the wrapper's main-AI call has always received them (#633).
     /// </summary>
     internal sealed class GrappleWrappedAiFrame(IEnemyAiFrame frame) : IEnemyAiFrame
@@ -160,7 +160,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         public RoomLevelData? Level => frame.Level;
         /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>
         public SamusProjectileSystem? SamusProjectiles => null;
-        /// <summary>Unavailable Mode 7 transform in the common grapple wrapper.</summary>
+        /// <summary>Unavailable turning-floor transform in the common grapple wrapper.</summary>
         public TurningFloorTransform? TurningFloor => null;
         /// <summary>Unavailable shared bomb service in the common grapple wrapper.</summary>
         public SamusBombProjectileSystem? SharedProjectiles => null;

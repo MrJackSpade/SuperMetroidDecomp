@@ -103,7 +103,7 @@ public static class SamusGrappleMovement
         // Samus moves with ordinary physics from this same frame.
         grapple.ReleasedMovementActive = false;
         // The game has two easily conflated coordinate pairs. Start is the hand/rope
-        // origin used by connection positioning; Flare is the small-OBJ draw origin used
+        // origin used by connection positioning; Flare is the small-sprite draw origin used
         // by the rope draw. They coincide while swinging but can differ while firing or locked.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
         grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;

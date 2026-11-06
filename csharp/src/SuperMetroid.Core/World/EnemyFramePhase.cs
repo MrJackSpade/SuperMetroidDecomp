@@ -19,7 +19,7 @@ internal sealed class EnemyFramePhase
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies current and newly pressed controller words to EnemyMain.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Provides the active Samus Mode 7 transform to the enemy frame.</summary>
+    /// <summary>Provides the active Samus turning-floor transform to the enemy frame.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Applies room effects requested by enemies after their AI pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;

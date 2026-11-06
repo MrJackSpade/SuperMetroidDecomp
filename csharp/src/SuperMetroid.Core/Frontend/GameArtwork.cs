@@ -49,7 +49,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
-    /// <summary>Ending Mode 7 artwork.</summary>
+    /// <summary>Ending turning-floor artwork.</summary>
     public EndingFloorArtwork? EndingFloorArt { get; init; }
 
     /// <summary>Ending sprite artwork.</summary>

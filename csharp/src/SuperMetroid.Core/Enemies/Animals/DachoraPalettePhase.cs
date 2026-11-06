@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>The exclusive authored color phases of ordinary Dachora.</summary>
 public enum DachoraPalettePhase
 {
-    /// <summary>The ordinary complete OBJ palette restored outside speed and shine animation.</summary>
+    /// <summary>The ordinary complete sprite palette restored outside speed and shine animation.</summary>
     Default,
 
     /// <summary>The four-frame acceleration palette cycle used at maximum running speed.</summary>

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The two-stage Samus handler installed by Ceres Ridley's Mode-7 getaway.
+/// The two-stage Samus handler installed by Ceres Ridley's turning-floor getaway.
 /// </summary>
 /// <remarks>
 /// The request is made from room-main code, after Samus has already moved for that

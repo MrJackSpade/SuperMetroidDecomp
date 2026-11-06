@@ -16,7 +16,7 @@ internal sealed class EndingLogo
     private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
     /// <summary>Stops each half at its respective landing point.</summary>
     private readonly bool[] settled = new bool[2];
-    /// <summary>Becomes true when the grey-out instruction begins paired background and OBJ transfers.</summary>
+    /// <summary>Becomes true when the grey-out instruction begins paired background and sprite transfers.</summary>
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of crossfade steps already shown.</summary>
     public int PaletteStep { get; internal set; }

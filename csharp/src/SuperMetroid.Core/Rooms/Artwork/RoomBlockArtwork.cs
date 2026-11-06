@@ -7,7 +7,7 @@ public enum RoomBlockArtwork
     Tileset,
 
     /// <summary>
-    /// The sprites' artwork: the Ceres Ridley arena's setup points its backgrounds there, because its Mode 7 tileset fills
+    /// The sprites' artwork: the Ceres Ridley arena's setup points its backgrounds there, because its turning-floor tileset fills
     /// the tileset's.
     /// </summary>
     Sprites,

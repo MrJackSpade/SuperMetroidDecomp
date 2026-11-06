@@ -18,7 +18,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// and 2 and a door's source room), the door window, the foreground overlay, sky, effect overlay and the background overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
 /// colours (#1392), the foreground and the background overlays' pictures (#1348, #1403), the sky's rows (#1347), the effect overlay's placed picture (#1514),
-/// a Mode 7 floor (#1349, #1403), a boss body's placed pictures (#1352, #1466, #1514) and the HUD's placed pictures (#1466).
+/// a turning floor (#1349, #1403), a boss body's placed pictures (#1352, #1466, #1514) and the HUD's placed pictures (#1466).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
 /// </summary>

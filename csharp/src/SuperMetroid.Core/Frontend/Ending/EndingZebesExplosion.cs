@@ -11,11 +11,11 @@ internal sealed class EndingZebesExplosion
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
     /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
     private readonly EndingFlyaway _flyaway;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -28,7 +28,7 @@ internal sealed class EndingZebesExplosion
         _artwork = artwork;
     }
 
-    /// <summary>Loads the planet explosion's Mode-7 and OBJ art and starts its palette crossfade.</summary>
+    /// <summary>Loads the planet explosion's turning-floor and sprite art and starts its palette crossfade.</summary>
     internal void SetupZebesExplosion()
     {
         _stage.LoadFloor(EndingFloorSceneId.PlanetExplosion);
@@ -59,7 +59,7 @@ internal sealed class EndingZebesExplosion
     private void BeginExplosionCrossfade()
     {
         // Func115 clears the previous cloud palette programs before taking its source
-        // snapshot; otherwise their next instruction can overwrite the new OBJ fade.
+        // snapshot; otherwise their next instruction can overwrite the new sprite fade.
         // The snapshot holds the escape's far background and the explosion's sprite colours just loaded,
         // which the import scales at every level (#1512).
         _stage.ResetPaletteFx();

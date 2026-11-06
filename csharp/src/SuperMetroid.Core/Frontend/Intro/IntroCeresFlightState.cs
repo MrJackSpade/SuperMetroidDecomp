@@ -6,14 +6,14 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Initial Mode 7 leg of Samus's flight toward Ceres station.</summary>
+/// <summary>Initial turning-floor leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
     internal readonly AudioQueues audio;
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
+    /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed flight artwork the frame is drawn from, rebound whenever the game is bound to its installed content.</summary>
     internal CeresFlightArtwork? Artwork { get; private set; }
@@ -391,11 +391,11 @@ internal sealed class IntroCeresFlightState
         actor.Position = actor.Position.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(actor.Position.X, fixedDelta));
     }
 
-    /// <summary>Accelerates the front stars and both Mode 7 scroll offsets along the same diagonal.</summary>
+    /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
         // The star field adds 128/256 to a signed 8.8 speed, then applies that same growing delta to
-        // the star actor and both Mode 7 offsets. This is why the ship rush feels diagonal.
+        // the star actor and both turning-floor offsets. This is why the ship rush feels diagonal.
         if (stars.FrameBehavior !=
             CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)
         {

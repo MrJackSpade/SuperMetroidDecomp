@@ -12,7 +12,7 @@ internal sealed class CeresRidleyHits
 {
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
+    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Performs Samus and projectile contact against Ridley's extended body.</summary>
     private readonly EnemyCollision _collision;

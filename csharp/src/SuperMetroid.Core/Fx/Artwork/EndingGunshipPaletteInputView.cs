@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// and one blue offset. Only independent channels or differing player edits are stored.
 /// Complete original words and independent RGB edits are checked by the gunship proof.</summary>
 /// <remarks>The remaining independent hue/contrast parameters are painted artwork:
-/// original Mode7 tile pixels select gold hull, green cockpit and blue-grey underside
+/// original turning-floor tile pixels select gold hull, green cockpit and blue-grey underside
 /// inks, without lighting or material inputs determining their chosen colors. Retain
 /// those parameters under #1165's nonsense exception; a numeric index fit would only
 /// recite this drawing. Shared channel/shade rules and temporal fades are calculated.

@@ -17,7 +17,7 @@ internal sealed class EndingFlyaway
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -130,7 +130,7 @@ internal sealed class EndingFlyaway
         }
     }
 
-    /// <summary>Adds a signed 16.16 motion delta to a Mode-7 coordinate with sixteen-bit wrapping.</summary>
+    /// <summary>Adds a signed 16.16 motion delta to a turning-floor coordinate with sixteen-bit wrapping.</summary>
     private static FixedCoordinate AddSignedFixed(FixedCoordinate position, int delta) =>
         SignedSixteenSixteen
             .FromRaw(delta)

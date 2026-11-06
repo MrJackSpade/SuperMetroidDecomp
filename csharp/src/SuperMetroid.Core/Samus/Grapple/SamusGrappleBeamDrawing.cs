@@ -98,7 +98,7 @@ public static class SamusGrappleBeamDrawing
         // shared main flare only; charge-spark direction offsets do not apply.
         int tableIndex = CoordinateAxis.Wrap(
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset);
-        // Flare compositions name characters $50-$5D of the standard OBJ sheet, which no beam or trail upload covers,
+        // Flare compositions name characters $50-$5D of the standard sprite sheet, which no beam or trail upload covers,
         // so the loaded beams' projectile sheet shows them as the standard page does.
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
             throw new InvalidDataException($"Unknown charge-flare sprite selector {tableIndex:X4}.");

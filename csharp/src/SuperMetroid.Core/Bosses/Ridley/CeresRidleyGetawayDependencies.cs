@@ -17,7 +17,7 @@ internal sealed record CeresRidleyGetawayDependencies
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
+    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
     /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>

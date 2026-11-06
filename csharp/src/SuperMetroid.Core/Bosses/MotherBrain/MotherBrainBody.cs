@@ -404,7 +404,7 @@ internal sealed class MotherBrainBody
     /// <summary>
     /// Literal body/background movement helper. The signed Y operand is added
     /// to the actor and subtracted from the background, keeping the large background body art
-    /// rigidly attached to its small OBJ hitbox record. X movement happens before this call
+    /// rigidly attached to its small sprite hitbox record. X movement happens before this call
     /// in the original game, so the derived scroll must sample the already-updated body X.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)

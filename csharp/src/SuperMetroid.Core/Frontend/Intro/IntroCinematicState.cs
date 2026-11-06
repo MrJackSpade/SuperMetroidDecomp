@@ -132,7 +132,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly AudioQueues? audio;
     /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
     internal readonly IntroNarrationText narrationText = new();
-    /// <summary>The cinematic actors' sprite entries over the intro OBJ page (#1358).</summary>
+    /// <summary>The cinematic actors' sprite entries over the intro sprite page (#1358).</summary>
     internal readonly ScreenSprites objectSprites;
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
@@ -483,7 +483,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     NarrationFinished = true;
                     // The Ceres approach immediately replaces the narration display setup with the
-                    // Ceres Mode 7 scene. Give that scene its own display, colour, and
+                    // Ceres turning-floor scene. Give that scene its own display, colour, and
                     // brightness owner: the narration has just deliberately reached
                     // a blanked screen, while the approach restores full brightness only after
                     // the fourteen-frame delayed music command has completed.
@@ -616,7 +616,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackSamus.Presentation.PrimeGraphics(CurrentFlashbackSamus);
         // The next displayed frame shows the freshly selected top and bottom definitions;
         // apply them now so the first rendered
-        // flashback frame names initialized OBJ characters rather than stale intro art.
+        // flashback frame names initialized sprite characters rather than stale intro art.
         CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
         FlashbackMotherBrainExplosions = null;
         FlashbackRinkas = new IntroRinkaSystem();
@@ -680,7 +680,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepPageTwoCrossfade()
     {
         // The reverse crossfade is the exact inverse of the earlier transition: text/portrait ranges
-        // fade in while Mother Brain gameplay, projectile, and OBJ ranges fade out.
+        // fade in while Mother Brain gameplay, projectile, and sprite ranges fade out.
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageTwoText);
     }
 
@@ -1131,7 +1131,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         return sprites;
     }
 
-    /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing OBJ data.</summary>
+    /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing sprite data.</summary>
     internal SpriteFrameBuffer PrepareBabyDiscoverySprites()
     {
         var sprites = new SpriteFrameBuffer();

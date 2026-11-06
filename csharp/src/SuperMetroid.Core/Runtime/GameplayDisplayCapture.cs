@@ -41,13 +41,13 @@ public static class GameplayDisplayCapture
                 if (fx.Type == RoomFxType.Spores)
                 {
                     if (layers[0] is not GameplaySceneLayer ordinary)
-                        throw new NotSupportedException("Spore FX requires an ordinary Mode-1 gameplay base.");
+                        throw new NotSupportedException("Spore FX requires an ordinary gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureSpores(ordinary, fx);
                 }
                 else if (fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
                 {
                     if (layers[0] is not GameplaySceneLayer ordinary)
-                        throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
+                        throw new NotSupportedException("Waterfall FX requires an ordinary gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureWaterfall(ordinary, fx);
                 }
                 else AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(fx, FxOverlay(latched)));

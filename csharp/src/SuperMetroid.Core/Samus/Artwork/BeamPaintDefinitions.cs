@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Five stock beam material palettes. The beam palette load copies
-/// the selected sixteen colors to OBJ palette6; charge/impact sprites and frozen
+/// the selected sixteen colors to sprite palette6; charge/impact sprites and frozen
 /// enemy components also use this palette. The reviewed exact material channel
 /// choices and shade memberships are selected paint composition; generating them
 /// without those inputs invents different hues. Shared ramps/channels calculate.

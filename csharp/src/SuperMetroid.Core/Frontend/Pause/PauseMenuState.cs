@@ -135,7 +135,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ? entry.MapRevealMode
             : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
 
-        // GameState_13 uploads the map, pause interface, menu OBJ and HUD characters; the
+        // GameState_13 uploads the map, pause interface, menu sprites and HUD characters; the
         // screen binds that artwork and its capture places the characters.
         screen = new PauseScreen(entry.MapPresentation, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);

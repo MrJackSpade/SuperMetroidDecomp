@@ -15,7 +15,7 @@ public sealed class EndingPaletteSet
     internal readonly EndingPalette explosion;
     /// <summary>Final gunship background palette restored before the operation text.</summary>
     internal readonly EndingPalette finalGunship;
-    /// <summary>Initial assembling-logo OBJ palette.</summary>
+    /// <summary>Initial assembling-logo sprite palette.</summary>
     internal readonly EndingPalette logoInitial;
     /// <summary>Sixteen ordered background and sprite palette pairs for the final logo transition.</summary>
     internal readonly EndingPalette logoCrossfade;
@@ -26,7 +26,7 @@ public sealed class EndingPaletteSet
     /// <param name="credits">Full credits resource, of which scrolling text uses the background half.</param>
     /// <param name="explosion">Full destruction/flyaway resource with separately loaded background and sprite halves.</param>
     /// <param name="finalGunship">Sixteen colors for the final gunship's background palette 5.</param>
-    /// <param name="logoInitial">Sixteen initial assembling-logo colors for OBJ palette 7.</param>
+    /// <param name="logoInitial">Sixteen initial assembling-logo colors for sprite palette 7.</param>
     /// <param name="logoCrossfade">Sixteen ordered background and sprite palette pairs for the final logo transition.</param>
     public EndingPaletteSet(EndingPalette escape, EndingPalette postCredits,
         EndingPalette credits, EndingPalette explosion, EndingPalette finalGunship,

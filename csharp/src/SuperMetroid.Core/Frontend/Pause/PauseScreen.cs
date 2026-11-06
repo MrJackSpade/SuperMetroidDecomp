@@ -142,7 +142,7 @@ internal sealed class PauseScreen
     /// <summary>The solid colour the pause screen shows where nothing is drawn (#1512).</summary>
     public RgbColor Backdrop { get; private set; }
 
-    /// <summary>The pause sprite entries over the installed menu OBJ page.</summary>
+    /// <summary>The pause sprite entries over the installed menu sprite page.</summary>
     public ScreenSprites Objects { get; }
 
     /// <summary>Rebinds the installed artwork and the backdrop it names, keeping the sprite entries.</summary>

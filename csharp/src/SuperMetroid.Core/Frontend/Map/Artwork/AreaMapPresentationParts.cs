@@ -91,7 +91,7 @@ internal sealed record AreaMapPresentationParts
     public required EndingFontAtlas EndingFont { get; init; }
 
 
-    /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
+    /// <summary>Title turning-floor characters and tilemap, sprite characters, and Baby character artwork selected from their extracted files.</summary>
     public required TitleGraphicsPresentation TitleGraphics { get; init; }
 
     /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>

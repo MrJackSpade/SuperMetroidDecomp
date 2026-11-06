@@ -13,7 +13,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ceres Ridley's Mode 7 getaway and the station's self-destruct countdown that follows.</summary>
+/// <summary>Ceres Ridley's turning-floor getaway and the station's self-destruct countdown that follows.</summary>
 [RoomLifetime]
 internal sealed class CeresRidleyGetaway
 {
@@ -23,7 +23,7 @@ internal sealed class CeresRidleyGetaway
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
+    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
     private readonly EnemyPresentation _presentation;
@@ -179,7 +179,7 @@ internal sealed class CeresRidleyGetaway
             return;
         }
         throw new InvalidOperationException(
-            $"Ceres Ridley Mode 7 zoom step {zoomStep} is not in the installed palette catalog.");
+            $"Ceres Ridley turning-floor zoom step {zoomStep} is not in the installed palette catalog.");
     }
 
     /// <summary>

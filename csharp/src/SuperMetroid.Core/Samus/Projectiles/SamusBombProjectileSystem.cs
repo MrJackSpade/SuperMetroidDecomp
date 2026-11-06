@@ -284,7 +284,7 @@ public sealed class SamusBombProjectileSystem
 
             // The projectile draw suppresses power bombs as soon as their shared
             // projectile-variable word reaches zero. The fuse publishes that zero on
-            // the detonation frame, so the small placed-bomb OBJ must disappear exactly
+            // the detonation frame, so the small placed-bomb sprite must disappear exactly
             // when the large explosion effect begins. Normal bomb explosions keep
             // drawing their spritemaps with a zero BombTimer and are unaffected.
             if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer.IsZero)

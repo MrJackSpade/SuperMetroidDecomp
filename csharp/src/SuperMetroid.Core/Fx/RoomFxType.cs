@@ -28,7 +28,7 @@ public enum RoomFxType
     Fireflea,
     /// <summary>Tourian entrance statue liquid effect, rendered through the water-compatible effect overlay path.</summary>
     TourianEntranceStatue,
-    /// <summary>Ceres Ridley encounter effect that coordinates the room's scripted Mode 7 presentation.</summary>
+    /// <summary>Ceres Ridley encounter effect that coordinates the room's scripted turning-floor presentation.</summary>
     CeresRidley,
     /// <summary>Ceres elevator-shaft effect used during the station's scripted descent and destruction flow.</summary>
     CeresElevator,

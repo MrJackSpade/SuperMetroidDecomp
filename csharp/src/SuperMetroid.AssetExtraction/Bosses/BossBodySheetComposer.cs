@@ -168,8 +168,23 @@ internal static class BossBodySheetComposer
         return written.Keys.OrderBy(frame => frame.ToString(), StringComparer.Ordinal)
             .Select(frame => new BossBodyFrameSource(BossBodyFrameNames.Of(frame), Whole(frame)));
 
-        // The frame's cells written over the whole frame it is drawn over.
+        // The frame's cells written over the whole frame it is drawn over, with the part that fills its gap written over them.
         SortedDictionary<int, BackgroundTile> Whole(EnemyFrameId frame)
+        {
+            SortedDictionary<int, BackgroundTile> cells = Beneath(frame);
+            if (BossBodySourceDefinitions.FramesPicturedWith.TryGetValue(frame, out EnemyFrameId filling))
+            {
+                if (!written.ContainsKey(filling))
+                    throw new InvalidDataException($"Body frame {frame} is pictured with {filling}, which its boss's frames do not hold.");
+                cells = new SortedDictionary<int, BackgroundTile>(cells);
+                foreach ((int cell, BackgroundTile tile) in Whole(filling))
+                    cells[cell] = tile;
+            }
+            return cells;
+        }
+
+        // The frame's cells written over the whole frame it is drawn over.
+        SortedDictionary<int, BackgroundTile> Beneath(EnemyFrameId frame)
         {
             if (!BossBodySourceDefinitions.FramesDrawnOver.TryGetValue(frame, out EnemyFrameId beneath))
                 return written[frame];

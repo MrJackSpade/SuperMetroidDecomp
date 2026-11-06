@@ -47,6 +47,12 @@ internal static class PhantoonBodyPublicationVerification
             throw new InvalidOperationException("Phantoon's body frame has installed writes.");
         foreach (EnemyBg2TilemapWrite write in writes.Span)
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));
+        // His body is pictured whole, with his closed eye in the socket it leaves for the eye (#1513).
+        EnemyFrameId eye = BossBodySourceDefinitions.FramesPicturedWith[frame];
+        if (!(bosses.Sources.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(eye, out ReadOnlyMemory<EnemyBg2TilemapWrite> eyeWrites))
+            throw new InvalidOperationException("Phantoon's closed eye has installed writes.");
+        foreach (EnemyBg2TilemapWrite write in eyeWrites.Span)
+            write.Words.CopyTo(expected.AsSpan(write.FirstCell));
 
         // Wavy fade-in: the intro wave set up and built once.
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(40, 0);

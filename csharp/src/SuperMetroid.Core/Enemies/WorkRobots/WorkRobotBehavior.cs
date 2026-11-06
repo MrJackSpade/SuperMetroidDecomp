@@ -62,17 +62,16 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pixels advanced by one robot walk instruction.</summary>
     private const int WorkRobotStepPixels = 4;
 
-    /// <summary>Shared countdown to the next robot palette animation record.</summary>
-    internal WrappingCountdown WorkRobotPaletteAnimationTimer { get; set; }
+    /// <summary>Shared countdown to the powered robots' next glow step.</summary>
+    internal WrappingCountdown GlowStepTimer { get; set; }
     /// <summary>
-    /// The next palette record the robot palette hook loads, 0 through
-    /// <see cref="WorkRobotPaletteTimingDefinitions.RecordCount"/>; the count itself is the table's terminator, which the
-    /// hook resolves back to record zero before loading.
+    /// The glow step the robots show next, 0 through <see cref="WorkRobotPaletteTimingDefinitions.StepCount"/> minus
+    /// one; after the last step the cycle starts again at the first.
     /// </summary>
-    internal int WorkRobotPaletteAnimationRecord { get; set; }
+    internal int NextGlowStep { get; set; }
     /// <summary>
-    /// The glow every powered robot in the room shows (#1512): its standard colours until the hook first loads a record,
-    /// then the record it loaded last.
+    /// The glow every powered robot in the room shows (#1512): its standard colours until the glow first advances,
+    /// then the step it showed last.
     /// </summary>
     internal PictureShading WorkRobotGlow { get; private set; } = PictureShading.Standard;
 
@@ -108,8 +107,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // The graphics-drawn hook is global. Every powered initialization resets its shared
         // clock/table as the game does. The game's hook recolours this actor's palette, which other enemies sharing it
         // also showed; here every powered robot, and only a powered robot, shows the glow (#1512).
-        WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
-        WorkRobotPaletteAnimationRecord = 0;
+        GlowStepTimer = WrappingCountdown.Start(1);
+        NextGlowStep = 0;
         slot.Shading = WorkRobotGlow;
     }
 
@@ -132,7 +131,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This global write disables an earlier robot's palette hook too. Mixed powered and
         // unpowered sets are unusual, but retaining the shared timer makes order observable.
-        WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(0);
+        GlowStepTimer = WrappingCountdown.Start(0);
         state.FallVelocity = WorkRobotInitialFallVelocity;
 
         // The deactivated initializer writes four colors to the active palette through a stale global palette
@@ -350,28 +349,24 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LaserCooldown = state.LaserCooldown.AddFrames(64);
     }
 
-    /// <summary>Runs the global graphics-drawn palette hook.</summary>
-    internal void StepWorkRobotPaletteAnimation()
+    /// <summary>Counts down the powered robots' shared glow and, when it expires, shows the next step of its cycle.</summary>
+    internal void AdvanceWorkRobotGlow()
     {
-        if (WorkRobotPaletteAnimationTimer.IsZero)
+        if (GlowStepTimer.IsZero)
             return;
-        WorkRobotPaletteAnimationTimer = WorkRobotPaletteAnimationTimer.Decrement().Remaining;
-        if (!WorkRobotPaletteAnimationTimer.IsZero)
+        GlowStepTimer = GlowStepTimer.Decrement().Remaining;
+        if (!GlowStepTimer.IsZero)
             return;
 
-        // The terminator after the last record resolves back to the first.
-        if (WorkRobotPaletteAnimationRecord == WorkRobotPaletteTimingDefinitions.RecordCount)
-            WorkRobotPaletteAnimationRecord = 0;
-        int record = WorkRobotPaletteAnimationRecord;
-
-        WorkRobotGlow = PictureShading.Shaded(WorkRobotShades.Glow(record));
+        int step = NextGlowStep;
+        WorkRobotGlow = PictureShading.Shaded(WorkRobotShades.Glow(step));
         foreach (RoomEnemySlot robot in _slotTable.Slots)
         {
             if (robot.SpeciesState<WorkRobotEnemyState>() is { Powered: true })
                 robot.Shading = WorkRobotGlow;
         }
-        WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(WorkRobotPaletteTiming.DurationOf(record));
-        WorkRobotPaletteAnimationRecord = record + 1;
+        GlowStepTimer = WrappingCountdown.Start(WorkRobotPaletteTimingDefinitions.Durations[step]);
+        NextGlowStep = (step + 1) % WorkRobotPaletteTimingDefinitions.StepCount;
     }
 
     /// <summary>Rejects powered-robot bomb damage before Phantoon's defeat and applies recoil after admitted hits.</summary>

@@ -34,7 +34,7 @@ public sealed class WorkRobotPaletteCycle
     /// <returns>The selected packed RGB555 word.</returns>
     public RgbColor Resolve(int frame, int color)
     {
-        if ((uint)frame >= WorkRobotPaletteTimingDefinitions.RecordCount)
+        if ((uint)frame >= WorkRobotPaletteTimingDefinitions.StepCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= WorkRobotPaletteDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));

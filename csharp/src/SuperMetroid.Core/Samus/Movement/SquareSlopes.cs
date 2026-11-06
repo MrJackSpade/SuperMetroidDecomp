@@ -1,53 +1,35 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>
-/// Which quadrants of a square slope block are solid, for Samus and for enemies. This type builds the native quadrant
-/// bytes and is the one reader of their solidity bit (#1461).
-/// </summary>
-[EncodingOwner("square-slope quadrant bytes")]
+/// <summary>Which quarters of a square slope block are solid, for Samus, her shots and enemies alike (#1461, #1521).</summary>
 public static class SquareSlopes
 {
-    /// <summary>The bit a solid quadrant's byte sets: bit seven.</summary>
-    private const byte SolidBit = 0x80;
-
-    /// <summary>
-    /// Reads the Samus solidity byte at native flattened index 0..19 (4*shape+quadrant).
-    /// $94:8E54 encodes bottom half, right half, bottom-right quarter, all but top-left,
-    /// and full block respectively. Top-left/right/bottom-left/right are quadrants 0..3.
-    /// </summary>
-    /// <remarks>
-    /// Independently checked for #1165 against all twenty NTSC J/U v1.0 bytes and pinned
-    /// bank_94.asm. Return exactly zero or $80. Callers retain the behaviour's XOR mirroring and
-    /// leading-edge selection; reject unsupported indices as the previous span did.
-    /// </remarks>
-    public static byte ReadSamusQuadrant(int tableIndex)
+    /// <summary>Whether <paramref name="quadrant"/> of a block of <paramref name="shape"/> is solid.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The shape is undefined.</exception>
+    public static bool IsSolid(SquareSlopeShape shape, SquareSlopeQuadrant quadrant) => shape switch
     {
-        if ((uint)tableIndex >= 20) throw new ArgumentOutOfRangeException(nameof(tableIndex));
-        bool right = (tableIndex & 1) != 0;
-        bool bottom = (tableIndex & 2) != 0;
-        bool solid = (tableIndex / 4) switch
-        {
-            0 => bottom,
-            1 => right,
-            2 => bottom && right,
-            3 => bottom || right,
-            _ => true,
-        };
-        return solid ? SolidBit : (byte)0;
-    }
+        SquareSlopeShape.BottomHalf => quadrant.Bottom,
+        SquareSlopeShape.RightHalf => quadrant.Right,
+        SquareSlopeShape.BottomRightQuarter => quadrant.Bottom && quadrant.Right,
+        SquareSlopeShape.AllButTopLeft => quadrant.Bottom || quadrant.Right,
+        SquareSlopeShape.Full => true,
+        _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, "Undefined square slope shape."),
+    };
 
-    /// <summary>
-    /// Reads the enemy byte at native flattened index 0..19. $A0:C435 and $86:8729
-    /// share the Samus geometry but retain quadrant identity in the two low bits.
-    /// </summary>
-    /// <remarks>
-    /// Independently checked for #1165 against all twenty bytes in each NTSC copy
-    /// and pinned bank_A0/bank_86.asm. Validation precedes masking, so invalid input
-    /// cannot wrap into the valid domain. Solidity remains bit seven.
-    /// </remarks>
-    public static byte ReadEnemyQuadrant(int tableIndex) =>
-        (byte)(ReadSamusQuadrant(tableIndex) | (tableIndex & 3));
+    /// <summary>The square slope shape a slope block's behaviour selects.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>
+    public static SquareSlopeShape ShapeOf(RoomBlockBehavior behavior) => behavior.SlopeShape switch
+    {
+        0 => SquareSlopeShape.BottomHalf,
+        1 => SquareSlopeShape.RightHalf,
+        2 => SquareSlopeShape.BottomRightQuarter,
+        3 => SquareSlopeShape.AllButTopLeft,
+        4 => SquareSlopeShape.Full,
+        _ => throw new ArgumentOutOfRangeException(nameof(behavior), behavior.SlopeShape, "The behaviour selects a non-square slope shape."),
+    };
 
-    /// <summary>Whether the enemy quadrant at native index 0..19 is solid: its byte's bit seven.</summary>
-    public static bool EnemyQuadrantIsSolid(int tableIndex) => (ReadEnemyQuadrant(tableIndex) & SolidBit) != 0;
+    /// <summary>Whether the quarter of a square slope block that <paramref name="quadrant"/> names is solid.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>
+    public static bool IsSolid(RoomBlockBehavior behavior, SquareSlopeQuadrant quadrant) => IsSolid(ShapeOf(behavior), quadrant);
 }

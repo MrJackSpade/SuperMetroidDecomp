@@ -43,10 +43,8 @@ internal static class BeamSpeedRowsVerification
             int y = direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0;
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
-            short ax = unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2));
-            short ay = unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2));
+            int ax = SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamXAccelerations + direction * 2);
+            int ay = SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamYAccelerations + direction * 2);
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
             AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
         }
@@ -65,15 +63,15 @@ internal static class BeamSpeedRowsVerification
             AssertEqual(unchecked((short)retail.ReadCartridgeWord(row + 2)), unauthored.Speed(beams, diagonal: true), $"{beams} diagonal speed read past the table");
         }
         // Exercise the actual initializer to detect a dropped combination index.
-        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((records, launched) =>
+        var initialize = new Action<ProjectileLaunchInheritance, SamusProjectileSlot>((records, launched) =>
             BeamFiring.InitializePowerBeamVelocity(records, launched, unauthored));
-        var stationary = new ProjectileInheritanceRecords();
+        var stationary = new ProjectileLaunchInheritance();
         for (int address = 0x90c303; address < 0x90c37b; address += 2)
-            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
+            AssertEqual(unchecked((short)retail.ReadCartridgeWord(address)), SamusProjectileAccelerations.Read(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "All 60 compiled acceleration words match the pinned ROM without authored reads");
         foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d1, 0x90c2d2, 0x90c301, 0x90c37b, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
+                () => SamusProjectileAccelerations.Read(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)

@@ -51,12 +51,7 @@ internal sealed class ProjectileMotion
         }
 
         int directionOffset = slot.Direction.ToAimIndex() * 2;
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
-            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamXAccelerations + directionOffset)))));
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
-            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamYAccelerations + directionOffset)))));
+        Accelerate(slot, SamusFiringTableDefinitions.BeamXAccelerations + directionOffset, SamusFiringTableDefinitions.BeamYAccelerations + directionOffset);
 
         SamusProjectileDirection direction = slot.Direction;
         bool collided = direction switch
@@ -146,12 +141,7 @@ internal sealed class ProjectileMotion
         ISamusRoomPlms? roomPlms)
     {
         int direction = slot.Direction.ToAimIndex();
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
-            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2)))));
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
-            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)))));
+        Accelerate(slot, SamusFiringTableDefinitions.BeamXAccelerations + direction * 2, SamusFiringTableDefinitions.BeamYAccelerations + direction * 2);
 
         // Wave's block collisions advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
@@ -199,12 +189,7 @@ internal sealed class ProjectileMotion
         // The missile's frame behaviour first applies the same small directional
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
-            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2)))));
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
-            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)))));
+        Accelerate(slot, SamusFiringTableDefinitions.BeamXAccelerations + direction * 2, SamusFiringTableDefinitions.BeamYAccelerations + direction * 2);
 
         if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
@@ -215,10 +200,7 @@ internal sealed class ProjectileMotion
         else
         {
             int acceleration = SamusFiringTableDefinitions.MissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
-                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration)))));
-            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
-                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration + 2)))));
+            Accelerate(slot, acceleration, acceleration + 2);
         }
 
         bool collided = direction switch
@@ -279,10 +261,7 @@ internal sealed class ProjectileMotion
         {
             int acceleration =
                 SamusFiringTableDefinitions.SuperMissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
-                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration)))));
-            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
-                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration + 2)))));
+            Accelerate(slot, acceleration, acceleration + 2);
         }
 
         bool collided = false;
@@ -309,6 +288,15 @@ internal sealed class ProjectileMotion
         }
         return collided;
     }
+
+    /// <summary>
+    /// Adds one update's acceleration to the shot's velocity: the motion table's X and Y entries at the two offsets. The
+    /// velocity stays far inside its range, since a shot accelerating that long has left the movement window.
+    /// </summary>
+    private static void Accelerate(SamusProjectileSlot slot, int xAccelerationOffset, int yAccelerationOffset) =>
+        slot.Velocity = new(
+            slot.Velocity.X.SignedRawValue + SamusProjectileAccelerations.Read(xAccelerationOffset),
+            slot.Velocity.Y.SignedRawValue + SamusProjectileAccelerations.Read(yAccelerationOffset));
 
     /// <summary>
     /// Applies the shared beam/missile deletion window after movement. The game's
@@ -438,7 +426,6 @@ internal sealed class ProjectileMotion
         if (MissilePointReaction(
                 level,
                 link,
-                horizontalMovement: axis != Axis.Vertical,
                 roomPlms: roomPlms))
             _terrainCollision.KillMissile(link, sharedProjectiles);
         if (ownerExploded)
@@ -470,7 +457,7 @@ internal sealed class ProjectileMotion
         if ((EightEight.WholeOf(slot.Position.X.Whole)) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
-            level, slot, horizontalMovement: true, roomPlms: roomPlms);
+            level, slot, roomPlms: roomPlms);
     }
 
     /// <summary>Advances missile Y and tests its center unless it has crossed the room's screen-height boundary.</summary>
@@ -485,14 +472,13 @@ internal sealed class ProjectileMotion
         if ((EightEight.WholeOf(slot.Position.Y.Whole)) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
-            level, slot, horizontalMovement: false, roomPlms: roomPlms);
+            level, slot, roomPlms: roomPlms);
     }
 
     /// <summary>Resolves the missile center's extension chain, PLM reaction, and collision carry by block type.</summary>
     private static bool MissilePointReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        bool horizontalMovement,
         ISamusRoomPlms? roomPlms)
     {
         int blockX = slot.Position.X.Whole >> 4;
@@ -551,10 +537,9 @@ internal sealed class ProjectileMotion
             RoomCollisionType.GrappleBlock => true,
 
             // Missile slope collision divides slope behaviour values into the five square definitions and
-            // the remaining 27 pixel-height definitions. Both paths use the missile center;
-            // the direction only changes which half of a square definition is sampled.
+            // the remaining 27 pixel-height definitions. Both paths use the missile center.
             RoomCollisionType.Slope =>
-                MissileSlopePointReaction(block, slot, horizontalMovement),
+                MissileSlopePointReaction(block, slot),
 
             // CollisionType is the high nibble of a room word, so the cases above are
             // exhaustive after extension redispatch. Preserve an explicit corruption guard
@@ -574,8 +559,7 @@ internal sealed class ProjectileMotion
     /// <summary>Tests the missile center against mirrored height tables or the selected square-slope quadrant.</summary>
     internal static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
-        SamusProjectileSlot slot,
-        bool horizontalMovement)
+        SamusProjectileSlot slot)
     {
         int slopeShape = block.Behavior.SlopeShape;
         if (slopeShape >= 5)
@@ -596,24 +580,9 @@ internal sealed class ProjectileMotion
             return height <= yInBlock;
         }
 
-        // Square slope collision treats each square slope as four 8x8 quadrants. The top two behaviour
-        // bits select the base flip, while the projectile half along the movement axis and
-        // then the perpendicular axis select the exact quadrant. Each authored byte is either
-        // `$00` (air) or `$80` (solid).
-        int quadrant = slopeShape * 4 + block.Behavior.SlopeOrientation;
-        if (horizontalMovement)
-        {
-            quadrant ^= (slot.Position.X.Whole & 8) >> 3;
-            if ((slot.Position.Y.Whole & 8) != 0)
-                quadrant ^= 2;
-        }
-        else
-        {
-            quadrant ^= (slot.Position.Y.Whole & 8) >> 2;
-            if ((slot.Position.X.Whole & 8) != 0)
-                quadrant ^= 1;
-        }
-
-        return SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
+        // Square slope collision treats each square slope as four 8x8 quadrants: the missile centre's halves of the
+        // block, mirrored by the block's reflections, select the quadrant whichever axis the missile moves along.
+        return SquareSlopes.IsSolid(block.Behavior, SquareSlopeQuadrant.Showing(block.Behavior,
+            rightHalf: (slot.Position.X.Whole & 8) != 0, bottomHalf: (slot.Position.Y.Whole & 8) != 0));
     }
 }

@@ -449,22 +449,22 @@ internal sealed class EnemyTerrain
         int remaining,
         int spanMinusOne)
     {
-        int tableIndex = 4 * behavior.SlopeShape +
-            (behavior.SlopeOrientation ^ ((targetEdge & 8) >> 3));
+        SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, rightHalf: (targetEdge & 8) != 0, bottomHalf: false);
         if (remaining == 0)
         {
             if (((slot.Radius.Y + slot.Position.Y.Whole - 1) & 8) == 0)
-                return SquareSlopes.EnemyQuadrantIsSolid(tableIndex);
+                return SquareSlopes.IsSolid(shape, quadrant);
         }
         else if (remaining == spanMinusOne &&
                  ((slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0)
         {
-            return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 2);
+            return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
         }
 
-        if (SquareSlopes.EnemyQuadrantIsSolid(tableIndex))
+        if (SquareSlopes.IsSolid(shape, quadrant))
             return true;
-        return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 2);
+        return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
     }
 
     /// <summary>Tests the target half-tile quadrant and the enemy's horizontal span against a square slope.</summary>
@@ -475,22 +475,22 @@ internal sealed class EnemyTerrain
         int remaining,
         int spanMinusOne)
     {
-        int tableIndex = 4 * behavior.SlopeShape +
-            (behavior.SlopeOrientation ^ ((targetEdge & 8) >> 2));
+        SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, rightHalf: false, bottomHalf: (targetEdge & 8) != 0);
         if (remaining == 0)
         {
             if (((slot.Radius.X + slot.Position.X.Whole - 1) & 8) == 0)
-                return SquareSlopes.EnemyQuadrantIsSolid(tableIndex);
+                return SquareSlopes.IsSolid(shape, quadrant);
         }
         else if (remaining == spanMinusOne &&
                  ((slot.Position.X.Whole - slot.Radius.X) & 8) != 0)
         {
-            return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 1);
+            return SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
         }
 
-        if (SquareSlopes.EnemyQuadrantIsSolid(tableIndex))
+        if (SquareSlopes.IsSolid(shape, quadrant))
             return true;
-        return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 1);
+        return SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
     }
 
     /// <summary>Checks slope height under the enemy center and snaps its Y position to the floor or underside.</summary>

@@ -257,37 +257,36 @@ internal sealed class ProjectileTerrainCollision
             throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
         }
 
-        // Cell index bits: 0 = right half, 1 = bottom half; behaviour bit 6 / bit 7 flip them.
-        int flips = (block.Behavior.SlopeFlipsHorizontally ? 1 : 0) | (block.Behavior.SlopeFlipsVertically ? 2 : 0);
-        int baseIndex = block.Behavior.SlopeShape * 4;
-        bool Solid(int cell) => SquareSlopes.ReadSamusQuadrant(baseIndex + cell) != 0;
+        // The block's reflections mirror the quarter each edge reaches.
+        SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
+        bool Solid(SquareSlopeQuadrant quadrant) => SquareSlopes.IsSolid(shape, quadrant);
 
         if (horizontalMovement)
         {
             // The leading edge picks the column half; the scan then tests top/bottom rows.
-            int cell = flips ^ ((span.TargetBoundary & 8) >> 3);
+            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: (span.TargetBoundary & 8) != 0, bottomHalf: false);
             bool topEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0;
             bool bottomEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) & 8) != 0;
             if (span.Span == 0)
-                return (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell ^ 2));
+                return (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell.OtherRow));
             if (span.Remaining == 0)
-                return bottomEdgeInBottomHalf ? Solid(cell) || Solid(cell ^ 2) : Solid(cell);
+                return bottomEdgeInBottomHalf ? Solid(cell) || Solid(cell.OtherRow) : Solid(cell);
             if (span.Remaining == span.Span && topEdgeInBottomHalf)
-                return Solid(cell ^ 2);
-            return Solid(cell) || Solid(cell ^ 2);
+                return Solid(cell.OtherRow);
+            return Solid(cell) || Solid(cell.OtherRow);
         }
 
         // The leading edge picks the row half; the scan then tests left/right columns.
-        int rowCell = flips ^ ((span.TargetBoundary & 8) >> 2);
+        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: false, bottomHalf: (span.TargetBoundary & 8) != 0);
         bool leftEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) & 8) != 0;
         bool rightEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) & 8) != 0;
         if (span.Span == 0)
-            return (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell ^ 1));
+            return (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell.OtherColumn));
         if (span.Remaining == 0)
-            return rightEdgeInRightHalf ? Solid(rowCell) || Solid(rowCell ^ 1) : Solid(rowCell);
+            return rightEdgeInRightHalf ? Solid(rowCell) || Solid(rowCell.OtherColumn) : Solid(rowCell);
         if (span.Remaining == span.Span && leftEdgeInRightHalf)
-            return Solid(rowCell ^ 1);
-        return Solid(rowCell) || Solid(rowCell ^ 1);
+            return Solid(rowCell.OtherColumn);
+        return Solid(rowCell) || Solid(rowCell.OtherColumn);
     }
 
     /// <summary>Resolves an extension and applies its slope, PLM, shootable, or ordinary solid reaction to one scanned block.</summary>
@@ -595,7 +594,7 @@ internal sealed class ProjectileTerrainCollision
     {
         int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int remaining = WordWrap.Unsigned(bottom - (top & ~15)) >> 4;
+        int remaining = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
         int span = remaining;
         int targetX = CoordinateAxis.Wrap(slot.Velocity.X.SignedRawValue < 0
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
@@ -607,7 +606,8 @@ internal sealed class ProjectileTerrainCollision
             RoomGridConversions.PixelToScreen(targetX) >= (level.Size.X + 15) / 16)
             return;
 
-        int product = WordWrap.LowByte(top >> 4) * WordWrap.LowByte(level.Size.X);
+        // The row lookup takes both the top row and the room's width within the scan cycle.
+        int product = BlockScanCycle.Within(top >> 4) * BlockScanCycle.Within(level.Size.X);
         int byteOffset = CoordinateAxis.Wrap((product + (targetX >> 4)) * 2);
         do
         {
@@ -632,7 +632,7 @@ internal sealed class ProjectileTerrainCollision
             // The second of the two adds includes the first one's overflow. Do not simplify this
             // to offset += width * 2: the first carry causes ceiling odd reads.
             int first = byteOffset + level.Size.X;
-            byteOffset = CoordinateAxis.Wrap(WordWrap.Unsigned(first) + level.Size.X + (first > ushort.MaxValue ? 1 : 0));
+            byteOffset = CoordinateAxis.Wrap(first + level.Size.X + (first > ushort.MaxValue ? 1 : 0));
         } while (--remaining >= 0);
     }
 
@@ -644,7 +644,7 @@ internal sealed class ProjectileTerrainCollision
     {
         int left = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int right = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
-        int remaining = WordWrap.Unsigned(right - (left & ~15)) >> 4;
+        int remaining = CoordinateAxis.Wrap(right - (left & ~15)) >> 4;
         if (remaining >= 16) return;
         int span = remaining;
         int targetY = CoordinateAxis.Wrap(slot.Velocity.Y.SignedRawValue < 0
@@ -655,13 +655,12 @@ internal sealed class ProjectileTerrainCollision
             RoomGridConversions.PixelToScreen(targetY) >= (level.Size.Y + 15) / 16)
             return;
 
-        // The hardware multiplier consumes bytes. The following addition and
-        // byte-offset shift consume words. X is deliberately not clipped to the
+        // The row lookup takes the target row within the scan cycle. X is deliberately not clipped to the
         // room width: right-edge spans reach the following row; left underflow
         // starts 4095 tiles forward while the center remains inside the room.
         // The block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual tile span.
-        int rowOffset = WordWrap.LowByte(targetY >> 4) * level.Size.X;
+        int rowOffset = BlockScanCycle.RowStart(targetY >> 4, level.Size.X);
         int byteOffset = CoordinateAxis.Wrap((rowOffset + (left >> 4)) * 2);
         do
         {

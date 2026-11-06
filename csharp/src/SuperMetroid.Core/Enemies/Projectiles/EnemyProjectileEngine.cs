@@ -571,12 +571,12 @@ internal sealed class EnemyProjectileEngine
             int lastPixel = Math.Min(blockStart + 15, perpendicularPosition + perpendicularRadius - 1);
             for (int half = firstPixel >> 3; half <= lastPixel >> 3; half++)
             {
-                int quadrant = (axis == Axis.Horizontal)
-                    ? ((targetEdge & 8) >> 3) | ((half & 1) << 1)
-                    : ((targetEdge & 8) >> 2) | (half & 1);
-                int tableIndex = 4 * collisionBlock.Behavior.SlopeShape +
-                    (quadrant ^ collisionBlock.Behavior.SlopeOrientation);
-                if (!SquareSlopes.EnemyQuadrantIsSolid(tableIndex))
+                bool edgeInSecondHalf = (targetEdge & 8) != 0;
+                bool halfIsSecond = (half & 1) != 0;
+                SquareSlopeQuadrant quadrant = axis == Axis.Horizontal
+                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, rightHalf: edgeInSecondHalf, bottomHalf: halfIsSecond)
+                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, rightHalf: halfIsSecond, bottomHalf: edgeInSecondHalf);
+                if (!SquareSlopes.IsSolid(collisionBlock.Behavior, quadrant))
                     continue;
 
                 // The square-slope reaction places the projectile at an eight-pixel

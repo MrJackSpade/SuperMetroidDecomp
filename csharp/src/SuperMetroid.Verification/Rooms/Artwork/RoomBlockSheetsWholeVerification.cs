@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -37,7 +38,8 @@ internal static class RoomBlockSheetsWholeVerification
     /// </summary>
     internal static void VerifyRoomBlockSheetsWhole()
     {
-        InstalledRoomArtwork artwork = RepositoryInstallation.Installation.LoadRoomBlockSheets();
+        // The installation's room artwork is the process's shared fixture, loaded once for every suite reading it (#1532).
+        InstalledRoomArtwork artwork = InstalledFixtures.RoomAssets.BlockSheets;
         InstalledRoomPlmCollectibleVisuals visuals = RepositoryInstallation.Installation.LoadRoomPlmCollectibleVisuals();
         var placed = CollectiblesPlaced();
         var collectibleBlocks = CollectibleBlocks(visuals);

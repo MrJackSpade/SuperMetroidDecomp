@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using SuperMetroid.AssetExtraction.Video;
@@ -8,14 +9,15 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// A sprite sheet laid out before any pixel is painted (#1392): its distinct frame images in order, each one complete
-/// pre-assembled picture of its frame that is drawn as it is. Frames are told apart by the pixels their parts paint, so
-/// each image is laid and painted once however many frames show it (#1513). Each is cropped to its parts and packed in
-/// rows no wider than
-/// <see cref="MaximumWidth"/>, or, for a sheet that would then be taller than an artwork image can be, the narrowest
-/// doubling of it within that bound that keeps the sheet within it too. A frame with no parts is an empty frame. Its
-/// <see cref="Identity"/> covers everything painting reads, so two layouts with one identity paint the same sheet and
-/// the second need not be painted (#1490).
+/// A sprite sheet laid out before any pixel is painted (#1392): its distinct pictures in order, each one complete
+/// pre-assembled picture of a frame that is drawn as it is. Frames whose parts read the same characters at the same
+/// places are composed once; each composed frame is cropped to its parts, and frames whose crops ink the same picture,
+/// whatever origin each is drawn from, share one rectangle, so each picture is held and painted once however many frames
+/// show it (#1513). The pictures are packed in rows no wider than <see cref="MaximumWidth"/>, or, for a sheet that would
+/// then be taller than an artwork image can be, the narrowest doubling of it within that bound that keeps the sheet
+/// within it too. A frame with no parts is an empty frame. Its <see cref="Identity"/> covers everything painting reads,
+/// so two layouts with one identity paint the same sheet and the second need not be painted (#1490); the pictures are
+/// composed and packed only when the sheet's size or paint is first asked for.
 /// </summary>
 internal sealed class SpriteSheetLayout
 {
@@ -34,17 +36,14 @@ internal sealed class SpriteSheetLayout
     /// <summary>The game's priority of parts that do not choose their own, from which each frame's depth is decided.</summary>
     private readonly int priority;
 
-    /// <summary>The distinct frame images in order.</summary>
+    /// <summary>The distinct frame compositions in order.</summary>
     private readonly SheetFrameSource[] laid;
 
-    /// <summary>Each frame of the sources, in order, with the laid frame image it shows.</summary>
+    /// <summary>Each frame of the sources, in order, with the laid frame composition it shows.</summary>
     private readonly NamedFrameImage[] frameImages;
 
-    /// <summary>Each laid frame's cover relative to its origin.</summary>
-    private readonly FrameBounds[] bounds;
-
-    /// <summary>Each laid frame's top-left corner on the sheet.</summary>
-    private readonly Position16<ImagePixels>[] corners;
+    /// <summary>The laid compositions' pictures and where each is held, composed when first asked for.</summary>
+    private readonly Lazy<LaidPictures> pictures;
 
     /// <summary>
     /// For each row shade, the colour each ink its painted pixels hold shows under it, and whether the shade's draw takes
@@ -93,26 +92,49 @@ internal sealed class SpriteSheetLayout
             frameImages[index] = new NamedFrameImage(frame.Name, laidFrame);
         }
         laid = [.. uniqueFrames];
-        bounds = [.. laid.Select(frame => Bounds(frame.Frame))];
-        corners = new Position16<ImagePixels>[laid.Length];
-        Extent16<ImagePixels> size;
-        for (int rowWidth = MaximumWidth; ; rowWidth *= 2)
-        {
-            if (rowWidth > RgbaPng.MaximumDimension)
-                throw new InvalidDataException(
-                    $"Sheet {frames[0].Name}'s {frames.Count} frames do not fit in a {RgbaPng.MaximumDimension}-pixel square image.");
-            if (Pack(bounds, corners, rowWidth) is { } packed)
-            {
-                size = packed;
-                break;
-            }
-        }
-        Size = size;
+        pictures = new Lazy<LaidPictures>(LayOutPictures);
         Identity = IdentityOf();
     }
 
     /// <summary>The sheet's width and height.</summary>
-    internal Extent16<ImagePixels> Size { get; }
+    internal Extent16<ImagePixels> Size => pictures.Value.Size;
+
+    /// <summary>
+    /// Composes each laid frame's picture, keeps each distinct picture once, and packs the distinct pictures onto the
+    /// sheet. Composing records which row each inked colour shows under each row shade.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The pictures do not fit in an artwork image.</exception>
+    private LaidPictures LayOutPictures()
+    {
+        var composed = new FramePicture[laid.Length];
+        var pictureOf = new int[laid.Length];
+        var pictureIndex = new Dictionary<string, int>(StringComparer.Ordinal);
+        var distinct = new List<FramePicture>();
+        for (int index = 0; index < laid.Length; index++)
+        {
+            composed[index] = Compose(index);
+            // A picture is told apart by its size and the ink of each of its pixels: frames alike there show alike under
+            // every colouring and shade, whatever origin each is drawn from.
+            string key = composed[index].Key;
+            if (!pictureIndex.TryGetValue(key, out int picture))
+            {
+                picture = distinct.Count;
+                pictureIndex.Add(key, picture);
+                distinct.Add(composed[index]);
+            }
+            pictureOf[index] = picture;
+        }
+        Extent16<ImagePixels>[] sizes = [.. distinct.Select(shown => shown.Bounds.Size)];
+        var corners = new Position16<ImagePixels>[sizes.Length];
+        for (int rowWidth = MaximumWidth; ; rowWidth *= 2)
+        {
+            if (rowWidth > RgbaPng.MaximumDimension)
+                throw new InvalidDataException(
+                    $"Sheet {sources.Frames[0].Name}'s {sources.Frames.Count} frames do not fit in a {RgbaPng.MaximumDimension}-pixel square image.");
+            if (Pack(sizes, corners, rowWidth) is { } packed)
+                return new LaidPictures(packed, composed, pictureOf, [.. distinct], corners);
+        }
+    }
 
     /// <summary>
     /// A hash of everything painting reads: the colours, the palette bits and row rule, the default row and priority, each
@@ -127,22 +149,25 @@ internal sealed class SpriteSheetLayout
     /// </summary>
     internal SpriteSheetDocument Paint(SpriteSheetPlanes planes)
     {
+        LaidPictures laidPictures = pictures.Value;
+        for (int picture = 0; picture < laidPictures.Distinct.Length; picture++)
+            PaintPicture(planes, laidPictures.Distinct[picture], laidPictures.Corners[picture]);
         var frameDocuments = new SpriteSheetFrameDocument[laid.Length];
         for (int index = 0; index < laid.Length; index++)
         {
-            PaintedFrame painted = PaintFrame(planes, index);
-            ImageColourGroups groups = painted.Groups;
-            ActorDepth? depth = painted.Depth;
+            FramePicture composed = laidPictures.Composed[index];
+            FrameBounds bound = composed.Bounds;
             frameDocuments[index] = new SpriteSheetFrameDocument
             {
-                Corner = corners[index],
-                Size = bounds[index].Size,
-                Origin = new(checked((short)-bounds[index].TopLeft.X), checked((short)-bounds[index].TopLeft.Y)),
-                ColourGroups = groups.ManifestMembers,
-                Depth = depth,
+                Corner = laidPictures.Corners[laidPictures.PictureOf[index]],
+                Size = bound.Size,
+                Origin = new(checked((short)-bound.TopLeft.X), checked((short)-bound.TopLeft.Y)),
+                ColourGroups = composed.Groups.ManifestMembers,
+                Depth = composed.Depth,
             };
         }
-        // Every frame names the image it shows; frames painting the same pixels name the same one.
+        // Every frame names the rectangle holding its picture; frames showing the same picture name the same one, each
+        // drawn from its own origin.
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         foreach (NamedFrameImage frame in frameImages)
             manifest.Add(frame.Name, frameDocuments[frame.Image]);
@@ -223,22 +248,21 @@ internal sealed class SpriteSheetLayout
     }
 
     /// <summary>
-    /// Paints the <paramref name="index"/>th laid frame at its corner and returns the colour groups it was coloured from and
-    /// the depth its gameplay draws sit at (#1514): the frame is drawn whole at one depth, the one the game draws most of its
-    /// shown pixels at (the front one of a tie), so a frame whose parts the game drew at different depths shows wholly at
-    /// its main part's. A frame showing no pixel has none.
+    /// Composes the <paramref name="index"/>th laid frame's picture over its parts' cover: the ink each pixel shows, its own
+    /// row and colour, the colour groups it is coloured from, and the depth its gameplay draws sit at (#1514): the frame is
+    /// drawn whole at one depth, the one the game draws most of its shown pixels at (the front one of a tie), so a frame
+    /// whose parts the game drew at different depths shows wholly at its main part's. A frame showing no pixel has none.
     /// </summary>
-    private PaintedFrame PaintFrame(SpriteSheetPlanes planes, int index)
+    private FramePicture Compose(int index)
     {
         SheetFrameSource source = laid[index];
-        FrameBounds bound = bounds[index];
-        Position16<ImagePixels> corner = corners[index];
-        RgbColor[] spriteColours = sources.SpriteColours;
-        int width = planes.Size.X;
+        FrameBounds bound = Bounds(source.Frame);
         int framePalette = source.Palette ?? palette;
         ImageColourGroups groups = ImageColourGroups.None;
+        // Each shown pixel's ink, zero where no part shows one, in the frame's own rectangle.
+        var inks = new byte[bound.Size.X * bound.Size.Y];
         // Each shown pixel's game priority, one up so that zero marks a pixel no part shows, in the frame's own rectangle.
-        var shownPriorities = new int[bound.Size.X * bound.Size.Y];
+        var shownPriorities = new int[inks.Length];
         // Back to front, so the first part ends in front.
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
@@ -246,8 +270,7 @@ internal sealed class SpriteSheetLayout
             // A part taking its draw's palette is coloured in the frame's, with the family's palette bits ORed in; its
             // pixels are inked in its own row (#1512).
             int ownRow = part.Palette ?? framePalette;
-            int paletteRow = ownRow | sources.PaletteBits;
-            groups = groups.With(ImageColourGroup.Numbered(paletteRow));
+            groups = groups.With(ImageColourGroup.Numbered(ownRow | sources.PaletteBits));
             for (int row = 0; row < part.Size.Y; row++)
             {
                 for (int column = 0; column < part.Size.X; column++)
@@ -256,25 +279,65 @@ internal sealed class SpriteSheetLayout
                     int colour = source.Characters.ColorIndex(character, pixel);
                     if (colour == 0)
                         continue;
-                    int frameX = part.Offset.X - bound.TopLeft.X + column, frameY = part.Offset.Y - bound.TopLeft.Y + row;
-                    int at = (corner.Y + frameY) * width + corner.X + frameX;
-                    planes.Pixels[at] = spriteColours[paletteRow * RowColours + colour].ToRgbaPixel();
-                    planes.PaletteIndices[at] = (byte)(ownRow * RowColours + colour);
+                    int at = (part.Offset.Y - bound.TopLeft.Y + row) * bound.Size.X + part.Offset.X - bound.TopLeft.X + column;
+                    int ink = ownRow * RowColours + colour;
+                    inks[at] = checked((byte)ink);
                     // Parts are laid back to front, so each pixel ends with the priority of the part in front.
-                    shownPriorities[frameY * bound.Size.X + frameX] = 1 + (part.Priority ?? priority);
+                    shownPriorities[at] = 1 + (part.Priority ?? priority);
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
-                        ShadeRows(ownRow * RowColours + colour);
+                        ShadeRows(ink);
                 }
             }
         }
-        return new PaintedFrame(groups, DepthOf(shownPriorities, source.Name));
+        return new FramePicture(bound, inks, groups, DepthOf(shownPriorities, source.Name));
     }
 
-    /// <summary>What painting a laid frame found: the colour groups it was coloured from, and the depth its draws sit at.</summary>
-    /// <param name="Groups">The colour groups the frame was coloured from.</param>
+    /// <summary>
+    /// Paints <paramref name="picture"/> with its top-left corner at <paramref name="corner"/>: each inked pixel in the
+    /// colour its ink shows as the family draws it, and its ink.
+    /// </summary>
+    private void PaintPicture(SpriteSheetPlanes planes, FramePicture picture, Position16<ImagePixels> corner)
+    {
+        RgbColor[] spriteColours = sources.SpriteColours;
+        int width = planes.Size.X;
+        Extent16<ImagePixels> size = picture.Bounds.Size;
+        for (int row = 0; row < size.Y; row++)
+        {
+            for (int column = 0; column < size.X; column++)
+            {
+                int ink = picture.Inks[row * size.X + column];
+                if (ink == 0)
+                    continue;
+                int at = (corner.Y + row) * width + corner.X + column;
+                planes.Pixels[at] = spriteColours[DrawnColourOf(ink)].ToRgbaPixel();
+                planes.PaletteIndices[at] = checked((byte)ink);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A laid frame's composed picture: its parts' cover from its origin, the ink each of the cover's pixels shows (zero
+    /// where none), the colour groups it is coloured from and the depth its draws sit at.
+    /// </summary>
+    /// <param name="Bounds">Its parts' cover relative to its origin.</param>
+    /// <param name="Inks">Each pixel's ink, row by row from the top, zero where no part shows one.</param>
+    /// <param name="Groups">The colour groups it is coloured from.</param>
     /// <param name="Depth">The depth its gameplay draws sit at; none for a frame showing no pixel.</param>
-    private readonly record struct PaintedFrame(ImageColourGroups Groups, ActorDepth? Depth);
+    private sealed record FramePicture(FrameBounds Bounds, byte[] Inks, ImageColourGroups Groups, ActorDepth? Depth)
+    {
+        /// <summary>The picture spelled for telling pictures apart: its size and every pixel's ink.</summary>
+        internal string Key => $"{Bounds.Size.X.ToString(CultureInfo.InvariantCulture)}x{Bounds.Size.Y.ToString(CultureInfo.InvariantCulture)} {Convert.ToBase64String(Inks)}";
+    }
+
+    /// <summary>The laid compositions' pictures and where each distinct one is held on the sheet.</summary>
+    /// <param name="Size">The sheet's width and height.</param>
+    /// <param name="Composed">Each laid composition's picture.</param>
+    /// <param name="PictureOf">The index among <paramref name="Distinct"/> of each laid composition's picture.</param>
+    /// <param name="Distinct">The distinct pictures in order.</param>
+    /// <param name="Corners">Each distinct picture's top-left corner on the sheet.</param>
+    private sealed record LaidPictures(Extent16<ImagePixels> Size, FramePicture[] Composed, int[] PictureOf, FramePicture[] Distinct,
+        Position16<ImagePixels>[] Corners);
 
     /// <summary>The game's priorities, of which priorities zero and one draw behind the whole room.</summary>
     private const int GamePriorities = 4;
@@ -415,29 +478,29 @@ internal sealed class SpriteSheetLayout
     }
 
     /// <summary>
-    /// Packs the frames' covers in order in rows no wider than <paramref name="rowWidth"/>, a cover that would cross it
-    /// starting a new row, writing each one's corner, and gives the sheet's size, or none when the rows would be taller
-    /// than an artwork image can be.
+    /// Packs the pictures of <paramref name="sizes"/> in order in rows no wider than <paramref name="rowWidth"/>, a picture
+    /// that would cross it starting a new row, writing each one's corner, and gives the sheet's size, or none when the rows
+    /// would be taller than an artwork image can be.
     /// </summary>
-    private static Extent16<ImagePixels>? Pack(FrameBounds[] bounds, Position16<ImagePixels>[] corners, int rowWidth)
+    private static Extent16<ImagePixels>? Pack(Extent16<ImagePixels>[] sizes, Position16<ImagePixels>[] corners, int rowWidth)
     {
         int width = 1, x = 0, y = 0, rowHeight = 0;
-        for (int index = 0; index < bounds.Length; index++)
+        for (int index = 0; index < sizes.Length; index++)
         {
-            FrameBounds bound = bounds[index];
-            if (bound.Size.X == 0)
+            Extent16<ImagePixels> size = sizes[index];
+            if (size.X == 0)
                 continue;
-            if (x > 0 && x + bound.Size.X > rowWidth)
+            if (x > 0 && x + size.X > rowWidth)
             {
                 y += rowHeight;
                 x = 0;
                 rowHeight = 0;
             }
-            if (y + bound.Size.Y > RgbaPng.MaximumDimension)
+            if (y + size.Y > RgbaPng.MaximumDimension)
                 return null;
             corners[index] = new(checked((ushort)x), checked((ushort)y));
-            x += bound.Size.X;
-            rowHeight = Math.Max(rowHeight, bound.Size.Y);
+            x += size.X;
+            rowHeight = Math.Max(rowHeight, size.Y);
             width = Math.Max(width, x);
         }
         return new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)Math.Max(1, y + rowHeight)));

@@ -71,7 +71,7 @@ internal sealed class SpriteSheetStore
         Parallel.For(0, sheets.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
-            encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities),
+            encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.FrontTiles),
                 sheet.Manifest);
             return encoder;
         }, encoder => encoder.Dispose());
@@ -140,14 +140,14 @@ internal sealed class SpriteSheetStore
         if (indexSize != size)
             throw new InvalidDataException($"Sprite sheet {PaletteFile(name)} is not the size of {ImageFile(name)}.");
         var paletteIndices = new byte[indices.Length];
-        var priorities = new byte[indices.Length];
+        var frontTiles = new byte[indices.Length];
         for (int pixel = 0; pixel < indices.Length; pixel++)
         {
             paletteIndices[pixel] = indices[pixel].R;
-            priorities[pixel] = indices[pixel].G;
+            frontTiles[pixel] = indices[pixel].G;
         }
         // The palette-index image's blue channel is unused (#1512).
-        return new SpriteImageLayers(pixels, paletteIndices, priorities);
+        return new SpriteImageLayers(pixels, paletteIndices, frontTiles);
     }
 
     /// <summary>A sheet's image file name.</summary>
@@ -155,7 +155,7 @@ internal sealed class SpriteSheetStore
 
     /// <summary>
     /// A sheet's palette-index image file name: each pixel's colour group's place times sixteen plus its colour in red,
-    /// its priority in green; blue is unused (#1512).
+    /// one in green where it lies in one of its layer's front tiles (#1514); blue is unused (#1512).
     /// </summary>
     internal static string PaletteFile(string name) => name + ".palette.png";
 

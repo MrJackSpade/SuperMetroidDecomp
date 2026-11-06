@@ -31,7 +31,7 @@ internal sealed class SpriteSheetLayout
     /// <summary>The row of parts that do not choose their own.</summary>
     private readonly int palette;
 
-    /// <summary>The priority of parts that do not choose their own.</summary>
+    /// <summary>The game's priority of parts that do not choose their own, from which each frame's depth is decided.</summary>
     private readonly int priority;
 
     /// <summary>The distinct frame images in order.</summary>
@@ -59,7 +59,7 @@ internal sealed class SpriteSheetLayout
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
-    /// <param name="priority">The priority of parts that do not choose their own.</param>
+    /// <param name="priority">The game's priority of parts that do not choose their own, from which each frame's depth is decided.</param>
     internal SpriteSheetLayout(SpriteSheetSources sources, int palette, int priority)
     {
         this.sources = Ensure.NotNull(sources);
@@ -130,13 +130,14 @@ internal sealed class SpriteSheetLayout
         var frameDocuments = new SpriteSheetFrameDocument[laid.Length];
         for (int index = 0; index < laid.Length; index++)
         {
-            ImageColourGroups groups = PaintFrame(planes, index);
+            (ImageColourGroups groups, ActorDepth? depth) = PaintFrame(planes, index);
             frameDocuments[index] = new SpriteSheetFrameDocument
             {
                 Corner = corners[index],
                 Size = bounds[index].Size,
                 Origin = new(checked((short)-bounds[index].TopLeft.X), checked((short)-bounds[index].TopLeft.Y)),
                 ColourGroups = groups.ManifestMembers,
+                Depth = depth,
             };
         }
         // Every frame names the image it shows; frames painting the same pixels name the same one.
@@ -219,8 +220,13 @@ internal sealed class SpriteSheetLayout
         }
     }
 
-    /// <summary>Paints the <paramref name="index"/>th laid frame at its corner and returns the colour groups it was coloured from.</summary>
-    private ImageColourGroups PaintFrame(SpriteSheetPlanes planes, int index)
+    /// <summary>
+    /// Paints the <paramref name="index"/>th laid frame at its corner and returns the colour groups it was coloured from and
+    /// the depth its gameplay draws sit at (#1514): the frame is drawn whole at one depth, the one the game draws most of its
+    /// shown pixels at (the front one of a tie), so a frame whose parts the game drew at different depths shows wholly at
+    /// its main part's. A frame showing no pixel has none.
+    /// </summary>
+    private (ImageColourGroups Groups, ActorDepth? Depth) PaintFrame(SpriteSheetPlanes planes, int index)
     {
         SheetFrameSource source = laid[index];
         FrameBounds bound = bounds[index];
@@ -229,6 +235,8 @@ internal sealed class SpriteSheetLayout
         int width = planes.Size.X;
         int framePalette = source.Palette ?? palette;
         ImageColourGroups groups = ImageColourGroups.None;
+        // Each shown pixel's game priority, one up so that zero marks a pixel no part shows, in the frame's own rectangle.
+        var shownPriorities = new byte[bound.Size.X * bound.Size.Y];
         // Back to front, so the first part ends in front.
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
@@ -246,19 +254,53 @@ internal sealed class SpriteSheetLayout
                     int colour = source.Characters.ColorIndex(character, pixel);
                     if (colour == 0)
                         continue;
-                    int at = (corner.Y + part.Offset.Y - bound.TopLeft.Y + row) * width + corner.X + part.Offset.X - bound.TopLeft.X + column;
+                    int frameX = part.Offset.X - bound.TopLeft.X + column, frameY = part.Offset.Y - bound.TopLeft.Y + row;
+                    int at = (corner.Y + frameY) * width + corner.X + frameX;
                     planes.Pixels[at] = spriteColours[paletteRow * RowColours + colour].ToRgbaPixel();
                     planes.PaletteIndices[at] = (byte)(ownRow * RowColours + colour);
                     // Parts are laid back to front, so each pixel ends with the priority of the part in front.
-                    planes.Priorities[at] = (byte)(part.Priority ?? priority);
+                    shownPriorities[frameY * bound.Size.X + frameX] = (byte)(1 + (part.Priority ?? priority));
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
                         ShadeRows(ownRow * RowColours + colour);
                 }
             }
         }
-        return groups;
+        return (groups, DepthOf(shownPriorities, source.Name));
     }
+
+    /// <summary>The game's priorities, of which priorities zero and one draw behind the whole room.</summary>
+    private const int GamePriorities = 4;
+
+    /// <summary>
+    /// The depth a frame whose shown pixels hold <paramref name="shownPriorities"/> (each priority one up, zero for none) is
+    /// drawn at (#1514): the priority most of its pixels show, the front one of a tie. The game's priorities zero and one both
+    /// draw behind the whole room, two between its back and front tiles, and three in front of it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A pixel holds a priority the game does not have.</exception>
+    private static ActorDepth? DepthOf(ReadOnlySpan<byte> shownPriorities, string frame)
+    {
+        Span<int> counts = stackalloc int[GamePriorities];
+        foreach (byte shown in shownPriorities)
+        {
+            if (shown == 0)
+                continue;
+            if (shown > GamePriorities)
+                throw new InvalidDataException($"Sheet frame {frame} shows a pixel of priority {shown - 1}, which the game does not have.");
+            counts[shown - 1]++;
+        }
+        int main = -1;
+        for (int candidate = 0; candidate < GamePriorities; candidate++)
+        {
+            if (counts[candidate] > 0 && (main < 0 || counts[candidate] >= counts[main]))
+                main = candidate;
+        }
+        return main < 0 ? null : DepthOfPriority[main];
+    }
+
+    /// <summary>The depth each of the game's priorities draws at, from priority zero up.</summary>
+    private static readonly ActorDepth[] DepthOfPriority =
+        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontTiles, ActorDepth.InFront];
 
     /// <summary>
     /// Hashes everything <see cref="Paint"/> reads into <see cref="Identity"/>. A part is hashed by the characters it

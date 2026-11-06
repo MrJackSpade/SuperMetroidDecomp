@@ -43,7 +43,7 @@ public sealed class SpriteImage
         return new(() =>
         {
             SpriteImageLayers layers = decode();
-            return Check(name, size, layers.Pixels, layers.PaletteIndices, layers.Priorities);
+            return Check(name, size, layers.Pixels, layers.PaletteIndices, layers.FrontTiles);
         });
     }
 
@@ -67,27 +67,28 @@ public sealed class SpriteImage
     }
 
     /// <summary>Checks one image's layers against its size and keeps its pixels and inks.</summary>
-    /// <exception cref="ArgumentException">A length does not match or a priority exceeds 3.</exception>
+    /// <exception cref="ArgumentException">A length does not match or a front-tile entry is neither zero nor one.</exception>
     private static Content Check(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities)
+        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> frontTiles)
     {
         Ensure.LengthEqual(pixels, size.X * size.Y);
         Ensure.LengthEqual(paletteIndices, size.X * size.Y);
-        Ensure.LengthEqual(priorities, size.X * size.Y);
-        foreach (int priority in priorities)
-        {
-            if (priority > 3)
-                throw new ArgumentException($"Sprite image {name} has a pixel of priority {priority}; priorities are 0..3.", nameof(priorities));
-        }
+        Ensure.LengthEqual(frontTiles, size.X * size.Y);
         var inks = new SpriteImageInk[pixels.Length];
         for (int pixel = 0; pixel < inks.Length; pixel++)
-            inks[pixel] = new(paletteIndices[pixel], priorities[pixel]);
+        {
+            if (frontTiles[pixel] > 1)
+                throw new ArgumentException(
+                    $"Sprite image {name} marks a pixel's front tile {frontTiles[pixel]}; a pixel lies in a front tile (one) or not (zero).",
+                    nameof(frontTiles));
+            inks[pixel] = new(paletteIndices[pixel], frontTiles[pixel] != 0);
+        }
         return new Content(pixels.ToArray(), inks);
     }
 
     /// <summary>An image's pixels and how each was inked.</summary>
     /// <param name="Pixels">The pixels, row by row from the top.</param>
-    /// <param name="Inks">How each pixel was inked: its palette entry and priority.</param>
+    /// <param name="Inks">How each pixel was inked: its palette entry and whether it lies in a front tile.</param>
     private sealed record Content(RgbaPixel[] Pixels, SpriteImageInk[] Inks);
 
     /// <summary>The standard colours an image coloured as <paramref name="colours"/> keeps: all 256 for a full-palette image.</summary>
@@ -122,7 +123,7 @@ public sealed class SpriteImage
     /// <summary>The pixels, row by row from the top; a pixel with zero alpha is transparent.</summary>
     public ReadOnlySpan<RgbaPixel> Pixels => content.Value.Pixels;
 
-    /// <summary>How each pixel was inked, row by row from the top: its palette entry and priority.</summary>
+    /// <summary>How each pixel was inked, row by row from the top: its palette entry and whether it lies in a front tile.</summary>
     public ReadOnlySpan<SpriteImageInk> Inks => content.Value.Inks;
 
     /// <summary>The 128 colours of the image's half of the colour table the pixels were coloured with.</summary>

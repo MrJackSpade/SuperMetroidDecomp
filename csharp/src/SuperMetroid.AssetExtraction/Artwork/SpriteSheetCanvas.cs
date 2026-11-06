@@ -16,8 +16,8 @@ internal sealed class SpriteSheetCanvas
     /// <summary>Each pixel's colour group's place times sixteen plus its colour.</summary>
     private byte[] paletteIndices = [];
 
-    /// <summary>Each pixel's priority against the backgrounds.</summary>
-    private byte[] priorities = [];
+    /// <summary>Whether each pixel lies in one of its layer's front tiles.</summary>
+    private byte[] frontTiles = [];
 
     /// <summary>
     /// The planes of a sheet of <paramref name="size"/>, every pixel transparent as a new sheet's are; they are valid
@@ -30,13 +30,13 @@ internal sealed class SpriteSheetCanvas
         {
             pixels = new RgbaPixel[area];
             paletteIndices = new byte[area];
-            priorities = new byte[area];
+            frontTiles = new byte[area];
         }
-        var planes = new SpriteSheetPlanes(size, pixels.AsSpan(0, area), paletteIndices.AsSpan(0, area), priorities.AsSpan(0, area));
+        var planes = new SpriteSheetPlanes(size, pixels.AsSpan(0, area), paletteIndices.AsSpan(0, area), frontTiles.AsSpan(0, area));
         // The previous sheet's pixels are cleared, so the new sheet starts as transparent as freshly allocated planes.
         planes.Pixels.Clear();
         planes.PaletteIndices.Clear();
-        planes.Priorities.Clear();
+        planes.FrontTiles.Clear();
         return planes;
     }
 }

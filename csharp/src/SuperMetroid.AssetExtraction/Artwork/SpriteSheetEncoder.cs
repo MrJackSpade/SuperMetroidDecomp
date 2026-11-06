@@ -42,18 +42,19 @@ internal sealed class SpriteSheetEncoder : IDisposable
     }
 
     /// <summary>
-    /// The palette-index image: each index in red and priority in green, blue unused and zero, opaque where a colour is
-    /// shown. It is laid out in the reused image buffer, valid until the next sheet.
+    /// The palette-index image: each index in red and, in green, one where the pixel lies in one of its layer's front tiles
+    /// (#1514), blue unused and zero, opaque where a colour is shown. It is laid out in the reused image buffer, valid until
+    /// the next sheet.
     /// </summary>
     private ReadOnlySpan<RgbaPixel> PaletteImage(SpriteSheetPlanes planes)
     {
         ReadOnlySpan<byte> indices = planes.PaletteIndices;
-        ReadOnlySpan<byte> priorities = planes.Priorities;
+        ReadOnlySpan<byte> frontTiles = planes.FrontTiles;
         if (paletteImage.Length < indices.Length)
             paletteImage = new RgbaPixel[indices.Length];
         Span<RgbaPixel> pixels = paletteImage.AsSpan(0, indices.Length);
         for (int pixel = 0; pixel < indices.Length; pixel++)
-            pixels[pixel] = new RgbaPixel(indices[pixel], priorities[pixel], 0, indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
+            pixels[pixel] = new RgbaPixel(indices[pixel], frontTiles[pixel], 0, indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
         return pixels;
     }
 

@@ -13,7 +13,7 @@ internal static class SamusBodyTransferDomainAudit
         if (operation.TargetMethod.Name == "Frame" &&
             operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Name == "pose") is
                 { Parameter: { } parameter, Value.ConstantValue: { HasValue: true, Value: not null } constant } &&
-            ConstantDomainNumbers.Of(parameter.Type, constant.Value) is not (int and < InstalledSamusBodyArtwork.PoseCount))
+            ConstantDomainNumbers.Of(parameter.Type, constant.Value) is not (int and < SuperMetroid.AssetExtraction.Samus.SamusBodySources.PoseCount))
             return "Known Samus pose has no admitted body frame list.";
         return null;
     }

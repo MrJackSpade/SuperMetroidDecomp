@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -20,13 +20,14 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </remarks>
 public static class SamusBodyArtworkFiles
 {
-    /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
+    /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, body placements, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
     /// <summary>
-    /// Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and vertical offsets.
-    /// Revision eight holds the sixteen landing bytes without the byte after the table (#1500).
+    /// Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and body placements.
+    /// Revision nine holds each pose's placement and its frames' own placements instead of the cartridge's offset tables
+    /// (#1517).
     /// </summary>
-    private const int FormatVersion = 8;
+    private const int FormatVersion = 9;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -61,12 +62,12 @@ public static class SamusBodyArtworkFiles
             SamusBodySources.BottomSetCount);
         ushort[] posePointers = ReadPointers(bus,
             SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
-            InstalledSamusBodyArtwork.PoseCount);
+            SamusBodySources.PoseCount);
         int[] topSetStarts = [.. topPointers.Select(pointer => BodyRecord(pointer))];
         int[] bottomSetStarts = [.. bottomPointers.Select(pointer => BodyRecord(pointer))];
         int[] poseFirstFrames = [.. posePointers.Select(pointer => BodyFrame(pointer))];
-        sbyte[] graphicsYOffsets = Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount)
-            .Select(pose => unchecked((sbyte)bus.ReadCartridgeByte(
+        int[] graphicsYOffsets = Enumerable.Range(0, SamusBodySources.PoseCount)
+            .Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4)))
             .ToArray();
@@ -83,9 +84,9 @@ public static class SamusBodyArtworkFiles
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
         ushort[] spritemapTopBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapTopBases.Value, InstalledSamusBodyArtwork.PoseCount);
+            SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodySources.PoseCount);
         ushort[] spritemapBottomBases = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapBottomBases.Value, InstalledSamusBodyArtwork.PoseCount);
+            SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodySources.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
             SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapSources.EntryCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
@@ -93,23 +94,19 @@ public static class SamusBodyArtworkFiles
         SpriteVisualPart[][] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];
         int?[] spritemapEntries = [.. spritemapPointers.Select(pointer =>
             pointer == 0 ? (int?)null : Array.BinarySearch(compositions, pointer))];
-        ushort[] landingYOffsets = Enumerable.Range(0,
-            SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount)
-            .Select(index => (ushort)bus.ReadCartridgeByte(
-                SamusSourceDefinitions.LandingVerticalOffsets.Value + index)).ToArray();
-        sbyte[] postureYOffsets = Enumerable.Range(0,
-            SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount)
-            .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value + index))).ToArray();
-        sbyte[] drainedYOffsets = Enumerable.Range(0,
-            SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
-            .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusSourceDefinitions.DrainedVerticalOffsets.Value + index))).ToArray();
+        int[] landingOffsets = Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.LandingByteCount)
+            .Select(index => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index)).ToArray();
+        int[] postureOffsets = Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.PostureByteCount)
+            .Select(index => (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value + index))).ToArray();
+        int[] drainedOffsets = Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.DrainedByteCount)
+            .Select(index => (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.DrainedVerticalOffsets.Value + index))).ToArray();
+        // The placement tables are decoded here, once; the installation holds each pose's and frame's placement (#1517).
+        Dictionary<SamusPoseId, SamusBodyPosePlacement> placements =
+            SamusBodyPlacementDecoding.Decode(graphicsYOffsets, landingOffsets, postureOffsets, drainedOffsets);
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
-            topSetStarts, bottomSetStarts, poseFirstFrames, graphicsYOffsets,
+            topSetStarts, bottomSetStarts, poseFirstFrames, placements,
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
-            spritemapEntries, spritemaps, landingYOffsets, postureYOffsets,
-            drainedYOffsets, hashes);
+            spritemapEntries, spritemaps, hashes);
         SamusAtmosphericArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         SamusDeathPaletteArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         SamusDeathTileArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
@@ -201,7 +198,7 @@ public static class SamusBodyArtworkFiles
         SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(directory);
         // Cover coordinates the stock rules derive from the body's compositions are stored only where they differ.
         SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(directory).WithBodyGeometry(spritemaps);
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = Array.ConvertAll<sbyte, int>(manifest.GraphicsYOffsets, value => value), Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = Array.ConvertAll<ushort, int>(manifest.LandingYOffsets, value => value), PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets }, top, bottom);
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon }, top, bottom);
     }
 
     /// <summary>Re-encodes the installed PNG sets into native planar bytes and rejects painted padding tiles.</summary>
@@ -256,15 +253,14 @@ public static class SamusBodyArtworkFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) || manifest.TopSetStarts is null ||
             manifest.BottomSetStarts is null || manifest.PoseFirstFrames is null ||
-            manifest.GraphicsYOffsets is null ||
+            manifest.Placements is null ||
             manifest.Frames is null || manifest.Top is null || manifest.Bottom is null ||
             manifest.SpritemapTopBases is null || manifest.SpritemapBottomBases is null ||
             manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
-            manifest.LandingYOffsets is null || manifest.PostureYOffsets is null ||
-            manifest.DrainedYOffsets is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodySources.TopSetCount ||
             manifest.Bottom.Length != SamusBodySources.BottomSetCount ||
-            manifest.GraphicsYOffsets.Length != InstalledSamusBodyArtwork.PoseCount ||
+            manifest.Placements.Count != SamusBodySources.PoseCount ||
+            manifest.Placements.Values.Any(placement => placement is null) ||
             manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Spritemaps.Any(entry => entry is null || entry.Any(part => part is null)))
@@ -310,17 +306,16 @@ public static class SamusBodyArtworkFiles
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";
 
     /// <summary>
-    /// Persists split-DMA identities, pose selectors, spritemaps, offsets, and stock PNG hashes. Verification edits an
-    /// installed manifest by these members' names (#1510).
+    /// Persists split-DMA identities, pose selectors, each pose's and frame's body placement, spritemaps, and stock PNG
+    /// hashes. Verification edits an installed manifest by these members' names (#1510).
     /// </summary>
     internal sealed record Manifest(int Version, string SourceCartridgeSha256,
         int[] TopSetStarts, int[] BottomSetStarts, int[] PoseFirstFrames,
-        sbyte[] GraphicsYOffsets,
+        Dictionary<SamusPoseId, SamusBodyPosePlacement> Placements,
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
         DefinitionEntry[][] Bottom, ushort[] SpritemapTopBases,
         ushort[] SpritemapBottomBases, int?[] SpritemapEntries,
-        SpriteVisualPart[][] Spritemaps, ushort[] LandingYOffsets,
-        sbyte[] PostureYOffsets, sbyte[] DrainedYOffsets,
+        SpriteVisualPart[][] Spritemaps,
         Dictionary<string, string> Hashes);
 
     /// <summary>Retains one native DMA source address and the two transfer lengths sharing its PNG slot.</summary>

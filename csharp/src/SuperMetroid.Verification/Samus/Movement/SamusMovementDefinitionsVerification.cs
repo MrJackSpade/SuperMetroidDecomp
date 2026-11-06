@@ -22,7 +22,7 @@ internal static class SamusMovementDefinitionsVerification
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        int poseCount = InstalledSamusBodyArtwork.PoseCount;
+        int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodySources.PoseCount;
 
         TouchRange(
             bus,

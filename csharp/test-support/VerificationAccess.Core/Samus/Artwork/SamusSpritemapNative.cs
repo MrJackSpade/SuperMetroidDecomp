@@ -39,7 +39,7 @@ internal static class SamusSpritemapNative
         if (half == SamusBodyHalf.Bottom && index == 0)
             return null;
         SamusSpritemapSources source = spritemaps.Source;
-        IEnumerable<SamusPoseId> candidates = [pose, .. Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(SamusPoseNumbering.FromNumber)
+        IEnumerable<SamusPoseId> candidates = [pose, .. Enumerable.Range(0, SamusBodySources.PoseCount).Select(SamusPoseNumbering.FromNumber)
             .OrderByDescending(other => source.EntryIndex(new SamusBodyHalfFrame(other, half, 0)))];
         foreach (SamusPoseId candidate in candidates)
         {

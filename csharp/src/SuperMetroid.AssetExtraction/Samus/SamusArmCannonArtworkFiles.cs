@@ -39,7 +39,7 @@ public static class SamusArmCannonArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
-        int[] descriptors = Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount)
+        int[] descriptors = Enumerable.Range(0, SamusBodySources.PoseCount)
             .Select(pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2) - SamusSourceDefinitions.ArmCannonDrawingData).ToArray();
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)

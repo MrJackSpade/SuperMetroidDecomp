@@ -161,8 +161,8 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
         Ensure.NotNull(topBases);
         Ensure.NotNull(bottomBases);
         Ensure.NotNull(entries);
-        if (topBases.Length != InstalledSamusBodyArtwork.PoseCount ||
-            bottomBases.Length != InstalledSamusBodyArtwork.PoseCount ||
+        if (topBases.Length != SamusBodySources.PoseCount ||
+            bottomBases.Length != SamusBodySources.PoseCount ||
             entries.Length != EntryCount)
             throw new InvalidDataException("Samus spritemap selector tables have an invalid length.");
         foreach (int index in topBases.Concat(bottomBases))
@@ -172,7 +172,7 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
             if (entry is { } composition && (uint)composition.Ordinal >= (uint)compositionCount)
                 throw new InvalidDataException($"Samus spritemap {composition.Ordinal} is absent from installed art.");
         SamusSpritemapId?[] table = (SamusSpritemapId?[])entries.Clone();
-        return Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).ToDictionary(SamusPoseNumbering.FromNumber,
+        return Enumerable.Range(0, SamusBodySources.PoseCount).ToDictionary(SamusPoseNumbering.FromNumber,
             pose => new SamusPoseSpritemaps(Run(table, topBases[pose]), Run(table, bottomBases[pose])));
     }
 

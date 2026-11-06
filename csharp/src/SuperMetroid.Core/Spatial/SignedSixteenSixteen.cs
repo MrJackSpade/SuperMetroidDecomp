@@ -51,12 +51,6 @@ public readonly record struct SignedSixteenSixteen
         new(unchecked(left.RawValue - right.RawValue));
 
     /// <summary>Adds this delta to an unsigned wrapped 16.16 world-position pair, each word 0 through 65535.</summary>
-    public FixedCoordinate AddTo(int wholePosition, int subposition)
-    {
-        uint position = ((uint)checked((ushort)wholePosition) << 16) | checked((ushort)subposition);
-        position = unchecked(position + (uint)RawValue);
-        return new FixedCoordinate(
-            unchecked((ushort)(position >> 16)),
-            unchecked((ushort)position));
-    }
+    public FixedCoordinate AddTo(int wholePosition, int subposition) =>
+        FixedCoordinate.Of(wholePosition, subposition).MovedBy(this);
 }

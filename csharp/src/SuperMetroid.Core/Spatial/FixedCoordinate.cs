@@ -46,6 +46,14 @@ public readonly record struct FixedCoordinate
     public FixedCoordinate WithFraction(int fraction) => this with { Fraction = checked((ushort)fraction) };
 
     /// <summary>
+    /// This position moved by <paramref name="displacement"/>: the fraction carries into the whole pixel, and the whole
+    /// pixel wraps around the coordinate range in either direction, so a mover pushed past either edge reappears at the
+    /// other, exactly as the game's 16.16 movers place it.
+    /// </summary>
+    public FixedCoordinate MovedBy(SignedSixteenSixteen displacement) =>
+        FromRaw(unchecked(RawValue + (uint)displacement.RawValue));
+
+    /// <summary>
     /// Adds a signed 8.8 velocity the way the cartridge's split-byte movers do: with 8-bit A, the velocity's fraction
     /// byte adds into the fraction word's high byte only, leaving its low byte untouched, and the byte carry plus the
     /// sign-extended whole byte advance the whole word. A 16.16 addition would place the fraction 256 times too low.

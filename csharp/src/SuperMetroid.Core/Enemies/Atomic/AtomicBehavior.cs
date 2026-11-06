@@ -56,11 +56,11 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.VerticalMovement)
         {
             case AtomicVerticalMovement.MoveUp:
-                slot.Position = slot.Position.WithY(AddAtomicVelocity(slot.Position.Y, state.NegativeSpeed));
+                slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(state.NegativeSpeed));
                 break;
 
             case AtomicVerticalMovement.MoveDown:
-                slot.Position = slot.Position.WithY(AddAtomicVelocity(slot.Position.Y, state.Speed));
+                slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(state.Speed));
                 break;
 
             default:
@@ -71,32 +71,17 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.HorizontalMovement)
         {
             case AtomicHorizontalMovement.MoveLeft:
-                slot.Position = slot.Position.WithX(AddAtomicVelocity(slot.Position.X, state.NegativeSpeed));
+                slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(state.NegativeSpeed));
                 break;
 
             case AtomicHorizontalMovement.MoveRight:
-                slot.Position = slot.Position.WithX(AddAtomicVelocity(slot.Position.X, state.Speed));
+                slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(state.Speed));
                 break;
 
             default:
                 throw new InvalidDataException(
                     $"Atomic horizontal movement {state.HorizontalMovement.ToString() ?? "none"} is not translated.");
         }
-    }
-
-    /// <summary>
-    /// Reproduces each movement target's unusual ordering: add the signed whole word first,
-    /// then add the fractional word and increment the already-updated whole on carry.
-    /// </summary>
-    private static FixedCoordinate AddAtomicVelocity(
-        FixedCoordinate position,
-        SignedSixteenSixteen velocity)
-    {
-        int whole = WordWrap.Unsigned(position.Whole + velocity.WholeWord);
-        uint fractionalSum = (uint)position.Fraction + velocity.Fraction;
-        if (fractionalSum > ushort.MaxValue)
-            whole = WordWrap.Unsigned(whole + 1);
-        return new(whole, WordWrap.Unsigned(fractionalSum));
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>

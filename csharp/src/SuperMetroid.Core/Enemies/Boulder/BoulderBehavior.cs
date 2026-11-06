@@ -285,26 +285,19 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousY = slot.Position.Y;
     }
 
-    /// <summary>Adds the signed quadratic travel displacement to the actor's wrapped 16.16 X position.</summary>
-    private static void AddBoulderHorizontalVelocity(RoomEnemySlot slot, BoulderEnemyState state)
-    {
-        int displacement = ReadBoulderHorizontalDisplacement(state);
-        uint position = slot.Position.X.RawValue;
-        position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
-    }
+    /// <summary>Moves the actor horizontally by its signed quadratic travel speed, wrapping within the coordinate range.</summary>
+    private static void AddBoulderHorizontalVelocity(RoomEnemySlot slot, BoulderEnemyState state) =>
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(ReadBoulderHorizontalDisplacement(state))));
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(state.TravelSpeedAccumulator))).Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
-    /// <summary>Adds or subtracts a quadratic table sample from the actor's wrapped 16.16 Y position.</summary>
+    /// <summary>Moves the actor vertically by a quadratic table speed toward <paramref name="direction"/>, wrapping within the coordinate range.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)
     {
         int displacement = EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(accumulator))).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
-        uint position = slot.Position.Y.RawValue;
-        position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement)));
     }
 
     /// <summary>

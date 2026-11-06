@@ -475,7 +475,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         GameplayLayer.ActorsBehindRoom => ActorDepth.BehindRoom,
         GameplayLayer.ActorsBehindFrontTiles => ActorDepth.BehindFrontTiles,
         GameplayLayer.ActorsInFront => ActorDepth.InFront,
-        _ => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
+        GameplayLayer.BackgroundBackTiles or GameplayLayer.ForegroundBackTiles or GameplayLayer.BackgroundFrontTiles
+            or GameplayLayer.ForegroundFrontTiles => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
+        _ => throw new InvalidOperationException($"Undefined gameplay layer {layer}."),
     };
 
     /// <summary>

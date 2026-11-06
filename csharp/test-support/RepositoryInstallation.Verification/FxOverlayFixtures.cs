@@ -99,7 +99,7 @@ internal static class FxOverlayFixtures
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
         SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "overlay-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities);
+            composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
         return sheet.Frame("overlay");
     }
 

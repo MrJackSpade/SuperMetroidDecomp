@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <summary>Shared NTSC crawling magnitudes, in 8.8 pixels per frame.</summary>
 public static class CrawlerSpeedDefinitions
 {
-    /// <summary>Parameter sentinel for the velocity reset: preserve existing velocity before applying property signs.</summary>
-    public const int PreserveVelocity = 255;
     /// <summary>Number of authored speed records; trailing zero is an intentional stationary entry.</summary>
     public const int Count = 32;
 

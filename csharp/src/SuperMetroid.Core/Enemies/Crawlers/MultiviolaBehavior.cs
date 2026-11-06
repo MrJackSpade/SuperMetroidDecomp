@@ -81,7 +81,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             // Reflect across a vertical surface. As in retail, vertical movement is skipped
             // on a horizontal collision, so a corner can consume two frames to reflect both
             // components instead of bouncing diagonally in a single host update.
-            state.Heading ^= MultiviolaHorizontalReflection;
+            state.Heading = Reflected(state.Heading, MultiviolaHorizontalReflection);
             return;
         }
 
@@ -90,11 +90,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int verticalDisplacement = state.Velocity.Y.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
-            state.Heading ^= MultiviolaVerticalReflection;
+            state.Heading = Reflected(state.Heading, MultiviolaVerticalReflection);
     }
 
-    /// <summary>The heading's low byte, the table angle the sign tests and sine products read.</summary>
-    private static ByteAngle HeadingAngle(MultiviolaEnemyState state) => new(WordWrap.LowByte(state.Heading));
+    /// <summary>The heading the sign tests and sine products read.</summary>
+    private static ByteAngle HeadingAngle(MultiviolaEnemyState state) => state.Heading;
+
+    /// <summary>The heading with the reflection's angle bits toggled.</summary>
+    private static ByteAngle Reflected(ByteAngle heading, int reflection) => new(heading.RawValue ^ reflection);
 
     /// <summary>
     /// Recreates the shared unsigned |cos|/|sin| products of the heading and speed.
@@ -103,11 +106,11 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int magnitude = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Speed);
         int xProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked(new ByteAngle(WordWrap.LowByte(WordWrap.Unsigned(state.Heading)))),
+            state.Heading,
             magnitude,
             MultiviolaCosineOffset);
         int yProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked(new ByteAngle(WordWrap.LowByte(WordWrap.Unsigned(state.Heading)))),
+            state.Heading,
             magnitude,
             MultiviolaSineOffset);
         state.Velocity = new FixedVector<RoomPixels>(

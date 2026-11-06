@@ -13,22 +13,23 @@ internal static class CrawlerSpeedsVerification
     /// and Yard direction transforms across the effective ushort input domain.</summary>
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
-        var reset = new Func<CrawlerSurfaceOrientation, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
+        var reset = new Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
             CrawlersBehavior.ResetCrawlerVelocities);
         var setYard = new Action<YardEnemyState, YardDirection>(YardEnemyBehavior.SetYardCrawlingVelocities);
         var yard = new YardEnemyState();
-        int speedParameter = 0;
+        SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
             AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Yard/crawler native speed mirror");
             AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Compiled crawling speed");
-            speedParameter = parameter;
+            crawlSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.CrawlSpeed(parameter);
+            AssertEqual<SignedEightEight?>(new SignedEightEight(expected), crawlSpeed, "Imported crawling speed");
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
                 // The block side is the crawler's two low property bits in the cartridge.
-                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), speedParameter, new(new SignedEightEight(123), new SignedEightEight(456)));
+                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed, new(new SignedEightEight(123), new SignedEightEight(456)));
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue, "Real crawler X reset without bus");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue, "Real crawler Y reset without bus");
             }
@@ -40,13 +41,14 @@ internal static class CrawlerSpeedsVerification
                 AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), yard.CrawlingVelocity.Y.RawValue, "Real Yard Y reset without bus");
             }
         }
-        // The preserve sentinel skips the table, not the subsequent native sign application.
-        speedParameter = CrawlerSpeedDefinitions.PreserveVelocity;
+        // The preserve selector imports as no crawl speed, which skips the table, not the subsequent native sign application.
+        crawlSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.CrawlSpeed(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.KeepsVelocitySelector);
+        AssertEqual<SignedEightEight?>(null, crawlSpeed, "Imported preserve selector");
         for (int magnitude = 0; magnitude <= ushort.MaxValue; magnitude++)
         {
             for (ushort property = 0; property < 4; property++)
             {
-                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), speedParameter,
+                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed,
                     new(new SignedEightEight((ushort)magnitude), new SignedEightEight((ushort)~magnitude)));
                 AssertEqual(property == 0 ? unchecked((ushort)-magnitude) : (ushort)magnitude, velocity.X.RawValue, "Crawler sentinel X sign");
                 AssertEqual(property == 2 ? unchecked((ushort)-(ushort)~magnitude) : (ushort)~magnitude, velocity.Y.RawValue, "Crawler sentinel Y sign");
@@ -60,6 +62,7 @@ internal static class CrawlerSpeedsVerification
             }
         }
         AssertThrows<InvalidDataException>(() => CrawlerSpeeds.ForParameter(32), "Crawler invalid speed");
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.CrawlSpeed(32), "Crawler import rejects the speed past its records");
 
         Console.WriteLine("Compiled crawling speeds: both 32-word copies, 384 real resets, 262144 sentinel resets and 524288 Yard sign pairs match native values without a bus.");
     }

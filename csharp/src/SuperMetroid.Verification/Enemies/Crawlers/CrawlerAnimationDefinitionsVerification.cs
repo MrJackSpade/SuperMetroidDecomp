@@ -58,15 +58,15 @@ internal static class CrawlerAnimationDefinitionsVerification
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
-            AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared),
+            AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared),
                 SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer,
                     new SuperMetroid.AssetExtraction.Enemies.PopulationWords(orientation, orientation, 0, 0, 0)),
                 $"crawler population words {orientation} decode to its surface and block side");
-            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared));
+            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared));
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
-                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], SpeedIndex: 0, SurfaceFamily: CrawlerAnimationFamily.Shared));
+                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared));
             }
             slot.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
             if (family == CrawlerAnimationFamily.HZoomer)

@@ -858,21 +858,21 @@ internal static class LookupStream2Verification
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
-        Func<CrawlerSurfaceOrientation, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
+        Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var yard = new YardEnemyState();
-        int speedParameter = 0;
+        SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
             AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
             AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Native calculated speed ramp");
-            speedParameter = parameter;
+            crawlSpeed = EnemySpawnSelectors.CrawlSpeed(parameter);
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
                 // The block side is the crawler's two low property bits in the cartridge.
-                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), speedParameter, default);
+                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed, default);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue,

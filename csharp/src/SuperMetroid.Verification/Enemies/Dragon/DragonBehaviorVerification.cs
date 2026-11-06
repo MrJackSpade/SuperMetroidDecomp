@@ -71,7 +71,7 @@ internal static class DragonBehaviorVerification
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
             body.Function = DragonEnemyFunction.Attacking;
             body.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
-            body.AttackCounter = WrappingCountdown.Start(3);
+            body.AttackCounter = 3;
             body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.SlotTable.Slots[bodySlot], body);
         }

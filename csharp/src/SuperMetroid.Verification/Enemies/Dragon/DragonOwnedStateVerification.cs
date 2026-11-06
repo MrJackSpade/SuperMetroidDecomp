@@ -29,10 +29,10 @@ internal static class DragonOwnedStateVerification
         AssertEqual(DragonEnemyFunction.WingNoOp, wingState.Function, "the wing runs no body AI");
 
         bodyState.FacingLeft = true;
-        bodyState.AttackCounter = WrappingCountdown.Start(2);
+        bodyState.AttackCounter = 2;
         body.Clear();
         AssertTrue(!bodyState.FacingLeft, "a kill empties the facing");
-        AssertEqual((ushort)0, bodyState.AttackCounter.RawValue, "a kill empties the shot counter");
+        AssertEqual(0, bodyState.AttackCounter, "a kill empties the shot counter");
         AssertEqual(null, bodyState.Function, "a kill empties the function");
         AssertEqual(DragonAnimationSelector.IdleFacingLeft, bodyState.InstalledAnimation, "the installed animation outlives the kill");
         Console.WriteLine("Dragon owned state: the body/wing selection and the cleared record match.");

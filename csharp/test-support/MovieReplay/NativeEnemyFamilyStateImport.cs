@@ -224,7 +224,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             deadSidehopperRecord.Function = words.A == 0 ? null : CorpsesNativeWords.DeadSidehopperAiFunctions.Decode(words.A, "recorded DeadSidehopperAiFunction");
             deadSidehopperRecord.PreRotDelayCounter = words.B;
-            deadSidehopperRecord.StateTimer = WrappingCountdown.FromRaw(words.F);
+            deadSidehopperRecord.StateTimer = unchecked((short)words.F);
         }
         if (slot.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
         {
@@ -249,12 +249,12 @@ internal static class NativeEnemyFamilyStateImport
             // fraction and an echo's lifetime in variable D; each is read here as the meaning the recorded phase gives it.
             if (dachoraRecord.Function == DachoraAiFunction.Echo)
             {
-                dachoraRecord.EchoPositionTimer = WrappingCountdown.FromRaw(words.A);
-                dachoraRecord.EchoLifetime = WrappingCountdown.FromRaw(words.D);
+                dachoraRecord.EchoPositionTimer = unchecked((short)words.A);
+                dachoraRecord.EchoLifetime = unchecked((short)words.D);
             }
             else if (dachoraRecord.Function is DachoraAiFunction.BlinkingBeforeRun or DachoraAiFunction.ChargingShinespark)
             {
-                dachoraRecord.PhaseTimer = WrappingCountdown.FromRaw(words.A);
+                dachoraRecord.PhaseTimer = unchecked((short)words.A);
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
                 dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
             }
@@ -349,8 +349,8 @@ internal static class NativeEnemyFamilyStateImport
             bullRecord.Acceleration = words.B;
             bullRecord.AccelerationDelta = words.C;
             bullRecord.Speed = words.D;
-            bullRecord.ActivationTimer = WrappingCountdown.FromRaw(words.E);
-            bullRecord.AccelerationIntervalTimer = WrappingCountdown.FromRaw(words.F);
+            bullRecord.ActivationTimer = unchecked((short)words.E);
+            bullRecord.AccelerationIntervalTimer = unchecked((short)words.F);
         }
         if (slot.SpeciesState<BoyonEnemyState>() is { } boyonRecord)
         {
@@ -463,7 +463,7 @@ internal static class NativeEnemyFamilyStateImport
             boulderRecord.Function = words.A == 0 ? null : BoulderNativeWords.BoulderAiFunctions.Decode(words.A, "recorded BoulderAiFunction");
             boulderRecord.TravelSpeedAccumulator = words.B;
             boulderRecord.BounceSpeedAccumulator = words.C;
-            boulderRecord.BounceCounter = WrappingCountdown.FromRaw(words.D);
+            boulderRecord.BounceCounter = unchecked((short)words.D);
             boulderRecord.Roll = words.E switch
             {
                 0 => BoulderRoll.Right,
@@ -516,8 +516,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             beetom.YSpeedTableIndex = Index(words.B, short.MaxValue, "Beetom speed index");
             beetom.Function = words.C == 0 ? null : BeetomNativeWords.BeetomEnemyFunctions.Decode(words.C, "recorded BeetomEnemyFunction");
-            beetom.FunctionTimer = WrappingCountdown.FromRaw(words.D);
-            beetom.ButtonCounter = WrappingCountdown.FromRaw(words.E);
+            beetom.FunctionTimer = unchecked((short)words.D);
+            beetom.ButtonCounter = unchecked((short)words.E);
             beetom.PreviousController1Input = (ControllerButton)words.F;
         }
         if (slot.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
@@ -537,7 +537,7 @@ internal static class NativeEnemyFamilyStateImport
             choot.FallingPatternFrame = (words.C & 0xff) == 0
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
-            choot.FallingPatternLoopCounter = WrappingCountdown.FromRaw(words.D);
+            choot.FallingPatternLoopCounter = unchecked((short)words.D);
             choot.FallingPath = words.E == 0 ? null : ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
             choot.FallingPatternYDistance = words.F;
         }
@@ -700,8 +700,8 @@ internal static class NativeEnemyFamilyStateImport
             // Only the direction word's sign bit, the facing, is ever read.
             dragon.FacingLeft = (words.A & 0x8000) != 0;
             // One record word serves the motion timer and the shot counter in turn; whichever phase is current reads it.
-            dragon.FunctionTimer = WrappingCountdown.FromRaw(words.D);
-            dragon.AttackCounter = WrappingCountdown.FromRaw(words.D);
+            dragon.FunctionTimer = unchecked((short)words.D);
+            dragon.AttackCounter = unchecked((short)words.D);
             dragon.Function = words.F == 0 ? null : DragonNativeWords.DragonEnemyFunctions.Decode(words.F, "recorded DragonEnemyFunction");
         }
         if (enemies.ElevatorStates[index] is { } elevator)

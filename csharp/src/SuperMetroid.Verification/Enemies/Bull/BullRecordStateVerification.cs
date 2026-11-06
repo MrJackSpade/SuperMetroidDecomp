@@ -21,16 +21,16 @@ internal static class BullRecordStateVerification
         state.Acceleration = 1;
         state.AccelerationDelta = 1;
         state.Speed = 1;
-        state.ActivationTimer = WrappingCountdown.Start(1);
-        state.AccelerationIntervalTimer = WrappingCountdown.Start(1);
+        state.ActivationTimer = 1;
+        state.AccelerationIntervalTimer = 1;
 
         slot.Clear();
         AssertEqual<BullEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.Acceleration, "a kill empties Acceleration");
         AssertEqual<int>(0, state.AccelerationDelta, "a kill empties AccelerationDelta");
         AssertEqual<int>(0, state.Speed, "a kill empties Speed");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.ActivationTimer, "a kill empties ActivationTimer");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.AccelerationIntervalTimer, "a kill empties AccelerationIntervalTimer");
+        AssertEqual(0, state.ActivationTimer, "a kill empties ActivationTimer");
+        AssertEqual(0, state.AccelerationIntervalTimer, "a kill empties AccelerationIntervalTimer");
         Console.WriteLine("Bull record state: a kill empties every value the record holds.");
     }
 

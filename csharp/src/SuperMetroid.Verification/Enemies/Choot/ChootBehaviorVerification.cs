@@ -34,7 +34,7 @@ internal static class ChootBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, 3), "Choot idle pose");
         AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Choot idle program disables off-screen processing");
 
-        state.JumpDelayTimer = WrappingCountdown.Start(0);
+        state.JumpDelayTimer = 0;
         ChootBehavior.PrepareChootJump(slot, state);
         AssertEqual(AnimationProgramCursor<ChootProgram>.Start(ChootProgram.Jumping), state.Program,
             "Choot real preparation handoff starts the jumping animation");

@@ -24,7 +24,7 @@ internal static class AlcoonOwnedStateVerification
             SpawnPosition = new(0x0300, 0x0180),
             LandingPosition = new(0x0300, 0x01a0),
             YAcceleration = SignedSixteenSixteen.FromParts(0, 0x8000),
-            StepCounter = WrappingCountdown.Start(2),
+            StepCounter = 2,
         };
         AssertThrows<InvalidOperationException>(
             () => state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(1, 1)),
@@ -37,7 +37,7 @@ internal static class AlcoonOwnedStateVerification
         AssertEqual(new Position16<RoomPixels>(0x0300, 0), state.SpawnPosition, "a kill empties the spawn Y and keeps the spawn X");
         AssertEqual(new Position16<RoomPixels>(0x0300, 0x01a0), state.LandingPosition, "the landing position outlives the kill");
         AssertEqual(SignedSixteenSixteen.FromParts(0, 0x8000), state.YAcceleration, "the acceleration outlives the kill");
-        AssertEqual((ushort)2, state.StepCounter.RawValue, "the step counter outlives the kill");
+        AssertEqual(2, state.StepCounter, "the step counter outlives the kill");
         Console.WriteLine("Alcoon owned state: the horizontal velocity rule and the cleared record match.");
     }
 

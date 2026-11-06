@@ -190,12 +190,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             case DeadSidehopperAiFunction.BeginPostLandingDelay:
                 state.Function = DeadSidehopperAiFunction.PostLandingDelay;
-                state.StateTimer = WrappingCountdown.Start(64);
+                state.StateTimer = 64;
                 return;
 
             case DeadSidehopperAiFunction.PostLandingDelay:
-                state.StateTimer = state.StateTimer.Decrement().Remaining;
-                if (!state.StateTimer.IsNegative)
+                if (--state.StateTimer >= 0)
                     return;
 
                 if (state.PaletteStage != 0)

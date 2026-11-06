@@ -19,13 +19,13 @@ internal static class MorphBallEyeRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.IsActivated = true;
         state.Angle = RotationAngle.FromTableIndex(1);
-        state.FunctionTimer = WrappingCountdown.Start(1);
+        state.FunctionTimer = 1;
         state.Function = Enum.GetValues<MorphBallEyeAiFunction>()[^1];
 
         slot.Clear();
         AssertEqual<bool>(false, state.IsActivated, "a kill empties IsActivated");
         AssertEqual<RotationAngle>(RotationAngle.FromTableIndex(0), state.Angle, "a kill empties Angle");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
+        AssertEqual(0, state.FunctionTimer, "a kill empties FunctionTimer");
         AssertEqual<MorphBallEyeAiFunction?>(null, state.Function, "a kill empties Function");
         Console.WriteLine("MorphBallEye record state: a kill empties every value the record holds.");
     }

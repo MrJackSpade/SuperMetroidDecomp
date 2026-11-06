@@ -39,7 +39,7 @@ internal static class PuyoOwnedStateVerification
         state.CurrentHop = PuyoHopType.Giant;
         state.YSpeedTableIndex = 0x1234;
         slot.Clear();
-        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(PuyoHopType.NormalSmall, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.CurrentHop, state.YSpeedTableIndex, state.HopCooldownTimer.RawValue),
+        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(PuyoHopType.NormalSmall, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.CurrentHop, state.YSpeedTableIndex, checked((ushort)state.HopCooldownTimer)),
             "a kill empties the current hop, speed index and cooldown");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Puyo owned state: the apex, the overlong-fall restart and the cleared record match.");

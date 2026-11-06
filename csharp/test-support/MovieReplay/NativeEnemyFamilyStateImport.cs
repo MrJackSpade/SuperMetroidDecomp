@@ -282,7 +282,7 @@ internal static class NativeEnemyFamilyStateImport
             sbugRecord.StraightMovementTimer = WrappingCountdown.FromRaw(words.A);
             sbugRecord.Function = words.B == 0 ? null : SbugNativeWords.SbugEnemyFunctions.Decode(words.B, "recorded SbugEnemyFunction");
             sbugRecord.FaceCustomHeading(RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.C)));
-            sbugRecord.MovementTimer = WrappingCountdown.FromRaw(words.F);
+            sbugRecord.MovementTimer = unchecked((short)words.F);
         }
         if (slot.SpeciesState<KiHunterEnemyState>() is { } kiHunterRecord)
         {
@@ -452,7 +452,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<SkreeEnemyState>() is { } skreeRecord)
         {
-            skreeRecord.BurrowTimer = WrappingCountdown.FromRaw(words.A);
+            skreeRecord.BurrowTimer = unchecked((short)words.A);
             skreeRecord.Function = words.B == 0 ? null : SkreeNativeWords.SkreeEnemyFunctions.Decode(words.B, "recorded SkreeEnemyFunction");
             skreeRecord.RequestedInstructionIndex = (SkreeMetareeAnimationPhase)words.C;
             skreeRecord.InstalledInstructionIndex = (SkreeMetareeAnimationPhase)words.D;
@@ -495,7 +495,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             morphBallEyeRecord.IsActivated = words.C != 0;
             morphBallEyeRecord.Angle = RotationAngle.FromTableIndex(unchecked((byte)words.D));
-            morphBallEyeRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
+            morphBallEyeRecord.FunctionTimer = unchecked((short)words.E);
             morphBallEyeRecord.Function = words.F == 0 ? null : MorphBallEyeNativeWords.MorphBallEyeAiFunctions.Decode(words.F, "recorded MorphBallEyeAiFunction");
         }
         if (slot.SpeciesState<HopperEnemyState>() is { } hopperRecord)
@@ -574,7 +574,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.DefinitionId == EnemyDefinitionId.Coven && slot.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
             ghost.Function = words.A == 0 ? null : WreckedShipNativeWords.WreckedShipGhostAiFunctions.Decode(words.A, "recorded WreckedShipGhostAiFunction");
-            ghost.PhaseTimer = WrappingCountdown.FromRaw(words.B);
+            ghost.PhaseTimer = unchecked((short)words.B);
             ghost.FlickerTableOffset = words.C;
         }
         if (slot.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
@@ -609,12 +609,12 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.DefinitionId == EnemyDefinitionId.Puromi && slot.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
             waffle.Function = words.A == 0 ? null : NuclearNativeWords.NuclearWaffleEnemyFunctions.Decode(words.A, "recorded NuclearWaffleEnemyFunction");
-            waffle.WaitingTimer = WrappingCountdown.FromRaw(words.B);
+            waffle.WaitingTimer = unchecked((short)words.B);
         }
         if (slot.DefinitionId == EnemyDefinitionId.LavaRocks && slot.SpeciesState<PolypEnemyState>() is { } polyp)
         {
             polyp.Function = words.A == 0 ? null : PolypNativeWords.PolypEnemyFunctions.Decode(words.A, "recorded PolypEnemyFunction");
-            polyp.CooldownTimer = WrappingCountdown.FromRaw(words.B);
+            polyp.CooldownTimer = unchecked((short)words.B);
         }
         if (slot.DefinitionId == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampEnemyState>() is { } powamp)
         {
@@ -628,8 +628,8 @@ internal static class NativeEnemyFamilyStateImport
             {
                 powamp.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
                 powamp.WiggleIndex = Index(words.C, 11, "Powamp wiggle phase");
-                powamp.WiggleTimer = WrappingCountdown.FromRaw(words.D);
-                powamp.FunctionTimer = WrappingCountdown.FromRaw(words.E);
+                powamp.WiggleTimer = unchecked((short)words.D);
+                powamp.FunctionTimer = unchecked((short)words.E);
             }
             powamp.Function = words.F == 0 ? null : PowampNativeWords.PowampEnemyFunctions.Decode(words.F, "recorded PowampEnemyFunction");
         }
@@ -744,12 +744,12 @@ internal static class NativeEnemyFamilyStateImport
         {
             spark.Function = words.B == 0 ? null : SparksNativeWords.SparkEnemyFunctions.Decode(words.B, "recorded SparkEnemyFunction");
             spark.BaseFunctionTime = words.E;
-            spark.FunctionTimer = WrappingCountdown.FromRaw(words.F);
+            spark.FunctionTimer = unchecked((short)words.F);
         }
         if (enemies.PuyoStates[index] is { } puyo)
         {
             puyo.YSpeedTableIndex = Index(words.A, short.MaxValue, "Puyo speed index");
-            puyo.HopCooldownTimer = WrappingCountdown.FromRaw(words.B);
+            puyo.HopCooldownTimer = unchecked((short)words.B);
             puyo.Function = words.C == 0 ? null : PuyoNativeWords.PuyoEnemyFunctions.Decode(words.C, "recorded PuyoEnemyFunction");
             puyo.AirborneFunction = words.D == 0 ? null : PuyoNativeWords.PuyoAirborneFunctions.Decode(words.D, "recorded PuyoAirborneFunction");
             puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");

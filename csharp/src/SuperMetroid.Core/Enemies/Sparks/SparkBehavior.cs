@@ -117,16 +117,15 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the decrement-then-test-zero countdown. A zero countdown wraps to -1 and therefore does
-    /// not expire for another 65,535 actor frames; it must not be treated as immediately due.
+    /// Expires on the update whose step would reach zero, leaving the countdown at one for its reset. A countdown
+    /// already at zero steps below zero instead and does not expire; it must not be treated as immediately due.
     /// </summary>
     internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
     {
-        CountdownStep step = state.FunctionTimer.Decrement();
-        if (step.IsZero)
+        if (state.FunctionTimer == 1)
             return true;
 
-        state.FunctionTimer = step.Remaining;
+        state.FunctionTimer--;
         return false;
     }
 
@@ -140,7 +139,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             baseTime = (nextRandom() & 63) + 4;
         }
 
-        state.FunctionTimer = WrappingCountdown.FromRaw(baseTime).AddFrames(additionalTime);
+        state.FunctionTimer = baseTime + additionalTime;
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>

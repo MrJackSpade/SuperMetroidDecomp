@@ -20,13 +20,13 @@ internal static class PolypOwnedStateVerification
         enemies.PolypBehavior.InitializePolyp(slot);
         PolypEnemyState state = slot.RequireSpeciesState<PolypEnemyState>();
         AssertEqual<PolypEnemyFunction?>(PolypEnemyFunction.WaitingForSamus, state.Function, "a new Polyp waits for Samus");
-        AssertEqual(WrappingCountdown.Start(0), state.CooldownTimer, "a new Polyp has no cooldown");
+        AssertEqual(0, state.CooldownTimer, "a new Polyp has no cooldown");
 
         state.Function = PolypEnemyFunction.Cooldown;
-        state.CooldownTimer = WrappingCountdown.Start(5);
+        state.CooldownTimer = 5;
         slot.Clear();
         AssertEqual<PolypEnemyFunction?>(null, state.Function, "a kill empties the behaviour");
-        AssertEqual(WrappingCountdown.Start(0), state.CooldownTimer, "a kill empties the cooldown");
+        AssertEqual(0, state.CooldownTimer, "a kill empties the cooldown");
         Console.WriteLine("Polyp owned state: the initial behaviour and the cleared record match.");
     }
 

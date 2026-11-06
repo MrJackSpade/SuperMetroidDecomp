@@ -94,7 +94,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = YappingMawAiFunction.WaitingForSamus,
             Origin = slot.Position.Whole,
             ActivationDistance = slot.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
-            RetractedDelayTimer = WrappingCountdown.Start(YappingMawRetractedDelayFrames),
+            RetractedDelayTimer = YappingMawRetractedDelayFrames,
             OriginalShading = slot.Shading,
         };
         slot.SetSpeciesState(state);
@@ -376,14 +376,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HasGrabbedSamus)
             PositionSamusInYappingMaw(state.Owner, state, samus);
 
-        state.RetractedDelayTimer = state.RetractedDelayTimer.Decrement().Remaining;
-        if (!state.RetractedDelayTimer.IsNegative || samus.DeathSequence.IsActive)
+        state.RetractedDelayTimer--;
+        if (state.RetractedDelayTimer >= 0 || samus.DeathSequence.IsActive)
             return;
 
         samus.Control.Unlock();
         state.HasGrabbedSamus = false;
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
-        state.RetractedDelayTimer = WrappingCountdown.Start(YappingMawRetractedDelayFrames);
+        state.RetractedDelayTimer = YappingMawRetractedDelayFrames;
         state.Function = YappingMawAiFunction.WaitingForSamus;
     }
 

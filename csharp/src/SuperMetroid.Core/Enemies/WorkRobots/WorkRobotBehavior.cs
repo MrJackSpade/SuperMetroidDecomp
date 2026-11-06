@@ -63,7 +63,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int WorkRobotStepPixels = 4;
 
     /// <summary>Shared countdown to the powered robots' next glow step.</summary>
-    internal WrappingCountdown GlowStepTimer { get; set; }
+    internal int GlowStepTimer { get; set; }
     /// <summary>
     /// The glow step the robots show next, 0 through <see cref="WorkRobotPaletteTimingDefinitions.StepCount"/> minus
     /// one; after the last step the cycle starts again at the first.
@@ -107,7 +107,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // The graphics-drawn hook is global. Every powered initialization resets its shared
         // clock/table as the game does. The game's hook recolours this actor's palette, which other enemies sharing it
         // also showed; here every powered robot, and only a powered robot, shows the glow (#1512).
-        GlowStepTimer = WrappingCountdown.Start(1);
+        GlowStepTimer = 1;
         NextGlowStep = 0;
         slot.Shading = WorkRobotGlow;
     }
@@ -125,7 +125,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This global write disables an earlier robot's palette hook too. Mixed powered and
         // unpowered sets are unusual, but retaining the shared timer makes order observable.
-        GlowStepTimer = WrappingCountdown.Start(0);
+        GlowStepTimer = 0;
         state.FallVelocity = WorkRobotInitialFallVelocity;
 
         // The deactivated initializer writes four colors to the active palette through a stale global palette
@@ -346,10 +346,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts down the powered robots' shared glow and, when it expires, shows the next step of its cycle.</summary>
     internal void AdvanceWorkRobotGlow()
     {
-        if (GlowStepTimer.IsZero)
+        if (GlowStepTimer == 0)
             return;
-        GlowStepTimer = GlowStepTimer.Decrement().Remaining;
-        if (!GlowStepTimer.IsZero)
+        if (--GlowStepTimer != 0)
             return;
 
         int step = NextGlowStep;
@@ -359,7 +358,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             if (robot.SpeciesState<WorkRobotEnemyState>() is { Powered: true })
                 robot.Shading = WorkRobotGlow;
         }
-        GlowStepTimer = WrappingCountdown.Start(WorkRobotPaletteTimingDefinitions.Durations[step]);
+        GlowStepTimer = WorkRobotPaletteTimingDefinitions.Durations[step];
         NextGlowStep = (step + 1) % WorkRobotPaletteTimingDefinitions.StepCount;
     }
 

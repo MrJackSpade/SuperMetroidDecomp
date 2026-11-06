@@ -74,7 +74,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             // Reject malformed populations instead of accidentally
             // binding a body to an unrelated actor.
             RequirePowampBalloon(slot);
-            state.FunctionTimer = WrappingCountdown.Start(PowampRestFrames);
+            state.FunctionTimer = PowampRestFrames;
             state.Function = PowampEnemyFunction.DeflatedResting;
             SetPowampProgram(slot, state, PowampProgram.BodySlow);
             return;
@@ -145,7 +145,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SetPowampProgram(balloon.Slot, balloon.State, PowampProgram.BalloonInflate0);
             state.Function = PowampEnemyFunction.Inflating;
-            state.FunctionTimer = WrappingCountdown.Start(PowampTransitionFrames);
+            state.FunctionTimer = PowampTransitionFrames;
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -292,7 +292,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             body.Position = body.Position.WithWholeY(balloon.State.BalloonSpawn.Y);
             state.Function = PowampEnemyFunction.DeflatedResting;
-            state.FunctionTimer = WrappingCountdown.Start(PowampRestFrames);
+            state.FunctionTimer = PowampRestFrames;
             SetPowampProgram(body, state, PowampProgram.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
@@ -319,7 +319,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Function = PowampEnemyFunction.DeathSequence;
-        state.FunctionTimer = WrappingCountdown.Start(PowampDeathDelayFrames);
+        state.FunctionTimer = PowampDeathDelayFrames;
         AlignPowampBalloonY(body, balloon);
     }
 
@@ -405,11 +405,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloon balloon,
         PowampWiggleStop stop)
     {
-        state.WiggleTimer = state.WiggleTimer.Decrement().Remaining;
-        if (!state.WiggleTimer.IsZeroOrNegative)
+        if (--state.WiggleTimer > 0)
             return false;
 
-        state.WiggleTimer = WrappingCountdown.Start(PowampWiggleFramesPerOffset);
+        state.WiggleTimer = PowampWiggleFramesPerOffset;
         if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
         {
             throw new InvalidDataException(
@@ -459,15 +458,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartPowampDeflating(PowampEnemyState state, PowampBalloon balloon)
     {
         state.Function = PowampEnemyFunction.Deflating;
-        state.FunctionTimer = WrappingCountdown.Start(PowampTransitionFrames);
+        state.FunctionTimer = PowampTransitionFrames;
         SetPowampProgram(balloon.Slot, balloon.State, PowampProgram.BalloonStartSinking);
     }
 
-    /// <summary>Decrements the timer, treating zero and signed underflow as elapsed.</summary>
+    /// <summary>Decrements the timer, treating zero and below as elapsed.</summary>
     private static bool TickPowampTimer(PowampEnemyState state)
     {
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        return state.FunctionTimer.IsZeroOrNegative;
+        return --state.FunctionTimer <= 0;
     }
 
     /// <summary>The body's vertical displacement for terrain movement.</summary>

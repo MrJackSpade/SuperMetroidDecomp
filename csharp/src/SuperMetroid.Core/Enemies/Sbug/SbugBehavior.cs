@@ -116,7 +116,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
             case SbugEnemyFunction.ActivateMoveForwardThenWait:
-                state.MovementTimer = WrappingCountdown.Start(SbugMovementSegmentFrames);
+                state.MovementTimer = SbugMovementSegmentFrames;
                 state.Function = SbugEnemyFunction.MoveForwardThenWait;
                 return;
             case SbugEnemyFunction.ActivateMoveTowardSamus:
@@ -208,8 +208,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves straight through its signed countdown, then returns to the proximity wait.</summary>
     private static void RunSbugForwardThenWait(RoomEnemySlot slot, SbugEnemyState state)
     {
-        state.MovementTimer = state.MovementTimer.Decrement().Remaining;
-        if (state.MovementTimer.IsNegative)
+        if (--state.MovementTimer < 0)
         {
             state.Function = SbugEnemyFunction.WaitForSamus;
             return;
@@ -224,8 +223,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         RoomLevelData? level)
     {
-        state.MovementTimer = state.MovementTimer.Decrement().Remaining;
-        if (state.MovementTimer.IsNegative)
+        if (--state.MovementTimer < 0)
         {
             state.Function = SbugEnemyFunction.ChooseRandomDirectionUntilCollision;
             return;
@@ -257,8 +255,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.StraightMovementTimer = state.StraightMovementTimer.Decrement().Remaining;
         if (!state.StraightMovementTimer.IsNegative)
         {
-            state.MovementTimer = state.MovementTimer.Decrement().Remaining;
-            if (state.MovementTimer.IsNegative)
+            if (--state.MovementTimer < 0)
             {
                 state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
@@ -287,7 +284,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         int angleDelta = ByteAngle.Wrapped(randomLow - EnemyByteAngleDefinitions.QuarterTurn).RawValue;
         state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
-        state.MovementTimer = WrappingCountdown.Start(SbugMovementSegmentFrames);
+        state.MovementTimer = SbugMovementSegmentFrames;
         state.Function = movement;
     }
 

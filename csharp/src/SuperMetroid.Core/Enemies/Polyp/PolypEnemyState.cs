@@ -14,12 +14,12 @@ public sealed class PolypEnemyState
     public PolypEnemyFunction? Function { get; internal set; }
 
     /// <summary>The launch cooldown, decremented through -1 before the Polyp rearms.</summary>
-    public WrappingCountdown CooldownTimer { get; internal set; }
+    public int CooldownTimer { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour and no cooldown.</summary>
     internal void ClearWithRecord()
     {
         Function = null;
-        CooldownTimer = WrappingCountdown.Start(0);
+        CooldownTimer = 0;
     }
 }

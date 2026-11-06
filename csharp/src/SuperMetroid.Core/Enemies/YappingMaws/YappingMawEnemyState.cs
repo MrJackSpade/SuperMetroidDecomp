@@ -77,7 +77,7 @@ public sealed class YappingMawEnemyState
     public bool QuadraticSpeedNegative { get; internal set; }
 
     /// <summary>Variable E: 64-frame hold after the tongue fully retracts.</summary>
-    public WrappingCountdown RetractedDelayTimer { get; internal set; }
+    public int RetractedDelayTimer { get; internal set; }
 
     /// <summary>
     /// Variable F: the population parameter-one distance, 0 through 65535, below which an attack starts. The game

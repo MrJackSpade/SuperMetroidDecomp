@@ -105,7 +105,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The USA/Japan build reloads 21 every airborne frame. It becomes the complete
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
-        state.BurrowTimer = WrappingCountdown.Start(21);
+        state.BurrowTimer = 21;
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, 6 << 16))
         {
             slot.FrameHold = WrappingCountdown.Start(1);
@@ -124,15 +124,14 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the slot at zero.</summary>
     private void RunSkreeBurrow(RoomEnemySlot slot, SkreeEnemyState state)
     {
-        state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
-        if (state.BurrowTimer.IsZero)
+        if (--state.BurrowTimer == 0)
         {
             slot.Shading = EnemyShades.InEnemyProjectileColours;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;
         }
 
-        if (state.BurrowTimer.IsAt(8))
+        if (state.BurrowTimer == 8)
             _projectiles.SpawnMetalParticleBurst(slot, SkreeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }

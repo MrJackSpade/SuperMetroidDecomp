@@ -53,7 +53,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpawnPosition = slot.Position.Whole;
         state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
         state.Function = PipeBugEnemyFunction.BrinstarWaitUntilOnScreen;
-        state.RespawnDelay = WrappingCountdown.Start(BrinstarPipeBugRespawnFrames);
+        state.RespawnDelay = BrinstarPipeBugRespawnFrames;
         state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         state.InstalledAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
@@ -125,8 +125,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunBrinstarPipeBugFlight(slot, state, camera.X);
                 return;
             case PipeBugEnemyFunction.BrinstarRespawnDelay:
-                state.RespawnDelay = state.RespawnDelay.Decrement().Remaining;
-                if (state.RespawnDelay.IsZero)
+                if (--state.RespawnDelay == 0)
                     state.Function = PipeBugEnemyFunction.BrinstarWaitForSamus;
                 return;
 
@@ -275,7 +274,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.RespawnDelay = WrappingCountdown.Start(BrinstarPipeBugRespawnFrames);
+        state.RespawnDelay = BrinstarPipeBugRespawnFrames;
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
@@ -474,15 +473,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-        state.EmergenceDelay = WrappingCountdown.Start(YellowPipeBugEmergenceDelayFrames);
+        state.EmergenceDelay = YellowPipeBugEmergenceDelayFrames;
         state.Function = PipeBugEnemyFunction.YellowEmergenceDelay;
     }
 
     /// <summary>Counts down the visible emergence delay before installing directional straight-flight art.</summary>
     private static void RunYellowPipeBugDelay(RoomEnemySlot slot, PipeBugEnemyState state)
     {
-        state.EmergenceDelay = state.EmergenceDelay.Decrement().Remaining;
-        if (!state.EmergenceDelay.IsZero)
+        if (--state.EmergenceDelay != 0)
             return;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

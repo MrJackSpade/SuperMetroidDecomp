@@ -13,10 +13,10 @@ internal static class SporeSpawnProjectiles
     internal static int SpawnerX(int spawnArgument) =>
         CoordinateAxis.Wrap(32 + 64 * SpawnIndex(spawnArgument));
 
-    /// <summary>One signed pixel delta pair from the wrapped movement stream: X at the offset and Y at the next byte.</summary>
-    /// <param name="offset">The byte offset into the stream, 0 through 255; the Y delta's offset wraps within it.</param>
+    /// <summary>One signed pixel delta pair from the wrapped movement stream: X at the offset and Y at the next step.</summary>
+    /// <param name="offset">The step into the stream, 0 through 255; the Y delta's step wraps from the last step to the first.</param>
     internal static Offset16<RoomPixels> MovementAt(int offset) =>
-        new(Movement[offset], Movement[WordWrap.LowByte(offset + 1)]);
+        new(Movement[offset], Movement[(offset + 1) % Movement.Length]);
 
     /// <summary>Accepts only the four stalk or ceiling-emitter ordinals used by the spawn routines.</summary>
     private static int SpawnIndex(int spawnArgument)

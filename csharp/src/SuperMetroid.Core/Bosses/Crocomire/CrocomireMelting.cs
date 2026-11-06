@@ -175,7 +175,7 @@ internal sealed class CrocomireMelting
         state.Body.Position = state.Body.Position.WithWholeX(WordWrap.Unsigned(
             death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0)));
 
-        EraseNextCrocomireMeltingColumn();
+        EraseNextCrocomireMeltingColumn(state);
 
         // The melting's end places his body layer again, which also moves the tongue onto the body.
         _bodyLayer.PlaceCrocomireBodyLayer(state);
@@ -198,10 +198,10 @@ internal sealed class CrocomireMelting
 
     /// <summary>
     /// Takes the dissolve's next step: erases the next column of the melt image and shows the pass's next
-    /// band at the new step, starting the bands over after the last. Once every column is erased it shows nothing more,
-    /// while the distortion runs on to its end.
+    /// band at the new step, starting the bands over after the last, and his body shows the whole melt image as the step
+    /// leaves it (#1513). Once every column is erased it shows nothing more, while the distortion runs on to its end.
     /// </summary>
-    internal void EraseNextCrocomireMeltingColumn()
+    internal void EraseNextCrocomireMeltingColumn(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (death.MeltColumnsErased == CrocomireMeltingDefinitions.ColumnCount)
@@ -210,6 +210,26 @@ internal sealed class CrocomireMelting
         if (death.NextMeltBand == BandCount(death.MeltPass))
             death.NextMeltBand = 0;
         ShowMeltBand(death, death.NextMeltBand++);
+        _bodyLayer.ShowCrocomireBodyFrame(state, _bossArtwork.Body(BossBodyOwner.Crocomire)
+            .Frame(CrocomireMeltingFrameNames.Of(death.MeltPass, death.MeltColumnsErased)));
+    }
+
+    /// <summary>
+    /// The dissolve step at which band <paramref name="band"/> of <paramref name="pass"/>'s melt image was last shown once
+    /// the dissolve has erased <paramref name="erased"/> columns (#1513): each erase shows the next band in turn, the first
+    /// erase the first band, so a band shows the image at the last erase that showed it, and before any erase showed it the
+    /// unerased image its pass showed it with first. The import pictures each state of the melt image whole from these.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The band is not one of the pass's, or the count is not one of the dissolve's.</exception>
+    internal static int BandStepAfter(CrocomireMeltingIllustration pass, int band, int erased)
+    {
+        int bands = BandCount(pass);
+        if ((uint)band >= (uint)bands)
+            throw new ArgumentOutOfRangeException(nameof(band), band, $"Crocomire's {pass} melt image has no such band.");
+        if ((uint)erased > CrocomireMeltingDefinitions.ColumnCount)
+            throw new ArgumentOutOfRangeException(nameof(erased), erased, "Crocomire's dissolve has no such step.");
+        // Erase k shows band (k - 1) modulo the bands, so band b was last shown at erase b + 1 plus a whole number of rounds.
+        return erased <= band ? 0 : band + 1 + (erased - band - 1) / bands * bands;
     }
 
     /// <summary>

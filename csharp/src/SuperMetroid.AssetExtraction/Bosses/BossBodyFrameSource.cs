@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -7,6 +8,14 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Cells">The tile written at each layer cell, by cell in reading order.</param>
 internal sealed record BossBodyFrameSource(string Name, SortedDictionary<int, BackgroundTile> Cells)
 {
+    /// <summary>
+    /// The frame each room animation whose characters the frame reads shows while the frame is shown, by animation (#1513):
+    /// the frame is pictured whole over those frames' characters, as each state of Crocomire's melt image shows each band
+    /// of its characters at the dissolve step that state leaves it. A cell reading the characters of an animation not named
+    /// here shows them as the room loads them, as a frame shown before the animation selects any does.
+    /// </summary>
+    internal IReadOnlyDictionary<ArtworkAnimation, ArtworkFrame> Selected { get; init; } = new Dictionary<ArtworkAnimation, ArtworkFrame>();
+
     /// <summary>The frame writing <paramref name="tiles"/> from layer cell <paramref name="firstCell"/> onward.</summary>
     internal static BossBodyFrameSource Written(string name, int firstCell, ReadOnlySpan<BackgroundTile> tiles)
     {

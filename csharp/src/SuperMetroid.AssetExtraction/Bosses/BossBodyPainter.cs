@@ -11,9 +11,9 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
 /// Paints one boss's body frames over the characters its room shows (#1466, #1515): each frame as one whole picture over
-/// the room's load, placed where its cells lie on the body's area, with the rectangles it covers, and the cells of each
-/// animation they show pictured again over each frame of the animation. The cartridge's layer cells are read here, once,
-/// and nowhere else.
+/// the characters its room shows while the frame is shown, placed where its cells lie on the body's area, with the
+/// rectangles it covers. No piece of a frame is pictured apart from it (#1513). The cartridge's layer cells are read here,
+/// once, and nowhere else.
 /// </summary>
 /// <param name="owner">The boss.</param>
 /// <param name="room">What the boss's room shows at its characters.</param>
@@ -31,42 +31,35 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
     /// <summary>Each frame, by name.</summary>
     private readonly Dictionary<string, ComposedBossBodyFrame> frames = new(StringComparer.Ordinal);
 
-    /// <summary>Adds <paramref name="frame"/>'s whole picture and its animations' pictures.</summary>
+    /// <summary>
+    /// Adds <paramref name="frame"/>'s one whole picture: each cell over the characters the room shows there while the frame
+    /// is shown, a cell a room animation paints over the frame <see cref="BossBodyFrameSource.Selected"/> names for that
+    /// animation, and over the room's load where it names none (#1513).
+    /// </summary>
     /// <exception cref="InvalidDataException">
     /// The frame repeats a name, writes nothing, reads a character its room rebinds after loading or shows nothing at,
-    /// or a cell shows two animations.
+    /// a cell shows two animations, or the frame is pictured under a frame its room's animation does not paint.
     /// </exception>
     internal void Add(BossBodyFrameSource frame)
     {
         Ensure.NotNull(frame);
         if (frame.Cells.Count == 0)
             throw new InvalidDataException($"{owner}'s body frame {frame.Name} writes nothing.");
-        var animated = new SortedDictionary<string, SortedDictionary<int, BackgroundTile>>(StringComparer.Ordinal);
-        foreach ((int cell, BackgroundTile tile) in frame.Cells)
+        foreach (BackgroundTile tile in frame.Cells.Values)
         {
             if (room.Rebound.Any(upload => upload.Covers(BgCharacterSet.Tiles, tile.Tile)))
                 throw new InvalidDataException(
                     $"{owner}'s body frame {frame.Name} reads character {tile.Tile}, which its room rebinds after loading.");
-            if (AnimationOf(tile.Tile) is { } animation)
-            {
-                if (!animated.TryGetValue(animation.Name, out SortedDictionary<int, BackgroundTile>? cells))
-                    animated.Add(animation.Name, cells = []);
-                cells[cell] = tile;
-            }
+        }
+        foreach (ArtworkFrame selected in frame.Selected.Values)
+        {
+            if (!room.Animated.Any(placement => placement.Frame == selected))
+                throw new InvalidDataException($"{owner}'s body frame {frame.Name} is pictured under {selected.Animation.Name} {selected.Name}, which its room does not paint.");
         }
         // A frame whose every cell's character inks only colour zero shows nothing: it has no picture and covers what lies
         // beneath it (#1513), as Crocomire's second melt image covers the rows below his first.
-        string? picture = ShowsAnything(frame.Cells) ? AddPicture(frame.Name, frame.Cells, null) : null;
-        var overlays = new List<ComposedBossBodyOverlay>();
-        foreach ((string animation, SortedDictionary<int, BackgroundTile> cells) in animated)
-        {
-            var shown = new ArtworkAnimation(animation);
-            var named = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach (ArtworkFrame step in room.Animated.Select(placement => placement.Frame).Where(candidate => candidate.Animation == shown).Distinct())
-                named.Add(step.Name, AddPicture($"{frame.Name}~{animation}~{step.Name}", cells, step));
-            overlays.Add(new ComposedBossBodyOverlay(shown, CornerOf(cells), CoversOf(cells), named));
-        }
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells), CoversOf(frame.Cells), overlays)))
+        string? picture = ShowsAnything(frame) ? AddPicture(frame) : null;
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells), CoversOf(frame.Cells))))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
     }
 
@@ -214,34 +207,45 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         return covers.ToImmutable();
     }
 
-    /// <summary>Whether any of <paramref name="cells"/>' characters, as the room loads them, inks a colour other than colour zero.</summary>
-    private bool ShowsAnything(SortedDictionary<int, BackgroundTile> cells)
+    /// <summary>
+    /// Whether any of <paramref name="frame"/>'s cells' characters, as the room shows them while the frame is shown, inks a
+    /// colour other than colour zero.
+    /// </summary>
+    private bool ShowsAnything(BossBodyFrameSource frame)
     {
-        foreach (BackgroundTile tile in cells.Values)
+        foreach (BackgroundTile tile in frame.Cells.Values)
         {
-            if (Character(tile.Tile, null).Span.IndexOfAnyExcept((byte)0) >= 0)
+            if (Character(tile.Tile, ShownUnder(frame, tile.Tile)).Span.IndexOfAnyExcept((byte)0) >= 0)
                 return true;
         }
         return false;
     }
 
     /// <summary>
-    /// Adds the picture named <paramref name="name"/> of <paramref name="cells"/>, over <paramref name="frame"/> where it
-    /// paints, bounded by the cells' rectangle; returns its name.
+    /// Adds <paramref name="frame"/>'s whole picture, named for the frame, each cell over the characters the room shows there
+    /// while the frame is shown, bounded by the cells' rectangle; returns its name.
     /// </summary>
-    private string AddPicture(string name, SortedDictionary<int, BackgroundTile> cells, ArtworkFrame? frame)
+    private string AddPicture(BossBodyFrameSource frame)
     {
         const int cell = RoomTileCanvas.CharacterPixels;
-        Position16<BackgroundPixels> corner = CornerOf(cells);
-        var painted = new List<BossBodyPaintedCell>(cells.Count);
-        foreach ((int layerCell, BackgroundTile tile) in cells)
+        Position16<BackgroundPixels> corner = CornerOf(frame.Cells);
+        var painted = new List<BossBodyPaintedCell>(frame.Cells.Count);
+        foreach ((int layerCell, BackgroundTile tile) in frame.Cells)
         {
             Position16<BackgroundPixels> at = PixelOf(layerCell);
-            painted.Add(new BossBodyPaintedCell((at.X - corner.X) / cell, (at.Y - corner.Y) / cell, tile, Character(tile.Tile, frame)));
+            painted.Add(new BossBodyPaintedCell((at.X - corner.X) / cell, (at.Y - corner.Y) / cell, tile,
+                Character(tile.Tile, ShownUnder(frame, tile.Tile))));
         }
-        pictures.Add(new BossBodyPicture(name, painted.Max(entry => entry.Column) + 1, painted.Max(entry => entry.Row) + 1, painted));
-        return name;
+        pictures.Add(new BossBodyPicture(frame.Name, painted.Max(entry => entry.Column) + 1, painted.Max(entry => entry.Row) + 1, painted));
+        return frame.Name;
     }
+
+    /// <summary>
+    /// The frame of the room animation painting tile character <paramref name="character"/> that <paramref name="frame"/>
+    /// is shown under, or null for a still character or an animation the frame names no frame of, which shows the room's load.
+    /// </summary>
+    private ArtworkFrame? ShownUnder(BossBodyFrameSource frame, int character) =>
+        AnimationOf(character) is { } animation && frame.Selected.TryGetValue(animation, out ArtworkFrame selected) ? selected : null;
 
     /// <summary>
     /// The bytes of tile character <paramref name="character"/> as it shows over <paramref name="frame"/> where the frame

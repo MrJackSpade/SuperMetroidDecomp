@@ -17,14 +17,10 @@ public sealed record BossBodyLayer(ImmutableArray<BossBodyFrame> Frames, int? Hi
 
     /// <summary>
     /// The body as the frame shows it on an area of <paramref name="area"/>: each frame's picture over the rectangles it
-    /// covers and no later frame does, and each overlay's picture for the frame its animation shows in
-    /// <paramref name="selections"/>, which hold what the room's animations had selected when the frame was accepted, over
-    /// its own rectangles. Nothing shows beyond the area or from <see cref="HiddenFrom"/> down.
+    /// covers and no later frame does. Nothing shows beyond the area or from <see cref="HiddenFrom"/> down.
     /// </summary>
-    /// <exception cref="InvalidDataException">An overlay does not picture its animation's selected frame.</exception>
-    public ShownBossBody Show(ArtworkFrameSelections selections, Extent16<BackgroundPixels> area)
+    public ShownBossBody Show(Extent16<BackgroundPixels> area)
     {
-        Ensure.NotNull(selections);
         var shows = BossBodyRectangle.Between(0, 0, area.X, HiddenFrom is { } hidden ? Math.Clamp(hidden, 0, area.Y) : area.Y);
         var covered = new List<BossBodyRectangle>();
         var pieces = ImmutableArray.CreateBuilder<ShownBossBodyPiece>();
@@ -32,11 +28,6 @@ public sealed record BossBodyLayer(ImmutableArray<BossBodyFrame> Frames, int? Hi
         for (int index = Frames.Length - 1; index >= 0; index--)
         {
             BossBodyFrame frame = Frames[index];
-            foreach (BossBodyOverlay overlay in frame.Overlays)
-            {
-                if (overlay.Shown(selections) is { } painted)
-                    Place(painted, overlay.Corner, overlay.Covers);
-            }
             Place(frame.Picture, frame.Corner, frame.Covers);
         }
         return new(pieces.ToImmutable(), area);

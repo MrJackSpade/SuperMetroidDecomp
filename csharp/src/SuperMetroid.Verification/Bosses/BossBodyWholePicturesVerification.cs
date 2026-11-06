@@ -1,6 +1,8 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -47,6 +49,14 @@ internal static class BossBodyWholePicturesVerification
         }
         AssertTrue(findings.Count == 0,
             $"Boss body sheets hold pieces of pictures:{Environment.NewLine}{string.Join(Environment.NewLine, findings)}");
+        // Each state his dissolve leaves his melt image in is a whole frame his body shows (#1513).
+        BossBodySheet crocomire = InstalledFixtures.BossBodySheets.Of(BossBodyOwner.Crocomire);
+        foreach (CrocomireMeltingIllustration image in Enum.GetValues<CrocomireMeltingIllustration>())
+        {
+            for (int erased = 0; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
+                AssertEqual(CrocomireMeltingFrameNames.Of(image, erased), crocomire.Frame(CrocomireMeltingFrameNames.Of(image, erased)).Name,
+                    $"Crocomire's body sheet holds his {image} melt image after {erased} erased columns");
+        }
         Console.WriteLine($"  Boss body pictures: {pictures} pictures are each a frame's whole picture.");
     }
 

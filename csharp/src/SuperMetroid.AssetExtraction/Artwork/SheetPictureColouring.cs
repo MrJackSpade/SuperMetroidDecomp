@@ -74,7 +74,7 @@ internal sealed class SheetPictureColouring
             for (int entry = 0; entry < shade.Inks.Length; entry++)
             {
                 int ink = shade.Inks[entry];
-                if (ink < 0 || ink >= SpriteImage.SpriteColourCount)
+                if (ink is < 0 or >= SpriteImage.SpriteColourCount)
                     throw new InvalidDataException($"Shade {key} recolours ink {ink}, past a sprite sheet's {SpriteImage.SpriteColourCount}.");
                 if (Covers(groups, ink))
                     shown.Add(ink, RgbColor.FromWord(shade.Colours[entry]));

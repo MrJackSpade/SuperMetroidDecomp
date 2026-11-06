@@ -6,9 +6,6 @@ public static class AudioQueueDefinitions
     /// <summary>Music requests the music queue holds, each with its own delay.</summary>
     public const int MusicCapacity = 8;
 
-    /// <summary>The sound libraries, each with its own sound queue.</summary>
-    public const int SoundLibraryCount = SoundClockTiming.LibraryCount;
-
     /// <summary>Positions in each sound queue's ring: its most waiting requests plus the one kept empty to tell a full ring from an empty one.</summary>
     public const int SoundCapacity = SoundQueueAdmission.MaximumOccupancy + 1;
 

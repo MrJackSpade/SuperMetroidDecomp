@@ -2,12 +2,12 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// The game session's per-update audio advance (#1303, #1304, #1410): it applies the update's
-/// <see cref="AudioRequest"/>s to the <see cref="SoundAcceptanceClock{TSound}"/>, runs the clock for one
+/// <see cref="AudioRequest"/>s to the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, runs the clock for one
 /// update, publishes the acknowledgements the next update's sound handlers read, and turns the
 /// update into semantic <see cref="AudioEvent"/>s for an <see cref="ClipAudioBackend"/>.
 /// </summary>
 /// <remarks>
-/// Acknowledgements come only from the synthesis-free <see cref="SoundAcceptanceClock{TSound}"/>, so they are
+/// Acknowledgements come only from the synthesis-free <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, so they are
 /// identical whether a host plays audio, has audio disabled, or has no device. Audio output is
 /// presentation: when a host binds the installed clips, the update's events also drive a
 /// <see cref="ClipAudioBackend"/> whose PCM the host copies out (#1305). The backend is never
@@ -29,7 +29,7 @@ public sealed class AudioSession
     /// The game session's sound acceptance clock, created at the session's composition root and living as long as the
     /// session: its requests, acknowledgements and request-check phase carry across menus and gameplay runtimes.
     /// </param>
-    internal AudioSession(SoundAcceptanceClock<SoundEffectId> soundClock) => eventSource = new AudioEventSource(soundClock);
+    internal AudioSession(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> soundClock) => eventSource = new AudioEventSource(soundClock);
 
     /// <summary>Synthesis-free command-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
     private readonly AudioEventSource eventSource;
@@ -48,7 +48,7 @@ public sealed class AudioSession
     private short[]? lastPcm;
 
     /// <summary>The acknowledgements published by the most recent update, for the next one.</summary>
-    public SoundAcknowledgements<SoundEffectId> Acknowledgements => eventSource.Acknowledgements;
+    public SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> Acknowledgements => eventSource.Acknowledgements;
 
     /// <summary>
     /// Binds the installed clips (#1305) so each following update also renders host PCM from them.

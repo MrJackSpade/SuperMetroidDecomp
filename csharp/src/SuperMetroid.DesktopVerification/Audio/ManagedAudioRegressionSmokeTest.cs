@@ -219,13 +219,13 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Acknowledgements.AppendData(name);
         ReadOnlySpan<short> pcm = engine.RenderFrame(commands);
         tally.Pcm.AppendData(MemoryMarshal.AsBytes(pcm));
-        SoundAcknowledgements<SoundEffectId> acknowledgements = engine.Acknowledgements;
+        SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements = engine.Acknowledgements;
         // The corpus pinned four bytes per update: the sequencer's music echo, which the session never publishes, then
         // each library's acknowledgement in library order.
-        Span<byte> reported = stackalloc byte[1 + SoundClockTiming.LibraryCount];
+        Span<byte> reported = stackalloc byte[1 + SoundEffectLibraries.Count];
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
-        for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
-            reported[1 + library] = SoundEffectPortBytes.PortByte(acknowledgements[library]);
+        for (int library = 0; library < SoundEffectLibraries.Count; library++)
+            reported[1 + library] = SoundEffectPortBytes.PortByte(acknowledgements[SoundEffectLibraries.FromQueueIndex(library)]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;

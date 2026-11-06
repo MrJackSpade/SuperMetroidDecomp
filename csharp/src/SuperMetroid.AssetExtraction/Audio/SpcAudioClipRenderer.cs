@@ -20,8 +20,8 @@ internal sealed class SpcAudioClipRenderer
     /// <summary>Native output rate in stereo frames per second: 534 per 60-Hz frame.</summary>
     internal const int NativeSampleRate = ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 60;
 
-    /// <summary>The sound acceptance clock that turns the queued requests into each frame's events.</summary>
-    private readonly AudioEventSource eventSource = new(new SoundAcceptanceClock<SoundEffectId>());
+    /// <summary>The renderer's own sound acceptance clock, serving the libraries in queue order with library one reporting a music load, that turns the queued requests into each frame's events.</summary>
+    private readonly AudioEventSource eventSource = new(new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1));
     /// <summary>The emulated driver and DSP the events drive.</summary>
     private readonly ManagedSpcAudioBackend backend;
     /// <summary>Requests applied at the next frame's start, in order.</summary>

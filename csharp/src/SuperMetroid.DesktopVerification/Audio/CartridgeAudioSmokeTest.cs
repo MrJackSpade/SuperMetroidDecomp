@@ -16,7 +16,7 @@ public static class CartridgeAudioSmokeTest
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
-        SoundAcknowledgements<SoundEffectId> acknowledgements = default;
+        SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements = default;
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frames; frame++)
         {
@@ -60,7 +60,7 @@ public static class CartridgeAudioSmokeTest
         var soundQueue = new AudioQueues();
         SoundEffectId powerBeam = SoundEffectCommands.Decode(SoundEffectLibrary.Library1, powerBeamSound);
         soundQueue.QueueSound(powerBeam, priority: SoundRequestPriority.Essential);
-        SoundAcknowledgements<SoundEffectId> acknowledgements = default;
+        SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements = default;
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
         int nonZeroSamples = 0;
@@ -77,9 +77,9 @@ public static class CartridgeAudioSmokeTest
             }
 
             acknowledgements = soundEngine.Acknowledgements;
-            if (acknowledgements[0].Acknowledges(powerBeam))
+            if (acknowledgements[SoundEffectLibrary.Library1].Acknowledges(powerBeam))
                 requestAcknowledged = true;
-            else if (requestAcknowledged && acknowledgements[0].IsNone)
+            else if (requestAcknowledged && acknowledgements[SoundEffectLibrary.Library1].IsNone)
                 clearAcknowledgedAfterRequest = true;
         }
 

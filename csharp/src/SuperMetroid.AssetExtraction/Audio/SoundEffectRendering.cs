@@ -68,7 +68,7 @@ internal static class SoundEffectRendering
         bool loops)
     {
         SoundEffectRenderStart Probe(bool synthesize) => SoundEffectRenderStart.Capture(Start(catalog, context, library, command,
-            new SoundEffectObserver(SoundEffectLibraries.ToQueueIndex(library), command), synthesize, reads: null));
+            new SoundEffectObserver(library, command), synthesize, reads: null));
         return new SoundEffectRenderStarts(Probe(synthesize: true), loops ? Probe(synthesize: false) : null);
     }
 
@@ -100,7 +100,7 @@ internal static class SoundEffectRendering
     internal static OneShot RenderOneShot(
         ExtractedAudioAssetCatalog catalog, AudioBank? context, SoundEffectLibrary library, int command, SoundEffectRenderReads? reads)
     {
-        var observer = new SoundEffectObserver(SoundEffectLibraries.ToQueueIndex(library), command);
+        var observer = new SoundEffectObserver(library, command);
         SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true, reads);
         bool silentAfterEnd = false;
         var pcm = new List<short>();
@@ -135,8 +135,7 @@ internal static class SoundEffectRendering
         int allocatedChannels,
         SoundEffectRenderReads? reads)
     {
-        int libraryIndex = SoundEffectLibraries.ToQueueIndex(library);
-        var finder = new SoundEffectObserver(libraryIndex, command);
+        var finder = new SoundEffectObserver(library, command);
         SpcAudioClipRenderer sequencer = Start(catalog, context, library, command, finder, synthesize: false, reads);
         while (!finder.AllChannelLoopsFound)
         {
@@ -154,7 +153,7 @@ internal static class SoundEffectRendering
         var layers = new List<LoopingLayer>(loops.Count);
         foreach ((long first, long second, int voice) in loops)
         {
-            var observer = new SoundEffectObserver(libraryIndex, command);
+            var observer = new SoundEffectObserver(library, command);
             SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true, reads);
             renderer.Player.dsp.OutputVoices = voice;
             // The last frame overshoots E2 by less than a frame, so the buffer never regrows.

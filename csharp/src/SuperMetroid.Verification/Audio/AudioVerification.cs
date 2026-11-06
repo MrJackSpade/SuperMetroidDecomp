@@ -206,7 +206,7 @@ internal static class AudioVerification
         AssertEqual(new AudioRequest.RequestSound(Library2Sound.DudShotOnDoor), request.Single(), "SFX request write");
         AssertEqual(
             0,
-            sfx.AdvanceFrame(SoundAcknowledgements<SoundEffectId>.Of(null, Library2Sound.DudShotOnDoor, null)).Count,
+            sfx.AdvanceFrame(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>.Of(SoundEffectLibrary.Library2, Library2Sound.DudShotOnDoor)).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(
@@ -219,7 +219,7 @@ internal static class AudioVerification
         cancellation.QueueCancelSoundEffects();
         IReadOnlyList<AudioRequest> cancelWrites =
             cancellation.AdvanceFrame(default);
-        AssertEqual(AudioQueueDefinitions.SoundLibraryCount, cancelWrites.Count,
+        AssertEqual(SoundEffectLibraries.Count, cancelWrites.Count,
             "sound cancellation writes every native SFX library");
         AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(Library1Sound.Silence)),
             "sound cancellation queues library one's silence");

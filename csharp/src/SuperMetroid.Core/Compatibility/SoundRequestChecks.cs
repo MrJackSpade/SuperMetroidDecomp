@@ -1,33 +1,49 @@
-using System.Runtime.CompilerServices;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Compatibility;
 
-/// <summary>One clock step's request check of each sound library, indexed by zero-based library index.</summary>
+/// <summary>
+/// One clock step's request check of each sound library, keyed by the library. A library left unlisted, and every library
+/// of the default value, reads as a check that acted on no request and saw no change.
+/// </summary>
+/// <typeparam name="TLibrary">A sound library.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for.</typeparam>
 [CompatibilityService("one clock step's request check of each sound library")]
-[InlineArray(SoundClockTiming.LibraryCount)]
-public struct SoundRequestChecks<TSound> : IEquatable<SoundRequestChecks<TSound>>
+public readonly struct SoundRequestChecks<TLibrary, TSound> : IEquatable<SoundRequestChecks<TLibrary, TSound>>
+    where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
-    /// <summary>Library 1's check; the other libraries' follow it in queue order.</summary>
-    private SoundRequestCheck<TSound> first;
+    /// <summary>Each listed library's check.</summary>
+    private readonly SoundLibraryValues<TLibrary, SoundRequestCheck<TSound>> byLibrary;
 
-    /// <summary>Two check sets are equal when every element matches; inline arrays have no built-in value equality.</summary>
-    public readonly bool Equals(SoundRequestChecks<TSound> other)
-    {
-        for (int index = 0; index < SoundClockTiming.LibraryCount; index++)
-            if (!EqualityComparer<SoundRequestCheck<TSound>>.Default.Equals(this[index], other[index])) return false;
-        return true;
-    }
+    /// <summary>The check of each of <paramref name="libraries"/>.</summary>
+    /// <param name="libraries">The libraries, distinct.</param>
+    /// <param name="checkOf">Each library's check, run once per library in the order of <paramref name="libraries"/>.</param>
+    /// <exception cref="ArgumentException"><paramref name="libraries"/> is default or holds a library twice.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="checkOf"/> is null.</exception>
+    public SoundRequestChecks(ImmutableArray<TLibrary> libraries, Func<TLibrary, SoundRequestCheck<TSound>> checkOf) =>
+        byLibrary = new SoundLibraryValues<TLibrary, SoundRequestCheck<TSound>>(libraries, checkOf);
 
-    /// <summary>Compares with another boxed <see cref="SoundRequestChecks{TSound}"/> element by element.</summary>
-    public override readonly bool Equals(object? obj) => obj is SoundRequestChecks<TSound> other && Equals(other);
+    /// <summary>Holds <paramref name="byLibrary"/>.</summary>
+    private SoundRequestChecks(SoundLibraryValues<TLibrary, SoundRequestCheck<TSound>> byLibrary) => this.byLibrary = byLibrary;
 
-    /// <summary>Combines every element's hash in index order.</summary>
-    public override readonly int GetHashCode()
-    {
-        var hash = new HashCode();
-        for (int index = 0; index < SoundClockTiming.LibraryCount; index++) hash.Add(this[index]);
-        return hash.ToHashCode();
-    }
+    /// <summary>The check of <paramref name="library"/>; no request and no change for a library left unlisted.</summary>
+    public SoundRequestCheck<TSound> this[TLibrary library] => byLibrary[library];
+
+    /// <summary>These checks with <paramref name="library"/>'s check replaced by <paramref name="check"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not listed.</exception>
+    public SoundRequestChecks<TLibrary, TSound> With(TLibrary library, SoundRequestCheck<TSound> check) =>
+        new(byLibrary.With(library, check));
+
+    /// <summary>Two check sets are equal when every library's check is the same in both.</summary>
+    public bool Equals(SoundRequestChecks<TLibrary, TSound> other) => byLibrary.Equals(other.byLibrary);
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj is SoundRequestChecks<TLibrary, TSound> other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode() => byLibrary.GetHashCode();
+
+    /// <inheritdoc />
+    public override string ToString() => byLibrary.ToString();
 }

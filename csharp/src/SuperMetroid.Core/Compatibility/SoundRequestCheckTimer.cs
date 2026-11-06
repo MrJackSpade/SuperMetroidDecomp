@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// all their eighths at once, formed within one period, as the original sound program formed its increment.
 /// </summary>
 /// <remarks>
-/// Advanced on every step of the <see cref="SoundAcceptanceClock{TSound}"/>, which runs once per update after the
+/// Advanced on every step of the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, which runs once per update after the
 /// update's sound requests; its overflow is when the clock acknowledges and takes each library's request. Evidence: the
 /// sound program's timer service adds to its request-check counter on each tick of its 500-Hz timer and reads the
 /// requests (<c>$1621</c>) when the counter overflows; the sound acceptance clock check compares the acceptance this

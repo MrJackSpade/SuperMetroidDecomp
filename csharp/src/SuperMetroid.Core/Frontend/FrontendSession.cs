@@ -69,9 +69,11 @@ internal sealed class FrontendSession
     internal readonly AudioQueues audio = new();
     /// <summary>
     /// When each sound library accepts the game's requests and what it acknowledges: one clock for the session's whole
-    /// lifetime, so its requests and request-check phase carry across menus and gameplay runtimes.
+    /// lifetime, so its requests and request-check phase carry across menus and gameplay runtimes. It serves the libraries
+    /// in queue order, and library one reports a music load.
     /// </summary>
-    internal readonly SoundAcceptanceClock<SoundEffectId> soundClock = new();
+    internal readonly SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> soundClock =
+        new(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1);
     /// <summary>The audio advance on <see cref="soundClock"/> and clip playback, advanced at the end of every update.</summary>
     internal readonly AudioSession audioSession;
     /// <summary>The frontend screen showing now: the one menu or cinematic the current state runs, or none.</summary>

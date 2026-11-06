@@ -70,7 +70,7 @@ public static class DebuggerSaveStateSmokeTest
             var expected = new FrontendFrame[continuationFrames];
             var expectedPixels = new RgbaPixel[continuationFrames][];
             var expectedPcm = new short[continuationFrames][];
-            var expectedAcknowledgements = new SoundAcknowledgements<SoundEffectId>[continuationFrames];
+            var expectedAcknowledgements = new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>[continuationFrames];
             var expectedAudioEvents = new AudioEvent[continuationFrames][];
             for (int frame = 0; frame < continuationFrames; frame++)
             {
@@ -112,7 +112,7 @@ public static class DebuggerSaveStateSmokeTest
                 FrontendFrame actual = loaded.Game.Step(0);
                 var actualPcm = new short[AudioSession.PcmSamplesPerFrame];
                 loaded.Game.CopyAudioFrame(actualPcm);
-                SoundAcknowledgements<SoundEffectId> actualAcknowledgements =
+                SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> actualAcknowledgements =
                     loaded.Game.AudioAcknowledgementsForVerification;
                 FrontendFrame wanted = expected[frame];
                 if (actual.GameState != wanted.GameState ||

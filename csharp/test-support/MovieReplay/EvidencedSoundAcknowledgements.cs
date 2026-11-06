@@ -12,7 +12,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// waiting state during an update; the replay reproduces exactly that outcome. Music
 /// (port 0), updates without native evidence, and normal play keep the session's SPC model.
 /// </remarks>
-internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTiming<SoundEffectId>
+internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTiming<SoundEffectLibrary, SoundEffectId>
 {
     /// <summary>$0649..$064B: APU_SoundStateLib1..3.</summary>
     private const int SoundStateLib1 = 0x0649;
@@ -29,13 +29,10 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
         ClearAcknowledgement = 3,
     }
 
-    /// <summary>The three sound-effect libraries occupy adjacent handler-state bytes.</summary>
-    private const int LibraryCount = 3;
-
     /// <summary>Last captured APU_SoundStateLib values used to detect waiting-state exits.</summary>
-    private readonly byte[] states = new byte[LibraryCount];
+    private readonly byte[] states = new byte[SoundEffectLibraries.Count];
     /// <summary>Last captured APU_CurrentSoundLib values, decoded to the sounds each waiting state compares with port echoes.</summary>
-    private readonly SoundEffectId?[] currents = new SoundEffectId?[LibraryCount];
+    private readonly SoundEffectId?[] currents = new SoundEffectId?[SoundEffectLibraries.Count];
     /// <summary>False after an update without a native checkpoint, until the next capture.</summary>
     private bool captured;
     /// <summary>Native memory expected after the current update, captured once that update completes.</summary>
@@ -54,53 +51,61 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     public void Invalidate() => captured = false;
 
     /// <inheritdoc/>
-    public SoundAcknowledgements<SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectId> modeled, SoundAcknowledgements<SoundEffectId> portWrites) =>
+    public SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> modeled, SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> portWrites) =>
         captured && expectedAfter is not null ? ForUpdate(modeled, expectedAfter) : modeled;
 
     /// <summary>
     /// Acknowledgements for the update whose native result is <paramref name="nativeAfter"/>.
     /// A waiting library that left its state saw its echo; one that stayed did not.
     /// </summary>
-    public SoundAcknowledgements<SoundEffectId> ForUpdate(SoundAcknowledgements<SoundEffectId> spc, NativeCheckpointMemory nativeAfter)
+    public SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> ForUpdate(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> spc, NativeCheckpointMemory nativeAfter)
     {
-        SoundAcknowledgement<SoundEffectId>[] ports = [spc[0], spc[1], spc[2]];
-        for (int library = 0; library < LibraryCount; library++)
-        {
-            byte before = states[library];
-            // Other handler states send or clear requests without awaiting an echo.
-            if (!Enum.IsDefined((WaitingState)before))
-                continue;
-            SoundEffectId? compared = currents[library];
-            bool echoed = nativeAfter[SoundStateLib1 + library] != before;
-            if (echoed)
-                ports[library] = SoundAcknowledgement<SoundEffectId>.Of(compared);
-            else if (ports[library].Acknowledges(compared))
-                // Any other acknowledgement reproduces the unmatched read; keep the SPC model's
-                // acknowledgement unless it already matches.
-                ports[library] = Unmatched(library, compared);
-        }
-        return new SoundAcknowledgements<SoundEffectId>(ports[0], ports[1], ports[2]);
+        return new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder,
+            library => ForLibrary(library, spc[library], nativeAfter));
+    }
+
+    /// <summary>
+    /// <paramref name="library"/>'s acknowledgement for the update whose native result is <paramref name="nativeAfter"/>,
+    /// given the SPC model's <paramref name="modeled"/> one.
+    /// </summary>
+    private SoundAcknowledgement<SoundEffectId> ForLibrary(
+        SoundEffectLibrary library, SoundAcknowledgement<SoundEffectId> modeled, NativeCheckpointMemory nativeAfter)
+    {
+        // The native handler keeps each library's state at the library's queue position.
+        int position = SoundEffectLibraries.ToQueueIndex(library);
+        byte before = states[position];
+        // Other handler states send or clear requests without awaiting an echo.
+        if (!Enum.IsDefined((WaitingState)before))
+            return modeled;
+        SoundEffectId? compared = currents[position];
+        bool echoed = nativeAfter[SoundStateLib1 + position] != before;
+        if (echoed)
+            return SoundAcknowledgement<SoundEffectId>.Of(compared);
+        // Any other acknowledgement reproduces the unmatched read; keep the SPC model's
+        // acknowledgement unless it already matches.
+        return modeled.Acknowledges(compared) ? Unmatched(library, compared) : modeled;
     }
 
     /// <summary>
     /// An acknowledgement that does not match <paramref name="compared"/>: nothing while a sound is awaited, or the
     /// library's silence while the withdrawal is awaited.
     /// </summary>
-    private static SoundAcknowledgement<SoundEffectId> Unmatched(int library, SoundEffectId? compared) =>
+    private static SoundAcknowledgement<SoundEffectId> Unmatched(SoundEffectLibrary library, SoundEffectId? compared) =>
         compared is not null
             ? SoundAcknowledgement<SoundEffectId>.Of(null)
             : SoundAcknowledgement<SoundEffectId>.Of(library switch
             {
-                0 => Library1Sound.Silence,
-                1 => Library2Sound.Silence,
-                2 => Library3Sound.Silence,
-                _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Sound libraries are indexed 0 through 2."),
+                SoundEffectLibrary.Library1 => Library1Sound.Silence,
+                SoundEffectLibrary.Library2 => Library2Sound.Silence,
+                SoundEffectLibrary.Library3 => Library3Sound.Silence,
+                _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library."),
             });
 
     /// <summary>Records the native sound-handler state after an update.</summary>
     public void Capture(NativeCheckpointMemory nativeMemory)
     {
-        for (int library = 0; library < LibraryCount; library++)
+        // The sound-effect libraries occupy adjacent handler-state bytes, in queue order.
+        for (int library = 0; library < SoundEffectLibraries.Count; library++)
         {
             states[library] = nativeMemory[SoundStateLib1 + library];
             currents[library] = SoundEffectCommands.DecodeOptional(

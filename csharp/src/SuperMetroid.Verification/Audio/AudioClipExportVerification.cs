@@ -133,7 +133,7 @@ internal static class AudioClipExportVerification
         byte voices,
         long frames)
     {
-        var events = new AudioEventSource(new SoundAcceptanceClock<SoundEffectId>());
+        var events = new AudioEventSource(new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1));
         var backend = new ManagedSpcAudioBackend(catalog);
         backend.Player.dsp.OutputVoices = voices;
         var observer = new StartObserver(backend.Player, started);
@@ -172,7 +172,7 @@ internal static class AudioClipExportVerification
         internal long? StartSample { get; private set; }
 
         /// <inheritdoc />
-        public void TickStarting(SoundClockStep<byte> tick) =>
+        public void TickStarting(SoundClockStep<SoundEffectLibrary, byte> tick) =>
             tickSample = (long)Frame * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.SampleOffset;
 
         /// <inheritdoc />

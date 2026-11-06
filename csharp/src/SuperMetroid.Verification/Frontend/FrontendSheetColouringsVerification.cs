@@ -149,11 +149,10 @@ internal static class FrontendSheetColouringsVerification
             TitleSequenceDefinitions.TextSequences.Nintendo, TitleSequenceDefinitions.TextSequences.Presents,
             TitleSequenceDefinitions.TextSequences.MetroidThree])
         {
-            foreach (TitleCardStep step in TitleCards.Steps(card.Phase))
-            {
-                if (step.Sprite is { } sprite)
-                    Add(sets, TitleSpriteDefinitions.FrameName(sprite), TitleSheetInks.SpriteSet(card.Colouring));
-            }
+            // Each card's reveals are drawn as the glyphs typed so far, each glyph in the card's colouring.
+            int reveals = TitleCards.Steps(card.Phase).Where(step => step.Sprite is not null).Select(step => step.Sprite).Distinct().Count();
+            for (int glyph = 0; glyph < reveals; glyph++)
+                Add(sets, TitleSpriteDefinitions.GlyphFrameName(card.Phase, glyph), TitleSheetInks.SpriteSet(card.Colouring));
         }
         Add(sets, TitleSpriteDefinitions.FrameName(TitleSprite.SuperMetroidLogo), TitleSheetInks.SpriteSet(TitleSpriteColouring.Logo));
         Add(sets, TitleSpriteDefinitions.FrameName(TitleSprite.NintendoCopyright), TitleSheetInks.SpriteSet(TitleSpriteColouring.Copyright));
@@ -214,7 +213,17 @@ internal static class FrontendSheetColouringsVerification
             AddProgram(sets, CinematicSpriteFamily.EndingExplosion, explosion.Program, explosion.Colouring);
         foreach (EndingSpriteDefinition text in (EndingSpriteDefinition[])[EndingActorDefinitions.OperationWasText,
             EndingActorDefinitions.CompletedSuccessfullyText, EndingActorDefinitions.ClearTimeText, EndingActorDefinitions.ClearTimeColon])
+        {
             AddProgram(sets, CinematicSpriteFamily.EndingCompletionText, text.Program, text.Colouring);
+            // A typed text is drawn as the glyphs typed so far, each glyph in the text's colouring; the colon is drawn whole.
+            if (text.Program == EndingActorDefinitions.ClearTimeColon.Program)
+                continue;
+            int glyphs = CinematicSpriteAnimations.Programs.Steps(text.Program)
+                .OfType<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>()
+                .Select(step => step.Frame).Where(pose => pose != CinematicSpritePose.Blank).Distinct().Count();
+            for (int glyph = 0; glyph < glyphs; glyph++)
+                Add(sets, TypedTextSpriteSheet.GlyphFrameName(CinematicSpriteFamily.EndingCompletionText, text.Program, glyph), EndingScreenInks.SpriteSet(text.Colouring));
+        }
         foreach (CinematicSpriteProgram digit in EndingCreditsState.ClearTimeDigitPrograms)
             AddProgram(sets, CinematicSpriteFamily.EndingCompletionText, digit, EndingSpriteColouring.ClearTimeDigits);
         // The flyaway spawns the animals' escape pod in its own colouring (EndingFlyaway).

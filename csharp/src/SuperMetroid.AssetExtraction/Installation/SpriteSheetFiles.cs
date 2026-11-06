@@ -152,7 +152,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.AreaMapBackgroundCrateria or SpriteSheetId.AreaMapBackgroundBrinstar or
             SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
             SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian => [AreaMapPictures.WorldBackgroundFrame],
-        SpriteSheetId.Title => TitleGraphicsFormat.Sprites.Select(TitleSpriteDefinitions.FrameName),
+        SpriteSheetId.Title => TitleSheetComposer.FrameNames(),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),
         SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),

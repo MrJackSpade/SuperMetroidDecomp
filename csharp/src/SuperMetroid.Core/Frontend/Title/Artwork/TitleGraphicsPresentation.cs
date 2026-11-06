@@ -19,12 +19,27 @@ public abstract class TitleGraphicsPresentation
         TitleSpriteColouring colouring) =>
         DrawSprite(sheet, sprite, sprites, origin, PictureShading.Shaded(TitleShades.Drawn(colouring)));
 
-    /// <summary>Places one title frame of the title sheet in <paramref name="shading"/> (#1512).</summary>
+    /// <summary>
+    /// Places one title composition of the title sheet in <paramref name="shading"/> (#1512): a card's reveal as each glyph
+    /// its card has typed up to it, each at the card's origin (#1513), any other composition as its whole frame. A glyph
+    /// that shows nothing, such as a space, places nothing.
+    /// </summary>
     public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin,
         PictureShading shading)
     {
         Ensure.NotNull(shading);
-        Ensure.NotNull(sprites).AddImage(Ensure.NotNull(sheet).Frame(TitleSpriteDefinitions.FrameName(sprite)), origin,
-            shading: shading);
+        Ensure.NotNull(sheet);
+        Ensure.NotNull(sprites);
+        if (TitleTypedCards.Find(sprite) is not { } step)
+        {
+            sprites.AddImage(sheet.Frame(TitleSpriteDefinitions.FrameName(sprite)), origin, shading: shading);
+            return;
+        }
+        for (int glyph = 0; glyph <= step.Glyph; glyph++)
+        {
+            string name = TitleSpriteDefinitions.GlyphFrameName(step.Card, glyph);
+            if (!sheet.ShowsNothing(name))
+                sprites.AddImage(sheet.Frame(name), origin, shading: shading);
+        }
     }
 }

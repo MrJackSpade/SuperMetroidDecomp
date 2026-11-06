@@ -56,9 +56,27 @@ internal static class TypedTextGlyphsVerification
             if (sheet.frames.ContainsKey(step.Frame) || sheet.blanks.Contains(step.Frame))
                 findings.Add($"{step.Sheet} pictures typed step {step.Frame} as a whole frame");
         }
+        // Each glyph a typed step adds is held, as a picture or as one that shows nothing (a space).
+        var glyphs = new List<TypedStepFrame>();
+        foreach (TitleSequencePhase card in TitleTypedCards.Cards)
+        {
+            for (int glyph = 0; glyph < TitleTypedCards.Steps(card).Count; glyph++)
+                glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.GlyphFrameName(card, glyph)));
+        }
+        foreach (CinematicSpriteProgram text in EndingTypedTexts.Texts.Texts)
+        {
+            for (int glyph = 0; glyph < EndingTypedTexts.Texts.Steps(text).Count; glyph++)
+                glyphs.Add(new(SpriteSheetId.EndingExplosionSprites, TypedTextSpriteSheet.GlyphFrameName(EndingTypedTexts.Family, text, glyph)));
+        }
+        foreach (TypedStepFrame glyph in glyphs)
+        {
+            SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(glyph.Sheet);
+            if (!sheet.frames.ContainsKey(glyph.Frame) && !sheet.blanks.Contains(glyph.Frame))
+                findings.Add($"{glyph.Sheet} holds no glyph {glyph.Frame}");
+        }
         AssertTrue(findings.Count == 0,
             $"{findings.Count} typed text steps are pictured whole:{Environment.NewLine}{string.Join(Environment.NewLine, findings)}");
-        Console.WriteLine($"  Typed text: none of {typed.Distinct().Count()} typed steps of the title and the ending is pictured whole.");
+        Console.WriteLine($"  Typed text: none of {typed.Distinct().Count()} typed steps of the title and the ending is pictured whole, and each of their {glyphs.Count} glyphs is held.");
     }
 
     /// <summary>A typed step's whole frame on a sheet.</summary>

@@ -1,13 +1,12 @@
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
 /// <summary>Preserves the reviewed correlated pause selectors; a short category cannot borrow another category's capacity.</summary>
 internal static class PausePresentationDomainAudit
 {
-    /// <summary>Rejects constant pause selectors outside reviewed phase, anchor, or label domains, including Plasma's sole longer-label allowance.</summary>
+    /// <summary>Rejects constant pause selectors outside reviewed phase or anchor domains.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         string type = operation.TargetMethod.ContainingType.ToDisplayString(), method = operation.TargetMethod.Name;
@@ -25,17 +24,6 @@ internal static class PausePresentationDomainAudit
                     (!category.HasValue || category == (int)anchor.Category) && (!item.HasValue || item == anchor.Item)))
                     return "Constant category/item does not select any reviewed pause selector anchor.";
             }
-        }
-        if (type == typeof(PauseEquipmentLabelPresentation).FullName && method == "ApplyLabel")
-        {
-            int? category = Constant("category"), item = Constant("item"), words = Constant("wordCount");
-            var candidates = PauseEquipmentLabelTiles.Labels();
-            if (!candidates.Any(label => (!category.HasValue || category == (int)label.Category) &&
-                (!item.HasValue || item == label.Item) && (!words.HasValue ||
-                    words >= 0 && words <= PauseEquipmentLabelDefinitions.EquipmentWords &&
-                    (words <= PauseEquipmentLabelKeys.WordCount(label.Category) ||
-                        label.Label == PauseEquipmentLabelId.Plasma))))
-                return "Constant category/item/wordCount has no reviewed pause label; only Plasma owns the five-to-nine-word native overrun.";
         }
         return null;
     }

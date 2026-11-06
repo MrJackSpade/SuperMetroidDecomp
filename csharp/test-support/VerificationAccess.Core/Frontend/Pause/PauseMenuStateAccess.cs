@@ -83,16 +83,14 @@ internal static class PauseMenuStateAccess
         }
 
         /// <summary>
-        /// The equipment page's tiles as the cartridge's tilemap holds what the menu last uploaded (#1467), laid out by the
-        /// import's replay of the writes that page records.
+        /// The equipment page's tiles as the cartridge's tilemap holds what the page shows this frame (#1467, #1515), laid
+        /// out the way the import lays out a shown page.
         /// </summary>
-        /// <exception cref="InvalidOperationException">No equipment page has been uploaded.</exception>
-        internal BackgroundTile[] ShownEquipmentTiles => PauseEquipmentPageLayout.LayOut(self.screen.Artwork,
-            self.ShownEquipment ?? throw new InvalidOperationException("No equipment page has been uploaded."));
+        internal BackgroundTile[] ShownEquipmentTiles => PauseEquipmentPageLayout.LayOut(self.screen.Artwork, self.EquipmentPage);
 
         /// <summary>
-        /// Reads one of the three reserve-supply digits as the equipment page's writes have left it, uploaded or not (#1467):
-        /// the tile the import's replay of the page's writes lays out at the digit's place.
+        /// Reads one of the three reserve-supply digits as the equipment page shows it (#1467, #1515): the tile the import
+        /// lays out at the digit's place.
         /// </summary>
         internal SnesBgTilemapWord ReadReserveSupplyDigit(int digitIndex)
         {
@@ -100,7 +98,7 @@ internal static class PauseMenuStateAccess
                 throw new ArgumentOutOfRangeException(nameof(digitIndex));
 
             int tile = PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset / sizeof(ushort) + digitIndex;
-            return new SnesBgTilemapWord(BackgroundTileWords.ToWord(PauseEquipmentPageLayout.LayOut(self.screen.Artwork, self.Equipment)[tile]));
+            return new SnesBgTilemapWord(BackgroundTileWords.ToWord(PauseEquipmentPageLayout.LayOut(self.screen.Artwork, self.EquipmentPage)[tile]));
         }
     }
 }

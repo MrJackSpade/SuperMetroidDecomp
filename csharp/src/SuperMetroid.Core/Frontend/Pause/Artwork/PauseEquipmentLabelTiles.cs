@@ -1,10 +1,8 @@
-using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseEquipmentLabelDefinitions;
-
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>
-/// Names the equipment screen's item labels (<see cref="PauseEquipmentLabelDefinitions"/>), their widths and where each
-/// starts; the import pictures their tiles (#1467).
+/// Names the equipment screen's item labels (#1467): which label each category and item has, and which are the ordinary
+/// beam labels Hyper replaces; the import pictures each label whole.
 /// </summary>
 public static class PauseEquipmentLabelTiles
 {
@@ -63,33 +61,4 @@ public static class PauseEquipmentLabelTiles
         PauseSelectorAnchors.Anchors()
             .Where(anchor => anchor.Category != PauseEquipmentCategory.Reserves)
             .Select(anchor => new PauseEquipmentLabelKey(anchor.Category, anchor.Item, Label(anchor.Category, anchor.Item))).ToArray());
-
-    /// <summary>Uses five source words for ordinary beams and nine for other labels, including stored Hyper.</summary>
-    internal static int StockWordCount(PauseEquipmentLabelId label)
-    {
-        _ = StockPageByte(label);
-        return IsOrdinaryBeam(label) ? BeamWords : EquipmentWords;
-    }
-
-    /// <summary>Label columns4/21 and category rows16/9/19, with the suit-to-misc gap.</summary>
-    internal static int StockPageByte(PauseEquipmentLabelId label)
-    {
-        if (label == PauseEquipmentLabelId.Hyper) label = Label(PauseEquipmentCategory.Beams, HyperBeamItem);
-        return Ensure.Listed(destinations.Value, label);
-    }
-
-    /// <summary>Label destinations derived once from category columns and rows for per-cell lookup.</summary>
-    private static readonly Lazy<Dictionary<PauseEquipmentLabelId, int>> destinations = new(() =>
-        Labels().ToDictionary(label => label.Label, label =>
-        {
-            Position16<TilemapCells> first = label.Category switch
-            {
-                PauseEquipmentCategory.Beams => new Position16<TilemapCells>(4, 16),
-                PauseEquipmentCategory.Suits => new Position16<TilemapCells>(21, 9 + (label.Item >= 2 ? 2 : 0)),
-                PauseEquipmentCategory.Boots => new Position16<TilemapCells>(21, 19),
-                PauseEquipmentCategory.Reserves => throw new InvalidDataException("Unknown equipment label category."),
-                _ => throw new InvalidDataException("Unknown equipment label category."),
-            };
-            return ((first.Y + label.Item) * TilemapColumns + first.X) * sizeof(ushort);
-        }));
 }

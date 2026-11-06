@@ -21,9 +21,9 @@ public static class PauseEquipmentLabelKeys
         return PauseSelectorAnchors.Anchor(entry.Category, entry.Item);
     }
 
-    /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width and Plasma's button-patch overrun are separate contracts.</summary>
+    /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width is a separate contract.</summary>
     /// <param name="category">Equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
     /// <returns>Five for the beam category, otherwise nine.</returns>
     public static int WordCount(PauseEquipmentCategory category) => category == PauseEquipmentCategory.Beams
-        ? PauseEquipmentLabelDefinitions.BeamWords : PauseEquipmentLabelDefinitions.EquipmentWords;
+        ? PauseEquipmentLabelArtworkDefinitions.BeamWords : PauseEquipmentLabelArtworkDefinitions.EquipmentWords;
 }

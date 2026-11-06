@@ -18,7 +18,7 @@ using SuperMetroid.AssetExtraction.Samus;
 /// <summary>Checks pause-menu beam selection and label rendering for simultaneous and adjacent inputs.</summary>
 internal static class InvalidBeamSelectionVerification
 {
-    /// <summary>Drives all Boots entries into Plasma selection and compares beam bits and native VRAM footprints.</summary>
+    /// <summary>Drives all Boots entries into Plasma selection and compares beam bits and the labels they show.</summary>
     internal static void VerifyInvalidBeamSelection()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -54,16 +54,15 @@ internal static class InvalidBeamSelectionVerification
         var after = pause.CaptureRenderSnapshot();
         byte[] afterVram = pause.ShownVram();
         byte[] expectedVram = afterVram.ToArray();
-        // Restore the entire label region to its before-input contents, then apply only
-        // the independently measured CPU writes. Preserve the moving OBJ selector.
+        // Restore the entire label region to its before-input contents, then apply the native label of each beam whose
+        // state changed. Preserve the moving OBJ selector. The cartridge writes a boots-dispatched Plasma label nine cells
+        // long, into the four cells after it; that overrun is a presentation quirk the port does not keep (#1515), so the
+        // page shows Plasma's own five cells in its item's state and the cells after it as they were.
         beforeVram.AsSpan(0x6000, 0x800).CopyTo(expectedVram.AsSpan(0x6000));
-        ushort[] nativeWords = [0x08ff, 0x08ec, 0x08ed, 0x08ee, 0x08ef, 0x08ff, 0x0900, 0x0901, 0x0902];
-        int copiedWords = scenario == 0 ? 9 : scenario == 1 ? 5 : 0;
+        ushort[] nativeWords = [0x08ff, 0x08ec, 0x08ed, 0x08ee, 0x08ef];
+        int copiedWords = scenario == 2 ? 0 : nativeWords.Length;
         for (int word = 0; word < copiedWords; word++)
             BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(0x6000 + 0x508 + word * 2), nativeWords[word]);
-        // Independent native $82:B20C probe confirms that the wireframe subsequently
-        // replaces the ninth overrun word at $3D18 with zero for this equipment set.
-        BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(0x6518), 0);
         if (scenario == 1)
             for (int word = 0; word < 5; word++)
             {
@@ -78,7 +77,7 @@ internal static class InvalidBeamSelectionVerification
         // the same HiJump wireframe in all three scenarios.
         Console.WriteLine($"scenario={scenario} actual label bytes={Convert.ToHexString(afterVram.AsSpan(0x6508, 18))}");
         AssertTrue(expectedVram.AsSpan(0x6508, 18).SequenceEqual(afterVram.AsSpan(0x6508, 18)),
-            $"native nine/five/zero-word Plasma footprint, scenario {scenario}");
+            $"Plasma's label in its item's state and no overrun after it, scenario {scenario}");
         // The expected frame shows the port's sprites in the cartridge's pause colours (#1512).
         var expectedPixels = DisplayRendering.Render(after.WithNativeColours(PauseShownColours.Of(pause)));
         var actualPixels = pause.Render();
@@ -86,10 +85,10 @@ internal static class InvalidBeamSelectionVerification
             for (int offset = 0x6000; offset < 0x6800; offset += 2)
                 if (!expectedVram.AsSpan(offset, 2).SequenceEqual(afterVram.AsSpan(offset, 2)))
                     Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(afterVram.AsSpan(offset, 2))}");
-        AssertTrue(expectedPixels.SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
+        AssertTrue(expectedPixels.SequenceEqual(actualPixels), $"rendered beam labels, scenario {scenario}");
 
         }
-        Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, tile footprint and rendered labels.");
+        Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, and the labels show each beam's state.");
     }
 
     /// <summary>Reads native Spazer label words for the disabled-beam comparison.</summary>

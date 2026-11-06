@@ -14,7 +14,7 @@ internal static class PauseEquipmentLabelGlyphs
     /// <remarks>The referenced glyph pixels remain independently authored interface artwork.</remarks>
     internal static BackgroundTile StockTile(PauseEquipmentLabelId label, int index)
     {
-        if ((uint)index >= PauseEquipmentLabelTiles.StockWordCount(label)) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= PauseEquipmentLabelPlacement.CellCount(label)) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == 0) return new BackgroundTile(Marker, LabelPalette, highPriority: false);
         int text = index - 1;
         int glyph = label switch

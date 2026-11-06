@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -16,7 +17,7 @@ internal static class PauseCategoryCasesVerification
         Suite(nameof(VerifyPauseCategoryTilemapPointers), () => VerifyPauseCategoryTilemapPointers(rom));
         Suite(nameof(VerifyPauseCategoryItemCounts), () => VerifyPauseCategoryItemCounts(rom));
         Suite(nameof(VerifyPauseCategoryCopyLengths), () => VerifyPauseCategoryCopyLengths(rom));
-        AssertEqual(new PauseEquipmentCategoryDefinition(0, 0, 0),
+        AssertEqual(new PauseEquipmentCategoryDefinition(0, 0),
             PauseEquipmentCategories.Get(PauseEquipmentCategory.Reserves), "reserve controls retain the original managed zero-data contract");
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
             AssertEqual(category, PauseEquipmentCategories.Get(category).Category, "category identity");
@@ -59,7 +60,7 @@ internal static class PauseCategoryCasesVerification
         }
     }
 
-    /// <summary>Matches label widths to the native dispatched category copy lengths.</summary>
+    /// <summary>Matches the import's label strip widths to the native dispatched category copy lengths.</summary>
     private static void VerifyPauseCategoryCopyLengths(ISnesAddressSpace rom)
     {
         // The dispatched category owns this byte count even if movement changes the selection.
@@ -67,7 +68,7 @@ internal static class PauseCategoryCasesVerification
         {
             AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address), "original equipment copy-length LDA");
             AssertEqual(ReadVerificationWord(rom, address + 1) / 2,
-                PauseEquipmentCategories.Get(category).LabelWordCount, "native dispatched category label length");
+                PauseEquipmentLabelKeys.WordCount(category), "import label width matches the native dispatched category copy length");
         }
     }
 }

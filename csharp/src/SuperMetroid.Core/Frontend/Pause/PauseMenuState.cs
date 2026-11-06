@@ -64,12 +64,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>
-    /// The equipment page as the game's writes to its tilemap have left it (#1467): labels, overrun tail, wireframe,
-    /// reserve display and arrow. The page shows it once uploaded.
+    /// What the equipment page shows this frame (#1467, #1515): each label in its item's state now, the wireframe of the
+    /// equipped suit and boots, the reserve labels and digits once Samus has reserve capacity, and the arrow as last set.
     /// </summary>
-    internal ShownEquipmentPage Equipment { get; private set; }
-    /// <summary>The equipment page as last uploaded, which the equipment page shows; none before the first upload.</summary>
-    internal ShownEquipmentPage? ShownEquipment { get; private set; }
+    internal ShownEquipmentPage EquipmentPage => ShownEquipmentPage.Of(
+        new PauseInventory(samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems, samus.EquippedItems, samus.HyperBeamEnabled),
+        samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy),
+        !reserveArrowLatched ? ShownReserveArrow.Unpainted
+            : reserveArrowLatchedState != ReserveArrowState.Hidden ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
     /// <summary>Which of the frame's button labels are lit (#1467); it survives page transitions and artwork rebinds.</summary>
     internal PauseButtonHighlight ButtonHighlight { get; private set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
@@ -160,8 +162,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // label's picture in its shade (#1467).
         SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
 
-        // LoadEquipmentScreen copies the template, then writes every label, the wireframe and the reserve display.
-        Equipment = BuiltEquipmentPage();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();
         SetupMapScrolling();
@@ -217,11 +217,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // the ordinary rising-edge word for D-pad/A; only the shared L/R/Start chrome
         // uses the delayed-held word.
         HandleEquipmentInput(newlyPressed, frameCounterByte, bombs);
-        // EquipmentScreenMain refreshes the reserve amount independently of selected
-        // label edits. Keep this per-frame write without rebuilding the whole tilemap,
-        // which would erase the game's same-frame VAR overrun.
-        WriteReserveSupplyDigits();
-        UploadEquipmentTilemap();
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
         {
             audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
@@ -282,16 +277,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         Position16<PlanePixels> mapScroll = ScreenMode == PauseScreenMode.Map
             ? new(MapScrollPosition.X, CoordinateAxis.Wrap(MapScrollPosition.Y + 1))
             : Position16<PlanePixels>.Zero;
-        // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what it last uploaded
-        // and the frame the area's backdrop and button pictures (#1467).
+        // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what Samus has now
+        // (#1515) and the frame the area's backdrop and button pictures (#1467).
         var frame = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), Position16<PlanePixels>.Zero);
         // The map scrolls inside the frame's opening, its border framing it (#1514); the frame's pictures lie their page's
         // rows above the screen's top, and its opening with them. The equipment page lies within the frame and is drawn
         // over it whole.
         DisplayLayer page = ScreenMode == PauseScreenMode.Map
             ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll) { Window = MapFrameOpening.Window(new(0, PauseScreen.PageRowsAboveScreen)) }
-            : new PicturedPlaneLayer(screen.EquipmentPage(ShownEquipment ?? throw new InvalidOperationException(
-                "The equipment page shows before it was uploaded."), ReserveArrowShading), mapScroll);
+            : new PicturedPlaneLayer(screen.EquipmentPage(EquipmentPage, ReserveArrowShading), mapScroll);
         // The retained HUD is its own layer at the HUD's place (#1466).
         var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true);
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
@@ -352,7 +346,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     // Equipment setup lights the arrow when reserves are nonempty;
                     // subsequent tank dispatches own animation and selection changes.
                     if (samus.ReserveEnergy != 0) SetReserveArrow(ReserveArrowState.Solid);
-                    UploadEquipmentTilemap();
                     ResetItemSelectorAnimation();
                     Transition = PauseMenuTransition.MapToEquipmentFadeIn;
                 }
@@ -413,30 +406,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SelectedCategory = PauseEquipmentCategory.Reserves;
         SelectedItem = 0;
     }
-
-    /// <summary>
-    /// The equipment page built from its template and the current inventory: every label in its inventory state, no overrun
-    /// tail, the equipped wireframe, and the reserve labels and supply digits once reserve capacity exists.
-    /// </summary>
-    private ShownEquipmentPage BuiltEquipmentPage() => ShownEquipmentPage.Built(
-        new PauseInventory(samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems, samus.EquippedItems, samus.HyperBeamEnabled),
-        samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy));
-
-    /// <summary>
-    /// Translates <c>Load_EquipmentScreen_ReserveHealth_Tilemap</c>.
-    /// The game displays current reserve supply, not maximum normal Energy Tank
-    /// capacity. It leaves the authored template untouched until at least one Reserve Tank
-    /// exists, then writes hundreds, tens, and ones as three consecutive map cells.
-    /// </summary>
-    private void WriteReserveSupplyDigits()
-    {
-        if (samus.MaxReserveEnergy == 0)
-            return;
-        Equipment = Equipment.WithReserveSupply(samus.ReserveEnergy);
-    }
-
-    /// <summary>Writes the pause wireframe for Samus's equipped suit and boots over the page.</summary>
-    private void WriteSamusWireframe() => Equipment = Equipment.WithWireframe(PauseEquipmentRules.WireframeKind(samus.EquippedItems));
 
     /// <summary>Builds the area map from installed presentation and exploration bits into the map page.</summary>
     [MemberNotNull(nameof(ShownMap))]
@@ -642,9 +611,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, MapSpriteScreen.Pause, colouring);
 
-    /// <summary>Uploads the equipment page as its writes have left it: the equipment page shows it from the next capture.</summary>
-    private void UploadEquipmentTilemap() => ShownEquipment = Equipment;
-
     /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
     private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
@@ -686,51 +652,29 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
         }
 
-        // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
-        // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
-        // upstream C's 'Fixed var bug' category guard: it is absent from the retail game.
+        // Dispatch precedes movement: the dispatched category's handler toggles the item the cursor has just moved onto.
+        // A press dispatched from the boots column onto Plasma therefore bypasses the beam handler's Spazer/Plasma
+        // exclusion. Do not use upstream C's 'Fixed var bug' category guard: it is absent from the retail game. The page
+        // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
         var target = PauseEquipmentCategories.Get(SelectedCategory);
         PauseEquipmentBit mask = ReadCategoryMask(target, SelectedItem);
-        bool wasEquipped = mask.IsSetIn(samus.EquippedBeams, samus.EquippedItems);
         // The bit belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
         samus.EquippedBeams ^= mask.Beam;
         samus.EquippedItems ^= mask.Item;
 
         audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
-        UpdateEquipmentLabel(SelectedCategory, SelectedItem,
-            PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
         if (dispatchedCategory == PauseEquipmentCategory.Beams)
         {
             SamusBeamFlags added = samus.EquippedBeams & ~previousBeams;
             if ((added & SamusBeamFlags.Spazer) != SamusBeamFlags.None &&
                 (samus.EquippedBeams & SamusBeamFlags.Plasma) != SamusBeamFlags.None)
-            {
                 samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
-                UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
-                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
-            }
             else if ((added & SamusBeamFlags.Plasma) != SamusBeamFlags.None &&
                 (samus.EquippedBeams & SamusBeamFlags.Spazer) != SamusBeamFlags.None)
-            {
                 samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
-                UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.SpazerItem,
-                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
-            }
         }
-        // The game patches only the chosen label, then refreshes the wireframe. Rebuilding
-        // all labels would erase the intentional overlong copy that displays VAR.
-        WriteSamusWireframe();
-        UploadEquipmentTilemap();
     }
-
-    /// <summary>
-    /// Writes one equipment label: <paramref name="wordCount"/> cells, the dispatched category's label width, so the retail
-    /// overlong Plasma copy and a beam column's five-cell write over a nine-cell label are written as the game writes them.
-    /// </summary>
-    private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled) =>
-        Equipment = Equipment.WithLabelWritten(PauseEquipmentLabelTiles.Label(categoryIndex, item), wordCount,
-            disabled ? PauseEquipmentLabelState.Disabled : PauseEquipmentLabelState.Enabled);
 
     /// <summary>Scans collected items in one category and moves the selector to the first eligible item.</summary>
     private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
@@ -852,8 +796,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         paletteAnimation.Bind(catalog.HighlightCycle);
         // Live highlights and reserve-arrow colours are typed state their owners keep; rebinding never resets their phase.
         screen.BindArtwork(catalog);
-        // The equipment page is typed state the rebound sheets' pictures show again (#1467): its labels, overrun tail,
-        // wireframe and reserve display keep exactly what the game's writes left, and nothing is rewritten.
+        // The equipment page is derived from Samus's state each frame (#1515), so the rebound sheets' pictures show it again.
         if (samus.MaxReserveEnergy != 0)
         {
             // A rebind is not a tank dispatch: re-apply the owner's latched arrow state with the
@@ -863,9 +806,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             else if (SelectedCategory == PauseEquipmentCategory.Reserves)
                 UpdateReserveArrow(pauseFrameCounterByte);
         }
-        if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
         // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
-        // rerun controls or rebuild equipment: that would erase the game's same-frame label overruns.
+        // rerun controls.
         // Preserve the live scroll position and transition timing. Only refresh
         // the map page when it is shown; the equipment page shares its layer.
         if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
@@ -901,12 +843,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Applies the reserve arrow's tile colouring, then latches its state and frame, which name the colours it shows, for
-    /// content rebinds.
+    /// Sets the reserve arrow: latches its state and frame, which name the tile colouring and colours the equipment page
+    /// shows it in until it is set again.
     /// </summary>
     private void SetReserveArrow(ReserveArrowState state, int frameCounterByte = 0)
     {
-        Equipment = Equipment.WithArrow(state != ReserveArrowState.Hidden ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
         reserveArrowLatched = true;
         reserveArrowLatchedState = state;
         reserveArrowLatchedFrame = frameCounterByte;
@@ -915,16 +856,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Re-applies the latched arrow tiles and colors with the currently bound presentation.</summary>
     private void ReapplyLatchedReserveArrow() =>
         SetReserveArrow(reserveArrowLatchedState, reserveArrowLatchedFrame);
-
-    /// <summary>
-    /// Rewrites the reserve mode and tank labels for the current mode, only when reserve capacity exists. Setup keeps
-    /// MODE's initial MANUAL text for the zero mode and replaces its four characters once a mode is set.
-    /// </summary>
-    private void WriteReserveLabels()
-    {
-        if (samus.MaxReserveEnergy == 0) return;
-        Equipment = Equipment.WithReserveMode(samus.ReserveTankMode);
-    }
 
     /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
     private int pauseFrameCounterByte;
@@ -977,7 +908,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
                 samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
                     ? ReserveTankMode.Manual : ReserveTankMode.Auto;
-                WriteReserveLabels();
                 return;
             case PauseReserveItem.Transfer:
                 break;

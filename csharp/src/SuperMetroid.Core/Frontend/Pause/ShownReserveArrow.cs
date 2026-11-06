@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </summary>
 internal enum ShownReserveArrow
 {
-    /// <summary>The template's own colour variant: the arrow has not been set since the page was built.</summary>
+    /// <summary>The template's own colour variant: the arrow has not been set since the pause began.</summary>
     Unpainted,
     /// <summary>The lit colour variant: the arrow shows solid or pulsing.</summary>
     Lit,

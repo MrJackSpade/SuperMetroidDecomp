@@ -19,7 +19,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Checks installed pause backdrops, labels, and button tiles through live page transitions.</summary>
 internal static class PauseBackdropsVerification
 {
-    /// <summary>Checks native VRAM and pixels across fades and debugger restores, and the native equipment overrun.</summary>
+    /// <summary>Checks native VRAM and pixels across fades and debugger restores, and the Boots-to-Plasma toggle.</summary>
     internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         AssertTrue(InstalledAreaMapPresentation.PauseOf(original).Backdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
@@ -54,7 +54,9 @@ internal static class PauseBackdropsVerification
                 }
             }
         }
-        // The native invalid-beam selection deliberately leaves an overlong label in equipment VRAM.
+        // The native invalid-beam selection toggles Plasma past the beam handler's Spazer exclusion. The cartridge also
+        // writes Plasma's label nine cells long, into the cells after it; that overrun is a presentation quirk the port
+        // does not keep (#1515), so the page shows each label as its item's state describes it and the template after it.
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
         var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
@@ -63,8 +65,10 @@ internal static class PauseBackdropsVerification
         glitch.Step(0, (ControllerButton.Left | ControllerButton.A));
         AssertEqual((ushort)12, samus.EquippedBeams.ToEquipmentWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.ShownVram().AsSpan(0x6000, 0x800).ToArray();
-        AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");
-        Console.WriteLine("Pause backdrops: seven native frames/labels, button artwork, debugger restores and the native equipment overrun pass.");
+        BackgroundTile[] template = InstalledAreaMapPresentation.PauseOf(original).EquipmentBase.CreateTilemap();
+        AssertEqual(BackgroundTileWords.ToWord(template[0x514 / sizeof(ushort)]), BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)),
+            "the cell after Plasma's label shows the template, not the cartridge's overrun");
+        Console.WriteLine("Pause backdrops: seven native frames/labels, button artwork, debugger restores and the Boots-to-Plasma toggle pass.");
 
         static PauseMenuState Create(AreaId area, AreaMapPresentation catalog)
         {

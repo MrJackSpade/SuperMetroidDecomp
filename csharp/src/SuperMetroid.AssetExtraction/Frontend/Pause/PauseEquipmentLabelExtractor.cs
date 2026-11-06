@@ -25,30 +25,30 @@ public static class PauseEquipmentLabelExtractor
                 int source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Labels + item * 2);
                 labels.Add(PauseEquipmentLabelKeys.Key(category, item), new()
                 {
-                    Column = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
-                    Row = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) / PauseEquipmentLabelDefinitions.TilemapColumns,
-                    Cells = ReadCells(bus, source, definition.LabelWordCount,
+                    Column = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) % PauseEquipmentLabelArtworkDefinitions.TilemapColumns,
+                    Row = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) / PauseEquipmentLabelArtworkDefinitions.TilemapColumns,
+                    Cells = ReadCells(bus, source, PauseEquipmentLabelKeys.WordCount(category),
                         PauseEquipmentLabelKeys.Key(category, item)),
                 });
             }
         }
 
         int hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.HyperBeamLabels +
-            PauseEquipmentLabelDefinitions.HyperBeamItem * sizeof(ushort));
+            PauseEquipmentLabelArtworkDefinitions.HyperBeamItem * sizeof(ushort));
         for (int index = 0; index < PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Beams); index++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseMenuSourceDefinitions.HyperBeamLabels + index * sizeof(ushort));
-            int expected = index == PauseEquipmentLabelDefinitions.HyperBeamItem
+            int expected = index == PauseEquipmentLabelArtworkDefinitions.HyperBeamItem
                 ? hyper : PauseMenuSourceDefinitions.BlankEquipmentLabel;
             if (pointer != expected)
                 throw new InvalidDataException("Native Hyper Beam pause pointers do not match the compiled one-label layout.");
         }
         labels.Add(PauseEquipmentLabelArtworkDefinitions.HyperKey, new()
         {
-            Column = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Column,
-            Row = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Row,
-            Cells = ReadCells(bus, hyper, PauseEquipmentLabelDefinitions.EquipmentWords,
+            Column = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelArtworkDefinitions.HyperBeamItem)].Column,
+            Row = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelArtworkDefinitions.HyperBeamItem)].Row,
+            Cells = ReadCells(bus, hyper, PauseEquipmentLabelArtworkDefinitions.EquipmentWords,
                 PauseEquipmentLabelArtworkDefinitions.HyperKey),
         });
 
@@ -58,7 +58,7 @@ public static class PauseEquipmentLabelExtractor
             Version = PauseEquipmentLabelArtworkDefinitions.Version,
             DisabledPalette = PauseEquipmentLabelArtworkDefinitions.DisabledPalette,
             Blank = ReadCells(bus, PauseMenuSourceDefinitions.BlankEquipmentLabel,
-                PauseEquipmentLabelDefinitions.EquipmentWords, "Equipment.Blank"),
+                PauseEquipmentLabelArtworkDefinitions.EquipmentWords, "Equipment.Blank"),
             Labels = labels,
         });
         return output.ToArray();

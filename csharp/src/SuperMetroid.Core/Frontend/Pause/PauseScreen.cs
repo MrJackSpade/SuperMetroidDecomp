@@ -81,9 +81,9 @@ internal sealed class PauseScreen
 
     /// <summary>
     /// The equipment page <paramref name="page"/> shows (#1467): the template's picture and, beside it, the picture of each
-    /// label, the overrun tail, the wireframe, the reserve display and the arrow in the state the page shows it in, the
+    /// label, the wireframe, the reserve display and the arrow in the state the page shows it in, the
     /// arrow in <paramref name="arrowShading"/> (#1512). A picture the installed pictures hold as showing nothing, such as
-    /// a blank label whose cells the page's data leaves clear, is not placed (#1513).
+    /// a blank label the page's data leaves clear, is not placed (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed pause pictures hold no such frame.</exception>
     internal PicturedPlane EquipmentPage(ShownEquipmentPage page, PictureShading arrowShading)

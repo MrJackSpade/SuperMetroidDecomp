@@ -41,7 +41,7 @@ internal sealed class EnemyDrawList
     }
     /// <summary>The enemies queued on each of the eight drawing layers, each queue in <see cref="EnemySlotOrder"/>.</summary>
     internal readonly List<RoomEnemySlot>[] DrawQueues =
-        Enumerable.Range(0, 8).Select(_ => new List<RoomEnemySlot>()).ToArray();
+        Enumerable.Range(0, EnemyDrawLayer.Count).Select(_ => new List<RoomEnemySlot>()).ToArray();
 
     /// <summary>Empties every layer queue before the enemy pass rebuilds them.</summary>
     internal void Clear()
@@ -51,7 +51,7 @@ internal sealed class EnemyDrawList
     }
 
     /// <summary>Queues <paramref name="enemy"/> on its draw layer, after the enemies already queued there.</summary>
-    internal void Enqueue(int layer, RoomEnemySlot enemy) => DrawQueues[layer].Add(Ensure.NotNull(enemy));
+    internal void Enqueue(EnemyDrawLayer layer, RoomEnemySlot enemy) => DrawQueues[layer.Order].Add(Ensure.NotNull(enemy));
 
     /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
     private List<PreparedEnemyDraw>? _prepared;

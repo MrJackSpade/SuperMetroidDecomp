@@ -84,7 +84,7 @@ internal static class MovieDesyncComparison
             Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
             Console.WriteLine($"  ceres port={traceEnemies.RidleyEncounter.CeresStatus} native={Native(0x093f)} " +
                 $"nmi port={game.GameplayRuntimeForVerification.Clock.Counter:X4} native-raw={Native(0x05b6)}");
-            foreach (var actor in traceEnemies.SlotTable.Slots.Where(slot => slot.DefinitionId != 0))
+            foreach (var actor in traceEnemies.SlotTable.Slots.Where(slot => slot.DefinitionId != EnemyDefinitionId.None))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
                 int slotBase = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);

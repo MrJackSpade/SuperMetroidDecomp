@@ -99,7 +99,7 @@ public sealed class RoomEnemySlot
     /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other state.</summary>
     internal void Unbind()
     {
-        DefinitionId = 0;
+        DefinitionId = EnemyDefinitionId.None;
         Entity = null;
     }
     /// <summary>The population entry the occupant was spawned from, kept unchanged while its live state moves on.</summary>
@@ -137,15 +137,8 @@ public sealed class RoomEnemySlot
         get;
         internal set => field = Ensure.NotNull(value);
     } = PictureShading.Standard;
-    /// <summary>
-    /// The enemy's draw layer, initially the definition's: enemies draw layer by layer, and the draw queue takes the
-    /// layer's lowest three bits, so it orders the enemy among the eight queues.
-    /// </summary>
-    public int Layer
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>The layer the enemy draws on, initially the definition's; enemies draw layer by layer.</summary>
+    public EnemyDrawLayer Layer { get; internal set; }
     /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends hurt dispatch.</summary>
     public WrappingCountdown FlashTimer { get; internal set; }
     /// <summary>How long the enemy stays frozen; its frozen blinking and thaw read it.</summary>
@@ -196,7 +189,7 @@ public sealed class RoomEnemySlot
         Frame = null;
         FrozenTimer = WrappingCountdown.Start(0);
         FlashTimer = WrappingCountdown.Start(0);
-        Layer = 0;
+        Layer = default;
         Shading = PictureShading.Standard;
         FrameCounter = 0;
         ShakeTimer = WrappingCountdown.Start(0);

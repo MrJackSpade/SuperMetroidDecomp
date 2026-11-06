@@ -106,7 +106,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks the rendering layer assigned to each segment at initialization.</summary>
     private static void VerifyShaktoolLayerSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeLayerAddress,
-            definition => definition.Layer, "layer selection"));
+            definition => definition.Layer.Order, "layer selection"));
 
     /// <summary>Checks that each segment's initial pre-instruction is the one its cartridge callback word stands for.</summary>
     private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom)

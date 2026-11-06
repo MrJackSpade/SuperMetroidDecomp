@@ -125,7 +125,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.FadeInBody:
                 _ceresRidleyBehavior.Fades.TickCeresRidleyBodyFade(slot, state);
                 if (state.Function == RidleyAiFunction.WaitBeforeRoar)
-                    slot.Layer = 2;
+                    slot.Layer = EnemyDrawLayer.Of(2);
                 return;
 
             case RidleyAiFunction.WaitBeforeRoar:

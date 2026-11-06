@@ -33,7 +33,7 @@ public static class MapPaletteCycleFile
         if (document.Version != MapPaletteCycleFile.Version || document.Frames is null ||
             document.Frames.Length is < 1 or > MapPaletteCycleFile.MaximumFrames)
             throw new InvalidDataException("Map highlight cycle requires version 1 and 1-255 frames.");
-        var durations = new byte[document.Frames.Length];
+        var durations = new int[document.Frames.Length];
         var colors = new RgbColor[document.Frames.Length][];
         for (int frame = 0; frame < durations.Length; frame++)
         {
@@ -41,7 +41,7 @@ public static class MapPaletteCycleFile
             if (entry is null || entry.DurationTicks is < 1 or > MapPaletteCycleFile.MaximumDuration ||
                 entry.Colors is null || entry.Colors.Length != MapPaletteCycleFormat.ColorCount)
                 throw new InvalidDataException($"Map highlight frame {frame} requires 1-254 ticks and sixteen colors.");
-            durations[frame] = (byte)entry.DurationTicks;
+            durations[frame] = entry.DurationTicks;
             colors[frame] = new RgbColor[entry.Colors.Length];
             for (int color = 0; color < entry.Colors.Length; color++)
             {

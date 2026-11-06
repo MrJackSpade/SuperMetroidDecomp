@@ -118,7 +118,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer writes enemy_data[0].layer regardless of cur_enemy_index.
         // Every retail population places this singleton in slot zero, but preserve the alias
         // explicitly so malformed/debug populations expose the same cross-slot behavior.
-        _slotTable.Slots[0].Layer = 0;
+        _slotTable.Slots[0].Layer = EnemyDrawLayer.Of(0);
 
         if (state.IsWreckedShip)
         {

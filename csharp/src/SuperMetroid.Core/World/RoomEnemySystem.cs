@@ -911,7 +911,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.FrameCounter);
         Audio.PowerBomb = frame.SharedProjectiles?.PowerBombExplosion;
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
-            frame.FrameCounterLowByte ?? WordWrap.LowByte(FrameContext.RandomEnemyCounter)));
+            frame.ShortCounter ?? WordWrap.LowByte(FrameContext.RandomEnemyCounter)));
         FrameResults.Begin();
         BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();
@@ -1040,7 +1040,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             bool visible = slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
                 !EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, frame.Camera);
             if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
-                Drawing.Enqueue(slot.Layer & 7, slot);
+                Drawing.Enqueue(slot.Layer, slot);
 
             // EnemyMain performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the

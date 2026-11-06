@@ -42,7 +42,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
     private const int EscapeEtecoonGravity = 1 << 16;
     /// <summary>Signed 16.16 horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
-    private const int EscapeEtecoonUncollidedExitSpeed = (7 << 16) / 2;
+    private static readonly SignedSixteenSixteen EscapeEtecoonUncollidedExitSpeed = SignedSixteenSixteen.FromParts(3, 32768);
 
     /// <summary>Initializes the escape Etecoon.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
@@ -231,13 +231,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static int EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
-    /// <summary>Adds a signed 16.16 displacement with 32-bit wraparound to the actor's X position.</summary>
-    private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
-    {
-        uint fixedPosition = slot.Position.X.RawValue;
-        fixedPosition = unchecked(fixedPosition + (uint)displacement);
-        slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(fixedPosition)));
-    }
+    /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>
+    private static void AddEscapeAnimalX(RoomEnemySlot slot, SignedSixteenSixteen displacement) =>
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(displacement));
 
     /// <summary>Ports the escape Etecoon's main AI.</summary>
     internal void RunEscapeEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>

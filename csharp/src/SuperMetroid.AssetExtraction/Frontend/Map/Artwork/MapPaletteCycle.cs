@@ -29,7 +29,7 @@ public sealed class MapPaletteCycle
     /// <summary>Retains independent holds and paint edits while deriving the stock fourteen-frame mirror.</summary>
     /// <param name="durations">The hold of each frame.</param>
     /// <param name="suppliedColors">The sixteen colours of each frame.</param>
-    internal MapPaletteCycle(byte[] durations, RgbColor[][] suppliedColors)
+    internal MapPaletteCycle(int[] durations, RgbColor[][] suppliedColors)
     {
         FrameCount = durations.Length;
         for (int frame = 0; frame < FrameCount; frame++)

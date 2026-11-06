@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Shot">The projectile-hit reaction, or null when the header names none and only extended hitboxes name one.</param>
 /// <param name="TouchHitboxScan">Whether Samus's touch is tested against the enemy's extended hitboxes or withheld.</param>
 /// <param name="ShotHitboxScan">Whether shots and bombs are tested against the enemy's extended hitboxes or withheld.</param>
-/// <param name="Layer">The drawing layer the enemy starts on, 0 through 7, lower layers drawn first.</param>
+/// <param name="Layer">The layer the enemy starts drawing on.</param>
 /// <param name="DropChances">The item-drop chances, or null when the enemy drops nothing.</param>
 /// <param name="Vulnerability">
 /// The enemy's own vulnerabilities, or null when it takes the standard ones; <see cref="EnemyVulnerabilities.Of"/> resolves it.
@@ -46,6 +46,6 @@ public readonly record struct RoomEnemyDefinition(
     EnemyReaction? Shot,
     EnemyHitboxScan TouchHitboxScan,
     EnemyHitboxScan ShotHitboxScan,
-    int Layer,
+    EnemyDrawLayer Layer,
     EnemyDropChances? DropChances,
     EnemyVulnerabilities? Vulnerability);

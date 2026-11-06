@@ -28,5 +28,5 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// <summary>Authored collision-mask widths on rows 2..12: tank interior, upper notch and pipe base.
     /// These select blocking geometry independently of visible pixels; a fitted curve would
     /// restate or alter the chosen level mask. See introMotherBrainCollisionContourDisposition.</summary>
-    internal static ReadOnlySpan<byte> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
+    internal static ReadOnlySpan<int> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 }

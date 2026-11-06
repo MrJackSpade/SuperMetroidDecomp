@@ -547,6 +547,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.BossBodySheetFrameRulesVerification.VerifyBossBodySheetInks),
         new(nameof(SuperMetroid.Verification.Assets.InstalledSheetsHoldPicturesVerification.VerifyInstalledSheetsHoldPictures),
             SuperMetroid.Verification.Assets.InstalledSheetsHoldPicturesVerification.VerifyInstalledSheetsHoldPictures),
+        new(nameof(SuperMetroid.Verification.Enemies.Artwork.SpawnedArtHeldOnceVerification.VerifySpawnedArtHeldOnce),
+            SuperMetroid.Verification.Enemies.Artwork.SpawnedArtHeldOnceVerification.VerifySpawnedArtHeldOnce),
         new(nameof(SuperMetroid.Verification.Bosses.BossBodyEnclosedCellsVerification.VerifyBossBodyEnclosedCells),
             SuperMetroid.Verification.Bosses.BossBodyEnclosedCellsVerification.VerifyBossBodyEnclosedCells),
         new(nameof(SuperMetroid.Verification.Bosses.BossBodyWholePicturesVerification.VerifyBossBodyWholePictures),

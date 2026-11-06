@@ -19,7 +19,7 @@ to the WARP reference.
 | Floor image (`D3D11FloorImage`) | `Floor`, t5 | The perspective floor, 1024 pixels square, laid out from its tiles' pictures whenever the floor changes, with its first tile's picture beside it. |
 | Scene colours (`D3D11SceneColourBuffer`) | `Colours`, t0 | The backdrop, then one colour table per image and colouring: a bit per sixteen-ink group still showing the image's own colours, then the colour each ink shows now. |
 | Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, image place, colours), front to back. |
-| Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' cells and block grids, each picture's place, size and colour slot, the overlays, sky rows, door window and the floor's sheets. |
+| Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' block grids, each picture's place, size and colour slot, the pictures written over the layers and the HUD's at the pixels they show at, the effect overlay's placed picture, a boss body's placed pieces, the sky's bands, the door window and the floor's sheets (#1514). |
 | Sprite layer | `SpriteLayer`, u1 / render target | Per pixel, the frontmost sprite pixel's colour and its priority, with whether it blends. |
 | Output | `Output`, u0 | The composed 256 by 224 frame, eight bits a channel. |
 

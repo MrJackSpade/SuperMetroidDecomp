@@ -446,7 +446,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // X=88 and reverses when its positive leading edge first enters this wall.
     for (int row = 0; row < roomHeight; row++)
         foreground[row * roomWidth + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-    RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new RoomBlockBehavior[foreground.Length], new RoomBlockAppearance[foreground.Length]));
+    RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new RoomBlockBehavior[foreground.Length], new RoomBlockAppearance[foreground.Length]), RoomLevelData.NothingBeyondGrid());
 
     // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
     var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0))
@@ -1057,7 +1057,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     const int roomWidth = 32;
     const int roomHeight = 16;
-    RoomLevelData air = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(new RoomTerrainBlock[roomWidth * roomHeight], new RoomBlockBehavior[roomWidth * roomHeight], new RoomBlockAppearance[roomWidth * roomHeight]));
+    RoomLevelData air = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(new RoomTerrainBlock[roomWidth * roomHeight], new RoomBlockBehavior[roomWidth * roomHeight], new RoomBlockAppearance[roomWidth * roomHeight]), RoomLevelData.NothingBeyondGrid());
     var sharedProjectiles = CreateBombFixture();
     var projectiles = CreateProjectileFixture();
 

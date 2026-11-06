@@ -46,7 +46,7 @@ internal static class KraidSuperMissileDamageVerification
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         // The synthetic floor keeps Kraid's own block definitions: the room's PLMs write its blocks into the level on the
         // first frame, and the published plane must resolve them.
-        var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(terrain, new RoomBlockBehavior[2048], new RoomBlockAppearance[2048]));
+        var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(terrain, new RoomBlockBehavior[2048], new RoomBlockAppearance[2048]), RoomLevelData.NothingBeyondGrid());
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;

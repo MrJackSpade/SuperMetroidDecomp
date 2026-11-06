@@ -1458,7 +1458,7 @@ internal static class LookupStream4Verification
         {
             RoomTerrainBlock[] blocks = new RoomTerrainBlock[2];
             blocks[solidRow] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), new RoomLevelPlanes(blocks, new RoomBlockBehavior[2], new RoomBlockAppearance[2]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), new RoomLevelPlanes(blocks, new RoomBlockBehavior[2], new RoomBlockAppearance[2]), RoomLevelData.NothingBeyondGrid());
             for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
             foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
             {

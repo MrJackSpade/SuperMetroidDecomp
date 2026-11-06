@@ -46,7 +46,7 @@ internal static class SpacetimeBeamVerification
             Path.GetFullPath("Super Metroid.smc"));
         VerifySpacetimeOverwritesAgainstRetailRom(bus);
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
 
         // Exercise the production pause input that creates Charge + Ice + Spazer + Plasma
         // without Wave; accepting the raw word only in the projectile test would miss the

@@ -1077,7 +1077,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // The background plane is irrelevant to collision in this visual room; it exists
         // only to satisfy the shared RoomLevelData ownership contract.
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]));
+            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
     }
 
     /// <summary>The flashback Samus's starting colour state: her suit and beams in the opening's own colours (#1512).</summary>

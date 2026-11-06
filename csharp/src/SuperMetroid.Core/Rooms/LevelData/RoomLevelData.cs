@@ -38,21 +38,21 @@ public sealed class RoomLevelData
     /// <summary>Copies a room's grid; an installed layout changes only what the blocks initially show.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
     /// <param name="planes">The foreground terrain, behaviour and background appearances, each exactly width times height entries in row-major order.</param>
+    /// <param name="beyondRoom">
+    /// The terrain past the grid, built for this room's lifetime: from its installed level for a room load, or
+    /// <see cref="NothingBeyondGrid"/> for a room whose level space ends at its grid.
+    /// </param>
     /// <param name="doors">Optional door list; null is suitable only for fixtures that never resolve a door block.</param>
     /// <param name="visualLayout">Optional matching-sized initial appearances of both planes; terrain, behaviours and the terrain beyond the room stay unchanged.</param>
-    /// <param name="beyondRoom">
-    /// The terrain past the grid, built for this room's lifetime from its installed level; a fixture that never reaches
-    /// past its grid leaves it out, and has none.
-    /// </param>
     /// <exception cref="ArgumentOutOfRangeException">Width is outside 1..255 or height is nonpositive.</exception>
     /// <exception cref="ArgumentException">A plane has the wrong size.</exception>
     /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
     public RoomLevelData(
         Extent16<RoomBlocks> size,
         RoomLevelPlanes planes,
+        TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> beyondRoom,
         IReadOnlyList<DoorListEntry>? doors = null,
-        RoomLevelArtwork? visualLayout = null,
-        TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>? beyondRoom = null)
+        RoomLevelArtwork? visualLayout = null)
     {
         if (size.X is <= 0 or > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(size), "Room width must be 1..255 blocks.");
@@ -71,9 +71,7 @@ public sealed class RoomLevelData
         Doors = doors;
         Terrain = planes.Foreground.ToArray();
         Behaviors = planes.Behavior.ToArray();
-        beyondRoom ??= new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(
-            [], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehaviorValues.None);
-        BeyondRoom = beyondRoom;
+        BeyondRoom = Ensure.NotNull(beyondRoom);
 
         if (visualLayout is null)
         {
@@ -86,6 +84,14 @@ public sealed class RoomLevelData
         ShownForeground = visualLayout.Foreground.ToArray();
         background = visualLayout.Background.ToArray();
     }
+
+    /// <summary>
+    /// Terrain past a grid whose level space ends with it: no block lies past the room's last block, and a probe outside
+    /// the room reads solid terrain with no behaviour. The intro's collision rooms, which have no level space of their
+    /// own, are built with it.
+    /// </summary>
+    public static TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> NothingBeyondGrid() =>
+        new([], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehaviorValues.None);
 
     /// <summary>
     /// Room size in 16-pixel blocks. The width is every row's index stride; the height comes from the room's level, which

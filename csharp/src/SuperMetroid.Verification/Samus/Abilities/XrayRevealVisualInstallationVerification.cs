@@ -74,7 +74,7 @@ internal static class XrayRevealVisualInstallationVerification
             "shot-block BTS 2 uses the native tall copy command");
         int originalTop = tall.Required("topLeft").GetValue<int>();
 
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());
         level.SetPlmTerrain(33, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock));
         level.SetPlmBehavior(33, new RoomBlockBehavior(2));
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);

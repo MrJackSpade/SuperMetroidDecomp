@@ -509,9 +509,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RoomFlashTimer++;
         state.Colours.Background.Lay(MotherBrainShades.Flash(frame));
     }
-    /// <summary>X positions cycled when Mother Brain's ascent emits floor dust.</summary>
-    internal static readonly ushort[] MotherBrainAscentDustXPositions =
-        [61, 84, 32, 53, 90, 67, 103, 41];
 
     /// <summary>Dispatches the phase-two ascent without collapsing same-frame fallthroughs.</summary>
     private void RunMotherBrainPhaseTwoAscent(

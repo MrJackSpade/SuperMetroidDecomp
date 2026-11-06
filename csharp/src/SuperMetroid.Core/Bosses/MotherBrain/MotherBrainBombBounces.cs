@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainBombBounces
 {
     /// <summary>Returns acceleration for stages zero through eight, then zero for expiry at stage nine.</summary>
-    internal static ushort YAcceleration(int stage) =>
+    internal static int YAcceleration(int stage) =>
         (uint)stage < MotherBrainBombBounceDefinitions.StageCount
             ? MotherBrainBombBounceDefinitions.YAccelerations[stage]
             : throw new ArgumentOutOfRangeException(nameof(stage));

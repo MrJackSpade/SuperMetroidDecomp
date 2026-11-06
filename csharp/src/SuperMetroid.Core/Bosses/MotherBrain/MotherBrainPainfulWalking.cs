@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainPainfulWalking
 {
     /// <summary>The animation delay of <paramref name="stage"/>.</summary>
-    internal static ushort AnimationDelay(int stage) => MotherBrainPainfulWalkingDefinitions.AnimationDelays[Pair(stage)];
+    internal static int AnimationDelay(int stage) => MotherBrainPainfulWalkingDefinitions.AnimationDelays[Pair(stage)];
 
     /// <summary>The neck angle step of <paramref name="stage"/>.</summary>
-    internal static ushort NeckAngleDelta(int stage) => MotherBrainPainfulWalkingDefinitions.NeckAngleDeltas[Pair(stage)];
+    internal static int NeckAngleDelta(int stage) => MotherBrainPainfulWalkingDefinitions.NeckAngleDeltas[Pair(stage)];
 
     /// <summary>The pause of <paramref name="stage"/>.</summary>
-    internal static ushort FunctionTimer(int stage) => MotherBrainPainfulWalkingDefinitions.FunctionTimers[Pair(stage)];
+    internal static int FunctionTimer(int stage) => MotherBrainPainfulWalkingDefinitions.FunctionTimers[Pair(stage)];
 
     /// <summary>Maps each forward/backward stagger stage to its shared timing pair, rejecting stages outside the eight-entry sequence.</summary>
     private static int Pair(int stage) => (uint)stage < MotherBrainPainfulWalkingDefinitions.StageCount

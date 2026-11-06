@@ -212,7 +212,7 @@ internal sealed class MotherBrainAttacks
 
         int verticalDistance = EnemyMath.WrappedMagnitude(CoordinateAxis.Wrap(
             state.Head.Position.Y.Whole + 4 - samus.Position.Y.Whole));
-        ReadOnlySpan<byte> thresholds = verticalDistance < 32
+        ReadOnlySpan<int> thresholds = verticalDistance < 32
             ? [16, 32, 208]
             : [64, 128, 192];
         int choice = randomLow < thresholds[0]

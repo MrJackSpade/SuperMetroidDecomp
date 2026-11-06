@@ -64,6 +64,24 @@ internal static class SamusProjectileSelectionDefinitions
             [SamusBeamCombination.SpazerPlasmaIceWave] = SamusProjectileHeader.PowerBomb,
         });
 
+    /// <summary>The combination whose charged shot is the Murder Beam: all four beams.</summary>
+    internal const SamusBeamCombination MurderBeam = SamusBeamCombination.SpazerPlasmaIceWave;
+
+    /// <summary>
+    /// The animation the Murder Beam's shot runs in each direction whose read names one, or none fired left; the four
+    /// directions left out read a damage word as their animation.
+    /// </summary>
+    internal static readonly MurderBeamDirectionPrograms<SamusProjectileDirection, SamusProjectileProgram> MurderBeamPrograms = new(
+        new Dictionary<SamusProjectileDirection, SamusProjectileProgram?>
+        {
+            [SamusProjectileDirection.UpFacingRight] = SamusProjectileProgram.PowerBomb,
+            [SamusProjectileDirection.Right] = SamusProjectileProgram.Bomb,
+            [SamusProjectileDirection.DownFacingRight] = SamusProjectileProgram.BeamExplosion,
+            [SamusProjectileDirection.DownLeft] = SamusProjectileProgram.MissileExplosion,
+            [SamusProjectileDirection.Left] = null,
+            [SamusProjectileDirection.UpLeft] = SamusProjectileProgram.BombExplosion,
+        });
+
     /// <summary>The header each fired missile and placed bomb starts from, by its projectile family.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileHeader> NonBeamProjectiles =
         new Dictionary<SamusProjectileFamily, SamusProjectileHeader>

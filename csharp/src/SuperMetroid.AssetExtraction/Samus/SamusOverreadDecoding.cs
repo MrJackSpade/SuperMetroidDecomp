@@ -165,10 +165,9 @@ internal static class SamusOverreadDecoding
             {
                 if (SamusBeamCallbacks.Resolve(charged, beams).Translated != SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
                     continue;
-                SamusProjectileHeader header = SamusProjectileSelection.BeamShot(beams, charged);
-                foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
+                foreach (SamusProjectileProgram program in SamusProjectileSelection.BeamShotPrograms(beams, charged))
                 {
-                    if (SamusProjectileHeaders.Program(header, direction.ToAimIndex()) is { } program && programs.Add(program))
+                    if (programs.Add(program))
                         pending.Enqueue(program);
                 }
             }

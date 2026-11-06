@@ -70,7 +70,7 @@ internal static class SamusProjectileHeaders
         // SuperMissileLink
         SamusProjectileHeader.SuperMissileLink => new ProjectileHeaderLayout([P.SuperMissileLink], 0),
         // PowerBomb
-        SamusProjectileHeader.PowerBomb => new ProjectileHeaderLayout([P.PowerBomb, null, P.Bomb, null, P.BeamExplosion, null, P.MissileExplosion, null, P.BombExplosion, null], 0b0010000000),
+        SamusProjectileHeader.PowerBomb => new ProjectileHeaderLayout([P.PowerBomb], 0),
         // Bomb
         SamusProjectileHeader.Bomb => new ProjectileHeaderLayout([P.Bomb], 0),
         // PlasmaSBA

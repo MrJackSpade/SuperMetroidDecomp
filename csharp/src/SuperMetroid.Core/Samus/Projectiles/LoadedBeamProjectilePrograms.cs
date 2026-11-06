@@ -47,9 +47,9 @@ internal static class LoadedBeamProjectilePrograms
     {
         var starts = new List<SamusProjectileProgram>();
         foreach (bool charged in (bool[])[false, true])
-            AddEveryDirection(starts, SamusProjectileSelection.BeamShot(beams, charged));
+            starts.AddRange(SamusProjectileSelection.BeamShotPrograms(beams, charged));
         if (beams == HyperBeamLoaded)
-            AddEveryDirection(starts, SamusProjectileSelection.BeamShot(HyperBeamFired, charged: true));
+            starts.AddRange(SamusProjectileSelection.BeamShotPrograms(HyperBeamFired, charged: true));
         // Only a retail combination has a special attack.
         if (beams.IsRetail && SamusProjectileSelection.SpecialAttack(beams) is { } specialAttack)
             AddFirst(starts, specialAttack);

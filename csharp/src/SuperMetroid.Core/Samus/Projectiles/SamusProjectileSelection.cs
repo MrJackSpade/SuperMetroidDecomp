@@ -14,6 +14,23 @@ internal static class SamusProjectileSelection
         ? Lookup(charged ? ChargedBeamShots : UnchargedBeamShots, beams)
         : UnauthoredShots.Shot(beams, charged);
 
+    /// <summary>
+    /// The animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, runs fired in
+    /// <paramref name="direction"/>, or null for none: its header's list for the direction, except the Murder Beam's,
+    /// which reads past the Power Bomb header it takes its damage from (<see cref="MurderBeamDirectionPrograms{TDirection, TProgram}"/>).
+    /// </summary>
+    internal static SamusProjectileProgram? BeamShotProgram(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>
+        IsMurderBeam(beams, charged)
+            ? MurderBeamPrograms.Program(direction)
+            : SamusProjectileHeaders.Program(BeamShot(beams, charged), direction.ToAimIndex());
+
+    /// <summary>Every animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, starts in any direction.</summary>
+    internal static IEnumerable<SamusProjectileProgram> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
+        IsMurderBeam(beams, charged) ? MurderBeamPrograms.Programs : SamusProjectileHeaders.Programs(BeamShot(beams, charged));
+
+    /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
+    private static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;
+
     /// <summary>The header a fired missile or placed bomb of <paramref name="family"/> starts from.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No missile or bomb is of the family.</exception>
     internal static SamusProjectileHeader NonBeam(SamusProjectileFamily family) => Lookup(NonBeamProjectiles, family);

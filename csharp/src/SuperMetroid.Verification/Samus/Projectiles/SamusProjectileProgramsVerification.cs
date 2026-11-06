@@ -96,6 +96,19 @@ internal static class SamusProjectileProgramsVerification
                     AssertThrows<InvalidDataException>(() => SamusProjectileHeaders.Program(header, field), $"{at}: a word that is not a list fails");
             }
         }
+        ushort powerBomb = SamusProjectileHeaderNative.Address(SamusProjectileHeader.PowerBomb);
+        foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
+        {
+            ushort native = Word(powerBomb + sizeof(ushort) * (1 + direction.ToAimIndex()));
+            string at = $"the Murder Beam fired {direction}";
+            if (native == 0)
+                AssertEqual(null, SamusProjectileSelection.BeamShotProgram(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: no list");
+            else if (byEntry.TryGetValue(native, out SamusProjectileProgram program))
+                AssertEqual(program, SamusProjectileSelection.BeamShotProgram(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: list");
+            else
+                AssertThrows<InvalidDataException>(() => SamusProjectileSelection.BeamShotProgram(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: a word that is not a list fails");
+            fields++;
+        }
         Console.WriteLine($"  Samus projectile programs: {byEntry.Count} programs ({steps} steps, {records.Count} records) and {fields} header fields match bank $93.");
     }
 
@@ -103,13 +116,13 @@ internal static class SamusProjectileProgramsVerification
     private const int HeaderListFields = 10;
 
     /// <summary>
-    /// The headers every shot reads in its first list field only: the Super Missile link, a bomb and the special-attack
-    /// particles; the port keeps none of the words after it. A Power Bomb header, which a charged Spazer and Plasma shot
-    /// reads in its own direction, keeps all ten.
+    /// The headers whose own selection reads only their first list field: the Super Missile link, the bombs and the
+    /// special-attack particles; the port keeps none of the words after it. The Murder Beam's read past the Power Bomb
+    /// header is its own rule, checked against the same words.
     /// </summary>
     private static readonly HashSet<SamusProjectileHeader> FirstListReadHeaders =
     [
-        SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.Bomb,
+        SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.PowerBomb, SamusProjectileHeader.Bomb,
         SamusProjectileHeader.PlasmaSBA, SamusProjectileHeader.WaveSBA, SamusProjectileHeader.SpazerSBA,
     ];
 

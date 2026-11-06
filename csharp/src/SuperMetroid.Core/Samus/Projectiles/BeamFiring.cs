@@ -286,7 +286,7 @@ internal sealed class BeamFiring
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         SamusProjectileHeader header = SamusProjectileSelection.BeamShot(beamType, charged);
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, direction);
+        SamusProjectileProgram? program = SamusProjectileSelection.BeamShotProgram(beamType, charged, aim);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);

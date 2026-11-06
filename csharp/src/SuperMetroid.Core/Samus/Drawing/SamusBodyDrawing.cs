@@ -43,48 +43,34 @@ internal static class SamusBodyDrawing
     private static bool ShowsBottomHalf(SamusPoseId pose, int animationFrame)
     {
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(pose);
-        // The draw suppresses the ordinary spin-jump bottom half for art frames 1..A;
-        // those frames' top spritemaps contain the complete curled body. Frame zero and
-        // frames B+ draw the split bottom. The admitted Screw/Space Jump records use their
-        // separate rule and always draw the bottom half at every animation frame.
+        // The draw suppresses the ordinary spin-jump bottom half for frames one through ten, whose top halves are the
+        // complete curled body. Frame zero and frames from eleven draw the split bottom. The Space Jump and Screw Attack
+        // poses always draw the bottom half.
         bool ordinarySpinBottom = movementType != SamusMovementType.SpinJumping ||
             pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose or
                 SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose ||
             animationFrame == 0 || animationFrame >= 11;
 
-        // The Crystal-Flash-end body is movement type `$0A`'s only exception. The first three frames of
-        // the `$D7/$D8` Crystal-Flash-end/fatal-damage body are complete top spritemaps;
-        // all other knockback-family poses and later frames retain an ordinary lower half.
+        // The death-sequence body is the knockback movement's only exception: its first three frames' top halves are the
+        // complete body. All other knockback poses and later frames keep an ordinary lower half.
         bool knockbackBottom = movementType != SamusMovementType.Knockback ||
             pose is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose) ||
             animationFrame >= 3;
 
-        // The posture-transition draw is a pose-and-frame dispatcher, not a blanket type-$0F
-        // policy. Basic crouch/stand transitions always use a lower half. Morph/unmorph
-        // bodies below `$DB` never do. `$DB/$DC` draw it only on frame zero, `$DD-$F0`
-        // only on frame two, and the aimed transition family `$F1+` always draws it.
+        // The posture-transition draw is a pose-and-frame dispatcher, not one rule for the whole movement type. The
+        // crouch and stand transitions and the aimed transitions always draw a lower half; the morph and unmorph bodies'
+        // top halves are the complete curling body. The other posture transitions are never given to Samus, so no frame
+        // of theirs is drawn.
         bool transitionBottom = movementType != SamusMovementType.PostureTransition ||
-            !SamusPoseNumbering.Precedes(pose, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
-            pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
-                SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ||
-            (pose is SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc &&
-                animationFrame == 0) ||
-            (!SamusPoseNumbering.Precedes(pose, SamusPoseId.UnusedPoseDd) &&
-                SamusPoseNumbering.Precedes(pose, SamusPoseId.CrouchingTransitionAimUpRightPose) && animationFrame == 2);
-
-        // The otherwise-unused movement type `$0D` still has executable game logic
-        // in the draw: UnusedPose65 and UnusedPose66 draw a lower half only on frame zero, while every
-        // other type-`$0D` pose follows the ordinary always-split return.
-        bool unusedTypeDBottom = movementType != SamusMovementType.Unused0D ||
-            pose is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66) ||
-            animationFrame < 1;
+            pose is not (SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose or
+                SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose);
 
         bool wallJumpBottom = movementType != SamusMovementType.WallJumping ||
             animationFrame < 3 || animationFrame >= 13;
         bool damageBoostBottom = movementType != SamusMovementType.DamageBoost ||
             animationFrame < 2 || animationFrame >= 9;
-        // The draw suppresses the lower half for vertical shinesparks and for drained
-        // crouch/fall byte indices zero and one. Every other type-$1B record draws it.
+        // The draw suppresses the lower half for vertical shinesparks and for the drained crouch's frames zero and one.
+        // Every other special-movement pose draws it.
         bool specialType1BBottom = movementType != SamusMovementType.Special ||
             (pose is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
              (pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose) ||
@@ -97,7 +83,7 @@ internal static class SamusBodyDrawing
             SamusMovementType.SpringBallGround or
             SamusMovementType.SpringBallInAir or
             SamusMovementType.SpringBallFalling) &&
-            ordinarySpinBottom && knockbackBottom && transitionBottom && unusedTypeDBottom &&
+            ordinarySpinBottom && knockbackBottom && transitionBottom &&
             wallJumpBottom && damageBoostBottom && specialType1BBottom;
     }
 

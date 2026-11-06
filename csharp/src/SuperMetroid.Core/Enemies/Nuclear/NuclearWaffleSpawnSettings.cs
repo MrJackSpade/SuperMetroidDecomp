@@ -1,21 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
-/// <summary>How a nuclear waffle orbits (#1472).</summary>
-/// <param name="AngularSpeedIndex">Its angular speed, 0 through 255.</param>
-/// <param name="OrbitRadius">Its orbit radius, 0 through 255 pixels.</param>
-/// <param name="Direction">Its orbit direction, 0 through 255.</param>
-/// <param name="WaitTime">Updates, 0 through 255, it waits.</param>
-internal sealed record NuclearWaffleSpawnSettings(int AngularSpeedIndex, int OrbitRadius, int Direction, int WaitTime) : EnemySpawnSettings
-{
-    /// <summary>Its angular speed, 0 through 255.</summary>
-    public int AngularSpeedIndex { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, AngularSpeedIndex);
-
-    /// <summary>Its orbit radius, 0 through 255 pixels.</summary>
-    public int OrbitRadius { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, OrbitRadius);
-
-    /// <summary>Its orbit direction, 0 through 255.</summary>
-    public int Direction { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Direction);
-
-    /// <summary>Updates, 0 through 255, it waits.</summary>
-    public int WaitTime { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, WaitTime);
-}
+/// <summary>How a nuclear waffle orbits (#1472, #1519).</summary>
+/// <param name="AngularSpeed">Its sweep speed, in units of 1/256 turn per update.</param>
+/// <param name="OrbitRadius">Its orbit radius in pixels.</param>
+/// <param name="Direction">The way it sweeps.</param>
+/// <param name="WaitTime">The updates it waits between sweeps.</param>
+internal sealed record NuclearWaffleSpawnSettings(SignedSixteenSixteen AngularSpeed, int OrbitRadius, NuclearWaffleSweepDirection Direction, int WaitTime) : EnemySpawnSettings;

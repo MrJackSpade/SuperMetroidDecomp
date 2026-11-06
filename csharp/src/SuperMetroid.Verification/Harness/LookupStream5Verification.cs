@@ -1094,7 +1094,8 @@ internal static class LookupStream5Verification
             var expected = new LookupStream5Expected2(unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
-            var mount = MorphBallEyeGeometry.Mount(direction);
+            var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8000 | direction));
+            var mount = MorphBallEyeGeometry.Mount(mountSettings.MountSide);
             AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
@@ -1134,7 +1135,8 @@ internal static class LookupStream5Verification
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex, "Actual cycling and wrap after the sixteenth colour");
         }
-        AssertThrows<InvalidDataException>(() => MorphBallEyeGeometry.Mount(4), "Unsupported mount direction");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8004)),
+            "the import rejects a mount direction past the four sides");
         AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometry.BeamColor(16), "Beam phase bound");
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
     }

@@ -5,12 +5,15 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <summary>Where the Morph Ball surveillance eye mounts, and its beam's intensity.</summary>
 internal static class MorphBallEyeGeometry
 {
-    /// <summary>The mount parameter two's low nibble <paramref name="direction"/> selects.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the four directions.</exception>
-    internal static MorphBallEyeMountDefinition Mount(int direction) =>
-        (uint)direction < (uint)MorphBallEyeGeometryDefinitions.Mounts.Length
-            ? MorphBallEyeGeometryDefinitions.Mounts[direction]
-            : throw new InvalidDataException($"Morph-ball eye mount direction {direction} exceeds its four directions.");
+    /// <summary>The offset and program of the mount on <paramref name="side"/> of the eye's centre.</summary>
+    internal static MorphBallEyeMountDefinition Mount(MorphBallEyeMountSide side) => side switch
+    {
+        MorphBallEyeMountSide.Left => MorphBallEyeGeometryDefinitions.LeftMount,
+        MorphBallEyeMountSide.Right => MorphBallEyeGeometryDefinitions.RightMount,
+        MorphBallEyeMountSide.Above => MorphBallEyeGeometryDefinitions.AboveMount,
+        MorphBallEyeMountSide.Below => MorphBallEyeGeometryDefinitions.BelowMount,
+        _ => throw new ArgumentOutOfRangeException(nameof(side), side, "Undefined morph-ball eye mount side."),
+    };
 
     /// <summary>
     /// The beam colour table interleaves the red and green intensities, a dark blue and padding.

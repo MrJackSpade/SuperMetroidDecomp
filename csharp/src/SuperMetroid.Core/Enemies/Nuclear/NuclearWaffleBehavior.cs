@@ -43,16 +43,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
 
         NuclearWaffleSpawnSettings settings = slot.SpawnSettings<NuclearWaffleSpawnSettings>();
-        int angularSpeedIndex = settings.AngularSpeedIndex;
         state.OrbitRadius = settings.OrbitRadius;
-        int direction = settings.Direction;
         state.WaitingTimerReset = settings.WaitTime;
         state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 
-        // The sweep table holds only directions zero and one, so the definition rejects any other selector.
-        NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(direction);
-        state.SweepsForward = direction != 0;
+        NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(settings.Direction);
+        state.SweepsForward = settings.Direction == NuclearWaffleSweepDirection.Forward;
         state.SweepStartAngle = sweep.StartAngle;
         state.SweepAngle = SignedSixteenSixteen.FromParts(sweep.StartAngle, 0);
         state.SweepEndAngle = sweep.EndAngle;
@@ -61,9 +58,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SecondTurnThreshold = sweep.SecondTurnThreshold;
         state.FirstTurnThreshold = sweep.FirstTurnThreshold;
 
-        // Speed parameter N names the linear-speed row; a reverse sweep takes the row's negative speed.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(angularSpeedIndex);
-        state.AngularSpeed = state.SweepsForward ? speeds.Positive : speeds.Negative;
+        // A backward sweep turns at the placement's angular speed, negated.
+        state.AngularSpeed = state.SweepsForward ? settings.AngularSpeed : SignedSixteenSixteen.Zero - settings.AngularSpeed;
 
         state.Origin = slot.Position.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);

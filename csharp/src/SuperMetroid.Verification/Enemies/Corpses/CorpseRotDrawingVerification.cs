@@ -80,7 +80,7 @@ internal static class CorpseRotDrawingVerification
             }
             byte[] characters = oracle.Characters(loaded, call);
             foreach (EnemyFrameId frame in frames)
-                compared += AssertDrawsAsRotted(sheets.For(set, enemy), sheets.CorpseLayout(set, enemy, EnemySheetDefinitions.FrameName(frame)),
+                compared += AssertDrawsAsRotted(sheets.For(set, enemy).Frame, sheets.CorpseLayout(set, enemy, EnemySheetDefinitions.FrameName(frame)),
                     EnemySheetDefinitions.FrameName(frame), rows.Shown, characters, frame, TileBase(set, enemy), $"{oracle.Name} {frame} after rot call {call}");
         }
         return compared;
@@ -99,7 +99,7 @@ internal static class CorpseRotDrawingVerification
         string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStationary);
         string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.HookFrame);
         SpriteSheet bodySheet = sheets.For(set, EnemyDefinitionId.CorpseTorizo);
-        SpriteSheet hookSheet = sheets.Spawned(set, SpawnedObjectOwner.Shared).Sheet;
+        SpawnedObjectSheet hookSheet = sheets.Spawned(set, SpawnedObjectOwner.Shared);
         int tileBase = TileBase(set, EnemyDefinitionId.CorpseTorizo);
         int compared = 0;
         int update = 0;
@@ -111,9 +111,9 @@ internal static class CorpseRotDrawingVerification
             DeadTorizoBehavior.ShowNextRotHalf(state);
             byte[] characters = oracle.Characters(loaded, state.EvenHalfStep, state.OddHalfStep);
             string context = $"dead Torizo after main-AI call {update++}";
-            compared += AssertDrawsAsRotted(bodySheet, sheets.CorpseLayout(set, EnemyDefinitionId.CorpseTorizo, body), body,
+            compared += AssertDrawsAsRotted(bodySheet.Frame, sheets.CorpseLayout(set, EnemyDefinitionId.CorpseTorizo, body), body,
                 DeadTorizoBehavior.ShownBody(state), characters, EnemyFrameId.DeadTorizoStationary, tileBase, context);
-            compared += AssertDrawsAsRotted(hookSheet, sheets.SpawnedCorpseLayout(set, SpawnedObjectOwner.Shared, hook), hook,
+            compared += AssertDrawsAsRotted(hookSheet.Frame, sheets.SpawnedCorpseLayout(set, SpawnedObjectOwner.Shared, hook), hook,
                 DeadTorizoBehavior.ShownSand(state), characters, DeadTorizoArtworkDefinitions.HookFrame, 0, $"{context}'s hook");
         }
 
@@ -154,7 +154,7 @@ internal static class CorpseRotDrawingVerification
             if (call > 0)
                 _ = rotting.Step(new Position16<RoomPixels>(128, 112), MotherBrainRandomSample.FromGenerator(unchecked((ushort)(call * 37))), call);
             string corpsePicture = PictureAt(name, pages, lastCorpsePage);
-            compared += AssertDrawsAsRotted(sheet, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, corpsePicture), corpsePicture, rotting.Shown, oracle.Characters(loaded, call),
+            compared += AssertDrawsAsRotted(sheet.Frame, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, corpsePicture), corpsePicture, rotting.Shown, oracle.Characters(loaded, call),
                 EnemyFrameId.MotherBrainHead12, tileBase, $"Mother Brain's corpse after rot call {call}");
         }
         // Her escape's pages load over her corpse's characters once it has rotted; the corpse frame keeps showing her whole
@@ -169,15 +169,15 @@ internal static class CorpseRotDrawingVerification
     }
 
     /// <summary>
-    /// Checks picture <paramref name="picture"/> of <paramref name="sheet"/>, drawn through <paramref name="rows"/> as the
-    /// sheet's <paramref name="layout"/> says, paints the colour <paramref name="frame"/>'s parts paint over
-    /// <paramref name="characters"/> at every screen pixel; before the corpse's rows rot it draws as itself.
+    /// Checks picture <paramref name="picture"/>, which <paramref name="pictureOf"/> finds on its sheets, drawn through
+    /// <paramref name="rows"/> as the sheet's <paramref name="layout"/> says, paints the colour <paramref name="frame"/>'s parts
+    /// paint over <paramref name="characters"/> at every screen pixel; before the corpse's rows rot it draws as itself.
     /// </summary>
-    private static int AssertDrawsAsRotted(SpriteSheet sheet, CorpsePictureLayout? layout, string picture, CorpseRotRows? rows, byte[] characters,
-        EnemyFrameId frame, int tileBase, string context)
+    private static int AssertDrawsAsRotted(Func<string, SpriteSheetFrame> pictureOf, CorpsePictureLayout? layout, string picture, CorpseRotRows? rows,
+        byte[] characters, EnemyFrameId frame, int tileBase, string context)
     {
         AssertTrue(layout is not null, $"{context}: the sheet says where the corpse lies in {picture}");
-        SpriteSheetFrame image = sheet.Frame(picture);
+        SpriteSheetFrame image = pictureOf(picture);
         var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), image, Origin, SpriteMirror.None)
         {
             Shading = PictureShading.Standard,

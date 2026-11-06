@@ -69,7 +69,7 @@ internal static class GunshipLiftoffPicturesVerification
                     pictured++;
                 var source = new SpriteSource(SpriteSourceKind.Enemy, part.SlotIndex);
                 ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
-                UploadedPictureChecks.AssertDrawnPicture(sheets.For(set, part.DefinitionId),
+                UploadedPictureChecks.AssertDrawnPicture(sheets.For(set, part.DefinitionId).Frame,
                     UploadedPictureChecks.ExpectedPicture(name, variations, reached), drawn,
                     $"after {step} liftoff pages the ship's {part.DefinitionId}");
 

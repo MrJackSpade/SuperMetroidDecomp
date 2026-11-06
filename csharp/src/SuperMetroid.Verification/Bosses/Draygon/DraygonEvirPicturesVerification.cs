@@ -52,13 +52,13 @@ internal static class DraygonEvirPicturesVerification
         IReadOnlyList<FrameArtworkVariation> variations = sheets.SpawnedVariations(set, owner, frame);
         FrameArtworkVariation opening = variations.Single(variation => variation.Sequence == EncounterArtworkSequence.DraygonEvirs);
         AssertTrue(!opening.DrawnBeforeFirstStep && opening.DrawnAt(0), $"the Evir's frame {frame} is drawn only once Draygon's opening readies the Evirs");
-        SpriteSheet sheet = sheets.Spawned(set, owner).Sheet;
-        AssertTrue(!sheet.frames.ContainsKey(frame), $"the spawned objects' sheet holds no picture of the Evir's frame {frame} over the set's own characters");
+        SpawnedObjectSheet sheet = sheets.Spawned(set, owner);
+        AssertTrue(!sheet.frames.ContainsKey(frame), $"the spawned objects' sheets hold no picture of the Evir's frame {frame} over the set's own characters");
         // An opening Evir is never drawn before the opening; a draw then fails loudly, for its sheet holds no picture of it.
         AssertThrows<InvalidDataException>(() => DrawEvir(runtime, evir), "an Evir drawn before Draygon's opening");
         string evirPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, [new EncounterArtworkStep(EncounterArtworkSequence.DraygonEvirs, 0)]);
         runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.DraygonEvirs, 0);
-        UploadedPictureChecks.AssertDrawnPicture(sheet, evirPicture, AssertDrawnLikeParts(runtime, set, evir, "after the opening"),
+        UploadedPictureChecks.AssertDrawnPicture(sheet.Frame, evirPicture,AssertDrawnLikeParts(runtime, set, evir, "after the opening"),
             "an Evir drawn after the opening shows its picture of the Evirs' tiles");
         Console.WriteLine($"Draygon Evir pictures: no picture before her opening, {evirPicture} after, painting its frame over the characters then.");
     }

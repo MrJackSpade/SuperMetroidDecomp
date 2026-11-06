@@ -585,8 +585,8 @@ public static class StockAttractDemoScenes
     private static Position16<RoomPixels> CameraAtScreen(Position16<RoomScreens> screen) => screen.ToRoomPixels();
 
     /// <summary>Ammo counts are a number of five-round upgrades.</summary>
-    private static int AmmoForPacks(int packs) => WordWrap.Unsigned(packs * 5);
+    private static int AmmoForPacks(int packs) => packs * 5;
 
     /// <summary>Energy capacities consist of 99 base energy plus 100 per tank.</summary>
-    private static int HealthForEnergyTanks(int tanks) => WordWrap.Unsigned(99 + tanks * 100);
+    private static int HealthForEnergyTanks(int tanks) => 99 + tanks * 100;
 }

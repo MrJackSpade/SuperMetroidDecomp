@@ -30,7 +30,7 @@ public static class LiquidEffects
             throw new ArgumentOutOfRangeException(nameof(index));
         int position = index & 3;
         int magnitude = Math.Min(position, 3 - position);
-        return WordWrap.Signed((index & 4) == 0 ? magnitude : -magnitude);
+        return (index & 4) == 0 ? magnitude : -magnitude;
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public static class LiquidEffects
         if ((uint)index >= LavaAcidWaveDefinitions.WaveDisplacementCount) throw new ArgumentOutOfRangeException(nameof(index));
         int positivePulse = (uint)(index - 2) < 4 ? 1 : 0;
         int negativePulse = (uint)(index - 8) < 4 ? 1 : 0;
-        return WordWrap.Signed(positivePulse - negativePulse);
+        return positivePulse - negativePulse;
     }
 
     /// <summary>

@@ -190,9 +190,9 @@ internal sealed class RoomLoader
         }
 
         AreaId requestedArea = AreaIds.FromIndex(
-            WordWrap.LowByte(slot.Area),
+            slot.Area,
             $"Save slot {slot.Slot}");
-        int stationIndex = WordWrap.LowByte(slot.SaveStation);
+        int stationIndex = slot.SaveStation;
 
         LoadStationEntry station = LoadStations.Get(
             requestedArea,

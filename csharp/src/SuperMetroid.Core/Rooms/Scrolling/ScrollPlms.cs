@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// <summary>Scroll PLMs: setup, stepping and the scroll-cell mutation they apply when Samus touches them.</summary>
 internal sealed class ScrollPlms : IPlmFamilySource
 {
+    /// <summary>The first program byte that ends a scroll program instead of naming a scroll cell: 128 and above.</summary>
+    private const int ProgramEndFrom = 128;
+
     /// <summary>Registers the Scroll family's step.</summary>
     public void AddPlmFamilies(PlmFamilyTable table)
     {
@@ -83,7 +86,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
                 throw new InvalidDataException(
                     $"Scroll PLM program at block {slot.BlockIndex} ended without a terminator.");
             int scrollIndex = program.Span[offset];
-            if (WordWrap.SignedLowByte(scrollIndex) < 0)
+            if (scrollIndex >= ProgramEndFrom)
             {
                 FinishScrollMutation(level, slot);
                 return true;

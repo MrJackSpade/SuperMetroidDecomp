@@ -114,7 +114,7 @@ internal sealed class RoomMainRoutines
             return;
 
         int random = _system.RandomNumber;
-        bool dark = WordWrap.Signed(random) < 0;
+        bool dark = SharedRandomState.IsInUpperHalf(random);
         room.Enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(random & 15),
             dark,

@@ -47,5 +47,5 @@ public static class NoobTubeDebrisDefinitions
     private const int HiddenX = -4608;
 
     /// <summary>The stored whole-pixel X of a hidden actor (<see cref="HiddenX"/> in the position's wrapping word).</summary>
-    public static int HiddenXPosition { get; } = WordWrap.Unsigned(HiddenX);
+    public static int HiddenXPosition { get; } = CoordinateAxis.Wrap(HiddenX);
 }

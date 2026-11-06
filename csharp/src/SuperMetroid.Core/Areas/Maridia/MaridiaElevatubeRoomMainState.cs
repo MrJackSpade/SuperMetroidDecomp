@@ -105,10 +105,10 @@ public sealed class MaridiaElevatubeRoomMainState
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
         int displacement = SixteenSixteen.FromEightEight(Velocity.SignedRawValue);
-        uint trackedPosition = SixteenSixteen.Compose(TrackedPosition.Y, TrackedFraction);
-        trackedPosition = unchecked(trackedPosition + (uint)displacement);
-        TrackedPosition = new(0, FixedCoordinate.WholeOf(unchecked((int)trackedPosition)));
-        TrackedFraction = CoordinateAxis.Wrap(trackedPosition);
+        FixedCoordinate tracked = new FixedCoordinate(TrackedPosition.Y, TrackedFraction)
+            .MovedBy(SignedSixteenSixteen.FromRaw(displacement));
+        TrackedPosition = new(0, tracked.Whole);
+        TrackedFraction = tracked.Fraction;
         carryover.LeaveFraction(TrackedFraction);
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false });
@@ -116,7 +116,7 @@ public sealed class MaridiaElevatubeRoomMainState
         // The game's biased unsigned range test is exactly the inclusive signed range of the maximum speed either
         // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum
         // wraps as the game's word does, so an overflowed candidate is judged by its wrapped sign.
-        SignedEightEight candidate = new(WordWrap.Unsigned(Velocity.RawValue + Acceleration.RawValue));
+        SignedEightEight candidate = SignedEightEight.Wrapped(Velocity.RawValue + Acceleration.RawValue);
         if (Math.Abs(candidate.SignedRawValue) <= MaridiaElevatubeDefinitions.MaximumSpeed.SignedRawValue)
             Velocity = candidate;
 

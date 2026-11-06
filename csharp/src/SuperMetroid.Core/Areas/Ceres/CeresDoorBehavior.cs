@@ -234,12 +234,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
 
         Func<int> readRandomNumber = _room.Random.Read;
         // One random word in 32 (its low twelve bits below 128) picks the stronger quake.
-        int lowTwelveBits = WordWrap.Unsigned(readRandomNumber() % 4096);
+        int lowTwelveBits = readRandomNumber() % 4096;
         if (lowTwelveBits < 128)
         {
             // Rarely select the stronger sibling quake six entries after the base type.
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
-            _earthquake.EarthquakeType = WordWrap.Unsigned(baseEarthquakeType + 6);
+            _earthquake.EarthquakeType = baseEarthquakeType + 6;
             return;
         }
 

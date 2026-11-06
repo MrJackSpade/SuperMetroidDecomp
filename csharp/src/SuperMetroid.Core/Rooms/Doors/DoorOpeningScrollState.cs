@@ -117,7 +117,7 @@ internal sealed class DoorOpeningScrollState
     /// </summary>
     internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
     {
-        var withinScreen = new Offset16<RoomPixels>(WordWrap.LowByte(setup.X.Whole), WordWrap.LowByte(setup.Y.Whole));
+        var withinScreen = new Offset16<RoomPixels>(RoomGridConversions.OffsetWithinScreen(setup.X.Whole), RoomGridConversions.OffsetWithinScreen(setup.Y.Whole));
         return setup.WithWhole(GetSetupCamera(door) + withinScreen);
     }
 

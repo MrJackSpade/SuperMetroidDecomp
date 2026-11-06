@@ -394,7 +394,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         switch (advance)
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
-                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 show(slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:

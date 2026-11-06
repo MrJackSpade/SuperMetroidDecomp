@@ -270,7 +270,7 @@ public sealed class AudioQueues
         int write = SoundWritePositions[queue];
         int next = NextSoundPosition(write);
         SoundQueues[queue, write] = soundEffect;
-        SoundWritePositions[queue] = WordWrap.LowByte(next);
+        SoundWritePositions[queue] = next;
         SoundQueues[queue, next] = null;
         return admission;
     }
@@ -455,7 +455,7 @@ public sealed class AudioQueues
         SoundEffectId? sound = SoundQueues[queue, read];
         requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), sound));
         _currentSounds[queue] = sound;
-        SoundReadPositions[queue] = WordWrap.LowByte(NextSoundPosition(read));
+        SoundReadPositions[queue] = NextSoundPosition(read);
         SoundStates[queue] = 1;
     }
 

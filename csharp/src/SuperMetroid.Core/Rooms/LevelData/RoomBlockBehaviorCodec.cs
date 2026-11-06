@@ -44,6 +44,9 @@ internal static class RoomBlockBehaviorCodec
     internal static RoomBlockBehavior ExtensionOffset(int offset) =>
         new(Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, offset) & byte.MaxValue);
 
+    /// <summary>The signed offset, -128 through 127, an extension's parameter holds in two's complement.</summary>
+    internal static int ReadExtensionOffset(RoomBlockBehavior behavior) => unchecked((sbyte)behavior.Value);
+
     /// <summary>Decodes the four contiguous blue-door cap values.</summary>
     internal static bool TryBlueDoorOrientation(RoomBlockBehavior behavior, out ColoredDoorOrientation orientation) =>
         TryDecode(behavior, RoomBlockBehaviorValues.BlueDoorFacingLeft, BlueDoorOrientations, out orientation);

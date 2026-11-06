@@ -196,7 +196,8 @@ internal static class AudioClipExportVerification
     {
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllBytes(manifestPath));
         string[] effectFields = ["context", "library", "command", "policy", "activeFrames", "layers"];
-        string[] layerFields = ["clip", "loopStart", "voices", "keyOnFrames"];
+        // A layer no longer records the voices it was rendered from: only layer replacement read them (#1533).
+        string[] layerFields = ["clip", "loopStart", "keyOnFrames"];
         foreach (JsonElement effect in manifest.RootElement.GetProperty("soundEffects").EnumerateArray())
         {
             AssertTrue(effect.EnumerateObject().Select(field => field.Name).SequenceEqual(effectFields),

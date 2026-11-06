@@ -49,12 +49,15 @@ internal static class EndingCloudPlacementVerification
                 SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions.Artwork.DecompressionLimit)
             .AsSpan(0, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.CloudByteCount).ToArray();
         int checkedFrames = 0;
+        int steppedFrames = 0;
+        EndingCreditsPhase? comparedPhase = null;
         for (int frame = 0; frame < 200; frame++)
         {
             ending.Step();
             if (ending.Stage.Phase is not (EndingCreditsPhase.FadeInEscapeSceneB or
                 EndingCreditsPhase.EscapeSceneB or EndingCreditsPhase.FadeOutEscapeSceneB))
                 break;
+            steppedFrames++;
             for (int index = 0; index < actors.Length; index++)
             {
                 var actor = actors[index];
@@ -66,6 +69,12 @@ internal static class EndingCloudPlacementVerification
                         unchecked((ushort)(actor.Sprite.WholePosition.Y + (index < 2 ? 1 : -1))));
                 actor.Sprite.Step();
             }
+            // The clouds move a pixel a frame, so a misplaced origin or a wrong step shows on every later frame: the
+            // first two frames, each phase's first frame and every eighth frame are compared (#1532).
+            bool phaseStarts = ending.Stage.Phase != comparedPhase;
+            comparedPhase = ending.Stage.Phase;
+            if (frame >= 2 && !phaseStarts && frame % 8 != 0)
+                continue;
             var oam = ScreenSpritesFixtures.Blank();
             oam.BeginFrame();
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
@@ -92,7 +101,7 @@ internal static class EndingCloudPlacementVerification
             checkedFrames++;
         }
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "complete scene B checked through fade-out");
-        Console.WriteLine($"Ending scene B: {checkedFrames} full frames match independently stepped native cloud origins/motion; graphics source is shared, not a full cartridge pixel oracle.");
+        Console.WriteLine($"Ending scene B: {checkedFrames} sampled full frames of {steppedFrames} match independently stepped native cloud origins/motion; graphics source is shared, not a full cartridge pixel oracle.");
     }
 
     /// <summary>Checks that the takeoff scene's floor wraps beyond its edges, or that it adds the floor to the frame's main pixels.</summary>

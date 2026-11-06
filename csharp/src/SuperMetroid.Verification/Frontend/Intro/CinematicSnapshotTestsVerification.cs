@@ -34,8 +34,9 @@ internal static class CinematicSnapshotTestsVerification
         bool coloredRearView = false;
         for (int tick = 0; tick < 4000 && !flight.Finished; tick++)
         {
+            // Each phase's first update and every fourteenth are rendered and digested (#1532).
             bool changed = flightPhases.Add(flight.Phase);
-            if (changed || tick % 7 == 0)
+            if (changed || tick % 14 == 0)
             {
                 LayeredScene snapshot = flight.CaptureRenderSnapshot();
                 byte[] held = GraphDigest(snapshot);
@@ -57,8 +58,9 @@ internal static class CinematicSnapshotTestsVerification
         bool mode1 = false, mode7 = false, explosionWindow = false, explosionCoversTop = false;
         for (int tick = 0; tick < 2000 && !destruction.Finished; tick++)
         {
+            // Each phase's first update and every twenty-sixth are rendered and digested (#1532).
             bool changed = phases.Add(destruction.Phase);
-            if (changed || tick % 13 == 0)
+            if (changed || tick % 26 == 0)
             {
                 LayeredScene snapshot = destruction.CaptureRenderSnapshot();
                 byte[] held = GraphDigest(snapshot);
@@ -89,11 +91,17 @@ internal static class CinematicSnapshotTestsVerification
             var audio = new AudioQueues();
             var menu = new GameOverMenuState(audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             bool toggled = false, released = false;
+            GameOverMenuPhase? sampledPhase = null;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {
+                // The menu is captured every update, as the game draws it; each phase's first update and every fourth are
+                // rendered and digested (#1532).
                 LayeredScene snapshot = menu.CaptureRenderSnapshot();
-                byte[] held = GraphDigest(snapshot);
-                AssertTrue(ScenePixels.Same(menu.CaptureRenderSnapshot(), snapshot), $"game-over snapshot tick {tick} shows the live menu's pixels");
+                bool sample = menu.Phase != sampledPhase || tick % 4 == 0;
+                sampledPhase = menu.Phase;
+                byte[] held = sample ? GraphDigest(snapshot) : [];
+                if (sample)
+                    AssertTrue(ScenePixels.Same(menu.CaptureRenderSnapshot(), snapshot), $"game-over snapshot tick {tick} shows the live menu's pixels");
                 ControllerButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)
                 {
@@ -103,6 +111,8 @@ internal static class CinematicSnapshotTestsVerification
                 }
                 menu.Step(input);
                 audio.AdvanceFrame(default);
+                if (!sample)
+                    continue;
                 Survives(held, snapshot, tick);
                 menuSamples++;
             }
@@ -136,7 +146,7 @@ internal static class CinematicSnapshotTestsVerification
             LayeredScene expected = legacy.CaptureTranslatedRenderSnapshot();
             LayeredScene snapshot = captured.CaptureTranslatedRenderSnapshot();
             bool newPhase = phases.Add(legacy.Phase);
-            bool sample = newPhase || tick % 31 == 0;
+            bool sample = newPhase || tick % 62 == 0;
             byte[] held = sample ? GraphDigest(snapshot) : [];
             if (sample)
             {

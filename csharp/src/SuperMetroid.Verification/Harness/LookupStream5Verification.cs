@@ -479,7 +479,9 @@ internal static class LookupStream5Verification
     {
         int[] sources = [CrocomireSourceDefinitions.FightBodyColors, CrocomireSourceDefinitions.InitialWallColors,
             CrocomireSourceDefinitions.InitialProjectileColors, CrocomireSourceDefinitions.SkeletonArmColors, CrocomireSourceDefinitions.WallSpikesColors];
-        int[] counts = [8, 17, 17, 16, 16];
+        // The initial projectile band is sprite set 5's sixteen colours: the port does not carry the transfer's seventeenth
+        // word, which lands on sprite set 6's transparent colour 0 (#1436).
+        int[] counts = [8, 17, 16, 16, 16];
         string[] labels = ["fightBody", "initialWall", "initialProjectile", "skeletonArm", "wallSpikes"];
         PaletteRgb5[][] bands = new PaletteRgb5[5][];
         for (int band = 0; band < bands.Length; band++)
@@ -495,8 +497,8 @@ internal static class LookupStream5Verification
         AssertTrue(!MetadataShape.DeclaresField(typeof(CrocomireColorCatalog), "paint", BindingFlags.Instance | BindingFlags.NonPublic), "Stock palette storage has been removed");
         var edits = stock.edits;
         AssertTrue(!MetadataShape.Fields(typeof(CrocomirePaintDefinitions), BindingFlags.Static | BindingFlags.NonPublic).Any(field => field.FieldType.IsArray), "Material calculation does not cache an output palette");
-        AssertEqual(0, edits.Count, "All 74 stock inks calculate without overrides");
-        Console.WriteLine("Crocomire material paint: 74 native colors, zero stock palette/overrides, actual CGRAM, hash and bounds pass.");
+        AssertEqual(0, edits.Count, "All 73 stock inks calculate without overrides");
+        Console.WriteLine("Crocomire material paint: 73 native colors, zero stock palette/overrides, actual CGRAM, hash and bounds pass.");
 
         CrocomireColorCatalog Check()
         {
@@ -1471,13 +1473,13 @@ internal static class LookupStream5Verification
                 X = ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand),
                 Y = ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand) };
         }).ToArray();
-        Check(flight, values =>
+        Check(flight, "CeresFlightActorLayout", values =>
         {
             using var encoded = new MemoryStream();
             CeresFlightActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresFlightActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresFlightActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
+            return new LookupStream5Load<CeresFlightActorPlacement>(layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
         var reveal = Enumerable.Range(0, 6).Select(index =>
         {
@@ -1486,13 +1488,13 @@ internal static class LookupStream5Verification
                 X = ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand),
                 Y = ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand) };
         }).ToArray();
-        Check(reveal, values =>
+        Check(reveal, "CeresRevealActorLayout", values =>
         {
             using var encoded = new MemoryStream();
             CeresRevealActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresRevealActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresRevealActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
+            return new LookupStream5Load<CeresRevealActorPlacement>(layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
         var destruction = Enumerable.Range(0, 3).Select(index =>
         {
@@ -1500,17 +1502,19 @@ internal static class LookupStream5Verification
             return new CeresDestructionActorPlacement { Id = CeresDestructionActors.InitialPlacementId(index),
                 X = index == 2 ? ReadVerificationWord(rom, 0x8bbfa6) : inherited.X, Y = inherited.Y };
         }).ToArray();
-        Check(destruction, values =>
+        Check(destruction, "CeresDestructionActorLayout", values =>
         {
             using var encoded = new MemoryStream();
             CeresDestructionActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresDestructionActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresDestructionActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
+            return new LookupStream5Load<CeresDestructionActorPlacement>(layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
         Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, no stored stock rows, complete identity preservation and bounds pass.");
 
-        static void Check<T>(T[] original,
+        // Each layout's identity keeps the layout name it was installed under; #1452 renamed the types to the placements
+        // they hold and kept those names.
+        static void Check<T>(T[] original, string identityName,
             Func<T[], LookupStream5Load<T>> load,
             Func<T, LookupStream5Field> fields)
         {
@@ -1524,7 +1528,7 @@ internal static class LookupStream5Verification
             {
                 for (int index = 0; index < expected.Length; index++)
                     AssertEqual(fields(expected[index]), fields(actual.Read(index)), "Ceres complete selected placement");
-                string identity = SelectedPresentationHash.Create(actual.Layout.GetType().Name, content =>
+                string identity = SelectedPresentationHash.Create(identityName, content =>
                 {
                     content.Append("actors", expected.Length);
                     foreach (T placement in expected)
@@ -1589,12 +1593,15 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition + 2), program,
                 "Original palette definition list pointer");
         }
+        // The glow programs are a plain list since #1418, which has no indexer of its own to bound.
         CheckEntries(CinematicGlowPaletteFxColorDefinitions.All,
             entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 2);
         CheckEntries(TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All,
             entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 2);
+        CheckComputedBounds(TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All, 2);
         CheckEntries(TourianStatueGreyPaletteFxColorToolingDefinitions.All,
             entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 4);
+        CheckComputedBounds(TourianStatueGreyPaletteFxColorToolingDefinitions.All, 4);
         Console.WriteLine("Stream 5 palette entries: all eleven entry identities, original controls and collection bounds pass.");
 
         void CheckEntries<T>(IReadOnlyList<T> entries, Func<T, Project> project, int expectedCount)
@@ -1609,6 +1616,10 @@ internal static class LookupStream5Verification
                 index++;
             }
             AssertEqual(expectedCount, index, "All palette entries enumerated");
+        }
+        // A list that computes its entries rejects an index outside them itself.
+        static void CheckComputedBounds<T>(IReadOnlyList<T> entries, int expectedCount)
+        {
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[-1]; }, "Palette entries lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[expectedCount]; }, "Palette entries upper bound");
         }

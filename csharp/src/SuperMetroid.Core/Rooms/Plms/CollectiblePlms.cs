@@ -240,9 +240,9 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Shows <paramref name="kind"/> in the next collectible graphics slot (#1350, #1453, #1466): the slot's blocks, and
-    /// whatever else shows the slot, show the room block sheet's pictures named for that collectible in that slot (#1431).
-    /// Nothing is uploaded; the pictures are the only collectible artwork.
+    /// Shows <paramref name="kind"/> in the next collectible graphics slot (#1350, #1453, #1466, #1513): the slot's blocks,
+    /// which the collectible writes where it lies, show the room block sheet's pictures of that collectible in that slot
+    /// (#1431), drawn from its own graphics. Nothing is uploaded; the pictures are the only collectible artwork.
     /// </summary>
     private int ShowInNextGraphicsSlot(RoomAppearance appearance, InWorldCollectibleKind kind)
     {

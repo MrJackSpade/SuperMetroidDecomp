@@ -51,8 +51,8 @@ internal static class RoomAppearanceComposition
     /// <summary>
     /// What shows over <paramref name="characters"/> while
     /// <paramref name="inputs"/> take <paramref name="values"/>: an animation that paints them shows its selected frame
-    /// (#1406); otherwise the newest artwork shown there, Kraid's backdrop over the collectibles the room bound as it
-    /// loaded and a later encounter look over an earlier; otherwise what <paramref name="load"/> binds there. False where
+    /// (#1406); otherwise the newest artwork shown there, a later encounter look over an earlier; otherwise what
+    /// <paramref name="load"/> binds there. False where
     /// nothing shows, or where an animation's selected frame does not reach them.
     /// </summary>
     internal static bool TryShowing(CharacterSpan characters, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values,

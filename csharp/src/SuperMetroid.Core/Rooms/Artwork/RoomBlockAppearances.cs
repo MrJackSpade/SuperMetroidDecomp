@@ -20,7 +20,10 @@ public sealed class RoomBlockAppearances
     /// <summary>Keeps the inputs each block depends on over each artwork the tileset's rooms' blocks show.</summary>
     /// <param name="tileset">Each block's inputs over the tileset's artwork, by block index.</param>
     /// <param name="sprites">Each block's inputs over the sprites' artwork, or null where no room of the tileset shows it.</param>
-    /// <exception cref="InvalidDataException">The tileset has no blocks, or the two artworks describe different blocks.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The tileset has no blocks, the two artworks describe different blocks, or a block is pictured over a collectible's
+    /// graphics: it depends on a collectible slot together with another input, or over the sprites' artwork.
+    /// </exception>
     public RoomBlockAppearances(IReadOnlyList<ImmutableArray<AppearanceInput>> tileset, IReadOnlyList<ImmutableArray<AppearanceInput>>? sprites)
     {
         this.tileset = [.. Ensure.NotNull(tileset)];
@@ -31,6 +34,16 @@ public sealed class RoomBlockAppearances
             throw new InvalidDataException("A tileset's block appearances record no blocks.");
         if (this.sprites is { } shown && shown.Length != this.tileset.Length)
             throw new InvalidDataException($"A tileset's blocks over the sprites' artwork number {shown.Length}, not its {this.tileset.Length}.");
+        // A collectible is pictured as itself on the blocks it writes where it lies, never composed into another block's
+        // picture (#1513): a block that shows a collectible slot shows it alone.
+        for (int block = 0; block < this.tileset.Length; block++)
+        {
+            ImmutableArray<AppearanceInput> inputs = this.tileset[block];
+            if (inputs.Length > 1 && inputs.Any(input => input is CollectibleSlotAppearance))
+                throw new InvalidDataException($"Block {block} is pictured over a collectible's graphics: it depends on {string.Join(", ", inputs.Select(input => input.Token))}.");
+        }
+        if (this.sprites?.Any(inputs => inputs.Any(input => input is CollectibleSlotAppearance)) == true)
+            throw new InvalidDataException("A tileset's block over the sprites' artwork is pictured over a collectible's graphics.");
     }
 
     /// <summary>The blocks a room of the tileset loads.</summary>

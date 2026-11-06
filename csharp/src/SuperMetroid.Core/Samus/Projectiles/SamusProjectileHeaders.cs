@@ -73,20 +73,12 @@ internal static class SamusProjectileHeaders
         SamusProjectileHeader.PowerBomb => new ProjectileHeaderLayout([P.PowerBomb, null, P.Bomb, null, P.BeamExplosion, null, P.MissileExplosion, null, P.BombExplosion, null], 0b0010000000),
         // Bomb
         SamusProjectileHeader.Bomb => new ProjectileHeaderLayout([P.Bomb, null, P.BeamExplosion, null, P.MissileExplosion, null, P.BombExplosion, null, P.PlasmaSBA, null], 0b0000100000),
-        // BeamExplosion
-        SamusProjectileHeader.BeamExplosion => new ProjectileHeaderLayout([P.BeamExplosion, null, P.MissileExplosion, null, P.BombExplosion, null, P.PlasmaSBA, null, P.WaveSBA, null], 0b0000001000),
-        // MissileExplosion
-        SamusProjectileHeader.MissileExplosion => new ProjectileHeaderLayout([P.MissileExplosion, null, P.BombExplosion, null, P.PlasmaSBA, null, P.WaveSBA, null, P.SpazerUpFacingRight, null], 0b0000000010),
-        // BombExplosion
-        SamusProjectileHeader.BombExplosion => new ProjectileHeaderLayout([P.BombExplosion, null, P.PlasmaSBA, null, P.WaveSBA, null, P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null], 0b0000000000),
         // PlasmaSBA
         SamusProjectileHeader.PlasmaSBA => new ProjectileHeaderLayout([P.PlasmaSBA, null, P.WaveSBA, null, P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
         // WaveSBA
         SamusProjectileHeader.WaveSBA => new ProjectileHeaderLayout([P.WaveSBA, null, P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
         // SpazerSBA
         SamusProjectileHeader.SpazerSBA => new ProjectileHeaderLayout([P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
-        // SuperMissileExplosion
-        SamusProjectileHeader.SuperMissileExplosion => new ProjectileHeaderLayout([P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
         // SpazerSBATrail
         SamusProjectileHeader.SpazerSBATrail => new ProjectileHeaderLayout([P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight], 0b0000000000),
         // ShinesparkEcho

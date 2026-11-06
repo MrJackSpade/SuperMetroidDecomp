@@ -102,9 +102,7 @@ internal static class SamusProjectileProgramsVerification
     private static readonly HashSet<SamusProjectileHeader> FirstListOnlyHeaders =
     [
         SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.PowerBomb, SamusProjectileHeader.Bomb,
-        SamusProjectileHeader.BeamExplosion, SamusProjectileHeader.MissileExplosion, SamusProjectileHeader.BombExplosion,
         SamusProjectileHeader.PlasmaSBA, SamusProjectileHeader.WaveSBA, SamusProjectileHeader.SpazerSBA,
-        SamusProjectileHeader.SuperMissileExplosion,
     ];
 
     /// <summary>

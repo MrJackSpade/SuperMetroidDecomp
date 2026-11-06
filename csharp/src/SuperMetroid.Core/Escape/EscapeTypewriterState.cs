@@ -2,13 +2,13 @@ using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Escape;
 
-/// <summary>Byte-oriented escape-warning text interpreter; each accepted call writes at most one glyph.</summary>
+/// <summary>Types the escape warning one character at a time; each accepted call types at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
-    /// <summary>The installed warning text the interpreter types.</summary>
+    /// <summary>The installed warning text the typewriter types.</summary>
     private EscapeTypewriterProgram? installedProgram;
 
-    /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
+    /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before typing it.</summary>
     /// <param name="programId">The warning program the state will show.</param>
     public EscapeTypewriterState(EscapeTypewriterProgramId programId) => ProgramId = programId;
 
@@ -29,19 +29,19 @@ public sealed class EscapeTypewriterState
     public Position16<TilemapCells> Cell { get; private set; }
     /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-call character delay once the program starts.</summary>
     public int Delay { get; private set; }
-    /// <summary>Calls still to skip before interpreting another character; a call that decrements it to zero still performs no character work.</summary>
+    /// <summary>Calls still to skip before typing another character; a call that decrements it to zero still performs no character work.</summary>
     public WrappingCountdown DelayTimer { get; private set; }
     /// <summary>Total non-space glyphs typed; spaces advance the cell but do not increment this count.</summary>
     public int GlyphsWritten { get; private set; }
-    /// <summary>True after an eligible interpretation call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
+    /// <summary>True after an eligible typing call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
     public bool Completed { get; private set; }
     /// <summary>One-call sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the caller selects the Ceres or Zebes click sound.</summary>
     public bool ClickRequested { get; private set; }
     /// <summary>Saved Ceres or Zebes program identity used to validate content rebinding; the program the state was created for.</summary>
     public EscapeTypewriterProgramId ProgramId { get; private set; }
-    /// <summary>Zero-based installed line cursor; advances past exhausted lines on an eligible call and reaches the line count when interpretation completes.</summary>
+    /// <summary>Zero-based installed line cursor; advances past exhausted lines on an eligible call and reaches the line count when typing completes.</summary>
     public int ProgramLineIndex { get; private set; }
-    /// <summary>Zero-based next-character cursor within the current line, including spaces; resets to zero when the interpreter advances to another line.</summary>
+    /// <summary>Zero-based next-character cursor within the current line, including spaces; resets to zero when the typewriter advances to another line.</summary>
     public int ProgramCharacterIndex { get; private set; }
     /// <summary>Whether the first eligible installed-program call has initialized the character delay; retained across host-content unbinding and restoration.</summary>
     public bool ProgramStarted { get; private set; }
@@ -99,20 +99,19 @@ public sealed class EscapeTypewriterState
             }
             if (ProgramCharacterIndex == 0)
                 Cell = line.Cell;
-            int character = WordWrap.LowByte(line.Text[ProgramCharacterIndex++]);
-            glyph = TypeCharacter(character);
+            glyph = TypeCharacter(line.Text[ProgramCharacterIndex++]);
             return false;
         }
         return Completed = true;
     }
 
     /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the cell.</summary>
-    private EscapeTypewriterGlyph? TypeCharacter(int character)
+    private EscapeTypewriterGlyph? TypeCharacter(char character)
     {
         EscapeTypewriterGlyph? glyph = null;
-        if (EscapeTypewriterGlyph.Types((char)character))
+        if (EscapeTypewriterGlyph.Types(character))
         {
-            glyph = new(Cell, EscapeTypewriterGlyph.PictureOf(ProgramId, (char)character));
+            glyph = new(Cell, EscapeTypewriterGlyph.PictureOf(ProgramId, character));
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }

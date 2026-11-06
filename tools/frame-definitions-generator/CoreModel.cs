@@ -188,6 +188,41 @@ internal sealed class CoreModel
         return model;
     }
 
+    /// <summary>The initializer value of Core type <paramref name="type"/>'s property or field <paramref name="member"/>.</summary>
+    /// <exception cref="InvalidDataException">No one type has that name, it declares no one such member, or the member has no initializer.</exception>
+    public ExpressionSyntax MemberInitializer(string type, string member)
+    {
+        INamedTypeSymbol[] types = [.. Types.Where(candidate => candidate.Name == type)];
+        if (types is not [var declaring])
+            throw new InvalidDataException($"Expected one Core type {type}; found {types.Length}.");
+        ISymbol symbol = declaring.GetMembers(member) is [var single]
+            ? single
+            : throw new InvalidDataException($"{type} does not declare one member {member}.");
+        foreach (SyntaxReference reference in symbol.DeclaringSyntaxReferences)
+        {
+            switch (reference.GetSyntax())
+            {
+                case PropertyDeclarationSyntax { Initializer.Value: var value }:
+                    return value;
+                case PropertyDeclarationSyntax { ExpressionBody.Expression: var body }:
+                    return body;
+                case VariableDeclaratorSyntax { Initializer.Value: var value }:
+                    return value;
+            }
+        }
+        throw new InvalidDataException($"{type}.{member} has no initializer this generator can read.");
+    }
+
+    /// <summary>The EnemyFrameId members <paramref name="initializer"/> names.</summary>
+    public HashSet<string> EnemyFramesNamed(ExpressionSyntax initializer)
+    {
+        SemanticModel semantic = ModelOf(initializer.SyntaxTree);
+        return new HashSet<string>(initializer.DescendantNodes().OfType<ExpressionSyntax>()
+            .Select(node => semantic.GetSymbolInfo(node).Symbol).OfType<IFieldSymbol>()
+            .Where(field => SymbolEqualityComparer.Default.Equals(field.ContainingType, EnemyFrameId))
+            .Select(field => field.Name), StringComparer.Ordinal);
+    }
+
     /// <summary>Whether <paramref name="symbol"/> is declared in Core (implicitly declared members of Core types included).</summary>
     public bool IsSource(ISymbol symbol) => SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, Compilation.Assembly);
 

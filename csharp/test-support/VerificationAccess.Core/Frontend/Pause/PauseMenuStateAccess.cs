@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Map;
@@ -59,8 +60,7 @@ internal static class PauseMenuStateAccess
             int index = AreaMapPages.GetTilemapWordIndex(cell);
             if (self.ScreenMode != PauseScreenMode.Map && index < PauseEquipmentBaseDefinitions.Cells)
                 return self.ShownEquipmentTiles[index];
-            ShownMapCell shown = self.ShownMap.Cells[cell.Y * AreaMapLayout.WidthInTiles + cell.X];
-            return new BackgroundTile(shown.Cell.Shape.Picture, shown.ColourVariant, shown.Cell.InFront, shown.Cell.Mirroring);
+            return MapCellCharacters.Tile(self.ShownMap.Cells[cell.Y * AreaMapLayout.WidthInTiles + cell.X]);
         }
 
         /// <summary>

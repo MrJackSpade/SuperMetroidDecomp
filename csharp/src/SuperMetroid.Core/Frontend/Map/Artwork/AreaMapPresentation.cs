@@ -30,7 +30,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
     internal AreaMapPresentation(AreaMapPresentationParts parts)
     {
         this.areas = parts.Areas;
-        HiddenCells = parts.HiddenCells;
         ContentIdentity = parts.ContentIdentity;
         HighlightCycle = parts.HighlightCycle;
         Backdrops = parts.Backdrops;
@@ -67,8 +66,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
 
     /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
     public string ContentIdentity { get; }
-    /// <summary>The cells the map screens show in place of cells nothing reveals.</summary>
-    public AreaMapHiddenCells HiddenCells { get; }
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
     public MapHighlightCycle HighlightCycle { get; }
     /// <summary>The solid colour the pause, file-select and world-map screens show where nothing is drawn (#1512).</summary>

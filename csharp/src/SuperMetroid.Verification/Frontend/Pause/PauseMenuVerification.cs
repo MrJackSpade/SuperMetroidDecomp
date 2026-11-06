@@ -43,15 +43,14 @@ internal static class PauseMenuVerification
         WriteRomLong(rom, 0x82964a, 0xb59000);
         WriteRomWord(rom, 0x82965f, 0x8000);
 
-        // Make every cartridge map cell exist and use low-priority character one. Put a
-        // high-priority BG2 holder tile at screen tile (10,10). The pause PPU must leave
-        // that green holder pixel above the red map even after the area-map upgrade makes
-        // the complete BG1 map visible.
+        // Make every cartridge map cell exist as a room walled all round, character 32 in the
+        // unexplored row as the retail maps store it, so the import classifies every cell
+        // (#1513). Put a high-priority BG2 holder tile at screen tile (10,10).
         WriteRomWord(rom, 0x829717, 0x8500);
         for (int mapByte = 0; mapByte < 0x0100; mapByte++)
             WriteRomByte(rom, 0x828500 + mapByte, 0xff);
         for (int mapWord = 0; mapWord < 0x0800; mapWord++)
-            WriteRomWord(rom, 0xb59000 + mapWord * 2, 0x0001);
+            WriteRomWord(rom, 0xb59000 + mapWord * 2, 0x0c20);
         const int secretMapX = 8;
         const int publicMapX = 9;
         const int exploredSecretMapX = 10;
@@ -64,13 +63,15 @@ internal static class PauseMenuVerification
             rom,
             0x828500 + secretMapByte,
             unchecked((byte)~secretAndExploredSecretMasks));
+        // The reveal-test cells are rooms open to the right, character 33 in the unexplored row.
         foreach (int mapX in new[] { secretMapX, publicMapX, exploredSecretMapX })
         {
             WriteRomWord(
                 rom,
                 0xb59000 + AreaMapPages.GetTilemapWordIndex(new(checked((ushort)mapX), revealTestMapY)) * 2,
-                0x0403);
+                0x0c21);
         }
+        var revealCell = new MapCell(MapCellKind.Room, new(MapCellEdge.Wall, MapCellEdge.Wall, MapCellEdge.Wall, MapCellEdge.Open));
 
         // The three reveal-test cells share exported Crateria byte $0D, so the SRAM
         // round trip exercises the real compiled cartridge codec without patching its
@@ -226,28 +227,28 @@ internal static class PauseMenuVerification
         PauseMenuState CreateRevealPause(MapRevealMode mode) => new(new PauseMenuEntry { Samus = samus, System = revealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = mode, MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
 
         PauseMenuState nonePause = CreateRevealPause(MapRevealMode.None);
-        AssertEqual(MapTileWords.PauseBlank, nonePause.ReadDisplayedMapTile(new(publicMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Unexplored(MapCell.Empty), nonePause.ReadDisplayedMapCell(new(publicMapX, revealTestMapY)),
             "None pause map hides unentered public cell without acquired map");
-        AssertEqual(MapTileWords.PauseBlank, nonePause.ReadDisplayedMapTile(new(secretMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Unexplored(MapCell.Empty), nonePause.ReadDisplayedMapCell(new(secretMapX, revealTestMapY)),
             "None pause map hides unentered secret cell");
-        AssertEqual(new MapTileWord(0x0003),
-            nonePause.ReadDisplayedMapTile(new(exploredSecretMapX, revealTestMapY)),
-            "None pause map retains entered secret cell with explored palette");
+        AssertEqual(ShownMapCell.Explored(revealCell),
+            nonePause.ReadDisplayedMapCell(new(exploredSecretMapX, revealTestMapY)),
+            "None pause map retains entered secret cell in the explored shade");
 
         PauseMenuState publicPause = CreateRevealPause(MapRevealMode.Public);
-        AssertEqual(new MapTileWord(0x0403),
-            publicPause.ReadDisplayedMapTile(new(publicMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Unexplored(revealCell),
+            publicPause.ReadDisplayedMapCell(new(publicMapX, revealTestMapY)),
             "Public pause map reveals cartridge station cell as unentered");
-        AssertEqual(MapTileWords.PauseBlank,
-            publicPause.ReadDisplayedMapTile(new(secretMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Unexplored(MapCell.Empty),
+            publicPause.ReadDisplayedMapCell(new(secretMapX, revealTestMapY)),
             "Public pause map excludes cartridge secret-only cell");
 
         PauseMenuState secretPause = CreateRevealPause(MapRevealMode.Secret);
-        AssertEqual(new MapTileWord(0x0403),
-            secretPause.ReadDisplayedMapTile(new(secretMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Unexplored(revealCell),
+            secretPause.ReadDisplayedMapCell(new(secretMapX, revealTestMapY)),
             "Secret pause map reveals nonblank secret-only cell as unentered");
-        AssertEqual(new MapTileWord(0x0003),
-            secretPause.ReadDisplayedMapTile(new(exploredSecretMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Explored(revealCell),
+            secretPause.ReadDisplayedMapCell(new(exploredSecretMapX, revealTestMapY)),
             "Secret pause map keeps entered secret cell visually distinct");
 
         SuperMetroidSaveSnapshot revealSnapshot = SuperMetroidSaveSnapshot.Capture(samus, revealSystem, new SaveSnapshotContext { Area = 0, SaveStation = 0 });
@@ -260,11 +261,11 @@ internal static class PauseMenuVerification
         var restoredNonePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = MapRevealMode.None, MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),
             "map reveal mode does not persist a map-station flag through SRAM snapshot");
-        AssertEqual(MapTileWords.PauseBlank,
-            restoredNonePause.ReadDisplayedMapTile(new(secretMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Unexplored(MapCell.Empty),
+            restoredNonePause.ReadDisplayedMapCell(new(secretMapX, revealTestMapY)),
             "map reveal mode does not persist secret-only visibility through SRAM snapshot");
-        AssertEqual(new MapTileWord(0x0003),
-            restoredNonePause.ReadDisplayedMapTile(new(exploredSecretMapX, revealTestMapY)),
+        AssertEqual(ShownMapCell.Explored(revealCell),
+            restoredNonePause.ReadDisplayedMapCell(new(exploredSecretMapX, revealTestMapY)),
             "SRAM round trip preserves legitimately explored secret cell");
 
         Console.WriteLine(

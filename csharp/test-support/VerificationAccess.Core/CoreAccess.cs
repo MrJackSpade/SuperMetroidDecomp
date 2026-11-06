@@ -27,6 +27,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core;
 
@@ -113,7 +114,7 @@ internal static class CoreAccess
         internal int CreditsVerticalScroll => ending.InstalledArtwork.CurrentCredits?.ScrollPosition.Y ?? 0;
     }
 
-    /// <summary>Exposes pause indicator placement, page transition, and displayed map tile state.</summary>
+    /// <summary>Exposes pause indicator placement, page transition, and displayed map cell state.</summary>
     extension(PauseMenuState pause)
     {
         /// <summary>Last OAM origin used for the pause menu's selection indicator.</summary>
@@ -123,9 +124,9 @@ internal static class CoreAccess
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
         internal Position16<MapPixels> MapScroll => pause.MapScrollPosition;
 
-        /// <summary>Reads the displayed BG1 map tile of the pause screen as the area-map cell word it was placed from.</summary>
-        internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell) =>
-            new(BackgroundTileWords.ToWord(pause.ShownBg1Tile(cell)));
+        /// <summary>The map cell the pause screen's map shows at <paramref name="cell"/>, in the shade it shows it in (#1513).</summary>
+        internal ShownMapCell ReadDisplayedMapCell(Position16<MapTiles> cell) =>
+            pause.ShownMap.Cells[cell.Y * AreaMapLayout.WidthInTiles + cell.X];
     }
 
     /// <summary>Reads the shooting-star array in its native update order.</summary>
@@ -145,15 +146,6 @@ internal static class CoreAccess
             .Values.Sum(bank => bank.Samples.Count);
     }
 
-
-    /// <summary>Extracts the high-bit flip flags from a rendered map tile word.</summary>
-    extension(MapTileWord tile)
-    {
-        /// <summary>Horizontal and vertical flip bits encoded in a map tile word.</summary>
-        internal TileFlip FlipFlags =>
-            ((tile.Raw & 0x4000) != 0 ? TileFlip.Horizontal : TileFlip.None) |
-            ((tile.Raw & 0x8000) != 0 ? TileFlip.Vertical : TileFlip.None);
-    }
 
     /// <summary>Builds the exact OAM upload byte payload from a prepared sprite buffer.</summary>
     extension(OamBuffer oam)

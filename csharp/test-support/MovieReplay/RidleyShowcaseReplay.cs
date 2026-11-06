@@ -179,8 +179,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             if (game.GameState is not (SuperMetroidGameState.HitDoorBlock or
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
-                for (int tile = 0; tile < HudStateConstants.MutableTileCount; tile++)
-                    Check($"HUD tile {tile}", runtime.Hud.TileWords[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
+                mismatches.AddRange(runtime.Hud.NativeRowDifferences(
+                    [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(tile => W(NativeSnapshotMemory.HudTilemap + tile * 2))]));
             Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToWord(), NativeSnapshotMemory.PreviousHudSelection);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {

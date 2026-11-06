@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
@@ -135,15 +136,21 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
         _ => throw new ArgumentOutOfRangeException(nameof(indicator), indicator, "Undefined reserve indicator."),
     };
 
-    /// <summary>The tile a revealed minimap cell shows: its shape and mirroring in its shade's colour variant, in front.</summary>
-    private BackgroundTile MinimapTile(HudMinimapCellImage cell) =>
-        new(cell.Shape.Picture, cell.Shade switch
+    /// <summary>
+    /// The tile a revealed minimap cell shows: the map character and mirroring that picture its cell (#1513), in its
+    /// shade's colour variant, in front.
+    /// </summary>
+    private BackgroundTile MinimapTile(HudMinimapCellImage cell)
+    {
+        MapCellSource source = MapCellCharacters.Source(cell.Cell);
+        return new(source.Character, cell.Shade switch
         {
             MinimapShade.Unexplored => parts.MinimapUnexploredColourVariant,
             MinimapShade.Explored => parts.MinimapExploredColourVariant,
             MinimapShade.SamusLocation => parts.MinimapLocationColourVariant,
             _ => throw new ArgumentOutOfRangeException(nameof(cell), cell.Shade, "Undefined minimap shade."),
-        }, highPriority: true, cell.Mirroring);
+        }, highPriority: true, source.Mirroring);
+    }
 
     /// <summary>A one-cell image of <paramref name="tile"/>.</summary>
     private static HudImageTiles OneCell(HudImage image, BackgroundTile tile) => new(image, new(1, 1), [tile]);

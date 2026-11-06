@@ -107,20 +107,23 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
         Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
         var rules = new PresentationMapRules();
-        var cell = new MapPresentationCell { TileColumn = 17, TileRow = 2, Palette = 3,
-            Priority = true, FlipX = true, FlipY = false };
-        var document = new MapPresentationDocument { Version = 1, Area = "Crateria",
+        var cell = new AreaMapDocumentCell { Kind = MapCellKind.Room, Slope = MapCellSlope.None,
+            Top = MapCellEdge.Wall, Bottom = MapCellEdge.Open, Left = MapCellEdge.Wall, Right = MapCellEdge.ElevatorShaft };
+        var document = new MapPresentationDocument { Version = 2, Area = "Crateria",
             Cells = Enumerable.Repeat(cell, 64 * 32).ToArray() };
         string Json(MapPresentationDocument value) => JsonSerializer.Serialize(value,
             CamelCaseJson);
         AreaMapPresentationAsset Load(string text) => AreaMapPresentationFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
 
-        AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
+        AssertEqual(new MapCell(MapCellKind.Room, new(MapCellEdge.Wall, MapCellEdge.Open, MapCellEdge.Wall, MapCellEdge.ElevatorShaft)),
+            Load(Json(document)).Cell(new(5, 5)), "a document cell reads as the cell it names");
+        AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 1 })), "reject the character-numbered map schema");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Area = "Norfair" })), "reject wrong area");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Cells = [cell] })), "reject incomplete layout");
-        AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"tileColumn\":17", "\"tileColumn\":32")), "reject invalid atlas cell");
-        AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"version\":1", "\"version\":1,\"revealEverything\":true")), "reject editable gameplay commands");
+        AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"kind\":\"Room\"", "\"kind\":\"Tower\"")), "reject an undefined cell kind");
+        AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"top\":\"Wall\"", "\"top\":7")), "reject an undefined edge");
+        AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"version\":2", "\"version\":2,\"revealEverything\":true")), "reject editable gameplay commands");
         if (File.Exists("Super Metroid.smc"))
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -134,13 +137,12 @@ internal static class MapPresentationVerification
                 for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    AssertEqual(stock.Word(new(checked((ushort)x), checked((ushort)y))).Raw, MapTileWord.Of(restored.Cell(new(checked((ushort)x), checked((ushort)y)))).Raw, "stock map JSON retains tile/attributes");
-                    AssertEqual(stock.Word(new(checked((ushort)x), checked((ushort)y))).AsExplored().PaletteIndex, restored.Cell(new(checked((ushort)x), checked((ushort)y))).ExploredColourVariant, "stock map JSON keeps each cell's explored colour");
+                    AssertEqual(stock.Cell(new(checked((ushort)x), checked((ushort)y))), restored.Cell(new(checked((ushort)x), checked((ushort)y))), "stock map JSON retains each cell");
                     AssertEqual(stock.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), restored.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "stock discovery rules survive import");
                     AssertEqual(stock.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), restored.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "stock slope rules survive import");
                 }
             }
-            Console.WriteLine("Map presentation: all 14,336 retail cell words round-trip exactly.");
+            Console.WriteLine("Map presentation: all 14,336 retail cells round-trip exactly.");
         }
         else Console.WriteLine("Map presentation: retail round-trip skipped; source ROM unavailable.");
         Console.WriteLine("Map presentation: strict validation passes.");
@@ -151,8 +153,8 @@ internal static class MapPresentationVerification
     {
         /// <summary>Places the fixture's cells in Crateria so its projection uses a concrete area identity.</summary>
         public AreaId Area => AreaId.Crateria;
-        /// <summary>Provides the stock blank cell for every fixture cell.</summary>
-        public MapCell Cell(Position16<MapTiles> cell) => MapTileWords.PauseBlank.ToCell();
+        /// <summary>Provides the empty cell for every fixture cell.</summary>
+        public MapCell Cell(Position16<MapTiles> cell) => MapCell.Empty;
         /// <summary>Restricts exploration to the two fixture cells in column five.</summary>
         public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
         /// <summary>Reveals only the lower fixture cell when a map station has been used.</summary>
@@ -617,8 +619,8 @@ internal static class MapPresentationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        AssertEqual(original.Get(AreaId.Ceres).Cell(runtime.Hud.MinimapCenter).Shape.Picture,
-            runtime.Hud.TileWords[60] & 0x3ff, "Ceres room-entry runtime consumes bound catalog without map ROM reads");
+        AssertTrue(runtime.Hud.Minimap[SuperMetroid.Core.Hud.Artwork.GameplayHudPresentation.MinimapSize.X + 2] is SuperMetroid.Core.Hud.MinimapMapCell center &&
+            center.Cell == original.Get(AreaId.Ceres).Cell(runtime.Hud.MinimapCenter), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var room = runtime.Room.LoadedRoom;
         var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         Position16<MapPixels> scroll = pause.MapScroll;
@@ -630,7 +632,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Live map catalog: cartridge-free Ceres room entry and pause consume the bound catalog; debugger rebind preserves scroll.");
     }
 
-    /// <summary>Checks stock file-select map pixels, the projected BG1 words, and restoration of the graphics state.</summary>
+    /// <summary>Checks stock file-select map pixels, the projected map cells, and restoration of the graphics state.</summary>
     private static void VerifyFileSelectMapCatalog(AreaMapPresentation original)
     {
         var system = new SharedGameState();
@@ -641,17 +643,14 @@ internal static class MapPresentationVerification
             mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), installed.BackgroundsScene(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
-        byte[] expected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell())));
-        var shownInstalled = MenuScreenFixtures.Vram(installed, original);
-        for (int i = 0; i < expected.Length / 2; i++)
-            AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
-                shownInstalled.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select writes the exact projected tilemap");
+        AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.AreaMap.Cells),
+            "file-select shows the exact projected map cells");
         // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed);
         restored.BindFixtureArtwork(original);
         AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), restored.BackgroundsScene(new(0, 0))),
             "restored file-select graphics keep the installed pixels");
-        Console.WriteLine("File-select map: exact stock pixels, projected BG1 words, and graphics-state rebind pass.");
+        Console.WriteLine("File-select map: exact stock pixels, projected map cells, and graphics-state rebind pass.");
     }
 
     /// <summary>Provides an unbacked bus that rejects every read and write during installed map projection.</summary>

@@ -6,11 +6,10 @@ namespace SuperMetroid.Core.Map;
 public static class AreaMapProjection
 {
     /// <summary>
-    /// How a map screen shows each cell of <paramref name="map"/> (#1466): an explored cell as explored, a revealed one as
-    /// it is, and any other as the screen's <paramref name="hiddenCell"/>. Reveal overrides never modify saved exploration.
+    /// How a map screen shows each cell of <paramref name="map"/> (#1513): an explored cell as explored, a revealed one as
+    /// it is, and any other as the empty cell, which shows nothing. Reveal overrides never modify saved exploration.
     /// </summary>
-    public static ShownAreaMap Project(IAreaMapView map, SharedGameState system,
-        MapCell hiddenCell, MapRevealMode revealMode = MapRevealMode.None)
+    public static ShownAreaMap Project(IAreaMapView map, SharedGameState system, MapRevealMode revealMode = MapRevealMode.None)
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);
@@ -24,7 +23,7 @@ public static class AreaMapProjection
             cells[y * AreaMapLayout.WidthInTiles + x] = explored ? ShownMapCell.Explored(map.Cell(cell))
                 : AreaMapVisibility.IsVisible(explored, downloaded, map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode)
                     ? ShownMapCell.Unexplored(map.Cell(cell))
-                    : ShownMapCell.Unexplored(hiddenCell);
+                    : ShownMapCell.Unexplored(MapCell.Empty);
         }
         return new ShownAreaMap([.. cells]);
     }

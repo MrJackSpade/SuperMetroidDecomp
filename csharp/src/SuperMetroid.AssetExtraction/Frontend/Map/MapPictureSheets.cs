@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map;
@@ -11,24 +12,21 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The map screens' picture sheets (#1467): each map cell's shape in each colour variant and tier any area map shows it
-/// in, each area's room-map frame, and each area's world-map foreground and background, pre-coloured under the palette of
-/// the screen that shows them. The game places them by frame name; no map screen keeps a tilemap.
+/// The map screens' picture sheets (#1467): each map cell any area map shows (#1513) in each shade, each area's room-map
+/// frame, and each area's world-map foreground and background, pre-coloured under the palette of the screen that shows
+/// them. The game places them by frame name; no map screen keeps a tilemap.
 /// </summary>
 internal static class MapPictureSheets
 {
     /// <summary>
-    /// The picture of each cell any area map can show, each once: every area's cells explored and unexplored, and the
-    /// hidden cells the map screens show in their place.
+    /// The picture of each cell any area map can show, each once in each shade: the empty cell the map screens show where
+    /// nothing is revealed, then every area's cells, each pictured from the map character that pictures it (#1513).
     /// </summary>
     internal static IEnumerable<ScreenPictureSubject> CellSubjects(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        var shown = new List<ShownMapCell>
-        {
-            ShownMapCell.Unexplored(maps.HiddenCells.Unrevealed),
-            ShownMapCell.Unexplored(maps.HiddenCells.WithoutAreaMap),
-        };
+        var cells = new HashSet<MapCell> { MapCell.Empty };
+        var ordered = new List<MapCell> { MapCell.Empty };
         for (int index = 0; index < AreaIds.RetailCount; index++)
         {
             IAreaMapView map = maps.Get(AreaIds.At(index));
@@ -36,19 +34,29 @@ internal static class MapPictureSheets
             for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
             {
                 MapCell cell = map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y));
-                shown.Add(ShownMapCell.Explored(cell));
-                shown.Add(ShownMapCell.Unexplored(cell));
+                if (cells.Add(cell))
+                    ordered.Add(cell);
             }
         }
-        var named = new HashSet<string>(StringComparer.Ordinal);
         Extent16<TilemapCells> one = new(1, 1);
-        foreach (ShownMapCell cell in shown)
+        foreach (MapCell cell in ordered)
+        foreach (MapCellShade shade in Enum.GetValues<MapCellShade>())
         {
-            string name = AreaMapPictures.FrameName(cell);
-            if (named.Add(name))
-                yield return ScreenPictureSubject.Block(name, default, one,
-                    new[] { new BackgroundTile(cell.Cell.Shape.Picture, cell.ColourVariant, cell.Cell.InFront, TileFlip.None) });
+            var shown = new ShownMapCell(cell, shade);
+            yield return ScreenPictureSubject.Block(AreaMapPictures.FrameName(shown), default, one, new[] { MapCellCharacters.Tile(shown) });
         }
+    }
+
+    /// <summary>
+    /// Requires the map characters <paramref name="maps"/> pictures its cells from to picture each cell once, and each
+    /// cell a retail map stores explored to show alike in either shade under <paramref name="palette"/> (#1513).
+    /// </summary>
+    /// <exception cref="InvalidDataException">A cell's sources paint different pixels, or a stored-explored cell shows differently by shade.</exception>
+    internal static void RequireCellsPicturedOnce(AreaMapPresentation maps, ReadOnlySpan<RgbColor> palette)
+    {
+        ScreenCharacters characters = MapCharacters(maps);
+        MapCellCharacters.RequireOnePicturePerCell(characters);
+        MapCellCharacters.RequireStoredExploredCellsShowAlike(characters, palette);
     }
 
     /// <summary>The map characters, from tile zero, as the room maps and the pause map name them.</summary>
@@ -60,10 +68,14 @@ internal static class MapPictureSheets
 
     /// <summary>
     /// The room maps' sheet under the file-select palette: every map cell and each Zebes area's room frame, a picture
-    /// painting no pixel, such as a map cell's empty shape, held without a picture as showing nothing (#1513).
+    /// painting no pixel, such as the empty map cell, held without a picture as showing nothing (#1513).
     /// </summary>
-    internal static ComposedSpriteSheet ComposeRoomMap(AreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.ComposeHoldingBlanks([.. RoomMapSubjects(maps)], MapCharacters(maps), InstalledAreaMapPresentation.PalettesOf(maps).FileSelect);
+    internal static ComposedSpriteSheet ComposeRoomMap(AreaMapPresentation maps)
+    {
+        ReadOnlySpan<RgbColor> palette = InstalledAreaMapPresentation.PalettesOf(maps).FileSelect;
+        RequireCellsPicturedOnce(maps, palette);
+        return ScreenPictureSheetComposer.ComposeHoldingBlanks([.. RoomMapSubjects(maps)], MapCharacters(maps), palette);
+    }
 
     /// <summary>The room maps' pictures: every map cell, then each Zebes area's room frame.</summary>
     internal static IEnumerable<ScreenPictureSubject> RoomMapSubjects(AreaMapPresentation maps)

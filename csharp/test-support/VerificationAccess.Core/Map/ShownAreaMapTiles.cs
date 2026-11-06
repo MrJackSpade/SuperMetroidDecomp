@@ -1,12 +1,14 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Progression;
 
 namespace SuperMetroid.Core.Map;
 
 /// <summary>
-/// Lays a shown area map out as the cartridge places it on the map screens' two-page layer, so verification can compare a
-/// projection with the cartridge's map words. The screens themselves show a grid of the cells' pictures (#1467).
+/// Lays a shown area map out as the cartridge places it on the map screens' two-page layer, each cell as the tile the
+/// import pictures it from (#1513), so verification can draw a projection from VRAM characters. The screens themselves show
+/// a grid of the cells' pictures (#1467).
 /// </summary>
 internal static class ShownAreaMapTiles
 {
@@ -20,8 +22,7 @@ internal static class ShownAreaMapTiles
         {
             var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
             ShownMapCell shown = map.Cells[y * AreaMapLayout.WidthInTiles + x];
-            tiles[AreaMapPages.GetTilemapWordIndex(cell)] =
-                new BackgroundTile(shown.Cell.Shape.Picture, shown.ColourVariant, shown.Cell.InFront, shown.Cell.Mirroring);
+            tiles[AreaMapPages.GetTilemapWordIndex(cell)] = MapCellCharacters.Tile(shown);
         }
         return tiles;
     }

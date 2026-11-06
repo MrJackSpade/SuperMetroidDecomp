@@ -55,25 +55,25 @@ internal static class FileSelectRoomMapVerification
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
             var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-            byte[] pause = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(map, system, MapTileWords.PauseBlank.ToCell())));
-            // The room map's image is built once and every cell and frame word read from it.
+            ShownAreaMap pause = AreaMapProjection.Project(map, system);
+            // The room map's image is built once and every frame word read from it.
             var shownRoomMap = MenuScreenFixtures.Vram(graphics, RetailPresentationFixture());
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {
-                int offset = AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2;
-                ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(original.AsSpan(offset));
+                var at = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
+                int offset = AreaMapPages.GetTilemapWordIndex(at) * 2;
+                MapCell stockCell = MapCellCharacters.Decode(new MapTileWord(BinaryPrimitives.ReadUInt16LittleEndian(original.AsSpan(offset))));
                 bool explored = (x + y) % 7 == 0;
-                // Independent transcription of $82:9517's two branches.
-                ushort expected = explored ? (ushort)(raw & 0xfbff)
-                    : downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) ? raw
-                    : downloaded ? (ushort)31 : (ushort)15;
-                AssertEqual(expected, shownRoomMap.ReadWord((ushort)(0x5000 + offset / 2)),
+                // Independent transcription of $82:9517's two branches, in the cells they show (#1513): an explored cell
+                // explored, a station-revealed one unexplored, and any other the empty cell, which the cartridge draws
+                // with an empty character whether or not the area's map is downloaded.
+                ShownMapCell expected = explored ? ShownMapCell.Explored(stockCell)
+                    : downloaded && map.IsRevealedByMapStation(at) ? ShownMapCell.Unexplored(stockCell)
+                    : ShownMapCell.Unexplored(MapCell.Empty);
+                AssertEqual(expected, graphics.AreaMap.Cells[y * 64 + x],
                     $"room-select area {areaIndex} downloaded={downloaded} cell {x},{y}");
-                ushort pauseExpected = !explored && !(downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))))
-                    ? (ushort)31 : expected;
-                AssertEqual(pauseExpected, BinaryPrimitives.ReadUInt16LittleEndian(pause.AsSpan(offset)),
-                    "shared builder retains pause map hidden character");
+                AssertEqual(expected, pause.Cells[y * 64 + x], "shared builder shows the pause map's hidden cells empty");
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");

@@ -9,16 +9,16 @@ using SuperMetroid.AssetExtraction.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The codec of an area's editable map presentation document (#1466): each cell's picture coordinates, palette, priority
-/// and mirroring decoded once into the <see cref="MapCell"/>s the game shows, with the explored colour variant the
-/// cartridge's explored-cell rule gives each. Exploration rules are supplied separately and never come from the document.
+/// The codec of an area's editable map presentation document (#1466, #1513): each cell's kind, sloped-hallway piece and
+/// edges, by name, read into the <see cref="MapCell"/>s the game shows. Exploration rules are supplied separately and never
+/// come from the document.
 /// </summary>
 public static class AreaMapPresentationFile
 {
     /// <summary>Reads a full row-major layout, without ROM reads or writable file operations.</summary>
     /// <param name="json">The area's presentation document.</param>
     /// <param name="rules">The exploration rules the cells are shown under; its area must be the document's.</param>
-    /// <exception cref="InvalidDataException">The document is malformed, for another area, or names a cell outside the map pictures.</exception>
+    /// <exception cref="InvalidDataException">The document is malformed, for another area, or names an undefined kind, slope or edge.</exception>
     public static AreaMapPresentationAsset Read(Stream json, IAreaMapView rules)
     {
         Ensure.NotNull(json);
@@ -41,11 +41,11 @@ public static class AreaMapPresentationFile
         var cells = new MapCell[count];
         for (int i = 0; i < count; i++)
         {
-            MapPresentationCell? cell = document.Cells[i];
-            if (cell is null || (uint)cell.TileColumn >= MapPresentationFormat.AtlasColumns ||
-                (uint)cell.TileRow >= MapPresentationFormat.AtlasRows || (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-                throw new InvalidDataException($"Map presentation cell ({i % AreaMapLayout.WidthInTiles},{i / AreaMapLayout.WidthInTiles}) has an invalid atlas coordinate or palette.");
-            cells[i] = WordOf(cell).ToCell();
+            AreaMapDocumentCell? cell = document.Cells[i];
+            if (cell is null || !Enum.IsDefined(cell.Kind) || !Enum.IsDefined(cell.Slope) || !Enum.IsDefined(cell.Top) ||
+                !Enum.IsDefined(cell.Bottom) || !Enum.IsDefined(cell.Left) || !Enum.IsDefined(cell.Right))
+                throw new InvalidDataException($"Map presentation cell ({i % AreaMapLayout.WidthInTiles},{i / AreaMapLayout.WidthInTiles}) names an undefined kind, slope or edge.");
+            cells[i] = new MapCell(cell.Kind, new MapCellEdges(cell.Top, cell.Bottom, cell.Left, cell.Right), cell.Slope);
         }
         return new(cells, rules);
     }
@@ -57,7 +57,7 @@ public static class AreaMapPresentationFile
     {
         Ensure.NotNull(json);
         Ensure.NotNull(map);
-        var cells = new MapPresentationCell[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
+        var cells = new AreaMapDocumentCell[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
@@ -65,11 +65,8 @@ public static class AreaMapPresentationFile
             MapCell shown = map.Cell(cell);
             cells[AreaMapLayout.Size.RowMajorIndex(cell)] = new()
             {
-                TileColumn = shown.Shape.Picture % MapPresentationFormat.AtlasColumns,
-                TileRow = shown.Shape.Picture / MapPresentationFormat.AtlasColumns,
-                Palette = shown.ColourVariant, Priority = shown.InFront,
-                FlipX = (shown.Mirroring & TileFlip.Horizontal) != TileFlip.None,
-                FlipY = (shown.Mirroring & TileFlip.Vertical) != TileFlip.None,
+                Kind = shown.Kind, Slope = shown.Slope,
+                Top = shown.Edges.Top, Bottom = shown.Edges.Bottom, Left = shown.Edges.Left, Right = shown.Edges.Right,
             };
         }
         JsonSerializer.Serialize(json, new MapPresentationDocument
@@ -77,9 +74,4 @@ public static class AreaMapPresentationFile
             Version = MapPresentationFormat.Version, Area = map.Area.ToString(), Cells = cells
         }, ArtworkJson.Options);
     }
-
-    /// <summary>The cartridge word a document cell describes.</summary>
-    private static MapTileWord WordOf(MapPresentationCell cell) => MapTileWord.Of(new MapCell(
-        new MapCellShape(cell.TileRow * MapPresentationFormat.AtlasColumns + cell.TileColumn), cell.Palette, cell.Palette,
-        (cell.FlipX ? TileFlip.Horizontal : TileFlip.None) | (cell.FlipY ? TileFlip.Vertical : TileFlip.None), cell.Priority));
 }

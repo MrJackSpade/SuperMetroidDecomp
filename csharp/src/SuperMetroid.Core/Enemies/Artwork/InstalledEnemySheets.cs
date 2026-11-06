@@ -4,16 +4,17 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The installed pre-coloured enemy sheets (#1392), by the room graphics set that loads an enemy and the enemy: the
-/// sheet shows the enemy's frames in the colours its colour set holds once that graphics set has loaded. Each set also has a
-/// sheet for each owner of the objects it spawns (enemy projectiles and room sprite objects): its shared sheet and each
-/// spawner's (#1513).
+/// sheet shows the enemy's frames in the colours its colour set holds once that graphics set has loaded. Each set also has,
+/// for each owner of the objects it spawns (enemy projectiles and room sprite objects), the pictures it draws them from: its
+/// shared owner's and each spawner's, on the set's own sheet where they are particular to it and on a common sheet where
+/// many sets draw them alike, each common picture held once (#1513).
 /// </summary>
 public sealed class InstalledEnemySheets : IEnemySheetSource
 {
     /// <summary>Each set's sheet for each of its enemies.</summary>
     internal readonly Dictionary<EnemySheetKey, SpriteSheet> sheets;
 
-    /// <summary>Each set's spawned-object sheet for each owner.</summary>
+    /// <summary>Each set's spawned-object pictures for each owner.</summary>
     internal readonly Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned;
 
     /// <summary>Each set's enemy sheets' frames its encounters' artwork sequences change, and how each follows them (#1513).</summary>

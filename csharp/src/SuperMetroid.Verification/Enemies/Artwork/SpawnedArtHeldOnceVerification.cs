@@ -57,8 +57,8 @@ internal static class SpawnedArtHeldOnceVerification
         Console.WriteLine($"Spawned art held once: {holders.Count} distinct frame pictures of {sheets.Length} installed spawned-object sheets are each held by one sheet.");
     }
 
-    /// <summary>The installed sheets a set's spawned-object sheet for one owner draws its pictures from.</summary>
-    private static SpriteSheet[] SheetsOf(SpawnedObjectSheet spawned) => [spawned.Sheet];
+    /// <summary>The installed sheets a set's spawned-object pictures for one owner are on: its own sheet and the common sheets.</summary>
+    private static SpriteSheet[] SheetsOf(SpawnedObjectSheet spawned) => [.. spawned.Sheets];
 
     /// <summary>Each pictured frame of <paramref name="sheet"/> with the fingerprint of everything a draw of it shows.</summary>
     /// <exception cref="InvalidDataException">An installed plane is malformed or not the sheet's size, or a pixel inks past the sheet's rows.</exception>

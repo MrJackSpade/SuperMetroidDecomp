@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 15;
+    public const int ManifestVersion = 16;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -56,8 +56,11 @@ public static class EnemySheetFiles
             ?? throw new InvalidDataException($"Enemy sheet manifest {manifestPath} is empty.");
         if (manifest.Version != ManifestVersion)
             throw new InvalidDataException($"Enemy sheet manifest {manifestPath} has revision {manifest.Version}, not {ManifestVersion}.");
+        // A spawned-object owner's pictures are on its own sheet and on the common sheets holding its common art (#1513).
         string[] names = [.. manifest.Sets.Values.SelectMany(members => members.Values)
-            .Concat(manifest.Spawned.Values.SelectMany(bases => bases.Values.Select(entry => entry.Sheet))).Distinct(StringComparer.Ordinal)];
+            .Concat(manifest.Spawned.Values.SelectMany(bases => bases.Values.SelectMany(entry =>
+                entry.Sheet is { } own ? entry.CommonPictures.Keys.Append(own) : entry.CommonPictures.Keys)))
+            .Distinct(StringComparer.Ordinal)];
         SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName, names.Length);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
@@ -102,13 +105,14 @@ public static class EnemySheetFiles
         {
             if (!manifest.Sets.ContainsKey(set))
                 throw new InvalidDataException($"Enemy sheet manifest spawns objects under graphics set {set}, which it installs no sheets for.");
+            // Owners the set draws from one sheet's pictures share one resolution of them.
+            var resolved = new Dictionary<string, SpawnedObjectSheet>(StringComparer.Ordinal);
             foreach ((string ownerName, SpawnedObjectSheetDocument entry) in owners)
             {
                 SpawnedObjectOwner owner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(ownerName);
                 EnemyDefinitionId[] spawners = Spawners(entry.Spawners, set);
                 EnemyDefinitionId[] sharedSpawners = Spawners(entry.SharedSpawners, set);
                 SpawnedObjectOwner sheetOwner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(entry.Owner);
-                SpriteSheet sheet = loaded[entry.Sheet];
                 Dictionary<string, FrameArtworkVariation[]> frameVariations = FrameVariations(manifest.SpawnedVariations, set, ownerName);
                 CommonSpawnedObjects[] common =
                     [.. entry.Common.Select(spawner => CommonSpawners.Named(spawner).Spawned)];
@@ -116,9 +120,14 @@ public static class EnemySheetFiles
                     frameVariations))];
                 Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.SpawnedCorpsePictures, set, ownerName, pictures);
                 HashSet<string> blank = Blank(manifest.SpawnedBlankPictures, set, ownerName, pictures);
-                if (!sheet.HoldsExactly(pictures.Where(picture => !blank.Contains(picture))))
-                    throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
-                spawned.Add(new SpawnedObjectSheetKey(set, owner), new SpawnedObjectSheet(sheet));
+                string resolution = $"{entry.Sheet}/{string.Join("/", entry.CommonPictures.OrderBy(held => held.Key, StringComparer.Ordinal)
+                    .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}";
+                HashSet<string> shown = [.. pictures.Where(picture => !blank.Contains(picture))];
+                if (!resolved.TryGetValue(resolution, out SpawnedObjectSheet? sheet))
+                    resolved.Add(resolution, sheet = SpawnedPictures(entry, loaded, shown, $"{set} {ownerName}"));
+                if (!shown.SetEquals(sheet.frames.Keys))
+                    throw new InvalidDataException($"Enemy sheet manifest does not draw exactly the pictures of the objects {set} {ownerName}'s spawners spawn.");
+                spawned.Add(new SpawnedObjectSheetKey(set, owner), sheet);
                 if (frameVariations.Count > 0)
                     spawnedVariations.Add(new SpawnedObjectSheetKey(set, owner), frameVariations);
                 if (frameCorpses.Count > 0)
@@ -129,6 +138,37 @@ public static class EnemySheetFiles
         }
         return new InstalledEnemySheets(new(sheets, variations, corpsePictures, blankPictures),
             new(spawned, spawnedVariations, spawnedCorpsePictures, spawnedBlankPictures));
+    }
+
+    /// <summary>
+    /// The pictures <paramref name="entry"/> says a graphics set draws one owner's spawned objects from (#1513): those
+    /// particular to the set from its own sheet, and each common one from the common sheet the entry names for it, together
+    /// exactly <paramref name="shown"/>, the pictures of the owner's frames that show something.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The entry draws a picture its frames do not show, draws one from two common sheets, or a sheet does not hold the
+    /// pictures the entry draws from it.
+    /// </exception>
+    private static SpawnedObjectSheet SpawnedPictures(SpawnedObjectSheetDocument entry, Dictionary<string, SpriteSheet> loaded, HashSet<string> shown,
+        string owner)
+    {
+        var common = new Dictionary<string, SpriteSheet>(StringComparer.Ordinal);
+        foreach ((string sheetName, List<string> held) in entry.CommonPictures)
+        {
+            SpriteSheet sheet = loaded[sheetName];
+            foreach (string picture in held)
+            {
+                if (!shown.Contains(picture))
+                    throw new InvalidDataException($"Enemy sheet manifest draws {owner} picture {picture} from common sheet {sheetName}, but no frame of its objects shows it.");
+                if (!common.TryAdd(picture, sheet))
+                    throw new InvalidDataException($"Enemy sheet manifest draws {owner} picture {picture} from two common sheets.");
+            }
+        }
+        string[] particular = [.. shown.Where(picture => !common.ContainsKey(picture))];
+        SpriteSheet? own = entry.Sheet is { } name ? loaded[name] : null;
+        if (own is null ? particular.Length > 0 : !own.HoldsExactly(particular))
+            throw new InvalidDataException($"Spawned-object sheet {entry.Sheet ?? "(none)"} does not hold exactly the pictures particular to {owner}'s objects.");
+        return new SpawnedObjectSheet(own, common);
     }
 
     /// <summary>

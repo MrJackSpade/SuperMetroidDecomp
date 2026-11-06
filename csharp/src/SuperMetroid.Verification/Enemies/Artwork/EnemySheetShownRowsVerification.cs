@@ -32,8 +32,9 @@ internal static class EnemySheetShownRowsVerification
         }
         foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet spawned) in installed.spawned)
         {
-            if (checkedSheets.Add(spawned.Sheet))
-                frames += CheckSheet(spawned.Sheet, $"{key.Set} spawned {key.Owner}", failures);
+            // A set's spawned-object pictures are on its own sheet and the common sheets (#1513), each checked once.
+            foreach (SpriteSheet sheet in spawned.Sheets.Where(checkedSheets.Add))
+                frames += CheckSheet(sheet, $"{key.Set} spawned {key.Owner}", failures);
         }
         AssertTrue(checkedSheets.Count > 0, "the installation holds enemy sheets");
         AssertTrue(failures.Count == 0,

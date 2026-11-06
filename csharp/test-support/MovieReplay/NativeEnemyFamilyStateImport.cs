@@ -128,14 +128,14 @@ internal static class NativeEnemyFamilyStateImport
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part reads only its own, so each is imported from the words.
             kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
-            kraidPartRecord.HeadTimer = WrappingCountdown.FromRaw(words.C);
+            kraidPartRecord.HeadTimer = words.C;
             kraidPartRecord.LintXOffset = CoordinateAxis.AsSigned(words.C);
             kraidPartRecord.LintTravel = words.B;
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
             if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
                 kraidPartRecord.CeilingRock = words.F / sizeof(ushort);
             else
-                kraidPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.F);
+                kraidPartRecord.FunctionTimer = words.F;
         }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {
@@ -422,8 +422,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             fakeKraidRecord.WalkDelta = unchecked((short)words.B);
             fakeKraidRecord.FacingDelta = unchecked((short)words.C);
-            fakeKraidRecord.WalkStepTimer = WrappingCountdown.FromRaw(words.D);
-            fakeKraidRecord.SpitDecisionTimer = WrappingCountdown.FromRaw(words.E);
+            fakeKraidRecord.WalkStepTimer = words.D;
+            fakeKraidRecord.SpitDecisionTimer = words.E;
         }
         if (slot.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {

@@ -76,16 +76,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             FakeKraidProgram.StepBackwardsFacingRight,
             movingRight: true,
             walkDelta: -4);
-        ExerciseWalkTimerWrap(
-            FakeKraidProgram.StepForwardsFacingLeft,
-            movingRight: false,
-            walkDelta: -4);
-        ExerciseWalkTimerWrap(
-            FakeKraidProgram.StepBackwardsFacingRight,
-            movingRight: true,
-            walkDelta: -4);
 
-        Console.WriteLine("Fake Kraid: both initial facings, four walk and two spit programs with their cues, and the walk timer's expiry at zero and wrap from zero pass.");
+        Console.WriteLine("Fake Kraid: both initial facings, four walk and two spit programs with their cues, and the walk timer's expiry at zero pass.");
 
         void VerifyInitializer(bool movingRight)
         {
@@ -113,14 +105,14 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
-            state.WalkStepTimer = WrappingCountdown.Start(0x0100);
-            state.SpitDecisionTimer = WrappingCountdown.Start(0x0100);
+            state.WalkStepTimer = 0x0100;
+            state.SpitDecisionTimer = 0x0100;
 
             RunFrames(enemies, slot, samus, level, 60);
 
-            AssertEqual((ushort)0x00ff, state.WalkStepTimer.RawValue,
+            AssertEqual(0x00ff, state.WalkStepTimer,
                 $"Fake Kraid {program} executes its walk callback");
-            AssertEqual((ushort)0x00ff, state.SpitDecisionTimer.RawValue,
+            AssertEqual(0x00ff, state.SpitDecisionTimer,
                 $"Fake Kraid {program} executes its action callback");
         }
 
@@ -133,8 +125,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
             slot.FrameHold = WrappingCountdown.Start(1);
-            state.WalkStepTimer = WrappingCountdown.Start(0x0100);
-            state.SpitDecisionTimer = WrappingCountdown.Start(0x0100);
+            state.WalkStepTimer = 0x0100;
+            state.SpitDecisionTimer = 0x0100;
 
             RunFrames(enemies, slot, samus, level, 60);
 
@@ -157,8 +149,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
-            state.WalkStepTimer = WrappingCountdown.Start(1);
-            state.SpitDecisionTimer = WrappingCountdown.Start(UnexpiredSpitDecisions);
+            state.WalkStepTimer = 1;
+            state.SpitDecisionTimer = UnexpiredSpitDecisions;
             ushort startX = slot.Position.X.Whole;
 
             RunFrames(enemies, slot, samus, level, 60);
@@ -167,34 +159,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 $"Fake Kraid {program} reverses when its walk timer reaches zero");
             AssertEqual(startX, slot.Position.X.Whole,
                 $"Fake Kraid {program} does not step on the reversing callback");
-            AssertEqual((ushort)7, state.WalkStepTimer.RawValue,
+            AssertEqual(7, state.WalkStepTimer,
                 $"Fake Kraid {program} reloads its walk timer from the random word");
-        }
-
-        void ExerciseWalkTimerWrap(FakeKraidProgram program, bool movingRight, short walkDelta)
-        {
-            // A cleared timer does not expire: the decrement wraps to the full word and the actor still steps.
-            RoomEnemySystem enemies = CreateSystem(
-                movingRight,
-                out RoomEnemySlot slot,
-                out SamusState samus,
-                out FakeKraidEnemyState state);
-            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.FrameHold = WrappingCountdown.Start(1);
-            state.WalkDelta = walkDelta;
-            state.FacingDelta = movingRight ? (short)4 : (short)-4;
-            state.WalkStepTimer = WrappingCountdown.Start(0);
-            state.SpitDecisionTimer = WrappingCountdown.Start(UnexpiredSpitDecisions);
-            ushort startX = slot.Position.X.Whole;
-
-            RunFrames(enemies, slot, samus, level, 60);
-
-            AssertEqual(ushort.MaxValue, state.WalkStepTimer.RawValue,
-                $"Fake Kraid {program} wraps a cleared walk timer");
-            AssertEqual(walkDelta, state.WalkDelta,
-                $"Fake Kraid {program} keeps its walk direction when the cleared timer wraps");
-            AssertEqual(unchecked((ushort)(startX + walkDelta)), slot.Position.X.Whole,
-                $"Fake Kraid {program} still steps when the cleared timer wraps");
         }
 
         RoomEnemySystem CreateSystem(

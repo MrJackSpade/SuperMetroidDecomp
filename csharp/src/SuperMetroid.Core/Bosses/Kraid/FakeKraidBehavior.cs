@@ -111,11 +111,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // isolated callers that did not expose that seam.
         int random = ReadFakeKraidRandomNumber();
         int seedDelay = (random & 3) + 2;
-        state.WalkStepTimer = WrappingCountdown.FromRaw(seedDelay);
-        state.SpitDecisionTimer = WrappingCountdown.FromRaw(seedDelay);
-        state.SpikeTimers[0] = WrappingCountdown.Start(seedDelay + 64);
-        state.SpikeTimers[1] = WrappingCountdown.Start(seedDelay + 96);
-        state.SpikeTimers[2] = WrappingCountdown.Start(seedDelay + 48);
+        state.WalkStepTimer = seedDelay;
+        state.SpitDecisionTimer = seedDelay;
+        state.SpikeTimers[0] = seedDelay + 64;
+        state.SpikeTimers[1] = seedDelay + 96;
+        state.SpikeTimers[2] = seedDelay + 48;
         state.SpikeTimerIndex = 0;
 
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
@@ -141,16 +141,16 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Main AI stores the next selector before acting on the old value.
         int timerIndex = state.SpikeTimerIndex;
         state.SpikeTimerIndex = timerIndex >= state.SpikeTimers.Length - 1 ? 0 : timerIndex + 1;
-        WrappingCountdown timer = state.SpikeTimers[timerIndex];
-        if (!timer.IsZero)
+        int timer = state.SpikeTimers[timerIndex];
+        if (timer != 0)
         {
-            state.SpikeTimers[timerIndex] = timer.DecrementToZero();
+            state.SpikeTimers[timerIndex] = timer - 1;
             return;
         }
 
         // The reload keeps the random word's low six bits: sixteen to seventy-nine frames.
-        state.SpikeTimers[timerIndex] = WrappingCountdown.Start(
-            ReadFakeKraidRandomNumber() % SpikeReloadRandomSpread + MinimumSpikeReloadFrames);
+        state.SpikeTimers[timerIndex] =
+            ReadFakeKraidRandomNumber() % SpikeReloadRandomSpread + MinimumSpikeReloadFrames;
         if (SpawnFakeKraidSpike(slot, state, timerIndex) &&
             FakeKraidOriginIsOnScreen(slot, camera))
         {
@@ -171,19 +171,15 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Fake Kraid walk bytecode requires Samus and room collision data.");
         }
 
-        state.SpitDecisionTimer = state.SpitDecisionTimer.DecrementToZero();
+        state.SpitDecisionTimer = Math.Max(0, state.SpitDecisionTimer - 1);
 
         // The step expires when the decrement reaches zero: reload seven through ten and
         // reverse without moving. Otherwise attempt the signed four-pixel 16.16
-        // displacement and reverse only if the room collision helper reports a wall. A
-        // cleared timer wraps rather than expiring, so it still performs the attempted step.
-        CountdownStep walkStep = state.WalkStepTimer.Decrement();
-        state.WalkStepTimer = walkStep.Remaining;
-        bool reverse = walkStep.IsZero;
+        // displacement and reverse only if the room collision helper reports a wall.
+        bool reverse = --state.WalkStepTimer == 0;
         if (reverse)
         {
-            state.WalkStepTimer = WrappingCountdown.Start(
-                (ReadFakeKraidRandomNumber() & 3) + 7);
+            state.WalkStepTimer = (ReadFakeKraidRandomNumber() & 3) + 7;
         }
         else
         {
@@ -206,7 +202,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private FakeKraidProgram SelectFakeKraidAction(
         FakeKraidEnemyState state)
     {
-        if (!state.SpitDecisionTimer.IsZero)
+        if (state.SpitDecisionTimer != 0)
         {
             if (state.FacingDelta < 0)
             {
@@ -220,7 +216,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 : FakeKraidProgram.StepForwardsFacingRight;
         }
 
-        state.SpitDecisionTimer = WrappingCountdown.Start((ReadFakeKraidRandomNumber() & 3) + 3);
+        state.SpitDecisionTimer = (ReadFakeKraidRandomNumber() & 3) + 3;
         return state.FacingDelta < 0
             ? FakeKraidProgram.FireSpitFacingLeft
             : FakeKraidProgram.FireSpitFacingRight;

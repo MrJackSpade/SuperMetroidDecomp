@@ -197,7 +197,7 @@ internal sealed class KraidCombat
         if (mouthHits != 0)
         {
             state.HurtFrame = 6;
-            state.HurtFrameTimer = WrappingCountdown.Start(2);
+            state.HurtFrameTimer = 2;
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&

@@ -1007,7 +1007,7 @@ internal sealed class SuperMetroidRuntime
         MotherBrainEnemyState? motherBrain = Room.LoadedScope.Enemies.DisplaySources.MotherBrain;
         ScrollingSkyState? sky = Room.ScrollingSky;
         var frameEnd = new GameplayFrameEndDisplayInputs(
-            Room.DoorTransitionMainScreenLayers,
+            Room.DoorTransitionShownLayers,
             sky?.Publish(Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
             crocomireDeath is { MeltingScrollActive: true } melting ? melting.MeltDistortion : null,
             motherBrain is { RisingFloorClipActive: true },

@@ -14,19 +14,41 @@ public static class XrayRoomDisplayRules
     public static RgbColor ActiveBackdrop => new(3, 3, 3);
 
     /// <summary>
-    /// How X-ray blends the room: a reveal room and Fireflea's room blend both
-    /// backgrounds, the sprites and the backdrop, an excluded room the foreground and the backdrop; Fireflea's room
-    /// always subtracts unhalved, the others halve and keep the room's own subtraction.
+    /// What the X-ray blends outside its cone (#1514): in a reveal room and Fireflea's room, the foreground, the background,
+    /// the actors and the backdrop; in an excluded room, the foreground and the backdrop.
     /// </summary>
-    public static ColorBlend Blend(XrayRoomBlendMode mode, bool subtract)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="mode"/> is not a defined mode.</exception>
+    public static BlendedLayers Blended(XrayRoomBlendMode mode) => mode switch
     {
-        if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode));
-        var sources = ColorBlend.Bg1 | ColorBlend.Backdrop;
-        if (mode is XrayRoomBlendMode.RevealBlocks or XrayRoomBlendMode.Fireflea)
-            sources |= ColorBlend.Bg2 | ColorBlend.Sprites;
-        if (mode == XrayRoomBlendMode.Fireflea) return sources | ColorBlend.Subtract;
-        return sources | ColorBlend.Half | (subtract ? ColorBlend.Subtract : 0);
-    }
+        XrayRoomBlendMode.RevealBlocks or XrayRoomBlendMode.Fireflea =>
+            BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
+        XrayRoomBlendMode.PreserveBackgrounds => BlendedLayers.Foreground | BlendedLayers.Backdrop,
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Undefined X-ray room blend."),
+    };
+
+    /// <summary>
+    /// Whether the X-ray brightens or darkens the room outside its cone: Fireflea's room always darkens it; the others keep
+    /// the room's own liquid's darkening (<paramref name="roomDarkens"/>) or brightening.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="mode"/> is not a defined mode.</exception>
+    public static BlendOperation Operation(XrayRoomBlendMode mode, bool roomDarkens) => mode switch
+    {
+        XrayRoomBlendMode.Fireflea => BlendOperation.Subtract,
+        XrayRoomBlendMode.RevealBlocks or XrayRoomBlendMode.PreserveBackgrounds => roomDarkens ? BlendOperation.Subtract : BlendOperation.Add,
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Undefined X-ray room blend."),
+    };
+
+    /// <summary>
+    /// Whether the X-ray halves the room outside its cone toward what it combines with: every room but Fireflea's, whose
+    /// darkness subtracts its shade whole.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="mode"/> is not a defined mode.</exception>
+    public static bool Halves(XrayRoomBlendMode mode) => mode switch
+    {
+        XrayRoomBlendMode.Fireflea => false,
+        XrayRoomBlendMode.RevealBlocks or XrayRoomBlendMode.PreserveBackgrounds => true,
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Undefined X-ray room blend."),
+    };
 
     /// <summary>Fireflea's room takes its own blend before the ordinary room and boss exclusions apply.</summary>
     public static XrayRoomBlendMode Select(RoomHeaderDefinition room, RoomFxType fx, AreaBoss? boss)

@@ -419,11 +419,11 @@ internal sealed class RoomLoader
     [IndependentFlag("Whether the source and destination rooms are isolated are independent room properties.")]
     internal void BeginDoorTransitionDisplay(bool sourceIsolated, bool destinationIsolated)
     {
-        if (_room.DoorTransitionMainScreenLayers is not null)
+        if (_room.DoorTransitionShownLayers is not null)
             throw new InvalidOperationException("The door-transition display is already active.");
 
         bool suppressForeground = sourceIsolated || destinationIsolated;
-        _room.DoorTransitionMainScreenLayers = suppressForeground
+        _room.DoorTransitionShownLayers = suppressForeground
             ? ScreenLayers.Sprites
             : ScreenLayers.Foreground | ScreenLayers.Sprites;
     }
@@ -431,12 +431,12 @@ internal sealed class RoomLoader
     /// <summary>Returns the screen to the destination room's ordinary layers.</summary>
     internal void EndDoorTransitionDisplay()
     {
-        if (_room.DoorTransitionMainScreenLayers is null)
+        if (_room.DoorTransitionShownLayers is null)
             throw new InvalidOperationException("The door-transition display is not active.");
         // The update that hands the screen back still counts as a scrolling update; the
         // room's ordinary display takes over on the following frame.
         RestartShortCounterDuringDoorScroll();
-        _room.DoorTransitionMainScreenLayers = null;
+        _room.DoorTransitionShownLayers = null;
         _doorFrameCounting.EndScroll();
     }
 

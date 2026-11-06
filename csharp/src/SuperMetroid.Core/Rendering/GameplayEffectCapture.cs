@@ -117,13 +117,22 @@ public static class GameplayEffectCapture
         return new(ScreenWindow.Of(cone, MotherBrainBeamDefinitions.FirstLine), beam.Color);
     }
 
-    /// <summary>Composes layer-blend configuration $16 with both background and the effect overlay on the subscreen.</summary>
+    /// <summary>
+    /// The waterfall rooms' blend (#1514): the waterfall, the background and the room's liquid lying behind the foreground,
+    /// darken the foreground, the actors taking part in blends and the backdrop, unhalved, everywhere on the screen.
+    /// </summary>
     public static GameplayBlendLayer CaptureWaterfall(GameplaySceneLayer gameplay,
         RoomFxOverlayRenderSnapshot fx)
     {
         if (fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
-            throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
-        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay), subscreenUsesBg2: true);
+            throw new ArgumentException("Waterfall capture requires the waterfall rooms' subtractive blend.", nameof(fx));
+        return new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
+        {
+            Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            Operation = BlendOperation.Subtract,
+            Halved = false,
+            Colour = RgbColor.Black,
+        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay), backgroundBehind: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
@@ -173,16 +182,22 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// FX $08 retains the winning main-screen source until color math. A post-frame
-    /// overlay would incorrectly brighten foreground terrain (and OBJ palettes 0-3).
-    /// Use the same literal Mode-1 composition as the other source-aware effects.
+    /// The spores' blend (#1514): the spores, lying behind, brighten the background, the actors taking part in blends and
+    /// the backdrop where each is frontmost, everywhere on the screen; the foreground keeps its colour, so the spores never
+    /// brighten the room's terrain, as an overlay added over the finished frame would.
     /// </summary>
     public static GameplayBlendLayer CaptureSpores(GameplaySceneLayer gameplay,
         RoomFxOverlayRenderSnapshot fx)
     {
         if (fx.Type != RoomFxType.Spores)
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
-        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay));
+        return new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
+        {
+            Blended = BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            Operation = BlendOperation.Add,
+            Halved = false,
+            Colour = RgbColor.Black,
+        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay));
     }
 
     /// <summary>

@@ -24,7 +24,7 @@ internal sealed class ActiveRoomState
     /// <summary>
     /// The layers the active door transition shows below the HUD, or null while gameplay chooses them.
     /// </summary>
-    internal ScreenLayers? DoorTransitionMainScreenLayers { get; set; }
+    internal ScreenLayers? DoorTransitionShownLayers { get; set; }
 
     /// <summary>The source room's foreground screen during a door's opening scroll, or null (#1346).</summary>
     internal RoomDoorBackground? DoorSourceBackground { get; set; }

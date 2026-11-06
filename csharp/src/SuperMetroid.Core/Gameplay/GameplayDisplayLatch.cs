@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// simulation cannot change them.
 /// </summary>
 /// <param name="Scrolls">The camera's layer-1 and layer-2 scrolls and the room shake.</param>
-/// <param name="MainScreen">The layers gameplay shows on the main screen.</param>
+/// <param name="ShownLayers">The room's layers and the actors gameplay shows.</param>
 /// <param name="PerspectiveFloor">The Ceres perspective floor the frame shows in place of the ordinary layers, or null.</param>
 /// <param name="RoomFxOverlay">Room-FX effect overlay state.</param>
 /// <param name="MorphBallEyeBeam">The Morph Ball eye beam's cone as the frame ends: its eye's position and aim, its width and colour; null while no beam exists.</param>
@@ -39,7 +39,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </param>
 public sealed record GameplayDisplayLatch(
     GameplayRenderSnapshot Scrolls,
-    ScreenLayers MainScreen,
+    ScreenLayers ShownLayers,
     PerspectiveFloor? PerspectiveFloor,
     RoomFxOverlayRenderSnapshot? RoomFxOverlay,
     MorphBallEyeBeamCone? MorphBallEyeBeam,

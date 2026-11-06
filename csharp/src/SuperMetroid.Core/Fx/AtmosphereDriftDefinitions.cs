@@ -1,7 +1,6 @@
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>How rain, spores and fog drift across the screen, in 1/256 pixel a frame, and what the spores blend with (#1415).</summary>
+/// <summary>How rain, spores and fog drift across the screen, in 1/256 pixel a frame (#1415).</summary>
 public static class AtmosphereDriftDefinitions
 {
     /// <summary>Rain falls six pixels a frame.</summary>
@@ -15,10 +14,4 @@ public static class AtmosphereDriftDefinitions
 
     /// <summary>Fog drifts right five sixteenths of a pixel a frame.</summary>
     public const int FogHorizontalVelocity = 80;
-
-    /// <summary>
-    /// The spores add to the background, the sprites drawn in blending palettes and the backdrop; the foreground
-    /// does not blend.
-    /// </summary>
-    public const ColorBlend SporesBlendedLayers = ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop;
 }

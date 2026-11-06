@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime;
 /// at publication after the update: the door transition's layers and the per-line effects.
 /// Arrays are owned copies; simulation cannot change them after publication.
 /// </summary>
-/// <param name="DoorTransitionMainScreenLayers">The layers a door transition shows below the HUD, or null outside a door transition.</param>
+/// <param name="DoorTransitionShownLayers">The layers a door transition shows below the HUD, or null outside a door transition.</param>
 /// <param name="ScrollingSky">The scrolling sky's rows and parallax bands, when the room spawned the sky's band per-line effect object.</param>
 /// <param name="CrocomireMelt">How Crocomire's melt sags his body layer (#1468), while it runs.</param>
 /// <param name="MotherBrainAscentShowing">Whether Mother Brain's rising-body display owns the gameplay layers.</param>
@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="TourianStatuesEnabled">Whether the Tourian statue the background's vertical scroll per-line effect object is running.</param>
 [IndependentFlag("independent display facts of the frame end")]
 public sealed record GameplayFrameEndDisplayInputs(
-    ScreenLayers? DoorTransitionMainScreenLayers,
+    ScreenLayers? DoorTransitionShownLayers,
     ScrollingSkyLayer? ScrollingSky,
     CrocomireMeltDistortion? CrocomireMelt,
     bool MotherBrainAscentShowing,

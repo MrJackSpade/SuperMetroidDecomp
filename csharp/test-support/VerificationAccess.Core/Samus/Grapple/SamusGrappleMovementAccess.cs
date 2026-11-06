@@ -48,7 +48,7 @@ internal static class SamusGrappleMovementAccess
             grapple.DirectionInputAcceleration = 0;
             grapple.GravityAcceleration = 0;
             grapple.JumpImpulse = 0;
-            grapple.CollisionBounceTimer = WrappingCountdown.Start(0);
+            grapple.CollisionBounceTimer = 0;
             grapple.Submerged = false;
             // This public helper is the debugger's already-accepted-anchor seam. Its caller may
             // deliberately place an anchor where the current room has no grapple block (the

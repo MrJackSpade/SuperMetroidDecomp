@@ -70,7 +70,7 @@ internal static class SpikeDamageBoostVerification
             AssertEqual(expected[frame], new SpikeDamageBoostExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                 samus.Pose, samus.HorizontalSpeed.BaseFixed), $"morphed spike release frame {frame}");
             AssertEqual(83, samus.Health, "spike contact damage");
-            AssertEqual(9 - frame, samus.KnockbackTimer.RawValue, "spike hurt timer");
+            AssertEqual(9 - frame, samus.KnockbackTimer, "spike hurt timer");
         }
 
         // Independent native seed: forward-held spike contact, left-facing, delay four,
@@ -91,7 +91,7 @@ internal static class SpikeDamageBoostVerification
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseFixed);
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         runtime.Controller1.Latch((ControllerButton.Right | ControllerButton.A));
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
@@ -110,7 +110,7 @@ internal static class SpikeDamageBoostVerification
         samus.Pose = SamusPoseId.SpinJumpRightPose;
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
-        SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = WrappingCountdown.Start(4) });
+        SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = 4 });
         samus.Position = samus.Position.WithWholeX(131);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
         samus.Position = samus.Position.WithWholeY(160);
@@ -137,7 +137,7 @@ internal static class SpikeDamageBoostVerification
         }
 
         samus.KnockbackActive = false;
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         samus.KnockbackDirection = 0;
         samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         foreach (SamusPoseId retainedPose in new SamusPoseId[]

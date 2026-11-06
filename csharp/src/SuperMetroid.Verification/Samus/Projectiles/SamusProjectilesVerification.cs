@@ -222,7 +222,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 nativeUnchargedSounds[beamType]),
             combinedResult.QueuedSoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
-        AssertEqual(10, combinedProjectiles.Firing.ProjectileInvincibilityTimer.RawValue,
+        AssertEqual(10, combinedProjectiles.Firing.ProjectileInvincibilityTimer,
             $"beam combination {beamType} publishes native invincibility timer");
 
         SamusProjectileFrameBehavior expectedFrameBehavior = (beamType & 1) == 0
@@ -1029,7 +1029,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "missile increments the shared ordinary-projectile counter");
     AssertEqual(10, missileBombs.CooldownTimer.RawValue,
         "missile producer installs literal ten-frame shared cooldown");
-    AssertEqual(20, missileProjectiles.Firing.ProjectileInvincibilityTimer.RawValue,
+    AssertEqual(20, missileProjectiles.Firing.ProjectileInvincibilityTimer,
         "missile producer installs literal projectile invincibility timer twenty");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.Type, "missile is an ordinary missile");
     AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");

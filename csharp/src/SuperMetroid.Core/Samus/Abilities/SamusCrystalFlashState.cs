@@ -186,7 +186,7 @@ public sealed class SamusCrystalFlashState
         ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Raising;
@@ -220,7 +220,7 @@ public sealed class SamusCrystalFlashState
                 // The wrapper clears both words after calling the ammo handler,
                 // including its seven no-drain frames and the final phase-changing call.
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
-                samus.KnockbackTimer = WrappingCountdown.Start(0);
+                samus.KnockbackTimer = 0;
                 break;
 
             case CrystalFlashPhase.Finishing:
@@ -258,7 +258,7 @@ public sealed class SamusCrystalFlashState
         BubbleEffectRequested = true;
         ActivationSoundRequested = true;
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         samus.KnockbackActive = false;
     }
 
@@ -333,7 +333,7 @@ public sealed class SamusCrystalFlashState
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Inactive;
     }

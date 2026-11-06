@@ -502,7 +502,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _collision.ResolveNormalEnemyTouch(slot, samus);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
-            samus.KnockbackTimer = WrappingCountdown.Start(0);
+            samus.KnockbackTimer = 0;
             return;
         }
 
@@ -523,7 +523,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             ? 0
             : samus.Health - damage;
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
     }
 
     /// <summary>Runs the private post-common-shot tail.</summary>

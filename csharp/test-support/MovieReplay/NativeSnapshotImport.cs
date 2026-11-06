@@ -156,7 +156,7 @@ internal static class NativeSnapshotImport
         samus.HorizontalSpeed.TotalSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed));
         runtime.Projectiles.SlotTable.ProjectileCounter = W(NativeSnapshotMemory.ProjectileCount);
         runtime.Projectiles.Charge.PreviousBeamChargeCounter = W(NativeSnapshotMemory.PreviousCharge);
-        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.ProjectileInteractionImmunity));
+        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
         runtime.Projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.ChargedShotGlow));
         int chargePaletteByteOffset = W(NativeSnapshotMemory.ChargePaletteIndex);
         runtime.Projectiles.Charge.ChargePaletteStep = (chargePaletteByteOffset & 1) == 0
@@ -180,7 +180,7 @@ internal static class NativeSnapshotImport
         samus.Health = SamusQuantity.Decode(W(NativeSnapshotMemory.Health));
         samus.MaxHealth = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxHealth));
         samus.InvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.InvincibilityTimer));
-        samus.KnockbackTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.KnockbackTimer));
+        samus.KnockbackTimer = W(NativeSnapshotMemory.KnockbackTimer);
         samus.KnockbackDirection = (SamusKnockbackDirection)W(NativeSnapshotMemory.KnockbackDirection);
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);

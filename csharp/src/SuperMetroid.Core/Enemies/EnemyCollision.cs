@@ -912,7 +912,7 @@ internal sealed class EnemyCollision
         enemy.FlashTimer = enemy.HurtFlashFrames;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = 0;
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
@@ -955,7 +955,7 @@ internal sealed class EnemyCollision
         // The contact publishes a hit request; Samus admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).
-        samus.KnockbackTimer = WrappingCountdown.Start(5);
+        samus.KnockbackTimer = 5;
         samus.KnockbackXDirection = direction;
         // EnemyMain only publishes the request. The common post-animation
         // interruption owns pose/handler initialization later in this frame.

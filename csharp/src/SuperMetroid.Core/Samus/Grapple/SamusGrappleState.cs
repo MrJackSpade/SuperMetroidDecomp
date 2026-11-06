@@ -46,7 +46,7 @@ public sealed class SamusGrappleState
     /// </summary>
     public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
     /// <summary>GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
-    public WrappingCountdown PoseChangeAutoFireTimer { get; set; }
+    public int PoseChangeAutoFireTimer { get; set; }
     /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
@@ -81,7 +81,7 @@ public sealed class SamusGrappleState
     /// <summary>Gets or sets the signed vertical impulse applied by a grapple wall jump, -32768 through 32767.</summary>
     public int JumpImpulse { get; set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value); }
     /// <summary>Gets or sets the countdown suppressing repeated swing-collision bounces.</summary>
-    public WrappingCountdown CollisionBounceTimer { get; set; }
+    public int CollisionBounceTimer { get; set; }
     /// <summary>Gets or sets whether the grapple movement uses submerged physics.</summary>
     public bool Submerged { get; set; }
 

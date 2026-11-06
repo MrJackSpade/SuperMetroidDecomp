@@ -59,7 +59,7 @@ internal static class AirSpikeAlphaRadiusVerification
 
         AssertEqual((ushort)21, samus.Kinematics.Radius.Y, "alpha publishes the standing radius");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "the spike sample uses the radius alpha just published");
-        AssertTrue(!samus.KnockbackTimer.IsZero, "the air spike starts its knockback window");
+        AssertTrue(samus.KnockbackTimer != 0, "the air spike starts its knockback window");
         AssertTrue(samus.Health < health, "the air spike deals its damage");
         Console.WriteLine("  Air spike alpha radius: the refreshed standing body reaches the spike.");
     }

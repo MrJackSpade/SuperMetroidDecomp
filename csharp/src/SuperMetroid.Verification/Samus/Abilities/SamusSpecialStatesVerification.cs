@@ -258,22 +258,22 @@ internal static void VerifySamusCrystalFlash()
     // Call only accepted NMI counters divisible by eight. These are the only handler calls
     // that can consume ammo or restore energy; skipped counters are checked separately.
     samus.InvincibilityTimer = WrappingCountdown.Start(77);
-    samus.KnockbackTimer = WrappingCountdown.Start(5);
+    samus.KnockbackTimer = 5;
     var resourcesBeforeSkipped =
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
     samus.CrystalFlash.Step(samus, 15);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
-    AssertEqual(0, samus.KnockbackTimer.RawValue, "non-draining main frame still clears knockback timer");
+    AssertEqual(0, samus.KnockbackTimer, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs),
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
     {
         samus.InvincibilityTimer = WrappingCountdown.Start(77);
-        samus.KnockbackTimer = WrappingCountdown.Start(5);
+        samus.KnockbackTimer = 5;
         samus.CrystalFlash.Step(samus, unchecked((ushort)(drain * 8)));
         AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
-        AssertEqual(0, samus.KnockbackTimer.RawValue, "ammo-drain frame clears knockback timer");
+        AssertEqual(0, samus.KnockbackTimer, "ammo-drain frame clears knockback timer");
     }
 
     AssertEqual(0, samus.Missiles, "Crystal Flash consumes ten missiles");

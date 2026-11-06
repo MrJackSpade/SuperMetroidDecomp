@@ -212,14 +212,14 @@ internal static class GrappleConnectionDefinitionsVerification
                 SamusSourceDefinitions.PoseDefinitions.Value + sourcePose * 8 + 3);
             samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
-            samus.Grapple.PoseChangeAutoFireTimer = WrappingCountdown.FromRaw(timer);
+            samus.Grapple.PoseChangeAutoFireTimer = timer;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = cancel(empty, samus, 0);
             bool invalidDirection = (direction & 0xf0) != 0;
             bool cancelled = banned || invalidDirection || (direction != 2 && timer <= 1);
             AssertEqual(cancelled ? GrapplePhase.Inactive : GrapplePhase.Firing, samus.Grapple.Phase, "Actual cancellation/refire phase");
             AssertEqual(!cancelled && direction == 2, !result.HasValue, "Unchanged aim retains current dispatch");
-            AssertEqual(cancelled ? 0 : direction != 2 ? 10 : Math.Max(0, timer - 1), samus.Grapple.PoseChangeAutoFireTimer.RawValue, "Cancellation/refire timer ordering");
+            AssertEqual(cancelled ? 0 : direction != 2 ? 10 : Math.Max(0, timer - 1), samus.Grapple.PoseChangeAutoFireTimer, "Cancellation/refire timer ordering");
         }
         for (byte direction = 0; direction < 10; direction++)
         for (int radius = 0; radius <= ushort.MaxValue; radius++)

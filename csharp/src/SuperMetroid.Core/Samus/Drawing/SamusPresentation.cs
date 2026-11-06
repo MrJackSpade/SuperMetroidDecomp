@@ -367,7 +367,7 @@ internal sealed class SamusPresentation
         // Samus. Active knockback and any nonzero stored/active shine timer independently
         // force the body visible, even though the separately drawn arm cannon follows its
         // stricter rule and may still disappear on that same odd frame.
-        bool bodyVisible = !samus.KnockbackTimer.IsZero ||
+        bool bodyVisible = samus.KnockbackTimer != 0 ||
             samus.InvincibilityTimer.IsZero ||
             SamusInputSnapshot.SharedShineTimer(samus) != 0 ||
             (frameCounter & 1) == 0;

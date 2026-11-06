@@ -47,7 +47,7 @@ internal static class MotherBrainLaterContactVerification
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
             AssertEqual(4, samus.Kinematics.ExtraDisplacement.Y.WholePixels, $"{contact} vertical displacement");
             AssertEqual((ushort)96, samus.InvincibilityTimer.RawValue, "Native contact invincibility timer");
-            AssertEqual((ushort)5, samus.KnockbackTimer.RawValue, "Native contact knockback timer");
+            AssertEqual((ushort)5, samus.KnockbackTimer, "Native contact knockback timer");
         }
         // Isolate the actual body callback in the ordinary radius collision pass.
         // Shot blocking is native behavior and must remain a dud, not body damage.

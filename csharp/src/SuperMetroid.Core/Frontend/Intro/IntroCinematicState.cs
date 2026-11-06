@@ -1022,7 +1022,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // sprite pass. Keeping this after animation matches SamusNewStateHandler_IntroDemo:
         // the hit frame finishes its standing animation before command one installs $53/$54.
         if (!samus.KnockbackActive &&
-            !samus.KnockbackTimer.IsZero &&
+            samus.KnockbackTimer != 0 &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
         {
             SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus));

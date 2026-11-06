@@ -254,7 +254,7 @@ internal static void VerifySamusRenderingSlice()
     // bank-$92 tile-definition selector. This is deliberately not folded into the arm-
     // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
     samus.InvincibilityTimer = WrappingCountdown.Start(1);
-    samus.KnockbackTimer = WrappingCountdown.Start(0);
+    samus.KnockbackTimer = 0;
     SamusBodyPictures shownBeforeHidden = samus.Presentation.BodyFrames.Shown;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -276,7 +276,7 @@ internal static void VerifySamusRenderingSlice()
 
     // Knockback and shine are two independent OR terms in the native branch. Prove each
     // on an odd frame so neither can pass accidentally through the even-NMI condition.
-    samus.KnockbackTimer = WrappingCountdown.Start(1);
+    samus.KnockbackTimer = 1;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0), frameCounter: 1);
@@ -284,7 +284,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "knockback overrides odd-frame invincibility blink");
 
-    samus.KnockbackTimer = WrappingCountdown.Start(0);
+    samus.KnockbackTimer = 0;
     AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
         "test fixture installs nonzero native shine timer");
     oamFrame.BeginFrame();
@@ -303,7 +303,7 @@ internal static void VerifySamusRenderingSlice()
     // bottom-half matrix using authored pose/movement pairs. Movement type $0C has no
     // authored pose record, so production correctly cannot reach that dispatcher slot.
     samus.InvincibilityTimer = WrappingCountdown.Start(0);
-    samus.KnockbackTimer = WrappingCountdown.Start(0);
+    samus.KnockbackTimer = 0;
     SeedBodyHalfRoutingTileAnimation(bus);
     SamusRenderingVerifySamusRenderingSliceCase[] routingCases =
     [

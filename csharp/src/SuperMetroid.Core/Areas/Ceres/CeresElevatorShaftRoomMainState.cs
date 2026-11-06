@@ -35,7 +35,7 @@ public sealed class CeresElevatorShaftRoomMainState
     public bool IsActive { get; private set; }
 
     /// <summary>The countdown to the shaft's next turn step.</summary>
-    public WrappingCountdown RotationTimer { get; private set; }
+    public int RotationTimer { get; private set; }
 
     /// <summary>The shaft's turn step: its rotation record, 0 through 68.</summary>
     public int RotationStep { get; private set; }
@@ -66,7 +66,7 @@ public sealed class CeresElevatorShaftRoomMainState
         {
             RotationStep = InitialRotationIndex;
             LeaveTurnStep(carryover);
-            RotationTimer = WrappingCountdown.Start(InitialRotationTimer);
+            RotationTimer = InitialRotationTimer;
         }
     }
 
@@ -120,17 +120,14 @@ public sealed class CeresElevatorShaftRoomMainState
             DepartureRequestedThisFrame = true;
         }
 
-        // DEC followed by BMI is deliberately modeled as a wrapping 16-bit decrement.
-        // Zero remains visible for one complete call; only the following call makes it
-        // -1 and consumes the next record. This differs from a conventional <= 0 timer.
-        CountdownStep timer = RotationTimer.Decrement();
-        RotationTimer = timer.Remaining;
-        if (timer.IsNonNegative)
+        // The turn steps when the timer runs past zero: zero remains visible for one complete call; only the following
+        // call makes it -1 and consumes the next record. This differs from a conventional <= 0 timer.
+        if (--RotationTimer >= 0)
             return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
 
         // Both sweeps read the record of the current step.
         var record = CeresShaftRotation.Read(RotationStep);
-        RotationTimer = WrappingCountdown.FromRaw(record.Timer);
+        RotationTimer = record.Timer;
         Transform = new TurningFloorTransform(record.Tilt, CeresShaftRotationCenter);
 
         // Steps 0..67 sweep forward; after 67 the turn reverses at step 68. The backward sweep counts down until

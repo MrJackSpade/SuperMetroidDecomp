@@ -135,7 +135,7 @@ internal static class CeresEscapeHandoffVerification
             position: new(32, 100));
 
         StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
-        AssertEqual(0, state.RotationTimer.RawValue, "shaft door delay retains zero for one room-main call");
+        AssertEqual(0, state.RotationTimer, "shaft door delay retains zero for one room-main call");
         AssertEqual(
             CeresElevatorShaftRoomMainState.InitialRotationIndex,
             state.RotationStep,
@@ -150,11 +150,11 @@ internal static class CeresEscapeHandoffVerification
         // Consume records 35..67. The sweep then reverses at step 68, and one more call proves step 68 reads record 68.
         // The following room inherits the backward steps with the native phase word's sign bit.
         for (int i = 0; i < 33; i++)
-            StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+            StepFrames(state.RotationTimer + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(68, state.RotationStep, "shaft forward sweep enters the reverse sweep at step 68");
         AssertEqual(CeresShaftSweep.Backward, state.Sweep, "shaft forward sweep reverses after step 67");
         AssertEqual(0x8044, carryover.Countdown.RawValue, "the following room inherits the reverse step as phase $8044");
-        StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+        StepFrames(state.RotationTimer + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(67, state.RotationStep, "shaft reverse sweep counts down");
         AssertEqual(0x8043, carryover.Countdown.RawValue, "the following room inherits the next reverse step as phase $8043");
         AssertEqual(34 / CeresShaftRotationDefinitions.StepsPerRadian, state.Transform.Angle,

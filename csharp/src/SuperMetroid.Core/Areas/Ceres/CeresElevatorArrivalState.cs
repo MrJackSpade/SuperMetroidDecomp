@@ -38,7 +38,7 @@ public sealed class CeresElevatorArrivalState
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
             MovingPadUnder(samus));
-        pad.WaitTimer = WrappingCountdown.Start(CeresElevatorArrivalDefinitions.MovingPadWaitFrames);
+        pad.WaitTimer = CeresElevatorArrivalDefinitions.MovingPadWaitFrames;
 
         platform = LoadProjectile(
             CeresElevatorArrivalDefinitions.StationaryPlatform,
@@ -61,14 +61,14 @@ public sealed class CeresElevatorArrivalState
         // last slot down; therefore the pad must move Samus before the platform tests Y=72.
         if (pad.Active)
         {
-            if (pad.WaitTimer.IsAbove(1))
+            if (pad.WaitTimer > 1)
             {
-                pad.WaitTimer = pad.WaitTimer.Decrement().Remaining;
+                pad.WaitTimer--;
             }
             else
             {
-                if (pad.WaitTimer.IsAt(1))
-                    pad.WaitTimer = WrappingCountdown.Start(0);
+                if (pad.WaitTimer == 1)
+                    pad.WaitTimer = 0;
 
                 // The descent samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
@@ -128,9 +128,7 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Runs a projectile's typed program (#641) when its frame expires: a new pose, or the delete.</summary>
     private static void ProcessAnimationScript(CeresElevatorProjectile projectile)
     {
-        CountdownStep frameStep = projectile.FrameHold.Decrement();
-        projectile.FrameHold = frameStep.Remaining;
-        if (!frameStep.IsZero)
+        if (--projectile.FrameHold != 0)
             return;
 
         AnimationProgramCursor<CeresElevatorArrivalProgram> cursor = projectile.Program;
@@ -142,7 +140,7 @@ public sealed class CeresElevatorArrivalState
         switch (advance)
         {
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Show shown:
-                projectile.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
+                projectile.FrameHold = shown.Duration;
                 projectile.Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Stop:
@@ -197,18 +195,18 @@ public sealed class CeresElevatorArrivalState
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
         /// <summary>Pad-only startup delay before it begins moving Samus toward the platform.</summary>
-        public WrappingCountdown WaitTimer { get; set; }
+        public int WaitTimer { get; set; }
         /// <summary>Where the projectile's typed program resumes when its frame expires.</summary>
         internal AnimationProgramCursor<CeresElevatorArrivalProgram> Program { get; set; }
 
         /// <summary>Starts <paramref name="program"/> on the next update.</summary>
         internal void Start(CeresElevatorArrivalProgram program)
         {
-            FrameHold = WrappingCountdown.Start(1);
+            FrameHold = 1;
             Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
         }
         /// <summary>Frames until this projectile's next instruction pass.</summary>
-        public WrappingCountdown FrameHold { get; set; } = WrappingCountdown.Start(1);
+        public int FrameHold { get; set; } = 1;
         /// <summary>The pose the projectile shows, none before its first frame.</summary>
         internal CeresElevatorArrivalPose? Pose { get; set; }
     }

@@ -75,12 +75,8 @@ internal enum SamusProjectileHeader
     SpazerSBA,
     /// <summary>ProjectileDataTable_NonBeam_SuperMissileExplosion.</summary>
     SuperMissileExplosion,
-    /// <summary>ProjectileDataTable_NonBeam_Projectile25.</summary>
-    Projectile25,
     /// <summary>ProjectileDataTable_NonBeam_SpazerSBATrail.</summary>
     SpazerSBATrail,
     /// <summary>ProjectileDataTable_NonBeam_ShinesparkEcho.</summary>
     ShinesparkEcho,
-    /// <summary>ProjectileDataTable_NonBeam_Projectile27.</summary>
-    Projectile27,
 }

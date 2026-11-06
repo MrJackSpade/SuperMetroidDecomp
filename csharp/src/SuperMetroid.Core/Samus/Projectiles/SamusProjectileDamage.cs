@@ -15,10 +15,9 @@ internal static class SamusProjectileDamage
         SamusProjectileHeader.Bomb => 30,
         SamusProjectileHeader.BeamExplosion or SamusProjectileHeader.MissileExplosion or
             SamusProjectileHeader.SuperMissileExplosion => 8,
-        SamusProjectileHeader.BombExplosion or SamusProjectileHeader.Projectile27 => 0,
+        SamusProjectileHeader.BombExplosion => 0,
         SamusProjectileHeader.PlasmaSBA or SamusProjectileHeader.WaveSBA or SamusProjectileHeader.SpazerSBA or
             SamusProjectileHeader.SpazerSBATrail => 300,
-        SamusProjectileHeader.Projectile25 => Projectile25Damage,
         SamusProjectileHeader.ShinesparkEcho => ShinesparkEchoDamage,
         SamusProjectileHeader.UnchargedPower or SamusProjectileHeader.UnchargedSpazer or SamusProjectileHeader.UnchargedSpazerIce or SamusProjectileHeader.UnchargedSpazerIceWave or
             SamusProjectileHeader.UnchargedPlasmaIceWave or SamusProjectileHeader.UnchargedIce or SamusProjectileHeader.UnchargedWave or SamusProjectileHeader.UnchargedPlasma or

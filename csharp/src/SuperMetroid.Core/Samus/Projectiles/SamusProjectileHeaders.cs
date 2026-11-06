@@ -87,10 +87,6 @@ internal static class SamusProjectileHeaders
         SamusProjectileHeader.SpazerSBA => new ProjectileHeaderLayout([P.SpazerUpFacingRight, null, P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
         // SuperMissileExplosion
         SamusProjectileHeader.SuperMissileExplosion => new ProjectileHeaderLayout([P.SuperMissileExplosion, null, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
-        // Projectile27
-        SamusProjectileHeader.Projectile27 => new ProjectileHeaderLayout([P.Projectile27, null, null, null, null, null, P.PowerUpFacingRight, null, null, null], 0b0000010000),
-        // Projectile25
-        SamusProjectileHeader.Projectile25 => new ProjectileHeaderLayout([P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight, P.Projectile25UpFacingRight], 0b0000000000),
         // SpazerSBATrail
         SamusProjectileHeader.SpazerSBATrail => new ProjectileHeaderLayout([P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight], 0b0000000000),
         // ShinesparkEcho

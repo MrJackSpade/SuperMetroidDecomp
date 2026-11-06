@@ -44,10 +44,8 @@ internal static class SamusProjectileHeaderNative
         SamusProjectileHeader.WaveSBA => 0x8689,
         SamusProjectileHeader.SpazerSBA => 0x868d,
         SamusProjectileHeader.SuperMissileExplosion => 0x8691,
-        SamusProjectileHeader.Projectile25 => 0x8695,
         SamusProjectileHeader.SpazerSBATrail => 0x86ab,
         SamusProjectileHeader.ShinesparkEcho => 0x86c1,
-        SamusProjectileHeader.Projectile27 => 0x86d7,
         _ => throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header."),
     };
 

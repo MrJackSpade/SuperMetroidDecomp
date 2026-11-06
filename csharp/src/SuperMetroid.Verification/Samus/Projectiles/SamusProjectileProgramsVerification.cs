@@ -104,7 +104,7 @@ internal static class SamusProjectileProgramsVerification
         SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.PowerBomb, SamusProjectileHeader.Bomb,
         SamusProjectileHeader.BeamExplosion, SamusProjectileHeader.MissileExplosion, SamusProjectileHeader.BombExplosion,
         SamusProjectileHeader.PlasmaSBA, SamusProjectileHeader.WaveSBA, SamusProjectileHeader.SpazerSBA,
-        SamusProjectileHeader.SuperMissileExplosion, SamusProjectileHeader.Projectile27,
+        SamusProjectileHeader.SuperMissileExplosion,
     ];
 
     /// <summary>

@@ -20,20 +20,19 @@ internal static class PhantoonRecordStateVerification
 
         part.PathCursor = 533;
         AssertEqual(0, part.ClosedTimer.RawValue, "the path cursor leaves the eye's closed timer alone");
-        part.SpeedWhole = 1;
+        part.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
         AssertTrue(!part.FigureEightReversed, "the speed leaves the eye's figure-eight direction alone");
         part.Function = PhantoonAiFunction.SpawnStartingFlames;
         AssertTrue(!part.FadeComplete, "a part's function leaves the eye's fade-complete flag alone");
 
-        part.SpeedFraction = 0x8000;
+        part.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0x8000);
         part.SpeedPhase = 3;
         part.FunctionTimer = WrappingCountdown.Start(120);
         part.FadeComplete = true;
         part.WavyPhaseDelta = 2;
         slot.Clear();
         AssertEqual(0, part.PathCursor, "a kill empties the path cursor");
-        AssertEqual(0, part.SpeedFraction, "a kill empties the speed fraction");
-        AssertEqual(0, part.SpeedWhole, "a kill empties the speed");
+        AssertEqual(SignedSixteenSixteen.Zero, part.FigureEightSpeed, "a kill empties the speed");
         AssertEqual(0, part.SpeedPhase, "a kill empties the speed phase");
         AssertEqual(0, part.FunctionTimer.RawValue, "a kill empties the function timer");
         AssertTrue(!part.FadeComplete, "a kill empties the fade-complete flag");

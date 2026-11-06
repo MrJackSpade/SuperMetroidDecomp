@@ -115,8 +115,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoonPartRecord.PathCursor = words.A;
                 phantoonPartRecord.ExplosionPass = words.A;
                 phantoonPartRecord.StartingFlamesActive = words.B != 0;
-                phantoonPartRecord.SpeedFraction = words.B;
-                phantoonPartRecord.SpeedWhole = words.C;
+                phantoonPartRecord.FigureEightSpeed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
                 phantoonPartRecord.SpeedPhase = words.D;
                 phantoonPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
                 if (words.F != 0)

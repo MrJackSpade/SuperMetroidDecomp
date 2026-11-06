@@ -89,8 +89,8 @@ internal static class CompiledProjectileMathVerification
             {
                 int magnitude = native[(angle & 127) + 64] * radius / 256;
                 int expected = angle < 128 ? magnitude : -magnitude;
-                AssertEqual(expected, phantoon((ushort)(0xff00 | angle), (ushort)(0xaa00 | radius)),
-                    "Phantoon word peak, radius truncation and restored sign");
+                AssertEqual(expected, phantoon((ushort)angle, (ushort)radius),
+                    "Phantoon word peak and restored sign");
             }
         }
 

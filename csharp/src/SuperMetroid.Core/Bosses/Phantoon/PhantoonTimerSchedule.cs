@@ -24,13 +24,13 @@ public readonly struct PhantoonTimerSchedule : IReadOnlyList<int>
             DurationChoice choice = Choices[index];
             int shortest = ShortestVulnerableExposureFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
             int medium = shortest * (kind == TimerKind.EyeClosed ? EyeMediumScale : TierDoubling);
-            return WordWrap.Unsigned(choice switch
+            return choice switch
             {
                 DurationChoice.Short => shortest,
                 DurationChoice.Medium => medium,
                 DurationChoice.Long => medium * TierDoubling,
                 _ => throw new InvalidOperationException(),
-            });
+            };
         }
     }
     /// <summary>Enumerates all eight calculated durations in bucket order.</summary>

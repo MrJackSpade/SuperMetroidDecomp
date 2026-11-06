@@ -572,13 +572,15 @@ internal sealed class PhantoonCombat
 
     /// <summary>Unsigned half-wave multiplication followed by whole-result negation, as the flame orbit computes it.</summary>
     /// <param name="angle">The flame's orbit angle.</param>
-    /// <param name="radius">The orbit radius, of which only the low eight bits are read.</param>
+    /// <param name="radius">The orbit radius, 0 through 255.</param>
     internal static int ReadPhantoonFlameComponent(ByteAngle angle, int radius)
     {
-        int byteAngle = angle.RawValue;
-        int sample = Trigonometry.SignedSine(new ByteAngle(WordWrap.LowByte(byteAngle & 127)));
-        int magnitude = (EightEight.Multiply(WordWrap.LowByte(sample), WordWrap.LowByte(radius))) + EightEight.WholeOf(sample) * WordWrap.LowByte(radius);
-        return byteAngle < 128 ? magnitude : -magnitude;
+        // The half-wave sample is an unsigned 8.8 value of at most one: its fraction and its whole part each multiply
+        // the radius.
+        int sample = Trigonometry.SignedSine(angle.InFirstHalfTurn());
+        int orbit = Ensure.BetweenInclusive(0, byte.MaxValue, radius);
+        int magnitude = EightEight.Multiply(EightEight.FractionOf(sample), orbit) + EightEight.WholeOf(sample) * orbit;
+        return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
     /// <summary>Switches a flame to its delete program after leaving the room bounds.</summary>

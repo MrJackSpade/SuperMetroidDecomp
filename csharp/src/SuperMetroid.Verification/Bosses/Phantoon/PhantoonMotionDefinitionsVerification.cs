@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 /// <summary>Checks Phantoon figure-eight speed constants and phase transitions against the cartridge.</summary>
 internal static class PhantoonMotionDefinitionsVerification
 {
-    /// <summary>Compares fourteen native words and exercises both real speed adjusters across fractional, whole, and phase boundary values.</summary>
+    /// <summary>Compares fourteen native words and exercises both real speed adjusters across fractional, reachable whole, and phase boundary values.</summary>
     internal static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {
         // Each definition is the signed value the cartridge's word holds; every unsigned one is below $8000.
@@ -37,19 +37,19 @@ internal static class PhantoonMotionDefinitionsVerification
         {
             (bool backwards, ushort phase, ushort fraction) = cases[index];
             var words = new PhantoonPartState();
-            for (int whole = 0; whole <= ushort.MaxValue; whole++)
+            // Every whole speed the figure-eight reaches, with a margin: its caps keep it within seven entries of rest.
+            for (int whole = -16; whole <= 16; whole++)
             {
-                words.SpeedFraction = fraction;
-                words.SpeedWhole = (ushort)whole;
+                words.FigureEightSpeed = SignedSixteenSixteen.FromParts(whole, fraction);
                 words.SpeedPhase = phase;
-                (ushort low, ushort high, ushort next) = Expected(fraction, (ushort)whole, phase, backwards);
+                (ushort low, ushort high, ushort next) = Expected(fraction, unchecked((ushort)whole), phase, backwards);
                 (backwards ? reverse : forward)(words);
-                AssertEqual(low, words.SpeedFraction, "Phantoon real fractional speed after adjustment");
-                AssertEqual(high, words.SpeedWhole, "Phantoon real signed whole speed after adjustment");
+                AssertEqual(low, words.FigureEightSpeed.Fraction, "Phantoon real fractional speed after adjustment");
+                AssertEqual(high, words.FigureEightSpeed.WholeWord, "Phantoon real signed whole speed after adjustment");
                 AssertEqual(next, words.SpeedPhase, "Phantoon real acceleration phase transition");
             }
         });
-        Console.WriteLine("Phantoon motion: 14 native words and 5,898,240 real speed/phase adjustments match without a bus.");
+        Console.WriteLine("Phantoon motion: 14 native words and 2,970 real speed/phase adjustments match without a bus.");
 
         // Use the ROM records, wide arithmetic and explicit word extraction independently
         // of the production add/sub helpers. Signed comparisons intentionally wrap at 16 bits.

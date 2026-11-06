@@ -396,11 +396,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             for (int direction = 0; direction < 4; direction++)
                 Check($"Samus solid enemy {direction}", SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.WordOf(samus.Kinematics.SolidEnemyCollisions[direction]),
                     NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2);
-            var inheritance = new ProjectileInheritanceInspection(samus.ProjectileInheritance);
-            for (int offset = 0; offset < inheritance.ByteCount; offset += 2)
+            byte[] inheritance = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Capture();
+            for (int offset = 0; offset < inheritance.Length; offset += 2)
             {
                 int address = NativeSnapshotMemory.ProjectileInheritancePrefix + offset;
-                Check($"Projectile inherited movement ${address:X4}", inheritance.Word(offset), address);
+                Check($"Projectile inherited movement ${address:X4}", LittleEndianBytes.Word(inheritance[offset], inheritance[offset + 1]), address);
             }
             Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed.Whole, NativeSnapshotMemory.TotalHorizontalSpeed);
             Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSpeed.Fraction, NativeSnapshotMemory.TotalHorizontalSubspeed);

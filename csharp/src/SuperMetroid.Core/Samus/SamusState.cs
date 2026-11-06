@@ -497,11 +497,10 @@ public sealed class SamusState
     public SamusKinematicsState Kinematics { get; }
 
     /// <summary>
-    /// The projectile-inheritance block her movement and the camera publish and her shots read at launch. A new Samus
-    /// starts with it zeroed; the game's movement records are zero between frames too, and the scrolling routine
-    /// republishes the camera subspeed every frame.
+    /// The motion her movement and the camera record and her shots inherit at launch. A new Samus starts with it zeroed;
+    /// the movement records are zero between frames too, and the camera records its subspeed again every frame.
     /// </summary>
-    public ProjectileInheritanceRecords ProjectileInheritance { get; } = new();
+    public ProjectileLaunchInheritance ProjectileInheritance { get; } = new();
 
     /// <summary>
     /// The session's unauthored Speed Booster cadence, which times her run when a full sound queue sends the boost onto
@@ -813,7 +812,7 @@ level, probe, this, amount, scanLeftToRight, plms);
     internal void AlignBottomAfterPoseChange(int previousRadius, int targetRadius)
     {
         int delta = previousRadius - targetRadius;
-        Position += new Offset16<RoomPixels>(0, WordWrap.Signed(delta));
+        Position += new Offset16<RoomPixels>(0, delta);
         _poseAlignmentPreviousYDelta += delta;
     }
 

@@ -114,7 +114,7 @@ public sealed class BullEnemyState
     /// <summary>Latest bearing toward Samus with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
     public RotationAngle AngleToSamus { get; internal set; }
 
-    /// <summary>Captured movement angle in 256ths of a turn (0 through 255 as the game writes it), zero right and 64 down, set when targeting Samus or replaced from projectile direction by an immune-shot kick. Movement steers by its low eight bits.</summary>
+    /// <summary>Captured movement angle in 256ths of a turn (0 through 255 as the game writes it), zero right and 64 down, set when targeting Samus or replaced from projectile direction by an immune-shot kick.</summary>
     public int Angle { get; internal set; }
 
     /// <summary>

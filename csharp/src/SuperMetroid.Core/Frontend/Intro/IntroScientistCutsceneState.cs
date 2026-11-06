@@ -24,7 +24,7 @@ internal sealed class IntroScientistCutsceneState
             IntroShades.Drawn(definition.Colouring),
             definition.Program);
         baby.InstallFrameBehavior(definition.FrameBehavior);
-        Background = delivery ? new(32, 8) : new(0, WordWrap.Unsigned(-24));
+        Background = delivery ? new(32, 8) : new(0, CoordinateAxis.Wrap(-24));
     }
 
     /// <summary>The laboratory page's scroll.</summary>

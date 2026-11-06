@@ -97,7 +97,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private IntroDiscoverySprite? zebesTitleActor;
 
     /// <summary>Signed 16.16 camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
-    internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(WordWrap.Unsigned(-44), 0), new(WordWrap.Unsigned(-112), 0));
+    internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(CoordinateAxis.Wrap(-44), 0), new(CoordinateAxis.Wrap(-112), 0));
     /// <summary>
     /// The floor's zoom in 256ths of a floor pixel per screen pixel (256 shows it at its own size). Every producer keeps it within zero through
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
@@ -468,7 +468,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         usesFloor = true;
         Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
-            Background.Y.WithWhole(WordWrap.Unsigned(-104)));
+            Background.Y.WithWrappedWhole(-104));
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
         Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
         actors.Clear();
@@ -601,7 +601,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                         $"{actor.FrameBehavior}.");
                 }
                 if (definition.WrapX)
-                    AddWrappedX(actor, WordWrap.Unsigned(definition.HorizontalDelta));
+                    AddWrappedX(actor, definition.HorizontalDelta);
             }
             else
                 MoveExplosion(actor);
@@ -692,14 +692,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private static void MoveExplosion(IntroDiscoverySprite actor)
     {
         actor.Position = new(
-            IntroCinematicMotion.AddSixteenSixteen(
-                actor.Position.X,
-                0,
-                CeresDestructionSceneDefinitions.Motion.GunshipXSubvelocity),
-            IntroCinematicMotion.AddSixteenSixteen(
-                actor.Position.Y,
-                CeresDestructionSceneDefinitions.Motion.GunshipYVelocity.WholeWord,
-                CeresDestructionSceneDefinitions.Motion.GunshipYVelocity.Fraction));
+            IntroCinematicMotion.AddFraction(actor.Position.X, CeresDestructionSceneDefinitions.Motion.GunshipXSubvelocity),
+            actor.Position.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.GunshipYVelocity));
     }
 
     /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>
@@ -768,7 +762,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its animation script reaches the flight step.
                 Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
-                    Background.Y.WithWhole(WordWrap.Unsigned(-112)));
+                    Background.Y.WithWrappedWhole(-112));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
                 Zoom = CeresDestructionSceneDefinitions.Motion.MinimumScale;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
@@ -811,9 +805,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate around the world's width.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
+    private static void AddWrappedX(IntroDiscoverySprite actor, int horizontalDelta)
     {
-        FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        // The wrapping field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
+        // whose fraction is the rest of a pixel, carries the actor right instead.
+        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, SignedSixteenSixteen.FromRaw(horizontalDelta).Fraction);
         actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
@@ -822,10 +818,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         // The cinematic frame behaviours split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.
-        uint fixedPosition = new FixedCoordinate(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
-        uint fixedVelocity = SixteenSixteen.FromEightEight((uint)velocity);
-        fixedPosition = unchecked(fixedPosition - fixedVelocity);
-        actor.Position = actor.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)fixedPosition)), CoordinateAxis.Wrap(fixedPosition)));
+        actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(
+            SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromEightEight(Ensure.BetweenInclusive(0, ushort.MaxValue, velocity)))));
     }
 
     /// <summary>

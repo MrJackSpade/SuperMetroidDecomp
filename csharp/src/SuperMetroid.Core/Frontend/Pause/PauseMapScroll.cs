@@ -58,6 +58,6 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
         return true;
     }
 
-    /// <summary>Applies the signed 16-bit comparison to a map-bound subtraction.</summary>
-    private static int Signed(int value) => WordWrap.Signed(value);
+    /// <summary>A map-bound difference read as a signed offset, as the scroll's sign tests read it.</summary>
+    private static int Signed(int value) => CoordinateAxis.AsSigned(value);
 }

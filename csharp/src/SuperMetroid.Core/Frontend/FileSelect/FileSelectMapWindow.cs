@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 public sealed class FileSelectMapWindow
 {
     /// <summary>16.16 expansion or contraction velocity for each window edge.</summary>
-    private readonly uint[] velocities = new uint[4];
+    private readonly SignedSixteenSixteen[] velocities = new SignedSixteenSixteen[4];
     /// <summary>Current 16.16 left, right, top, and bottom clipping positions.</summary>
-    internal readonly uint[] edges = new uint[4];
+    internal readonly FixedCoordinate[] edges = new FixedCoordinate[4];
     /// <summary>Signed-underflow countdown controlling the final moving frame.</summary>
     private WrappingCountdown timer;
 
@@ -30,30 +30,28 @@ public sealed class FileSelectMapWindow
         var installedLabels = labels ?? throw new InvalidOperationException(
             "Map-window positions require installed world-map labels.");
         var label = installedLabels.Get(area);
-        edges[0] = edges[1] = SixteenSixteen.FromWhole((uint)label.X);
-        edges[2] = edges[3] = SixteenSixteen.FromWhole((uint)label.Y);
+        edges[0] = edges[1] = new FixedCoordinate(label.X, 0);
+        edges[2] = edges[3] = new FixedCoordinate(label.Y, 0);
         timer = WrappingCountdown.Start(motion.Timer);
         if (timer.IsNegative)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
-        velocities[0] = motion.Left;
-        velocities[1] = motion.Right;
-        velocities[2] = motion.Top;
-        velocities[3] = motion.Bottom;
+        velocities[0] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Left));
+        velocities[1] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Right));
+        velocities[2] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Top));
+        velocities[3] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Bottom));
     }
 
     /// <summary>
     /// Whole-pixel upper-left corner of the clipping window. X is the inclusive left endpoint (its low eight bits are
     /// the displayed column) and Y the first covered scanline; expansion clamps both at one.
     /// </summary>
-    public Position16<ScreenPixels> TopLeft =>
-        new(FixedCoordinate.WholeOf(unchecked((int)edges[0])), FixedCoordinate.WholeOf(unchecked((int)edges[2])));
+    public Position16<ScreenPixels> TopLeft => new(edges[0].Whole, edges[2].Whole);
     /// <summary>
     /// Whole-pixel lower-right corner of the clipping window. X is the inclusive right endpoint, clamped at 255 during
     /// expansion; Y bounds the covered scanlines measured from the top rather than naming an inclusive last row, and is
     /// clamped at 224 during expansion.
     /// </summary>
-    public Position16<ScreenPixels> BottomRight =>
-        new(FixedCoordinate.WholeOf(unchecked((int)edges[1])), FixedCoordinate.WholeOf(unchecked((int)edges[3])));
+    public Position16<ScreenPixels> BottomRight => new(edges[1].Whole, edges[3].Whole);
     /// <summary>Whether the transition timer has reached signed underflow after the final edge movement; initially false and latched true until this window is discarded.</summary>
     public bool IsComplete { get; private set; }
     /// <summary>Whether this is the shortened room-to-area contraction: subtract velocities without whole-word clamps, and reveal the area scene when complete.</summary>
@@ -66,9 +64,9 @@ public sealed class FileSelectMapWindow
         window.IsReturning = true;
         window.timer = window.timer.AddFrames(-FileSelectMapDefinitions.ReturnWindowTimerReduction);
         int inset = FileSelectMapDefinitions.ReturnWindowInset;
-        window.edges[0] = window.edges[2] = SixteenSixteen.FromWhole((uint)inset);
-        window.edges[1] = SixteenSixteen.FromWhole((uint)(FrontendFrame.Width - inset));
-        window.edges[3] = SixteenSixteen.FromWhole((uint)(FrontendFrame.Height - inset));
+        window.edges[0] = window.edges[2] = new FixedCoordinate(inset, 0);
+        window.edges[1] = new FixedCoordinate(FrontendFrame.Width - inset, 0);
+        window.edges[3] = new FixedCoordinate(FrontendFrame.Height - inset, 0);
         return window;
     }
 
@@ -80,9 +78,9 @@ public sealed class FileSelectMapWindow
     {
         if (IsComplete) return true;
         for (int edge = 0; edge < edges.Length; edge++)
-            edges[edge] = IsReturning
-                ? unchecked(edges[edge] - velocities[edge])
-                : unchecked(edges[edge] + velocities[edge]);
+            edges[edge] = edges[edge].MovedBy(IsReturning
+                ? SignedSixteenSixteen.Zero - velocities[edge]
+                : velocities[edge]);
         if (!IsReturning)
         {
             RaiseWholeWord(0, 1);
@@ -110,9 +108,9 @@ public sealed class FileSelectMapWindow
     }
 
     /// <summary>One edge's whole-pixel word, read as signed.</summary>
-    private int WholeWord(int edge) => CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(edges[edge]));
+    private int WholeWord(int edge) => CoordinateAxis.AsSigned(edges[edge].Whole);
 
     /// <summary>Replaces one edge's whole-pixel word, keeping its fraction.</summary>
     private void SetWholeWord(int edge, int whole) =>
-        edges[edge] = SixteenSixteen.Compose(whole, WordWrap.Unsigned(SixteenSixteen.FractionOf(edges[edge])));
+        edges[edge] = edges[edge].WithWhole(whole);
 }

@@ -150,7 +150,7 @@ internal sealed class FrontendSession
             SuperMetroidSaveSlot save = saves.ReadSlot(slot)
                 ?? throw new InvalidDataException($"Selected save slot {slot} holds no valid save.");
             StoredExploredMapLoads.LoadFile(storedExploredMaps, save.Progression);
-            storedExploredMaps.LoadLiveMap(AreaIds.FromIndex(WordWrap.LowByte(save.Area), $"Save slot {slot}"));
+            storedExploredMaps.LoadLiveMap(AreaIds.FromIndex(save.Area, $"Save slot {slot}"));
         }
         else
         {

@@ -33,17 +33,17 @@ internal sealed class IntroEggParticle
     }
 
     /// <summary>
-    /// The actor's timer word holds the fragment number below the frames the fragment has fallen, which each fall step
-    /// counts up by one; the frames wrap within their eight bits without touching the fragment. The two stay in the
-    /// actor's one timer word because instruction-program counter steps also count that word.
+    /// The actor's timer counts the fragment number below the frames the fragment has fallen, each frame fallen
+    /// counting as this step; the frames run past 255 back to zero without touching the fragment. The two stay in the
+    /// actor's one timer because instruction-program counter steps also count it.
     /// </summary>
-    private const int FragmentBits = 8;
+    private const int FrameFallenStep = 256;
 
     /// <summary>The fragment number the spawn stores, 0 through 5; it never changes.</summary>
-    private int Fragment => WordWrap.LowByte(sprite.GeneralTimer);
+    private int Fragment => sprite.GeneralTimer % FrameFallenStep;
 
     /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>
-    private int FramesFallen => WordWrap.LowByte(sprite.GeneralTimer >> FragmentBits);
+    private int FramesFallen => sprite.GeneralTimer / FrameFallenStep;
 
     /// <summary>Applies 16.16 fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
@@ -69,7 +69,7 @@ internal sealed class IntroEggParticle
         }
         else
         {
-            sprite.GeneralTimer = WordWrap.Unsigned(sprite.GeneralTimer + 256);
+            sprite.GeneralTimer = WrappingCounter.AddWord(sprite.GeneralTimer, FrameFallenStep);
         }
 
         sprite.Step();
@@ -87,7 +87,7 @@ internal sealed class IntroEggParticle
         SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal
-            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))
-            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.WholeWord, velocity.Fraction));
+            ? sprite.Position.WithX(sprite.Position.X.MovedBy(velocity))
+            : sprite.Position.WithY(sprite.Position.Y.MovedBy(velocity));
     }
 }

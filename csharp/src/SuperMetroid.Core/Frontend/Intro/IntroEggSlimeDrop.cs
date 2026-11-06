@@ -32,17 +32,17 @@ internal sealed class IntroEggSlimeDrop
     }
 
     /// <summary>
-    /// The actor's timer word holds the drop's trajectory number below the frames it has fallen, which each fall step
-    /// counts up by one; the frames wrap within their eight bits without touching the trajectory. The two stay in the
-    /// actor's one timer word because instruction-program counter steps also count that word.
+    /// The actor's timer counts the drop's trajectory number below the frames it has fallen, each frame fallen counting
+    /// as this step; the frames run past 255 back to zero without touching the trajectory. The two stay in the actor's
+    /// one timer because instruction-program counter steps also count it.
     /// </summary>
-    private const int TrajectoryBits = 8;
+    private const int FrameFallenStep = 256;
 
     /// <summary>The drop's horizontal trajectory number, 0 through 3; it never changes.</summary>
-    private int Drop => WordWrap.LowByte(sprite.GeneralTimer);
+    private int Drop => sprite.GeneralTimer % FrameFallenStep;
 
     /// <summary>The frames the drop has fallen, 0 through 255: its gravity-table index.</summary>
-    private int FramesFallen => WordWrap.LowByte(sprite.GeneralTimer >> TrajectoryBits);
+    private int FramesFallen => sprite.GeneralTimer / FrameFallenStep;
 
     /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y $A8, then runs the puddle list in place.</summary>
     public void Step()
@@ -75,7 +75,7 @@ internal sealed class IntroEggSlimeDrop
             }
             else
             {
-                sprite.GeneralTimer = WordWrap.Unsigned(sprite.GeneralTimer + 256);
+                sprite.GeneralTimer = WrappingCounter.AddWord(sprite.GeneralTimer, FrameFallenStep);
             }
         }
 
@@ -91,7 +91,7 @@ internal sealed class IntroEggSlimeDrop
     private void AddVelocity(Axis axis, SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal
-            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))
-            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.WholeWord, velocity.Fraction));
+            ? sprite.Position.WithX(sprite.Position.X.MovedBy(velocity))
+            : sprite.Position.WithY(sprite.Position.Y.MovedBy(velocity));
     }
 }

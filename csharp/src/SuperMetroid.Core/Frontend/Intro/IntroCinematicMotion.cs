@@ -3,27 +3,16 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Exact fixed-point additions shared by translated opening-cinematic actors.</summary>
 internal static class IntroCinematicMotion
 {
-    /// <summary>One axis as the 32-bit whole:fraction value (whole word in the high half).</summary>
-    public static uint Packed(FixedCoordinate position) => new FixedCoordinate(position.Whole, position.Fraction).RawValue;
+    /// <summary>
+    /// Adds a fraction of a pixel alone to one axis: <paramref name="fraction"/>, 0 through 65535 sixty-fifth-thousandths
+    /// of a pixel, carries into the whole pixel and nothing else is added to it.
+    /// </summary>
+    public static FixedCoordinate AddFraction(FixedCoordinate position, int fraction) =>
+        position.MovedBy(SignedSixteenSixteen.FromParts(0, fraction));
 
-    /// <summary>One axis from a 32-bit whole:fraction value.</summary>
-    public static FixedCoordinate Unpacked(uint value) => new(FixedCoordinate.WholeOf(unchecked((int)value)), WordWrap.Unsigned(value));
-
-    /// <summary>Adds a whole/fraction velocity pair to one axis.</summary>
-    public static FixedCoordinate AddSixteenSixteen(
-        FixedCoordinate position,
-        int wholeVelocity,
-        int fractionalVelocity) =>
-        // A 16-bit add with carry first adds the fractional words, then propagates its carry into
-        // the signed whole-word sum. Packing them produces precisely that wrap/carry model.
-        // Each velocity word keeps its low sixteen bits.
-        SignedSixteenSixteen
-            .FromParts(WordWrap.Signed(wholeVelocity), WordWrap.Unsigned(fractionalVelocity))
-            .AddTo(position.Whole, position.Fraction);
-
-    /// <summary>Adds a packed signed 16.16 delta (whole word in the high half) to one axis.</summary>
+    /// <summary>Adds a signed 16.16 delta, in 1/65536 pixel, to one axis.</summary>
     public static FixedCoordinate AddSignedSixteenSixteen(FixedCoordinate position, int fixedDelta) =>
-        AddSixteenSixteen(position, FixedCoordinate.WholeOf(fixedDelta), WordWrap.Unsigned(fixedDelta));
+        position.MovedBy(SignedSixteenSixteen.FromRaw(fixedDelta));
 
     /// <summary>Adds a signed 8.8 velocity to one axis.</summary>
     public static FixedCoordinate AddEightEight(

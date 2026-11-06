@@ -69,7 +69,7 @@ internal static class CeresFlightActorDefinitions
     internal static CeresFlightActorDefinition RearStars => FrontStars with
     {
         ActiveFrameBehavior = CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex,
-        Position = FrontStars.Position.WithX(WordWrap.Unsigned(-32)),
+        Position = FrontStars.Position.WithX(CoordinateAxis.Wrap(-32)),
         InitialTimer = 0,
         HorizontalDelta = VortexHorizontalDelta,
     };

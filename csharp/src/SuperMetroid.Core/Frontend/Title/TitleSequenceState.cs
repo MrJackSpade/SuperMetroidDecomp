@@ -412,7 +412,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (titleGradientPresentation is null)
             throw new InvalidOperationException(
                 "Title rendering requires the installed title-gradient asset.");
-        return titleGradientPresentation.Resolve(WordWrap.Unsigned(Zoom));
+        return titleGradientPresentation.Resolve(Zoom);
     }
 
     /// <summary>Places the active title spritemap and stage-dependent copyright as the frame's sprite entries.</summary>

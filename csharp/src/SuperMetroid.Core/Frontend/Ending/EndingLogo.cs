@@ -67,7 +67,7 @@ internal sealed class EndingLogo
         var actor = actors[index];
         int direction = index == 0 ? -1 : 1;
         Position16<ScreenPixels> moved = actor.WholePosition +
-            new Offset16<ScreenPixels>(WordWrap.Signed(direction * speeds[index]), WordWrap.Signed(-direction * speeds[index]));
+            new Offset16<ScreenPixels>(direction * speeds[index], -direction * speeds[index]);
         actor.WholePosition = moved;
         var target = index == 0 ? EndingLogoDefinitions.TopLanding : EndingLogoDefinitions.BottomLanding;
         if (index == 0 ? CoordinateAxis.Difference(moved.X - target.X, 1) < 0 : CoordinateAxis.Difference(moved.X, target.X) >= 0)

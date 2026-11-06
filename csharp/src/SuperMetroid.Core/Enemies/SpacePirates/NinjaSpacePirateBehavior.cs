@@ -75,17 +75,17 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         NinjaSpacePirateSpawnSettings settings = slot.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = (settings.Options &
-            NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != NinjaSpacePirateParameterFlags.None;
+            NinjaSpacePirateOptions.StartsAtLeftPostFacingRight) != NinjaSpacePirateOptions.None;
         NinjaSpacePirateProgram initial = startsAtLeft
             ? NinjaSpacePirateProgram.InitialFacingRight
             : NinjaSpacePirateProgram.InitialFacingLeft;
         state.Program = AnimationProgramCursor<NinjaSpacePirateProgram>.Start(initial);
         state.ActiveProgram = initial;
 
-        // Parameter two describes the requested distance between posts. The setup
+        // The post distance describes the requested distance between posts. The setup
         // first establishes those requested posts around the population X coordinate, then
         // deliberately replaces them with a symmetric pair derived from its acceleration
-        // sum. That adjustment is why the final span can differ slightly from parameter two.
+        // sum. That adjustment is why the final span can differ slightly from the post distance.
         int requestedLeft = startsAtLeft
             ? slot.Position.X.Whole
             : CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PostDistance);

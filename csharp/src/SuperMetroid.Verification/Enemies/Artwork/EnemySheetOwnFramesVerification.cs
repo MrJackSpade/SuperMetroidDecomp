@@ -245,7 +245,7 @@ internal static class EnemySheetOwnFramesVerification
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
             [EnemyDefinitionId.RobotNoPower] = Reach(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames,
-                WorkRobotInitializationDefinitions.InitialPrograms),
+                [WorkRobotProgram.NoPowerNeutral, WorkRobotProgram.NoPowerLeaningLeft, WorkRobotProgram.NoPowerLeaningRight]),
             [EnemyDefinitionId.Robot] = Reach(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames,
                 Enum.GetValues<WorkRobotProgram>()),
         });

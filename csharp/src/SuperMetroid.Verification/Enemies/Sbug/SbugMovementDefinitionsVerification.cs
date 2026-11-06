@@ -34,13 +34,19 @@ internal static class SbugMovementDefinitionsVerification
                 $"compiled Sbug facing selector {facing}");
         }
 
-        for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
+        for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
         {
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
-            AssertEqual(native, SbugMovement.ActivationFunction((SbugActivationBehavior)behavior),
+            var placed = (SbugSpawnSettings)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
+                EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, behavior << 8));
+            AssertEqual(native, SbugMovement.ActivationFunction(placed.Behavior),
                 $"compiled Sbug activation selector {behavior}");
         }
+        AssertThrows<InvalidDataException>(
+            () => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
+                EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, SbugActivationBehaviorCount << 8)),
+            "a placement selecting past the seven activation behaviours fails to decode");
 
         for (ushort selector = 0; selector < 8; selector++)
         {
@@ -68,7 +74,7 @@ internal static class SbugMovementDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
-        for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
+        for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
         {
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             state.Function = SbugEnemyFunction.WaitForSamus;
@@ -128,6 +134,9 @@ internal static class SbugMovementDefinitionsVerification
         Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");
     }
 
+
+    /// <summary>The number of activation behaviours a placement can select.</summary>
+    private const int SbugActivationBehaviorCount = 7;
 
     /// <summary>Runs the retail-backed Sbug movement checks and program oracle.</summary>
     [VerificationCommand("--sbug-instruction-mechanics")]

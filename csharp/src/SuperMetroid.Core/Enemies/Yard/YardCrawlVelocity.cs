@@ -3,13 +3,12 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>Signs a Yard's crawling speed for its direction.</summary>
 public static class YardCrawlVelocity
 {
-    /// <summary>Equivalent to XOR 0xFFFF then increment; negation wraps at sixteen bits.</summary>
-    public static EightEightVector<RoomPixels> Apply(int magnitude, YardDirection direction)
+    /// <summary>The crawl velocity <paramref name="speed"/> gives on each axis in <paramref name="direction"/>; negation wraps at sixteen bits.</summary>
+    public static EightEightVector<RoomPixels> Apply(SignedEightEight speed, YardDirection direction)
     {
-        var positive = new SignedEightEight(magnitude);
-        var negative = SignedEightEight.Wrapped(-magnitude);
+        SignedEightEight negative = speed.Negated();
         YardCrawlHeading heading = Ensure.Listed(YardVelocityDefinitions.Headings, direction);
-        return new(heading.Horizontal == HorizontalDirection.Left ? negative : positive,
-            heading.Vertical == VerticalDirection.Up ? negative : positive);
+        return new(heading.Horizontal == HorizontalDirection.Left ? negative : speed,
+            heading.Vertical == VerticalDirection.Up ? negative : speed);
     }
 }

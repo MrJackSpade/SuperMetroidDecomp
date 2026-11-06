@@ -31,23 +31,19 @@ public sealed class VerticalShutterEnemyState
     /// </summary>
     public SignedSixteenSixteen UpVelocity { get; internal set; }
 
-    /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record containing the downward and upward velocities.</summary>
-    public int SpeedTableIndex { get; internal set; }
     /// <summary>The end the shutter first heads for, as its population entry names it.</summary>
     public ShutterHeading PrimaryDirection { get; internal set; }
-    /// <summary>Upward endpoint's rest length in sixteen-update units, 0 through 255; 255 selects the inert endpoint.</summary>
-    public int MovedUpRestParameter { get; internal set; }
-    /// <summary>Downward endpoint's rest length in sixteen-update units, 0 through 255; 255 selects the inert endpoint.</summary>
-    public int MovedDownRestParameter { get; internal set; }
     /// <summary>Population trigger mode: timer, proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
     public ShutterTriggerMode TriggerMode { get; internal set; }
-    /// <summary>Whole-pixel separation of the two Y endpoints, 0 through 255.</summary>
+    /// <summary>Whole-pixel separation of the two Y endpoints.</summary>
     public int TravelDistance { get; internal set; }
-    /// <summary>Parameter 2, 0 through 65535: initial AI-update wait in timer mode, or strict absolute-X pixel-distance threshold in proximity mode.</summary>
-    public int HorizontalProximityOrWaitTime { get; internal set; }
-    /// <summary>Upward endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 selects the inert function instead of counting down.</summary>
+    /// <summary>The strict horizontal pixel distance Samus must come within to start a proximity-triggered shutter.</summary>
+    public int ProximityDistance { get; internal set; }
+    /// <summary>The AI updates a timer-triggered shutter waits before it moves.</summary>
+    public int WaitTime { get; internal set; }
+    /// <summary>Upward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert function instead of counting down.</summary>
     public int MovedUpRestTime { get; internal set; }
-    /// <summary>Downward endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 selects the inert function instead of counting down.</summary>
+    /// <summary>Downward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert function instead of counting down.</summary>
     public int MovedDownRestTime { get; internal set; }
     /// <summary>Whether the pre-movement riding test found Samus supported by this shutter; enables whole-pixel extra-Y carry for the current movement.</summary>
     public bool MovingSamus { get; internal set; }

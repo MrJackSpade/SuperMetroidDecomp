@@ -68,7 +68,7 @@ internal static class YardDirectionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnSettings(new YardSpawnSettings(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction), SpeedIndex: 0));
+            slot.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
             slot.Properties = EnemyProperties.RespawnIfKilled;
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
@@ -103,7 +103,7 @@ internal static class YardDirectionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnSettings(new YardSpawnSettings(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction), SpeedIndex: 0));
+            slot.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));

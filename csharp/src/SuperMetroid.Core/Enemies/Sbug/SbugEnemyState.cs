@@ -42,20 +42,17 @@ public sealed class SbugEnemyState
     /// <summary>The 32-frame segment/wait countdown.</summary>
     public WrappingCountdown MovementTimer { get; internal set; }
 
-    /// <summary>Parameter one's low byte, 0 through 255: the speed the trigonometry tables are multiplied by.</summary>
+    /// <summary>The speed the trigonometry tables are multiplied by, as the Sbug's placement names it.</summary>
     public int Speed => _slot.SpawnSettings<SbugSpawnSettings>().Speed;
 
-    /// <summary>
-    /// Parameter one's high byte as a heading: a table index of zero points right, 64 up, 128 left and 192 down.
-    /// </summary>
-    public RotationAngle InitialAngle => RotationAngle.FromTableIndex(_slot.SpawnSettings<SbugSpawnSettings>().InitialAngle);
+    /// <summary>The heading the Sbug spawns on: zero points right, a quarter turn up, half a turn left.</summary>
+    public RotationAngle InitialAngle => _slot.SpawnSettings<SbugSpawnSettings>().InitialAngle;
 
-    /// <summary>Parameter two's low byte, 0 through 255: the pixel distance Samus must be within on both axes for activation.</summary>
+    /// <summary>The pixel distance Samus must be within on both axes for activation.</summary>
     public int ActivationRadius => _slot.SpawnSettings<SbugSpawnSettings>().ActivationRadius;
 
-    /// <summary>Parameter two high byte; the activation-table selector.</summary>
-    public SbugActivationBehavior ActivationBehavior =>
-        SbugMovementDefinitions.ActivationBehaviors.At(_slot.SpawnSettings<SbugSpawnSettings>().Behavior);
+    /// <summary>How the Sbug moves once activated, as its placement names it.</summary>
+    public SbugActivationBehavior ActivationBehavior => _slot.SpawnSettings<SbugSpawnSettings>().Behavior;
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }

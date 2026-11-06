@@ -984,7 +984,7 @@ internal static class LookupStream3Verification
             int offset = 2 * parameter;
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
-            SparkMovementDefinition definition = SparkStarts.InitialState(parameter);
+            SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(parameter);
             AssertEqual(list, NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
                 "stream 3 native Spark list selector");
             AssertEqual(function, definition.Function, "stream 3 native Spark function selector");

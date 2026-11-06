@@ -103,12 +103,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         var state = new WalkingSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Parameter-one bit zero is the only initial-facing selector. Bit fifteen is an
+        // The facing option alone selects the initial facing. The slow-laser option is an
         // independent projectile-flinch option and must not accidentally select right art.
         WalkingSpacePirateSpawnSettings settings = slot.SpawnSettings<WalkingSpacePirateSpawnSettings>();
-        WalkingSpacePirateParameterFlags parameterFlags = settings.Options;
+        WalkingSpacePirateOptions options = settings.Options;
         state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(
-            (parameterFlags & WalkingSpacePirateParameterFlags.StartsFacingRight) != WalkingSpacePirateParameterFlags.None
+            (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
             ? WalkingSpacePirateProgram.WalkingRight
             : WalkingSpacePirateProgram.WalkingLeft);
         state.Function = WalkingSpacePirateFunction.NoOperation;
@@ -146,10 +146,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                     $"Walking Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
-        // Parameter-one bit fifteen enables the retail flinch detector after normal AI.
+        // The slow-laser option enables the retail flinch detector after normal AI.
         // The detector is intentionally allowed to replace a list selected just above.
         if (((slot.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
-                WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None) &&
+                WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None) &&
             samus is not null)
             TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
 
@@ -379,17 +379,17 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>
-    /// The speed of a pirate's laser: the initializer reads the firing pirate's first parameter, where walking and wall
-    /// pirates author the slow laser.
+    /// The speed of a pirate's laser: the initializer reads the firing pirate's placement, where walking and wall
+    /// pirates name the slow laser.
     /// </summary>
     private static PirateLaserSpeed LaserSpeedOf(RoomEnemySlot pirate)
     {
         bool slow = pirate.Spawn.Population.SpawnSettings switch
         {
             WalkingSpacePirateSpawnSettings walking =>
-                (walking.Options & WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None,
+                (walking.Options & WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None,
             WallSpacePirateSpawnSettings wall =>
-                (wall.Options & WallSpacePirateParameterFlags.SlowJumpAndLaser) != WallSpacePirateParameterFlags.None,
+                (wall.Options & WallSpacePirateOptions.SlowJumpAndLaser) != WallSpacePirateOptions.None,
             _ => throw new InvalidOperationException($"{pirate.DefinitionId} is not a pirate that fires lasers."),
         };
         return slow ? PirateLaserSpeed.Slow : PirateLaserSpeed.Fast;
@@ -404,7 +404,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <param name="source">The enemy firing the laser, whose damage the laser takes.</param>
     /// <param name="muzzle">Where the laser starts.</param>
     /// <param name="movingRight">Whether the laser travels right.</param>
-    /// <param name="speed">The laser's speed, which the firing enemy's first parameter authors.</param>
+    /// <param name="speed">The laser's speed, which the firing enemy's placement names.</param>
     internal RoomEnemyProjectileSlot? SpawnPirateMotherBrainLaser(
         RoomEnemySlot source,
         Position16<RoomPixels> muzzle,

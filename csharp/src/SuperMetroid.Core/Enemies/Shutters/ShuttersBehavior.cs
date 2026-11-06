@@ -53,17 +53,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int GrowingShutterSectionLength = 16;
     /// <summary>Intermediate sections stop seven pixels inside their full-size endpoint.</summary>
     private const int GrowingShutterIntermediateInset = 7;
-    /// <summary>AI updates of endpoint rest per unit of a shutter's population rest parameter.</summary>
-    private const int RestUpdatesPerParameterUnit = 16;
 
     /// <summary>Initializes the growing shutter.</summary>
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         GrowingShutterSpawnSettings settings = slot.SpawnSettings<GrowingShutterSpawnSettings>();
-        // The spawn's one activation setting is the wait of a timed shutter and the distance of a proximity one.
         var state = new GrowingShutterEnemyState(slot)
         {
-            ActivationTimer = WrappingCountdown.Start(settings.ActivationDistance),
+            ActivationTimer = WrappingCountdown.Start(settings.ActivationWait),
             ActivationDistance = settings.ActivationDistance,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -75,18 +72,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             GrowingShutterGrowth.Up => true,
             _ => throw new InvalidOperationException($"Growing shutter growth {settings.Growth} is not a direction."),
         };
-        int initialFunctionIndex = (growsUp ? 2 : 0) + settings.Wait switch
+        state.Function = settings.Wait switch
         {
-            GrowingShutterWait.Timer => 0,
-            GrowingShutterWait.SamusNear => 1,
+            GrowingShutterWait.Timer => growsUp
+                ? GrowingShutterFunction.WaitToGrowUpForTimer
+                : GrowingShutterFunction.WaitToGrowDownForTimer,
+            GrowingShutterWait.SamusNear => growsUp
+                ? GrowingShutterFunction.WaitToGrowUpForProximity
+                : GrowingShutterFunction.WaitToGrowDownForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
-        state.Function = GrowingShutters.InitialFunction(initialFunctionIndex);
 
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
-        state.GrowthSpeed = GrowingShutters.Speed(settings.GrowthSpeedIndex);
+        state.GrowthSpeed = settings.GrowthSpeed;
 
         slot.ExtraProperties = EnemyExtraProperties.None;
         InstallGrowingShutterProgram(
@@ -284,23 +284,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
-        state.SpeedTableIndex = settings.SpeedIndex;
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = Opposite(state.PrimaryDirection);
 
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(state.SpeedTableIndex);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
         state.RightVelocity = speeds.Positive;
         state.LeftVelocity = speeds.Negative;
 
-        state.MovedLeftRestParameter = settings.FirstRestUnits;
-        state.MovedRightRestParameter = settings.SecondRestUnits;
-        state.MovedLeftRestTime = state.MovedLeftRestParameter * RestUpdatesPerParameterUnit;
-        state.MovedRightRestTime = state.MovedRightRestParameter * RestUpdatesPerParameterUnit;
+        state.MovedLeftRestTime = settings.FirstRestTime;
+        state.MovedRightRestTime = settings.SecondRestTime;
 
         state.TriggerMode = settings.TriggerMode;
         state.TravelDistance = settings.TravelDistance;
-        state.HorizontalProximityOrWaitTime = settings.ProximityOrWaitTime;
-        state.FunctionTimer = WrappingCountdown.Start(settings.ProximityOrWaitTime);
+        state.ProximityDistance = settings.ProximityDistance;
+        state.WaitTime = settings.WaitTime;
+        state.FunctionTimer = WrappingCountdown.Start(settings.WaitTime);
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(state.TravelDistance, 0);
@@ -339,7 +337,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsZero)
                 {
-                    state.FunctionTimer = WrappingCountdown.Start(state.HorizontalProximityOrWaitTime);
+                    state.FunctionTimer = WrappingCountdown.Start(state.WaitTime);
                     ActivateHorizontalShutter(state);
                 }
                 break;
@@ -348,7 +346,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (IsSamusWithinShutterHorizontalDistance(
                     slot,
                     samus,
-                    state.HorizontalProximityOrWaitTime))
+                    state.ProximityDistance))
                 {
                     ActivateHorizontalShutter(state);
                 }
@@ -392,8 +390,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decodes a population's trigger-mode byte, the index into each shutter's five-entry initial-function table.</summary>
-    /// <exception cref="InvalidDataException">The byte is past the table's five entries.</exception>
+    /// <summary>The end opposite <paramref name="heading"/>.</summary>
     internal static ShutterHeading Opposite(ShutterHeading heading) => heading switch
     {
         ShutterHeading.LeftOrUp => ShutterHeading.RightOrDown,
@@ -764,23 +761,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
-        state.SpeedTableIndex = settings.SpeedIndex;
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(state.SpeedTableIndex);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
         state.DownVelocity = speeds.Positive;
         state.UpVelocity = speeds.Negative;
 
-        state.MovedUpRestParameter = settings.FirstRestUnits;
-        state.MovedDownRestParameter = settings.SecondRestUnits;
-        state.MovedUpRestTime = state.MovedUpRestParameter * RestUpdatesPerParameterUnit;
-        state.MovedDownRestTime = state.MovedDownRestParameter * RestUpdatesPerParameterUnit;
+        state.MovedUpRestTime = settings.FirstRestTime;
+        state.MovedDownRestTime = settings.SecondRestTime;
 
         state.TriggerMode = settings.TriggerMode;
         state.TravelDistance = settings.TravelDistance;
-        state.HorizontalProximityOrWaitTime = settings.ProximityOrWaitTime;
-        state.FunctionTimer = WrappingCountdown.Start(settings.ProximityOrWaitTime);
+        state.ProximityDistance = settings.ProximityDistance;
+        state.WaitTime = settings.WaitTime;
+        state.FunctionTimer = WrappingCountdown.Start(settings.WaitTime);
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(0, state.TravelDistance);
@@ -819,7 +814,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsZero)
                 {
-                    state.FunctionTimer = WrappingCountdown.Start(state.HorizontalProximityOrWaitTime);
+                    state.FunctionTimer = WrappingCountdown.Start(state.WaitTime);
                     ActivateVerticalShutter(slot, state, camera);
                 }
                 break;
@@ -830,7 +825,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (IsSamusWithinShutterHorizontalDistance(
                     slot,
                     samus,
-                    state.HorizontalProximityOrWaitTime))
+                    state.ProximityDistance))
                 {
                     ActivateVerticalShutter(slot, state, camera);
                 }

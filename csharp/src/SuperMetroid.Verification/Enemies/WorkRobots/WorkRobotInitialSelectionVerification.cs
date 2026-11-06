@@ -7,19 +7,23 @@ using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 
-/// <summary>Checks Work Robot's initial animation selection against native words and production initialization.</summary>
+/// <summary>
+/// Checks the unpowered Work Robot pose a placement decodes to against native words, and that the production
+/// initializer holds it (#1519).
+/// </summary>
 internal static class WorkRobotInitialSelectionVerification
 {
     /// <summary>
-    /// The three retail table words name the three unpowered programs and the production initializer installs them; the
-    /// native overrun selector three and out-of-range selectors fail loudly.
+    /// The three retail table words name the three unpowered programs the codec decodes and the production initializer
+    /// installs; the native overrun selector three fails to decode, and selectors the range check refuses hold the
+    /// neutral pose.
     /// </summary>
     internal static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             int address = EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords + 2 * parameter;
-            WorkRobotProgram expected = WorkRobotPoses.InitialProgram(parameter);
+            WorkRobotProgram expected = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(parameter);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 NativeEnemyProgramOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
@@ -31,19 +35,13 @@ internal static class WorkRobotInitialSelectionVerification
             AssertEqual(AnimationProgramCursor<WorkRobotProgram>.Start(expected), state.Program,
                 $"Work Robot production selection {parameter} without cartridge access");
         }
-        AssertThrows<InvalidDataException>(() => WorkRobotPoses.InitialProgram(3),
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(3),
             "Work Robot selector three overruns the table into code");
+        foreach (int refused in new[] { 4, 0x7fff, 0x8000, 0xffff })
         {
-            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            slot.SetSpawnParameter1(EnemyDefinitionId.Robot, 3);
-            AssertThrows<InvalidDataException>(() => system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, new WorkRobotEnemyState()),
-                "Work Robot production initializer rejects the overrun selector");
+            AssertEqual(WorkRobotProgram.NoPowerNeutral, SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(refused),
+                $"Work Robot selector {refused} outside the range check holds the neutral pose");
         }
-        foreach (int invalid in new[] { -1, 4, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => WorkRobotPoses.InitialProgram(invalid),
-                $"Work Robot unsupported selector {invalid}");
         Console.WriteLine("Work Robot switch: three original programs, the overrun selector's loud failure, production initialization and bounds pass.");
     }
 }

@@ -139,42 +139,42 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.Tripper] = words => new PlatformSpawnSettings(Movement: Bits(words.Parameter1, 0, 16) switch { 0 => PlatformHorizontalMovement.Left, 1 => PlatformHorizontalMovement.Right, var other => throw Unmapped("Movement", other) }, Speed: SpawnSettingSelectors.LinearSpeed(Bits(words.Parameter2, 0, 8)), VerticalAccelerationUpdates: SpawnSettingSelectors.QuadraticSteps(Bits(words.Parameter2, 8, 8))),
         [EnemyDefinitionId.Powamp] = words => new PowampSpawnSettings(Part: (words.Parameter1 & 65535) != 0 ? PowampPart.Balloon : PowampPart.Body, GrappleTravelDistance: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Puyo] = words => new PuyoSpawnSettings(HopCooldown: Bits(words.Parameter1, 0, 16), HopDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.Ripper] = words => new RipperSpawnSettings(SpeedIndex: Bits(words.Parameter1, 0, 16), Direction: Bits(words.Parameter2, 0, 16) switch { 0 => HorizontalDirection.Left, _ => HorizontalDirection.Right }),
-        [EnemyDefinitionId.Ripper2] = words => new RipperSpawnSettings(SpeedIndex: Bits(words.Parameter1, 0, 16), Direction: Bits(words.Parameter2, 0, 16) switch { 0 => HorizontalDirection.Left, _ => HorizontalDirection.Right }),
-        [EnemyDefinitionId.GRipper] = words => new GRipperSpawnSettings(SpeedIndex: Bits(words.Initialization, 0, 8), Direction: Bits(words.Initialization, 0, 16) switch { 0 => GRipperStartDirection.Left, 256 => GRipperStartDirection.Left, _ => GRipperStartDirection.Right }, MinimumX: Bits(words.Parameter1, 0, 16), MaximumX: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.Sbug] = words => new SbugSpawnSettings(Speed: Bits(words.Parameter1, 0, 8), InitialAngle: Bits(words.Parameter1, 8, 8), ActivationRadius: Bits(words.Parameter2, 0, 8), Behavior: Bits(words.Parameter2, 8, 8)),
-        [EnemyDefinitionId.Shaktool] = words => new ShaktoolSpawnSettings(Motion: (Has(words.Parameter1, 13) ? ShaktoolMotionFlags.ReversedOnce : ShaktoolMotionFlags.None) | (Has(words.Parameter1, 14) ? ShaktoolMotionFlags.Straightening : ShaktoolMotionFlags.None) | (Has(words.Parameter1, 15) ? ShaktoolMotionFlags.Clockwise : ShaktoolMotionFlags.None), Segment: Half(words.Parameter2)),
-        [EnemyDefinitionId.ShutterGrowing] = words => new GrowingShutterSpawnSettings(Wait: Bits(words.Initialization, 0, 16) switch { 0 => GrowingShutterWait.Timer, 1 => GrowingShutterWait.SamusNear, var other => throw Unmapped("Wait", other) }, Growth: Bits(words.ExtraProperties, 0, 16) switch { 0 => GrowingShutterGrowth.Down, 1 => GrowingShutterGrowth.Up, var other => throw Unmapped("Growth", other) }, ActivationDistance: Bits(words.Parameter1, 0, 16), GrowthSpeedIndex: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.ShutterShootable] = words => new ShutterSpawnSettings(SpeedIndex: Bits(words.Initialization, 0, 8), PrimaryDirection: Bits(words.Initialization, 8, 8) switch { 0 => ShutterHeading.LeftOrUp, 1 => ShutterHeading.RightOrDown, var other => throw Unmapped("PrimaryDirection", other) }, TriggerMode: Bits(words.Parameter1, 0, 8) switch { 0 => ShutterTriggerMode.Timer, 1 => ShutterTriggerMode.HorizontalProximity, 2 => ShutterTriggerMode.Immediate, 3 => ShutterTriggerMode.OneShotReaction, 4 => ShutterTriggerMode.RepeatableReaction, var other => throw Unmapped("TriggerMode", other) }, TravelDistance: Bits(words.Parameter1, 8, 8), ProximityOrWaitTime: Bits(words.Parameter2, 0, 16), FirstRestUnits: Bits(words.ExtraProperties, 0, 8), SecondRestUnits: Bits(words.ExtraProperties, 8, 8)),
-        [EnemyDefinitionId.ShutterDestroyable] = words => new ShutterSpawnSettings(SpeedIndex: Bits(words.Initialization, 0, 8), PrimaryDirection: Bits(words.Initialization, 8, 8) switch { 0 => ShutterHeading.LeftOrUp, 1 => ShutterHeading.RightOrDown, var other => throw Unmapped("PrimaryDirection", other) }, TriggerMode: Bits(words.Parameter1, 0, 8) switch { 0 => ShutterTriggerMode.Timer, 1 => ShutterTriggerMode.HorizontalProximity, 2 => ShutterTriggerMode.Immediate, 3 => ShutterTriggerMode.OneShotReaction, 4 => ShutterTriggerMode.RepeatableReaction, var other => throw Unmapped("TriggerMode", other) }, TravelDistance: Bits(words.Parameter1, 8, 8), ProximityOrWaitTime: Bits(words.Parameter2, 0, 16), FirstRestUnits: Bits(words.ExtraProperties, 0, 8), SecondRestUnits: Bits(words.ExtraProperties, 8, 8)),
-        [EnemyDefinitionId.Kamer] = words => new ShutterSpawnSettings(SpeedIndex: Bits(words.Initialization, 0, 8), PrimaryDirection: Bits(words.Initialization, 8, 8) switch { 0 => ShutterHeading.LeftOrUp, 1 => ShutterHeading.RightOrDown, var other => throw Unmapped("PrimaryDirection", other) }, TriggerMode: Bits(words.Parameter1, 0, 8) switch { 0 => ShutterTriggerMode.Timer, 1 => ShutterTriggerMode.HorizontalProximity, 2 => ShutterTriggerMode.Immediate, 3 => ShutterTriggerMode.OneShotReaction, 4 => ShutterTriggerMode.RepeatableReaction, var other => throw Unmapped("TriggerMode", other) }, TravelDistance: Bits(words.Parameter1, 8, 8), ProximityOrWaitTime: Bits(words.Parameter2, 0, 16), FirstRestUnits: Bits(words.ExtraProperties, 0, 8), SecondRestUnits: Bits(words.ExtraProperties, 8, 8)),
-        [EnemyDefinitionId.ShutterHorizShootable] = words => new ShutterSpawnSettings(SpeedIndex: Bits(words.Initialization, 0, 8), PrimaryDirection: Bits(words.Initialization, 8, 8) switch { 0 => ShutterHeading.LeftOrUp, 1 => ShutterHeading.RightOrDown, var other => throw Unmapped("PrimaryDirection", other) }, TriggerMode: Bits(words.Parameter1, 0, 8) switch { 0 => ShutterTriggerMode.Timer, 1 => ShutterTriggerMode.HorizontalProximity, 2 => ShutterTriggerMode.Immediate, 3 => ShutterTriggerMode.OneShotReaction, 4 => ShutterTriggerMode.RepeatableReaction, var other => throw Unmapped("TriggerMode", other) }, TravelDistance: Bits(words.Parameter1, 8, 8), ProximityOrWaitTime: Bits(words.Parameter2, 0, 16), FirstRestUnits: Bits(words.ExtraProperties, 0, 8), SecondRestUnits: Bits(words.ExtraProperties, 8, 8)),
-        [EnemyDefinitionId.Skultera] = words => new SkulteraSpawnSettings(SpeedIndex: Bits(words.Parameter1, 0, 8), StartDirection: (words.Parameter1 & 65280) != 0 ? HorizontalDirection.Left : HorizontalDirection.Right, Radius: Bits(words.Parameter2, 0, 8), AngleDelta: Bits(words.Parameter2, 8, 8)),
-        [EnemyDefinitionId.PirateGoldWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateParameterFlags.StartsFacingRight : WalkingSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch : WalkingSpacePirateParameterFlags.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGreenWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateParameterFlags.StartsFacingRight : WalkingSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch : WalkingSpacePirateParameterFlags.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGreyWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateParameterFlags.StartsFacingRight : WalkingSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch : WalkingSpacePirateParameterFlags.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateMagentaWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateParameterFlags.StartsFacingRight : WalkingSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch : WalkingSpacePirateParameterFlags.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateRedWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateParameterFlags.StartsFacingRight : WalkingSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch : WalkingSpacePirateParameterFlags.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateSilverWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateParameterFlags.StartsFacingRight : WalkingSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch : WalkingSpacePirateParameterFlags.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGoldWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateParameterFlags.StartsOnRightWall : WallSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WallSpacePirateParameterFlags.SlowJumpAndLaser : WallSpacePirateParameterFlags.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGreenWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateParameterFlags.StartsOnRightWall : WallSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WallSpacePirateParameterFlags.SlowJumpAndLaser : WallSpacePirateParameterFlags.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGreyWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateParameterFlags.StartsOnRightWall : WallSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WallSpacePirateParameterFlags.SlowJumpAndLaser : WallSpacePirateParameterFlags.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateMagentaWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateParameterFlags.StartsOnRightWall : WallSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WallSpacePirateParameterFlags.SlowJumpAndLaser : WallSpacePirateParameterFlags.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateRedWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateParameterFlags.StartsOnRightWall : WallSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WallSpacePirateParameterFlags.SlowJumpAndLaser : WallSpacePirateParameterFlags.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateSilverWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateParameterFlags.StartsOnRightWall : WallSpacePirateParameterFlags.None) | (Has(words.Parameter1, 15) ? WallSpacePirateParameterFlags.SlowJumpAndLaser : WallSpacePirateParameterFlags.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGoldNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGreenNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateGreyNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateMagentaNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateRedNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.PirateSilverNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight : NinjaSpacePirateParameterFlags.None), PostDistance: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.Spark] = words => new SparkSpawnSettings(InitialState: Bits(words.Parameter1, 0, 16), BaseFunctionTime: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.Stoke] = words => new StokeSpawnSettings(Direction: Bits(words.Parameter1, 0, 16) switch { 0 => StokeDirection.Left, 1 => StokeDirection.Right, var other => throw Unmapped("Direction", other) }, SpeedIndex: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.Ripper] = words => new RipperSpawnSettings(Speed: LinearSpeed(Bits(words.Parameter1, 0, 16)), Direction: Bits(words.Parameter2, 0, 16) switch { 0 => HorizontalDirection.Left, _ => HorizontalDirection.Right }),
+        [EnemyDefinitionId.Ripper2] = words => new RipperSpawnSettings(Speed: LinearSpeed(Bits(words.Parameter1, 0, 16)), Direction: Bits(words.Parameter2, 0, 16) switch { 0 => HorizontalDirection.Left, _ => HorizontalDirection.Right }),
+        [EnemyDefinitionId.GRipper] = words => new GRipperSpawnSettings(Speed: LinearSpeed(Bits(words.Initialization, 0, 8)), Direction: Bits(words.Initialization, 0, 16) switch { 0 => GRipperStartDirection.Left, 256 => GRipperStartDirection.Left, _ => GRipperStartDirection.Right }, MinimumX: Bits(words.Parameter1, 0, 16), MaximumX: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.Sbug] = words => new SbugSpawnSettings(Speed: Bits(words.Parameter1, 0, 8), InitialAngle: RotationAngle.FromTableIndex(Bits(words.Parameter1, 8, 8)), ActivationRadius: Bits(words.Parameter2, 0, 8), Behavior: Bits(words.Parameter2, 8, 8) switch { 0 => SbugActivationBehavior.MoveForward, 1 => SbugActivationBehavior.ZigZag, 2 => SbugActivationBehavior.MoveTowardSamus, 3 => SbugActivationBehavior.RandomUntilCollision, 4 => SbugActivationBehavior.RandomAndReverseWhenFar, 5 => SbugActivationBehavior.MoveForwardThenWait, 6 => SbugActivationBehavior.MoveAwayFromSamus, var other => throw Unmapped("Behavior", other) }),
+        [EnemyDefinitionId.Shaktool] = words => new ShaktoolSpawnSettings(Motion: (Has(words.Parameter1, 13) ? ShaktoolMotionFlags.ReversedOnce : ShaktoolMotionFlags.None) | (Has(words.Parameter1, 14) ? ShaktoolMotionFlags.Straightening : ShaktoolMotionFlags.None) | (Has(words.Parameter1, 15) ? ShaktoolMotionFlags.Clockwise : ShaktoolMotionFlags.None), Segment: ShaktoolSegment(Half(words.Parameter2))),
+        [EnemyDefinitionId.ShutterGrowing] = DecodeGrowingShutter,
+        [EnemyDefinitionId.ShutterShootable] = DecodeShutter,
+        [EnemyDefinitionId.ShutterDestroyable] = DecodeShutter,
+        [EnemyDefinitionId.Kamer] = DecodeShutter,
+        [EnemyDefinitionId.ShutterHorizShootable] = DecodeShutter,
+        [EnemyDefinitionId.Skultera] = words => new SkulteraSpawnSettings(Speed: LinearSpeed(Bits(words.Parameter1, 0, 8)), StartDirection: (words.Parameter1 & 65280) != 0 ? HorizontalDirection.Left : HorizontalDirection.Right, Radius: Bits(words.Parameter2, 0, 8), AngleDelta: Bits(words.Parameter2, 8, 8)),
+        [EnemyDefinitionId.PirateGoldWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateOptions.StartsFacingRight : WalkingSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch : WalkingSpacePirateOptions.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGreenWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateOptions.StartsFacingRight : WalkingSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch : WalkingSpacePirateOptions.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGreyWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateOptions.StartsFacingRight : WalkingSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch : WalkingSpacePirateOptions.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateMagentaWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateOptions.StartsFacingRight : WalkingSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch : WalkingSpacePirateOptions.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateRedWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateOptions.StartsFacingRight : WalkingSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch : WalkingSpacePirateOptions.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateSilverWalking] = words => new WalkingSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WalkingSpacePirateOptions.StartsFacingRight : WalkingSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch : WalkingSpacePirateOptions.None), PatrolReach: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGoldWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateOptions.StartsOnRightWall : WallSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WallSpacePirateOptions.SlowJumpAndLaser : WallSpacePirateOptions.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGreenWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateOptions.StartsOnRightWall : WallSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WallSpacePirateOptions.SlowJumpAndLaser : WallSpacePirateOptions.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGreyWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateOptions.StartsOnRightWall : WallSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WallSpacePirateOptions.SlowJumpAndLaser : WallSpacePirateOptions.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateMagentaWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateOptions.StartsOnRightWall : WallSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WallSpacePirateOptions.SlowJumpAndLaser : WallSpacePirateOptions.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateRedWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateOptions.StartsOnRightWall : WallSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WallSpacePirateOptions.SlowJumpAndLaser : WallSpacePirateOptions.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateSilverWall] = words => new WallSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? WallSpacePirateOptions.StartsOnRightWall : WallSpacePirateOptions.None) | (Has(words.Parameter1, 15) ? WallSpacePirateOptions.SlowJumpAndLaser : WallSpacePirateOptions.None), JumpSpan: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGoldNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGreenNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateGreyNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateMagentaNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateRedNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.PirateSilverNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.Spark] = words => new SparkSpawnSettings(Start: SparkStart(Bits(words.Parameter1, 0, 16)), BaseFunctionTime: Bits(words.Parameter2, 0, 16)),
+        [EnemyDefinitionId.Stoke] = words => new StokeSpawnSettings(Direction: Bits(words.Parameter1, 0, 16) switch { 0 => StokeDirection.Left, 1 => StokeDirection.Right, var other => throw Unmapped("Direction", other) }, Speed: LinearSpeed(Bits(words.Parameter2, 0, 16))),
         [EnemyDefinitionId.Waver] = words => new WaverSpawnSettings(Facing: Bits(words.Parameter1, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }),
-        [EnemyDefinitionId.Robot] = words => new WorkRobotSpawnSettings(Pose: Bits(words.Parameter1, 0, 16)),
-        [EnemyDefinitionId.RobotNoPower] = words => new WorkRobotSpawnSettings(Pose: Bits(words.Parameter1, 0, 16)),
+        [EnemyDefinitionId.Robot] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
+        [EnemyDefinitionId.RobotNoPower] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
         [EnemyDefinitionId.YappingMaw] = words => new YappingMawSpawnSettings(ActivationDistance: Bits(words.Parameter1, 0, 16), Attack: Bits(words.Parameter2, 0, 16) switch { 0 => VerticalDirection.Down, _ => VerticalDirection.Up }),
-        [EnemyDefinitionId.Yard] = words => new YardSpawnSettings(Direction: Bits(words.Initialization, 0, 16) switch { 0 => YardDirection.UpsideRightMovingUp, 1 => YardDirection.UpsideRightMovingDown, 2 => YardDirection.UpsideLeftMovingUp, 3 => YardDirection.UpsideLeftMovingDown, 4 => YardDirection.UpsideDownMovingLeft, 5 => YardDirection.UpsideDownMovingRight, 6 => YardDirection.UpsideUpMovingLeft, 7 => YardDirection.UpsideUpMovingRight, var other => throw Unmapped("Direction", other) }, SpeedIndex: Bits(words.Parameter1, 0, 16)),
+        [EnemyDefinitionId.Yard] = words => new YardSpawnSettings(Direction: Bits(words.Initialization, 0, 16) switch { 0 => YardDirection.UpsideRightMovingUp, 1 => YardDirection.UpsideRightMovingDown, 2 => YardDirection.UpsideLeftMovingUp, 3 => YardDirection.UpsideLeftMovingDown, 4 => YardDirection.UpsideDownMovingLeft, 5 => YardDirection.UpsideDownMovingRight, 6 => YardDirection.UpsideUpMovingLeft, 7 => YardDirection.UpsideUpMovingRight, var other => throw Unmapped("Direction", other) }, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(Bits(words.Parameter1, 0, 16)))),
     };
 
     /// <summary>Whether the species reads its settings from the extra-property word, which then holds no additional property.</summary>
@@ -232,22 +232,22 @@ internal static class EnemySpawnSettingsCodec
         PlatformSpawnSettings s => Checked(EnemyDefinitionId.Kamer2, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Movement switch { PlatformHorizontalMovement.Left => 0, PlatformHorizontalMovement.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: Place(SpawnSettingSelectors.LinearSpeedRow(s.Speed), 0, 8) | Place(s.VerticalAccelerationUpdates, 8, 8))),
         PowampSpawnSettings s => Checked(EnemyDefinitionId.Powamp, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Part == PowampPart.Balloon ? 1 : 0), Parameter2: Place(s.GrappleTravelDistance, 0, 16))),
         PuyoSpawnSettings s => Checked(EnemyDefinitionId.Puyo, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.HopCooldown, 0, 16), Parameter2: Place(s.HopDistance, 0, 16))),
-        RipperSpawnSettings s => Checked(EnemyDefinitionId.Ripper, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.SpeedIndex, 0, 16), Parameter2: ((s.Direction switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0))),
-        GRipperSpawnSettings s => Checked(EnemyDefinitionId.GRipper, settings, new PopulationWords(Initialization: Place(s.SpeedIndex, 0, 8) | ((s.Direction switch { GRipperStartDirection.Left => 0, GRipperStartDirection.Right => 512, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.MinimumX, 0, 16), Parameter2: Place(s.MaximumX, 0, 16))),
-        SbugSpawnSettings s => Checked(EnemyDefinitionId.Sbug, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.Speed, 0, 8) | Place(s.InitialAngle, 8, 8), Parameter2: Place(s.ActivationRadius, 0, 8) | Place(s.Behavior, 8, 8))),
-        ShaktoolSpawnSettings s => Checked(EnemyDefinitionId.Shaktool, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Motion & ShaktoolMotionFlags.ReversedOnce) != 0) ? 1 << 13 : 0) | (((s.Motion & ShaktoolMotionFlags.Straightening) != 0) ? 1 << 14 : 0) | (((s.Motion & ShaktoolMotionFlags.Clockwise) != 0) ? 1 << 15 : 0)), Parameter2: s.Segment * 2)),
-        GrowingShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterGrowing, settings, new PopulationWords(Initialization: ((s.Wait switch { GrowingShutterWait.Timer => 0, GrowingShutterWait.SamusNear => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: ((s.Growth switch { GrowingShutterGrowth.Down => 0, GrowingShutterGrowth.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter1: Place(s.ActivationDistance, 0, 16), Parameter2: Place(s.GrowthSpeedIndex, 0, 16))),
-        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(s.SpeedIndex, 0, 8) | ((s.PrimaryDirection switch { ShutterHeading.LeftOrUp => 0, ShutterHeading.RightOrDown => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(s.FirstRestUnits, 0, 8) | Place(s.SecondRestUnits, 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.ProximityOrWaitTime, 0, 16))),
-        SkulteraSpawnSettings s => Checked(EnemyDefinitionId.Skultera, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.SpeedIndex, 0, 8) | (s.StartDirection == HorizontalDirection.Left ? 256 : 0), Parameter2: Place(s.Radius, 0, 8) | Place(s.AngleDelta, 8, 8))),
-        WalkingSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWalking, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WalkingSpacePirateParameterFlags.StartsFacingRight) != 0) ? 1 << 0 : 0) | (((s.Options & WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.PatrolReach, 0, 16))),
-        WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WallSpacePirateParameterFlags.StartsOnRightWall) != 0) ? 1 << 0 : 0) | (((s.Options & WallSpacePirateParameterFlags.SlowJumpAndLaser) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.JumpSpan, 0, 16))),
-        NinjaSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldNinja, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0) ? 1 << 0 : 0)), Parameter2: Place(s.PostDistance, 0, 16))),
-        SparkSpawnSettings s => Checked(EnemyDefinitionId.Spark, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.InitialState, 0, 16), Parameter2: Place(s.BaseFunctionTime, 0, 16))),
-        StokeSpawnSettings s => Checked(EnemyDefinitionId.Stoke, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Direction switch { StokeDirection.Left => 0, StokeDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: Place(s.SpeedIndex, 0, 16))),
+        RipperSpawnSettings s => Checked(EnemyDefinitionId.Ripper, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(LinearSpeedRecord(s.Speed), 0, 16), Parameter2: ((s.Direction switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0))),
+        GRipperSpawnSettings s => Checked(EnemyDefinitionId.GRipper, settings, new PopulationWords(Initialization: Place(LinearSpeedRecord(s.Speed), 0, 8) | ((s.Direction switch { GRipperStartDirection.Left => 0, GRipperStartDirection.Right => 512, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.MinimumX, 0, 16), Parameter2: Place(s.MaximumX, 0, 16))),
+        SbugSpawnSettings s => Checked(EnemyDefinitionId.Sbug, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.Speed, 0, 8) | Place(s.InitialAngle.TableIndex, 8, 8), Parameter2: Place(s.ActivationRadius, 0, 8) | ((s.Behavior switch { SbugActivationBehavior.MoveForward => 0, SbugActivationBehavior.ZigZag => 1, SbugActivationBehavior.MoveTowardSamus => 2, SbugActivationBehavior.RandomUntilCollision => 3, SbugActivationBehavior.RandomAndReverseWhenFar => 4, SbugActivationBehavior.MoveForwardThenWait => 5, SbugActivationBehavior.MoveAwayFromSamus => 6, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8))),
+        ShaktoolSpawnSettings s => Checked(EnemyDefinitionId.Shaktool, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Motion & ShaktoolMotionFlags.ReversedOnce) != 0) ? 1 << 13 : 0) | (((s.Motion & ShaktoolMotionFlags.Straightening) != 0) ? 1 << 14 : 0) | (((s.Motion & ShaktoolMotionFlags.Clockwise) != 0) ? 1 << 15 : 0)), Parameter2: ShaktoolSegmentPosition(s.Segment) * 2)),
+        GrowingShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterGrowing, settings, new PopulationWords(Initialization: ((s.Wait switch { GrowingShutterWait.Timer => 0, GrowingShutterWait.SamusNear => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: ((s.Growth switch { GrowingShutterGrowth.Down => 0, GrowingShutterGrowth.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter1: Place(s.Wait == GrowingShutterWait.Timer ? s.ActivationWait : s.ActivationDistance, 0, 16), Parameter2: Place(GrowingShutterSpeedRecord(s.GrowthSpeed), 0, 16))),
+        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(LinearSpeedRecord(s.Speed), 0, 8) | ((s.PrimaryDirection switch { ShutterHeading.LeftOrUp => 0, ShutterHeading.RightOrDown => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.FirstRestTime), 0, 8) | Place(ShutterRestUnits(s.SecondRestTime), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.TriggerMode == ShutterTriggerMode.Timer ? s.WaitTime : s.ProximityDistance, 0, 16))),
+        SkulteraSpawnSettings s => Checked(EnemyDefinitionId.Skultera, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(LinearSpeedRecord(s.Speed), 0, 8) | (s.StartDirection == HorizontalDirection.Left ? 256 : 0), Parameter2: Place(s.Radius, 0, 8) | Place(s.AngleDelta, 8, 8))),
+        WalkingSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWalking, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WalkingSpacePirateOptions.StartsFacingRight) != 0) ? 1 << 0 : 0) | (((s.Options & WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.PatrolReach, 0, 16))),
+        WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WallSpacePirateOptions.StartsOnRightWall) != 0) ? 1 << 0 : 0) | (((s.Options & WallSpacePirateOptions.SlowJumpAndLaser) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.JumpSpan, 0, 16))),
+        NinjaSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldNinja, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & NinjaSpacePirateOptions.StartsAtLeftPostFacingRight) != 0) ? 1 << 0 : 0)), Parameter2: Place(s.PostDistance, 0, 16))),
+        SparkSpawnSettings s => Checked(EnemyDefinitionId.Spark, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Position(SparkStarts, s.Start, "Spark start"), Parameter2: Place(s.BaseFunctionTime, 0, 16))),
+        StokeSpawnSettings s => Checked(EnemyDefinitionId.Stoke, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Direction switch { StokeDirection.Left => 0, StokeDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: Place(LinearSpeedRecord(s.Speed), 0, 16))),
         WaverSpawnSettings s => Checked(EnemyDefinitionId.Waver, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Facing switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
-        WorkRobotSpawnSettings s => Checked(EnemyDefinitionId.Robot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.Pose, 0, 16), Parameter2: 0)),
+        WorkRobotSpawnSettings s => Checked(EnemyDefinitionId.Robot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Position(WorkRobotPoses, s.Pose, "Work Robot pose"), Parameter2: 0)),
         YappingMawSpawnSettings s => Checked(EnemyDefinitionId.YappingMaw, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.ActivationDistance, 0, 16), Parameter2: ((s.Attack switch { VerticalDirection.Down => 0, VerticalDirection.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0))),
-        YardSpawnSettings s => Checked(EnemyDefinitionId.Yard, settings, new PopulationWords(Initialization: ((s.Direction switch { YardDirection.UpsideRightMovingUp => 0, YardDirection.UpsideRightMovingDown => 1, YardDirection.UpsideLeftMovingUp => 2, YardDirection.UpsideLeftMovingDown => 3, YardDirection.UpsideDownMovingLeft => 4, YardDirection.UpsideDownMovingRight => 5, YardDirection.UpsideUpMovingLeft => 6, YardDirection.UpsideUpMovingRight => 7, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.SpeedIndex, 0, 16), Parameter2: 0)),
+        YardSpawnSettings s => Checked(EnemyDefinitionId.Yard, settings, new PopulationWords(Initialization: ((s.Direction switch { YardDirection.UpsideRightMovingUp => 0, YardDirection.UpsideRightMovingDown => 1, YardDirection.UpsideLeftMovingUp => 2, YardDirection.UpsideLeftMovingDown => 3, YardDirection.UpsideDownMovingLeft => 4, YardDirection.UpsideDownMovingRight => 5, YardDirection.UpsideUpMovingLeft => 6, YardDirection.UpsideUpMovingRight => 7, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(CrawlSpeedRecord(s.CrawlSpeed), 0, 16), Parameter2: 0)),
         _ when settings == EnemySpawnSettings.None => default,
         _ => throw new ArgumentException($"Spawn settings {settings.GetType().Name} have no words.", nameof(settings)),
     };
@@ -270,6 +270,147 @@ internal static class EnemySpawnSettingsCodec
         RottingCorpseSpecies.Torizo or RottingCorpseSpecies.Sidehopper => throw new ArgumentOutOfRangeException(nameof(corpse)),
         _ => throw new ArgumentOutOfRangeException(nameof(corpse)),
     };
+
+    /// <summary>The speed of a common linear-speed record; a record past the table fails (#1519).</summary>
+    /// <exception cref="InvalidDataException"><paramref name="record"/> is past the authored records.</exception>
+    private static SignedSixteenSixteen LinearSpeed(int record) => EnemyLinearSpeeds.Row(record).Positive;
+
+    /// <summary>The common linear-speed record that moves at <paramref name="speed"/>.</summary>
+    /// <exception cref="ArgumentException">No record moves at the speed.</exception>
+    private static int LinearSpeedRecord(SignedSixteenSixteen speed)
+    {
+        for (int record = 0; record < EnemyLinearSpeedDefinitions.RowCount; record++)
+        {
+            if (EnemyLinearSpeeds.Row(record).Positive == speed)
+                return record;
+        }
+        throw new ArgumentException($"No common linear-speed record moves at {speed}.", nameof(speed));
+    }
+
+    /// <summary>
+    /// The number of growth speeds a growing shutter's second parameter can select by its low byte; the initializer reads
+    /// a selection past them from the code after the table, which no retail placement does.
+    /// </summary>
+    private const int GrowingShutterSpeedCount = 24;
+
+    /// <summary>The growth speed record <paramref name="record"/> names: one sixteenth of a pixel more per record.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="record"/> is past the authored speeds.</exception>
+    private static SignedSixteenSixteen GrowingShutterSpeed(int record) => record < GrowingShutterSpeedCount
+        ? SignedSixteenSixteen.FromSixteenthsOfPixel(record + 1)
+        : throw Unmapped("GrowthSpeed", record);
+
+    /// <summary>The growth speed record that grows at <paramref name="speed"/>.</summary>
+    /// <exception cref="ArgumentException">No record grows at the speed.</exception>
+    private static int GrowingShutterSpeedRecord(SignedSixteenSixteen speed)
+    {
+        for (int record = 0; record < GrowingShutterSpeedCount; record++)
+        {
+            if (GrowingShutterSpeed(record) == speed)
+                return record;
+        }
+        throw new ArgumentException($"No growing shutter speed record grows at {speed}.", nameof(speed));
+    }
+
+    /// <summary>
+    /// A growing shutter's settings. Its first parameter is one value with two meanings, split by what the shutter waits
+    /// for: the wait of a timed shutter, the distance of one that waits for Samus.
+    /// </summary>
+    private static GrowingShutterSpawnSettings DecodeGrowingShutter(PopulationWords words)
+    {
+        GrowingShutterWait wait = Bits(words.Initialization, 0, 16) switch { 0 => GrowingShutterWait.Timer, 1 => GrowingShutterWait.SamusNear, var other => throw Unmapped("Wait", other) };
+        int activation = Bits(words.Parameter1, 0, 16);
+        return new GrowingShutterSpawnSettings(
+            Wait: wait,
+            Growth: Bits(words.ExtraProperties, 0, 16) switch { 0 => GrowingShutterGrowth.Down, 1 => GrowingShutterGrowth.Up, var other => throw Unmapped("Growth", other) },
+            ActivationDistance: wait == GrowingShutterWait.SamusNear ? activation : 0,
+            ActivationWait: wait == GrowingShutterWait.Timer ? activation : 0,
+            GrowthSpeed: GrowingShutterSpeed(Bits(words.Parameter2, 0, 8)));
+    }
+
+    /// <summary>The AI updates of shutter endpoint rest per unit of its rest settings.</summary>
+    private const int ShutterRestUpdatesPerUnit = 16;
+
+    /// <summary>
+    /// A moving shutter's or Kamer's settings. Its second parameter is one value with two meanings, split by the trigger:
+    /// the wait of a timer-triggered shutter, the distance of a proximity-triggered one; no other trigger reads it.
+    /// </summary>
+    private static ShutterSpawnSettings DecodeShutter(PopulationWords words)
+    {
+        ShutterTriggerMode trigger = Bits(words.Parameter1, 0, 8) switch { 0 => ShutterTriggerMode.Timer, 1 => ShutterTriggerMode.HorizontalProximity, 2 => ShutterTriggerMode.Immediate, 3 => ShutterTriggerMode.OneShotReaction, 4 => ShutterTriggerMode.RepeatableReaction, var other => throw Unmapped("TriggerMode", other) };
+        int activation = Bits(words.Parameter2, 0, 16);
+        return new ShutterSpawnSettings(
+            Speed: LinearSpeed(Bits(words.Initialization, 0, 8)),
+            PrimaryDirection: Bits(words.Initialization, 8, 8) switch { 0 => ShutterHeading.LeftOrUp, 1 => ShutterHeading.RightOrDown, var other => throw Unmapped("PrimaryDirection", other) },
+            TriggerMode: trigger,
+            TravelDistance: Bits(words.Parameter1, 8, 8),
+            ProximityDistance: trigger == ShutterTriggerMode.HorizontalProximity ? activation : 0,
+            WaitTime: trigger == ShutterTriggerMode.Timer ? activation : 0,
+            FirstRestTime: Bits(words.ExtraProperties, 0, 8) * ShutterRestUpdatesPerUnit,
+            SecondRestTime: Bits(words.ExtraProperties, 8, 8) * ShutterRestUpdatesPerUnit);
+    }
+
+    /// <summary>The rest units that rest a shutter <paramref name="restTime"/> updates.</summary>
+    /// <exception cref="ArgumentException">The rest is not a whole number of units.</exception>
+    private static int ShutterRestUnits(int restTime) => restTime % ShutterRestUpdatesPerUnit == 0
+        ? restTime / ShutterRestUpdatesPerUnit
+        : throw new ArgumentException($"A shutter rest of {restTime} updates is not a whole number of rest units.", nameof(restTime));
+
+    /// <summary>The Shaktool segment a placement names by its position in the chain; a position past the seven fails.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="position"/> is past the seven segments.</exception>
+    private static ShaktoolSegmentDefinition ShaktoolSegment(int position) => position < ShaktoolSegmentDefinitions.Segments.Length
+        ? ShaktoolSegmentDefinitions.Segments[position]
+        : throw Unmapped("Segment", position);
+
+    /// <summary>The position in the chain of a Shaktool segment.</summary>
+    private static int ShaktoolSegmentPosition(ShaktoolSegmentDefinition segment) =>
+        Position(ShaktoolSegmentDefinitions.Segments, segment, "Shaktool segment");
+
+    /// <summary>The three starts a Spark's first parameter selects, in its order; it reads a selection past them from the data after the table.</summary>
+    private static readonly SparkMovementDefinition[] SparkStarts =
+        [SparkMovementDefinitions.AlwaysActive, SparkMovementDefinitions.Intermittent, SparkMovementDefinitions.Emitter];
+
+    /// <summary>The Spark start a first parameter selects.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="selector"/> is past the three authored starts.</exception>
+    private static SparkMovementDefinition SparkStart(int selector) => selector < SparkStarts.Length
+        ? SparkStarts[selector]
+        : throw Unmapped("Start", selector);
+
+    /// <summary>The three unpowered poses a Work Robot's first parameter selects, in its order.</summary>
+    private static readonly WorkRobotProgram[] WorkRobotPoses =
+        [WorkRobotProgram.NoPowerNeutral, WorkRobotProgram.NoPowerLeaningLeft, WorkRobotProgram.NoPowerLeaningRight];
+
+    /// <summary>
+    /// The unpowered pose a Work Robot's first parameter selects. The initializer's range check sends a negative or
+    /// fourth-or-later selection to the first pose; it admits the fourth, which reads the robot's own code as a pose and
+    /// which no retail placement uses, so it fails.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="selector"/> is the fourth pose.</exception>
+    private static WorkRobotProgram WorkRobotPose(int selector) => Signed(selector) switch
+    {
+        < 0 or > 3 => WorkRobotPoses[0],
+        3 => throw new InvalidDataException("Work Robot pose 3 reads past the three authored poses into the robot's code."),
+        var pose => WorkRobotPoses[pose],
+    };
+
+    /// <summary>The crawling speed record whose speed is <paramref name="speed"/>.</summary>
+    /// <exception cref="ArgumentException">No record crawls at the speed.</exception>
+    private static int CrawlSpeedRecord(SignedEightEight speed)
+    {
+        for (int record = 0; record < CrawlerSpeedDefinitions.Count; record++)
+        {
+            if (CrawlerSpeeds.ForParameter(record) == speed.RawValue)
+                return record;
+        }
+        throw new ArgumentException($"No crawling speed record crawls at {speed}.", nameof(speed));
+    }
+
+    /// <summary>The position of <paramref name="value"/> in <paramref name="order"/>.</summary>
+    /// <exception cref="ArgumentException"><paramref name="value"/> is not in the order.</exception>
+    private static int Position<T>(T[] order, T value, string setting)
+    {
+        int position = Array.IndexOf(order, value);
+        return position >= 0 ? position : throw new ArgumentException($"{setting} {value} has no position.", nameof(value));
+    }
 
     private static PopulationWords Checked(EnemyDefinitionId enemy, EnemySpawnSettings settings, PopulationWords words) =>
         Decode(enemy, words) == settings

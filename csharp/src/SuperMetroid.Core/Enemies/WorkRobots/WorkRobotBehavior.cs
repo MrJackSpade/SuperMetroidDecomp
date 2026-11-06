@@ -117,14 +117,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Powered = false;
 
-        // The range check accidentally accepts parameter three even though the
-        // pointer table has only three entries; retail populations use zero/one, and the
-        // overrun into the following code fails loudly in the animation selection.
-        int animation = slot.SpawnSettings<WorkRobotSpawnSettings>().Pose;
-        if (WordWrap.Signed(animation) < 0 || animation >= 4)
-            animation = 0;
-        state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(
-            WorkRobotPoses.InitialProgram(animation));
+        // The placement names the unpowered pose the robot holds.
+        state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(slot.SpawnSettings<WorkRobotSpawnSettings>().Pose);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

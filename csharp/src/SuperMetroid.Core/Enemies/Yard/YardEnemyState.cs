@@ -53,10 +53,10 @@ public sealed class YardEnemyState
     public int TurnTransitionDisableCounter { get; internal set; }
     /// <summary>Flag selecting the turn-disabled corner-probe definitions, set after slope alignment, a turn, or landing and cleared by the crawl cooldown.</summary>
     public bool TurnTransitionDisabled { get; internal set; }
-    /// <summary>Saved population crawl-speed index, restored after ordinary touch in place of the aggressive post-kick speed index 8.</summary>
-    public int IdleCrawlingSpeedIndex { get; internal set; }
-    /// <summary>The live crawl-speed index (parameter one): the population's, or 8 while crawling aggressively after a landing.</summary>
-    public int CrawlingSpeedIndex { get; internal set; }
+    /// <summary>The placement's crawl speed, restored after ordinary touch in place of the aggressive post-kick speed.</summary>
+    public SignedEightEight IdleCrawlSpeed { get; internal set; }
+    /// <summary>The live crawl speed: the placement's, or the aggressive speed while crawling aggressively after a landing.</summary>
+    public SignedEightEight CrawlSpeed { get; internal set; }
     /// <summary>The live surface direction; only direction instructions or turns publish it.</summary>
     public YardDirection Direction { get; internal set; }
 

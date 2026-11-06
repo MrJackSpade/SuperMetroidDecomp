@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Enemies.Sparks;
 
-/// <summary>Compiled initial program/function selections for Wrecked Ship Spark.</summary>
+/// <summary>The three animation and behaviour pairs a Wrecked Ship Spark's placement can start it with.</summary>
 internal static class SparkMovementDefinitions
 {
+    /// <summary>An active spark that stays active.</summary>
+    internal static readonly SparkMovementDefinition AlwaysActive = new(SparkProgram.Active, SparkEnemyFunction.AlwaysActive);
 
-    /// <summary>The three authored animation and function pairs a Spark's initial state selects.</summary>
-    internal static readonly SparkMovementDefinition[] InitialStates =
-    [
-        new(SparkProgram.Active, SparkEnemyFunction.AlwaysActive),
-        new(SparkProgram.Active, SparkEnemyFunction.IntermittentActive),
-        new(SparkProgram.Emitter, SparkEnemyFunction.EmitFallingSparks),
-    ];
+    /// <summary>An active spark that goes out and comes back on its function timer.</summary>
+    internal static readonly SparkMovementDefinition Intermittent = new(SparkProgram.Active, SparkEnemyFunction.IntermittentActive);
+
+    /// <summary>An emitter that drops falling sparks.</summary>
+    internal static readonly SparkMovementDefinition Emitter = new(SparkProgram.Emitter, SparkEnemyFunction.EmitFallingSparks);
 }

@@ -525,7 +525,7 @@ internal static class NativeEnemyFamilyStateImport
             segment.TargetAngle = RotationAngle.FromRaw(words.A);
             segment.OrbitAngle = RotationAngle.FromRaw(words.B);
             segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
-            ImportShaktoolOrientation(segment, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment, words.D);
+            ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment), words.D);
             segment.OwnerSlotIndex = SlotIndex(words.E, "Shaktool owner");
             segment.FrameBehavior = words.F == 0 ? null : ShaktoolNativeWords.DecodeFrameBehavior(words.F, "recorded ShaktoolFrameBehavior");
         }

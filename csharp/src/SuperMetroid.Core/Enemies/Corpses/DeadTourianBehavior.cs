@@ -73,20 +73,18 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyCollision.PowerBombReaction(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).PowerBomb;
     }
 
-    /// <summary>Initializes a Tourian corpse, validating the art variant before registering state and copying tiles into work memory.</summary>
+    /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
     internal void InitializeDeadTourianCorpse(RoomEnemySlot slot)
     {
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.DefinitionId);
-        int variantIndex = slot.SpawnSettings<CorpseSpawnSettings>().Variant;
-        if (variantIndex >= profile.VariantCount)
+        DeadTourianCorpseDefinition definition = slot.SpawnSettings<CorpseSpawnSettings>().Corpse;
+        if (Array.IndexOf(DeadTourianCorpseDefinitions.Variants[profile.Species], definition) < 0)
         {
             throw new InvalidDataException(
-                $"Dead {profile.Species} variant {variantIndex} has no retail variant.");
+                $"Dead {profile.Species} placement names the corpse {definition.Kind.Name}, which is not one of its species'.");
         }
-        DeadTourianCorpseDefinition definition =
-            DeadTourianCorpses.For(profile.Species, variantIndex);
-        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex, profile, new CorpseRotSchedule(definition.RowCount))
+        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, definition.Kind.Variant, profile, new CorpseRotSchedule(definition.RowCount))
         {
             Flesh = definition.Kind,
         };
@@ -188,7 +186,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Species">The corpse species.</param>
     /// <param name="TouchAndShot">The callback its header names for touch and shot, which starts its rot.</param>
     /// <param name="PowerBomb">The callback its header names for a power bomb, which starts its rot.</param>
-    /// <param name="VariantCount">How many corpse variants the species has; a population parameter selects one.</param>
+    /// <param name="VariantCount">How many corpse variants the species has.</param>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         EnemyReaction TouchAndShot,

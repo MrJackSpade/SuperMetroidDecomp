@@ -59,7 +59,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.AcidStatue),
         [
-            new(EnemyDefinitionId.Chozo, new(44, 154), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Variant: 1)),
+            new(EnemyDefinitionId.Chozo, new(44, 154), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.LowerNorfair)),
             new(EnemyDefinitionId.Magdollite, new(472, 728), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MagdolliteSpawnSettings(Part: MagdollitePart.Head, SpeedIndex: 32, Range: 240)),
             new(EnemyDefinitionId.Magdollite, new(472, 728), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MagdolliteSpawnSettings(Part: MagdollitePart.RisingBody, SpeedIndex: 0, Range: 0)),
             new(EnemyDefinitionId.Magdollite, new(472, 728), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MagdolliteSpawnSettings(Part: MagdollitePart.TrackingOverlay, SpeedIndex: 0, Range: 0)),

@@ -1,6 +1,9 @@
+using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Choot;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -14,6 +17,10 @@ internal static class EnemySpawnSelectorDefinitions
     /// <summary>An Atomic's spinning animation, by its first parameter.</summary>
     public static readonly AtomicProgram[] AtomicSpins =
         [AtomicProgram.UpRight, AtomicProgram.UpLeft, AtomicProgram.DownLeft, AtomicProgram.DownRight];
+
+    /// <summary>An Etecoon's route after its first landing, by its second parameter's low byte.</summary>
+    public static readonly EtecoonRoute[] EtecoonRoutes =
+        [EtecoonRoute.RunLeftToTeachingStart, EtecoonRoute.RunRightToTeachingStart, EtecoonRoute.TeachAtOnce];
 
     /// <summary>
     /// A Boyon's bounce speed multiplier, by its first parameter's low byte: the values double through the fourth, then
@@ -46,6 +53,12 @@ internal static class EnemySpawnSelectorDefinitions
     /// <summary>A Choot's falling path, by its first parameter's high byte.</summary>
     public static readonly ChootFallingPath[] ChootFallingPaths =
         [ChootFallingPath.Normal, ChootFallingPath.Wide, ChootFallingPath.VeryWide, ChootFallingPath.Slow, ChootFallingPath.VerySlow];
+
+    /// <summary>Which Chozo statue a placement is, by its second parameter halved.</summary>
+    public static readonly ChozoStatueSite[] ChozoStatueSites = [ChozoStatueSite.WreckedShip, ChozoStatueSite.LowerNorfair];
+
+    /// <summary>Which Tourian Sidehopper placement a dead Sidehopper is, by its first parameter halved.</summary>
+    public static readonly DeadSidehopperLayout[] DeadSidehopperLayouts = [DeadSidehopperLayout.ShitroidVictim, DeadSidehopperLayout.AlreadyDead];
 
     /// <summary>A Fireflea's radius in pixels, by its second parameter's high byte: eight pixels a step.</summary>
     public static readonly int[] FirefleaRadii = [8, 16, 24, 32, 40, 48, 56, 64];

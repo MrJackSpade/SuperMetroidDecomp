@@ -213,7 +213,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EtecoonIsWithinY(slot, samus, EtecoonActivationYDistance))
             return;
 
-        if ((state.Route & 3) == 0)
+        if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
         state.FunctionTimer = WrappingCountdown.Start(256);
@@ -398,7 +398,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
 
-    /// <summary>Selects one of the three authored post-landing routes from parameter two.</summary>
+    /// <summary>Takes the authored post-landing route.</summary>
     private static void RunEtecoonRouteAfterLanding(
         RoomEnemySlot slot,
         EtecoonEnemyState state)
@@ -409,24 +409,23 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         switch (state.Route)
         {
-            case 0:
+            case EtecoonRoute.RunLeftToTeachingStart:
                 state.Function = EtecoonAiFunction.MoveLeftToTeachingStart;
                 state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningLeft);
                 SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
                 break;
-            case 1:
+            case EtecoonRoute.RunRightToTeachingStart:
                 state.Function = EtecoonAiFunction.MoveRightToTeachingStart;
                 state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
-            case 2:
+            case EtecoonRoute.TeachAtOnce:
                 state.Function = EtecoonAiFunction.TeachingJump;
                 state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
             default:
-                throw new InvalidDataException(
-                    $"Etecoon route {state.Route} exceeds the retail three-entry table.");
+                throw new InvalidOperationException($"Undefined {nameof(EtecoonRoute)} {state.Route}.");
         }
         slot.FrameHold = WrappingCountdown.Start(1);
     }
@@ -538,7 +537,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.FunctionTimer = WrappingCountdown.Start(11);
             InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
-            state.Function = (state.Route & 2) != 0 &&
+            state.Function = state.Route == EtecoonRoute.TeachAtOnce &&
                 CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonLongRunMaximumX) < 0
                     ? EtecoonAiFunction.WaitForSamusBeforeLongRun
                     : EtecoonAiFunction.IdleBetweenTeachingJumps;
@@ -571,7 +570,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             // Route two therefore loops in groups of four rather than overflowing forever.
             state.TeachingHops = 0;
         }
-        if (fewerThanFourTeachingJumps || (state.Route & 2) != 0)
+        if (fewerThanFourTeachingJumps || state.Route == EtecoonRoute.TeachAtOnce)
         {
             state.Function = EtecoonAiFunction.TeachingJump;
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));

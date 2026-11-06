@@ -74,18 +74,17 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (slot.SpeciesState<DeadSidehopperEnemyState>() is not null)
             throw new InvalidDataException($"Dead sidehopper slot {slot.SlotIndex} was initialized twice.");
 
-        int variant = slot.SpawnSettings<CorpseSpawnSettings>().Variant;
-        switch (variant)
+        DeadSidehopperLayout layout = slot.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
+        switch (layout)
         {
-            case 0:
+            case DeadSidehopperLayout.ShitroidVictim:
                 InitializeShitroidVictimSidehopper(slot);
                 break;
-            case 1:
+            case DeadSidehopperLayout.AlreadyDead:
                 InitializeAlternateDeadSidehopper(slot);
                 break;
             default:
-                throw new InvalidDataException(
-                    $"Dead sidehopper variant {variant} is not authored by retail AI.");
+                throw new InvalidOperationException($"Undefined {nameof(DeadSidehopperLayout)} {layout}.");
         }
     }
 

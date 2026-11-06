@@ -22,14 +22,10 @@ public sealed class EtecoonEnemyState
     public EtecoonAiFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The authored route, parameter two's low byte: zero runs left and one right to the teaching start, two starts
-    /// teaching at once and loops its hops; route two also allows the long run.
+    /// The authored route it takes after its first landing. A kill empties the record, which leaves the first route,
+    /// <see cref="EtecoonRoute.RunLeftToTeachingStart"/>, as the game's emptied record does.
     /// </summary>
-    public int Route
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    public EtecoonRoute Route { get; internal set; }
 
     /// <summary>The updates an earthquake still suspends the Etecoon for, 0 through 255 (parameter two's high byte).</summary>
     public int QuakePauseFrames
@@ -78,7 +74,7 @@ public sealed class EtecoonEnemyState
         Velocity = FixedVector<RoomPixels>.Zero;
         FunctionTimer = WrappingCountdown.Start(0);
         Function = null;
-        Route = 0;
+        Route = EtecoonRoute.RunLeftToTeachingStart;
         QuakePauseFrames = 0;
         HeadingRight = false;
         TeachingHops = 0;

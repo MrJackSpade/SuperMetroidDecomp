@@ -66,7 +66,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.BowlingAlley0),
         [
-            new(EnemyDefinitionId.Chozo, new(1224, 394), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Variant: 0)),
+            new(EnemyDefinitionId.Chozo, new(1224, 394), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)),
             new(EnemyDefinitionId.Sbug, new(1227, 393), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: 194, ActivationRadius: 128, Behavior: 0)),
             new(EnemyDefinitionId.Sbug, new(1228, 380), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 4, InitialAngle: 220, ActivationRadius: 128, Behavior: 0)),
             new(EnemyDefinitionId.Sbug, new(1221, 388), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: 222, ActivationRadius: 128, Behavior: 0)),
@@ -141,7 +141,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.BowlingAlley1),
         [
-            new(EnemyDefinitionId.Chozo, new(1224, 394), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Variant: 0)),
+            new(EnemyDefinitionId.Chozo, new(1224, 394), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)),
             new(EnemyDefinitionId.Robot, new(752, 624), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: 0)),
             new(EnemyDefinitionId.Robot, new(880, 624), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: 0)),
         ], 2),

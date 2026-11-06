@@ -85,12 +85,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes either shipped statue.</summary>
     internal void InitializeChozoStatue(RoomEnemySlot statue)
     {
-        int variant = statue.SpawnSettings<ChozoStatueSpawnSettings>().Variant;
-        if (variant > 1)
+        ChozoStatueSite site = statue.SpawnSettings<ChozoStatueSpawnSettings>().Site;
+        bool isWreckedShip = site switch
         {
-            throw new InvalidDataException(
-                $"Chozo statue variant {variant} is outside its two-entry table.");
-        }
+            ChozoStatueSite.WreckedShip => true,
+            ChozoStatueSite.LowerNorfair => false,
+            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}."),
+        };
 
         // The initializer sets two named properties and the otherwise unnamed high bit. Keep the high bit raw:
         // no translated caller has proved a stable semantic name for that property yet.
@@ -105,12 +106,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer selects the common sprite colours and installs the statue's own colours over two of the room's
         // palettes; the statue's sheet is coloured as that selection shows it, and its draws show the statue's shade, which
         // no other enemy sharing those palettes takes (#1512).
-        statue.Shading = PictureShading.Shaded(variant == 0 ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
+        statue.Shading = PictureShading.Shaded(isWreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
         var state = new ChozoStatueState
         {
             FrameBehavior = ChozoStatueFrameBehavior.Idle,
-            IsWreckedShip = variant == 0,
+            IsWreckedShip = isWreckedShip,
             HandTriggered = false,
         };
         statue.SetSpeciesState(state, state.ClearWithRecord);

@@ -127,7 +127,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         Action<RoomEnemySlot> initialize = enemies.DeadTourianBehavior.InitializeDeadTourianCorpse;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(enemyDefinition, slot.Definition);
-        slot.SetSpawnParameter1(EnemyDefinitionId.CorpseZoomer, checked((ushort)(variantIndex * 2)));
+        slot.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));
 
         initialize(slot);
 

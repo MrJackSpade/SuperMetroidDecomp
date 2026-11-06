@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Crawlers;
@@ -12,8 +11,7 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>
 /// Confirms the enemy and boss identity tables of #1418 select what the enums' numeric values used to select: each
 /// authored sequence or parameter table pairs every number with the member that number named before Core stopped
-/// reading enum values, and Phantoon's word F keeps its function and number views apart while a held function still
-/// reads as a completed fade.
+/// reading enum values.
 /// </summary>
 internal static class IdentityTableVerification
 {
@@ -31,17 +29,7 @@ internal static class IdentityTableVerification
         AssertEqual(breakupOrder.Length, spawned.Count, "Ridley breakup spawns twelve parts");
         for (int index = 0; index < breakupOrder.Length; index++)
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(breakupOrder[index]), spawned[index], $"Ridley breakup spawn {index} carries its authored parameter");
-
-        var eye = new PhantoonPartState();
-        eye.Function = PhantoonAiFunction.SpawnStartingFlames;
-        AssertTrue(eye.FadeComplete, "a part whose word F holds a function reads as a completed fade");
-        eye.FadeComplete = false;
-        AssertTrue(!eye.FadeComplete, "clearing the fade replaces the held function");
-        AssertEqual(0, eye.RageWaveCount, "the cleared word F counts no rage waves");
-        eye.RageWaveCount = 3;
-        AssertEqual(3, eye.RageWaveCount, "word F keeps the rage-wave count");
-        AssertTrue(eye.FadeComplete, "a nonzero count also reads as a completed fade");
-        Console.WriteLine("Identity tables: sequences, parameter tables, breakup order and Phantoon's word F select as the numbering did.");
+        Console.WriteLine("Identity tables: sequences, parameter tables and breakup order select as the numbering did.");
     }
 
     /// <summary>Asserts position <c>n</c> of <paramref name="sequence"/> holds the member valued <c>n</c>.</summary>

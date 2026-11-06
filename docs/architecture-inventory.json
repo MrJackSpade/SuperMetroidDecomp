@@ -22478,12 +22478,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Fx.Layer3ClearedCellDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Fx/Layer3ClearedCellDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Fx/Layer3ClearedCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -33546,6 +33549,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Video/TilemapScreenGeometry.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Video.VramDmaDestination",
@@ -91177,14 +91193,14 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Menus.MenuLayer1Retention",
+      "type": "SuperMetroid.Core.Frontend.Menus.MenuCameraRetention",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuLayer1Retention.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuCameraRetention.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -104008,6 +104024,38 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.BackgroundLineScrollsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rendering/BackgroundLineScrollsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.BackgroundLineScrollsAccess.extension(SuperMetroid.Core.Rendering.BackgroundLineScrolls)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rendering/BackgroundLineScrollsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.BackgroundMosaicSamplingConstants",
       "kind": "static class",
       "scope": "test",
@@ -115399,6 +115447,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Scrolling.BackgroundAxisScroll",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/BackgroundAxisScroll.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/BackgroundScrollKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/BackgroundScrollModes.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode",
       "kind": "enum",
       "scope": "product",
@@ -115459,45 +115546,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Scrolling/InitialViewportResult.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Scrolling.Layer2AxisScroll",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/Layer2AxisScroll.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollKind",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/Layer2ScrollKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/Layer2ScrollModes.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -127014,19 +127062,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.BgPlaneConversions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/BgPlaneConversions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Spatial.ByteAngle",
       "kind": "record struct",
       "scope": "product",
@@ -127353,6 +127388,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Spatial/OverlaySubpixels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.PlaneConversions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/PlaneConversions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.PlanePixels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/PlanePixels.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -127734,19 +127795,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.TilePlanePixels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/TilePlanePixels.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Spatial.TilemapCells",

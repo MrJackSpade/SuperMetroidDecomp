@@ -1590,12 +1590,15 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition + 2), program,
                 "Original palette definition list pointer");
         }
+        // The glow programs are a plain list since #1418, which has no indexer of its own to bound.
         CheckEntries(CinematicGlowPaletteFxColorDefinitions.All,
             entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 2);
         CheckEntries(TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All,
             entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 2);
+        CheckComputedBounds(TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All, 2);
         CheckEntries(TourianStatueGreyPaletteFxColorToolingDefinitions.All,
             entry => new Project(entry.DefinitionPointer, entry.ProgramStart), 4);
+        CheckComputedBounds(TourianStatueGreyPaletteFxColorToolingDefinitions.All, 4);
         Console.WriteLine("Stream 5 palette entries: all eleven entry identities, original controls and collection bounds pass.");
 
         void CheckEntries<T>(IReadOnlyList<T> entries, Func<T, Project> project, int expectedCount)
@@ -1610,6 +1613,10 @@ internal static class LookupStream5Verification
                 index++;
             }
             AssertEqual(expectedCount, index, "All palette entries enumerated");
+        }
+        // A list that computes its entries rejects an index outside them itself.
+        static void CheckComputedBounds<T>(IReadOnlyList<T> entries, int expectedCount)
+        {
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[-1]; }, "Palette entries lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[expectedCount]; }, "Palette entries upper bound");
         }

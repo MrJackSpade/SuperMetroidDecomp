@@ -1907,7 +1907,7 @@ internal static class LookupStream1Verification
                 AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
                 AssertEqual(destination - tilemapWord, SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(actual.Cell), "escape text native cell");
                 AssertEqual(delay, actual.Delay, "escape text native delay");
-                AssertEqual(timer, actual.DelayTimer.RawValue, "escape text native countdown");
+                AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
                 AssertEqual(click, actual.ClickRequested, "escape text native click order");
                 AssertTrue(expectedVram.ImageEquals(actualVram), "escape text native per-character VRAM");

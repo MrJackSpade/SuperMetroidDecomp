@@ -334,7 +334,7 @@ internal sealed class CeresRidleyGetaway
         // The Ceres program types over the room's foreground (#1348).
         if (glyph is { } typed)
             _room.Services.WriteForegroundPicture(new WrittenPicture(typed.Picture, typed.Cell));
-        state.CeresEscapeTextDelayTimer = installed.DelayTimer;
+        state.CeresEscapeTextDelayTimer = WrappingCountdown.Start(installed.DelayTimer);
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);
         return completed;

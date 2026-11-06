@@ -123,15 +123,14 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         DragonEnemyState bodyState,
         SamusState? samus)
     {
-        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
-        if (!bodyState.FunctionTimer.IsNegative)
+        if (--bodyState.FunctionTimer >= 0)
             return;
         if (samus is null)
             throw new InvalidOperationException("Dragon facing selection requires the active Samus actor.");
 
         RoomEnemySlot wing = GetDragonWing(body);
         DragonEnemyState wingState = wing.RequireSpeciesState<DragonEnemyState>();
-        bodyState.FunctionTimer = WrappingCountdown.Start(DragonRiseOrSinkFrames);
+        bodyState.FunctionTimer = DragonRiseOrSinkFrames;
         bodyState.Function = DragonEnemyFunction.Rising;
 
         // The wait records the sign of (Samus X - body X) as the body's facing. The following byte-sized list
@@ -151,13 +150,12 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rises out of the lava.</summary>
     internal void RunDragonRising(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
-        if (bodyState.FunctionTimer.IsNegative)
+        if (--bodyState.FunctionTimer < 0)
         {
             bodyState.RequestedAnimation =
                 DragonPhases.AttackingWithSameFacing(
                     bodyState.RequestedAnimation);
-            bodyState.AttackCounter = WrappingCountdown.Start(DragonShotCount);
+            bodyState.AttackCounter = DragonShotCount;
             bodyState.Function = DragonEnemyFunction.Attacking;
         }
 
@@ -183,14 +181,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnDragonFireball(body, bodyState);
         // Each fireball queues one sound; two Dragons attacking in one frame queue two.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
-        bodyState.AttackCounter = bodyState.AttackCounter.Decrement().Remaining;
-        if (!bodyState.AttackCounter.IsZero)
+        if (--bodyState.AttackCounter != 0)
             return;
 
         bodyState.RequestedAnimation =
             DragonPhases.IdleWithSameFacing(
                 bodyState.RequestedAnimation);
-        bodyState.FunctionTimer = WrappingCountdown.Start(DragonWaitBeforeSinkFrames);
+        bodyState.FunctionTimer = DragonWaitBeforeSinkFrames;
         bodyState.Function = DragonEnemyFunction.WaitToSink;
     }
 
@@ -199,11 +196,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         DragonEnemyState bodyState)
     {
-        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
-        if (!bodyState.FunctionTimer.IsZero)
+        if (--bodyState.FunctionTimer != 0)
             return;
 
-        bodyState.FunctionTimer = WrappingCountdown.Start(DragonRiseOrSinkFrames);
+        bodyState.FunctionTimer = DragonRiseOrSinkFrames;
         bodyState.Function = DragonEnemyFunction.Sinking;
         InstallDragonAnimationScript(body, bodyState);
     }
@@ -211,10 +207,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sinks back into the lava.</summary>
     private void RunDragonSinking(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
-        if (bodyState.FunctionTimer.IsNegative)
+        if (--bodyState.FunctionTimer < 0)
         {
-            bodyState.FunctionTimer = WrappingCountdown.Start(DragonWaitBeforeRiseFrames);
+            bodyState.FunctionTimer = DragonWaitBeforeRiseFrames;
             bodyState.Function = DragonEnemyFunction.WaitToRise;
         }
 

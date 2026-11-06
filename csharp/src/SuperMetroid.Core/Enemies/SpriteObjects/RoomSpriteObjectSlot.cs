@@ -34,7 +34,7 @@ public sealed class RoomSpriteObjectSlot
     internal AnimationProgramCursor<RoomSpriteObjectProgram>? Cursor { get; set; }
 
     /// <summary>Updates left showing <see cref="Frame"/>; a held frame reloads the longest countdown.</summary>
-    public WrappingCountdown Timer { get; internal set; }
+    public int Timer { get; internal set; }
 
     /// <summary>The frame the object shows.</summary>
     internal RoomSpriteObjectFrame Frame { get; set; }

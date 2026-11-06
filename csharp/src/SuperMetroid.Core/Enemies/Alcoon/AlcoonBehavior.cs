@@ -59,8 +59,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
             case AlcoonCueKind.Step:
-                if (!state.StepCounter.IsZero)
-                    state.StepCounter = state.StepCounter.Decrement().Remaining;
+                if (state.StepCounter != 0)
+                    state.StepCounter--;
                 return MoveAlcoonHorizontally(slot, state, level);
             case AlcoonCueKind.Move:
                 return MoveAlcoonHorizontally(slot, state, level);
@@ -88,7 +88,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new AlcoonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        state.StepCounter = WrappingCountdown.Start(0);
+        state.StepCounter = 0;
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         state.Program = AnimationProgramCursor<AlcoonProgram>.Start(AlcoonProgram.WalkingLeft);
@@ -234,7 +234,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingRight);
         }
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
-        state.StepCounter = WrappingCountdown.Start(1);
+        state.StepCounter = 1;
     }
 
     /// <summary>Maintains floor contact, starts a retreat at the spawn-distance limit, or begins a forward volley.</summary>
@@ -268,7 +268,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!state.StepCounter.IsZero)
+        if (state.StepCounter != 0)
             return;
 
         bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
@@ -355,7 +355,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<int> readRandomNumber = _room.Random.Read;
         int count = readRandomNumber() & 3;
-        state.StepCounter = WrappingCountdown.FromRaw(count == 0 ? 2 : count);
+        state.StepCounter = count == 0 ? 2 : count;
         return state.Velocity.X.WholePixels < 0
             ? AlcoonProgram.WalkingLeft
             : AlcoonProgram.WalkingRight;

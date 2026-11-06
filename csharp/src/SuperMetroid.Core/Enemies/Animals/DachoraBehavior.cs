@@ -186,15 +186,14 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? DachoraProgram.BlinkRight
                 : DachoraProgram.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
-        state.StartBlinking(WrappingCountdown.Start(DachoraBlinkDuration));
+        state.StartBlinking(DachoraBlinkDuration);
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraActivationSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs the 120-frame warning countdown.</summary>
     private static void RunDachoraBlinking(RoomEnemySlot slot, DachoraEnemyState state)
     {
-        state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
-        if (!state.PhaseTimer.IsZero)
+        if (--state.PhaseTimer != 0)
             return;
 
         InstallDachoraInstruction(
@@ -259,7 +258,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         InstallDachoraInstruction(slot, state, DachoraProgram.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
-        state.StartCharging(WrappingCountdown.Start(DachoraChargeDuration));
+        state.StartCharging(DachoraChargeDuration);
         state.SetPaletteCycle(frame: 0, ticks: 0);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 8);
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraChargeSound, priority: SoundRequestPriority.Normal);
@@ -324,8 +323,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDachoraCharging(RoomEnemySlot slot, DachoraEnemyState state)
     {
         StepDachoraShinePalette(slot, state);
-        state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
-        if (!state.PhaseTimer.IsZero)
+        if (--state.PhaseTimer != 0)
             return;
 
         // The charge animation is asleep at its launch wait. Stepping past the sleep enters the same
@@ -335,9 +333,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DachoraAiFunction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
-        echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = WrappingCountdown.Start(0);
+        echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = 0;
         foreach (RoomEnemySlot echo in echoes)
-            echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = WrappingCountdown.Start(0);
+            echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = 0;
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 8);
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraLaunchSound, priority: SoundRequestPriority.Normal);
@@ -425,21 +423,21 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(body);
         DachoraEnemyState first = echoes[0].RequireSpeciesState<DachoraEnemyState>();
-        if (!first.EchoPositionTimer.IsZero)
+        if (first.EchoPositionTimer != 0)
         {
-            first.EchoPositionTimer = first.EchoPositionTimer.Decrement().Remaining;
+            first.EchoPositionTimer--;
             return;
         }
 
-        first.EchoPositionTimer = WrappingCountdown.Start(DachoraEchoPositionInterval);
+        first.EchoPositionTimer = DachoraEchoPositionInterval;
         foreach (RoomEnemySlot echo in echoes)
         {
             DachoraEnemyState echoState = echo.RequireSpeciesState<DachoraEnemyState>();
-            if (!echoState.EchoLifetime.IsZero)
+            if (echoState.EchoLifetime != 0)
                 continue;
 
             echo.Position = echo.Position.WithWhole(body.Position.Whole);
-            echoState.EchoLifetime = WrappingCountdown.Start(DachoraEchoLifetime);
+            echoState.EchoLifetime = DachoraEchoLifetime;
             return;
         }
     }
@@ -450,9 +448,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         int frameCounterByte)
     {
-        if (!state.EchoLifetime.IsZero)
+        if (state.EchoLifetime != 0)
         {
-            state.EchoLifetime = state.EchoLifetime.DecrementToZero();
+            state.EchoLifetime--;
             bool oddSlot = (slot.SlotIndex & 1) != 0;
             bool visible = oddSlot
                 ? (frameCounterByte & 1) != 0

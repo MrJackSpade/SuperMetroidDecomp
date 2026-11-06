@@ -330,7 +330,7 @@ internal static class NativeSnapshotImport
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);
-                pipe.RespawnDelay = WrappingCountdown.FromRaw(words.D);
+                pipe.RespawnDelay = unchecked((short)words.D);
                 pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(words.E, "recorded Pipe Bug requested animation");
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
                 pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(

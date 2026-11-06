@@ -151,7 +151,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // keeps: coordinates near the room's edge retain the same game behavior.
         if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
         {
-            state.RiseWaitTimer = WrappingCountdown.Start(KzanNtscRiseWaitFrames);
+            state.RiseWaitTimer = KzanNtscRiseWaitFrames;
             state.Function = KzanEnemyFunction.WaitingToRise;
             slot.Position = slot.Position.WithWholeY(state.FallingTarget.Y);
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Kzan, KzanLandingSound, priority: SoundRequestPriority.Normal);
@@ -168,8 +168,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts down the 64-frame NTSC landing hold before switching to ascent.</summary>
     private static void RunKzanWaitingToRise(KzanEnemyState state)
     {
-        state.RiseWaitTimer = state.RiseWaitTimer.Decrement().Remaining;
-        if (state.RiseWaitTimer.IsZero)
+        if (--state.RiseWaitTimer == 0)
             state.Function = KzanEnemyFunction.Rising;
     }
 

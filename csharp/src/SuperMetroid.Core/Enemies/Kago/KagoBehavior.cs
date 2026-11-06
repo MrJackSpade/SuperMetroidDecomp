@@ -56,7 +56,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
-        state.HitCounter = WrappingCountdown.Start(slot.SpawnSettings<KagoSpawnSettings>().HitCount);
+        state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
     }
 
     /// <summary>Ports <c>Kago_Main</c> and its one useful indirect target.</summary>
@@ -92,8 +92,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.FrameHold = WrappingCountdown.Start(1);
         }
 
-        state.HitCounter = state.HitCounter.Decrement().Remaining;
-        if (state.HitCounter.IsNegative)
+        if (--state.HitCounter < 0)
         {
             // Common shot AI can theoretically kill the 1600-health shell first with a
             // debug-edited projectile. Do not count the same death request twice.

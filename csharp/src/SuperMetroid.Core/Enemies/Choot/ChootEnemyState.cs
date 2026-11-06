@@ -26,7 +26,7 @@ public sealed class ChootEnemyState
     public int FallingPatternFrame { get; internal set; }
 
     /// <summary>Loop counter initialized to parameter one's low byte minus one, expiring when it decrements below zero.</summary>
-    public WrappingCountdown FallingPatternLoopCounter { get; internal set; }
+    public int FallingPatternLoopCounter { get; internal set; }
 
     /// <summary>The authored falling path the Choot follows after its apex; none once a kill has emptied the record.</summary>
     internal ChootFallingPath? FallingPath { get; set; }
@@ -50,7 +50,7 @@ public sealed class ChootEnemyState
     /// Parameter-two countdown. The jump begins only after decrementing through zero to
     /// below zero, so a population delay of zero launches on the first preparation frame.
     /// </summary>
-    public WrappingCountdown JumpDelayTimer { get; internal set; }
+    public int JumpDelayTimer { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()
@@ -58,7 +58,7 @@ public sealed class ChootEnemyState
         Function = null;
         YSpeedTableIndex = 0;
         FallingPatternFrame = 0;
-        FallingPatternLoopCounter = WrappingCountdown.Start(0);
+        FallingPatternLoopCounter = 0;
         FallingPath = null;
         FallingPatternYDistance = 0;
     }

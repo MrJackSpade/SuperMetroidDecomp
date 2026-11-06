@@ -97,16 +97,16 @@ public sealed class BullEnemyState
     }
 
     /// <summary>
-    /// Wrapping movement-delay counter initialized/reloaded to 16, with targeting selected when its decrement
+    /// Movement-delay countdown initialized/reloaded to 16, with targeting selected when its decrement
     /// reaches exactly zero.
     /// </summary>
-    public WrappingCountdown ActivationTimer { get; internal set; }
+    public int ActivationTimer { get; internal set; }
 
     /// <summary>
     /// Shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded
     /// from the current phase's reset value on exact-zero expiry.
     /// </summary>
-    public WrappingCountdown AccelerationIntervalTimer { get; internal set; }
+    public int AccelerationIntervalTimer { get; internal set; }
 
     /// <summary>Maximum-speed threshold in 256ths of a pixel per update, 1023 through 2815, selected by the spawn's speed setting; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
     public int MaxSpeed { get; internal set; }
@@ -143,7 +143,7 @@ public sealed class BullEnemyState
         Acceleration = 0;
         AccelerationDelta = 0;
         Speed = 0;
-        ActivationTimer = WrappingCountdown.Start(0);
-        AccelerationIntervalTimer = WrappingCountdown.Start(0);
+        ActivationTimer = 0;
+        AccelerationIntervalTimer = 0;
     }
 }

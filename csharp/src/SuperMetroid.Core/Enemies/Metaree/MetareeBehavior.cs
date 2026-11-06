@@ -51,7 +51,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new MetareeEnemyState
         {
-            BurrowTimer = WrappingCountdown.Start(0),
+            BurrowTimer = 0,
             Function = MetareeEnemyFunction.Idling,
             RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling,
             InstalledAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling,
@@ -152,7 +152,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The game reloads this every airborne frame. It becomes a countdown only after
         // the attachment probe reports the ground, which is why interrupted dives never age.
-        state.BurrowTimer = WrappingCountdown.Start(MetareeBurrowLifetimeNtsc);
+        state.BurrowTimer = MetareeBurrowLifetimeNtsc;
 
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
@@ -180,15 +180,14 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then shows the enemy projectile colours and deletes the actor.</summary>
     private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
     {
-        state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
-        if (state.BurrowTimer.IsZero)
+        if (--state.BurrowTimer == 0)
         {
             slot.Shading = EnemyShades.InEnemyProjectileColours;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;
         }
 
-        if (state.BurrowTimer.IsAt(MetareeParticleFrameNtsc))
+        if (state.BurrowTimer == MetareeParticleFrameNtsc)
             _projectiles.SpawnMetalParticleBurst(slot, MetareeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }

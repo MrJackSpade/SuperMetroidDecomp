@@ -19,12 +19,12 @@ internal static class DeadSidehopperRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<DeadSidehopperAiFunction>()[^1];
         state.PreRotDelayCounter = 1;
-        state.StateTimer = WrappingCountdown.Start(1);
+        state.StateTimer = 1;
 
         slot.Clear();
         AssertEqual<DeadSidehopperAiFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.PreRotDelayCounter, "a kill empties PreRotDelayCounter");
-        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.StateTimer, "a kill empties StateTimer");
+        AssertEqual(0, state.StateTimer, "a kill empties StateTimer");
         Console.WriteLine("DeadSidehopper record state: a kill empties every value the record holds.");
     }
 

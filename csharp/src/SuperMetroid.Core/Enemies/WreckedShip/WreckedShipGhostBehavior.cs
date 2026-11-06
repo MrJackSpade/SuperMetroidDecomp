@@ -59,7 +59,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         {
             Program = AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
             Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
-            PhaseTimer = WrappingCountdown.Start(WreckedShipGhostInitialDelay),
+            PhaseTimer = WreckedShipGhostInitialDelay,
         };
 
         // Retail clears the actor palette's target-buffer entries here. Its room fade then
@@ -117,11 +117,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// </summary>
     private static void RunWreckedShipGhostInitialDelay(WreckedShipGhostEnemyState state)
     {
-        state.PhaseTimer = state.PhaseTimer.DecrementToZero();
-        if (!state.PhaseTimer.IsZero)
+        state.PhaseTimer = Math.Max(0, state.PhaseTimer - 1);
+        if (state.PhaseTimer != 0)
             return;
 
-        state.PhaseTimer = WrappingCountdown.Start(1);
+        state.PhaseTimer = 1;
         state.FlickerTableOffset = 2;
         state.Function = WreckedShipGhostAiFunction.TrackingSamusForSpawn;
     }
@@ -150,8 +150,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         if (withinPreviousBox)
         {
-            state.StablePositionTimer = state.StablePositionTimer.Decrement().Remaining;
-            if (state.StablePositionTimer.IsZero)
+            if (--state.StablePositionTimer == 0)
             {
                 // Remaining inside the tiny box for 64 frames means "stationary" on both
                 // axes and therefore selects the central spawn offset.
@@ -163,7 +162,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         }
         else
         {
-            state.StablePositionTimer = WrappingCountdown.Start(WreckedShipGhostStablePositionDuration);
+            state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
             Offset16<RoomPixels> motion = samusPosition - state.PreviousSamusPosition;
             int horizontalClass = motion.X switch
             {
@@ -175,7 +174,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             if (horizontalClass != state.SpawnColumn)
             {
                 state.SpawnColumn = horizontalClass;
-                state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
+                state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
             }
             else
             {
@@ -189,12 +188,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 if (verticalClass != state.SpawnRow)
                 {
                     state.SpawnRow = verticalClass;
-                    state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
+                    state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
                 }
                 else
                 {
-                    state.StableDirectionTimer = state.StableDirectionTimer.Decrement().Remaining;
-                    if (state.StableDirectionTimer.IsZero)
+                    if (--state.StableDirectionTimer == 0)
                     {
                         SpawnWreckedShipGhost(slot, state, samusPosition);
                         return;
@@ -227,8 +225,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Position = slot.Position.WithWhole(samusPosition + WreckedShipGhostAppearance.SpawnOffset(
             state.SpawnRow * WreckedShipGhostMovementClassCount + state.SpawnColumn));
         state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
-        state.StablePositionTimer = WrappingCountdown.Start(WreckedShipGhostStablePositionDuration);
-        state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
+        state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
+        state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
     }
 
     /// <summary>Runs the white-flash ramp and its flicker helper.</summary>
@@ -257,7 +255,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         int componentsChanged = StepWreckedShipGhostPaletteTowardTarget(slot, state);
         AdvanceWreckedShipGhostFlicker(slot, state);
-        if (!state.PhaseTimer.IsZero || componentsChanged != 0)
+        if (state.PhaseTimer != 0 || componentsChanged != 0)
             return;
 
         // Clearing intangibility and invisibility makes the fully materialized ghost visible and eligible for the
@@ -266,7 +264,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
         state.Function = WreckedShipGhostAiFunction.BobbingWhileVisible;
         state.BobbingOrigin = new(0, slot.Position.Y.Whole);
-        state.PhaseTimer = WrappingCountdown.Start(WreckedShipGhostVisibleDuration);
+        state.PhaseTimer = WreckedShipGhostVisibleDuration;
         state.FlickerTableOffset = 2;
         state.VerticalVelocity = WreckedShipGhostInitialVerticalVelocity;
         state.SpawnColumn = WreckedShipGhostStationaryClass;
@@ -274,8 +272,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.PreviousSamusPosition = samus.Position.Whole;
         state.SamusLowerBound = samus.Position.Whole;
         state.SamusUpperBound = samus.Position.Whole;
-        state.StablePositionTimer = WrappingCountdown.Start(WreckedShipGhostStablePositionDuration);
-        state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
+        state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
+        state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
     }
 
     /// <summary>Runs the signed 16.16 oscillation and 120-frame visible lifetime.</summary>
@@ -290,8 +288,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             : -WreckedShipGhostVerticalAccelerationFraction;
         state.VerticalVelocity += SignedSixteenSixteen.FromRaw(acceleration);
 
-        state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
-        if (!state.PhaseTimer.IsZero)
+        if (--state.PhaseTimer != 0)
             return;
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
@@ -309,7 +306,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Function = WreckedShipGhostAiFunction.InitialInvisibleDelay;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.PhaseTimer = WrappingCountdown.Start(WreckedShipGhostVisibleDuration);
+        state.PhaseTimer = WreckedShipGhostVisibleDuration;
     }
 
     /// <summary>
@@ -320,10 +317,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        if (!state.PhaseTimer.IsZero)
+        if (state.PhaseTimer != 0)
         {
-            state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
-            if (!state.PhaseTimer.IsZero)
+            if (--state.PhaseTimer != 0)
                 return;
 
             int tableIndex = state.FlickerTableOffset / 2;
@@ -336,12 +332,12 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             int duration = WreckedShipGhostAppearance.FlickerDuration(tableIndex);
             if (duration < 0)
             {
-                state.PhaseTimer = WrappingCountdown.Start(0);
+                state.PhaseTimer = 0;
                 state.FlickerTableOffset = 0;
                 return;
             }
 
-            state.PhaseTimer = WrappingCountdown.Start(duration);
+            state.PhaseTimer = duration;
             int oldOffset = state.FlickerTableOffset;
             state.FlickerTableOffset = oldOffset + 2;
             if ((oldOffset & 2) != 0)

@@ -78,9 +78,7 @@ internal sealed class RoomSpriteObjectPool
         {
             if (!slot.IsActive || slot.UpdatesDisabled)
                 continue;
-            CountdownStep step = slot.Timer.Decrement();
-            slot.Timer = step.Remaining;
-            if (step.IsZero)
+            if (--slot.Timer == 0)
                 AdvanceProgram(slot);
         }
     }
@@ -101,11 +99,11 @@ internal sealed class RoomSpriteObjectPool
             case AnimationProgramAdvance<RoomSpriteObjectFrame>.Show shown:
                 slot.Cursor = cursor;
                 slot.Frame = shown.Frame;
-                slot.Timer = WrappingCountdown.Start(shown.Duration);
+                slot.Timer = shown.Duration;
                 return;
             case AnimationProgramAdvance<RoomSpriteObjectFrame>.Hold:
                 slot.Cursor = cursor;
-                slot.Timer = WrappingCountdown.FromRaw(short.MaxValue);
+                slot.Timer = short.MaxValue;
                 return;
             case AnimationProgramAdvance<RoomSpriteObjectFrame>.Stop:
                 slot.Clear();

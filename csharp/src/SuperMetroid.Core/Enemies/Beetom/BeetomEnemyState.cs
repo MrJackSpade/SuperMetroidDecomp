@@ -32,10 +32,10 @@ public sealed class BeetomEnemyState
     public int YSpeedTableIndex { get; internal set; }
     /// <summary>The per-update behaviour, including separate decision and setup updates; none once a kill has emptied the record.</summary>
     public BeetomEnemyFunction? Function { get; internal set; }
-    /// <summary>Idle/crawl countdown in gameplay updates; expiration tests the decrement's sign, not equality with zero.</summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
+    public int FunctionTimer { get; internal set; }
     /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>
-    public WrappingCountdown ButtonCounter { get; internal set; }
+    public int ButtonCounter { get; internal set; }
     /// <summary>Controller input last observed by initialization or the attached counter; any differing input, including releases, decrements <see cref="ButtonCounter"/>.</summary>
     public ControllerButton PreviousController1Input { get; internal set; }
     /// <summary>Where the typed animation (#641) resumes; installation also resets the common instruction timer and loop counter.</summary>
@@ -80,8 +80,8 @@ public sealed class BeetomEnemyState
     {
         YSpeedTableIndex = 0;
         Function = null;
-        FunctionTimer = WrappingCountdown.Start(0);
-        ButtonCounter = WrappingCountdown.Start(0);
+        FunctionTimer = 0;
+        ButtonCounter = 0;
         PreviousController1Input = ControllerButton.None;
     }
 }

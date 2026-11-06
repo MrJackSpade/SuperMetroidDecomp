@@ -216,13 +216,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
-        slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer.RemainingFrames);
+        slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer);
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 
-        CountdownStep escapeStep = state.EscapeTimer.Decrement();
-        state.EscapeTimer = escapeStep.Remaining;
-        if (!escapeStep.IsZero)
+        if (--state.EscapeTimer != 0)
             return;
 
         state.Function = MetroidAiFunction.Homing;
@@ -233,9 +231,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunMetroidFrozen(RoomEnemySlot slot)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        if (!state.EscapeTimer.IsZero)
+        if (state.EscapeTimer != 0)
         {
-            state.EscapeTimer = state.EscapeTimer.Decrement().Remaining;
+            state.EscapeTimer--;
             slot.FlashTimer = WrappingCountdown.Start(2);
         }
 
@@ -371,7 +369,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state,
         SamusState? samus)
     {
-        state.EscapeTimer = WrappingCountdown.Start(MetroidEscapeDuration);
+        state.EscapeTimer = MetroidEscapeDuration;
         state.Function = MetroidAiFunction.PowerBombEscape;
         SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
         if (samus is not null)

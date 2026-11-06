@@ -113,7 +113,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.FunctionTimer = WrappingCountdown.Start(EyeTransitionDuration);
+        state.FunctionTimer = EyeTransitionDuration;
         eye.FrameHold = WrappingCountdown.Start(1);
         state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeProgram.FacingRightActivating
@@ -121,17 +121,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
-    /// <summary>Uses decrement/wrap semantics, then sounds activation, requests the beam, and captures Samus's angle.</summary>
+    /// <summary>Counts the opening down, then sounds activation, requests the beam, and captures Samus's angle.</summary>
     private void AdvanceMorphBallEyeActivation(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        // DEC followed by BEQ/BPL expires on zero and also tolerates an already-zero timer's
-        // wrapped -1 value. This is deliberately not a host-side "if timer > 0" clamp.
-        CountdownStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
-        if (!timer.IsZero && timer.IsNonNegative)
+        // The step expires on reaching zero and also on going below it, so an already-zero timer expires on its
+        // step to -1. This is deliberately not a test before the step.
+        if (--state.FunctionTimer > 0)
             return;
 
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MorphBallEye, EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
@@ -153,7 +151,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MorphBallEye, EnemySoundEffectDefinitions.EyeDeactivationSound, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
-            state.FunctionTimer = WrappingCountdown.Start(EyeTransitionDuration);
+            state.FunctionTimer = EyeTransitionDuration;
             state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeProgram.FacingRightDeactivating
                 : MorphBallEyeProgram.FacingLeftDeactivating);
@@ -171,12 +169,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         eye.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Returns to waiting when the closing word reaches zero or a negative wrapped value.</summary>
+    /// <summary>Returns to waiting when the closing countdown reaches zero or goes below it.</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
-        CountdownStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
-        if (timer.IsZeroOrNegative)
+        if (--state.FunctionTimer <= 0)
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }
 

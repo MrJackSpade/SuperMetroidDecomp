@@ -23,7 +23,7 @@ internal static class BullShotReactionGuardVerification
         BullEnemyState state = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous)
         {
             Function = BullEnemyFunction.MovementDelay,
-            ActivationTimer = WrappingCountdown.Start(100),
+            ActivationTimer = 100,
             ShotReactionDisabled = true,
         });
 

@@ -51,7 +51,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PuyoEnemyState
         {
             YSpeedTableIndex = 0,
-            HopCooldownTimer = WrappingCountdown.Start(slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown),
+            HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
             Function = PuyoEnemyFunction.Grounded,
             // InitAI never writes the airborne function or the inactive extended words. The room loader's
             // cleared enemy allocation therefore leaves them empty until InitiateHop owns
@@ -102,12 +102,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // DEC followed by BPL means a zero cooldown waits one frame and then wraps to FFFF
         // before hopping. This is not equivalent to a conventional "if timer != 0" test.
-        state.HopCooldownTimer = state.HopCooldownTimer.Decrement().Remaining;
-        if (!state.HopCooldownTimer.IsNegative)
+        if (--state.HopCooldownTimer >= 0)
             return;
 
         state.Function = PuyoEnemyFunction.Airborne;
-        state.HopCooldownTimer = WrappingCountdown.Start(slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown);
+        state.HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown;
         state.HoppingAnimationActive = true;
         InitiatePuyoHop(slot, state, samus);
     }

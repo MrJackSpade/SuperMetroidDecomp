@@ -13,13 +13,13 @@ internal static class SparkTimerVerification
     /// </summary>
     internal static void VerifySparkTimer()
     {
-        var state = new SparkEnemyState { FunctionTimer = WrappingCountdown.Start(1) };
+        var state = new SparkEnemyState { FunctionTimer = 1 };
         AssertTrue(SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at one expires");
-        AssertEqual((ushort)1, state.FunctionTimer.RawValue, "the expiring update leaves the countdown for its reset");
+        AssertEqual(1, state.FunctionTimer, "the expiring update leaves the countdown for its reset");
 
-        state.FunctionTimer = WrappingCountdown.Start(0);
+        state.FunctionTimer = 0;
         AssertTrue(!SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at zero does not expire");
-        AssertEqual(ushort.MaxValue, state.FunctionTimer.RawValue, "a countdown at zero wraps");
+        AssertEqual(-1, state.FunctionTimer, "a countdown at zero steps below zero");
 
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -27,7 +27,7 @@ internal static class SparkTimerVerification
         state.BaseFunctionTime = 0x8000;
         slot.SetSpeciesState(state, state.ClearWithRecord);
         slot.Clear();
-        AssertEqual(new VerifySparkTimerCase(0, 0), new VerifySparkTimerCase(state.BaseFunctionTime, state.FunctionTimer.RawValue), "a kill empties the base time and countdown");
+        AssertEqual(new VerifySparkTimerCase(0, 0), new VerifySparkTimerCase(state.BaseFunctionTime, checked((ushort)state.FunctionTimer)), "a kill empties the base time and countdown");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Spark timer: the expiry, the zero wrap and the cleared record match.");
     }

@@ -40,8 +40,8 @@ public sealed class BoulderEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Variable D. Its deliberate zero-to-minus-one underflow ends the bounce phase.</summary>
-    public WrappingCountdown BounceCounter { get; internal set; }
+    /// <summary>The bounces left; the impact that takes it from zero to minus one ends the bounce phase.</summary>
+    public int BounceCounter { get; internal set; }
 
     /// <summary>How the boulder rolls, as its population entry names it; emptied with the record to rolling right.</summary>
     public BoulderRoll Roll { get; internal set; }
@@ -73,7 +73,7 @@ public sealed class BoulderEnemyState
         Function = null;
         TravelSpeedAccumulator = 0;
         BounceSpeedAccumulator = 0;
-        BounceCounter = WrappingCountdown.Start(0);
+        BounceCounter = 0;
         Roll = BoulderRoll.Right;
     }
 }

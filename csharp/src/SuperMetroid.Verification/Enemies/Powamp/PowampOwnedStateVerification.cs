@@ -34,7 +34,7 @@ internal static class PowampOwnedStateVerification
         AssertEqual(PowampEnemyFunction.DeflatedResting, bodyState.Function, "the body starts resting");
 
         bodyState.Function = PowampEnemyFunction.Inflating;
-        bodyState.FunctionTimer = WrappingCountdown.Start(1);
+        bodyState.FunctionTimer = 1;
         enemies.PowampBehavior.RunPowampMain(body, bodyState, null);
         AssertEqual(PowampEnemyFunction.InflatedRiseToTargetHeight, bodyState.Function, "inflation finishes");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");

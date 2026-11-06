@@ -51,7 +51,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         // The hook names the glow frame every Magdollite shows (#1512); the frame's colours are the import's shade.
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
-        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
+        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = 8;
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
@@ -77,8 +77,8 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             "the Magdollite glow cycle does not change enemy health");
         AssertEqual(xBefore, untouched.Position.X.Whole,
             "the Magdollite glow cycle does not change enemy position");
-        AssertEqual((ushort)8,
-            enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer.RawValue,
+        AssertEqual(8,
+            enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer,
             "the Magdollite glow keeps the eight-tick cadence");
 
         document.Frames[1][0] = original with { Red = 32 };

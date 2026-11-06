@@ -59,14 +59,14 @@ public sealed class MaridiaLargeSnailEnemyState
         internal set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value);
     }
 
-    /// <summary>Signed-underflow attack cooldown, initialized to 128.</summary>
-    public WrappingCountdown AttackCooldown { get; internal set; }
+    /// <summary>Attack cooldown, initialized to 128 and expiring when it steps below zero.</summary>
+    public int AttackCooldown { get; internal set; }
 
     /// <summary>Whether the snail moves left rather than right.</summary>
     public bool MovingLeft { get; internal set; }
 
     /// <summary>Remaining landing impacts before Oum is settled.</summary>
-    public WrappingCountdown RemainingBounces { get; internal set; }
+    public int RemainingBounces { get; internal set; }
 
     /// <summary>Falling/rising half of the quadratic bounce; none once a kill has emptied the record.</summary>
     public MaridiaLargeSnailBounceFunction? BounceFunction { get; internal set; }
@@ -76,9 +76,9 @@ public sealed class MaridiaLargeSnailEnemyState
     {
         Function = null;
         YSpeedTableIndex = 0;
-        AttackCooldown = WrappingCountdown.Start(0);
+        AttackCooldown = 0;
         MovingLeft = false;
-        RemainingBounces = WrappingCountdown.Start(0);
+        RemainingBounces = 0;
         BounceFunction = null;
     }
 }

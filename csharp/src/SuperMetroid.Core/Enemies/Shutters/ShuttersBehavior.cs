@@ -60,7 +60,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         GrowingShutterSpawnSettings settings = slot.SpawnSettings<GrowingShutterSpawnSettings>();
         var state = new GrowingShutterEnemyState(slot)
         {
-            ActivationTimer = WrappingCountdown.Start(settings.ActivationWait),
+            ActivationTimer = settings.ActivationWait,
             ActivationDistance = settings.ActivationDistance,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -151,9 +151,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state)
     {
-        if (state.ActivationTimer.IsZero)
+        if (state.ActivationTimer == 0)
             return true;
-        state.ActivationTimer = state.ActivationTimer.DecrementToZero();
+        state.ActivationTimer = Math.Max(0, state.ActivationTimer - 1);
         return false;
     }
 

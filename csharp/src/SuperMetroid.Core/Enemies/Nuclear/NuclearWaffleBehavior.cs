@@ -45,7 +45,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         NuclearWaffleSpawnSettings settings = slot.SpawnSettings<NuclearWaffleSpawnSettings>();
         state.OrbitRadius = settings.OrbitRadius;
         state.WaitingTimerReset = settings.WaitTime;
-        state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
+        state.WaitingTimer = state.WaitingTimerReset;
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 
         NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(settings.Direction);
@@ -94,12 +94,10 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
     {
-        CountdownStep step = state.WaitingTimer.Decrement();
-        state.WaitingTimer = step.Remaining;
-        if (!step.IsNegative)
+        if (--state.WaitingTimer >= 0)
             return;
 
-        state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
+        state.WaitingTimer = state.WaitingTimerReset;
         state.SweepAngle = SignedSixteenSixteen.FromParts(state.SweepStartAngle, 0);
         state.Function = NuclearWaffleEnemyFunction.Sweeping;
         state.HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;

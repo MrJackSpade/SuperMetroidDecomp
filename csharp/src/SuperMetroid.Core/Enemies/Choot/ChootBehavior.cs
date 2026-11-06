@@ -84,16 +84,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(distance, ChootActivationDistance) >= 0)
             return;
 
-        state.JumpDelayTimer = WrappingCountdown.Start(slot.SpawnSettings<ChootSpawnSettings>().JumpDelay);
+        state.JumpDelayTimer = slot.SpawnSettings<ChootSpawnSettings>().JumpDelay;
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
     /// <summary>Decrements the delay word until it turns negative, then starts the jumping instruction list.</summary>
     internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
-        CountdownStep timer = state.JumpDelayTimer.Decrement();
-        state.JumpDelayTimer = timer.Remaining;
-        if (timer.IsNonNegative)
+        if (--state.JumpDelayTimer >= 0)
             return;
 
         SetChootProgram(slot, state, ChootProgram.Jumping);
@@ -117,9 +115,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
-        // A population loop count of zero wraps to 65535 loops, as the game's decrement of the loaded count does.
-        state.FallingPatternLoopCounter = WrappingCountdown.Start(slot.SpawnSettings<ChootSpawnSettings>().PatternLoops)
-            .Decrement().Remaining;
+        // A population loop count of zero starts below zero, so the fall ends at the first terminator as a count of one does.
+        state.FallingPatternLoopCounter = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
         SetChootProgram(slot, state, ChootProgram.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }
@@ -135,8 +132,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FallingOrigin = state.FallingOrigin.WithY(CoordinateAxis.Wrap(
                 state.FallingOrigin.Y + state.FallingPatternYDistance));
             state.FallingPatternFrame = 0;
-            state.FallingPatternLoopCounter = state.FallingPatternLoopCounter.Decrement().Remaining;
-            if (!state.FallingPatternLoopCounter.IsNegative)
+            if (--state.FallingPatternLoopCounter >= 0)
                 return;
 
             // The last terminator restores exact spawn coordinates/subpositions, reinstalls

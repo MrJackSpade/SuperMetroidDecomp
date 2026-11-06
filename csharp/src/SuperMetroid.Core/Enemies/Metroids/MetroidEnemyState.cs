@@ -26,7 +26,7 @@ public sealed class MetroidEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Variable E; four-frame escape timer and frozen-shake countdown.</summary>
-    public WrappingCountdown EscapeTimer { get; internal set; }
+    public int EscapeTimer { get; internal set; }
 
     /// <summary>Zero-based movement dispatcher index 0..3, not an AI routine pointer.</summary>
     public MetroidAiFunction Function { get; internal set; }
@@ -73,7 +73,7 @@ public sealed class MetroidEnemyState
     {
         IceDamageToFreeze = 0;
         Velocity = FixedVector<RoomPixels>.Zero;
-        EscapeTimer = WrappingCountdown.Start(0);
+        EscapeTimer = 0;
         Function = default;
     }
 }

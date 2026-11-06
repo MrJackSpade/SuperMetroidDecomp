@@ -21,7 +21,7 @@ public sealed class KagoEnemyState
     /// Extra enemy word four. The game decrements first and dies only when the signed result
     /// is negative, so population value ten permits eleven accepted shots.
     /// </summary>
-    public WrappingCountdown HitCounter { get; internal set; }
+    public int HitCounter { get; internal set; }
 
     /// <summary>Set after Kago requests death animation variant four.</summary>
     public bool DeathAnimationStarted { get; internal set; }

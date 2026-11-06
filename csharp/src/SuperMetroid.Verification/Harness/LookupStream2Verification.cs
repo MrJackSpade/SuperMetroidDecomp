@@ -168,7 +168,7 @@ internal static class LookupStream2Verification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Shading = PictureShading.Standard;
-        var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
+        var state = new WreckedShipGhostEnemyState { PhaseTimer = 2 };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
@@ -1517,33 +1517,33 @@ internal static class LookupStream2Verification
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAiFunction.BrighteningAndFlickering, state.Function, "Ghost appearance phase");
-            AssertEqual((ushort)64, state.StablePositionTimer.RawValue, "Ghost appearance position timer");
-            AssertEqual((ushort)16, state.StableDirectionTimer.RawValue, "Ghost appearance direction timer");
+            AssertEqual(64, state.StablePositionTimer, "Ghost appearance position timer");
+            AssertEqual(16, state.StableDirectionTimer, "Ghost appearance direction timer");
         }
         for (int offset = 0; offset < 34; offset++)
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
             AssertEqual(original, WreckedShipGhostAppearance.FlickerDuration(offset / 2), "Ghost original flicker interval");
             slot.Properties = (EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
-            state.PhaseTimer = WrappingCountdown.Start(1);
+            state.PhaseTimer = 1;
             state.FlickerTableOffset = offset;
             flicker(slot, state);
-            AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
+            AssertEqual(original < 0 ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
             AssertEqual(original < 0 ? 0 : offset + 2, state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
             AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost actual visibility preserves unrelated flags");
         }
-        state.PhaseTimer = WrappingCountdown.Start(2);
+        state.PhaseTimer = 2;
         state.FlickerTableOffset = 2;
         slot.Properties = (EnemyProperties.Invisible);
         flicker(slot, state);
-        AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
+        AssertEqual(1, state.PhaseTimer, "Ghost interval countdown");
         AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
         AssertEqual((ushort)EnemyProperties.Invisible, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost no early visibility change");
-        state.PhaseTimer = WrappingCountdown.Start(0);
+        state.PhaseTimer = 0;
         flicker(slot, state);
         AssertEqual(0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost terminal next call clears invisibility");
-        state.PhaseTimer = WrappingCountdown.Start(1);
+        state.PhaseTimer = 1;
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
         state.SpawnColumn = 3;

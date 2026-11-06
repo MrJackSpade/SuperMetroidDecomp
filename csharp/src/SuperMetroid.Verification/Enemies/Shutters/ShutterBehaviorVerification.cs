@@ -156,14 +156,14 @@ internal static class ShutterBehaviorVerification
     {
         var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         var state = new GrowingShutterEnemyState(slot);
-        state.ActivationTimer = WrappingCountdown.FromRaw(2);
+        state.ActivationTimer = 2;
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
-        AssertEqual(WrappingCountdown.Start(1), state.ActivationTimer, "the first call counts the wait down by one");
+        AssertEqual(1, state.ActivationTimer, "the first call counts the wait down by one");
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its second call");
         AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait activates on its third call");
-        AssertEqual(WrappingCountdown.Start(0), state.ActivationTimer, "activation leaves the wait expired");
+        AssertEqual(0, state.ActivationTimer, "activation leaves the wait expired");
         AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "an expired wait activates again rather than wrapping");
-        AssertEqual(0, state.ActivationTimer.RawValue, "an expired wait stays zero");
+        AssertEqual(0, state.ActivationTimer, "an expired wait stays zero");
     }
 
     /// <summary>

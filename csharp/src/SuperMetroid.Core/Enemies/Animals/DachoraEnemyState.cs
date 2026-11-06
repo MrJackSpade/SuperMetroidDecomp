@@ -31,11 +31,11 @@ public sealed class DachoraEnemyState
     /// </summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>While blinking or charging: the wrapping countdown to the next phase, which ends when it reaches zero.</summary>
-    public WrappingCountdown PhaseTimer { get; internal set; }
+    /// <summary>While blinking or charging: the updates left in the phase, which ends when they reach zero.</summary>
+    public int PhaseTimer { get; internal set; }
 
     /// <summary>On the first echo: frames until the echo positions next advance.</summary>
-    public WrappingCountdown EchoPositionTimer { get; internal set; }
+    public int EchoPositionTimer { get; internal set; }
 
     /// <summary>
     /// On the body during the shinespark: the signed 16.16 vertical acceleration per update, which gravity accumulates
@@ -47,14 +47,14 @@ public sealed class DachoraEnemyState
     /// On an echo: the updates the echo stays visible, counted down to zero and never below it; zero marks the echo free
     /// for the next trail position.
     /// </summary>
-    public WrappingCountdown EchoLifetime { get; internal set; }
+    public int EchoLifetime { get; internal set; }
 
     /// <summary>
     /// Starts the warning countdown before the first run. The run that follows starts from rest: the game counts
     /// the countdown in the place of the speed's whole pixels, which the countdown leaves at zero, and keeps the fraction.
     /// </summary>
     /// <param name="duration">The countdown, in updates.</param>
-    internal void StartBlinking(WrappingCountdown duration)
+    internal void StartBlinking(int duration)
     {
         PhaseTimer = duration;
         Speed = Speed.WithWholePixels(0);
@@ -65,7 +65,7 @@ public sealed class DachoraEnemyState
     /// in the place of the speed's whole pixels, which the countdown leaves at zero, and clears the fraction.
     /// </summary>
     /// <param name="duration">The countdown, in updates.</param>
-    internal void StartCharging(WrappingCountdown duration)
+    internal void StartCharging(int duration)
     {
         PhaseTimer = duration;
         Speed = SignedSixteenSixteen.Zero;
@@ -131,10 +131,10 @@ public sealed class DachoraEnemyState
     {
         FacingRight = false;
         Speed = SignedSixteenSixteen.Zero;
-        PhaseTimer = WrappingCountdown.Start(0);
-        EchoPositionTimer = WrappingCountdown.Start(0);
+        PhaseTimer = 0;
+        EchoPositionTimer = 0;
         VerticalAcceleration = SignedSixteenSixteen.Zero;
-        EchoLifetime = WrappingCountdown.Start(0);
+        EchoLifetime = 0;
         _paletteCycle = 0;
         Function = null;
     }

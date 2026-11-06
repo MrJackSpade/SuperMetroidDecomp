@@ -77,11 +77,11 @@ internal static class DachoraMotionStateVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: ushort.MaxValue);
             AssertEqual(DachoraAiFunction.Echo, state.Function, "a negative parameter makes an echo");
-            state.EchoLifetime = WrappingCountdown.Start(lifetime);
+            state.EchoLifetime = lifetime;
 
             enemies.DachoraBehavior.RunDachoraMainAi(slot, frame);
 
-            AssertEqual(WrappingCountdown.Start(expected), state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
+            AssertEqual(expected, state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, slot.Properties.HasAny(EnemyProperties.Invisible), $"echo lifetime {lifetime} visibility");
         }
         Console.WriteLine("  Dachora echo lifetime: counts down to zero and stays there, hiding the echo.");

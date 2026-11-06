@@ -68,7 +68,7 @@ public sealed class DeadSidehopperEnemyState
     /// The countdown initialized to 64 for the post-landing pause; expiry requires decrementing through zero
     /// to -1, giving 65 delay-state calls.
     /// </summary>
-    public WrappingCountdown StateTimer { get; internal set; }
+    public int StateTimer { get; internal set; }
 
     /// <summary>Host diagnostic count of shared rotting-processor calls for this slot since initialization, including the call that completes the final entry.</summary>
     public uint ProcessCallCount { get; internal set; }
@@ -86,6 +86,6 @@ public sealed class DeadSidehopperEnemyState
     {
         Function = null;
         PreRotDelayCounter = 0;
-        StateTimer = WrappingCountdown.Start(0);
+        StateTimer = 0;
     }
 }

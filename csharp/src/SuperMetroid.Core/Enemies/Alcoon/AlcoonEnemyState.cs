@@ -48,7 +48,7 @@ public sealed class AlcoonEnemyState
     public Position16<RoomPixels> LandingPosition { get; internal set; }
 
     /// <summary>Number of four-step walking cycles remaining before another fire volley.</summary>
-    public WrappingCountdown StepCounter { get; internal set; }
+    public int StepCounter { get; internal set; }
 
     /// <summary>
     /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: no

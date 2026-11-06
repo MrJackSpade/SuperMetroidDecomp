@@ -15,7 +15,7 @@ public sealed class WreckedShipGhostEnemyState
     public WreckedShipGhostAiFunction? Function { get; internal set; }
 
     /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Function"/>.</summary>
-    public WrappingCountdown PhaseTimer { get; internal set; }
+    public int PhaseTimer { get; internal set; }
 
     /// <summary>
     /// The flicker-duration table's byte offset, two per interval, 0 through 65535. It starts at two, steps by two with
@@ -32,7 +32,7 @@ public sealed class WreckedShipGhostEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        PhaseTimer = WrappingCountdown.Start(0);
+        PhaseTimer = 0;
         FlickerTableOffset = 0;
     }
 
@@ -65,10 +65,10 @@ public sealed class WreckedShipGhostEnemyState
     public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
     /// <summary>64-frame timer while Samus remains nearly still.</summary>
-    public WrappingCountdown StablePositionTimer { get; internal set; }
+    public int StablePositionTimer { get; internal set; }
 
     /// <summary>16-frame timer while Samus keeps one direction.</summary>
-    public WrappingCountdown StableDirectionTimer { get; internal set; }
+    public int StableDirectionTimer { get; internal set; }
 
     /// <summary>
     /// The ghost's fading colours and the target its fade moves toward (#1512): the compatibility value whose step

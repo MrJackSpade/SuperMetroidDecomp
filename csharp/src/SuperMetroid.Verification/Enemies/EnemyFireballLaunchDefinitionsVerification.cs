@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -7,15 +8,14 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>Checks compiled Alcoon and NamiFune fireball launch velocities against native words.</summary>
 internal static class EnemyFireballLaunchDefinitionsVerification
 {
-    /// <summary>Checks Alcoon's three signed launch words and rejects odd or out-of-range offsets.</summary>
+    /// <summary>Checks Alcoon's upward, level and downward launches against the three authored vertical velocities.</summary>
     private static void VerifyAlcoonVerticalLaunchMapping(SuperMetroidAddressSpace rom)
     {
-        for (ushort offset = 0; offset <= 4; offset += 2)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x869ef9 + offset)),
-                EnemyFireballLaunches.AlcoonYVelocity(offset), "Alcoon native signed8.8 launch");
-        foreach (ushort offset in new ushort[] { 1, 3, 5, 6, 0x100, 0x102, 0x104, 0xffff })
-            AssertThrows<InvalidDataException>(() => EnemyFireballLaunches.AlcoonYVelocity(offset),
-                "Alcoon rejects odd, out-of-range and high-byte selectors");
+        AlcoonFireballLaunch[] launches =
+            [AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward];
+        for (int record = 0; record < launches.Length; record++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x869ef9 + record * 2),
+                launches[record].YVelocity.RawValue, "Alcoon launch vertical velocity");
     }
 
     /// <summary>Checks NamiFune's leftward velocity member across all high-byte aliases.</summary>
@@ -50,6 +50,6 @@ internal static class EnemyFireballLaunchDefinitionsVerification
         Suite(nameof(VerifyAlcoonVerticalLaunchMapping), () => VerifyAlcoonVerticalLaunchMapping(rom));
         Suite(nameof(VerifyNamiFuneLeftLaunchMapping), () => VerifyNamiFuneLeftLaunchMapping(rom));
         Suite(nameof(VerifyNamiFuneRightLaunchMapping), () => VerifyNamiFuneRightLaunchMapping(rom));
-        Console.WriteLine("Enemy fireball launches: three independent mappings, 19 native words, 2048 valid parameter aliases and invalid selectors pass.");
+        Console.WriteLine("Enemy fireball launches: three independent mappings, 19 native words, 2048 valid parameter aliases and invalid NamiFune selectors pass.");
     }
 }

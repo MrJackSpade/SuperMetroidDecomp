@@ -36,7 +36,7 @@ internal static class FrozenMetroidShellVerification
         shell.Cursor = new(RoomSpriteObjectProgram.MetroidShell, 2);
         var shown = AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[1], "second shell step");
         shell.Frame = shown.Frame;
-        shell.Timer = WrappingCountdown.Start(shown.Duration);
+        shell.Timer = shown.Duration;
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         var actual = new OamBuffer();
         actual.BeginFrame();

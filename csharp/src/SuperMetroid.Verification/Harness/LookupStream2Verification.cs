@@ -1181,7 +1181,7 @@ internal static class LookupStream2Verification
                 foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
                     AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
-                    AssertEqual(sides.First.FrameHold.RawValue, sides.Second.FrameHold.RawValue, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
                     AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }

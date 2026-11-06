@@ -70,7 +70,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
 
     /// <summary>Creates a Mother Brain actor with installed colors.</summary>
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(MotherBrainRainbowPalettePresentation colors) =>
-        new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
+        new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
 
     /// <summary>
     /// The colours Mother Brain's sprites show over black: the import's shades of <paramref name="colors"/>, laid as her

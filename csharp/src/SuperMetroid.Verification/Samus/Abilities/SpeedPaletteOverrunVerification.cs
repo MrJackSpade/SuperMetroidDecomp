@@ -48,7 +48,7 @@ internal static class SpeedPaletteOverrunVerification
                 AssertEqual(expected, samusColours.ShownSuit(overrunSources)[color], $"phase {phase} native overrun color {color}");
             }
             AssertEqual(SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep, speed.CyclePaletteStep, "native clamps the step only after the overrun read");
-            AssertEqual((ushort)4, speed.SpecialPaletteTimer, "native reloads the four-frame timer");
+            AssertEqual(4, speed.SpecialPaletteTimer, "native reloads the four-frame timer");
             string actualTrace = $"{phase},{speed.CyclePaletteStep * sizeof(ushort)},{speed.SpecialPaletteTimer}," +
                 string.Concat(samusColours.ShownSuit(overrunSources).SelectToArray(color => color.ToWord().ToString("X4")));
             AssertEqual(nativeTrace[traceRow++], actualTrace, "port colors/phase/timer match execution of original ROM on the 65816 core");

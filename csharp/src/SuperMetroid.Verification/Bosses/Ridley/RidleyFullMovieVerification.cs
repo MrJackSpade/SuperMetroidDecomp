@@ -103,15 +103,15 @@ internal static class RidleyFullMovieVerification
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = 112;
         body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
-        AssertEqual((ushort)112, state.FunctionTimer, "native swoop setup retains general AI timer");
-        AssertEqual((ushort)10, state.SwoopPhaseTimer, "native swoop setup initializes independent countdown");
+        AssertEqual(112, state.FunctionTimer, "native swoop setup retains general AI timer");
+        AssertEqual(10, state.SwoopPhaseTimer, "native swoop setup initializes independent countdown");
         state.Function = RidleyAiFunction.NorfairSwoopAimDown; state.SwoopPhaseTimer = 1;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
-        AssertEqual((ushort)0, state.SwoopPhaseTimer, "native swoop decrements its own timer");
-        AssertEqual((ushort)112, state.FunctionTimer, "native swoop countdown retains general timer");
+        AssertEqual(0, state.SwoopPhaseTimer, "native swoop decrements its own timer");
+        AssertEqual(112, state.FunctionTimer, "native swoop countdown retains general timer");
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
-        AssertEqual((ushort)20, state.SwoopPhaseTimer, "native next swoop phase installs its own duration");
-        AssertEqual((ushort)112, state.FunctionTimer, "native phase transition retains general timer");
+        AssertEqual(20, state.SwoopPhaseTimer, "native next swoop phase installs its own duration");
+        AssertEqual(112, state.FunctionTimer, "native phase transition retains general timer");
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
     }
 
@@ -152,7 +152,7 @@ internal static class RidleyFullMovieVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttack(body, state, samus, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "native grab immediately enters carry movement");
-        AssertEqual((ushort)31, state.FunctionTimer, "native setup falls through first carry countdown");
+        AssertEqual(31, state.FunctionTimer, "native setup falls through first carry countdown");
         AssertEqual((ushort)0xb6, state.Velocity.X.RawValue, "native same-update grab X acceleration");
         AssertEqual((ushort)0xfbfc, state.Velocity.Y.RawValue, "native same-update grab Y acceleration");
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked, "native grab installs command-zero alpha/beta pair");
@@ -176,7 +176,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "lunge grab enters immediate carry");
         AssertEqual((ushort)0x2b2, state.Velocity.X.RawValue, "native lunge grab X acceleration");
         AssertEqual((ushort)0xfc25, state.Velocity.Y.RawValue, "native lunge grab reverses before carry acceleration");
-        AssertEqual((ushort)31, state.FunctionTimer, "native lunge grab falls through countdown");
+        AssertEqual(31, state.FunctionTimer, "native lunge grab falls through countdown");
         // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
         body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
         state.Velocity = state.Velocity.WithX(new SignedEightEight(0x1de)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x419));
@@ -187,7 +187,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(RidleyAiFunction.NorfairReleaseSamus, state.Function, "zero-health grab enters death movement");
         AssertEqual((ushort)0x1c6, state.Velocity.X.RawValue, "death entry immediately accelerates X toward death spot");
         AssertEqual((ushort)0xfbde, state.Velocity.Y.RawValue, "death entry immediately accelerates Y toward death spot");
-        AssertEqual((ushort)0x29, state.FunctionTimer, "death entry retains existing general countdown");
+        AssertEqual(0x29, state.FunctionTimer, "death entry retains existing general countdown");
         foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
         {
             state.Function = function; state.FunctionTimer = 0;
@@ -473,13 +473,13 @@ internal static class RidleyFullMovieVerification
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
-        AssertEqual((ushort)3, state.IntangibilityTimer, "offscreen return preserves release timer");
+        AssertEqual(3, state.IntangibilityTimer, "offscreen return preserves release timer");
         // At the next AI call Y257 is inside. EnemyMain already tested the old
         // collision bit; the cleared gate is consumed by the following update.
         body.Position = body.Position.WithWholeY(257);
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
-        AssertEqual((ushort)2, state.IntangibilityTimer, "onscreen AI resumes release timer");
+        AssertEqual(2, state.IntangibilityTimer, "onscreen AI resumes release timer");
         AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
         AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
         AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");
@@ -844,7 +844,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.FrameHold.RawValue, "first native fade visual duration");
         AssertEqual(RidleyAiFunction.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Function, "native Ridley AI remains gated during fade visuals");
-        AssertEqual((ushort)0, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).FunctionTimer, "fade does not consume the reveal countdown");
+        AssertEqual(0, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).FunctionTimer, "fade does not consume the reveal countdown");
         game.Step(0);
         AssertEqual((ushort)11, ridley.FrameHold.RawValue, "later fade updates continue enemy animation");
         int remainingFade = 0;
@@ -857,7 +857,7 @@ internal static class RidleyFullMovieVerification
         AssertTrue(!runtime.Enemies.RoomStatus.EnemyDoorTransitionActive, "completed fade clears enemy gate");
         game.Step(0);
         AssertEqual(RidleyAiFunction.InitialDelay, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Function, "first gameplay update begins reveal");
-        AssertEqual((ushort)169, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).FunctionTimer, "native first gameplay update consumes one of 170 reveal ticks");
+        AssertEqual(169, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).FunctionTimer, "native first gameplay update consumes one of 170 reveal ticks");
         Console.WriteLine("Ridley door entry/loading/fade: native positions, RNG, one NMI per dispatch, stationary Samus animation and continuing enemy visuals agree.");
     }
 

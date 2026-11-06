@@ -955,7 +955,7 @@ internal static class LookupStream4Verification
             state.Step();
             var subtitle = new WrittenPicture(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             AssertTrue(page.Written.Contains(subtitle), "Actual ending state writes the subtitle picture at its cell");
-            state.FrameHold = WrappingCountdown.Start(1);
+            state.FrameHold = 1;
             state.Step();
             AssertTrue(!page.Written.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");

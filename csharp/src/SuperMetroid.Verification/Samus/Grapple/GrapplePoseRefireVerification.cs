@@ -56,7 +56,7 @@ internal static class GrapplePoseRefireVerification
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, state);
         stream.Position = 0;
-        AssertEqual(7, DebuggerObjectGraphSerializer.Deserialize<SamusGrappleState>(stream).PoseChangeAutoFireTimer.RawValue,
+        AssertEqual(7, DebuggerObjectGraphSerializer.Deserialize<SamusGrappleState>(stream).PoseChangeAutoFireTimer,
             "debugger preserves remaining refire window");
         Console.WriteLine("Grapple pose refire: mirrored frame-1..9 restarts, frame-10 cancellation, endpoint trajectory and timer serialization pass.");
     }

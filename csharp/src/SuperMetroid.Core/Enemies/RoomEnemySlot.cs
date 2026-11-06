@@ -140,6 +140,7 @@ public sealed class RoomEnemySlot
     /// <summary>The layer the enemy draws on, initially the definition's; enemies draw layer by layer.</summary>
     public EnemyDrawLayer Layer { get; internal set; }
     /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends hurt dispatch.</summary>
+    [IntegerQuantity("updates of hurt flash left; Phantoon restores his colours on the eighth")]
     public int FlashTimer { get; internal set; }
     /// <summary>How long the enemy stays frozen; its frozen blinking and thaw read it.</summary>
     public int FrozenTimer { get; internal set; }

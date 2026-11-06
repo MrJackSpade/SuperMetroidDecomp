@@ -72,7 +72,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ee9 + medium * 2)), hurt.Kinematics.YSpeed.Whole, "Hurt native whole launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909eef + medium * 2)), hurt.Kinematics.YSpeed.Fraction, "Hurt native fractional launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YAcceleration.Fraction, "Hurt refreshes native gravity");
-            AssertEqual((ushort)11, hurt.KnockbackTimer, "Hurt retains producer timer");
+            AssertEqual(11, hurt.KnockbackTimer, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
             AssertEqual(SamusBombJumpRequest.None, hurt.BombJumpRequest, "Hurt drops the bomb-jump request");
             AssertEqual(1, hurt.HurtFlashCounter, "Hurt starts flash");

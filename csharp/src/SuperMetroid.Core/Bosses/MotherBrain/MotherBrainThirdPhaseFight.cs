@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's third phase: recovering, setting up and fighting Samus after the baby cutscene.</summary>
 internal sealed class MotherBrainThirdPhaseFight
@@ -45,6 +45,7 @@ internal sealed class MotherBrainThirdPhaseFight
         MotherBrainPhase3NeckPhase.Inactive;
 
     /// <summary>Countdown shared by the two phase-three recoil functions; it stops at zero.</summary>
+    [IntegerQuantity("frames left in the recoil; the death sequence waits for the tenth")]
     public int Phase3NeckFunctionTimer { get; private set; }
 
     /// <summary>

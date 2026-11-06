@@ -172,7 +172,7 @@ internal static class ReserveAutoFrontendVerification
         var ship = runtime.Enemies.SlotTable.Slots[0];
         GunshipPartState shipPart = GunshipPartState.Of(ship);
         shipPart.Function = GunshipFunction.WaitForEntranceToOpen;
-        shipPart.FunctionTimer = WrappingCountdown.Start(100);
+        shipPart.FunctionTimer = 100;
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, audio);
         samus.Health = 30; samus.Control.EnterGunship();
         audio.Reset(); game.StepCaptured(0);

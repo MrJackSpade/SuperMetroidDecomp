@@ -58,7 +58,7 @@ internal static class RidleyPogoDefinitionsVerification
             AssertEqual(expected.Up, state.PogoUpwardAcceleration, "Pogo upward acceleration");
             AssertEqual(expected.Down, state.PogoDownwardAcceleration, "Pogo downward acceleration");
             AssertEqual(health, state.HealthStage, "Pogo preserves health-stage state");
-            AssertEqual((ushort)0x1234, state.FunctionTimer, "Pogo preserves caller timer");
+            AssertEqual(0x1234, state.FunctionTimer, "Pogo preserves caller timer");
             cases++;
         }
         AssertEqual(1572864, cases, "All random words, health stages and horizontal signs");

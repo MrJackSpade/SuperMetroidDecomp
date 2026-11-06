@@ -153,7 +153,7 @@ internal static class RidleyExplosionDefinitionsVerification
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + selectedIndex * 4)));
             AssertEqual((ushort)selectedIndex, state.DeathExplosionCount,
                 $"Ridley death explosion {selectedIndex} cyclic index");
-            AssertEqual((ushort)4, state.DeathExplosionTimer,
+            AssertEqual(4, state.DeathExplosionTimer,
                 $"Ridley death explosion {selectedIndex} timer reload");
             AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), effect.Position.X.Whole,
                 $"Ridley death explosion {selectedIndex} production X");

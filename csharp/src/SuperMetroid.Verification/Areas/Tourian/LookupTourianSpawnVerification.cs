@@ -47,7 +47,7 @@ internal static class LookupTourianSpawnVerification
             AssertEqual<AnimationProgramCursor<TourianStatueTileProgram>?>(
                 AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry),
                 tile.Cursor, "Spawned statue starts at its entry program");
-            AssertEqual((ushort)1, tile.Timer.RawValue, "Spawned instruction timer");
+            AssertEqual(1, tile.Timer, "Spawned instruction timer");
         }
     }
 }

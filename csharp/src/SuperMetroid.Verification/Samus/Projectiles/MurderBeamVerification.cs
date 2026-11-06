@@ -134,7 +134,7 @@ internal static class MurderBeamVerification
             "lethal Murder Beam contact reaches Ice substitution");
         AssertEqual(100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");
-        AssertEqual((ushort)400, target.FrozenTimer,
+        AssertEqual(400, target.FrozenTimer,
             "Murder Beam freezes a vulnerable non-Norfair enemy");
 
         var phaseBoundary = new MotherBrainRainbowBeamAttackSequence();

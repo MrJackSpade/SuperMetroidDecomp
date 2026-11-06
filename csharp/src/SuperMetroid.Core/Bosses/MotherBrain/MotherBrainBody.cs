@@ -136,7 +136,7 @@ internal sealed class MotherBrainBody
         bool glassDestroyed = _room.Services.Events.Has(EventNumber.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
-            state.BrainMainShakeTimer = _earthquake.EarthquakeTimer;
+            state.BrainMainShakeTimer = _earthquake.EarthquakeTimer.RemainingFrames;
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit. The following

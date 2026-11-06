@@ -16,7 +16,7 @@ internal static class DebuggerStateLayoutVerification
     {
         var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };
         byte[] current = SerializeDebuggerGraph(state);
-        AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer.RawValue,
+        AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer,
             "a current-layout graph round-trips");
 
         // Same-length replacements keep every length prefix valid, so only the identity changes.

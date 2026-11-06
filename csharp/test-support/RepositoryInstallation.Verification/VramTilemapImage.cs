@@ -17,7 +17,7 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class VramTilemapImage
 {
     /// <summary>Cells along each side of one screen of a tilemap; a larger map keeps whole screens one after another.</summary>
-    private const int ScreenCells = ScreenGeometry.TilemapScreenWidthInTiles;
+    private const int ScreenCells = SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles;
 
     /// <summary>Pixels along a cell's side.</summary>
     private const int CellPixels = ScreenGeometry.BackgroundTileSizePixels;

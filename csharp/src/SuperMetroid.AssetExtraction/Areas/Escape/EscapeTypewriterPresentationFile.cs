@@ -67,7 +67,7 @@ public static class EscapeTypewriterPresentationFile
     }
 
     /// <summary>The cells of the two side-by-side tilemap screens a document's overlay cell counts across.</summary>
-    private const int OverlayCells = 2 * ScreenGeometry.TilemapScreenCellCount;
+    private const int OverlayCells = 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount;
 
     /// <summary>Whether a line of <paramref name="length"/> glyphs typed from <paramref name="cell"/> stays inside the overlay.</summary>
     private static bool LineFitsOverlay(int cell, int length) =>
@@ -79,8 +79,8 @@ public static class EscapeTypewriterPresentationFile
     /// </summary>
     private static Position16<TilemapCells> CellOf(int cell)
     {
-        int screen = cell / ScreenGeometry.TilemapScreenCellCount, within = cell % ScreenGeometry.TilemapScreenCellCount;
-        return new(screen * ScreenGeometry.TilemapScreenWidthInTiles + within % ScreenGeometry.TilemapScreenWidthInTiles,
-            within / ScreenGeometry.TilemapScreenWidthInTiles);
+        int screen = cell / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount, within = cell % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount;
+        return new(screen * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles + within % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles,
+            within / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles);
     }
 }

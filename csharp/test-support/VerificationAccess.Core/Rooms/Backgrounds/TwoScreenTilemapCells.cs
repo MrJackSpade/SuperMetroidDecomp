@@ -9,17 +9,17 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 internal static class TwoScreenTilemapCells
 {
     /// <summary>The cells of the two screens.</summary>
-    internal const int Count = 2 * ScreenGeometry.TilemapScreenCellCount;
+    internal const int Count = 2 * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount;
 
     /// <summary>The word of the two screens a cell of the layer lies in.</summary>
     internal static int IndexOf(Position16<TilemapCells> cell) =>
-        cell.X / ScreenGeometry.TilemapScreenWidthInTiles * ScreenGeometry.TilemapScreenCellCount
-        + cell.Y * ScreenGeometry.TilemapScreenWidthInTiles + cell.X % ScreenGeometry.TilemapScreenWidthInTiles;
+        cell.X / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount
+        + cell.Y * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles + cell.X % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles;
 
     /// <summary>The cell of the layer word <paramref name="index"/> of the two screens lies in.</summary>
     internal static Position16<TilemapCells> CellAt(int index) =>
-        new(index / ScreenGeometry.TilemapScreenCellCount * ScreenGeometry.TilemapScreenWidthInTiles + index % ScreenGeometry.TilemapScreenWidthInTiles,
-            index % ScreenGeometry.TilemapScreenCellCount / ScreenGeometry.TilemapScreenWidthInTiles);
+        new(index / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount * SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles + index % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles,
+            index % SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.CellCount / SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles);
 
     /// <summary>
     /// The picture of each word of the two screens <paramref name="pictures"/> cover, in the order written, each tile of a

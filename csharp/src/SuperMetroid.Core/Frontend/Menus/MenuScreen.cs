@@ -34,9 +34,11 @@ internal sealed class MenuScreen
     public void BindScreenTiles(InstalledSpriteSheets? sheets) =>
         Sheets = sheets ?? throw new InvalidOperationException("Menus require the installed sprite sheets.");
 
-    /// <summary>The size of a menu page in cells: one screen's tilemap, which a scrolled page repeats across.</summary>
-    internal static Extent16<TilemapCells> PageSize { get; } =
-        new(ScreenGeometry.TilemapScreenWidthInTiles, ScreenGeometry.TilemapScreenWidthInTiles);
+    /// <summary>Cells across and down a menu page.</summary>
+    private const int PageCells = 32;
+
+    /// <summary>The size of a menu page in cells, which a scrolled page repeats across.</summary>
+    internal static Extent16<TilemapCells> PageSize { get; } = new(PageCells, PageCells);
 
     /// <summary>
     /// A page showing the menus' pictures named <paramref name="frames"/>, each placed at the page's corner in drawing order,

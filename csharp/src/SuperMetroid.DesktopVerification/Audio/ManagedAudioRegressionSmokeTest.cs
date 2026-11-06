@@ -222,9 +222,9 @@ public static class ManagedAudioRegressionSmokeTest
         SoundAcknowledgements<SoundEffectId> acknowledgements = engine.Acknowledgements;
         // The corpus pinned four bytes per update: the sequencer's music echo, which the session never publishes, then
         // each library's acknowledgement in library order.
-        Span<byte> reported = stackalloc byte[1 + SoundClockTiming.LibraryCount];
+        Span<byte> reported = stackalloc byte[1 + SoundEffectLibraries.Count];
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
-        for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
+        for (int library = 0; library < SoundEffectLibraries.Count; library++)
             reported[1 + library] = SoundEffectPortBytes.PortByte(acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;

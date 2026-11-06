@@ -435,11 +435,11 @@ public sealed class ExtractedAudioAssetCatalog
             }
         }
 
-        if (manifest.SoundLibraries.Count != SpcDriverDefinitions.SoundEffects.LibraryCount)
+        if (manifest.SoundLibraries.Count != SuperMetroid.Core.Audio.SoundEffectLibraries.Count)
         {
             throw new InvalidDataException(
                 $"Audio manifest defines {manifest.SoundLibraries.Count} SFX libraries; " +
-                $"expected {SpcDriverDefinitions.SoundEffects.LibraryCount}.");
+                $"expected {SuperMetroid.Core.Audio.SoundEffectLibraries.Count}.");
         }
         for (int libraryIndex = 0; libraryIndex < manifest.SoundLibraries.Count; libraryIndex++)
         {

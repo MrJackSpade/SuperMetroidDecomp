@@ -24,25 +24,25 @@ public sealed class AudioQueues
         new MusicQueueDelay[AudioQueueDefinitions.MusicCapacity];
     /// <summary>Three independent unread sound rings, one per sound library; a position holds no sound until one is queued there.</summary>
     internal readonly SoundEffectId?[,] SoundQueues = new SoundEffectId?[
-        AudioQueueDefinitions.SoundLibraryCount,
+        SoundEffectLibraries.Count,
         AudioQueueDefinitions.SoundCapacity];
     /// <summary>Next unread position in each library's SFX ring.</summary>
     internal readonly int[] SoundReadPositions =
-        new int[AudioQueueDefinitions.SoundLibraryCount];
+        new int[SoundEffectLibraries.Count];
     /// <summary>Next insertion position in each library's SFX ring.</summary>
     internal readonly int[] SoundWritePositions =
-        new int[AudioQueueDefinitions.SoundLibraryCount];
+        new int[SoundEffectLibraries.Count];
     /// <summary>Per-library request phase, from request through acknowledged withdrawal.</summary>
-    internal readonly byte[] SoundStates = new byte[AudioQueueDefinitions.SoundLibraryCount];
+    internal readonly byte[] SoundStates = new byte[SoundEffectLibraries.Count];
     /// <summary>The sound currently awaiting each library's acknowledgement, or none.</summary>
-    private readonly SoundEffectId?[] _currentSounds = new SoundEffectId?[AudioQueueDefinitions.SoundLibraryCount];
+    private readonly SoundEffectId?[] _currentSounds = new SoundEffectId?[SoundEffectLibraries.Count];
 
     /// <summary>The sound each of the three sound dispatchers last asked its library for, as an acknowledgement of it, or none.</summary>
     internal SoundAcknowledgements<SoundEffectId> SentSoundRequests =>
         SoundAcknowledgements<SoundEffectId>.Of(_currentSounds[0], _currentSounds[1], _currentSounds[2]);
     /// <summary>Two-frame hold before a recognized sound request is withdrawn from its library.</summary>
     private readonly byte[] _soundClearDelays =
-        new byte[AudioQueueDefinitions.SoundLibraryCount];
+        new byte[SoundEffectLibraries.Count];
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
@@ -89,7 +89,7 @@ public sealed class AudioQueues
     {
         get
         {
-            for (int library = 0; library < AudioQueueDefinitions.SoundLibraryCount; library++)
+            for (int library = 0; library < SoundEffectLibraries.Count; library++)
             {
                 if (UnreadSounds(library) != 0)
                 {
@@ -380,7 +380,7 @@ public sealed class AudioQueues
             // Guarded by the nonzero test above: the downtime counts down to zero and never wraps.
             _soundHandlerDowntime = Ensure.AtLeastZero(_soundHandlerDowntime - 1);
             for (int queue = 0;
-                queue < AudioQueueDefinitions.SoundLibraryCount;
+                queue < SoundEffectLibraries.Count;
                 queue++)
             {
                 requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
@@ -389,7 +389,7 @@ public sealed class AudioQueues
             return;
         }
 
-        for (int queue = 0; queue < AudioQueueDefinitions.SoundLibraryCount; queue++)
+        for (int queue = 0; queue < SoundEffectLibraries.Count; queue++)
             HandleSoundEffectQueue(
                 queue,
                 acknowledgements[queue],

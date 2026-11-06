@@ -204,7 +204,7 @@ public static class SpcAudioAssetExtractor
     {
         List<AudioSoundLibraryMetadata> libraries = [];
         Dictionary<int, AudioSoundProgramMetadata> programsByAddress = [];
-        for (int library = 0; library < SpcDriverDefinitions.SoundEffects.LibraryCount; library++)
+        for (int library = 0; library < SuperMetroid.Core.Audio.SoundEffectLibraries.Count; library++)
         {
             int commandCount = SpcSoundEffectTables.CommandCount(library);
             List<AudioSoundEffectMetadata> effects = [];

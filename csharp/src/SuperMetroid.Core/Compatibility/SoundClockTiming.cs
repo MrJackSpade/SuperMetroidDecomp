@@ -8,7 +8,11 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("the fixed timing of the clock on which the sound libraries accept requests")]
 public static class SoundClockTiming
 {
-    /// <summary>The sound libraries the clock accepts requests for, addressed by zero-based index.</summary>
+    /// <summary>
+    /// The number of sound libraries, addressed by zero-based index: the one count of them. The clock, the
+    /// acknowledgements and every per-library check are sized by it, and the libraries' own count
+    /// (<c>SoundEffectLibraries.Count</c>) reads it.
+    /// </summary>
     public const int LibraryCount = 3;
 
     /// <summary>The sound clock's samples in one 60-Hz update: 32,040 / 60.</summary>

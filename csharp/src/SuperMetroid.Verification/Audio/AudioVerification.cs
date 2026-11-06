@@ -219,7 +219,7 @@ internal static class AudioVerification
         cancellation.QueueCancelSoundEffects();
         IReadOnlyList<AudioRequest> cancelWrites =
             cancellation.AdvanceFrame(default);
-        AssertEqual(AudioQueueDefinitions.SoundLibraryCount, cancelWrites.Count,
+        AssertEqual(SoundEffectLibraries.Count, cancelWrites.Count,
             "sound cancellation writes every native SFX library");
         AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(Library1Sound.Silence)),
             "sound cancellation queues library one's silence");

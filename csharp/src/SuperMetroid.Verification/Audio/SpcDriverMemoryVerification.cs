@@ -50,7 +50,7 @@ internal static class SpcDriverMemoryVerification
         // library for it, none withdraws the library's request, and another library's sound is refused.
         var clock = new SoundAcceptanceClock<SoundEffectId>();
         clock.Request(2, Library3Sound.SpeedBooster);
-        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundClockTiming.LibraryCount, null), "a sound library index is 0 through 2");
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundEffectLibraries.Count, null), "a sound library index is 0 through 2");
         AssertEqual(new AudioRequest.RequestSound(Library2Sound.SmallEnergyPickup),
             AudioRequest.ForSound(SoundEffectLibrary.Library2, Library2Sound.SmallEnergyPickup), "a sound requests that sound of its library");
         AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2),

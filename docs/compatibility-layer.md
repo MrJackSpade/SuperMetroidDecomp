@@ -23,7 +23,7 @@ came from the hardware is incidental representation or a presentation quirk, and
 - **Value types** (a wrapping countdown) live in the module too and are used directly by the entities that own them.
 - **Lowest module.** Every other module uses the layer (the wrapping counters are everywhere), so the layer depends on
   no other Core module: a service's contract is written in its own types, and the domain maps onto them (Audio passes
-  a library's zero-based index; `SoundEffectLibraries.Count` is the clock's `LibraryCount`).
+  a library's zero-based index; `SoundClockTiming.LibraryCount` is the one count of the libraries, which `SoundEffectLibraries.Count` reads for every module above, #1522).
 
 ## What qualifies
 

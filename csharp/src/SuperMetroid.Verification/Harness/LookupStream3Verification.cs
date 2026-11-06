@@ -1213,7 +1213,7 @@ internal static class LookupStream3Verification
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
             sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalking.AnimationDelay(Math.Min(stage, 7));
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * Math.Min(stage, 7)), sequence.DrainedByBaby.PainfulWalkingFunctionTimer.RawValue,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * Math.Min(stage, 7)), sequence.DrainedByBaby.PainfulWalkingFunctionTimer,
                 "stream 3 real stagger timer clamps terminal stages");
         }
     }

@@ -5295,14 +5295,27 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Bosses.ComposedBossBodyPart",
+      "type": "SuperMetroid.AssetExtraction.Bosses.ComposedBossBodyFrame",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Bosses/ComposedBossBodyPart.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/ComposedBossBodyFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.ComposedBossBodyOverlay",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/ComposedBossBodyOverlay.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -21170,6 +21183,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentLabelPlacement",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/Artwork/PauseEquipmentLabelPlacement.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentLabelPresentation",
       "kind": "class",
       "scope": "product",
@@ -24594,6 +24620,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.AreaDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Installation/BossBodySheetFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.FrameDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Installation/BossBodySheetFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.Manifest",
       "kind": "record",
       "scope": "product",
@@ -24607,7 +24659,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.PartDocument",
+      "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.OverlayDocument",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -39308,19 +39360,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.BossBodyCopies",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/BossBodyCopies.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.BossFrameResultBuilder",
       "kind": "class",
       "scope": "product",
@@ -43796,19 +43835,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyFrame",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBodyFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyFrameNames",
       "kind": "static class",
       "scope": "product",
@@ -43822,19 +43848,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyHalf",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBodyHalf.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyLayer",
       "kind": "class",
       "scope": "product",
@@ -43846,19 +43859,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBodyLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidCamera",
@@ -46753,19 +46753,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBodyDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyDependencies",
@@ -60800,19 +60787,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyCanvas",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyCanvas.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyCanvasFixtures",
       "kind": "static class",
       "scope": "test",
@@ -60829,66 +60803,8 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyFootprint",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyFootprint.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyFootprintAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/BossBodies/BossBodyFootprintAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyFootprintAccess.extension(SuperMetroid.Core.Enemies.BossBodies.BossBodyFootprint)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/BossBodies/BossBodyFootprintAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyFrame",
-      "kind": "record",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -60897,7 +60813,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyFrame.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyFrameNames",
@@ -60926,6 +60842,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyOverlay",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyOverlay.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner",
       "kind": "enum",
       "scope": "product",
@@ -60939,30 +60868,30 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyPart",
+      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyParts",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyPart.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyParts.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyPlacement",
-      "kind": "record",
+      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyRectangle",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyPlacement.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyRectangle.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodySheet",
@@ -61007,19 +60936,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.PlacedBossBodyPart",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/PlacedBossBodyPart.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.BossBodies.ShownBossBody",
       "kind": "record",
       "scope": "product",
@@ -61031,19 +60947,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.ShownBossBody.CellRun",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/ShownBossBody.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.BossBodies.ShownBossBodyPiece",
@@ -69887,19 +69790,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.IBossBodyCopies",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/IBossBodyCopies.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Enemies.IBossBodyFrames",
@@ -85969,19 +85859,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.EndingPostShotParts",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingPostShotParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingPostShotUploadDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -86293,6 +86170,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingScreenLoads",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Ending/EndingScreenLoads.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingScreenMemory",
@@ -91754,19 +91647,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Pause.Artwork.PauseEquipmentLabelDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseEquipmentLabelDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Pause.Artwork.PauseEquipmentLabelId",
       "kind": "enum",
       "scope": "product",
@@ -92138,19 +92018,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseEquipmentCategoryDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Pause.PauseEquipmentLabelSegment",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseEquipmentLabelSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -145232,19 +145099,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonStateQuantitiesVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.Draygon.DraygonTilemapProductionVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonTilemapProductionVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -35,9 +35,6 @@ public sealed class PicturedPlane : IEquatable<PicturedPlane>
         Pictures = pictures;
     }
 
-    /// <summary>A <paramref name="size"/> plane showing nothing.</summary>
-    public static PicturedPlane Empty(Extent16<TilemapCells> size) => new(size, []);
-
     /// <summary>The plane's size in eight-pixel cells.</summary>
     public Extent16<TilemapCells> Size { get; }
 

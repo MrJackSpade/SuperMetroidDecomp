@@ -61,10 +61,11 @@ internal static class BackgroundMosaicTests
                 if (y >= 32)
                 {
                     // Independent scalar oracle: choose the screen block, then
-                    // current-row scroll, wrap within the authored 8x8 pattern.
+                    // current-row scroll, wrap within the authored 8x8 pattern. The view's scrolls are the
+                    // pixels the screen's top shows, with no further row (#1514).
                     int sx = (x / size * size + ScrollShapeLines.Scroll(horizontal, y)) & 7;
-                    int sy = (y / size * size + 1 + ScrollShapeLines.Scroll(vertical, y)) & 7;
-                    if (mode == 3) { sx = x & 7; sy = (y + 1) & 7; }
+                    int sy = (y / size * size + ScrollShapeLines.Scroll(vertical, y)) & 7;
+                    if (mode == 3) { sx = x & 7; sy = y & 7; }
                     expectedColor = 1 + (sx + 2 * sy) % 15;
                 }
                 if (x is >= 96 and < 104 && y is >= 64 and < 72) expectedColor = 241;

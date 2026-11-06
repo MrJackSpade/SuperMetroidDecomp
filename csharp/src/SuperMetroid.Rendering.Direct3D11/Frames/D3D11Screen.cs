@@ -9,9 +9,4 @@ internal static class D3D11Screen
     internal const int Height = 224;
     /// <summary>The rows gameplay's HUD fills at the top of the screen.</summary>
     internal const int HudHeight = 32;
-    /// <summary>
-    /// How far below its scroll a scrolled layer's first row is: the screen's first row shows each layer's line one past
-    /// its scroll, so a layer's vertical scroll is drawn this many lines further down.
-    /// </summary>
-    internal const int LayerLineOffset = 1;
 }

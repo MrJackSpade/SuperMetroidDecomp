@@ -52,8 +52,9 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   drawn on top.
 - **Room order.** A room composes, per band of lines with the same visible layers: sprites of priority 0 and 1, layer 2
   then layer 1 at low priority, sprites of priority 2, layer 2 then layer 1 at high priority, sprites of priority 3; then
-  the HUD, layer 3, opaque, over the top 32 lines. Each scrolled layer shows the line one past its scroll on each screen
-  row (`D3D11Screen.LayerLineOffset`).
+  the HUD, layer 3, opaque, over the top 32 lines. The view names the room pixel each layer shows at the screen's
+  top-left corner (`GameplaySceneView`), so every screen pixel shows the layer pixel that far from it, with no offset of
+  the backend's own (#1514).
 - **Insert sprites.** Writes the sprite layer's pixels of one priority, or all, over the screen. Options: add the sprite's
   colour to the screen's, or add a fixed colour to a sprite that blends.
 - **Floor** (the perspective floor, `FloorView`). The display model describes the floor as an angle, a scale, a centre

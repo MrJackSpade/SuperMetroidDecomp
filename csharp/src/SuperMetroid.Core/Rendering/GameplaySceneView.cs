@@ -3,12 +3,13 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// How a frame views the gameplay scene below the HUD: the foreground's and background's scrolls, the lines the background
-/// covers, which layers show and how the background is pixelated. What the background shows says how far it reaches before
-/// it repeats.
+/// How a frame views the gameplay scene below the HUD: the room pixels the foreground and the background show at the
+/// screen's top-left corner, the lines the background covers, which layers show and how the background is pixelated.
+/// Every screen pixel shows the layer pixel that far from the corner, with no further offset (#1514). What the background
+/// shows says how far it reaches before it repeats.
 /// </summary>
-/// <param name="ForegroundScroll">The foreground's scroll in pixels.</param>
-/// <param name="BackgroundScroll">The background's scroll in pixels, on every line that has no scroll of its own.</param>
+/// <param name="ForegroundScroll">The foreground pixel the screen's top-left corner shows.</param>
+/// <param name="BackgroundScroll">The background pixel the screen's top-left corner shows, on every line that has no scroll of its own.</param>
 /// <param name="MainScreenLayers">The layers the frame shows, replaced rather than combined where a per-line choice of layers is captured.</param>
 /// <param name="BackgroundFirstLine">The first screen line the background is drawn on, within the gameplay area.</param>
 /// <param name="BackgroundEndLine">The screen line after the last one the background is drawn on.</param>
@@ -17,4 +18,25 @@ public readonly record struct GameplaySceneView(
     Position16<RoomPixels> ForegroundScroll, Position16<BackgroundPixels> BackgroundScroll,
     ScreenLayers MainScreenLayers,
     int BackgroundFirstLine = 32, int BackgroundEndLine = 224,
-    BackgroundPixelation BackgroundPixelation = default);
+    BackgroundPixelation BackgroundPixelation = default)
+{
+    /// <summary>
+    /// The foreground pixel the screen's top-left corner shows while the foreground's camera is at
+    /// <paramref name="camera"/>: the camera's column, one row below its top row (<see cref="ScreenGeometry.LayerRowsAboveSprites"/>).
+    /// </summary>
+    public static Position16<RoomPixels> ShownAtScreenTop(Position16<RoomPixels> camera) =>
+        camera + new Offset16<RoomPixels>(0, ScreenGeometry.LayerRowsAboveSprites);
+
+    /// <summary>
+    /// The background pixel the screen's top-left corner shows while the background's camera is at
+    /// <paramref name="camera"/>: the camera's column, one row below its top row (<see cref="ScreenGeometry.LayerRowsAboveSprites"/>).
+    /// </summary>
+    public static Position16<BackgroundPixels> ShownAtScreenTop(Position16<BackgroundPixels> camera) =>
+        camera + new Offset16<BackgroundPixels>(0, ScreenGeometry.LayerRowsAboveSprites);
+
+    /// <summary>
+    /// The background row the screen's top row shows while the background's camera is at row <paramref name="cameraRow"/>,
+    /// for a line scroll given in the background's camera rows.
+    /// </summary>
+    public static int ShownRowAtScreenTop(int cameraRow) => CoordinateAxis.Wrap(cameraRow + ScreenGeometry.LayerRowsAboveSprites);
+}

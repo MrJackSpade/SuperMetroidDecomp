@@ -239,8 +239,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
         data[14] = (uint)D3D11RoomSource.FxOverlay;
         data[25] = (uint)layer.FirstLine; data[26] = 224;
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.Horizontal, 0, 0);
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.Vertical, 0, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.Horizontal, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.Vertical, 0);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -303,9 +303,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayRoom;
-        // Xray.hlsli reads layer 1's scroll and the blend from the layer header words.
+        // Xray.hlsli reads the foreground pixel the screen's top-left shows and the blend from the layer header words.
         data[3] = r.ForegroundScroll.X;
-        data[4] = unchecked((ushort)(r.ForegroundScroll.Y + D3D11Screen.LayerLineOffset));
+        data[4] = r.ForegroundScroll.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.Blend.Layers;
         data[10] = (uint)layer.Blend.FixedColor.Red; data[11] = (uint)layer.Blend.FixedColor.Green; data[12] = (uint)layer.Blend.FixedColor.Blue;
@@ -340,8 +340,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         PackBackgroundScrolls(data, layer.Gameplay);
         if (layer.BlendPlane is { } bg3)
         {
-            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, bg3.Horizontal, 0, 0);
-            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, bg3.Vertical, 0, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, bg3.Horizontal, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, bg3.Vertical, 0);
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
@@ -418,7 +418,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         void Background1(bool high)
         {
             if ((activeLayers & ScreenLayers.Foreground) != 0)
-                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
+                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll(), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background2(bool high)
         {
@@ -444,13 +444,13 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>
     /// Packs the room's layer-2 scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
-    /// the view's background scroll on every line, the vertical moved by the room planes' one-line offset.
+    /// the background pixel the view shows at the screen's top on every line (#1514).
     /// </summary>
     private static void PackBackgroundScrolls(uint[] data, GameplaySceneLayer layer)
     {
         Position16<BackgroundPixels> own = layer.View.BackgroundScroll;
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.BackgroundLineScrolls.Horizontal, own.X, 0);
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.BackgroundLineScrolls.Vertical, own.Y, D3D11Screen.LayerLineOffset);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.BackgroundLineScrolls.Horizontal, own.X);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.BackgroundLineScrolls.Vertical, own.Y);
     }
 
     /// <summary>
@@ -475,8 +475,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[offset + 4] = covered.Plane.Size.X; data[offset + 5] = covered.Plane.Size.Y;
             data[offset + 7] = 1;
         }
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.HorizontalWave, 0, 0);
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, null, layer.VerticalScroll, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.HorizontalWave, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, null, layer.VerticalScroll);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

@@ -55,7 +55,8 @@ internal static class LookupLiquidWaveVerification
                     int waterOffset = y > 100 ? Water((phase + cameraPhase + y - 101) & 15) : 0;
                     AssertEqual(unchecked((ushort)(baseScroll + waterOffset)), bg2[line],
                         "Water BG2 phase addition, surface boundary and signed wrap");
-                    AssertEqual(unchecked((ushort)(cameraY + Heat((phase + cameraPhase + line) & 15))),
+                    // The haze moves about the row the screen's top shows, one below the camera's (#1514).
+                    AssertEqual(unchecked((ushort)(GameplaySceneView.ShownRowAtScreenTop(cameraY) + Heat((phase + cameraPhase + line) & 15))),
                         (heatScroll)[line], "Vertical heat HDMA phase and signed wrap");
                 }
             }

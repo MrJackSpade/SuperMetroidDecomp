@@ -74,10 +74,11 @@ internal static class EnemyEffectMechanicsVerification
                 AssertEqual(call < calls, fixture.Effect.MeltingScrollActive, "exact HDMA lifetime");
                 if (call < calls)
                 {
-                    // The described stretch gives every gameplay line the scroll the cartridge's table gives it (#1468).
+                    // The described stretch gives every gameplay line the row the screen's top shows under the camera row the
+                    // cartridge's table gives it (#1468, #1514).
                     BuildNativeMeltScrolls(nativeScrolls, fixture);
                     for (int line = 0; line < BackgroundLineScrolls.GameplayLines; line++)
-                        AssertEqual(nativeScrolls[line], ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion), line + ScreenGeometry.GameplayHudHeightPixels),
+                        AssertEqual(GameplaySceneView.ShownRowAtScreenTop(nativeScrolls[line]), (int)ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion), line + ScreenGeometry.GameplayHudHeightPixels),
                             $"melt dissolve call {call} stretch at gameplay line {line}");
                 }
                 AssertEqual(call == calls ? phase.Next() : phase, fixture.Actor.DeathSequenceIndex, "exact dissolve phase handoff");

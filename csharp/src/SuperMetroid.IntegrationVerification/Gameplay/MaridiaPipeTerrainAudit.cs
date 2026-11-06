@@ -33,8 +33,9 @@ internal static class MaridiaPipeTerrainAudit
             // The audit compares wrapped register words, so take each offset as its native word.
             int offsetX = unchecked((ushort)(background ? scroll.BackgroundOffset.X : scroll.ForegroundOffset.X));
             int offsetY = unchecked((ushort)(background ? scroll.BackgroundOffset.Y : scroll.ForegroundOffset.Y));
+            // The view names the layer pixel the screen's top-left shows (#1514), the row below the layer's camera.
             int registerX = background ? r.BackgroundScroll.X : r.ForegroundScroll.X;
-            int registerY = background ? r.BackgroundScroll.Y : r.ForegroundScroll.Y;
+            int shownY = background ? r.BackgroundScroll.Y : r.ForegroundScroll.Y;
             int tilemap = background ? GameplayVramLayout.Bg2TilemapWord : GameplayVramLayout.Bg1TilemapWord;
             // The authored planes: the background as loaded, the foreground as its terrain shows.
             RoomBlockAppearance[] source = background ? level.BackgroundPlane.Blocks.ToArray()
@@ -46,9 +47,9 @@ internal static class MaridiaPipeTerrainAudit
             for (int screenX = 0; screenX < 256; screenX += 8)
             {
                 int mapX = (registerX + screenX) & 511;
-                int mapY = unchecked((byte)(registerY + screenY + 1));
+                int mapY = unchecked((byte)(shownY + screenY));
                 int worldX = unchecked((ushort)(registerX - offsetX + screenX));
-                int worldY = unchecked((ushort)(registerY - offsetY + screenY + 1));
+                int worldY = unchecked((ushort)(shownY - offsetY + screenY));
                 int blockX = worldX / 16, blockY = worldY / 16;
                 if (blockX >= level.Size.X || blockY >= level.Size.Y) continue;
                 var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.Size.X + blockX], blockTiles);
@@ -63,7 +64,7 @@ internal static class MaridiaPipeTerrainAudit
                 if (first.Length == 0) first = $"screen={screenX}/{screenY} world={worldX}/{worldY} vram={address:X4} expected={expected:X4} actual={actual:X4}";
             }
             if (differences != 0 || frame % 30 == 0)
-                Console.WriteLine($"terrain frame={frame} bg={(background ? 2 : 1)} differences={differences} rows={string.Join(',', rows)} scroll={registerX}/{registerY} offset={offsetX}/{offsetY} {first}");
+                Console.WriteLine($"terrain frame={frame} bg={(background ? 2 : 1)} differences={differences} rows={string.Join(',', rows)} scroll={registerX}/{shownY} offset={offsetX}/{offsetY} {first}");
             if (requireAuthoredTerrain && differences != 0)
                 throw new InvalidDataException($"#391: displayed BG{(background ? 2 : 1)} terrain differs from authored tube rows at frame {frame}: {first}");
         }

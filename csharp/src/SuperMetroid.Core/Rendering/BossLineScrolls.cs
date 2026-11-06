@@ -15,8 +15,11 @@ public static class BossLineScrolls
     public static ScrollWave Of(PhantoonWave wave) => new(Ensure.NotNull(wave).BaseScroll, wave.Amplitude, wave.Phase, wave.Period, 0,
         ScreenGeometry.ScreenHeightPixels);
 
-    /// <summary>Crocomire's melt as a stretch of his body layer.</summary>
+    /// <summary>
+    /// Crocomire's melt as a stretch of his body layer, in the rows the screen's top shows (#1514): the boss publishes
+    /// his body camera's rows, and the layer shows the row below each.
+    /// </summary>
     /// <param name="melt">The melt the boss published.</param>
-    public static ScrollStretch Of(CrocomireMeltDistortion melt) => new(Ensure.NotNull(melt).ScrollAbove, melt.BaseScroll, melt.FirstLine,
-        melt.EndLine, melt.Slope);
+    public static ScrollStretch Of(CrocomireMeltDistortion melt) => new(GameplaySceneView.ShownRowAtScreenTop(Ensure.NotNull(melt).ScrollAbove),
+        GameplaySceneView.ShownRowAtScreenTop(melt.BaseScroll), melt.FirstLine, melt.EndLine, melt.Slope);
 }

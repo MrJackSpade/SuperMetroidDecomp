@@ -3,21 +3,15 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Map;
 
 /// <summary>
-/// Which explored map cells a save keeps (#1322, #1421, #1475). A save keeps the six Zebes areas' exploration, not
-/// Ceres's, and keeps it in runs of eight neighbouring cells of one map row, starting at every eighth column: a run is kept
-/// whole when the area's stock map has a cell that can be explored in it, and lost whole otherwise. Exploring a cell
-/// whose whole run lies in blank map therefore does not survive saving the game.
+/// Which areas' explored map cells a save keeps (#1322, #1421, #1475): the six Zebes areas', in the runs
+/// <see cref="SavedMapExplorationRuns"/> keeps, and nothing of Ceres's.
 /// </summary>
 /// <remarks>
-/// Evidence: saving and loading the map copy each area's exploration byte by byte through a list of the
-/// bytes the area's map occupies, a byte being eight cells of a row; the save-map check compares the occupied runs with
-/// those lists. The stock topology decides it even when the player edits the installed map picture.
+/// Evidence: saving and loading the map copy only the Zebes areas' exploration; the save-map check compares the kept
+/// cells with the save's packed lists.
 /// </remarks>
 public static class ExploredMapStorage
 {
-    /// <summary>The neighbouring cells of a map row a save keeps or loses together.</summary>
-    public const int RunCellCount = 8;
-
     /// <summary>
     /// The exploration a save of <paramref name="progress"/> keeps: the Zebes areas' explored cells in runs the stock map
     /// occupies, and nothing of Ceres. Every other part of the progress is kept as it is.
@@ -35,23 +29,8 @@ public static class ExploredMapStorage
         {
             IAreaMapView? view = AreaIds.IsZebes(area) ? stock.Get(area) : null;
             foreach (Position16<MapTiles> cell in progress.ExploredCells(area))
-                kept.SetExplored(area, cell, view is not null && IsKept(view, cell));
+                kept.SetExplored(area, cell, view is not null && SavedMapExplorationRuns.IsKept(view.IsDiscoverable, cell));
         }
         return kept;
-    }
-
-    /// <summary>Whether a save keeps <paramref name="cell"/>'s exploration: its run has a cell the stock map can explore.</summary>
-    /// <param name="stockRules">The area's stock map rules.</param>
-    /// <param name="cell">The map cell.</param>
-    public static bool IsKept(IAreaMapView stockRules, Position16<MapTiles> cell)
-    {
-        Ensure.NotNull(stockRules);
-        int runStart = cell.X / RunCellCount * RunCellCount;
-        for (int x = runStart; x < runStart + RunCellCount; x++)
-        {
-            if (stockRules.IsDiscoverable(new Position16<MapTiles>(x, cell.Y)))
-                return true;
-        }
-        return false;
     }
 }

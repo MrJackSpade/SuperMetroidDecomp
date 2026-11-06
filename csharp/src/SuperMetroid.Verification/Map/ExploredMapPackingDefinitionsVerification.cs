@@ -76,7 +76,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             Position16<MapTiles>[] expected = [.. explored.ExploredCells(area).Where(cell => AreaIds.IsZebes(area) &&
-                ExploredMapStorage.IsKept(RetailPresentationFixture().Get(area), cell))];
+                SavedMapExplorationRuns.IsKept(RetailPresentationFixture().Get(area).IsDiscoverable, cell))];
             AssertTrue(expected.SequenceEqual(restored.Progression.ExploredCells(area)),
                 $"packed map production round trip keeps {area}'s occupied runs");
         }

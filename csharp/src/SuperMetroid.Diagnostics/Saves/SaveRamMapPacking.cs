@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// The packed explored-map field of a legacy save image (#1322, #1475): bank $81's <c>SaveMap</c> and <c>LoadMap</c> copy
 /// each Zebes area's explored-map plane byte by byte through a list of the bytes the area's stock map occupies, in the
 /// plane's page-first order, the areas one after another; Ceres is not packed. The lists are calculated from stock map
-/// occupancy (<see cref="ExploredMapStorage.IsKept"/>), so edits to the installed map artwork never move a byte.
+/// occupancy (<see cref="SavedMapExplorationRuns.IsKept"/>), so edits to the installed map artwork never move a byte.
 /// </summary>
 [EncodingOwner("legacy save image packed explored-map field")]
 public static class SaveRamMapPacking
@@ -94,7 +95,7 @@ public static class SaveRamMapPacking
         var occupied = new List<int>();
         for (int planeByte = 0; planeByte < ProgressionTableCodec.ExploredPlaneByteCount; planeByte++)
         {
-            if (ExploredMapStorage.IsKept(stockRules, FirstCell(planeByte)))
+            if (SavedMapExplorationRuns.IsKept(stockRules.IsDiscoverable, FirstCell(planeByte)))
                 occupied.Add(planeByte);
         }
         return occupied;

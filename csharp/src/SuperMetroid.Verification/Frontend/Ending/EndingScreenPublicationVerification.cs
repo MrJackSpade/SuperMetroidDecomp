@@ -16,22 +16,11 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingScreenPublicationVerification
 {
     /// <summary>
-    /// A floor load covering an earlier one replaces it and a full clear forgets every load and every shown picture, so the
-    /// record stays bounded (#1467); and a running ending survives a debugger round trip at the credits and at the
-    /// post-credits logo, showing the same image, palette and sprite entries once its artwork is rebound.
+    /// A running ending survives a debugger round trip at the credits and at the post-credits logo, showing the same image,
+    /// palette and sprite entries once its artwork is rebound.
     /// </summary>
     internal static void VerifyEndingScreenPublication()
     {
-        var screen = new EndingScreen();
-        screen.LoadFlyawayFloor();
-        screen.ShowText(EndingTextScreen.FinalText, [new WrittenPicture(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
-        screen.LoadExplosionMaps();
-        AssertThrows<InvalidOperationException>(() => screen.LoadFlyawayFloor(), "the flyaway floor is loaded once per clear");
-        AssertEqual(EndingFloorShot.Flyaway, screen.FloorShot, "the loaded flyaway floor shows");
-        screen.Clear();
-        AssertTrue(!screen.FlyawayFloorLoaded && !screen.ExplosionMapsLoaded && screen.FinalPageText is null,
-            "a full clear forgets every load and every shown picture");
-
         var audio = new AudioQueues();
         EndingCreditsState ending = InstalledFixtures.CreateEnding(audio, 3, 0);
         foreach (EndingCreditsPhase target in new[] { EndingCreditsPhase.Credits, EndingCreditsPhase.PostCreditsLogo })
@@ -59,7 +48,7 @@ internal static class EndingScreenPublicationVerification
             AssertTrue(PlacedSpritePart.Of(shown.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredShown.SpriteDraws)),
                 $"a restored ending places the same sprite entries at {target}");
         }
-        Console.WriteLine("  Ending screen: the transfer record replaces and clears, and the ending survives a debugger round trip at the credits and the logo.");
+        Console.WriteLine("  Ending screen: the ending survives a debugger round trip at the credits and the logo.");
     }
 
     /// <summary>A copy of <paramref name="ending"/> through the debugger state serializer.</summary>

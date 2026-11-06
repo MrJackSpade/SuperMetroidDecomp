@@ -13,7 +13,7 @@ internal sealed class EndingFlyaway
 {
     /// <summary>Controls the animals' escape detail in the planet cinematic.</summary>
     private readonly bool crittersEscaped;
-    /// <summary>The ending's screen: its colours and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
@@ -174,9 +174,6 @@ internal sealed class EndingFlyaway
         // the sprites and their colours stay as they are through the hold.
         _stage.LoadColours(EndingColourLoad.ExplosionBackgrounds);
     }
-
-    /// <summary>Loads the flyaway's floor, an installed picture, as the explosion's hold ends (#1467, #1513).</summary>
-    internal void LoadFlyawayFloor() => screen.LoadFlyawayFloor();
 
     /// <summary>The gunship flight's installed artwork.</summary>
     internal CeresFlightArtwork? FlightArtwork { get; private set; }

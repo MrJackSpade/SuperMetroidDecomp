@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>What an ending background-text sequence draws and where (#633).</summary>
+/// <summary>What an ending background-text sequence draws and on which staging page (#633).</summary>
 internal sealed record EndingBackgroundTextSetup
 {
     /// <summary>The staging page the sequence writes its text to.</summary>
@@ -13,9 +13,6 @@ internal sealed record EndingBackgroundTextSetup
 
     /// <summary>Japanese text.</summary>
     public required bool JapaneseText { get; init; }
-
-    /// <summary>The text page the staging page is shown on after each revealed glyph.</summary>
-    public EndingTextScreen DestinationTilemap { get; init; } = EndingTextScreen.ResultPanel;
 
     /// <summary>Presentation.</summary>
     public EndingTypewriterText? Presentation { get; init; } = null;

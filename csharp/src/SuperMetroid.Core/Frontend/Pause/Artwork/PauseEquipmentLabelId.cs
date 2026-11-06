@@ -11,7 +11,7 @@ public enum PauseEquipmentLabelId
     Wave,
     /// <summary>SPAZER.</summary>
     Spazer,
-    /// <summary>PLASMA, whose nine-word button patch continues into the Varia label.</summary>
+    /// <summary>PLASMA.</summary>
     Plasma,
     /// <summary>VARIA SUIT.</summary>
     Varia,

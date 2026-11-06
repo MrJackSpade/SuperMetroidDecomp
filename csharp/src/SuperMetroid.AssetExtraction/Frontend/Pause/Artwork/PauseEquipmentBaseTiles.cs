@@ -14,8 +14,8 @@ public static class PauseEquipmentBaseTiles
 {
     /// <summary>
     /// $82:C06C-$C087 destinations: beams occupy rows16-20, suits/misc rows9-10
-    /// and13-16, boots rows19-21. All own nine cells, including the Plasma overrun
-    /// into adjacent words used by the native simultaneous-input VAR behavior.
+    /// and13-16, boots rows19-21. All own nine cells on the cartridge's page, where a nine-cell write dispatched from
+    /// the suit or boot column reaches along a beam row; the game shows each label's picture whole (#1515).
     /// </summary>
     public static bool IsEquipmentLabelCell(int cell)
     {
@@ -79,8 +79,8 @@ public static class PauseEquipmentBaseTiles
     private static PanelShape InventoryPanel(PauseEquipmentCategory category, int firstItem, int lastItem,
         int titleWidth, int titleGlyph, int titlePalette)
     {
-        int first = PauseEquipmentLabelTiles.StockPageByte(PauseEquipmentLabelTiles.Label(category, firstItem)) / sizeof(ushort);
-        int last = PauseEquipmentLabelTiles.StockPageByte(PauseEquipmentLabelTiles.Label(category, lastItem)) / sizeof(ushort);
+        int first = PauseEquipmentLabelPlacement.PageCell(PauseEquipmentLabelTiles.Label(category, firstItem));
+        int last = PauseEquipmentLabelPlacement.PageCell(PauseEquipmentLabelTiles.Label(category, lastItem));
         int left = first % Columns - 1, right = first % Columns + PauseEquipmentLabelKeys.WordCount(category);
         return new(left, first / Columns - 1, right, last / Columns + 1,
             (left + right - titleWidth + 1) / 2, titleWidth, titleGlyph, titlePalette, true);
@@ -94,9 +94,9 @@ public static class PauseEquipmentBaseTiles
         int row = cell / Columns, column = cell % Columns;
         foreach (var label in PauseEquipmentLabelTiles.Labels())
         {
-            int first = PauseEquipmentLabelTiles.StockPageByte(label.Label) / sizeof(ushort);
+            int first = PauseEquipmentLabelPlacement.PageCell(label.Label);
             int index = cell - first;
-            if ((uint)index >= PauseEquipmentLabelTiles.StockWordCount(label.Label)) continue;
+            if ((uint)index >= PauseEquipmentLabelPlacement.CellCount(label.Label)) continue;
             BackgroundTile tile = PauseEquipmentLabelGlyphs.StockTile(label.Label, index);
             bool grayTemplate = label.Category == PauseEquipmentCategory.Boots ||
                 (label.Category == PauseEquipmentCategory.Suits && label.Item < 2);

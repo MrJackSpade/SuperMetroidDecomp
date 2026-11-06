@@ -645,47 +645,46 @@ internal static class LookupStream2Verification
             string key = PauseEquipmentLabelKeys.Name(id);
             PauseEquipmentLabel label = document.Labels[key];
             BackgroundTile[] native = PauseTileGrid.Compile(label.Cells, key);
-            AssertEqual((label.Row * 32 + label.Column) * 2,
-                PauseEquipmentLabelTiles.StockPageByte(id), "Native semantic label placement");
+            AssertEqual(label.Row * 32 + label.Column,
+                PauseEquipmentLabelPlacement.PageCell(id), "Native semantic label placement");
             for (int cell = 0; cell < label.Cells.Length; cell++)
             {
                 AssertEqual(native[cell], PauseEquipmentLabelGlyphs.StockTile(id, cell), "Native glyph tile, colour variant, priority and mirroring");
                 words++;
             }
         }
-        // Untouched tiles around the patched labels.
+        // Each label laid out for its only collected item, equipped or not, among blank strips and untouched tiles around them.
         var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
         foreach (var identity in PauseEquipmentLabelTiles.Labels())
         {
             PauseEquipmentLabel label = document.Labels[PauseEquipmentLabelKeys.Name(identity.Label)];
             BackgroundTile[] labelTiles = PauseTileGrid.Compile(label.Cells, "Stock label");
+            PauseEquipmentBit bit = PauseEquipmentRules.Mask(identity.Category, identity.Item);
             foreach (bool disabled in new[] { false, true })
             {
                 BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
                 BackgroundTile[] expected = actual.ToArray();
-                int length = label.Cells.Length;
-                for (int cell = 0; cell < length; cell++)
+                foreach (var other in PauseEquipmentLabelTiles.Labels())
+                {
+                    PauseEquipmentLabel blank = document.Labels[PauseEquipmentLabelKeys.Name(other.Label)];
+                    expected.AsSpan(blank.Row * 32 + blank.Column, blank.Cells.Length).Clear();
+                }
+                for (int cell = 0; cell < label.Cells.Length; cell++)
                 {
                     BackgroundTile tile = labelTiles[cell];
                     if (disabled) tile = tile with { ColourVariant = document.DisabledPalette };
                     expected[label.Row * 32 + label.Column + cell] = tile;
                 }
-                stock.ApplyLabel(actual, identity.Category, identity.Item, length, disabled);
-                AssertTrue(expected.SequenceEqual(actual), "Actual label patch/disabled recolor preserves every cell and surrounding tile");
+                stock.ApplyInventory(actual, bit.Beam, disabled ? SamusBeamFlags.None : bit.Beam,
+                    bit.Item, disabled ? SamusEquipmentFlags.None : bit.Item, hyperBeam: false);
+                AssertTrue(expected.SequenceEqual(actual), "Actual label/disabled recolor writes every cell of the label and no surrounding tile");
             }
         }
-        var overrun = new BackgroundTile[32 * 32];
-        stock.ApplyLabel(overrun, PauseEquipmentCategory.Beams, 4, 9, false);
-        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelKeys.Name(PauseEquipmentLabelId.Plasma)];
-        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelKeys.Name(PauseEquipmentLabelId.Varia)];
-        BackgroundTile[] tail = PauseTileGrid.Compile(varia.Cells, "Native contiguous Varia tail");
-        AssertTrue(tail.AsSpan(0, 4).SequenceEqual(overrun.AsSpan(plasma.Row * 32 + plasma.Column + 5, 4)),
-            "Nine-cell Plasma patch retains four exact contiguous Varia tiles");
         AssertEqual(115, words, "All native equipment glyph tiles");
         AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile((PauseEquipmentLabelId)byte.MaxValue, 0), "Unknown label rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile(PauseEquipmentLabelId.Ice, -1), "Negative label cell rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile(PauseEquipmentLabelId.Ice, 5), "Label cell upper bound rejected");
-        Console.WriteLine("Pause equipment labels:115 native words/15placements,stock label patches, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
+        Console.WriteLine("Pause equipment labels:115 native words/15placements,stock labels by item state, disabled recoloring, source hashes and bounds pass; glyph artwork remains independent.");
     }
 
     /// <summary>Checks pause equipment blank cells against native art and the stock label boundaries.</summary>
@@ -694,7 +693,7 @@ internal static class LookupStream2Verification
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(
             nativeJson, ArtworkJson.Options);
-        for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
+        for (int cell = 0; cell < PauseEquipmentLabelArtworkDefinitions.EquipmentWords; cell++)
         {
             int address = 0x820000 | (PauseMenuSourceDefinitions.BlankEquipmentLabel + cell * 2);
             AssertEqual((byte)0, rom.ReadCartridgeByte(address), "Native blank low byte");
@@ -719,7 +718,7 @@ internal static class LookupStream2Verification
             {
                 PauseEquipmentLabel label = document.Labels[PauseEquipmentLabelArtworkDefinitions.HyperKey];
                 BackgroundTile[] tiles = PauseTileGrid.Compile(label.Cells, "Reference Hyper label");
-                tiles.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords)
+                tiles.AsSpan(0, PauseEquipmentLabelArtworkDefinitions.BeamWords)
                     .CopyTo(expected.AsSpan(label.Row * 32 + label.Column));
             }
             presentation.ApplyInventory(actual, 0, 0, 0, 0, hyper);

@@ -12,7 +12,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 /// <summary>Constructed-source confirmation of the identified pause provider contracts, not menu behavior or sound.</summary>
 internal static class PausePresentationContractChecks
 {
-    /// <summary>Compiles 23 pause consumer calls to confirm the closed adapters classify only supported resources, then changes label source identity to confirm those proofs are revoked.</summary>
+    /// <summary>Compiles 18 pause consumer calls to confirm the closed adapters classify only supported resources, then changes label source identity to confirm those proofs are revoked.</summary>
     internal static void Run()
     {
         var trees = PauseClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -38,11 +38,6 @@ internal static class PausePresentationContractChecks
                     wireframe.ApplyTo(page, PauseWireframeKind.VariaSuitHiJump);
                     wireframe.ApplyTo(page, (PauseWireframeKind)99);
                     labels.ApplyInventory(page, 0, 0, 0, 0, false);
-                    labels.ApplyLabel(page, (PauseEquipmentCategory)1, 4, PauseEquipmentLabelDefinitions.EquipmentWords, false);
-                    labels.ApplyLabel(page, (PauseEquipmentCategory)1, 0, PauseEquipmentLabelDefinitions.EquipmentWords, false);
-                    labels.ApplyLabel(page, (PauseEquipmentCategory)3, 2, PauseEquipmentLabelDefinitions.EquipmentWords, false);
-                    labels.ApplyLabel(page, (PauseEquipmentCategory)3, 3, PauseEquipmentLabelDefinitions.EquipmentWords, false);
-                    labels.ApplyLabel(page, 0, 0, 0, false);
                     selector.Anchor((PauseEquipmentCategory)3, 2);
                     selector.Anchor((PauseEquipmentCategory)3, 3);
                     selector.NormalizePhase(int.MaxValue);
@@ -76,12 +71,11 @@ internal static class PausePresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "PausePresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 23, "twenty-three calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 13 && after.UnresolvedCount == 10 && after.MissingCount == 0 &&
-            after.Consumers.Count == 23, "complete resources qualify, while wrong area/kind/tuple/overrun/anchor/phase/identity constants still fail (expected 13/10/0/23; " + after.Describe() + ")");
-        Require(after.Findings.Count(item => item.Owner == "PauseEquipmentLabelPresentation.ApplyLabel") == 3 &&
-            after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor" or "PauseSelectorPresentation.Draw") == 2,
-            "Boots and Reserve must not borrow larger categories; only Plasma may extend a beam label to nine words");
+        Require(before.UnresolvedCount == 18, "eighteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 11 && after.UnresolvedCount == 7 && after.MissingCount == 0 &&
+            after.Consumers.Count == 18, "complete resources qualify, while wrong area/kind/anchor/phase/identity constants still fail (expected 11/7/0/18; " + after.Describe() + ")");
+        Require(after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor" or "PauseSelectorPresentation.Draw") == 2,
+            "Boots and Reserve selectors must not borrow larger categories");
     }
 
     /// <summary>Fails the audit with the violated pause-provider contract predicate.</summary>

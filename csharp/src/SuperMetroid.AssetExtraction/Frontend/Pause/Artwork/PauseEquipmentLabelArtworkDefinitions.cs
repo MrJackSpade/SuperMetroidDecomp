@@ -1,11 +1,20 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The editable equipment label document's schema and the pause atlas tiles the labels are pictured from (#1467); the
-/// labels' identities and widths, which the game reads, are <c>PauseEquipmentLabelDefinitions</c>.
+/// The editable equipment label document's schema, the cartridge's layout of the label strips on the equipment page and
+/// the pause atlas tiles the labels are pictured from (#1467, #1515). The game places each label's picture whole and knows
+/// none of this.
 /// </summary>
 public static class PauseEquipmentLabelArtworkDefinitions
 {
+    /// <summary>Equipment-page tilemap width in eight-pixel tile cells; each row contains 32 little-endian sixteen-bit tile words.</summary>
+    public const int TilemapColumns = 32;
+    /// <summary>Five tile words in an ordinary beam label and in the displayed Hyper patch, including the leading inventory marker cell.</summary>
+    public const int BeamWords = 5;
+    /// <summary>Nine tile words in suit, miscellaneous equipment, boot, blank, and stored Hyper strips.</summary>
+    public const int EquipmentWords = 9;
+    /// <summary>The beam item whose place the cartridge's Hyper label table gives Hyper's only nonblank strip: Wave's.</summary>
+    public const int HyperBeamItem = 2;
     /// <summary>Supported installed label schema version, requiring fourteen ordinary inventory labels, the Hyper label, and a nine-cell blank strip.</summary>
     public const int Version = 1;
     /// <summary>Installed JSON filename for editable equipment-page label artwork, destinations, and the unequipped-label palette selector.</summary>
@@ -16,10 +25,6 @@ public static class PauseEquipmentLabelArtworkDefinitions
     public const int TilemapRows = 32;
     /// <summary>Stock BG palette selector three for collected but unequipped labels, replacing only tile-word palette bits and leaving the artwork, flips, and priority intact.</summary>
     public const int DisabledPalette = 3;
-    /// <summary>The equipment-page cell the Plasma label starts at, $284.</summary>
-    public const int PlasmaCell = 644;
-    /// <summary>The ninth Boots-length Plasma word is subsequently owned by the wireframe at cell $28C.</summary>
-    public const int PlasmaWireframeOverlapCell = 652;
     /// <summary>$82:BF32-C018: all collected label tile words use BG palette two.</summary>
     internal const int LabelPalette = 2;
     /// <summary>Leading inventory marker character $FF before each label's text.</summary>

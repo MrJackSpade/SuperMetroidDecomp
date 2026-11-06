@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Checks post-shot ending rotation, palette fades, VRAM uploads, and white-flash timing.</summary>
+/// <summary>Checks post-shot ending rotation, palette fades, white-flash timing, and the logo's native transfers.</summary>
 internal static class EndingPostShotVerification
 {
     /// <summary>Compares every post-shot frame with native timing and exact palette and VRAM contents.</summary>
@@ -59,26 +59,23 @@ internal static class EndingPostShotVerification
             AssertEqual(RotationAngle.FromTableIndex(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
             AssertEqual(frame == 216, shot.ReadyForWhiteFlash, "white-flash handoff follows a full 180-frame hold");
-            AssertEqual(Math.Clamp(frame - 47, 0, 6), shot.PartsShown, "logo uploads wait for Samus fade, one transfer per frame");
             // The screen names the shot's and Samus's fade levels, Samus's after its delay (#1512).
             AssertTrue(screen.Colours.Shading.Shades.Contains(EndingShades.Faded(EndingFade.Shot, 32 - Math.Clamp(frame, 0, 32))),
                 "post-shot shot fade level");
             AssertTrue(screen.Colours.Shading.Shades.Contains(EndingShades.Faded(EndingFade.ShootingSamus, 32 - Math.Clamp(frame - 16, 0, 32))),
                 "post-shot delayed Samus fade level");
-            if (frame == 48) font.AsSpan(0x1000, 0x400).CopyTo(expected.AsSpan(0x9000));
-            if (frame is >= 49 and <= 52)
-            {
-                int offset = (frame - 49) * 0x800;
-                tiles.AsSpan(offset, 0x800).CopyTo(expected.AsSpan(0xc000 + offset));
-            }
-            if (frame == 53) map.AsSpan(0, 0x800).CopyTo(expected.AsSpan(0xa800));
-            AssertEqual(shot.PartsShown, screen.PostShotPartsShown, "the screen shows each part the post-shot makes");
-            byte[] shownScreen = EndingScreenMemory.Compose(screen, null, null, objects, fontAtlas, EndingReward.Armored);
-            AssertTrue(expected.AsSpan().SequenceEqual(shownScreen), "each native logo transfer changes exactly its intended VRAM bytes");
         }
+        // The game shows the logo's installed picture whole (#1515); the cartridge's six logo transfers, which the import
+        // pictures it from, write the font, the logo's characters and its map.
+        font.AsSpan(0x1000, 0x400).CopyTo(expected.AsSpan(0x9000));
+        tiles.AsSpan(0, 0x2000).CopyTo(expected.AsSpan(0xc000));
+        map.AsSpan(0, 0x800).CopyTo(expected.AsSpan(0xa800));
+        byte[] logo = EndingScreenMemory.Compose(EndingScreenLoads.None with { PostShotParts = EndingScreenLoads.PostShotPartCount },
+            null, null, objects, fontAtlas, EndingReward.Armored);
+        AssertTrue(expected.AsSpan().SequenceEqual(logo), "the logo's native transfers change exactly their intended VRAM bytes");
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "post-shot uploads never reread the fixed cartridge transfer table");
-        Console.WriteLine("  Post-shot: 36 rotation frames, delayed palette fades, six exact uploads, 180-frame hold.");
+        Console.WriteLine("  Post-shot: 36 rotation frames, delayed palette fades, 180-frame hold, and the logo's six exact transfers.");
     }
 
     /// <summary>Rejects runtime rereads of the fixed post-shot transfer table after import.</summary>

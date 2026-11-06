@@ -38,7 +38,7 @@ internal static class EndingPostCreditsScrollVerification
         var leftover = new Position16<PlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
         ending.Stage.PostCreditsScroll = leftover;
         ending.CreditsRoll.CurrentPostShot = new EndingPostShot();
-        ending.CreditsRoll.CurrentRewardJump = new EndingRewardJump(ending.Stage.EndingReward, () => { });
+        ending.CreditsRoll.CurrentRewardJump = new EndingRewardJump(ending.Stage.EndingReward);
         ending.Stage.Phase = EndingCreditsPhase.PostCreditsShot;
         for (int call = 0; ending.Stage.Phase == EndingCreditsPhase.PostCreditsShot; call++)
         {

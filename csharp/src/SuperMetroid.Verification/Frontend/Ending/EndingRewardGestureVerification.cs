@@ -43,9 +43,8 @@ internal static class EndingRewardGestureVerification
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinationsConstants.RewardChunkWordOf(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
         }
-        var graphicsScreen = new EndingScreen();
-        graphicsScreen.LoadRewardIcon();
-        byte[] graphicsVram = EndingScreenMemory.Compose(graphicsScreen, rewardArtwork, null, null, null, EndingReward.Armored);
+        byte[] graphicsVram = EndingScreenMemory.Compose(EndingScreenLoads.None with { RewardIcon = true }, rewardArtwork, null, null, null,
+            EndingReward.Armored);
         int iconBytes = EndingRewardGraphicsUploadDefinitions.ArtworkBytes;
         AssertTrue(graphicsVram[..iconBytes].AsSpan().SequenceEqual(expectedGraphics.AsSpan(0, iconBytes)),
             "the loaded reward icon preserves both interleaved lanes");
@@ -76,8 +75,7 @@ internal static class EndingRewardGestureVerification
             AssertEqual(reward == EndingReward.Suitless ? 244 : 329, calls,
                 "native ED2D/EDD3 gesture durations before jump spawn");
             Console.WriteLine($"  {reward}: {calls} gesture frames, {maps.Count} OAM poses, native jump handoff.");
-            int iconReveals = 0;
-            var jump = new EndingRewardJump(reward, () => iconReveals++);
+            var jump = new EndingRewardJump(reward);
             bool switched = false, firstMotion = false;
             int minimumY = jump.BodyY;
             int jumpCalls = 0;
@@ -100,8 +98,7 @@ internal static class EndingRewardGestureVerification
             }
             AssertTrue(jump.ShotRequested && switched && firstMotion, "jump executes flight, sheet handoff, landing and shooting");
             AssertEqual(136, jump.BodyY, "native reward landing center");
-            AssertEqual(1, iconReveals, "the fall back to the landing reveals the reward icon exactly once");
-            Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, icon reveal, shot request.");
+            Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, shot request.");
         }
         AssertEqual(0, rewardBus.ForbiddenReadAttempts,
             "ending reward actors never reread compiled definition records");

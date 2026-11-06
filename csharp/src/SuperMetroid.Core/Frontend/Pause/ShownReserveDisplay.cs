@@ -3,8 +3,8 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// The reserve labels and supply digits the equipment page shows once Samus has reserve capacity (#1467): the mode the
-/// labels were last written for and the supply the digits were last written for.
+/// The reserve labels and supply digits the equipment page shows once Samus has reserve capacity (#1467, #1515): the mode
+/// her reserve tanks are in and the energy they hold.
 /// </summary>
 /// <param name="Mode">The reserve mode the mode label names: none keeps MODE's initial MANUAL text.</param>
 /// <param name="Supply">The reserve energy the three supply digits show.</param>

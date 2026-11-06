@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <remarks>
 /// The typed characters are the installed glyph pictures of their style, written to the staging page at their cells
-/// with the four-frame typewriter cadence; the page is shown after each written glyph (#1467).
+/// with the four-frame typewriter cadence; the post-credits page shows the staging page as it is each frame (#1467, #1515).
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
-    /// <summary>The staging page, shown after each revealed glyph.</summary>
+    /// <summary>The staging page the text is written to.</summary>
     private readonly EndingTextPage page;
     /// <summary>Collected ammo and item counts used for the final item-percentage message.</summary>
     private readonly EndingInventorySnapshot inventory;
@@ -20,8 +20,6 @@ internal sealed class EndingBackgroundTextState
     private readonly bool japaneseText;
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
     internal WrappingCountdown FrameHold { get; set; } = WrappingCountdown.Start(1);
-    /// <summary>Scene-selected text page the staging page is shown on.</summary>
-    private readonly EndingTextScreen destinationTilemap;
     /// <summary>The installed typewriter characters, compiled when the text is bound.</summary>
     private EndingTextCharacter[]? installedProgram;
     /// <summary>The installed text sequence's characters.</summary>
@@ -42,7 +40,6 @@ internal sealed class EndingBackgroundTextState
         this.page = Ensure.NotNull(setup.Page);
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
-        this.destinationTilemap = setup.DestinationTilemap;
         this.installedSequence = setup.InstalledSequence;
         if (setup.Presentation is null || setup.InstalledSequence is null)
             throw new InvalidOperationException("Ending text requires installed presentation and sequence definitions.");
@@ -56,14 +53,13 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Set when the item-percentage text clears and the scene may scroll onward.</summary>
     public bool RequestedItemPercentageScroll { get; private set; }
 
-    /// <summary>Consumes one ending text tick and shows the page when a glyph or terminal change appears.</summary>
-    public void Step(EndingScreen screen)
+    /// <summary>Consumes one ending text tick, writing a glyph or the terminal change to the staging page when one is due.</summary>
+    public void Step()
     {
-        Ensure.NotNull(screen);
         if (installedProgram is null)
             throw new InvalidOperationException(
                 "Ending text requires its installed text to be bound.");
-        StepInstalled(screen);
+        StepInstalled();
     }
 
     /// <summary>Binds the installed typewriter text when the game is bound to its installed content.</summary>
@@ -78,7 +74,7 @@ internal sealed class EndingBackgroundTextState
     }
 
     /// <summary>Runs the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
-    private void StepInstalled(EndingScreen screen)
+    private void StepInstalled()
     {
         if (Completed || !(FrameHold = FrameHold.Decrement().Remaining).IsZero) return;
         if (InstalledInitialMarkerPending)
@@ -95,7 +91,6 @@ internal sealed class EndingBackgroundTextState
                 page.Write(EndingPictureNames.Glyph(character.Style, character.Character), new Position16<TilemapCells>(
                     character.Column, character.Row));
             FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.CharacterDelayFrames);
-            Upload(screen);
             return;
         }
         if (installedSequence == EndingTextSequence.ItemPercentage && !installedHoldStarted)
@@ -105,7 +100,6 @@ internal sealed class EndingBackgroundTextState
                 page.Write(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             installedHoldStarted = true;
             FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.PercentageHoldFrames);
-            Upload(screen);
             return;
         }
         if (installedSequence == EndingTextSequence.ItemPercentage)
@@ -115,7 +109,6 @@ internal sealed class EndingBackgroundTextState
             RequestedItemPercentageScroll = true;
         }
         Completed = true;
-        Upload(screen);
     }
 
     /// <summary>Counts collected expansions and item bits, clamps to 100, and writes the two-row digits and percent sign.</summary>
@@ -144,9 +137,4 @@ internal sealed class EndingBackgroundTextState
     /// <summary>The cell of the item percentage's glyph <paramref name="place"/> places right of the hundreds digit.</summary>
     private static Position16<TilemapCells> PercentageCell(int place) => new(
         EndingResultTextLayout.PercentageHundredsCell.X + place, EndingResultTextLayout.PercentageHundredsCell.Y);
-
-    /// <summary>Shows the staging page on the selected text page.</summary>
-    private void Upload(EndingScreen screen) =>
-        screen.ShowText(destinationTilemap, page.Written);
-
 }

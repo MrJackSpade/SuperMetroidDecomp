@@ -31,14 +31,7 @@ public sealed class PauseEquipmentLabelPresentation
     internal IEnumerable<int> PageCells(PauseEquipmentLabelId label)
     {
         CompiledLabel compiled = labels[label];
-        return Enumerable.Range(compiled.PageCell, label == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelDefinitions.BeamWords : compiled.CellCount);
-    }
-
-    /// <summary>The cells after Plasma's own that its nine-cell button overrun writes Varia's first cells to (#1467).</summary>
-    internal IEnumerable<int> PlasmaOverrunCells()
-    {
-        CompiledLabel plasma = labels[PauseEquipmentLabelId.Plasma];
-        return Enumerable.Range(plasma.PageCell + plasma.CellCount, PauseEquipmentLabelDefinitions.EquipmentWords - plasma.CellCount);
+        return Enumerable.Range(compiled.PageCell, label == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelArtworkDefinitions.BeamWords : compiled.CellCount);
     }
 
     /// <summary>Clears uncollected strips, recolors collected but unequipped strips, and replaces ordinary beam labels with Hyper when active.</summary>
@@ -51,10 +44,10 @@ public sealed class PauseEquipmentLabelPresentation
             for (int item = 0; item < PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Beams); item++)
             {
                 CompiledLabel destination = labels[PauseEquipmentLabelTiles.Label(PauseEquipmentCategory.Beams, item)];
-                WriteBlank(tilemap.Slice(destination.PageCell, PauseEquipmentLabelDefinitions.BeamWords));
+                WriteBlank(tilemap.Slice(destination.PageCell, PauseEquipmentLabelArtworkDefinitions.BeamWords));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelId.Hyper];
-            hyper.CopyTo(tilemap.Slice(hyper.PageCell, PauseEquipmentLabelDefinitions.BeamWords));
+            hyper.CopyTo(tilemap.Slice(hyper.PageCell, PauseEquipmentLabelArtworkDefinitions.BeamWords));
         }
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         for (int item = 0; item < PauseEquipmentLabelTiles.ItemCount(category); item++)
@@ -74,29 +67,6 @@ public sealed class PauseEquipmentLabelPresentation
         }
     }
 
-    /// <summary>
-    /// Applies one native equipment-button patch. A nine-cell Plasma write deliberately
-    /// continues into the first four Varia cells, retaining the retail VAR glitch.
-    /// </summary>
-    public void ApplyLabel(Span<BackgroundTile> tilemap, PauseEquipmentCategory category, int item, int wordCount, bool disabled)
-    {
-        ValidateTilemap(tilemap);
-        PauseEquipmentLabelId id = PauseEquipmentLabelTiles.Label(category, item);
-        CompiledLabel label = labels[id];
-        if (wordCount is < 0 or > PauseEquipmentLabelDefinitions.EquipmentWords)
-            throw new ArgumentOutOfRangeException(nameof(wordCount));
-        Span<BackgroundTile> destination = tilemap.Slice(label.PageCell, wordCount);
-        int ordinaryCells = Math.Min(destination.Length, label.CellCount);
-        label.CopyTo(destination[..ordinaryCells]);
-        if (ordinaryCells < destination.Length)
-        {
-            if (id != PauseEquipmentLabelId.Plasma)
-                throw new InvalidDataException($"Pause label {id} cannot supply a {wordCount}-cell native overrun.");
-            labels[PauseEquipmentLabelId.Varia].CopyTo(destination[ordinaryCells..]);
-        }
-        if (disabled) Recolor(destination, DisabledPalette);
-    }
-
     /// <summary>Validates and compiles pause-equipment-labels.json into placement and tile edits relative to the native $82:BF32-C01A label artwork.</summary>
     /// <param name="json">UTF-8 JSON source read from its current position to the end and left open.</param>
     /// <returns>Compiled inventory-label artwork independent of the mutable document collections and cartridge memory.</returns>
@@ -114,7 +84,7 @@ public sealed class PauseEquipmentLabelPresentation
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment label JSON.", error); }
 
         if (document.Version != PauseEquipmentLabelArtworkDefinitions.Version || document.Labels is null ||
-            document.Blank is null || document.Blank.Length != PauseEquipmentLabelDefinitions.EquipmentWords ||
+            document.Blank is null || document.Blank.Length != PauseEquipmentLabelArtworkDefinitions.EquipmentWords ||
             (uint)document.DisabledPalette >= 8)
             throw new InvalidDataException("Pause equipment labels require version 1, nine blank cells and a valid disabled palette.");
 
@@ -131,24 +101,18 @@ public sealed class PauseEquipmentLabelPresentation
             PauseEquipmentLabel label = document.Labels[key] ??
                 throw new InvalidDataException($"Pause equipment label {key} is null.");
             int words = PauseEquipmentLabelTiles.IsOrdinaryBeam(id)
-                ? PauseEquipmentLabelDefinitions.BeamWords : PauseEquipmentLabelDefinitions.EquipmentWords;
+                ? PauseEquipmentLabelArtworkDefinitions.BeamWords : PauseEquipmentLabelArtworkDefinitions.EquipmentWords;
             if (label.Cells is null || label.Cells.Length != words ||
-                (uint)label.Column >= PauseEquipmentLabelDefinitions.TilemapColumns ||
+                (uint)label.Column >= PauseEquipmentLabelArtworkDefinitions.TilemapColumns ||
                 (uint)label.Row >= PauseEquipmentLabelArtworkDefinitions.TilemapRows ||
-                label.Column + (id == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelDefinitions.BeamWords : words) > PauseEquipmentLabelDefinitions.TilemapColumns)
+                label.Column + (id == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelArtworkDefinitions.BeamWords : words) > PauseEquipmentLabelArtworkDefinitions.TilemapColumns)
                 throw new InvalidDataException($"Pause equipment label {key} has invalid cells or placement.");
-            int destinationCell = label.Row * PauseEquipmentLabelDefinitions.TilemapColumns + label.Column;
+            int destinationCell = label.Row * PauseEquipmentLabelArtworkDefinitions.TilemapColumns + label.Column;
             if (id != PauseEquipmentLabelId.Hyper)
             {
-                int footprint = id == PauseEquipmentLabelId.Plasma
-                    ? PauseEquipmentLabelDefinitions.EquipmentWords : words;
-                for (int cell = destinationCell; cell < destinationCell + footprint; cell++)
+                for (int cell = destinationCell; cell < destinationCell + words; cell++)
                 {
-                    bool plasmaWireframeOverlap = id == PauseEquipmentLabelId.Plasma &&
-                        destinationCell == PauseEquipmentLabelArtworkDefinitions.PlasmaCell &&
-                        cell == PauseEquipmentLabelArtworkDefinitions.PlasmaWireframeOverlapCell;
-                    if (PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell) &&
-                        !plasmaWireframeOverlap)
+                    if (PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell))
                         throw new InvalidDataException($"Pause equipment label {key} overlaps wireframe or reserve state at cell {cell}.");
                     if (!occupied.Add(cell)) throw new InvalidDataException($"Pause equipment label {key} overlaps another label.");
                 }
@@ -158,7 +122,7 @@ public sealed class PauseEquipmentLabelPresentation
 
         BackgroundTile[] blank = PauseTileGrid.Compile(document.Blank, "Equipment.Blank");
         var blankEdits = new Dictionary<int, BackgroundTile>();
-        for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
+        for (int cell = 0; cell < PauseEquipmentLabelArtworkDefinitions.EquipmentWords; cell++)
             if (blank[cell] != default) blankEdits.Add(cell, blank[cell]);
         return new(compiled, blankEdits, document.DisabledPalette);
     }
@@ -188,7 +152,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Rejects partial tilemaps so fixed label destinations remain within the complete 32-by-32 pause tilemap.</summary>
     private static void ValidateTilemap(Span<BackgroundTile> tilemap)
     {
-        if (tilemap.Length != PauseEquipmentLabelDefinitions.TilemapColumns * PauseEquipmentLabelArtworkDefinitions.TilemapRows)
+        if (tilemap.Length != PauseEquipmentLabelArtworkDefinitions.TilemapColumns * PauseEquipmentLabelArtworkDefinitions.TilemapRows)
             throw new ArgumentException("Pause equipment labels require a complete 32x32 tilemap.", nameof(tilemap));
     }
 
@@ -203,9 +167,9 @@ public sealed class PauseEquipmentLabelPresentation
     private sealed class CompiledLabel(PauseEquipmentLabelId id, int? destinationEdit, Dictionary<int, BackgroundTile> edits)
     {
         /// <summary>Returns the edited cell or the stock selector's equipment-page cell.</summary>
-        internal int PageCell => destinationEdit ?? PauseEquipmentLabelTiles.StockPageByte(id) / sizeof(ushort);
+        internal int PageCell => destinationEdit ?? PauseEquipmentLabelPlacement.PageCell(id);
         /// <summary>Uses the native selector's width even when its authored strip has edited cells.</summary>
-        internal int CellCount => PauseEquipmentLabelTiles.StockWordCount(id);
+        internal int CellCount => PauseEquipmentLabelPlacement.CellCount(id);
 
         /// <summary>Retains only tiles and destination coordinates that differ from the native selector.</summary>
         internal static CompiledLabel Load(PauseEquipmentLabelId id, int destinationCell, ReadOnlySpan<BackgroundTile> tiles)
@@ -213,12 +177,12 @@ public sealed class PauseEquipmentLabelPresentation
             var edits = new Dictionary<int, BackgroundTile>();
             for (int cell = 0; cell < tiles.Length; cell++)
                 if (tiles[cell] != PauseEquipmentLabelGlyphs.StockTile(id, cell)) edits.Add(cell, tiles[cell]);
-            int? changedDestination = destinationCell == PauseEquipmentLabelTiles.StockPageByte(id) / sizeof(ushort)
+            int? changedDestination = destinationCell == PauseEquipmentLabelPlacement.PageCell(id)
                 ? null : destinationCell;
             return new(id, changedDestination, edits);
         }
 
-        /// <summary>Materializes edited cells over stock artwork for the requested prefix, including Plasma's extended write.</summary>
+        /// <summary>Materializes edited cells over stock artwork for the requested prefix.</summary>
         internal void CopyTo(Span<BackgroundTile> destination)
         {
             for (int cell = 0; cell < destination.Length; cell++)

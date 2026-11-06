@@ -952,13 +952,12 @@ internal static class LookupStream4Verification
             var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = page, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.ItemPercentage });
             state.InstalledInitialMarkerPending = false;
             state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
-            var screen = new EndingScreen();
-            state.Step(screen);
+            state.Step();
             var subtitle = new WrittenPicture(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
-            AssertTrue(screen.ResultPageText.Contains(subtitle), "Actual ending state shows the subtitle picture at its cell");
+            AssertTrue(page.Written.Contains(subtitle), "Actual ending state writes the subtitle picture at its cell");
             state.FrameHold = WrappingCountdown.Start(1);
-            state.Step(screen);
-            AssertTrue(!screen.ResultPageText.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
+            state.Step();
+            AssertTrue(!page.Written.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
         }
     }

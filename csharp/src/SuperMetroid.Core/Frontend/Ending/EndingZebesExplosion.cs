@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingZebesExplosion
 {
-    /// <summary>The ending's screen: its colours and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
@@ -15,7 +15,7 @@ internal sealed class EndingZebesExplosion
     private readonly EndingStage _stage;
     /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
     private readonly EndingFlyaway _flyaway;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -31,8 +31,8 @@ internal sealed class EndingZebesExplosion
     /// <summary>Loads the planet explosion's turning-floor and sprite art and starts its palette crossfade.</summary>
     internal void SetupZebesExplosion()
     {
-        _stage.LoadFloor(EndingFloorSceneId.PlanetExplosion);
-        _artwork.LoadExplosionPictures();
+        _stage.RequireFloorArtwork();
+        _artwork.RequireExplosionArtwork();
         _stage.LoadColours(EndingColourLoad.ExplosionSprites);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.ExplodingZebes, EndingSpriteRole.ExplodingZebes);

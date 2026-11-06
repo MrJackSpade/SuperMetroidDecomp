@@ -23,16 +23,12 @@ internal sealed class EndingRewardJump
 
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
-    /// <summary>Loads the reward icon's floor once Samus has fallen for its reveal.</summary>
-    private readonly Action loadRewardIcon;
     /// <summary>Body actor whose vertical position controls the sheet switch and landing.</summary>
     private readonly IntroDiscoverySprite body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly IntroDiscoverySprite? head;
     /// <summary>Shared packed vertical velocity; each active actor movement applies gravity to it.</summary>
     internal int Velocity { get; private set; }
-    /// <summary>The updates Samus has fallen toward her landing, counted up to the reward icon's reveal.</summary>
-    private int fallingUpdates;
     /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
     /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
@@ -41,16 +37,15 @@ internal sealed class EndingRewardJump
     public int BodyY => CoordinateAxis.AsSigned(body.WholePosition.Y);
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
-    public EndingRewardJump(EndingReward reward, Action loadRewardIcon)
+    public EndingRewardJump(EndingReward reward)
     {
-        this.loadRewardIcon = Ensure.NotNull(loadRewardIcon);
         helmeted = reward == EndingReward.Armored;
         if (reward != EndingReward.Suitless)
             head = Spawn(helmeted ? EndingRewardActor.JumpHelmetedHead : EndingRewardActor.JumpHelmetlessHead);
         body = Spawn(reward == EndingReward.Suitless ? EndingRewardActor.JumpSuitlessBody : EndingRewardActor.JumpSuitedBody);
     }
 
-    /// <summary>Advances head before body, including shared gravity, the reward icon's reveal, and instruction effects.</summary>
+    /// <summary>Advances head before body, including shared gravity and instruction effects.</summary>
     public void Step()
     {
         // Fixed slots put the head above the body in the descending handler.
@@ -78,9 +73,6 @@ internal sealed class EndingRewardJump
         }
         else if (bodyFrameBehavior == CinematicSpriteFrameBehavior.RewardLanding)
         {
-            if (fallingUpdates < EndingRewardJumpDefinitions.RewardIconRevealUpdates
-                && ++fallingUpdates == EndingRewardJumpDefinitions.RewardIconRevealUpdates)
-                loadRewardIcon();
             Move(body);
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
             {

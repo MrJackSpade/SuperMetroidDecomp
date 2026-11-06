@@ -25,8 +25,8 @@ internal static class EndingCreditsPresentation
         {
             bool crossfading = ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted;
             if (crossfading)
-                layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo,
-                    ending.screen.LogoShown), Position16<PlanePixels>.Zero));
+                layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo),
+                    Position16<PlanePixels>.Zero));
             // While the logo's picture fades in, its sprites glow over it. The logo is drawn from the shooting scene's
             // sheet, which holds it.
             layers.Add(Sprites(ending, EndingObjectSheet.RewardFalling, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));
@@ -60,8 +60,7 @@ internal static class EndingCreditsPresentation
             {
                 // The wavy Samus glows over the waiting backdrop where it is drawn.
                 int age = EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer;
-                layers.Add(new AddedPicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus,
-                        ending.screen.PostCreditsArtLoaded),
+                layers.Add(new AddedPicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus),
                     PostCreditsLayer(ending), VerticalScroll: EndingWavySamus.VerticalScrollAtAge(age))
                 {
                     HorizontalWave = EndingWavySamus.WaveAtAge(age),
@@ -144,10 +143,10 @@ internal static class EndingCreditsPresentation
     /// <summary>The post-credits background plane: the waiting backdrop, or the shown text page at its current scroll and height.</summary>
     private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending)
     {
-        var size = new Extent16<TilemapCells>(EndingScreenDefinitions.TilemapWidth, ending.CreditsRoll.PostCreditsMapHeight);
+        var size = new Extent16<TilemapCells>(EndingScreenDefinitions.TilemapWidth, ending.CreditsRoll.PostCreditsPageHeight);
         return UsesWaitingBackground(ending)
             ? new(ending.WaitingPlane(size), ending.Stage.PostCreditsScroll)
-            : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextTilemap, size), ending.Stage.PostCreditsScroll);
+            : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextPage, size), ending.Stage.PostCreditsScroll);
     }
 
     /// <summary>What the ending paints with: its backdrop; its sprites are drawn by its sprite layers (#1514).</summary>

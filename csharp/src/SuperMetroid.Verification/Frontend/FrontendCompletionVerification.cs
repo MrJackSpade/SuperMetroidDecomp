@@ -433,9 +433,8 @@ internal static void VerifyEndingCreditsState()
             MaxPowerBombs: 50,
             CollectedItems: (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope),
             CollectedBeams: (SamusBeamFlags)0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
-    var percentageScreen = new EndingScreen();
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
-        percentage.Step(percentageScreen);
+        percentage.Step();
     AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
         "item-percentage object reaches its native scroll handoff");
     // The digits and the percent sign are pictures written left to right from the hundreds digit's cell (#1467).

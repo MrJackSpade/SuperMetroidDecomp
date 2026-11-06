@@ -11,7 +11,7 @@ internal sealed class EndingCreditsRoll
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Chooses the localized post-credits text asset.</summary>
     private readonly bool japaneseText;
-    /// <summary>The ending's screen: its colours, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
+    /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
@@ -19,7 +19,7 @@ internal sealed class EndingCreditsRoll
     private readonly EndingTextPage postCreditsPage;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -64,14 +64,9 @@ internal sealed class EndingCreditsRoll
         // function 129 for sixty calls. Preserve colors zero through three as the game does.
         _stage.LoadColours(EndingColourLoad.PostCredits);
         _stage.Brightness = 0;
-        UploadPostCreditsTilemap();
         _stage.PhaseTimer = 60;
         _stage.Phase = EndingCreditsPhase.PostCreditsBlank;
     }
-
-    /// <summary>Shows the staging page on the phase-selected text page.</summary>
-    internal void UploadPostCreditsTilemap() =>
-        screen.ShowText(PostCreditsTextTilemap, postCreditsPage.Written);
 
     /// <summary>Replaces the producer result rows with the copyright panel and starts its authored hold.</summary>
     internal void ShowRewardCopyright()
@@ -81,7 +76,6 @@ internal sealed class EndingCreditsRoll
         _ = _artwork.EndingText ?? throw new InvalidOperationException("Ending copyright requires installed text assets.");
         postCreditsPage.Erase(EndingPictureNames.ResultPanel);
         postCreditsPage.Write(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell);
-        UploadPostCreditsTilemap();
         RewardCopyrightShown = true;
         _stage.PhaseTimer = EndingSequenceDefinitions.Timing.CopyrightHoldFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsCopyright;
@@ -106,11 +100,14 @@ internal sealed class EndingCreditsRoll
         // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
     }
 
-    /// <summary>Background map the post-credits staging tilemap is uploaded into, switched by the white flash.</summary>
-    internal EndingTextScreen PostCreditsTextTilemap { get; private set; } = EndingTextScreen.ResultPanel;
+    /// <summary>
+    /// The text page the post-credits scenes show the staging page on (#1515): the result page, then the final page from
+    /// the white flash on.
+    /// </summary>
+    internal EndingTextScreen PostCreditsTextPage { get; private set; } = EndingTextScreen.ResultPanel;
 
-    /// <summary>Visible text page height in cells, enlarged to two screens for the final shot scene.</summary>
-    internal int PostCreditsMapHeight { get; private set; } = 32;
+    /// <summary>The shown text page's height in cells, enlarged to two screens for the final page.</summary>
+    internal int PostCreditsPageHeight { get; private set; } = 32;
 
     /// <summary>Fixed-color white component of the brief transition into the final logo, fading from 31 to zero, where it stays.</summary>
     internal int WhiteFlashColor { get; set; }
@@ -124,14 +121,13 @@ internal sealed class EndingCreditsRoll
     {
         CurrentPostShot = null;
         // E48A restores the shooting palette and shows the final text page: the final
-        // text map is two screens tall, not the credits' single-screen map.
+        // text page is two screens tall, not the credits' single-screen page.
         _stage.LoadColours(EndingColourLoad.RestoredShot);
-        PostCreditsTextTilemap = EndingTextScreen.FinalText;
-        PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
+        PostCreditsTextPage = EndingTextScreen.FinalText;
+        PostCreditsPageHeight = EndingPostShotDefinitions.FinalTextMapHeight;
         _stage.PostCreditsScroll = Position16<PlanePixels>.Zero;
         // E48A clears the copyright's two rows.
         postCreditsPage.Erase(EndingPictureNames.CopyrightPanel);
-        UploadPostCreditsTilemap();
         WhiteFlashColor = EndingPostShotDefinitions.WhiteComponent;
         _stage.PhaseTimer = EndingPostShotDefinitions.FadeFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
@@ -155,7 +151,7 @@ internal sealed class EndingCreditsRoll
     {
         EndingLogo.Step(screen.Colours);
         if (!EndingLogo.Completed) return;
-        _artwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = EndingTextScreen.FinalText, Presentation = _artwork.EndingText, InstalledSequence = _artwork.EndingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage }));
+        _artwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, Presentation = _artwork.EndingText, InstalledSequence = _artwork.EndingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage }));
         _stage.Phase = EndingCreditsPhase.ItemPercentage;
     }
 

@@ -11,6 +11,4 @@ internal static class EndingRewardJumpDefinitions
     public const int SheetSwitchY = -80;
     /// <summary>The body stops here before its landed instruction list begins.</summary>
     public const int LandingY = 136;
-    /// <summary>The updates of Samus's fall back toward her landing after which the reward icon's floor is shown.</summary>
-    public const int RewardIconRevealUpdates = 16;
 }

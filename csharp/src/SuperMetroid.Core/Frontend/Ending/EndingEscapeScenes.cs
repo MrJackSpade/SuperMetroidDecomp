@@ -14,13 +14,13 @@ internal sealed class EndingEscapeScenes
     private readonly int gameTimeHours;
     /// <summary>Saved clear-time minutes displayed with the clear time.</summary>
     private readonly int gameTimeMinutes;
-    /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets and their loads.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -39,7 +39,7 @@ internal sealed class EndingEscapeScenes
     internal void SetupEscapeSceneA()
     {
         _stage.LoadColours(EndingColourLoad.Escape);
-        _stage.LoadFloor(EndingFloorSceneId.EscapeA);
+        _stage.RequireFloorArtwork();
         _artwork.RequireEscapeCloudArtwork();
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
@@ -64,7 +64,7 @@ internal sealed class EndingEscapeScenes
     {
         _stage.ResetPaletteFx();
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GreyClouds, 0);
-        _stage.LoadFloor(EndingFloorSceneId.EscapeB);
+        _stage.RequireFloorArtwork();
         _artwork.RequireEscapeCloudArtwork();
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);

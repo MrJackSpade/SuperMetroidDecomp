@@ -75,14 +75,16 @@ internal static class EndingFlyawayArtworkVerification
             "floor-load fixture reaches the explosion's hold");
         for (int update = 0; update < EndingExplosionFadeDefinitions.HoldUpdates; update++)
         {
-            AssertTrue(!restored.screen.FlyawayFloorLoaded, $"the flyaway floor is not loaded at hold update {update}");
+            AssertEqual(EndingFloorShot.PlanetExplosion, EndingScreenFloor.ShotOf(restored.Stage.Phase),
+                $"the exploding planet's floor shows at hold update {update}");
             restored.Step();
             loadAudio.AdvanceFrame(default);
         }
-        AssertTrue(restored.screen.FlyawayFloorLoaded && restored.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation,
-            "the flyaway floor is loaded as the hold ends and the finale begins");
+        AssertTrue(EndingScreenFloor.ShotOf(restored.Stage.Phase) == EndingFloorShot.Flyaway
+                && restored.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation,
+            "the flyaway's floor is the one the phase shows as the hold ends and the finale begins");
         AssertEqual(0, loadGuard.ForbiddenReadAttempts,
             "loading the ending flyaway floor never reads shared cartridge art sources");
-        Console.WriteLine("Ending flyaway art: sixteen hold updates and the floor load pass.");
+        Console.WriteLine("Ending flyaway art: sixteen hold updates and the floor the finale shows pass.");
     }
 }

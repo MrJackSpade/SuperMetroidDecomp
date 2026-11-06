@@ -50,25 +50,22 @@ internal static class EndingTextPresentationVerification
             var installedPage = new EndingTextPage();
             // The installed sequence runs to completion with its text streams guarded.
             var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = installedPage, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = sequence });
-            var installedScreen = new EndingScreen();
             for (int frame = 0; !installed.Completed; frame++)
             {
                 if (frame == 2048)
                     throw new InvalidOperationException($"Ending {sequence} did not terminate.");
-                installed.Step(installedScreen);
+                installed.Step();
                 comparedFrames++;
             }
             AssertTrue(!installedPage.Written.IsEmpty, $"installed ending {sequence} draws its text");
         }
 
         var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = new EndingTextPage(), Inventory = default, JapaneseText = false, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.FinalMessage });
-        saved.Step(new EndingScreen());
+        saved.Step();
         var restored = GraphDigestVerification.RoundTrip(saved, presentation);
-        var continued = new EndingScreen();
-        var resumed = new EndingScreen();
-        saved.Step(continued);
-        restored.Step(resumed);
-        AssertTrue(GraphDigestVerification.GraphDigest(continued).SequenceEqual(GraphDigestVerification.GraphDigest(resumed)),
+        saved.Step();
+        restored.Step();
+        AssertTrue(GraphDigestVerification.GraphDigest(saved, presentation).SequenceEqual(GraphDigestVerification.GraphDigest(restored, presentation)),
             "restored ending text continues as the saved text does, without being bound again");
 
         JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();

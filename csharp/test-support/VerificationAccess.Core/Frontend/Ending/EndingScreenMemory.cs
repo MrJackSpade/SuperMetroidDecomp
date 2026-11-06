@@ -8,22 +8,22 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's screen as checks read it (#1358, #1467): the floor's loads the screen's state says were made, executed in
-/// the order the ending makes them (the scene's floor, the flyaway's floor, the post-credits art, the reward icon), then
-/// the explosion's and the post-shot's loads the screen's scene state says were made. The game draws pictures selected by
-/// that state; this image is what the loads would have left, for checks that compare installed artwork byte for byte.
+/// The ending's screen memory as checks read it (#1358, #1467, #1515): the floor's loads <see cref="EndingScreenLoads"/>
+/// names, executed in the order the cartridge makes them (the scene's floor, the flyaway's floor, the post-credits art,
+/// the reward icon), then the explosion's and the logo's transfers. The game draws the pictures its phase shows; this
+/// image is what the cartridge's loads would have left, for checks that compare installed artwork byte for byte.
 /// </summary>
 internal static class EndingScreenMemory
 {
-    /// <summary>The image <paramref name="screen"/>'s loads leave over the bound artwork.</summary>
+    /// <summary>The image <paramref name="loads"/> leave over the bound artwork.</summary>
     [WholeImageFixture("the ending's VRAM image")]
-    internal static byte[] Compose(EndingScreen screen, EndingFloorArtwork? floor, CeresFlightArtwork? flight, EndingObjectArtwork? objects,
+    internal static byte[] Compose(EndingScreenLoads loads, EndingFloorArtwork? floor, CeresFlightArtwork? flight, EndingObjectArtwork? objects,
         EndingFontAtlas? font, EndingReward reward)
     {
-        ArgumentNullException.ThrowIfNull(screen);
+        ArgumentNullException.ThrowIfNull(loads);
         var vram = new SnesVram();
         var artwork = new EndingTransferArtwork(objects, font, reward);
-        if (screen.FloorScene is { } loaded)
+        if (loads.FloorScene is { } loaded)
         {
             EndingFloorSceneArtwork scene = EndingFloorCharacters.SceneOf(Required(floor), loaded);
             var mode7 = new Mode7Vram(vram);
@@ -31,24 +31,24 @@ internal static class EndingScreenMemory
             mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
             mode7.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
         }
-        if (screen.FlyawayFloorLoaded)
+        if (loads.FlyawayFloor)
             for (int chunk = 0; chunk < FlyawayChunks; chunk++)
                 Flyaway(vram, chunk, flight);
-        if (screen.PostCreditsArtLoaded)
+        if (loads.PostCreditsArt)
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
-        if (screen.RewardIconLoaded)
+        if (loads.RewardIcon)
             for (int chunk = 0; chunk < EndingRewardGraphicsUploadDefinitions.ChunkCount; chunk++)
                 vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
                     EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(Required(floor))).Bytes.Span.Slice(
                         EndingRewardGraphicsUploads.ChunkOffset(chunk), EndingRewardGraphicsUploadDefinitions.ChunkBytes));
-        if (screen.ExplosionMapsLoaded)
+        if (loads.ExplosionMaps)
         {
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionObjects), artwork);
             foreach (EndingObjectFragmentId map in Enum.GetValues<EndingObjectFragmentId>())
                 EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: map), artwork);
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.EndingFont), artwork);
         }
-        for (int part = 0; part < screen.PostShotPartsShown; part++)
+        for (int part = 0; part < loads.PostShotParts; part++)
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.PostShotPart, part), artwork);
         return vram.CaptureImage();
     }

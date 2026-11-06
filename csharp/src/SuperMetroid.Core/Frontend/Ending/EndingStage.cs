@@ -11,7 +11,7 @@ internal sealed class EndingStage
 {
     /// <summary>Saved clear-time hours, as the game clock or the configured override supplies them, used to select the post-credits reward.</summary>
     private readonly int gameTimeHours;
-    /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
@@ -72,14 +72,9 @@ internal sealed class EndingStage
             "Ending font requires installed presentation assets.");
     }
 
-    /// <summary>Clears the display and installs the selected ending scene's turning-floor map and characters.</summary>
-    internal void LoadFloor(EndingFloorSceneId scene)
-    {
-        _ = FloorArtwork ?? throw new InvalidOperationException(
-            "Ending turning-floor scene requires installed artwork.");
-        screen.Clear();
-        screen.LoadFloor(scene);
-    }
+    /// <summary>Requires the turning floor's installed artwork, which an escape or explosion scene shows (#1515).</summary>
+    internal void RequireFloorArtwork() =>
+        _ = FloorArtwork ?? throw new InvalidOperationException("Ending turning-floor scene requires installed artwork.");
 
     /// <summary>Allocates or replaces a cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
     internal void SpawnSprite(

@@ -173,7 +173,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
                 {
                     if (firstPhaseFrame)
-                        referenceJump = new EndingRewardJump(legacy.Stage.EndingReward, () => { });
+                        referenceJump = new EndingRewardJump(legacy.Stage.EndingReward);
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = Live();

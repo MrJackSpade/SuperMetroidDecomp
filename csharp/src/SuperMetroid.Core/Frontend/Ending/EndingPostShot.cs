@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Func139–142: rotate the shot graphic, fade Samus, and stage the final logo.</summary>
+/// <summary>Func139–142: rotate the shot graphic, fade Samus, and hold before the white flash.</summary>
 internal sealed class EndingPostShot
 {
     /// <summary>Post-shot update count driving the shooting and Samus fade schedules.</summary>
@@ -12,14 +12,12 @@ internal sealed class EndingPostShot
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
     public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
-    /// <summary>Number of the subtitle and logo parts shown so far.</summary>
-    public int PartsShown { get; private set; }
     /// <summary>Indicates that the shot graphic has reached its minimum scale.</summary>
     public bool RotationFinished { get; private set; }
     /// <summary>Signals the caller to hand control to the white-flash phase after the hold expires.</summary>
     public bool ReadyForWhiteFlash { get; private set; }
 
-    /// <summary>Advances the rotation, both palette fades, the subtitle and logo parts, and white-flash handoff by one update.</summary>
+    /// <summary>Advances the rotation, both palette fades and the white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);
@@ -42,13 +40,6 @@ internal sealed class EndingPostShot
         }
         else
         {
-            // Func141 calls the fade before the part helper: its final fade call
-            // permits the first part on that very same frame.
-            if (samusFade == EndingPostShotDefinitions.FadeFrames && PartsShown < EndingPostShotParts.Count)
-            {
-                screen.ShowPostShotPart();
-                PartsShown++;
-            }
             ReadyForWhiteFlash = --hold == 0;
         }
     }

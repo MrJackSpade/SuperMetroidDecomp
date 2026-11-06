@@ -153,7 +153,7 @@ internal sealed class CrocomireBridgeCollapse
     /// </summary>
     internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
         (uint)puff < CrocomireBehavior.CrocomireBridgeDustCount
-            ? new Position16<RoomPixels>(WordWrap.Unsigned(1536 + 16 * puff), WordWrap.Unsigned(puff is 0 or 2 ? 176 : 192))
+            ? new Position16<RoomPixels>(1536 + 16 * puff, puff is 0 or 2 ? 176 : 192)
             : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>

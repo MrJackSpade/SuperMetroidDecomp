@@ -310,7 +310,7 @@ internal sealed class CrocomireSkeleton
                     $"Crocomire spike wall occupied unexpected projectile slot {projectile.SlotIndex}.");
             }
 
-            projectile.Position = projectile.Position.WithWhole(new(528, WordWrap.Unsigned(56 + yTableIndex * 16)));
+            projectile.Position = projectile.Position.WithWhole(new(528, 56 + yTableIndex * 16));
             projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
             projectile.State = new CrocomireSpikeWallPieceState();
             projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);

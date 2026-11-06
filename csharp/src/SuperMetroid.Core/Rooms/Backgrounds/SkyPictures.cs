@@ -4,28 +4,31 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The scrolling sky as the background shows it in a frame (#1347, #1403): its image and the pictures of the cells the room rebound
-/// (#1392), the row a vertical position selects repeating every 2048 pixels down and 256 across, and nothing on a row that
-/// selects no sky page.
+/// The scrolling sky as the background shows it in a frame (#1347, #1403, #1514): its image and the pictures of the cells the
+/// room rebound (#1392), repeating every <see cref="SpanPixels"/> down and 256 across, and nothing on a band of the span that
+/// shows no sky page.
 /// </summary>
 public sealed class SkyPictures
 {
-    /// <summary>Tile rows over the 2048-pixel span the sky covers before it repeats.</summary>
-    public const int Rows = 256;
+    /// <summary>Pixels down the span the sky covers before it repeats.</summary>
+    public const int SpanPixels = 2048;
 
-    /// <summary>Tile rows in one chunk of the sky, which shows one page or none.</summary>
-    private const int RowsPerChunk = 32;
+    /// <summary>Pixels down one band of the sky, which shows one page or none.</summary>
+    public const int BandPixels = 256;
 
-    /// <summary>Holds the sky's image and which of its rows <paramref name="variant"/>'s chunks show.</summary>
+    /// <summary>The bands down the sky's span.</summary>
+    public const int Bands = SpanPixels / BandPixels;
+
+    /// <summary>Holds the sky's image and which of its bands <paramref name="variant"/>'s chunks show.</summary>
     public SkyPictures(RoomBackgroundImagePlane image, ScrollingSkyChunkTable variant)
     {
         Image = Ensure.NotNull(image);
-        RowsShown = [.. Enumerable.Range(0, Rows).Select(row => ScrollingSkyChunks.TryGetPage(variant, row / RowsPerChunk, out _))];
+        BandsShown = [.. Enumerable.Range(0, Bands).Select(band => ScrollingSkyChunks.TryGetPage(variant, band, out _))];
     }
 
     /// <summary>The sky's image and its rebound cells' pictures.</summary>
     public RoomBackgroundImagePlane Image { get; }
 
-    /// <summary>Whether each tile row selects a sky page; the ocean table's last chunks select none.</summary>
-    public ImmutableArray<bool> RowsShown { get; }
+    /// <summary>Whether each band of the span, from its top, shows a sky page; the ocean table's last chunks show none.</summary>
+    public ImmutableArray<bool> BandsShown { get; }
 }

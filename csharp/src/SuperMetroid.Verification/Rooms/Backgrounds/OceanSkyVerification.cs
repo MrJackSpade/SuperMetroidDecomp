@@ -38,7 +38,9 @@ internal static class OceanSkyVerification
         // The installed sky pages the import pictured; the runtime holds only their picture (#1466).
         SkyTilemap shown = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadRoomSkyTilemaps()
             .Tilemap(sky.Variant);
-        AssertTrue(ordinary.Rooms.Sky is { } drawn && drawn.RowsShown.SequenceEqual(Enumerable.Range(0, SkyTilemap.Rows).Select(shown.RowShown)),
+        // Each band the drawn sky shows holds the installed rows it covers (#1514).
+        AssertTrue(ordinary.Rooms.Sky is { } drawn && Enumerable.Range(0, SkyTilemap.Rows)
+                .All(row => drawn.BandsShown[row * ScreenGeometry.BackgroundTileSizePixels / SuperMetroid.Core.Rooms.Backgrounds.SkyPictures.BandPixels] == shown.RowShown(row)),
             "the ocean's BG2 shows the published sky rows");
         // Every row the camera can show, at each tile-row step down the room, is the ocean ROM chunk's row.
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)

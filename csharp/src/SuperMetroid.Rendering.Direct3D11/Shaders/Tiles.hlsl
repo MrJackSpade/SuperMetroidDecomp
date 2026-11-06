@@ -53,6 +53,8 @@ static const uint RoomFxOverlayWord = 21, RoomBg2OverlayWord = 22, RoomFloorShee
 static const uint RoomBg2ImageWord = 26;
 // The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
 static const uint RoomSkyImageWord = 27;
+// Pixels down one band of the scrolling sky, which shows one page or none (SkyPictures.BandPixels).
+static const uint SkyBandPixels = 256;
 // The image of the message box the frame shows (#1392).
 static const uint RoomMessagePictureWord = 28;
 // The HUD's placed pictures (#1466): their count, then two words each in drawing order, the picture's offset and its
@@ -97,9 +99,9 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, 
     }
     return inside;
 }
-// What the scrolling sky (SkyPictures, #1403) shows: its image or a rebound cell's picture as `picture`, with `within`
-// its pixel, repeating every 2048 pixels down and 256 across; a row selecting no page shows nothing. Its image's record is
-// a library background's: the picture, its area, then its cells.
+// What the scrolling sky (SkyPictures, #1403, #1514) shows: its image or a rebound cell's picture as `picture`, with
+// `within` its pixel, repeating every 2048 pixels down and 256 across; a band of SkyBandPixels showing no page shows
+// nothing. Its image's record is a library background's: the picture, its area, then its cells.
 bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
 {
     uint2 position = uint2(scrolled.x & 255, scrolled.y & 2047);
@@ -107,7 +109,7 @@ bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
     uint cell = RoomLevels[skyImage + 2 + (position.y >> 4) * 16 + (position.x >> 4)];
     picture = cell != 0 ? cell : RoomLevels[skyImage];
     within = cell != 0 ? (position & 15) : position;
-    return RoomLevels[RoomLevels[RoomSkyWord] + (position.y >> 3)] != 0;
+    return RoomLevels[RoomLevels[RoomSkyWord] + position.y / SkyBandPixels] != 0;
 }
 // What the effect overlay shows at a scrolled position (OverlayPicture, #1514), from its record at room level word
 // RoomFxOverlayWord: its picture's offset, the picture pixel its rectangle's corner shows, the rectangle's size, the

@@ -41,13 +41,18 @@ public sealed class ShownHud
         .. Ensure.NotNull(drawn).Images.Where(placed => placed.Cell.Y != 0),
     ]);
 
-    /// <summary>The HUD as the backend draws it: each placed image's installed picture, in drawing order (#1466).</summary>
+    /// <summary>
+    /// The HUD as the backend draws it: each placed image's installed picture at the screen pixel its cell's corner shows
+    /// on, in drawing order (#1466, #1514).
+    /// </summary>
     /// <param name="pictureOf">The installed picture of each image, under the palette the HUD shows in.</param>
     /// <param name="shading">The shading a frontend screen shows every picture in (#1512), or null for gameplay's HUD, which shows its frame's HUD shading.</param>
-    /// <exception cref="ArgumentException">A picture is not whole cells, or runs past the HUD's edge.</exception>
+    /// <exception cref="ArgumentException">A picture runs past the HUD's edge.</exception>
     public PicturedHud Pictured(Func<HudImage, SpriteSheetFrame> pictureOf, PictureShading? shading = null)
     {
         Ensure.NotNull(pictureOf);
-        return new PicturedHud([.. Images.Select(placed => new PlacedHudPicture(pictureOf(placed.Image), placed.Cell, shading))]);
+        const int cell = GameplayHudDefinitions.CellPixels;
+        return new PicturedHud([.. Images.Select(placed => new PlacedHudPicture(pictureOf(placed.Image),
+            new Position16<ScreenPixels>(placed.Cell.X * cell, placed.Cell.Y * cell), shading))]);
     }
 }

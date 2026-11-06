@@ -185,7 +185,7 @@ internal static class RoomBackgroundsFixtures
         {
             pictures.Add(new PlacedWrittenPicture(blocks.Picture(random.Next(Definitions))
                 ?? throw new InvalidOperationException("A seeded block has no picture."),
-                new Position16<TilemapCells>(random.Next(64), random.Next(32))));
+                new Position16<TilePlanePixels>(random.Next(64) * 8, random.Next(32) * 8)));
         }
         return new RoomOverlayPictures(pictures.MoveToImmutable());
     }

@@ -10,7 +10,6 @@ using System.Collections.Immutable;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
@@ -45,7 +44,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// words each in the order written, the picture's offset and the foreground pixel its corner lies on, x below y.
     /// </summary>
     private const int OverlayWord = DoorWindowWord + 1;
-    /// <summary>Header word of the sky's rows, one word each, nonzero where a row selects a page, or zero without a sky (#1347, #1403).</summary>
+    /// <summary>Header word of the sky's bands, one word each, nonzero where a band shows a page, or zero without a sky (#1347, #1403, #1514).</summary>
     private const int SkyWord = OverlayWord + 1;
     /// <summary>
     /// Header word of what the effect overlay shows (#1403, #1514), or zero where it shows nothing: its picture's offset,
@@ -255,7 +254,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += FxOverlayWords;
         int skyOffset = sky is null ? 0 : words;
         if (sky is not null)
-            words += SkyPictures.Rows;
+            words += SkyPictures.Bands;
         int floorOffset = mode7 is null ? 0 : words;
         if (mode7 is not null)
             words += mode7.Pictures.Length;
@@ -337,8 +336,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PackWritten(upload, writtenOverForeground, foregroundWrittenOffset, pictureWords);
         upload[SkyWord] = (uint)skyOffset;
         if (sky is not null)
-            for (int row = 0; row < SkyPictures.Rows; row++)
-                upload[skyOffset + row] = sky.RowsShown[row] ? 1u : 0u;
+            for (int band = 0; band < SkyPictures.Bands; band++)
+                upload[skyOffset + band] = sky.BandsShown[band] ? 1u : 0u;
         upload[Bg2OverlayWord] = (uint)backgroundWrittenOffset;
         PackWritten(upload, writtenOverBackground, backgroundWrittenOffset, pictureWords);
         upload[FloorSheetsWord] = (uint)floorOffset;
@@ -406,7 +405,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 
     /// <summary>
     /// Packs <paramref name="hud"/>'s placed pictures from <paramref name="offset"/>, as <see cref="HudWord"/> describes: the
-    /// count, then each picture's offset and its upper-left pixel on the screen, where the HUD's cells start at the top.
+    /// count, then each picture's offset and its upper-left pixel on the screen.
     /// </summary>
     private static void PackHud(Span<uint> upload, PicturedHud hud, int offset, Dictionary<ShownPicture, int> pictureWords,
         D3D11PictureColouring colouring)
@@ -418,8 +417,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PlacedHudPicture placed = pictures[index];
             int record = offset + 1 + index * HudPictureWords;
             upload[record] = (uint)pictureWords[new(placed.Picture, colouring, placed.Shading)];
-            upload[record + 1] = D3D11ConstantPacking.Halves(checked((ushort)(placed.Cell.X * GameplayHudDefinitions.CellPixels)),
-                checked((ushort)(placed.Cell.Y * GameplayHudDefinitions.CellPixels)));
+            upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
         }
     }
 
@@ -484,8 +482,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PlacedWrittenPicture placed = pictures[index];
             int record = offset + 1 + index * 2;
             upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.Room)];
-            upload[record + 1] = D3D11ConstantPacking.Halves(checked((ushort)(placed.Cell.X * ScreenGeometry.BackgroundTileSizePixels)),
-                checked((ushort)(placed.Cell.Y * ScreenGeometry.BackgroundTileSizePixels)));
+            upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
         }
     }
 

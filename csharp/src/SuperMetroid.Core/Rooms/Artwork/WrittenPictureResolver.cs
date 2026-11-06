@@ -37,9 +37,14 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
         SpriteSheetFrame[] frames = Frames(overlay.Pictures, appearance);
         if (Unchanged(overlay, frames))
             return placedPictures;
+        // Each picture shows where the cell it was written at lies on the layer.
+        const int cellPixels = ScreenGeometry.BackgroundTileSizePixels;
         var placed = ImmutableArray.CreateBuilder<PlacedWrittenPicture>(frames.Length);
         for (int index = 0; index < frames.Length; index++)
-            placed.Add(new PlacedWrittenPicture(frames[index], overlay.Pictures[index].Cell));
+        {
+            Position16<TilemapCells> cell = overlay.Pictures[index].Cell;
+            placed.Add(new PlacedWrittenPicture(frames[index], new Position16<TilePlanePixels>(cell.X * cellPixels, cell.Y * cellPixels)));
+        }
         source = overlay;
         shown = frames;
         placedPictures = placed.MoveToImmutable();

@@ -116,7 +116,7 @@ internal static class RoomBlockPicturesVerification
             for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
             {
                 var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
-                AssertTrue(shown.RowsShown[row], $"{room.Name}: the sky shows row {row}");
+                AssertTrue(shown.BandsShown[y / SkyPictures.BandPixels], $"{room.Name}: the sky shows row {row}");
                 (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
                 AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
             }

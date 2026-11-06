@@ -12,7 +12,7 @@ public sealed class PicturedHud
 {
     /// <summary>Keeps the placed pictures in drawing order.</summary>
     /// <param name="pictures">The placed pictures, earliest first.</param>
-    /// <exception cref="ArgumentException">A picture is not whole cells, or runs past the HUD's edge.</exception>
+    /// <exception cref="ArgumentException">A picture runs past the HUD's edge.</exception>
     public PicturedHud(ImmutableArray<PlacedHudPicture> pictures)
     {
         if (pictures.IsDefault)
@@ -21,10 +21,8 @@ public sealed class PicturedHud
         foreach (PlacedHudPicture placed in pictures)
         {
             Extent16<ImagePixels> size = Ensure.NotNull(placed.Picture).Size;
-            if (size.X % cell != 0 || size.Y % cell != 0)
-                throw new ArgumentException($"The HUD picture placed at {placed.Cell} is not whole cells.", nameof(pictures));
-            if (placed.Cell.X + size.X / cell > GameplayHudDefinitions.Width || placed.Cell.Y + size.Y / cell > GameplayHudDefinitions.Rows)
-                throw new ArgumentException($"The HUD picture placed at {placed.Cell} runs past the HUD's edge.", nameof(pictures));
+            if (placed.Corner.X + size.X > GameplayHudDefinitions.Width * cell || placed.Corner.Y + size.Y > GameplayHudDefinitions.Rows * cell)
+                throw new ArgumentException($"The HUD picture placed at {placed.Corner} runs past the HUD's edge.", nameof(pictures));
         }
         Pictures = pictures;
     }

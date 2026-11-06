@@ -36,11 +36,11 @@ internal static class PuyoOwnedStateVerification
         PuyoEnemyState state = enemies.PuyoStates[0]
             ?? throw new InvalidOperationException("The initialized Puyo has no state.");
         AssertEqual(null, state.AirborneFunction, "a fresh Puyo has no airborne behaviour");
-        state.HopRecord = 3;
+        state.CurrentHop = PuyoHopType.Giant;
         state.YSpeedTableIndex = 0x1234;
         slot.Clear();
-        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(0, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.HopRecord, state.YSpeedTableIndex, state.HopCooldownTimer.RawValue),
-            "a kill empties the hop record, speed index and cooldown");
+        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(PuyoHopType.NormalSmall, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.CurrentHop, state.YSpeedTableIndex, state.HopCooldownTimer.RawValue),
+            "a kill empties the current hop, speed index and cooldown");
         AssertEqual(null, state.Function, "a kill empties the function");
         Console.WriteLine("Puyo owned state: the apex, the overlong-fall restart and the cleared record match.");
     }

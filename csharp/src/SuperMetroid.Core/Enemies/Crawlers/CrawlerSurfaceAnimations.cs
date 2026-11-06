@@ -3,24 +3,11 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <summary>Chooses a crawler's animation for the surface it clings to.</summary>
 internal static class CrawlerSurfaceAnimations
 {
-    /// <summary>Returns one family-specific initial animation.</summary>
-    internal static CrawlerProgram InitialProgram(
+    /// <summary>The animation <paramref name="family"/> shows on the surface <paramref name="orientation"/> names.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="family"/> has no authored animations.</exception>
+    internal static CrawlerProgram ProgramFor(
         CrawlerAnimationFamily family,
         CrawlerSurfaceOrientation orientation) => ForOrientation(Family(family), orientation);
-
-    /// <summary>Returns one shared surface animation using the even species offset.</summary>
-    internal static CrawlerProgram SurfaceProgram(
-        int speciesByteOffset,
-        CrawlerSurfaceOrientation orientation)
-    {
-        if ((speciesByteOffset & 1) != 0
-            || !CrawlerAnimationDefinitions.SurfaceFamilies.TryGetValue(speciesByteOffset, out CrawlerAnimationFamily family))
-        {
-            throw new InvalidDataException(
-                $"Crawler instruction-table offset ${speciesByteOffset:X4} is invalid.");
-        }
-        return ForOrientation(Family(family), orientation);
-    }
 
     /// <summary>One family's four surface animations.</summary>
     private static CrawlerAnimationDefinition Family(CrawlerAnimationFamily family) =>

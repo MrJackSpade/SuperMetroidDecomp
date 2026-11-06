@@ -1,12 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>Initial and shared surface animation selectors for crawler enemies.</summary>
+/// <summary>The surface animations of each crawler animation family, which crawlers start on and switch between at corners.</summary>
 internal static class CrawlerAnimationDefinitions
 {
-    /// <summary>
-    /// The four-word initial animation tables, one per
-    /// <see cref="CrawlerAnimationFamily"/>.
-    /// </summary>
+    /// <summary>Each <see cref="CrawlerAnimationFamily"/>'s animations for the four surfaces.</summary>
     internal static readonly Dictionary<CrawlerAnimationFamily, CrawlerAnimationDefinition> Families = new()
     {
         [CrawlerAnimationFamily.Shared] = new(
@@ -34,19 +31,5 @@ internal static class CrawlerAnimationDefinitions
             CrawlerProgram.HZoomerUpsideLeft,
             CrawlerProgram.HZoomerUpsideDown,
             CrawlerProgram.HZoomerUpsideUp),
-    };
-
-    /// <summary>
-    /// The family each even species instruction-table offset selects; the first three species share the
-    /// common animation, the remaining species select Viola, Sciser and Zero respectively.
-    /// </summary>
-    internal static readonly Dictionary<int, CrawlerAnimationFamily> SurfaceFamilies = new()
-    {
-        [0] = CrawlerAnimationFamily.Shared,
-        [2] = CrawlerAnimationFamily.Shared,
-        [4] = CrawlerAnimationFamily.Shared,
-        [6] = CrawlerAnimationFamily.Viola,
-        [8] = CrawlerAnimationFamily.Sciser,
-        [10] = CrawlerAnimationFamily.Zero,
     };
 }

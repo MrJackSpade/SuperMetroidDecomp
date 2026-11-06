@@ -122,9 +122,9 @@ internal sealed record PartFrameConfiguration(
                 ["ShutterHorizShootable"] = ["Horizontal"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // Each crawler starts in its family's surface program and takes its later surfaces from the family its surface
-        // table offset selects: Sciser, Zero and Viola their own (offsets 8, 10 and 6), the shared crawlers the shared
-        // family their rooms' offsets 0, 2 and 4 select; the orange Zoomer chooses only among its own.
+        // Each crawler starts in its family's surface program and takes its later surfaces from its surface family:
+        // Sciser, Zero and Viola their own, the shared crawlers the shared family their rooms' entries name; the orange
+        // Zoomer chooses only among its own.
         new("CrawlersBehavior", "CrawlerFrameDefinitions", "ShownFrames", "CrawlerAnimations", "Programs", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
@@ -139,10 +139,10 @@ internal sealed record PartFrameConfiguration(
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
             [
-                new("Zeela", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
-                new("Sova", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
-                new("Zoomer", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
-                new("MZoomer", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
+                new("Zeela", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
+                new("Sova", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
+                new("Zoomer", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
+                new("MZoomer", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
             ]),
         // A Brinstar pipe bug runs the weak or the strong programs its room's kind selects; Gamet and Geega their own.
         new("PipeBugsBehavior", "PipeBugFrameDefinitions", "ShownFrames", "PipeBugAnimations", "Programs", null, [],

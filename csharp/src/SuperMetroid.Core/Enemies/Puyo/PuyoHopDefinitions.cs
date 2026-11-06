@@ -3,18 +3,15 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <summary>Seven immutable NTSC Puyo hop definitions, independent of animation artwork.</summary>
 public static class PuyoHopDefinitions
 {
-    /// <summary>Table stride for the serialized byte-index selector.</summary>
-    public const int RecordSize = 8;
-
-    /// <summary>The seven hops, by byte index.</summary>
-    internal static readonly Dictionary<int, PuyoHopDefinition> Hops = new()
+    /// <summary>Each hop's height, horizontal speed, vertical-curve step and airborne behaviour.</summary>
+    internal static readonly Dictionary<PuyoHopType, PuyoHopDefinition> Hops = new()
     {
-        [0] = new(16, 256, 512, PuyoAirborneFunction.NormalShortHop),
-        [8] = new(32, 256, 512, PuyoAirborneFunction.NormalBigHop),
-        [16] = new(32, 512, 768, PuyoAirborneFunction.NormalLongHop),
-        [24] = new(128, 320, 512, PuyoAirborneFunction.GiantHop),
-        [32] = new(0, 0, 256, PuyoAirborneFunction.Dropping),
-        [40] = new(16, 256, 448, PuyoAirborneFunction.Dropped),
-        [48] = new(21, 256, 448, PuyoAirborneFunction.Dropped),
+        [PuyoHopType.NormalSmall] = new(16, 256, 512, PuyoAirborneFunction.NormalShortHop),
+        [PuyoHopType.NormalBig] = new(32, 256, 512, PuyoAirborneFunction.NormalBigHop),
+        [PuyoHopType.NormalHigh] = new(32, 512, 768, PuyoAirborneFunction.NormalLongHop),
+        [PuyoHopType.Giant] = new(128, 320, 512, PuyoAirborneFunction.GiantHop),
+        [PuyoHopType.Dropping] = new(0, 0, 256, PuyoAirborneFunction.Dropping),
+        [PuyoHopType.DroppedSmall] = new(16, 256, 448, PuyoAirborneFunction.Dropped),
+        [PuyoHopType.DroppedBig] = new(21, 256, 448, PuyoAirborneFunction.Dropped),
     };
 }

@@ -236,7 +236,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.Robot:
             {
                 WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle ?? throw Missing("Work Robot glow colours");
-                for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
+                for (int record = 0; record < WorkRobotPaletteTimingDefinitions.StepCount; record++)
                 {
                     int step = record;
                     shades.Add(SheetShade.Run(WorkRobotShades.Glow(step), first + WorkRobotPaletteDefinitions.FirstAnimatedColor,

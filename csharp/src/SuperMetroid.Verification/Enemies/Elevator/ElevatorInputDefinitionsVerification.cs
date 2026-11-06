@@ -24,6 +24,7 @@ internal static class ElevatorInputDefinitionsVerification
         for (ushort direction = 0; direction < 2; direction++)
         {
             ushort tableByteOffset = (ushort)(direction * 2);
+            ElevatorTravelDirection travel = direction == 0 ? ElevatorTravelDirection.Down : ElevatorTravelDirection.Up;
             ControllerButton native = (ControllerButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -40,8 +41,8 @@ internal static class ElevatorInputDefinitionsVerification
             samus.Presentation.BodyFrames.BindBodyFixture(bodyArtwork);
             initialize(slot, samus);
             ElevatorEnemyState elevator = enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].");
-            AssertEqual(tableByteOffset, elevator.DirectionTableByteOffset,
-                $"elevator doubled direction offset {direction}");
+            AssertEqual(travel, elevator.Direction,
+                $"elevator parameter {direction} travels {travel}");
 
             ControllerButton opposite = (ControllerButton)(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
             ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
@@ -63,17 +64,15 @@ internal static class ElevatorInputDefinitionsVerification
             "Elevator input definitions: both native masks and real departure paths pass with table reads forbidden.");
     }
 
-    /// <summary>Checks the two supported word offsets against $A3:94E2 and rejects malformed offsets.</summary>
+    /// <summary>Checks both directions' inputs against the two-entry mask table at $A3:94E2.</summary>
     private static void VerifyElevatorDirectionInputMapping(SuperMetroidAddressSpace rom)
     {
-        foreach (ushort offset in new ushort[] { 0, 2 })
+        ElevatorTravelDirection[] tableOrder = [ElevatorTravelDirection.Down, ElevatorTravelDirection.Up];
+        for (int entry = 0; entry < tableOrder.Length; entry++)
         {
-            int address = 0xa394e2 + offset;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual((ControllerButton)native, ElevatorTravel.RequiredDirectionInput(offset), "elevator named direction matches native mask");
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa394e2 + entry * 2);
+            AssertEqual((ControllerButton)native, ElevatorActorDefinitions.RequiredDirectionInputs[tableOrder[entry]], "elevator named direction matches native mask");
         }
-        foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
-            AssertThrows<InvalidDataException>(() => ElevatorTravel.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
     }
 
 }

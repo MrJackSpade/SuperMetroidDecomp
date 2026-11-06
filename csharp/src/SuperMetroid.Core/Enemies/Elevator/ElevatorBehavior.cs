@@ -127,7 +127,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
-        state.DirectionTableByteOffset = CoordinateAxis.Wrap(slot.SpawnSettings<ElevatorSpawnSettings>().DirectionIndex * 2);
+        state.Direction = slot.SpawnSettings<ElevatorSpawnSettings>().Direction;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
@@ -203,8 +203,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ControllerButton newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
-        ControllerButton requiredInput =
-            ElevatorTravel.RequiredDirectionInput(state.DirectionTableByteOffset);
+        ControllerButton requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[state.Direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
             ElevatorFlags = ElevatorJourneyFlag.None;
@@ -229,7 +228,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorEnemyState state,
         SamusState samus)
     {
-        if (state.DirectionTableByteOffset != 0)
+        if (state.Direction is ElevatorTravelDirection.Up)
         {
             ElevatorTravelsUpward = true;
             AddElevatorYVelocity(slot, -ElevatorSpeedFixed);
@@ -249,7 +248,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         SamusState samus)
     {
         bool stillReturning;
-        if (state.DirectionTableByteOffset != 0)
+        if (state.Direction is ElevatorTravelDirection.Up)
         {
             AddElevatorYVelocity(slot, ElevatorSpeedFixed);
             stillReturning = slot.Position.Y.Whole < state.RestingHeight.Y;

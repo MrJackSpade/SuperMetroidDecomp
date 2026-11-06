@@ -14,16 +14,13 @@ public sealed class ElevatorEnemyState
     /// <summary>The room-side resting height, captured before an arriving actor is moved to parameter 2; only Y is meaningful.</summary>
     public Position16<RoomPixels> RestingHeight { get; internal set; }
 
-    /// <summary>
-    /// Population parameter 1 doubled, wrapping at sixteen bits (0 through 65534): the byte offset of the direction's
-    /// input mask in a two-entry table, zero for down and two for up; any nonzero offset travels upward.
-    /// </summary>
-    public int DirectionTableByteOffset { get; internal set; }
+    /// <summary>Which way the elevator departs, which input starts it, and which way an arrival returns to rest.</summary>
+    public ElevatorTravelDirection Direction { get; internal set; }
 
     /// <summary>Empties the resting height and direction, when the slot's common record is emptied.</summary>
     internal void ClearWithRecord()
     {
         RestingHeight = Position16<RoomPixels>.Zero;
-        DirectionTableByteOffset = 0;
+        Direction = ElevatorTravelDirection.Down;
     }
 }

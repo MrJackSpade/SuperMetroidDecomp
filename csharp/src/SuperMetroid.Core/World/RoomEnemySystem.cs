@@ -1071,7 +1071,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         }
         FrameContext.AdvanceRandomEnemyCounter();
         frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
-        WorkRobotBehavior.StepWorkRobotPaletteAnimation();
+        WorkRobotBehavior.AdvanceWorkRobotGlow();
         MagdolliteBehavior.StepMagdollitePaletteAnimation();
         BlueBrinstarFaceBlockBehavior.StepBlueBrinstarFaceBlockPaletteAnimation();
         if (!frame.TimeIsFrozen)

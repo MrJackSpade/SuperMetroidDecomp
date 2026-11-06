@@ -93,7 +93,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.TourianFirst),
         [
-            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
+            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Metroids20),
         [

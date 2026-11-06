@@ -45,15 +45,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case AlcoonCueKind.FireUpward:
-                SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 0);
+                SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Upward);
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireHorizontally:
-                SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 2);
+                SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Level);
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireDownward:
-                SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 4);
+                SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Downward);
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.StartWalking:
@@ -421,18 +421,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>8.8 horizontal speed reduction applied per fireball update.</summary>
     private const int AlcoonFireballHorizontalDeceleration = 64;
 
-    /// <summary>
-    /// Initializes the Alcoon Fireball projectile. The parameter
-    /// is a byte offset (0, 2, or 4), exactly as passed in A by Alcoon's three instructions.
-    /// </summary>
-    internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, int yVelocityTableByteOffset)
+    /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
+    internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, AlcoonFireballLaunch launch)
     {
-        if (yVelocityTableByteOffset is not (0 or 2 or 4))
-        {
-            throw new InvalidDataException(
-                $"Alcoon fireball Y-velocity byte offset {yVelocityTableByteOffset} is invalid.");
-        }
-
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -452,7 +443,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingLeft
             ? WordWrap.Unsigned(-AlcoonFireballGraphicsHorizontalSpeed)
             : AlcoonFireballGraphicsHorizontalSpeed));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(EnemyFireballLaunches.AlcoonYVelocity(yVelocityTableByteOffset)));
+        projectile.Velocity = projectile.Velocity.WithY(launch.YVelocity);
     }
 
     /// <summary>Runs the Alcoon fireball's per-frame behaviour.</summary>

@@ -33,8 +33,8 @@ internal static class AlcoonFireballBehaviorVerification
         foreach (short direction in new short[] { -2, 2 })
         {
             state.Velocity = state.Velocity.WithWholeX(direction);
-            foreach (ushort velocityOffset in new ushort[] { 0, 2, 4 })
-                enemies.AlcoonBehavior.SpawnAlcoonFireball(source, velocityOffset);
+            foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
+                enemies.AlcoonBehavior.SpawnAlcoonFireball(source, launch);
         }
         RoomEnemyProjectileSlot[] fireballs = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)];
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");

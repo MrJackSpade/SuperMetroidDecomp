@@ -4,12 +4,9 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="Orientation">The surface it starts on.</param>
 /// <param name="BlockSide">The side of its block it holds, which signs its crawl velocity.</param>
 /// <param name="SpeedIndex">Its crawl speed, 0 through 65535, or the selector that keeps its velocity.</param>
-/// <param name="SurfaceTableOffset">Its surface-table offset, 0 through 65535, where the species does not fix one.</param>
-internal sealed record CrawlerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, int SpeedIndex, int SurfaceTableOffset) : EnemySpawnSettings
+/// <param name="SurfaceFamily">The family whose animations it switches between at corners, where the species does not fix one.</param>
+internal sealed record CrawlerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, int SpeedIndex, CrawlerAnimationFamily SurfaceFamily) : EnemySpawnSettings
 {
     /// <summary>Its crawl speed, 0 through 65535, or the selector that keeps its velocity.</summary>
     public int SpeedIndex { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SpeedIndex);
-
-    /// <summary>Its surface-table offset, 0 through 65535, where the species does not fix one.</summary>
-    public int SurfaceTableOffset { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SurfaceTableOffset);
 }

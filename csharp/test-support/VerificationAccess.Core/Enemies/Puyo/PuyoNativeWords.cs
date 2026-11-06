@@ -19,6 +19,18 @@ internal static class PuyoNativeWords
         [PuyoAirborneFunction.Dropped] = 0x9dcd,
     });
 
+    /// <summary>The byte offset of each <see cref="PuyoHopType"/>'s eight-byte record in the cartridge's hop table.</summary>
+    internal static readonly NativeWordIdentities<PuyoHopType> HopRecordOffsets = new(new Dictionary<PuyoHopType, ushort>
+    {
+        [PuyoHopType.NormalSmall] = 0,
+        [PuyoHopType.NormalBig] = 8,
+        [PuyoHopType.NormalHigh] = 16,
+        [PuyoHopType.Giant] = 24,
+        [PuyoHopType.Dropping] = 32,
+        [PuyoHopType.DroppedSmall] = 40,
+        [PuyoHopType.DroppedBig] = 48,
+    });
+
     /// <summary>The routine word naming each <see cref="PuyoEnemyFunction"/>.</summary>
     internal static readonly NativeWordIdentities<PuyoEnemyFunction> PuyoEnemyFunctions = new(new Dictionary<PuyoEnemyFunction, ushort>
     {

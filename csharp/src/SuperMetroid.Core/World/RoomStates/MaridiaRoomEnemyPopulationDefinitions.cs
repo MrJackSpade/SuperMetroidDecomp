@@ -138,8 +138,8 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Shaktool, new(168, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ShaktoolSpawnSettings(Motion: ShaktoolMotionFlags.None, Segment: ShaktoolSegmentDefinitions.ThirdArm)),
             new(EnemyDefinitionId.Shaktool, new(168, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ShaktoolSpawnSettings(Motion: ShaktoolMotionFlags.None, Segment: ShaktoolSegmentDefinitions.FourthArm)),
             new(EnemyDefinitionId.Shaktool, new(168, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ShaktoolSpawnSettings(Motion: ShaktoolMotionFlags.None, Segment: ShaktoolSegmentDefinitions.TrailingSaw)),
-            new(EnemyDefinitionId.Yard, new(920, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingLeft, SpeedIndex: 1)),
-            new(EnemyDefinitionId.Yard, new(984, 80), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideLeftMovingUp, SpeedIndex: 1)),
+            new(EnemyDefinitionId.Yard, new(920, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingLeft, CrawlSpeed: new SignedEightEight(128))),
+            new(EnemyDefinitionId.Yard, new(984, 80), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideLeftMovingUp, CrawlSpeed: new SignedEightEight(128))),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.Draygon0),
         [
@@ -150,11 +150,11 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Aqueduct),
         [
-            new(EnemyDefinitionId.Yard, new(1348, 472), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingRight, SpeedIndex: 4)),
-            new(EnemyDefinitionId.Yard, new(544, 660), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingLeft, SpeedIndex: 3)),
-            new(EnemyDefinitionId.Yard, new(1056, 612), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideDownMovingLeft, SpeedIndex: 5)),
-            new(EnemyDefinitionId.Yard, new(472, 304), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideLeftMovingDown, SpeedIndex: 7)),
-            new(EnemyDefinitionId.Yard, new(1360, 696), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideDownMovingLeft, SpeedIndex: 2)),
+            new(EnemyDefinitionId.Yard, new(1348, 472), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingRight, CrawlSpeed: new SignedEightEight(320))),
+            new(EnemyDefinitionId.Yard, new(544, 660), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingLeft, CrawlSpeed: new SignedEightEight(256))),
+            new(EnemyDefinitionId.Yard, new(1056, 612), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideDownMovingLeft, CrawlSpeed: new SignedEightEight(384))),
+            new(EnemyDefinitionId.Yard, new(472, 304), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideLeftMovingDown, CrawlSpeed: new SignedEightEight(512))),
+            new(EnemyDefinitionId.Yard, new(1360, 696), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideDownMovingLeft, CrawlSpeed: new SignedEightEight(192))),
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.RedFish),
         [
@@ -307,7 +307,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Mochtroid, new(160, 904), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Puyo, new(100, 856), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new PuyoSpawnSettings(HopCooldown: 16, HopDistance: 4)),
-            new(EnemyDefinitionId.Yard, new(48, 1688), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingLeft, SpeedIndex: 2)),
+            new(EnemyDefinitionId.Yard, new(48, 1688), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingLeft, CrawlSpeed: new SignedEightEight(192))),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.WestSandHall),
         [

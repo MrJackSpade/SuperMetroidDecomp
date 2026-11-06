@@ -868,7 +868,7 @@ internal static class LookupStream2Verification
             AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
             AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Native calculated speed ramp");
             speedParameter = parameter;
-            yard.CrawlingSpeedIndex = parameter;
+            yard.CrawlSpeed = new SignedEightEight(CrawlerSpeeds.ForParameter(parameter));
             for (ushort property = 0; property < 4; property++)
             {
                 // The block side is the crawler's two low property bits in the cartridge.

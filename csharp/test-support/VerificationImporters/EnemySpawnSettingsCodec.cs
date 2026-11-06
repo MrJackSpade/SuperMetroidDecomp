@@ -174,7 +174,7 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.Robot] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
         [EnemyDefinitionId.RobotNoPower] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
         [EnemyDefinitionId.YappingMaw] = words => new YappingMawSpawnSettings(ActivationDistance: Bits(words.Parameter1, 0, 16), Attack: Bits(words.Parameter2, 0, 16) switch { 0 => VerticalDirection.Down, _ => VerticalDirection.Up }),
-        [EnemyDefinitionId.Yard] = words => new YardSpawnSettings(Direction: Bits(words.Initialization, 0, 16) switch { 0 => YardDirection.UpsideRightMovingUp, 1 => YardDirection.UpsideRightMovingDown, 2 => YardDirection.UpsideLeftMovingUp, 3 => YardDirection.UpsideLeftMovingDown, 4 => YardDirection.UpsideDownMovingLeft, 5 => YardDirection.UpsideDownMovingRight, 6 => YardDirection.UpsideUpMovingLeft, 7 => YardDirection.UpsideUpMovingRight, var other => throw Unmapped("Direction", other) }, SpeedIndex: Bits(words.Parameter1, 0, 16)),
+        [EnemyDefinitionId.Yard] = words => new YardSpawnSettings(Direction: Bits(words.Initialization, 0, 16) switch { 0 => YardDirection.UpsideRightMovingUp, 1 => YardDirection.UpsideRightMovingDown, 2 => YardDirection.UpsideLeftMovingUp, 3 => YardDirection.UpsideLeftMovingDown, 4 => YardDirection.UpsideDownMovingLeft, 5 => YardDirection.UpsideDownMovingRight, 6 => YardDirection.UpsideUpMovingLeft, 7 => YardDirection.UpsideUpMovingRight, var other => throw Unmapped("Direction", other) }, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(Bits(words.Parameter1, 0, 16)))),
     };
 
     /// <summary>Whether the species reads its settings from the extra-property word, which then holds no additional property.</summary>
@@ -246,7 +246,7 @@ internal static class EnemySpawnSettingsCodec
         WaverSpawnSettings s => Checked(EnemyDefinitionId.Waver, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Facing switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         WorkRobotSpawnSettings s => Checked(EnemyDefinitionId.Robot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Position(WorkRobotPoses, s.Pose, "Work Robot pose"), Parameter2: 0)),
         YappingMawSpawnSettings s => Checked(EnemyDefinitionId.YappingMaw, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.ActivationDistance, 0, 16), Parameter2: ((s.Attack switch { VerticalDirection.Down => 0, VerticalDirection.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0))),
-        YardSpawnSettings s => Checked(EnemyDefinitionId.Yard, settings, new PopulationWords(Initialization: ((s.Direction switch { YardDirection.UpsideRightMovingUp => 0, YardDirection.UpsideRightMovingDown => 1, YardDirection.UpsideLeftMovingUp => 2, YardDirection.UpsideLeftMovingDown => 3, YardDirection.UpsideDownMovingLeft => 4, YardDirection.UpsideDownMovingRight => 5, YardDirection.UpsideUpMovingLeft => 6, YardDirection.UpsideUpMovingRight => 7, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.SpeedIndex, 0, 16), Parameter2: 0)),
+        YardSpawnSettings s => Checked(EnemyDefinitionId.Yard, settings, new PopulationWords(Initialization: ((s.Direction switch { YardDirection.UpsideRightMovingUp => 0, YardDirection.UpsideRightMovingDown => 1, YardDirection.UpsideLeftMovingUp => 2, YardDirection.UpsideLeftMovingDown => 3, YardDirection.UpsideDownMovingLeft => 4, YardDirection.UpsideDownMovingRight => 5, YardDirection.UpsideUpMovingLeft => 6, YardDirection.UpsideUpMovingRight => 7, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(CrawlSpeedRecord(s.CrawlSpeed), 0, 16), Parameter2: 0)),
         _ when settings == EnemySpawnSettings.None => default,
         _ => throw new ArgumentException($"Spawn settings {settings.GetType().Name} have no words.", nameof(settings)),
     };
@@ -371,6 +371,18 @@ internal static class EnemySpawnSettingsCodec
         3 => throw new InvalidDataException("Work Robot pose 3 reads past the three authored poses into the robot's code."),
         var pose => WorkRobotPoses[pose],
     };
+
+    /// <summary>The crawling speed record whose speed is <paramref name="speed"/>.</summary>
+    /// <exception cref="ArgumentException">No record crawls at the speed.</exception>
+    private static int CrawlSpeedRecord(SignedEightEight speed)
+    {
+        for (int record = 0; record < CrawlerSpeedDefinitions.Count; record++)
+        {
+            if (CrawlerSpeeds.ForParameter(record) == speed.RawValue)
+                return record;
+        }
+        throw new ArgumentException($"No crawling speed record crawls at {speed}.", nameof(speed));
+    }
 
     /// <summary>The position of <paramref name="value"/> in <paramref name="order"/>.</summary>
     /// <exception cref="ArgumentException"><paramref name="value"/> is not in the order.</exception>

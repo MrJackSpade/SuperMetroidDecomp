@@ -102,7 +102,7 @@ internal static class EnemySheetOwnFramesVerification
             EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge,
         ];
         return new("Sidehopper and Dessgeega", TableFrames(HopperFrameDefinitions.ShownFrames),
-            hoppers.ToDictionary(definition => definition, definition => Reach(HopperAnimations.Programs, HopperFrameDefinitions.ShownFrames,
+            hoppers.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(HopperAnimations.Programs, HopperFrameDefinitions.ShownFrames,
                 HopperAnimationDefinitions.Programs
                     .Where(entry => entry.Key.Variant == CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definition).VariantIndex)
                     .Select(entry => entry.Value))));
@@ -220,7 +220,7 @@ internal static class EnemySheetOwnFramesVerification
         ];
         KiHunterProgram[] wings = [KiHunterProgram.WingsLeft, KiHunterProgram.WingsRight, KiHunterProgram.DetachedWings];
         return new("Ki-Hunter", TableFrames(KiHunterFrameDefinitions.ShownFrames),
-            KiHunterPartDefinitions.Parts.Keys.ToDictionary(definition => definition, definition => Reach(KiHunterAnimations.Programs,
+            KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Programs,
                 KiHunterFrameDefinitions.ShownFrames,
                 KiHunterBehavior.IsKiHunterBodyDefinition(definition) ? body
                     : KiHunterBehavior.IsKiHunterWingDefinition(definition) ? wings
@@ -312,14 +312,14 @@ internal static class EnemySheetOwnFramesVerification
         RoomEnemyPopulationDefinitions.Definitions.SelectMany(list => list.Records.ToArray()).Where(placement => placement.DefinitionId == definition);
 
     /// <summary><paramref name="reached"/> with the frames <paramref name="pinned"/> a definition's own reactions set.</summary>
-    private static HashSet<EnemyFrameId> With(IReadOnlySet<EnemyFrameId> reached, EnemyFrameId[] pinned) => [.. reached, .. pinned];
+    private static HashSet<EnemyFrameId> With(HashSet<EnemyFrameId> reached, EnemyFrameId[] pinned) => [.. reached, .. pinned];
 
     /// <summary>Every frame <paramref name="table"/> maps a family frame to.</summary>
     private static HashSet<EnemyFrameId> TableFrames<TFrame>(EnemyFrameTable<TFrame> table) where TFrame : notnull =>
         [.. table.Select(entry => entry.Value)];
 
     /// <summary>The frames <paramref name="programs"/> show from <paramref name="starts"/>, whose cues name no program.</summary>
-    private static IReadOnlySet<EnemyFrameId> Reach<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
+    private static HashSet<EnemyFrameId> Reach<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
         EnemyFrameTable<TFrame> table, IEnumerable<TProgram> starts)
         where TProgram : struct
         where TFrame : struct
@@ -330,7 +330,7 @@ internal static class EnemySheetOwnFramesVerification
     /// The frames <paramref name="programs"/> show from <paramref name="starts"/>, following every go-to, fall-through and
     /// counted repeat, and every program <paramref name="cueTargets"/> says a cue names.
     /// </summary>
-    private static IReadOnlySet<EnemyFrameId> Reach<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
+    private static HashSet<EnemyFrameId> Reach<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
         EnemyFrameTable<TFrame> table, IEnumerable<TProgram> starts, Func<TCue, IEnumerable<TProgram>> cueTargets)
         where TProgram : struct
         where TFrame : struct

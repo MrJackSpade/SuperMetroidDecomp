@@ -5,10 +5,6 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The five states an authored initial state value selects, in its counting order.</summary>
-    private static readonly IdentitySequence<OwtchBehaviorState> InitialStates = new(
-        OwtchBehaviorState.MovingLeft, OwtchBehaviorState.MovingRight, OwtchBehaviorState.Underground,
-        OwtchBehaviorState.Sinking, OwtchBehaviorState.Rising);
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
@@ -49,42 +45,18 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeOwtch(RoomEnemySlot slot)
     {
         OwtchSpawnSettings settings = slot.SpawnSettings<OwtchSpawnSettings>();
-        int initialState = settings.InitialState;
-        int undergroundTimerIndex = settings.UndergroundTimerIndex;
-        int speedIndex = settings.SpeedIndex;
-        int distanceIndex = settings.DistanceIndex;
-        if (initialState >= 5)
-        {
-            throw new InvalidDataException(
-                $"Owtch initial state {initialState} is outside its five-entry main-AI table.");
-        }
-        if (speedIndex >= EnemyLinearSpeedDefinitions.RowCount)
-        {
-            throw new InvalidDataException(
-                $"Owtch linear-speed index {speedIndex} is outside the NTSC retail table.");
-        }
-        int undergroundTimer =
-            OwtchPatrol.UndergroundTimer(WordWrap.LowByte(undergroundTimerIndex));
-        int travelDistance =
-            OwtchPatrol.TravelDistance(WordWrap.LowByte(distanceIndex));
-
-        // The initializer masks the raw state only for its two-entry facing table. Thus
-        // states two and four begin with the left list, while state three begins right.
-        OwtchProgram initialProgram = (initialState & 1) == 0 ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
-
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedIndex);
         var state = new OwtchEnemyState
         {
-            RightVelocity = speeds.Positive,
-            LeftVelocity = speeds.Negative,
-            Behavior = InitialStates.At(initialState),
+            RightVelocity = settings.Speed,
+            LeftVelocity = SignedSixteenSixteen.Zero - settings.Speed,
+            Behavior = settings.InitialBehavior,
             BurialDepth = 0,
-            UndergroundTimer = WrappingCountdown.FromRaw(undergroundTimer),
-            MinimumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole - travelDistance), 0),
-            MaximumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole + travelDistance), 0),
+            UndergroundTimer = WrappingCountdown.FromRaw(settings.UndergroundWait),
+            MinimumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.TravelDistance), 0),
+            MaximumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.TravelDistance), 0),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        SetOwtchProgram(slot, state, initialProgram);
+        SetOwtchProgram(slot, state, InitialProgram(settings.InitialBehavior));
 
         // State two is the game's special initially-buried form. It moves only the
         // whole coordinate and records the same sixteen-pixel depth used by normal sinking.
@@ -124,8 +96,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = WrappingCountdown.FromRaw(OwtchPatrol.UndergroundTimer(
-                        slot.SpawnSettings<OwtchSpawnSettings>().UndergroundTimerIndex));
+                    state.UndergroundTimer = WrappingCountdown.FromRaw(slot.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
                 }
                 return;
 
@@ -154,6 +125,20 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Owtch state {state.Behavior} is not translated.");
         }
     }
+
+    /// <summary>
+    /// The walking animation an Owtch starts in for its first behaviour. The game alternates the facing along its order
+    /// of first behaviours, so walking left, buried and rising start facing left, and walking right and sinking start
+    /// facing right.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound, which no placement starts in.</exception>
+    private static OwtchProgram InitialProgram(OwtchBehaviorState initial) => initial switch
+    {
+        OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground or OwtchBehaviorState.Rising => OwtchProgram.MovingLeft,
+        OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking => OwtchProgram.MovingRight,
+        OwtchBehaviorState.TurningAtLeftBound => throw new InvalidDataException("No Owtch placement starts turning at its left bound."),
+        _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
+    };
 
     /// <summary>Moves the Owtch with the game's carry-sensitive additions.</summary>
     private static void MoveOwtch(

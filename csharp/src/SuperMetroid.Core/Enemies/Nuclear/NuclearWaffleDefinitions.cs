@@ -16,14 +16,15 @@ internal static class NuclearWaffleDefinitions
     /// <summary>Same-kind links are separated by 24 angle units, with interleaved links halfway between.</summary>
     private const int SegmentPitch = 24;
     /// <summary>
-    /// The two mirrored sweeps, by direction, each with its endpoints, link spacing and turn thresholds: the first sweeps
-    /// from the far side of the center back, its links trailing; the second is its mirror.
+    /// The backward sweep, with its endpoints, link spacing and turn thresholds: from the far side of the center back,
+    /// its links trailing.
     /// </summary>
-    internal static readonly NuclearWaffleSweepDefinition[] Sweeps =
-    [
+    internal static readonly NuclearWaffleSweepDefinition BackwardSweep =
         new(SweepCenter + SweepRadius, SweepCenter - SweepRadius, -SegmentPitch, -SegmentPitch / 2,
-            SweepCenter + TurnRadius, SweepCenter - TurnRadius),
+            SweepCenter + TurnRadius, SweepCenter - TurnRadius);
+
+    /// <summary>The forward sweep: the mirror of <see cref="BackwardSweep"/>.</summary>
+    internal static readonly NuclearWaffleSweepDefinition ForwardSweep =
         new(SweepCenter - SweepRadius, SweepCenter + SweepRadius, SegmentPitch, SegmentPitch / 2,
-            SweepCenter - TurnRadius, SweepCenter + TurnRadius),
-    ];
+            SweepCenter - TurnRadius, SweepCenter + TurnRadius);
 }

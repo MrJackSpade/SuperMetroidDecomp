@@ -48,7 +48,7 @@ internal static class FuneNamiheCooldownVerification
             ShowsActiveAnimation = false,
             FacingRight = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
-            VariantIndex = 0,
+            Variant = FuneNamiheVariant.Fune,
             CooldownTime = CooldownTime,
             CooldownTimer = count,
         };

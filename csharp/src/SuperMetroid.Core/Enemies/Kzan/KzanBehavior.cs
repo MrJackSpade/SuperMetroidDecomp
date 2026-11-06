@@ -30,14 +30,16 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int KzanNtscRiseWaitFrames = 64;
     /// <summary>Fractional pixels subtracted each rising actor update.</summary>
     private const int KzanNtscRisingSubspeed = 32768;
-    /// <summary>The fastest linear-speed row falling acceleration reaches.</summary>
-    private const int KzanMaximumFallingSpeedRow = 64;
+    /// <summary>The speed each falling update adds: one sixteenth of a pixel per update.</summary>
+    private static readonly SignedSixteenSixteen KzanFallAcceleration = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
+    /// <summary>The fastest the falling acceleration reaches: four pixels per update.</summary>
+    private static readonly SignedSixteenSixteen KzanMaximumFallingSpeed = SignedSixteenSixteen.FromParts(4, 0);
 
     /// <summary>The library-two landing sound published when the falling top reaches its target.</summary>
     private static readonly SoundEffectId KzanLandingSound =
         EnemySoundEffectDefinitions.KzanLandingSoundEffect;
 
-    /// <summary>Initializes the top's idle list, speed row, fall distance and wait timer from its spawn settings.</summary>
+    /// <summary>Initializes the top's idle list, fall speed, fall distance and wait timer from its spawn settings.</summary>
     internal static void InitializeKzanTop(RoomEnemySlot slot)
     {
         var state = new KzanEnemyState();
@@ -48,10 +50,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
 
-        // The spawn settings name the linear-speed row the fall starts at. Retail values include 64, the table's
-        // final NTSC row.
-        state.FallingSpeedRow = slot.SpawnSettings<KzanSpawnSettings>().FallSpeedIndex;
-        state.InitialFallingSpeed = EnemyLinearSpeeds.Row(state.FallingSpeedRow).Positive;
+        // The spawn settings name the speed the fall starts at. Retail placements include four pixels per update,
+        // the fastest the fall reaches.
+        state.FallingSpeed = slot.SpawnSettings<KzanSpawnSettings>().FallSpeed;
+        state.InitialFallingSpeed = state.FallingSpeed;
 
         // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
         // low byte is the top wait countdown. A zero countdown deliberately wraps to -1
@@ -124,7 +126,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decrements the wrapping top wait and resets the fall-speed index when descent begins.</summary>
+    /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>
     private static void RunKzanWaitingToFall(RoomEnemySlot slot, KzanEnemyState state)
     {
         state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
@@ -132,18 +134,18 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
-        state.FallingSpeedRow = slot.SpawnSettings<KzanSpawnSettings>().FallSpeedIndex;
+        state.FallingSpeed = slot.SpawnSettings<KzanSpawnSettings>().FallSpeed;
         state.Function = KzanEnemyFunction.Falling;
     }
 
-    /// <summary>Applies table-driven downward speed, clamps to the target using signed wrapped comparison, carries Samus, and advances the speed index.</summary>
+    /// <summary>Applies the downward speed, clamps to the target using signed wrapped comparison, carries Samus, and accelerates the fall.</summary>
     private void RunKzanFalling(
         RoomEnemySlot slot,
         KzanEnemyState state,
         SamusState? samus)
     {
         state.PreviousPosition = slot.Position.Whole;
-        slot.Position = slot.Position.AdvanceY(EnemyLinearSpeeds.Row(state.FallingSpeedRow).Positive);
+        slot.Position = slot.Position.AdvanceY(state.FallingSpeed);
 
         // CMP/BMI tests only the sign of the wrapped subtraction, which the spatial difference
         // keeps: coordinates near the room's edge retain the same game behavior.
@@ -157,9 +159,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
 
-        // The game caps the row by the sign of its difference from the cap; both stay far
+        // The game caps the speed by the sign of its difference from the cap; both stay far
         // below the sign bit, so that is the ordinary minimum.
-        state.FallingSpeedRow = Math.Min(state.FallingSpeedRow + 1, KzanMaximumFallingSpeedRow);
+        SignedSixteenSixteen accelerated = state.FallingSpeed + KzanFallAcceleration;
+        state.FallingSpeed = accelerated.RawValue < KzanMaximumFallingSpeed.RawValue ? accelerated : KzanMaximumFallingSpeed;
     }
 
     /// <summary>Counts down the 64-frame NTSC landing hold before switching to ascent.</summary>

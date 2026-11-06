@@ -20,14 +20,11 @@ public sealed class FuneNamiheEnemyState
     /// <summary>The waiting or spitting behaviour; none once a kill has emptied the record.</summary>
     public FuneNamiheEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Strict vertical wake distance in pixels used only by Namihe, population parameter two's high byte (0 through 255).</summary>
+    /// <summary>Strict vertical wake distance in pixels used only by Namihe, from the spawn settings.</summary>
     public int YProximity { get; internal set; }
 
-    /// <summary>
-    /// The complete low nibble of population parameter one, 0 through 15. Zero selects Fune; every nonzero value
-    /// selects Namihe, exactly as the BEQ test does.
-    /// </summary>
-    public int VariantIndex { get; internal set; }
+    /// <summary>Whether it behaves as a Fune or a Namihe, from the spawn settings; an emptied record reads as Fune.</summary>
+    public FuneNamiheVariant Variant { get; internal set; }
 
     /// <summary>
     /// Fune's incrementing cooldown count of waiting updates, 0 through 65535, compared with <see cref="CooldownTime"/>
@@ -36,11 +33,11 @@ public sealed class FuneNamiheEnemyState
     /// </summary>
     public int CooldownTimer { get; internal set; }
 
-    /// <summary>The number of updates Fune waits, initialized from parameter one's high byte.</summary>
+    /// <summary>The number of updates Fune waits, from the spawn settings.</summary>
     public int CooldownTime { get; internal set; }
 
-    /// <summary>The shared initializer treats any nonzero variant nibble as Namihe.</summary>
-    public bool IsNamihe => VariantIndex != 0;
+    /// <summary>Whether it behaves as a Namihe.</summary>
+    public bool IsNamihe => Variant == FuneNamiheVariant.Namihe;
 
     /// <summary>
     /// Empties the values the game keeps in the enemy's common record, when a kill empties that record. The
@@ -50,7 +47,7 @@ public sealed class FuneNamiheEnemyState
     {
         Function = null;
         YProximity = 0;
-        VariantIndex = 0;
+        Variant = FuneNamiheVariant.Fune;
         CooldownTimer = 0;
         CooldownTime = 0;
     }

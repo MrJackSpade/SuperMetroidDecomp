@@ -3,12 +3,11 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// <summary>Chooses a Nuclear Waffle's sweep.</summary>
 internal static class NuclearWaffleSweeps
 {
-    /// <summary>One of the two mirrored sweeps, including endpoints, link spacing, and turn thresholds.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is two or more.</exception>
-    internal static NuclearWaffleSweepDefinition Sweep(int direction)
+    /// <summary>The sweep, with its endpoints, link spacing and turn thresholds, that runs in <paramref name="direction"/>.</summary>
+    internal static NuclearWaffleSweepDefinition Sweep(NuclearWaffleSweepDirection direction) => direction switch
     {
-        if (direction >= NuclearWaffleDefinitions.Sweeps.Length)
-            throw new InvalidDataException($"Nuclear Waffle direction {direction} is outside the two sweeps.");
-        return NuclearWaffleDefinitions.Sweeps[direction];
-    }
+        NuclearWaffleSweepDirection.Backward => NuclearWaffleDefinitions.BackwardSweep,
+        NuclearWaffleSweepDirection.Forward => NuclearWaffleDefinitions.ForwardSweep,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined Nuclear Waffle sweep direction."),
+    };
 }

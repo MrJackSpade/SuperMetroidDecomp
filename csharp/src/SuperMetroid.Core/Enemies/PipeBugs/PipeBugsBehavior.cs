@@ -67,7 +67,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.FlightSpeeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<NorfairPipeBugSpawnSettings>().SpeedIndex);
+        SignedSixteenSixteen flightSpeed = slot.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
+        state.FlightSpeeds = new EnemyLinearSpeedRow(flightSpeed, SignedSixteenSixteen.Zero - flightSpeed);
         state.FormationCounter = 0;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -88,10 +89,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? PipeBugProgram.GeegaFlyingLeft
                 : PipeBugProgram.GeegaFlyingRight);
 
-        // The spawn settings name the linear-speed row the bug flies at.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<YellowPipeBugSpawnSettings>().SpeedIndex);
-        state.PositiveVelocity = speeds.Positive;
-        state.NegativeVelocity = speeds.Negative;
+        // The spawn settings name the speed the bug flies at.
+        SignedSixteenSixteen speed = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
+        state.PositiveVelocity = speed;
+        state.NegativeVelocity = SignedSixteenSixteen.Zero - speed;
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
         state.ArcCompleted = false;
     }

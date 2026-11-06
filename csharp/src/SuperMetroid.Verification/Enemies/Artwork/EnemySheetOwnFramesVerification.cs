@@ -144,7 +144,7 @@ internal static class EnemySheetOwnFramesVerification
         AssertTrue(placements.Length > 0, $"a room places {definition}");
         bool[] both = [false, true];
         return placements.SelectMany(settings => both.SelectMany(active => both.Select(right =>
-            FuneNamiheBehavior.SelectFuneNamiheProgram(new FuneNamiheEnemyState { VariantIndex = settings.Variant, ShowsActiveAnimation = active, FacingRight = right }))));
+            FuneNamiheBehavior.SelectFuneNamiheProgram(new FuneNamiheEnemyState { Variant = settings.Variant, ShowsActiveAnimation = active, FacingRight = right }))));
     }
 
     /// <summary>

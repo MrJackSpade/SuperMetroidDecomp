@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Nuclear;
@@ -13,7 +14,10 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Nuclear Waffle sweep geometry and body-loop mechanics against bank-$A6 ROM and production enemy state.</summary>
 internal static class NuclearWaffleDefinitionsVerification
 {
-    /// <summary>Compares both sweep directions and the full body loop with retail data while guarding migrated geometry and program reads.</summary>
+    /// <summary>
+    /// Compares the sweep each decoded direction selects, and the full body loop, with retail data; the import rejects a
+    /// direction past the two sweeps.
+    /// </summary>
     internal static void VerifyNuclearWaffleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int endpointTable = 0xa695f6;
@@ -23,7 +27,8 @@ internal static class NuclearWaffleDefinitionsVerification
         for (byte direction = 0; direction < 2; direction++)
         {
             int offset = direction * 4;
-            NuclearWaffleSweepDefinition definition = NuclearWaffleSweeps.Sweep(direction);
+            var settings = (NuclearWaffleSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Puromi, PopulationWords.Parameters(0x2001, 0x2000 | direction));
+            NuclearWaffleSweepDefinition definition = NuclearWaffleSweeps.Sweep(settings.Direction);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset)), definition.StartAngle,
                 $"Nuclear Waffle start angle {direction}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset + 2)), definition.EndAngle,
@@ -73,10 +78,10 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle production sprite links {direction}");
         }
 
-        AssertThrows<InvalidDataException>(() => NuclearWaffleSweeps.Sweep(2),
-            "Nuclear Waffle direction beyond authored table");
-        AssertThrows<InvalidDataException>(() => NuclearWaffleSweeps.Sweep(byte.MaxValue),
-            "Nuclear Waffle restored direction does not read adjacent enemy code");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Puromi, PopulationWords.Parameters(0x2001, 0x2002)),
+            "the import rejects a Nuclear Waffle direction beyond the two sweeps");
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Puromi, PopulationWords.Parameters(0x2001, 0x20ff)),
+            "the import rejects the largest Nuclear Waffle direction");
 
         Console.WriteLine(
             "Nuclear Waffle definitions: twelve geometry words and both complete production " +

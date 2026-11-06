@@ -47,18 +47,18 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        MorphBallEyePlacement placement = MorphBallEyePlacement.Of(slot.SpawnSettings<MorphBallEyeSpawnSettings>());
-        if (!placement.IsBeamMount)
+        MorphBallEyeSpawnSettings settings = slot.SpawnSettings<MorphBallEyeSpawnSettings>();
+        if (settings.Part != MorphBallEyePart.BeamMount)
         {
-            // Parameter one bit zero is a fixed mounting direction, not a live facing test.
+            // The placement's facing is fixed by its mounting, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(slot.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
+            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(settings.Facing == HorizontalDirection.Right
                 ? MorphBallEyeProgram.FacingRightClosed
                 : MorphBallEyeProgram.FacingLeftClosed);
             return;
         }
 
-        var mount = MorphBallEyeGeometry.Mount(placement.MountDirection);
+        var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
         slot.Position += mount.Offset;
         state.Function = MorphBallEyeAiFunction.MountNoOp;
         state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program);

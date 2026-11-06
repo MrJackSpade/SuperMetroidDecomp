@@ -28,17 +28,17 @@ public sealed class NuclearWaffleEnemyState
     }
 
     /// <summary>
-    /// Orbit radius in room pixels, 0 through 255, from parameter one's high byte. Every link and the head sit on
+    /// Orbit radius in room pixels, from the spawn settings. Every link and the head sit on
     /// the circle of this radius around <see cref="Origin"/>.
     /// </summary>
     public int OrbitRadius { get; internal set; }
 
-    /// <summary>Whether the sweep runs forward (parameter two's low byte one) rather than backward (zero).</summary>
+    /// <summary>Whether the sweep runs forward rather than backward, as the spawn settings' direction says.</summary>
     public bool SweepsForward { get; internal set; }
 
     /// <summary>
     /// The wait, in AI updates, reloaded into <see cref="WaitingTimer"/> at room load and whenever a wait expires:
-    /// parameter two's high byte, 0 through 255.
+    /// the spawn settings' wait time.
     /// </summary>
     public int WaitingTimerReset { get; internal set; }
 
@@ -58,8 +58,8 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The finish angle: 240 for the backward sweep or 400 for the forward one; the last damaging link's clamp result determines sweep completion.</summary>
     public int SweepEndAngle { get; internal set; }
     /// <summary>
-    /// Signed 16.16 angular speed in 1/256-turn units per AI update, from the common linear speed
-    /// table: the positive record for a forward sweep and the separately stored negative record for a backward one.
+    /// Signed 16.16 angular speed in 1/256-turn units per AI update: the spawn settings' angular speed for a forward
+    /// sweep and its negation for a backward one.
     /// </summary>
     public SignedSixteenSixteen AngularSpeed { get; internal set; }
     /// <summary>The arc origin: initial population position in whole room pixels, retained as the fixed orbit center.</summary>

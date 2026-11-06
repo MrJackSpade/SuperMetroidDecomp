@@ -1,22 +1,9 @@
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
-/// <summary>How a Fune or Namihe faces and spits (#1472).</summary>
-/// <param name="Variant">Its variant, 0 through 15.</param>
+/// <summary>How a Fune or Namihe faces and spits (#1472, #1519).</summary>
+/// <param name="Variant">Whether it behaves as a Fune or a Namihe; a placement names this apart from its species.</param>
 /// <param name="Facing">The way it faces.</param>
-/// <param name="CooldownTime">Updates, 0 through 255, between spits.</param>
-/// <param name="LaunchIndex">Its spit speed, 0 through 255.</param>
-/// <param name="YProximity">The vertical distance, 0 through 255 pixels, Samus must come within.</param>
-internal sealed record FuneNamiheSpawnSettings(int Variant, HorizontalDirection Facing, int CooldownTime, int LaunchIndex, int YProximity) : EnemySpawnSettings
-{
-    /// <summary>Its variant, 0 through 15.</summary>
-    public int Variant { get; init; } = Ensure.BetweenInclusive(0, 15, Variant);
-
-    /// <summary>Updates, 0 through 255, between spits.</summary>
-    public int CooldownTime { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, CooldownTime);
-
-    /// <summary>Its spit speed, 0 through 255.</summary>
-    public int LaunchIndex { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, LaunchIndex);
-
-    /// <summary>The vertical distance, 0 through 255 pixels, Samus must come within.</summary>
-    public int YProximity { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, YProximity);
-}
+/// <param name="CooldownTime">The updates a Fune waits between spits.</param>
+/// <param name="LaunchSpeed">The speed, in pixels per update, at which its fireballs fly away from it.</param>
+/// <param name="YProximity">The vertical distance in pixels Samus must come within to wake a Namihe.</param>
+internal sealed record FuneNamiheSpawnSettings(FuneNamiheVariant Variant, HorizontalDirection Facing, int CooldownTime, SignedEightEight LaunchSpeed, int YProximity) : EnemySpawnSettings;

@@ -23,7 +23,7 @@ internal static class KzanBehaviorVerification
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWholeY(128);
-        slot.SetSpawnSettings(new KzanSpawnSettings(FallSpeedIndex: 64, FallWait: 112, FallDistance: 80));
+        slot.SetSpawnSettings(new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromParts(4, 0), FallWait: 112, FallDistance: 80));
         KzanBehavior.InitializeKzanTop(slot);
         AssertEqual(AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle),
             (enemies.SlotTable.Slots[0].EntityState<KzanEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Program,
@@ -61,7 +61,7 @@ internal static class KzanBehaviorVerification
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
         AssertEqual(KzanEnemyFunction.Falling, state.Function, "above the wrapped falling target the top keeps falling");
         AssertEqual((ushort)65520, slot.Position.Y.Whole, "the first falling step uses the zero speed entry");
-        AssertEqual(1, state.FallingSpeedRow, "each falling step advances the speed by one row");
+        AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(1), state.FallingSpeed, "each falling step accelerates the fall by a sixteenth of a pixel per update");
 
         slot.Position = slot.Position.WithWholeY(16);
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);

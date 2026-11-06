@@ -61,25 +61,23 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
+    /// <summary>Takes the variant, facing, cooldown and Y proximity from the spawn settings, then installs the corresponding idle list.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
-        FuneNamiheSetup setup = FuneNamiheSetup.Of(settings);
         FuneNamiheEnemyState state = new()
         {
             ShowsActiveAnimation = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
-            VariantIndex = setup.Variant,
+            Variant = settings.Variant,
             YProximity = settings.YProximity,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
-            FacingRight = setup.FacesRight,
+            FacingRight = settings.Facing == HorizontalDirection.Right,
         };
 
-        // Species is encoded in the population parameter rather than inferred from the
-        // enemy header. This sounds redundant, but preserving it lets malformed/custom
-        // populations exhibit the same cross-species behavior as the retail routine.
+        // The behaviour follows the placement's variant rather than the enemy's species. This sounds redundant, but
+        // preserving it lets custom populations give one species the other's behaviour, as the game does.
         if (state.IsNamihe)
             state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
 
@@ -206,9 +204,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileFrameBehavior.FuneNamiheFireballFlight;
 
     /// <summary>
-    /// Runs the shared projectile initializer. The source population's low
-    /// parameter-two byte selects one {left,right} speed pair; the fireball flies at the
-    /// speed for its direction.
+    /// Runs the shared projectile initializer. The fireball flies at the source placement's launch speed in its
+    /// direction.
     /// </summary>
     internal void SpawnFuneNamiheFireball(
         RoomEnemySlot source,
@@ -228,15 +225,14 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Position = source.Position;
 
-        // The initializer tests the actor parameter's species nibble, not the projectile
-        // definition. Namihe's mouth is four pixels lower than Fune's in the shared art.
+        // The initializer tests the placement's variant, not the projectile definition. Namihe's mouth is four
+        // pixels lower than Fune's in the shared art.
         FuneNamiheSpawnSettings sourceSettings = source.SpawnSettings<FuneNamiheSpawnSettings>();
-        if (FuneNamiheSetup.Of(sourceSettings).IsNamihe)
+        if (sourceSettings.Variant == FuneNamiheVariant.Namihe)
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 4);
 
-        var velocities = EnemyFireballLaunches.NamiFuneVelocities(sourceSettings.LaunchIndex);
         projectile.Velocity = new(
-            new SignedEightEight(direction == HorizontalDirection.Right ? velocities.Right : velocities.Left),
+            direction == HorizontalDirection.Right ? sourceSettings.LaunchSpeed : sourceSettings.LaunchSpeed.Negated(),
             new SignedEightEight(0));
     }
 

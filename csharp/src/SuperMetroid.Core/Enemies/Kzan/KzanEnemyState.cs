@@ -33,7 +33,7 @@ public sealed class KzanEnemyState
     }
 
     /// <summary>
-    /// The lowest position of the fall, the spawn Y plus population parameter 2's high-byte fall distance with
+    /// The lowest position of the fall, the spawn Y plus the spawn settings' fall distance with
     /// room-coordinate wraparound; only its Y is meaningful. Positions compare with it by the wrapped spatial
     /// difference.
     /// </summary>
@@ -44,7 +44,7 @@ public sealed class KzanEnemyState
     }
 
     /// <summary>
-    /// The initial downward speed sample selected by population parameter 1's low byte, in pixels per update; this
+    /// The initial downward speed, in pixels per update, from the spawn settings' fall speed; this
     /// initialization snapshot is not the accelerating current speed.
     /// </summary>
     public SignedSixteenSixteen InitialFallingSpeed { get; internal set; }
@@ -56,10 +56,10 @@ public sealed class KzanEnemyState
     public Position16<RoomPixels> PreviousPosition { get; internal set; }
 
     /// <summary>
-    /// The row of the shared linear speed table the fall moves at. Initialized from population parameter 1's low byte
-    /// (0 through 255), it advances one row per falling update and is capped at row 64.
+    /// The speed, in pixels per update, the fall moves at. It starts at the spawn settings' fall speed, grows by one
+    /// sixteenth of a pixel per falling update and is capped at four pixels per update.
     /// </summary>
-    public int FallingSpeedRow { get; internal set; }
+    public SignedSixteenSixteen FallingSpeed { get; internal set; }
 
     /// <summary>Post-landing wait in actor updates; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
     public WrappingCountdown RiseWaitTimer { get; internal set; }

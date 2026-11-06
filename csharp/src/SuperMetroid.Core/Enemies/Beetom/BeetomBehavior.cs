@@ -529,7 +529,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the private post-common-shot tail.</summary>
     private static void ResolveBeetomShotAfterCommon(RoomEnemySlot slot, BeetomEnemyState state)
     {
-        if (!slot.FrozenTimer.IsZero && state.Function is
+        if (slot.FrozenTimer != 0 && state.Function is
             BeetomEnemyFunction.DrainingLeft or BeetomEnemyFunction.DrainingRight)
         {
             state.Function = BeetomEnemyFunction.StartDropping;

@@ -37,7 +37,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         _room.EnsureLoaded();
         foreach (RoomEnemySlot enemy in _dispatch.InteractiveEnemies)
         {
-            if (!enemy.InvincibilityTimer.IsZero)
+            if (enemy.InvincibilityTimer != 0)
                 continue;
 
             int xDistance = CoordinateAxis.Distance(enemy.Position.X.Whole, endpoint.X);
@@ -84,19 +84,19 @@ internal sealed class GrappleBehavior : IGrappleTargets
         {
             case GrappleAiRoutine.NoInteraction:
                 enemy.AiStates = EnemyAiStates.None;
-                enemy.InvincibilityTimer = WrappingCountdown.Start(0);
-                enemy.FrozenTimer = WrappingCountdown.Start(0);
-                enemy.ShakeTimer = WrappingCountdown.Start(0);
+                enemy.InvincibilityTimer = 0;
+                enemy.FrozenTimer = 0;
+                enemy.ShakeTimer = 0;
                 return true;
 
             case GrappleAiRoutine.Attach:
-                if (!enemy.FrozenTimer.IsZero)
+                if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
                 }
                 else
                 {
-                    enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames);
+                    enemy.FlashTimer = enemy.HurtFlashFrames;
                     enemy.AiStates = EnemyAiStates.None;
                 }
                 return true;
@@ -115,7 +115,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleAiRoutine.AttachWithoutInvincibility:
-                if (!enemy.FrozenTimer.IsZero)
+                if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
                     return true;
@@ -129,7 +129,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleAiRoutine.AttachAndParalyze:
-                enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames);
+                enemy.FlashTimer = enemy.HurtFlashFrames;
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 

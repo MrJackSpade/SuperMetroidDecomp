@@ -1989,7 +1989,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and clear/color targets");
                 }
             }
@@ -2043,7 +2043,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves targets and health overlay");
                 }
             }
@@ -2094,9 +2094,9 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
-                    body.FlashTimer = WrappingCountdown.Start(2); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer = 2; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = WrappingCountdown.Start(0); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer = 0; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");

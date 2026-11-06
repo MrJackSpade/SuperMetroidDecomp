@@ -927,9 +927,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // before checking time freeze. X-ray therefore stops their movement but
             // not this clock. Remember the entry value: the call that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
-            bool invincibleAtEntry = !slot.InvincibilityTimer.IsZero;
+            bool invincibleAtEntry = slot.InvincibilityTimer != 0;
             if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) && invincibleAtEntry)
-                slot.InvincibilityTimer = slot.InvincibilityTimer.Decrement().Remaining;
+                slot.InvincibilityTimer--;
             // EnemyMain checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
@@ -986,12 +986,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // immediately. That branch leaves the freeze clock at the remainder
                     // ThawedFreezeLeftover names rather than zero, which matters when hurt
                     // and frozen dispatch coexist.
-                    slot.FlashTimer = WrappingCountdown.Start(0);
-                    bool thaw = slot.FrozenTimer.IsZero ||
+                    slot.FlashTimer = 0;
+                    bool thaw = slot.FrozenTimer == 0 ||
                         (frame.Samus is not null &&
                             (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None);
                     if (!thaw)
-                        slot.FrozenTimer = slot.FrozenTimer.Decrement().Remaining;
+                        slot.FrozenTimer--;
                     else
                     {
                         slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
@@ -1000,7 +1000,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                         ThawedFreezeLeftover.Hold hold = stillGrappled
                             ? stillHurt ? ThawedFreezeLeftover.Hold.GrappledAndHurt : ThawedFreezeLeftover.Hold.Grappled
                             : stillHurt ? ThawedFreezeLeftover.Hold.Hurt : ThawedFreezeLeftover.Hold.None;
-                        slot.FrozenTimer = WrappingCountdown.Start(ThawedFreezeLeftover.Of(hold));
+                        slot.FrozenTimer = ThawedFreezeLeftover.Of(hold);
                     }
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);
@@ -1045,13 +1045,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // EnemyMain performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the
             // frame just processed rather than the already-decremented following frame.
-            if (!frame.TimeIsFrozen && !slot.FlashTimer.IsZero)
+            if (!frame.TimeIsFrozen && slot.FlashTimer != 0)
             {
-                slot.FlashTimer = slot.FlashTimer.Decrement().Remaining;
+                slot.FlashTimer--;
                 // EnemyMain clears hurt dispatch once the post-decrement timer is below
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
-                if (slot.FlashTimer.EndsWithin(8))
+                if (slot.FlashTimer - 8 < 0)
                     slot.AiStates = slot.AiStates & ~EnemyAiStates.Hurt;
             }
         }
@@ -1067,7 +1067,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
                 // A frozen enemy blocks Samus whatever its properties say.
-                !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
+                slot.FrozenTimer != 0 || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
         frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
@@ -1089,7 +1089,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (Earthquake.Advance(timeIsFrozen))
         {
             foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
-                slot.ShakeTimer = WrappingCountdown.Start(RoomEarthquakeDefinitions.EnemyShakeDuration);
+                slot.ShakeTimer = RoomEarthquakeDefinitions.EnemyShakeDuration;
         }
         return Earthquake.LastRoomShake;
     }

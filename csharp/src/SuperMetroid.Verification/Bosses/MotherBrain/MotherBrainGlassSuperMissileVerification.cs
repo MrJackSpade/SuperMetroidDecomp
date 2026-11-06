@@ -62,8 +62,8 @@ internal static class MotherBrainGlassSuperMissileVerification
         var level = CreateEmptyRoom(new(16, 16));
         shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         head.AiStates = EnemyAiStates.None;
-        head.FlashTimer = WrappingCountdown.Start(0);
-        head.InvincibilityTimer = WrappingCountdown.Start(0);
+        head.FlashTimer = 0;
+        head.InvincibilityTimer = 0;
         AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "nothing of the pair is left to hit the glass");
         AssertEqual(2700, head.Health, "the glass takes no second hit");
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");

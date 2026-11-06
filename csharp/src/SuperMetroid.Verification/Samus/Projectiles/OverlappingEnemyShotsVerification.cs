@@ -65,8 +65,8 @@ internal static class OverlappingEnemyShotsVerification
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
         {
             enemy.AiStates = EnemyAiStates.None;
-            enemy.FlashTimer = WrappingCountdown.Start(0);
-            enemy.InvincibilityTimer = WrappingCountdown.Start(0);
+            enemy.FlashTimer = 0;
+            enemy.InvincibilityTimer = 0;
         }
         AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus),
             "removed projectile cannot damage the stack on the next pass");

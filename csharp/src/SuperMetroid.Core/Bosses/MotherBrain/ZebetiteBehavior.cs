@@ -144,7 +144,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunZebetiteMain(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         if (_earthquake.EarthquakeTimer.IsZero)
-            slot.ShakeTimer = WrappingCountdown.Start(0);
+            slot.ShakeTimer = 0;
 
         switch (state.Function)
         {

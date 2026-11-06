@@ -151,7 +151,7 @@ internal sealed class PhantoonCombat
         RoomEnemySlot body = state.Body;
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
             CommonEnemyEmptyFrames.DrawsNothing(body.Frame) ||
-            !body.InvincibilityTimer.IsZero ||
+            body.InvincibilityTimer != 0 ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |
                 EnemyProperties.IgnoreSamusCollision))
@@ -231,21 +231,21 @@ internal sealed class PhantoonCombat
                 EnemyCollision.ReadNormalShotVulnerability(body, projectileType);
             if (vulnerability.FreezeImmediately)
             {
-                body.FrozenTimer = WrappingCountdown.Start(400);
+                body.FrozenTimer = 400;
                 body.AiStates |= EnemyAiStates.Frozen;
-                body.InvincibilityTimer = WrappingCountdown.Start(10);
+                body.InvincibilityTimer = 10;
             }
             else
             {
                 int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
                 if (damage != 0)
                 {
-                    body.FlashTimer = WrappingCountdown.Start(body.HurtFlashFrames + 8);
+                    body.FlashTimer = body.HurtFlashFrames + 8;
                     body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared damage helper.
                     if (projectileType.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
+                        body.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;

@@ -447,7 +447,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (slot.Health != 0)
         {
-            if (slot.FrozenTimer.IsZero)
+            if (slot.FrozenTimer == 0)
                 return;
 
             ReleaseSamusFromYappingMaw(state, samus);
@@ -477,7 +477,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PictureShading shading = SelectYappingMawFrozenShading(
             state.OriginalShading,
-            slot.FrozenTimer.RemainingFrames);
+            slot.FrozenTimer);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
         {
             if (body is not null)

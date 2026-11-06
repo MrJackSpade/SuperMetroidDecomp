@@ -310,10 +310,10 @@ internal static class NativeSnapshotImport
             slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             // The native tile index word is where the import composes the occupant's sheet, not slot state (#1513).
             slot.Layer = EnemyDrawLayer.Of(W(address + 34));
-            slot.FlashTimer = WrappingCountdown.FromRaw(W(address + 36));
-            slot.FrozenTimer = WrappingCountdown.FromRaw(W(address + 38));
-            slot.InvincibilityTimer = WrappingCountdown.FromRaw(W(address + 40));
-            slot.ShakeTimer = WrappingCountdown.FromRaw(W(address + 42));
+            slot.FlashTimer = W(address + 36);
+            slot.FrozenTimer = W(address + 38);
+            slot.InvincibilityTimer = W(address + 40);
+            slot.ShakeTimer = W(address + 42);
             slot.FrameCounter = W(address + 44);
             var words = new NativeEnemyRecordWords(
                 W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));

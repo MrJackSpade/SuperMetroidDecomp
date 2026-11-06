@@ -165,7 +165,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         follower.FrozenTimer = parent.FrozenTimer;
         NorfairLavaJumpingEnemyState parentState = parent.SpeciesState<NorfairLavaJumpingEnemyState>() ??
             throw new InvalidDataException($"The Norfair lava-jumping follower in slot {follower.SlotIndex} has no parent state.");
-        if (!parent.FrozenTimer.IsZero || parentState.YVelocity.SignedRawValue >= 0)
+        if (parent.FrozenTimer != 0 || parentState.YVelocity.SignedRawValue >= 0)
         {
             // The second half appears only while the parent is travelling upward. At the
             // apex and during descent, the parent animation alone owns the visible shape.

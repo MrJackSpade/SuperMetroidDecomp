@@ -220,7 +220,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
         LowerNorfairRioEnemyState parentState = parent.RequireSpeciesState<LowerNorfairRioEnemyState>();
         follower.FrozenTimer = parent.FrozenTimer;
-        if (!parent.FrozenTimer.IsZero || !parentState.FollowerVisible)
+        if (parent.FrozenTimer != 0 || !parentState.FollowerVisible)
         {
             follower.Properties = follower.Properties.With(EnemyProperties.Invisible);
             return;

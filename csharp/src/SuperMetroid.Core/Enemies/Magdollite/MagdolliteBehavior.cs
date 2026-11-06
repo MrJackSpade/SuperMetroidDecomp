@@ -661,7 +661,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 secondFollowing.Properties = secondFollowing.Properties.With(EnemyProperties.Deleted);
         }
 
-        if (current.FrozenTimer.IsZero)
+        if (current.FrozenTimer == 0)
             return;
         if (following is not null)
         {

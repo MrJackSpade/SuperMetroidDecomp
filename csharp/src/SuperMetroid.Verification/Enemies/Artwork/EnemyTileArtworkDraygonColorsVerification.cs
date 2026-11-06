@@ -102,7 +102,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorDestinations.SpriteDestination,
             DraygonColorDefinitions.SpriteCount, colors.ResolveSprite,
             "normal hurt sprite CGRAM");
-        body.FlashTimer = WrappingCountdown.Start(2);
+        body.FlashTimer = 2;
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
         AssertBand(DraygonColorDestinations.BackgroundDestination,
             DraygonColorDefinitions.WhiteFlashCount, colors.ResolveWhiteFlash,

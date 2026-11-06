@@ -41,7 +41,7 @@ internal static class RidleyShotHealthStageVerification
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
         ridley.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x3800);
-        ridley.InvincibilityTimer = WrappingCountdown.Start(0);
+        ridley.InvincibilityTimer = 0;
         ridley.FrameHold = WrappingCountdown.Start(0x7fff);
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;

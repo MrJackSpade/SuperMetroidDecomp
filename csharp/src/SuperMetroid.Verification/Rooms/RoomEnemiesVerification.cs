@@ -174,9 +174,9 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(PictureShading.Standard, slot.Shading, "a loaded slot shows its sheet's standard colours");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
-    AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
-    AssertEqual(0, slot.InvincibilityTimer.RawValue, "room load clears invincibility timer");
-    AssertEqual(0, slot.ShakeTimer.RawValue, "room load clears shake timer");
+    AssertEqual(0, slot.FlashTimer, "room load clears flash timer");
+    AssertEqual(0, slot.InvincibilityTimer, "room load clears invincibility timer");
+    AssertEqual(0, slot.ShakeTimer, "room load clears shake timer");
     AssertEqual(0x804f, slot.SpritemapPointer,
         "extended actor receives native extended-nothing map after initialization");
 
@@ -469,16 +469,16 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             {
                 ripper.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode((ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
                     (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties))));
-                ripper.InvincibilityTimer = WrappingCountdown.FromRaw(initial);
-                ripper.FlashTimer = WrappingCountdown.Start(16);
-                ripper.FrozenTimer = WrappingCountdown.Start(400);
+                ripper.InvincibilityTimer = initial;
+                ripper.FlashTimer = 16;
+                ripper.FrozenTimer = 400;
                 for (int frame = 1; frame <= 12; frame++)
                 {
                     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
                     // The trace's last column is the native instruction-list word, which the port keeps as the
                     // Ripper's typed animation; the timers and position are compared.
-                    string actual = $"{(intangible ? 1 : 0)},{initial},{frame},{ripper.InvincibilityTimer.RawValue}," +
-                        $"{ripper.FlashTimer.RawValue},{ripper.FrozenTimer.RawValue},{ripper.Position.X.Whole}";
+                    string actual = $"{(intangible ? 1 : 0)},{initial},{frame},{ripper.InvincibilityTimer}," +
+                        $"{ripper.FlashTimer},{ripper.FrozenTimer},{ripper.Position.X.Whole}";
                     string expected = lines[index++];
                     AssertEqual(expected[..expected.LastIndexOf(',')], actual, "original CPU versus production frozen EnemyMain");
                 }
@@ -486,31 +486,31 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             Console.WriteLine("X-Plasma: 120 original-CPU EnemyMain frame records match production exactly.");
             return;
         }
-        ripper.InvincibilityTimer = WrappingCountdown.Start(10);
-        ripper.FlashTimer = WrappingCountdown.Start(16);
-        ripper.FrozenTimer = WrappingCountdown.Start(400);
+        ripper.InvincibilityTimer = 10;
+        ripper.FlashTimer = 16;
+        ripper.FrozenTimer = 400;
         ushort initialX = ripper.Position.X.Whole;
         EnemyFrameId? initialFrame = ripper.Frame;
         WrappingCountdown initialFrameHold = ripper.FrameHold;
         for (int frame = 1; frame <= 12; frame++)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
-            AssertEqual(Math.Max(0, 10 - frame), ripper.InvincibilityTimer.RawValue,
+            AssertEqual(Math.Max(0, 10 - frame), ripper.InvincibilityTimer,
                 $"X-Plasma prerequisite: tangible invincibility expires during X-ray frame {frame}");
-            AssertEqual(16, ripper.FlashTimer.RawValue, "X-ray holds flash timer independently");
-            AssertEqual(400, ripper.FrozenTimer.RawValue, "X-ray holds Ice freeze timer independently");
+            AssertEqual(16, ripper.FlashTimer, "X-ray holds flash timer independently");
+            AssertEqual(400, ripper.FrozenTimer, "X-ray holds Ice freeze timer independently");
             AssertEqual(initialX, ripper.Position.X.Whole, "X-ray holds enemy movement");
             AssertEqual(initialFrame, ripper.Frame, "X-ray holds the enemy's animation frame");
             AssertEqual(initialFrameHold, ripper.FrameHold, "X-ray holds the enemy's animation timer");
         }
         ripper.Properties = ripper.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        ripper.InvincibilityTimer = WrappingCountdown.Start(10);
+        ripper.InvincibilityTimer = 10;
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
-        AssertEqual(10, ripper.InvincibilityTimer.RawValue, "intangible actor bypasses native invincibility clock");
+        AssertEqual(10, ripper.InvincibilityTimer, "intangible actor bypasses native invincibility clock");
         ripper.Properties = ripper.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        ripper.InvincibilityTimer = WrappingCountdown.Start(1);
-        ripper.FrozenTimer = WrappingCountdown.Start(0);
-        ripper.FlashTimer = WrappingCountdown.Start(0);
+        ripper.InvincibilityTimer = 1;
+        ripper.FrozenTimer = 0;
+        ripper.FlashTimer = 0;
         var touchingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -518,7 +518,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
         };
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus, Level = level, ResolveSamusContactBeforeAi = true });
-        AssertEqual(0, ripper.InvincibilityTimer.RawValue, "ordinary frame expires the last invincibility tick");
+        AssertEqual(0, ripper.InvincibilityTimer, "ordinary frame expires the last invincibility tick");
         AssertEqual(99, touchingSamus.Health, "expiration frame still skips native collision branch");
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus, Level = level, ResolveSamusContactBeforeAi = true });
         AssertEqual(94, touchingSamus.Health, "following frame resumes body contact damage");
@@ -541,29 +541,29 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap origin: the reversed frame drawn
     // unshaken, then with each sign, makes both signs and the timer consumption observable.
     var steadyOam = new OamBuffer();
-    ripper.ShakeTimer = WrappingCountdown.Start(0);
+    ripper.ShakeTimer = 0;
     steadyOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(steadyOam, new(0, 0), 0, 7);
     steadyOam.FinalizeFrame();
     int steadyX = steadyOam.GetEntry(0).Position.X;
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
-    ripper.ShakeTimer = WrappingCountdown.Start(2);
+    ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(steadyX + 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one clear adds one X pixel");
-    AssertEqual(1, ripper.ShakeTimer.RawValue, "enemy draw consumes one shake tick");
+    AssertEqual(1, ripper.ShakeTimer, "enemy draw consumes one shake tick");
 
     ripper.FrameCounter = 2;
-    ripper.ShakeTimer = WrappingCountdown.Start(2);
+    ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(steadyX - 1, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one set subtracts one X pixel");
-    AssertEqual(1, ripper.ShakeTimer.RawValue, "negative enemy draw consumes one shake tick");
+    AssertEqual(1, ripper.ShakeTimer, "negative enemy draw consumes one shake tick");
 
     var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
@@ -615,16 +615,16 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ArmProjectile(shot, ripper, type: 0x8002, damage: 20);
     AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
         "Ripper Ice Beam collision");
-    AssertEqual(400, ripper.FrozenTimer.RawValue, "Ripper Ice vulnerability freezes actor");
+    AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Level = level });
     AssertEqual(frozenX, ripper.Position.X.Whole, "frozen Ripper suppresses movement");
-    AssertEqual(399, ripper.FrozenTimer.RawValue, "frozen Ripper timer advances");
+    AssertEqual(399, ripper.FrozenTimer, "frozen Ripper timer advances");
 
     // Clear the focused freeze fixture and prove the Super Missile multiplier, hurt flash, and
     // common death/deletion accounting on the same loaded actor.
-    ripper.FrozenTimer = WrappingCountdown.Start(0);
-    ripper.InvincibilityTimer = WrappingCountdown.Start(0);
+    ripper.FrozenTimer = 0;
+    ripper.InvincibilityTimer = 0;
     ripper.AiStates = EnemyAiStates.None;
     SoundEffectId expectedHurtCry = Library2Sound.ShotRipper;
     AssertEqual<SoundEffectId?>(expectedHurtCry, ripper.Definition.HurtSoundEffect, "Ripper header cry decodes to the Ripper hit sound");

@@ -94,9 +94,9 @@ internal sealed class CeresRidleyHits
         // 14 only when that shift produced carry. In host terms this is precisely old bit
         // zero; testing bit one (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt palette.
-        slot.FlashTimer = WrappingCountdown.FromRaw(!slot.FlashTimer.IsZero && slot.FlashTimer.IsInAlternatePhase(1)
+        slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer % 2 != 0)
             ? 14
-            : 13);
+            : 13;
         state.HitCounter++;
 
         // The original game draws the hurt palette from the enemy frame that just completed.
@@ -121,8 +121,8 @@ internal sealed class CeresRidleyHits
         RidleyEnemyState state,
         int enemyMainExecutionCounter)
     {
-        state.BodyFlashing = !slot.FlashTimer.IsZero && (enemyMainExecutionCounter & 2) != 0;
-        state.SpritemapFlashing = slot.FlashTimer.IsAbove(1) && ((enemyMainExecutionCounter + 1) & 2) != 0;
+        state.BodyFlashing = slot.FlashTimer != 0 && (enemyMainExecutionCounter & 2) != 0;
+        state.SpritemapFlashing = slot.FlashTimer > 1 && ((enemyMainExecutionCounter + 1) & 2) != 0;
     }
 
     /// <summary>

@@ -522,10 +522,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
                 Check(owner + " TileIndexBase", actor.NativeTileBaseIn(runtime.Enemies), address + 32);
                 Check(owner + " Layer", actor.Layer.Order, address + 34);
-                Check(owner + " FlashTimer", actor.FlashTimer.RawValue, address + 36);
-                Check(owner + " FrozenTimer", actor.FrozenTimer.RawValue, address + 38);
-                Check(owner + " InvincibilityTimer", actor.InvincibilityTimer.RawValue, address + 40);
-                Check(owner + " ShakeTimer", actor.ShakeTimer.RawValue, address + 42);
+                Check(owner + " FlashTimer", actor.FlashTimer, address + 36);
+                Check(owner + " FrozenTimer", actor.FrozenTimer, address + 38);
+                Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);
+                Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
                 Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
             if (!deferLoadingOwners && runtime.Enemies.RidleyEncounter.Ridley is { } ridleyState &&

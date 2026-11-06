@@ -136,7 +136,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         SamusState target = samus ?? throw new InvalidOperationException(
             "The cutscene Baby requires the live Samus actor.");
 
-        slot.ShakeTimer = WrappingCountdown.Start(0);
+        slot.ShakeTimer = 0;
         if (state.PendingBabyCryCount != 0 &&
             baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
                 BabyMetroidCutscenePhase.IdleUntilNoHealth)

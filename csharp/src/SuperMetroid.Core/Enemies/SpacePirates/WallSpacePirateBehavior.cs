@@ -400,7 +400,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
                 // The shared Pirate touch returns before common touch AI while frozen. The overlap was
                 // still found, but neither Samus nor the Pirate receives contact damage.
-                if (!context.Slot.FrozenTimer.IsZero)
+                if (context.Slot.FrozenTimer != 0)
                     return;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
             });

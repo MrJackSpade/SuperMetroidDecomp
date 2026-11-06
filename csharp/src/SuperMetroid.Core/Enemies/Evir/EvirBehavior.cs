@@ -207,7 +207,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
-        if (slot.FrozenTimer.IsZero)
+        if (slot.FrozenTimer == 0)
         {
             if (state.InFlight)
             {
@@ -367,7 +367,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             -2,
             EnemyDefinitionId.Evir,
             "projectile body");
-        if (!body.FrozenTimer.IsZero)
+        if (body.FrozenTimer != 0)
             return;
 
         state.InFlight = false;
@@ -387,7 +387,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             -2,
             EnemyDefinitionId.Evir,
             "projectile body");
-        if (!body.FrozenTimer.IsZero)
+        if (body.FrozenTimer != 0)
             return;
 
         if (!state.Regenerating)
@@ -497,7 +497,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             secondRelative.Properties = secondRelative.Properties.With(EnemyProperties.Deleted);
         }
 
-        if (actor.FrozenTimer.IsZero)
+        if (actor.FrozenTimer == 0)
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;

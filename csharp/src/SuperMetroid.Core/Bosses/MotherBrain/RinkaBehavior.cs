@@ -304,7 +304,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool RunRinkaFrozenTail(RoomEnemySlot slot)
     {
         if (RinkaIsOutsideFlightWindow(slot))
-            slot.FrozenTimer = WrappingCountdown.Start(0);
+            slot.FrozenTimer = 0;
         if (!_rinkaTerminationFlag)
             return false;
 

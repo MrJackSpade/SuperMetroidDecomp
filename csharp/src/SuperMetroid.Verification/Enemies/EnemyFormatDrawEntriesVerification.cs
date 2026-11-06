@@ -107,16 +107,16 @@ internal static class EnemyFormatDrawEntriesVerification
 
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.
         ordinary.FrameCounter = 0;
-        ordinary.ShakeTimer = WrappingCountdown.Start(2);
+        ordinary.ShakeTimer = 2;
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
-        ushort undisplayed = ordinary.ShakeTimer.RawValue;
-        ordinary.ShakeTimer = WrappingCountdown.Start(2);
+        int undisplayed = ordinary.ShakeTimer;
+        ordinary.ShakeTimer = 2;
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
         enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
-        AssertEqual(undisplayed, ordinary.ShakeTimer.RawValue, "A drawn frame consumes the same shake tick");
+        AssertEqual(undisplayed, ordinary.ShakeTimer, "A drawn frame consumes the same shake tick");
         AssertEqual(new Position16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
         Console.WriteLine($"Enemy-format draws: ordinary and whole extended entries from their graphics set's sheets, a frame in another look, and a projectile over the enemy tile page; shake advance independent of display.");
 

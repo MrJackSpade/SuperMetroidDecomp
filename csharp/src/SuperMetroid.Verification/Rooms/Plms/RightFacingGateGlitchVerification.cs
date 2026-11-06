@@ -216,7 +216,7 @@ internal static class RightFacingGateGlitchVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(8191);
         samus.Position = samus.Position.WithWholeY(139);
         samus.EquippedItems = SamusEquipmentFlags.HiJumpBoots;
-        samus.EquippedBeams = (SamusBeamFlags.Ice | SamusBeamFlags.Wave);
+        samus.EquippedBeams = SamusBeamFlags.Ice | SamusBeamFlags.Wave;
         samus.SelectedHudItem = HudItem.SuperMissile;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -231,7 +231,7 @@ internal static class RightFacingGateGlitchVerification
                 enemy.Bind(0, enemy.Definition);
         }
         frozen.Position = frozen.Position.WithWhole(new(checked((ushort)frozenEnemyX), 139));
-        frozen.FrozenTimer = WrappingCountdown.Start(1000);
+        frozen.FrozenTimer = 1000;
         frozen.AiStates |= EnemyAiStates.Frozen;
 
         // The cartridge continues normal gameplay during pause darkening. The published

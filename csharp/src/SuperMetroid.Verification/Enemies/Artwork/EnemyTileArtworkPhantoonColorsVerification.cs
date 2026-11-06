@@ -87,7 +87,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         }
 
         body.Health = unchecked(2 * 312 + 1);
-        body.FlashTimer = WrappingCountdown.Start(8);
+        body.FlashTimer = 8;
         state.Parts[tentacles.SlotIndex].HurtFlashShown = true;
         enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
         AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(2)), Shown(state), "Phantoon live hurt restore");

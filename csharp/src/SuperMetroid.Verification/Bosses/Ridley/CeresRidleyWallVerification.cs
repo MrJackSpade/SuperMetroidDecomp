@@ -37,7 +37,7 @@ internal static class CeresRidleyWallVerification
         AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.X, "native impact does not shift BG1 X");
         AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.Y, "native impact does not shift BG1 Y");
         AssertEqual(3, runtime.Enemies.Earthquake.LastRoomShake.Background.X, "native impact shifts BG2 three pixels on first frame");
-        AssertTrue(!body.ShakeTimer.IsZero, "native impact also shakes selected enemies");
+        AssertTrue(body.ShakeTimer != 0, "native impact also shakes selected enemies");
         AssertEqual(runtime.Enemies.Earthquake.LastRoomShake, runtime.Display.DisplayedGameplayScrolls.RoomShake,
             "accepted display snapshot carries the wall-impact displacement");
         // Stop further attack acceleration so this checks one impact's lifetime, not

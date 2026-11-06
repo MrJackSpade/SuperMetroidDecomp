@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Progression;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -52,13 +50,13 @@ public static class KraidMouthHitBound
     private const int FiredStep = 1 << 15;
 
     /// <summary>The bound Kraid's mouth is left with after a projectile hits it.</summary>
-    /// <param name="family">The family of the projectile that hit.</param>
-    /// <param name="beams">The beam combination of the projectile that hit.</param>
+    /// <param name="familyRow">The projectile family's row in the per-family tables, 0 through 15.</param>
+    /// <param name="beamCombination">The beam combination's index, 0 through 15.</param>
     /// <param name="hit">How the projectile was delivered: placed, or fired and whether charged or an echo.</param>
     /// <returns>The bound, read as a wrapping signed pixel row.</returns>
-    public static int After(SamusProjectileFamily family, SamusBeamCombination beams, Hit hit)
+    public static int After(int familyRow, int beamCombination, Hit hit)
     {
-        int bound = Ensure.BetweenInclusive(0, LastRow, family.TableRow) * FamilyRowStep + Ensure.BetweenInclusive(0, LastRow, beams.TableIndex);
+        int bound = Ensure.BetweenInclusive(0, LastRow, familyRow) * FamilyRowStep + Ensure.BetweenInclusive(0, LastRow, beamCombination);
         bound += hit switch
         {
             Hit.PlacedBomb => 0,

@@ -159,7 +159,7 @@ internal sealed class KraidCombat
                 // A Super Missile's leftover changes the next shot's signed compare; rebuilding a clean rectangle here
                 // doubles close-range damage.
                 bounds.LeaveAfterMouthHit(
-                    KraidMouthHitBound.After(shot.Type.Family, shot.Type.BeamCombination, MouthHit(shot)),
+                    KraidMouthHitBound.After(shot.Type.Family.TableRow, shot.Type.BeamCombination.TableIndex, MouthHit(shot)),
                     KraidContactDefinitions.ShotUpperBoundAfterHit);
                 // Every beam takes Kraid's charged-beam multiplier; the other families take their own.
                 int multiplier = type.Family switch

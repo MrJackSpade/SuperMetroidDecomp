@@ -44,8 +44,11 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Mirrors another owner's write to the shared counter word: Crystal Flash's countdown or a suit pickup stage.</summary>
     internal void SetSharedEscapeCounter(int value) => EscapeButtonCounter = value;
 
-    /// <summary>The counter after one counted press: the shared word advances with sixteen-bit wraparound.</summary>
-    private static int CountPress(int counter) => WordWrap.Unsigned(counter + 1);
+    /// <summary>
+    /// The counter after one counted press. A count another owner left at the top of the counter's range continues from
+    /// zero, as the shared counter does.
+    /// </summary>
+    private static int CountPress(int counter) => WrappingCounter.IncrementWord(counter);
 
     /// <summary>
     /// Whether a counted press reached the target. The game compares the shared word with a signed subtraction,

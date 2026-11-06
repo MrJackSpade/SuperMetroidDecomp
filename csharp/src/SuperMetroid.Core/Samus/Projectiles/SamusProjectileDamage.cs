@@ -61,6 +61,6 @@ internal static class SamusProjectileDamage
                 throw new InvalidOperationException($"{beam} has no beam header."),
             _ => throw new ArgumentOutOfRangeException(nameof(identity), beam, "Undefined beam combination."),
         };
-        return WordWrap.Unsigned(damage * (charged ? 3 : 1));
+        return damage * (charged ? 3 : 1);
     }
 }

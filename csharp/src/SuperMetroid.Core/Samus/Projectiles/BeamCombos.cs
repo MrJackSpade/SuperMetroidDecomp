@@ -92,7 +92,7 @@ internal sealed class BeamCombos
                 if (kind == SamusComboKind.Spazer) slot.AuxiliaryPhase = SpazerComboPhase.Circling;
                 if (kind == SamusComboKind.Plasma) slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(40));
                 slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(kind is SamusComboKind.Wave or SamusComboKind.Ice ? 600
-                    : kind == SamusComboKind.Spazer ? WordWrap.Signed((i & 1) == 0 ? 4 : -4) : 0));
+                    : kind == SamusComboKind.Spazer ? (i & 1) == 0 ? 4 : -4 : 0));
                 if (kind == SamusComboKind.Wave)
                 {
                     slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + (i < 2 ? 128 : -128)), CoordinateAxis.Wrap(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128))));
@@ -132,7 +132,6 @@ internal sealed class BeamCombos
             _ => throw new ArgumentOutOfRangeException(nameof(comboData), comboData, "Undefined combo data."),
         };
         slot.Damage = SamusProjectileDamage.Read(header);
-        if (WordWrap.Signed(slot.Damage) < 0) throw new InvalidDataException("Negative combo projectile damage.");
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction.ToAimIndex() : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -159,7 +158,7 @@ internal sealed class BeamCombos
             slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
-        int distance = outward ? WordWrap.Unsigned(slot.Velocity.X.SignedRawValue) : 32;
+        int distance = outward ? slot.Velocity.X.SignedRawValue : 32;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(slot.ComboAngle, distance);
         slot.Position = slot.Position.WithWrappedWholeX(samus.Position.X.Whole + orbit.X);
         if (outward && (CoordinateAxis.AsSigned(slot.Position.X.Whole - camera.X + 32) < 0 ||
@@ -178,11 +177,11 @@ internal sealed class BeamCombos
         slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
         SoundEffectId? sound = null;
         if (outward)
-            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.LowByte(slot.Velocity.X.SignedRawValue + 8)));
+            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, 8)));
         else
         {
             int oldLifetime = slot.Velocity.Y.SignedRawValue;
-            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(oldLifetime - 1)));
+            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(oldLifetime - 1));
             if (oldLifetime == 1)
             {
                 slot.FrameBehavior = SamusProjectileFrameBehavior.IceComboOutward;
@@ -208,17 +207,17 @@ internal sealed class BeamCombos
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
-            slot.ComboAngle, WordWrap.Unsigned(slot.Velocity.X.SignedRawValue));
+            slot.ComboAngle, slot.Velocity.X.SignedRawValue);
         slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(orbit.X + samus.Position.X.Whole), CoordinateAxis.Wrap(orbit.Y + samus.Position.Y.Whole)));
         slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
         switch (slot.Velocity.Y.SignedRawValue)
         {
             case 0:
-                slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.LowByte(slot.Velocity.X.SignedRawValue + BeamComboDefinitions.PlasmaRadiusStep)));
+                slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, BeamComboDefinitions.PlasmaRadiusStep)));
                 if (slot.Velocity.X.SignedRawValue >= BeamComboDefinitions.PlasmaOuterRadius) slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(1));
                 break;
             case 1:
-                slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.LowByte(slot.Velocity.X.SignedRawValue - BeamComboDefinitions.PlasmaRadiusStep)));
+                slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, -BeamComboDefinitions.PlasmaRadiusStep)));
                 if (slot.Velocity.X.SignedRawValue < BeamComboDefinitions.PlasmaInnerThreshold) slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(2));
                 break;
             case 2:
@@ -229,7 +228,7 @@ internal sealed class BeamCombos
                     CoordinateAxis.Difference(slot.Position.Y.Whole - camera.Y, 16) < 0 ||
                     CoordinateAxis.Difference(slot.Position.Y.Whole - camera.Y, 256) >= 0)
                     _animation.ClearProjectile(slot);
-                else slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.LowByte(slot.Velocity.X.SignedRawValue + BeamComboDefinitions.PlasmaRadiusStep)));
+                else slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, BeamComboDefinitions.PlasmaRadiusStep)));
                 break;
             default: throw new InvalidDataException("Plasma ring reached an invalid phase.");
         }
@@ -284,7 +283,7 @@ internal sealed class BeamCombos
         else
         {
             Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
-                slot.ComboAngle, WordWrap.Unsigned(slot.Velocity.X.SignedRawValue));
+                slot.ComboAngle, slot.Velocity.X.SignedRawValue);
             slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + orbit.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + orbit.Y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114))));
             switch (slot.AuxiliaryPhase)
             {
@@ -293,7 +292,7 @@ internal sealed class BeamCombos
                     if (slot.ComboAngle == ByteAngle.HalfTurn)
                     {
                         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(160));
-                        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed((slot.SlotIndex & 1) == 0 ? 2 : -2)));
+                        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw((slot.SlotIndex & 1) == 0 ? 2 : -2));
                         slot.Direction = SamusProjectileDirection.UpFacingRight;
                         slot.IsSpent = false;
                         slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
@@ -305,10 +304,10 @@ internal sealed class BeamCombos
                     else
                     {
                         AdvanceSpazerAngle(slot);
-                        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue - 5)));
+                        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Velocity.X.SignedRawValue - 5));
                         if (slot.Velocity.X.SignedRawValue == 0)
                         {
-                            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed((slot.SlotIndex & 1) == 0 ? -2 : 2)));
+                            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw((slot.SlotIndex & 1) == 0 ? -2 : 2));
                             slot.ComboAngle = slot.ComboAngle.AddTableUnits(ByteAngle.HalfTurn.RawValue);
                             slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
@@ -323,7 +322,7 @@ internal sealed class BeamCombos
                     else
                     {
                         AdvanceSpazerAngle(slot);
-                        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue + 5)));
+                        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Velocity.X.SignedRawValue + 5));
                         if (slot.Velocity.X.SignedRawValue >= 96) BeginSpazerFall(slot);
                     }
                     break;
@@ -366,7 +365,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return BeamComboDefinitions.WaveRemovalSound;
         }
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue - 1)));
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(slot.Velocity.Y.SignedRawValue - 1));
         if (slot.Velocity.Y.SignedRawValue <= 0)
         {
             _animation.ClearProjectile(slot);
@@ -384,7 +383,7 @@ internal sealed class BeamCombos
         uint x = unchecked(new FixedCoordinate(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(SixteenSixteen.FromEightEight(slot.Velocity.X.SignedRawValue)));
         slot.Position = slot.Position.WithWholeX(FixedCoordinate.WholeOf(unchecked((int)x))).WithFractionX(CoordinateAxis.Wrap(x));
         int ySpeed = AccelerateWaveAxis(slot.WaveComboVerticalSpeed.SignedRawValue, CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole));
-        slot.WaveComboVerticalSpeed = SignedEightEight.FromSignedRaw(WordWrap.Signed(ySpeed));
+        slot.WaveComboVerticalSpeed = SignedEightEight.FromSignedRaw(ySpeed);
         uint y = unchecked(new FixedCoordinate(slot.Position.Y.Whole, slot.Position.Y.Fraction).RawValue + (uint)(SixteenSixteen.FromEightEight(ySpeed)));
         slot.Position = slot.Position.WithWholeY(FixedCoordinate.WholeOf(unchecked((int)y))).WithFractionY(CoordinateAxis.Wrap(y));
         shared.SetSharedCooldown(2);
@@ -396,9 +395,7 @@ internal sealed class BeamCombos
     private static int AccelerateWaveAxis(int speed, int targetDelta)
     {
         if (targetDelta < 0)
-            return WordWrap.Signed(speed + BeamComboDefinitions.WaveSpeedLimit - 1) >= 0 ?
-                WordWrap.Signed(speed - BeamComboDefinitions.WaveAcceleration) : Ensure.BetweenInclusive(short.MinValue, short.MaxValue, speed);
-        return WordWrap.Signed(speed - BeamComboDefinitions.WaveSpeedLimit) < 0 ?
-            WordWrap.Signed(speed + BeamComboDefinitions.WaveAcceleration) : Ensure.BetweenInclusive(short.MinValue, short.MaxValue, speed);
+            return speed > -BeamComboDefinitions.WaveSpeedLimit ? speed - BeamComboDefinitions.WaveAcceleration : speed;
+        return speed < BeamComboDefinitions.WaveSpeedLimit ? speed + BeamComboDefinitions.WaveAcceleration : speed;
     }
 }

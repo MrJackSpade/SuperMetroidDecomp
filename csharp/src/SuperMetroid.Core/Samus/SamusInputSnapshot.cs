@@ -54,13 +54,24 @@ internal sealed class SamusInputSnapshot
         ShinesparkPoseInputLocked = false;
         CrystalFlashPoseInputLocked = false;
         AutoJumpInputPending = false;
-        if (AutoJumpTimer != 0 && WordWrap.Signed(AutoJumpTimer - SamusAutoJumpDefinitions.TimerComparisonLimit) < 0)
+        if (AutoJumpTimer != 0 && JumpHoldReadsAsFresh(AutoJumpTimer))
         {
             AutoJumpTimer = 0;
             newlyPressed |= ControllerButton.A;
         }
         return newlyPressed;
     }
+
+    /// <summary>
+    /// The held-jump count from which a hold reads as fresh again: the game compares the hold with the auto-jump limit by
+    /// the sign of their difference, so a jump held for half the counter's 65536-update range past the limit counts as
+    /// pressed again, until the count continues from zero.
+    /// </summary>
+    private const int JumpHoldReadsFreshFrom = 32768 + SamusAutoJumpDefinitions.TimerComparisonLimit;
+
+    /// <summary>Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit.</summary>
+    private static bool JumpHoldReadsAsFresh(int heldUpdates) =>
+        heldUpdates < SamusAutoJumpDefinitions.TimerComparisonLimit || heldUpdates >= JumpHoldReadsFreshFrom;
 
     /// <summary>Publishes held input without advancing Samus's draw-time owners.</summary>
     internal void PublishMainLoopHeldInput(ControllerButton held) => PreviousDrawHeldInput = held;
@@ -70,7 +81,7 @@ internal sealed class SamusInputSnapshot
     {
         ControllerButton jump = ControllerButton.A;
         AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != ControllerButton.None
-            ? WordWrap.Unsigned(AutoJumpTimer + 1) : 0;
+            ? WrappingCounter.IncrementWord(AutoJumpTimer) : 0;
         PreviousDrawHeldInput = held;
         PreviousDrawNewInput = newlyPressed;
     }

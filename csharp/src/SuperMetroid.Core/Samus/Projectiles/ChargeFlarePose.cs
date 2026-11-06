@@ -21,4 +21,14 @@ internal readonly record struct ChargeFlarePose
 
     /// <summary>Facing left.</summary>
     public required bool FacingLeft { get; init; }
+
+    /// <summary>The rises a flare's pose offset holds, in pixels: a negative offset continues from the top of them.</summary>
+    private const int PoseRises = 256;
+
+    /// <summary>
+    /// The rise the flare takes from a pose's signed graphics Y offset, 0 through 255: the offset within the flare's
+    /// 256 rises, so a negative offset raises the flare by 256 minus its magnitude.
+    /// </summary>
+    /// <param name="graphicsYOffset">The pose's signed graphics Y offset.</param>
+    public static int RiseOf(int graphicsYOffset) => (graphicsYOffset % PoseRises + PoseRises) % PoseRises;
 }

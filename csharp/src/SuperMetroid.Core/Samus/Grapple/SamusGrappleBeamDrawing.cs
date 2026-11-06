@@ -76,9 +76,8 @@ public static class SamusGrappleBeamDrawing
             if (ChargeFlareAnimations.TryDecodeCommand(delay, out ChargeFlareDelayCommand command) &&
                 command == ChargeFlareDelayCommand.Rewind)
             {
-                // `$FE,n` is the compact loop command in the shared delay bytecode. The
-                // subtraction applies to the already-incremented frame word and wraps like
-                // 16-bit add and subtract; malformed data remains visible instead of clamped.
+                // The rewind command is the compact loop of the shared delay stream. The
+                // subtraction applies to the already-incremented frame.
                 int rewind = ChargeFlareAnimations.ReadMainFlareDelay(StepFlareFrame(grapple.FlareAnimationFrame, 1));
                 grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, -rewind);
                 delay = ChargeFlareAnimations.ReadMainFlareDelay(grapple.FlareAnimationFrame);
@@ -155,10 +154,10 @@ public static class SamusGrappleBeamDrawing
 
 
     /// <summary>
-    /// Moves the main-flare stream position by <paramref name="delta"/> as the game's sixteen-bit add or subtract does:
-    /// the position wraps through 65535 and zero, so malformed rewind data stays visible instead of clamped.
+    /// Moves the main-flare stream position by <paramref name="delta"/>. The authored rewinds stay inside the main
+    /// flare's program, and a position outside it fails its delay read.
     /// </summary>
-    private static int StepFlareFrame(int frame, int delta) => WordWrap.Unsigned(frame + delta);
+    private static int StepFlareFrame(int frame, int delta) => frame + delta;
 
 
     /// <summary>

@@ -135,7 +135,7 @@ public sealed class SamusCeresRidleyEjectionState
         // Accelerates only while the signed whole speed is below five. The
         // resulting 16.16 word is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
-        if (WordWrap.Signed(samus.Kinematics.YSpeed.Whole - TerminalDownwardSpeed) < 0)
+        if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
         {
             uint accelerated = unchecked(
                 samus.Kinematics.VerticalSpeedFixed +

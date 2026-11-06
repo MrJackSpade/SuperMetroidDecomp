@@ -10,5 +10,5 @@ internal sealed class GoldenTorizoEggState(bool facingRight) : EnemyProjectileSt
     internal bool FacingRight { get; set; } = facingRight;
 
     /// <summary>The countdown to hatching; the egg hatches on the update it passes zero.</summary>
-    internal WrappingCountdown HatchTimer { get; set; } = WrappingCountdown.Start(TorizoMotionDefinitions.EggHatchTimer);
+    internal int HatchTimer { get; set; } = TorizoMotionDefinitions.EggHatchTimer;
 }

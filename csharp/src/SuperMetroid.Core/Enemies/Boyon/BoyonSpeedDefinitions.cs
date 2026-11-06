@@ -5,14 +5,14 @@ public static class BoyonSpeedDefinitions
 {
     /// <summary>Parameter one's low byte selects a speed multiplier.</summary>
     /// <remarks>
-    /// #625 / #645 retained table: all eight unsigned words
+    /// #625 / #645 retained table: all eight multipliers
     /// are authored values. Values double
     /// through index 3, then rise by 2, 3, 3, and 4; a piecewise rounded formula
     /// would obscure these eight authored choices. The initializer selects indices
-    /// 0..7 and rejects 8, which would read the adjacent jump-height table.
+    /// 0..7 and rejects 8, which has no authored multiplier.
     /// VerifyCompiledBoyonSpeeds covers all eight real initializer selections.
     /// </remarks>
-    internal static readonly ushort[] InitialMultipliers = [1, 2, 4, 8, 10, 13, 16, 20];
+    internal static readonly int[] InitialMultipliers = [1, 2, 4, 8, 10, 13, 16, 20];
 
     /// <summary>The number of 8.8 heights parameter one's high byte selects from.</summary>
     internal const int InitialHeightCount = 9;

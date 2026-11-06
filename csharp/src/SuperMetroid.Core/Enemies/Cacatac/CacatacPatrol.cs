@@ -5,7 +5,7 @@ internal static class CacatacPatrol
 {
     /// <summary>The patrol's pixel distance for travel selector <paramref name="index"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="index"/> is six or more.</exception>
-    internal static ushort TravelDistance(int index)
+    internal static int TravelDistance(int index)
     {
         if (index >= CacatacMovementDefinitions.TravelDistances.Length)
             throw new InvalidDataException(

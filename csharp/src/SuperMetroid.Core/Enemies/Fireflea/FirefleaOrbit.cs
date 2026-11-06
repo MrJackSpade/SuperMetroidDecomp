@@ -5,7 +5,7 @@ internal static class FirefleaOrbit
 {
     /// <summary>The movement radius parameter two's high byte selects.</summary>
     /// <exception cref="InvalidDataException"><paramref name="index"/> is eight or more.</exception>
-    internal static ushort Radius(int index)
+    internal static int Radius(int index)
     {
         if (index >= FirefleaMovementDefinitions.Radii.Length)
             throw new InvalidDataException(

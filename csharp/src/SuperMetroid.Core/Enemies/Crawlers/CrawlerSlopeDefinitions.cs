@@ -8,7 +8,7 @@ public static class CrawlerSlopeDefinitions
     /// the gentle and steep shapes scale it down. The unused additive words are not consumed by the enemy movement
     /// routine.
     /// </summary>
-    internal static readonly ushort[] Multipliers =
+    internal static readonly int[] Multipliers =
     [
         256, 256, 256, 256, 256, 256, 256, 256,
         256, 256, 256, 256, 256, 256, 176, 176,

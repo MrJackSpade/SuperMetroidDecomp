@@ -8,7 +8,7 @@ internal static class PipeBugDefinitions
     /// eight ticks per vertical rank. Physical slot order is center, upper-near,
     /// upper-far, lower-near, lower-far; PAL shifts the same sequence down 32 ticks.
     /// </summary>
-    internal static readonly ushort[] NorfairStaggerTargets = [104, 96, 88, 112, 120];
+    internal static readonly int[] NorfairStaggerTargets = [104, 96, 88, 112, 120];
 
     /// <summary>
     /// The formation initializer assigns each formation slot its center/upper/lower movement

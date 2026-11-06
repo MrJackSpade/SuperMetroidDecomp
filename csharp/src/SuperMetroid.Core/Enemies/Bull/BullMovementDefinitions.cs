@@ -38,5 +38,5 @@ public static class BullMovementDefinitions
     /// moves the Bull at. Down occupies two slots; up appears at both ends; each distinct direction advances a 32-unit
     /// octant.
     /// </summary>
-    internal static readonly ushort[] ShotAngles = [192, 224, 0, 32, 64, 64, 96, 128, 160, 192];
+    internal static readonly int[] ShotAngles = [192, 224, 0, 32, 64, 64, 96, 128, 160, 192];
 }

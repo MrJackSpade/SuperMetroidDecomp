@@ -10,16 +10,16 @@ public static class PolypLaunchDefinitions
     internal static readonly RandomSampleField LaunchSelector = new(1, 4);
 
     /// <summary>The cooldown each RNG selector chooses: sixteen frames, eight longer per selector.</summary>
-    internal static readonly ushort[] Cooldowns = [16, 24, 32, 40, 48, 56, 64, 72];
+    internal static readonly int[] Cooldowns = [16, 24, 32, 40, 48, 56, 64, 72];
 
     /// <summary>The quadratic speed index the first launch selector chooses; each following selector chooses the next.</summary>
     internal const int FirstInitialYIndex = 28;
 
     /// <summary>
     /// The horizontal velocity each launch selector chooses: the first eight push right, the second eight push left by
-    /// the same magnitudes, each $10 faster than the last from $60.
+    /// the same magnitudes, each 16 faster than the last from 96.
     /// </summary>
-    internal static readonly short[] XVelocities =
+    internal static readonly int[] XVelocities =
     [
         96, 112, 128, 144, 160, 176, 192, 208,
         -96, -112, -128, -144, -160, -176, -192, -208,

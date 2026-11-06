@@ -32,7 +32,7 @@ internal static class OwtchMovementDefinitionsVerification
                     initialize(slot);
 
                     OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
-                    ushort distance = OwtchPatrol.TravelDistance(distanceIndex);
+                    int distance = OwtchPatrol.TravelDistance(distanceIndex);
                     AssertEqual(OwtchPatrol.UndergroundTimer(timerIndex),
                         state.UndergroundTimer.RawValue,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");

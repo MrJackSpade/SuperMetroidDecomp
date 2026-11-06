@@ -657,16 +657,16 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             {
                 foreach (var trail in runtime.Projectiles.TrailSlots)
                 {
-                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.FrameHold.RawValue, NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
-                    if (!trail.Left.FrameHold.IsZero)
+                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.FrameHold, NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
+                    if (trail.Left.FrameHold != 0)
                     {
                         Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Left.ShownPose), NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.SlotTableOffset);
                     }
-                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.FrameHold.RawValue, NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
-                    if (!trail.Right.FrameHold.IsZero)
+                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.FrameHold, NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
+                    if (trail.Right.FrameHold != 0)
                     {
                         Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Right.ShownPose), NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.SlotTableOffset);

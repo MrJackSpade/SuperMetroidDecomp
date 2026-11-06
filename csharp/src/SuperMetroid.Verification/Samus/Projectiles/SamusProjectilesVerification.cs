@@ -759,7 +759,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
     });
     AssertEqual(1, trailOam.LastFinalizedSpriteCount, "charged power's left stream emits one raw OBJ");
-    AssertEqual(0, chargedTrail.Right.FrameHold.RawValue,
+    AssertEqual(0, chargedTrail.Right.FrameHold,
         "charged power's empty right stream terminates without drawing");
     OamEntry firstTrailObj = trailOam.GetEntry(0);
     AssertEqual(0x038, firstTrailObj.TileNumber, "charged trail reads first `$2C38` tile");
@@ -776,7 +776,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Time freeze bypasses DEC and command parsing but not OAM emission. The same record and
     // instruction pointer must remain visible and unchanged for an arbitrary frozen frame.
     ushort frozenTrailPointer = checked((ushort)chargedTrail.Left.InstructionPointer);
-    ushort frozenTrailTimer = chargedTrail.Left.FrameHold.RawValue;
+    int frozenTrailTimer = chargedTrail.Left.FrameHold;
     trailOam = SpriteFrameBuffer.DrawnOam(frame =>
     {
         chargeProjectiles.AdvanceTrails(true);
@@ -784,7 +784,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     });
     AssertEqual(frozenTrailPointer, chargedTrail.Left.InstructionPointer,
         "frozen trail retains instruction pointer");
-    AssertEqual(frozenTrailTimer, chargedTrail.Left.FrameHold.RawValue,
+    AssertEqual(frozenTrailTimer, chargedTrail.Left.FrameHold,
         "frozen trail retains instruction timer");
     AssertEqual(1, trailOam.LastFinalizedSpriteCount, "frozen active trail still draws");
 
@@ -823,7 +823,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
         AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailProgramDefinitions.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
             "the compiled ice list holds its fall command after six poses");
-        executingSide.FrameHold = WrappingCountdown.Start(1);
+        executingSide.FrameHold = 1;
         executingSide.InstructionPointer = commandAddress;
         trailOam = SpriteFrameBuffer.DrawnOam(frame =>
         {
@@ -1073,9 +1073,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(1, missileOam.LastFinalizedSpriteCount, "missile left trail emits one small OBJ");
     AssertEqual(0x048, missileOam.GetEntry(0).TileNumber,
         "missile trail starts at retail tile `$2A48`");
-    AssertEqual(4, missileTrail.Left.FrameHold.RawValue,
+    AssertEqual(4, missileTrail.Left.FrameHold,
         "missile trail retains its four-frame record duration");
-    AssertEqual(0, missileTrail.Right.FrameHold.RawValue,
+    AssertEqual(0, missileTrail.Right.FrameHold,
         "missile's empty right trail stream terminates immediately");
 
     bool missileExploded = false;

@@ -213,7 +213,7 @@ level, right, unchecked((ushort)(frame + 1))),
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
         "controller three spawns Hyper Beam palette-FX object");
-    AssertEqual(1, left.Drained.HyperBeamPaletteFx.FrameHold.RawValue,
+    AssertEqual(1, left.Drained.HyperBeamPaletteFx.FrameHold,
         "palette-FX spawn installs native timer one");
     AssertEqual(AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.HyperBeam0), left.Drained.HyperBeamPaletteFx.Cursor,
         "palette-FX spawn starts the object's program");
@@ -227,7 +227,7 @@ level, right, unchecked((ushort)(frame + 1))),
     for (int call = 0; call < 21; call++)
     {
         // `$8D:C552` writes a palette record only when its pre-decrement timer is one.
-        bool paletteWritten = left.Drained.HyperBeamPaletteFx.FrameHold.RawValue == 1;
+        bool paletteWritten = left.Drained.HyperBeamPaletteFx.FrameHold == 1;
         left.Drained.HyperBeamPaletteFx.Step(drainedColours);
         int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
         AssertEqual(expectedFrame, left.Drained.HyperBeamPaletteFx.CurrentFrameIndex,

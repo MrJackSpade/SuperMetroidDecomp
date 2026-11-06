@@ -40,7 +40,7 @@ internal static class ProjectileTrailArtworkVerification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.FrameHold = WrappingCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.FrameHold = 1; side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -86,7 +86,7 @@ internal static class ProjectileTrailArtworkVerification
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
-            side.InstructionPointer = (ushort)(frame + 4); side.FrameHold = WrappingCountdown.Start(3);
+            side.InstructionPointer = (ushort)(frame + 4); side.FrameHold = 3;
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.ShownPose = pose;
             // The OAM capacity stop is a dropped presentation quirk (#1308); culling and every byte remain.
             var native = new OamBuffer();
@@ -99,7 +99,7 @@ internal static class ProjectileTrailArtworkVerification
             });
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), $"Trail pose {pose} draws its native sprite and culling");
             AssertEqual(native.NextByteOffset / 4, authored.LastFinalizedSpriteCount, "Trail sheet retains its sprite count");
-            AssertEqual(3, side.FrameHold.RawValue, "Frozen draw cannot advance trail animation");
+            AssertEqual(3, side.FrameHold, "Frozen draw cannot advance trail animation");
             AssertEqual(pose, side.ShownPose, "Drawing does not change the shown pose");
             draws++;
         }
@@ -133,8 +133,8 @@ internal static class ProjectileTrailArtworkVerification
     {
         foreach (SamusProjectileTrailSide side in new[] { pair.Left, pair.Right })
         {
-            if (side.FrameHold.IsZero) continue;
-            if (!frozen && (side.FrameHold = side.FrameHold.Decrement().Remaining).IsZero)
+            if (side.FrameHold == 0) continue;
+            if (!frozen && --side.FrameHold == 0)
             {
                 ushort cursor = checked((ushort)side.InstructionPointer);
                 for (int operations = 0; ; operations++)
@@ -143,7 +143,7 @@ internal static class ProjectileTrailArtworkVerification
                     ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | cursor);
                     if (command < 0x8000)
                     {
-                        side.FrameHold = WrappingCountdown.FromRaw(command);
+                        side.FrameHold = command;
                         if (command != 0)
                         {
                             words[side] = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | (unchecked((ushort)(cursor + 2))));
@@ -160,7 +160,7 @@ internal static class ProjectileTrailArtworkVerification
                         default: throw new InvalidDataException($"Unknown native trail command ${command:X4}.");
                     }
                 }
-                if (side.FrameHold.IsZero) continue;
+                if (side.FrameHold == 0) continue;
             }
             if (side.Position.X < 256 && side.Position.Y < 256)
                 oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y),

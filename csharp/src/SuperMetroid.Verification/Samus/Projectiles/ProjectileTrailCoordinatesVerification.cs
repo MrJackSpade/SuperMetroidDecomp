@@ -133,13 +133,13 @@ internal static class ProjectileTrailCoordinatesVerification
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             if (!TrailSpawnDraws(lists, offsets, y))
             {
-                AssertTrue(actual.Left.FrameHold.IsZero, $"type ${type:X4} direction {direction} frame {frame} draws no trail");
+                AssertTrue(actual.Left.FrameHold == 0, $"type ${type:X4} direction {direction} frame {frame} draws no trail");
                 cases++;
                 continue;
             }
             AssertEqual(NativeSpawn(bus, origin, y), new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
                 "Real trail spawn matches four native high-byte operand reads");
-            AssertEqual(1, actual.Left.FrameHold.RawValue, "Trail placements retain spawn timing");
+            AssertEqual(1, actual.Left.FrameHold, "Trail placements retain spawn timing");
             cases++;
         }
         // $90:BE17 reflects a projectile onto the start of its new direction's list. A trail
@@ -163,7 +163,7 @@ internal static class ProjectileTrailCoordinatesVerification
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             if (offsets is not { } list || !TrailSpawnDraws(lists, list, y))
             {
-                AssertTrue(actual.Left.FrameHold.IsZero, $"reflected type ${type:X4} direction {direction} draws no trail");
+                AssertTrue(actual.Left.FrameHold == 0, $"reflected type ${type:X4} direction {direction} draws no trail");
                 cases++;
                 continue;
             }

@@ -221,8 +221,8 @@ internal static class NativeSnapshotImport
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {
-            trail.Left.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset));
-            trail.Right.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset));
+            trail.Left.FrameHold = W(NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
+            trail.Right.FrameHold = W(NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
             trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
             trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
             trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset));

@@ -51,11 +51,11 @@ internal static class ProjectileTrailDefinitionsVerification
             projectiles.Trails.SpawnTrail(projectile);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
-            if (trail.Left.FrameHold.IsZero)
+            if (trail.Left.FrameHold == 0)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
-            AssertEqual(1, trail.Left.FrameHold.RawValue, "Selector extraction leaves allocation timer unchanged");
+            AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
         var echoProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);

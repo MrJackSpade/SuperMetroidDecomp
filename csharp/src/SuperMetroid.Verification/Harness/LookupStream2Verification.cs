@@ -1164,7 +1164,7 @@ internal static class LookupStream2Verification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.FrameHold = WrappingCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.FrameHold = 1; side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -1206,8 +1206,8 @@ internal static class LookupStream2Verification
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
         {
-            if (side.FrameHold.IsZero) return;
-            if (!frozen && (side.FrameHold = side.FrameHold.Decrement().Remaining).IsZero)
+            if (side.FrameHold == 0) return;
+            if (!frozen && --side.FrameHold == 0)
             {
                 ushort cursor = checked((ushort)side.InstructionPointer);
                 while (true)
@@ -1215,7 +1215,7 @@ internal static class LookupStream2Verification
                     ushort word = ReadVerificationWord(bus, 0x900000 | cursor);
                     if (word < 0x8000)
                     {
-                        side.FrameHold = WrappingCountdown.FromRaw(word);
+                        side.FrameHold = word;
                         if (word == 0) return;
                         nativeWords[side] = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
                         side.InstructionPointer = (ushort)(cursor + 4);
@@ -1275,11 +1275,11 @@ internal static class LookupStream2Verification
             projectiles.Trails.SpawnTrail(projectile);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
-            if (trail.Left.FrameHold.IsZero)
+            if (trail.Left.FrameHold == 0)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
-            AssertEqual(1, trail.Left.FrameHold.RawValue, "Selector extraction leaves allocation timer unchanged");
+            AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
         Console.WriteLine("Trail selectors: both tables' native words and every trailing projectile's real spawn selection pass.");

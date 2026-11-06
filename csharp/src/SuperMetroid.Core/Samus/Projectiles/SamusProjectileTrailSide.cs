@@ -6,7 +6,7 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Room-pixel trail-sprite position.</summary>
     public Position16<RoomPixels> Position { get; internal set; }
     /// <summary>Updates remaining before the current trail instruction advances.</summary>
-    public WrappingCountdown FrameHold { get; internal set; }
+    public int FrameHold { get; internal set; }
     /// <summary>
     /// The side's place in its trail program: the step it runs when its timer next expires. Null once cleared, before
     /// any program starts; a cleared side's timer is zero, so it never runs a step.
@@ -27,7 +27,7 @@ public sealed class SamusProjectileTrailSide
     internal void ClearFields()
     {
         Position = Position16<RoomPixels>.Zero;
-        FrameHold = WrappingCountdown.Start(0);
+        FrameHold = 0;
         Cursor = null;
         ShownPose = null;
         DisplayedPosition = Position16<RoomPixels>.Zero;

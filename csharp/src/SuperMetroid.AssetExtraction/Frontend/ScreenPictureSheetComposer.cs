@@ -77,12 +77,28 @@ internal static class ScreenPictureSheetComposer
     {
         Ensure.NotNull(subjects);
         Ensure.NotNull(characters);
-        // Pictures are packed onto shelves across the sheet, each shelf as tall as its tallest picture.
-        var corners = new Position16<TilemapCells>[subjects.Count];
-        int x = 0, y = 0, shelfRows = 0, widest = 1;
+        // Each picture is held once (#1513): subjects painting the same cells over the same characters share one
+        // rectangle, each frame placing it at its own offset, as the reserve digits share one picture per digit.
+        var held = new Dictionary<string, int>(StringComparer.Ordinal);
+        var pictureOf = new int[subjects.Count];
+        var pictured = new List<ScreenPictureSubject>();
         for (int index = 0; index < subjects.Count; index++)
         {
-            Extent16<TilemapCells> size = subjects[index].Size;
+            string content = Content(subjects[index], characters);
+            if (!held.TryGetValue(content, out int picture))
+            {
+                picture = pictured.Count;
+                held.Add(content, picture);
+                pictured.Add(subjects[index]);
+            }
+            pictureOf[index] = picture;
+        }
+        // Pictures are packed onto shelves across the sheet, each shelf as tall as its tallest picture.
+        var corners = new Position16<TilemapCells>[pictured.Count];
+        int x = 0, y = 0, shelfRows = 0, widest = 1;
+        for (int index = 0; index < pictured.Count; index++)
+        {
+            Extent16<TilemapCells> size = pictured[index].Size;
             if (x + size.X > PackedTiles)
             {
                 y += shelfRows;
@@ -101,9 +117,10 @@ internal static class ScreenPictureSheetComposer
         RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         WrittenPictureLayer depth = characters.Depth == TileInkDepth.SixteenColours ? WrittenPictureLayer.WrittenOverRoom : WrittenPictureLayer.FxOverlayAndHud;
-        for (int index = 0; index < subjects.Count; index++)
+        var paintedFrames = new SpriteSheetFrameDocument[pictured.Count];
+        for (int index = 0; index < pictured.Count; index++)
         {
-            ScreenPictureSubject subject = subjects[index];
+            ScreenPictureSubject subject = pictured[index];
             Position16<TilemapCells> corner = corners[index];
             for (int cell = 0; cell < subject.Tiles.Length; cell++)
             {
@@ -115,10 +132,15 @@ internal static class ScreenPictureSheetComposer
                 else
                     canvas.PaintTwoBppTile(left, top, tile, character, colours);
             }
-            SpriteSheetFrameDocument frame = WrittenPictureSheetComposer.Frame(canvas,
+            paintedFrames[index] = WrittenPictureSheetComposer.Frame(canvas,
                 new Position16<ImagePixels>(checked((ushort)(corner.X * TilePixels)), checked((ushort)(corner.Y * TilePixels))),
                 new Extent16<ImagePixels>(checked((ushort)(subject.Size.X * TilePixels)), checked((ushort)(subject.Size.Y * TilePixels))), depth);
-            frame = frame with
+        }
+        // Every subject names its picture's rectangle, placed from its own offset.
+        for (int index = 0; index < subjects.Count; index++)
+        {
+            ScreenPictureSubject subject = subjects[index];
+            SpriteSheetFrameDocument frame = paintedFrames[pictureOf[index]] with
             {
                 Origin = new Offset16<ImagePixels>(checked((short)-(subject.Offset.X * TilePixels)), checked((short)-(subject.Offset.Y * TilePixels))),
             };
@@ -126,5 +148,25 @@ internal static class ScreenPictureSheetComposer
                 throw new InvalidDataException($"A frontend screen pictures {subject.Name} twice.");
         }
         return new PaintedScreen(canvas, colours, frames);
+    }
+
+    /// <summary>
+    /// What <paramref name="subject"/> paints, spelled for telling pictures apart: its size and each cell's colour variant,
+    /// mirroring, tier and the pixels of the character it shows over <paramref name="characters"/>, wherever that character
+    /// lies; a cell painting nothing is spelled empty.
+    /// </summary>
+    private static string Content(ScreenPictureSubject subject, ScreenCharacters characters)
+    {
+        var content = new System.Text.StringBuilder();
+        content.Append(subject.Size.X).Append('x').Append(subject.Size.Y);
+        foreach (BackgroundTile? cell in subject.Tiles)
+        {
+            content.Append('|');
+            if (cell is not { } tile || !characters.TryCharacter(tile.Tile, out ReadOnlySpan<byte> character))
+                continue;
+            content.Append(tile.ColourVariant).Append(tile.FlipHorizontally ? 'h' : '-').Append(tile.FlipVertically ? 'v' : '-')
+                .Append(tile.HighPriority ? 'p' : '-').Append(Convert.ToBase64String(character));
+        }
+        return content.ToString();
     }
 }

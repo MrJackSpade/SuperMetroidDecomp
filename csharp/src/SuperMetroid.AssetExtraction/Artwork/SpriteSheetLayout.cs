@@ -69,8 +69,9 @@ internal sealed class SpriteSheetLayout
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
         ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
-        // Each distinct frame image: frames whose parts paint the same pixels at the same places share one image, whichever
-        // characters' copy they read them from.
+        // Each distinct frame image (#1513): frames painting the same pixels, each with the same ink, game priority and row
+        // rule, share one image however their parts lay them out and whichever characters' copy they read them from; each
+        // frame keeps its own origin on it.
         var frameImageOf = new Dictionary<string, int>(StringComparer.Ordinal);
         var uniqueFrames = new List<SheetFrameSource>();
         frameImages = new NamedFrameImage[frames.Count];
@@ -83,14 +84,15 @@ internal sealed class SpriteSheetLayout
                 if (part.Size != sources.ObjectSizes.Small && part.Size != sources.ObjectSizes.Large)
                     throw new InvalidDataException($"Sheet frame {frame.Name} has a {part.Size.X}x{part.Size.Y} part, not an object size of its screen.");
             }
-            string content = FrameContent(frame.Frame, frame.Palette ?? palette, frame.Characters);
+            FrameBounds own = Bounds(frame.Frame);
+            string content = PixelContent(frame, own);
             if (!frameImageOf.TryGetValue(content, out int laidFrame))
             {
                 laidFrame = uniqueFrames.Count;
                 frameImageOf.Add(content, laidFrame);
                 uniqueFrames.Add(frame);
             }
-            frameImages[index] = new NamedFrameImage(frame.Name, laidFrame);
+            frameImages[index] = new NamedFrameImage(frame.Name, laidFrame, own.TopLeft);
         }
         laid = [.. uniqueFrames];
         bounds = [.. laid.Select(frame => Bounds(frame.Frame))];
@@ -142,10 +144,15 @@ internal sealed class SpriteSheetLayout
                 Depth = depth,
             };
         }
-        // Every frame names the image it shows; frames painting the same pixels name the same one.
+        // Every frame names the image it shows, from its own origin; frames painting the same pixels name the same one.
         var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         foreach (NamedFrameImage frame in frameImages)
-            manifest.Add(frame.Name, frameDocuments[frame.Image]);
+        {
+            manifest.Add(frame.Name, frameDocuments[frame.Image] with
+            {
+                Origin = new(checked((short)-frame.TopLeft.X), checked((short)-frame.TopLeft.Y)),
+            });
+        }
         RgbColor[] spriteColours = sources.SpriteColours;
         ushort[] colours = new ushort[spriteColours.Length];
         for (int ink = 0; ink < colours.Length; ink++)
@@ -361,6 +368,8 @@ internal sealed class SpriteSheetLayout
             {
                 writer.Write(frame.Name);
                 writer.Write(frame.Image);
+                writer.Write(frame.TopLeft.X);
+                writer.Write(frame.TopLeft.Y);
             }
             // The frames that show nothing are part of what the sheet installs (#1513).
             IReadOnlyList<string> blanks = sources.Blank ?? [];
@@ -380,21 +389,54 @@ internal sealed class SpriteSheetLayout
     }
 
     /// <summary>
-    /// What a frame paints, spelled for telling frame images apart: its row and each part's place, size, flip, row, priority
-    /// and the characters it reads, wherever they lie in <paramref name="characters"/>.
+    /// What <paramref name="frame"/> paints over its cover <paramref name="bound"/>, spelled for telling frame images apart
+    /// (#1513): the cover's size and, for each pixel, the ink it shows, the game priority it is drawn at and whether its part
+    /// keeps its own row under the sheet's row shades, laid as <see cref="PaintFrame"/> lays them, back to front.
     /// </summary>
-    private static string FrameContent(SpriteFrame frame, int framePalette, SpriteArtwork characters)
+    private string PixelContent(SheetFrameSource frame, FrameBounds bound)
     {
+        int framePalette = frame.Palette ?? palette;
+        var pixels = new PaintedPixel[bound.Size.X * bound.Size.Y];
+        for (int partIndex = frame.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
+        {
+            SpriteFramePart part = frame.Frame.Parts[partIndex];
+            int ownRow = part.Palette ?? framePalette;
+            bool keepsOwnRow = part.Palette is not null && sources.PartsKeepOwnRows;
+            for (int row = 0; row < part.Size.Y; row++)
+            {
+                for (int column = 0; column < part.Size.X; column++)
+                {
+                    int character = part.CharacterAt(Position16<ScreenPixels>.Of(column, row), out Position16<CharacterPixels> pixel);
+                    int colour = frame.Characters.ColorIndex(character, pixel);
+                    if (colour == 0)
+                        continue;
+                    int frameX = part.Offset.X - bound.TopLeft.X + column, frameY = part.Offset.Y - bound.TopLeft.Y + row;
+                    pixels[frameY * bound.Size.X + frameX] = new PaintedPixel(true, ownRow * RowColours + colour, part.Priority ?? priority, keepsOwnRow);
+                }
+            }
+        }
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
-            writer.Write(framePalette);
-            writer.Write(frame.Parts.Length);
-            foreach (SpriteFramePart part in frame.Parts)
-                WritePart(writer, part, characters);
+            writer.Write(bound.Size.X);
+            writer.Write(bound.Size.Y);
+            foreach (PaintedPixel painted in pixels)
+            {
+                writer.Write(painted.Shown);
+                writer.Write(painted.Ink);
+                writer.Write(painted.Priority);
+                writer.Write(painted.KeepsOwnRow);
+            }
         }
         return Convert.ToBase64String(stream.GetBuffer().AsSpan(0, checked((int)stream.Length)));
     }
+
+    /// <summary>What one pixel of a frame paints.</summary>
+    /// <param name="Shown">Whether a part paints the pixel.</param>
+    /// <param name="Ink">The ink it shows: its part's row and colour.</param>
+    /// <param name="Priority">The game priority it is drawn at.</param>
+    /// <param name="KeepsOwnRow">Whether its part keeps its own row under the sheet's row shades.</param>
+    private readonly record struct PaintedPixel(bool Shown, int Ink, int Priority, bool KeepsOwnRow);
 
     /// <summary>Writes what painting reads of one part: its place, size, flip, row, priority and the characters it reads.</summary>
     private static void WritePart(BinaryWriter writer, SpriteFramePart part, SpriteArtwork characters)
@@ -459,10 +501,11 @@ internal sealed class SpriteSheetLayout
         return new FrameBounds(new(checked((short)left), checked((short)top)), new(checked((ushort)(right - left)), checked((ushort)(bottom - top))));
     }
 
-    /// <summary>A frame of the sources and the laid frame image it shows.</summary>
+    /// <summary>A frame of the sources, the laid frame image it shows and where that image lies from the frame's origin.</summary>
     /// <param name="Name">The frame's installed name.</param>
     /// <param name="Image">The index of its image among the laid frame images.</param>
-    private readonly record struct NamedFrameImage(string Name, int Image);
+    /// <param name="TopLeft">The image's top-left corner, from the frame's origin.</param>
+    private readonly record struct NamedFrameImage(string Name, int Image, Offset16<ImagePixels> TopLeft);
 
     /// <summary>A frame's cover relative to its origin.</summary>
     /// <param name="TopLeft">The cover's top-left corner, from the origin.</param>

@@ -31,8 +31,6 @@ public readonly record struct Bearing
     /// </summary>
     public ByteAngle ToMirroredTableAngle() => new(RawValue);
 
-    /// <summary>The same as <see cref="ToMirroredTableAngle"/>; kept for the boss aim routines until they take that name.</summary>
-    public ByteAngle ReinterpretAsTableAngle() => ToMirroredTableAngle();
 
     /// <inheritdoc />
     public override string ToString() => $"${RawValue:X2}";

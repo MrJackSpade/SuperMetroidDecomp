@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.Map.Artwork.WorldMapCharacterDefinitions;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -191,7 +190,7 @@ internal static class WorldMapCharacterDrawing
                 if (x >= 1 && x < Side - 1 && y >= 1 && y < Side - 2)
                 {
                     value = x == 1 || y == 1 ? Fill : Edge;
-                    if (shape == WorldMapBackgroundShape.SunkenPanel) value = WordWrap.LowByte(Fill + Edge - value);
+                    if (shape == WorldMapBackgroundShape.SunkenPanel) value = Fill + Edge - value;
                 }
                 return true;
             case WorldMapBackgroundShape.PanelTopCap:

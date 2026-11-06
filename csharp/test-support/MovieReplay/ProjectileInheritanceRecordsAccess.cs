@@ -41,14 +41,11 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
     internal void Load(ReadOnlySpan<byte> bytes)
     {
         Ensure.LengthEqual(bytes, ByteCount);
-        ushort Read(int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);
-        SignedSixteenSixteen Distance(int offset) =>
-            SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteen.Compose(Read(offset), Read(offset + 2))));
-        inheritance.CameraYSubspeed = Read(0);
-        inheritance.Record(HorizontalDirection.Left, Distance(FirstRecordOffset));
-        inheritance.Record(HorizontalDirection.Right, Distance(FirstRecordOffset + RecordByteCount));
-        inheritance.Record(VerticalDirection.Up, Distance(FirstRecordOffset + RecordByteCount * 2));
-        inheritance.Record(VerticalDirection.Down, Distance(FirstRecordOffset + RecordByteCount * 3));
+        inheritance.CameraYSubspeed = SnapshotWord(bytes, 0);
+        inheritance.Record(HorizontalDirection.Left, SnapshotDistance(bytes, FirstRecordOffset));
+        inheritance.Record(HorizontalDirection.Right, SnapshotDistance(bytes, FirstRecordOffset + RecordByteCount));
+        inheritance.Record(VerticalDirection.Up, SnapshotDistance(bytes, FirstRecordOffset + RecordByteCount * 2));
+        inheritance.Record(VerticalDirection.Down, SnapshotDistance(bytes, FirstRecordOffset + RecordByteCount * 3));
     }
 
     /// <summary>The whole block's bytes, in address order.</summary>
@@ -90,4 +87,11 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
         SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
+
+    /// <summary>The little-endian word at <paramref name="offset"/> of the native snapshot block.</summary>
+    private static ushort SnapshotWord(ReadOnlySpan<byte> bytes, int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);
+
+    /// <summary>The signed 16.16 distance record at <paramref name="offset"/>: its whole-pixel word, then its fraction word.</summary>
+    private static SignedSixteenSixteen SnapshotDistance(ReadOnlySpan<byte> bytes, int offset) =>
+        SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteen.Compose(SnapshotWord(bytes, offset), SnapshotWord(bytes, offset + 2))));
 }

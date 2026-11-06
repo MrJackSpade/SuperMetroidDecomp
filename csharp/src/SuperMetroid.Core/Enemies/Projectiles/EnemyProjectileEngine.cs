@@ -572,8 +572,8 @@ internal sealed class EnemyProjectileEngine
                 bool edgeInSecondHalf = (targetEdge & 8) != 0;
                 bool halfIsSecond = (half & 1) != 0;
                 SquareSlopeQuadrant quadrant = axis == Axis.Horizontal
-                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, rightHalf: edgeInSecondHalf, bottomHalf: halfIsSecond)
-                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, rightHalf: halfIsSecond, bottomHalf: edgeInSecondHalf);
+                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(edgeInSecondHalf), SquareSlopeQuadrant.RowFor(halfIsSecond))
+                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(halfIsSecond), SquareSlopeQuadrant.RowFor(edgeInSecondHalf));
                 if (!SquareSlopes.IsSolid(collisionBlock.Behavior, quadrant))
                     continue;
 

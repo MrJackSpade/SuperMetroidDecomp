@@ -454,7 +454,7 @@ internal sealed class EnemyTerrain
         int spanMinusOne)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, rightHalf: (targetEdge & 8) != 0, bottomHalf: false);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor((targetEdge & 8) != 0), SquareSlopeRowHalf.Top);
         if (remaining == 0)
         {
             if (((slot.Radius.Y + slot.Position.Y.Whole - 1) & 8) == 0)
@@ -480,7 +480,7 @@ internal sealed class EnemyTerrain
         int spanMinusOne)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, rightHalf: false, bottomHalf: (targetEdge & 8) != 0);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((targetEdge & 8) != 0));
         if (remaining == 0)
         {
             if (((slot.Radius.X + slot.Position.X.Whole - 1) & 8) == 0)

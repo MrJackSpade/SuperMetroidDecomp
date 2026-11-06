@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Samus.Artwork.SamusHurtColorDefinitions;
 
@@ -25,7 +24,8 @@ internal static class SamusHurtColorLevels
     {
         int Main(int step) => OutlineLevel + (FullIntensity - OutlineLevel) * step / MainShadeIntervals;
         int Half(int step, int rounding) => (Main(step) + Main(step + 1) + rounding) / 2;
-        return WordWrap.LowByte(IntroLevelSourceIndex(index) switch
+        // Every level lies between the outline level and full intensity, 4 through 31.
+        return IntroLevelSourceIndex(index) switch
         {
             1 => Main(1),
             2 => Main(2),
@@ -35,7 +35,7 @@ internal static class SamusHurtColorLevels
             8 => Half(1, rounding: 1),
             11 => Half(0, rounding: 0),
             _ => throw new InvalidOperationException("Unknown monochrome shade role."),
-        });
+        };
     }
 
     /// <summary>Equal red/green channels and the bounded blue tint; gray levels calculate from the reviewed selected shade composition.</summary>

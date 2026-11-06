@@ -20,11 +20,11 @@ public static class PowampMotion
 
     /// <summary>A spike's signed 8.8 X acceleration in compass <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is outside the eight directions.</exception>
-    public static short SpikeXAcceleration(int direction) =>
+    public static int SpikeXAcceleration(int direction) =>
         (uint)direction < SpikeDirectionCount ? SpikeAccelerations[direction].X.SignedRawValue : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
 
     /// <summary>A spike's signed 8.8 Y acceleration in compass <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is outside the eight directions.</exception>
-    public static short SpikeYAcceleration(int direction) =>
+    public static int SpikeYAcceleration(int direction) =>
         (uint)direction < SpikeDirectionCount ? SpikeAccelerations[direction].Y.SignedRawValue : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
 }

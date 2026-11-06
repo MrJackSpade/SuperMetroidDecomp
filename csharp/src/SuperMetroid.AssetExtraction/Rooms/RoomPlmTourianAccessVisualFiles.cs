@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Rooms.Plms;
@@ -66,6 +65,6 @@ public static class RoomPlmTourianAccessVisualFiles
     {
         TourianAccessDraws.Describe(draw, out int rows, out RoomTerrainBlock block);
         return RoomPlmDrawListExport.Runs(PlmDraw.Of(draw), rows, static _ => 4, (_, _) => block,
-            RoomPlmDrawListExport.Horizontal, static _ => 0, row => WordWrap.SignedLowByte(row + 1 < rows ? row + 1 : 0));
+            RoomPlmDrawListExport.Horizontal, static _ => 0, row => row + 1 < rows ? row + 1 : 0);
     }
 }

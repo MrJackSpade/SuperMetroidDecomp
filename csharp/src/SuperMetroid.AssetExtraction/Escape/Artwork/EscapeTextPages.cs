@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Escape.Artwork;
 using static SuperMetroid.Core.Escape.Artwork.EscapeTextArtworkDefinitions;
 using static SuperMetroid.AssetExtraction.Escape.Artwork.EscapeTextSheetFormat;
@@ -17,7 +16,7 @@ public static class EscapeTextPages
 
     /// <summary>Four full $200-byte pages followed by the final $100-byte page.</summary>
     public static int PageByteCount(int page) => (uint)page < PageCount
-        ? WordWrap.Unsigned(Math.Min(PageBytes, ByteCount - page * PageBytes)) : throw new ArgumentOutOfRangeException(nameof(page));
+        ? Math.Min(PageBytes, ByteCount - page * PageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>The sprite character text page <paramref name="page"/> begins at, from the same page list.</summary>
     public static int PageFirstCharacter(int page) => (uint)page < PageCount

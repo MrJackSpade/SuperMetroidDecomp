@@ -638,7 +638,7 @@ internal static class LookupStream4Verification
             AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
             if (!fast)
             {
-                AssertEqual((short)0, state.Flyaway.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
+                AssertEqual(0, state.Flyaway.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
                 AssertEqual((ushort)0x8000, state.Flyaway.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
             }
         }

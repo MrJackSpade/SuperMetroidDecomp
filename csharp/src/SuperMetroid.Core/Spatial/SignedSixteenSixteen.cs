@@ -31,7 +31,7 @@ public readonly record struct SignedSixteenSixteen
 
     /// <summary>The signed whole-pixel word.</summary>
     [IntegerQuantity("whole-pixel part of a signed distance")]
-    public short WholePixels => unchecked((short)(RawValue >> 16));
+    public int WholePixels => unchecked((short)(RawValue >> 16));
 
     /// <summary>The unsigned fractional word.</summary>
     public ushort Fraction => unchecked((ushort)RawValue);

@@ -40,7 +40,7 @@ internal static class MotherBrainBeamWindowVerification
                 new MotherBrainRainbowBeamRenderSnapshot(true, RgbColor.Black, null))
                 ?? throw new InvalidOperationException("An active beam captures its window.")).Window,
             "a missing geometry lights nothing");
-        void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));
+        void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64), default);
         Step();
         AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
         AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96),
@@ -82,7 +82,7 @@ internal static class MotherBrainBeamWindowVerification
         int cursor = beam.ColorIndex;
         _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
         AssertEqual(cursor, beam.ColorIndex, "repainting cannot advance beam simulation");
-        beam.Step(false, new(0, 0), default, 0);
+        beam.Step(false, new(0, 0), default, 0, default);
         AssertTrue(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot) is null,
             "deleted HDMA object emits no render layer");
         AssertEqual(snapshot.Geometry, beam.Geometry, "deactivation keeps the last geometry");
@@ -90,7 +90,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "new attack resets HDMA color");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
-            beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(angle), 512);
+            beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(angle), 512, default);
             bool up = angle is 96 or 128 or 160;
             MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam resolved its geometry.");
             AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - geometry.EdgeB, 128 - geometry.EdgeA),
@@ -99,13 +99,13 @@ internal static class MotherBrainBeamWindowVerification
                 $"quadrant {angle} stays on its ray side of the mouth");
         }
         MotherBrainRainbowBeamGeometry? retained = beam.Geometry;
-        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512);
+        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512, default);
         AssertEqual(retained, beam.Geometry, "native left-axis RTS preserves prior geometry");
-        beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64));
-        AssertEqual(114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "DE20 uses low X byte, not wrapped enemy-header data");
+        beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64), new(256, 0));
+        AssertEqual(114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "the mouth lies on the screen at its room X less the camera's");
         AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), MotherBrainBeamDefinitions.FirstLine),
-            Cone(beam.RenderSnapshot), "low-byte mouth X places the cone like the unwrapped head");
-        AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), RotationAngle.QuarterTurn, Width(64)),
+            Cone(beam.RenderSnapshot), "a scrolled camera places the cone like the unscrolled head");
+        AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), RotationAngle.QuarterTurn, Width(64), default),
             "a mouth above the work area fails during the simulation update");
         VerifyRetainedCones(beam.PresentationColors);
         Console.WriteLine("  Mother Brain beam: cones from the mouth, HUD exclusion, retained geometry, color stride/reset and owned capture agree.");
@@ -118,12 +118,12 @@ internal static class MotherBrainBeamWindowVerification
     private static void VerifyRetainedCones(MotherBrainRainbowPalettePresentation colors)
     {
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = colors };
-        beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(128), Width(32));
+        beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(128), Width(32), default);
         ScreenWindow up = Cone(beam.RenderSnapshot);
-        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512);
+        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512, default);
         AssertEqual(up, Cone(beam.RenderSnapshot), "retain keeps the previous cone");
-        beam.Step(false, default, default, 0);
-        beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, 512);
+        beam.Step(false, default, default, 0, default);
+        beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, 512, default);
         AssertEqual(up, Cone(beam.RenderSnapshot), "retain after reactivation still shows the cone from the earlier attack");
     }
 

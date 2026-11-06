@@ -28,11 +28,12 @@ public sealed class MotherBrainRainbowBeamEffect
 
     /// <summary>One update of the beam, after the head's position and beam aim have been resolved.</summary>
     /// <param name="active">Enemy-owned enable state; false disables drawing without advancing color or resolving geometry, and a later activation restarts the color cycle.</param>
-    /// <param name="head">Head enemy's whole-pixel room position, not camera-relative. Adding fourteen to X and retaining the low byte gives the screen-window mouth X; the mouth is five pixels below Y and must lie strictly between work-area scanlines 32 and 232.</param>
+    /// <param name="head">Head enemy's whole-pixel room position. The mouth lies fourteen pixels right of it and five below, and must lie strictly between work-area scanlines 32 and 232.</param>
     /// <param name="angle">Beam center aim; only its 256-unit-turn table index is used when computing the two wrapping edge angles.</param>
     /// <param name="angularWidth">Angular width in 8.8 table units, an eighth through three eighths of a turn; its whole part is halved with integer truncation to obtain each edge's displacement in 256-unit-turn table units.</param>
+    /// <param name="camera">The camera's whole-pixel room position, which places the mouth on the screen.</param>
     public void Step(bool active, Position16<RoomPixels> head,
-        RotationAngle angle, int angularWidth)
+        RotationAngle angle, int angularWidth, Position16<RoomPixels> camera)
     {
         if (!active)
         {
@@ -57,11 +58,11 @@ public sealed class MotherBrainRainbowBeamEffect
             else ColorIndex++;
             Color = color;
         }
-        ResolveGeometry(head, angle, angularWidth);
+        ResolveGeometry(head, camera, angle, angularWidth);
     }
 
     /// <summary>Resolves the beam's cone from its two angular edges, using quadrant dispatch and mouth offsets.</summary>
-    private void ResolveGeometry(Position16<RoomPixels> head,
+    private void ResolveGeometry(Position16<RoomPixels> head, Position16<RoomPixels> camera,
         RotationAngle angle, int angularWidth)
     {
         int halfWidth = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, angularWidth)) / 2;
@@ -75,12 +76,11 @@ public sealed class MotherBrainRainbowBeamEffect
             or MotherBrainBeamDirection.Up or MotherBrainBeamDirection.Down))
             throw new InvalidDataException($"Mother Brain beam quadrant pair {quadrant} has no cone rasterizer.");
 
-        int originY = head.Y + MotherBrainBeamDefinitions.MouthYOffset;
+        // The mouth is placed on the screen from its room position and the camera's (#1521).
+        int originY = CoordinateAxis.Difference(head.Y + MotherBrainBeamDefinitions.MouthYOffset, camera.Y);
         if (originY is <= MotherBrainBeamDefinitions.FirstLine or >= MotherBrainBeamDefinitions.EndLine)
             throw new InvalidDataException($"Mother Brain beam mouth Y={originY} is outside its scanline work area.");
-        // DE20 reads XPosition-1, then masks after adding: this is the low X byte,
-        // not a camera-relative coordinate or the enemy header pointer in the C decompile.
-        Geometry = new(WordWrap.LowByte(head.X + MotherBrainBeamDefinitions.MouthXOffset), originY, a, b);
+        Geometry = new(CoordinateAxis.Difference(head.X + MotherBrainBeamDefinitions.MouthXOffset, camera.X), originY, a, b);
     }
 
     /// <summary>Reads the installed color cycle and fails if rainbow presentation colors were never bound.</summary>

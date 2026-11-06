@@ -100,7 +100,7 @@ internal static class BombTorizoMovementDefinitionsVerification
             var next = enemies.BombTorizoBehavior.Choices.ProcessBombTorizoWalkInstruction(slot, state, null, level, new TorizoWalkStep { Step = step, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
 
             AssertEqual(BombTorizoMovement.WalkVelocity(step),
-                (int)state.Velocity.X.SignedRawValue,
+                state.Velocity.X.SignedRawValue,
                 $"Bomb Torizo walk consumer velocity step {step}");
             AssertTrue(next is null,
                 $"Bomb Torizo walk consumer runs on without a wall step {step}");

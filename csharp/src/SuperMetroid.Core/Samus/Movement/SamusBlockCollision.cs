@@ -873,7 +873,7 @@ public static class SamusBlockCollision
         // The leading X boundary's eight-pixel half selects the column; the scan starts in the top row and then
         // tests the row below it.
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: (leadingBoundary & 8) != 0, bottomHalf: false);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor((leadingBoundary & 8) != 0), SquareSlopeRowHalf.Top);
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
@@ -935,7 +935,7 @@ public static class SamusBlockCollision
         // Vertical collision takes the row from the leading Y boundary's eight-pixel half. The horizontal counter is
         // the number of physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: false, bottomHalf: (leadingBoundary & 8) != 0);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((leadingBoundary & 8) != 0));
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
@@ -1201,7 +1201,7 @@ public static class SamusBlockCollision
             else
             {
                 SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-                SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: false, bottomHalf: (boundary & 8) != 0);
+                SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((boundary & 8) != 0));
                 bool selected = SquareSlopes.IsSolid(shape, quadrant);
                 bool collides;
                 if (column == lastColumn)

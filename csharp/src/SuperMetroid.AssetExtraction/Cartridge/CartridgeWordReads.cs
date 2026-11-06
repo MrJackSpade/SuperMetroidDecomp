@@ -22,6 +22,12 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 [EncodingOwner("cartridge little-endian words and longs")]
 public static class CartridgeWordReads
 {
+    /// <summary>
+    /// The signed value of a cartridge word (#1521): its sixteen bits read as two's complement, so a word from 32768 up
+    /// is negative. A difference of two words compared this way is the game's signed word comparison.
+    /// </summary>
+    public static int SignedWord(int word) => unchecked((short)word);
+
     /// <summary>Adds cartridge byte-combination operations to import sources; fixed-bank variants wrap at $FFFF.</summary>
     extension(IImportCartridgeSource cartridge)
     {

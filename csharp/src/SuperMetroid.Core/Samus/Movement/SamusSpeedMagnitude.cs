@@ -38,5 +38,5 @@ internal static class SamusSpeedMagnitude
     internal static bool Exceeds(int part, int threshold) => part != threshold && IsAtLeast(part, threshold);
 
     /// <summary>Whether a difference of two parts keeps a non-negative sign once taken within the range.</summary>
-    private static bool ReadsNonNegative(int difference) => difference is >= 0 and < HalfRange || difference < -HalfRange;
+    private static bool ReadsNonNegative(int difference) => difference is (>= 0 and < HalfRange) or < -HalfRange;
 }

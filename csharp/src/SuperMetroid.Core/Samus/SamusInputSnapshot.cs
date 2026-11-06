@@ -71,7 +71,7 @@ internal sealed class SamusInputSnapshot
 
     /// <summary>Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit.</summary>
     private static bool JumpHoldReadsAsFresh(int heldUpdates) =>
-        heldUpdates < SamusAutoJumpDefinitions.TimerComparisonLimit || heldUpdates >= JumpHoldReadsFreshFrom;
+        heldUpdates is < SamusAutoJumpDefinitions.TimerComparisonLimit or >= JumpHoldReadsFreshFrom;
 
     /// <summary>Publishes held input without advancing Samus's draw-time owners.</summary>
     internal void PublishMainLoopHeldInput(ControllerButton held) => PreviousDrawHeldInput = held;

@@ -195,7 +195,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Adds velocity to only the high subposition byte and carries into the whole pixel word, retaining the low byte.</summary>
     private static FixedCoordinate AddVelocityToHighSubpixel(FixedCoordinate position, SignedEightEight velocity) =>
         // The push adds only to the subposition's high byte; the low byte is never read or written.
-        position.AddEightEightToHighFraction(velocity.RawValue);
+        position.MovedBy(velocity);
 
     /// <summary>The arena's ceiling: the least whole Y the forced movement leaves Samus at.</summary>
     private const int Ceiling = 48;

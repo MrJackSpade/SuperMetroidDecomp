@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Frontend.FileSelect;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
@@ -20,6 +19,6 @@ public static class FileSelectHelmetSpritemaps
     public static int SpritemapId(int frame)
     {
         if ((uint)frame >= EntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return WordWrap.Unsigned(44 + Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1));
+        return 44 + Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1);
     }
 }

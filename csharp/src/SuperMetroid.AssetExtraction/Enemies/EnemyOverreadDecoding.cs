@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.Magdollite;
@@ -34,10 +33,10 @@ internal static class EnemyOverreadDecoding
         for (int slot = 0; slot < grows.Length; slot++)
         {
             int threshold = cartridge.ReadCartridgeWord(MagdolliteArmHeightThresholds + slot * EnemyRecordBytes);
-            bool growsAtFullHeight = !WordWrap.IsNegative(MagdollitePhaseDefinitions.MaximumRise - threshold);
+            bool growsAtFullHeight = CartridgeWordReads.SignedWord(MagdollitePhaseDefinitions.MaximumRise - threshold) >= 0;
             for (int rise = MagdollitePhaseDefinitions.MaximumRise; rise <= MagdollitePhaseDefinitions.MaximumRise + fastestStep; rise++)
             {
-                if (!WordWrap.IsNegative(rise - threshold) != growsAtFullHeight)
+                if (CartridgeWordReads.SignedWord(rise - threshold) >= 0 != growsAtFullHeight)
                 {
                     throw new InvalidDataException(
                         $"Magdollite's apex growth for slot {slot} differs between rises it can reach full height with.");
@@ -57,6 +56,6 @@ internal static class EnemyOverreadDecoding
         int record = FallingSparkLaunchTable + FallingSparkLaunchDefinitions.Launches.Length * FallingSparkLaunchBytes;
         int whole = cartridge.ReadCartridgeWord(record);
         int fraction = cartridge.ReadCartridgeWord(record + sizeof(ushort));
-        return new EnemyOverreadDocument.Drift(WordWrap.Signed(whole), fraction);
+        return new EnemyOverreadDocument.Drift(CartridgeWordReads.SignedWord(whole), fraction);
     }
 }

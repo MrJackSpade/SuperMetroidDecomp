@@ -95,7 +95,7 @@ internal static class KraidReportedCollisionsVerification
             ResetSamus(100, 400);
             runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, samus);
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
-            AssertEqual((short)-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
+            AssertEqual(-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Lint becomes intangible after contact");
         });
         Check("First closed head after rising", () =>

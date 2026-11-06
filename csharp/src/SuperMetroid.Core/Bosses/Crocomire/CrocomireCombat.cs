@@ -323,8 +323,8 @@ internal sealed class CrocomireCombat
         // Preserve the two word shifts, including negative two's-complement bits. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
-            Trigonometry.SignedSine(bearing.ReinterpretAsTableAngle()) * CrocomireProjectileDefinitions.VelocityMultiplier,
-            Trigonometry.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
+            Trigonometry.SignedSine(bearing.ToMirroredTableAngle()) * CrocomireProjectileDefinitions.VelocityMultiplier,
+            Trigonometry.SignedNegativeCosineWord(bearing.ToMirroredTableAngle().RawValue) *
                 CrocomireProjectileDefinitions.VelocityMultiplier);
     }
 
@@ -361,7 +361,7 @@ internal sealed class CrocomireCombat
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
         FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
-            .AddEightEightToHighFraction(xVelocity.RawValue);
+            .MovedBy(xVelocity);
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // The fall is ordinary signed 16.16 motion, with three sixteenths of a pixel of gravity per update.

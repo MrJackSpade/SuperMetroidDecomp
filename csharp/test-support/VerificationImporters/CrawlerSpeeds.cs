@@ -18,6 +18,6 @@ public static class CrawlerSpeeds
         if (parameter == Count - 1) return 0;
         if (parameter == Count - 2) return PenultimateMagnitude;
         int skippedSteps = parameter < FirstGapParameter ? 0 : parameter < SecondGapParameter ? 1 : 4;
-        return WordWrap.Unsigned((parameter + 1 + skippedSteps) * 64);
+        return (parameter + 1 + skippedSteps) * 64;
     }
 }

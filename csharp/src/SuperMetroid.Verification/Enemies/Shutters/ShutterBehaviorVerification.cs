@@ -176,7 +176,7 @@ internal static class ShutterBehaviorVerification
         {
             SignedSixteenSixteen speed = ((GrowingShutterSpawnSettings)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
                 EnemyDefinitionId.ShutterGrowing, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, index))).GrowthSpeed;
-            short whole = speed.WholePixels;
+            int whole = speed.WholePixels;
             ushort fraction = speed.Fraction;
             SignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(speed);
             AssertEqual(unchecked((short)(-whole - (fraction == 0 ? 0 : 1))), upward.WholePixels, $"growth speed {index}: upward whole pixels borrow for a nonzero fraction");

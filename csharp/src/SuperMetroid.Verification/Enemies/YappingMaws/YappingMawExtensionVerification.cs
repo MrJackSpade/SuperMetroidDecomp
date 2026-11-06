@@ -35,7 +35,7 @@ internal static class YappingMawExtensionVerification
             EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Negative < 0);
         int extend = EnemyQuadraticSpeeds.Row(checked((ushort)record)).Positive;
         int retract = EnemyQuadraticSpeeds.Row(checked((ushort)record)).Negative;
-        short extendWhole = SignedSixteenSixteen.FromRaw(extend).WholePixels;
+        int extendWhole = SignedSixteenSixteen.FromRaw(extend).WholePixels;
         ushort extendFraction = SignedSixteenSixteen.FromRaw(extend).Fraction;
         var maximum = SignedSixteenSixteen.FromParts(128, 0);
         AssertTrue(extendWhole + 1 < maximum.WholePixels && -retract < maximum.RawValue,

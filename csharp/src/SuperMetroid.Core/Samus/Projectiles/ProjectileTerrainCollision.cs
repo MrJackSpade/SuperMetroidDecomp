@@ -264,7 +264,7 @@ internal sealed class ProjectileTerrainCollision
         if (horizontalMovement)
         {
             // The leading edge picks the column half; the scan then tests top/bottom rows.
-            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: (span.TargetBoundary & 8) != 0, bottomHalf: false);
+            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor((span.TargetBoundary & 8) != 0), SquareSlopeRowHalf.Top);
             bool topEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0;
             bool bottomEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) & 8) != 0;
             if (span.Span == 0)
@@ -277,7 +277,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The leading edge picks the row half; the scan then tests left/right columns.
-        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, rightHalf: false, bottomHalf: (span.TargetBoundary & 8) != 0);
+        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((span.TargetBoundary & 8) != 0));
         bool leftEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) & 8) != 0;
         bool rightEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) & 8) != 0;
         if (span.Span == 0)

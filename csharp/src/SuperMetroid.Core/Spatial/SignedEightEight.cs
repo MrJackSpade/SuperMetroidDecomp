@@ -12,7 +12,7 @@ public readonly record struct SignedEightEight
     public ushort RawValue { get; init; }
 
     /// <summary>The raw word read as its signed two's-complement value.</summary>
-    public short SignedRawValue => unchecked((short)RawValue);
+    public int SignedRawValue => unchecked((short)RawValue);
 
     /// <summary>Creates a value from a signed raw 8.8 word, -32768 through 32767, without changing its bits.</summary>
     public static SignedEightEight FromSignedRaw(int rawValue) =>

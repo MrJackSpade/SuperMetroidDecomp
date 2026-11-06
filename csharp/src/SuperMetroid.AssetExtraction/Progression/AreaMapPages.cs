@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Spatial;
 
@@ -38,7 +37,7 @@ public static class AreaMapPages
     {
         if ((uint)mapX >= AreaMapLayout.WidthInTiles)
             throw new ArgumentOutOfRangeException(nameof(mapX));
-        return WordWrap.LowByte(FirstCellBit >> (mapX & 7));
+        return FirstCellBit >> (mapX & 7);
     }
 
     /// <summary>Rejects coordinates outside the two 32-by-32 map pages.</summary>

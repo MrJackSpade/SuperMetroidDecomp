@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Spatial;
 
@@ -22,7 +21,7 @@ internal static class BossAndIntroOverreadDecoding
         return new BossAndIntroOverreadDocument(
             BossAndIntroOverreadFormat.Version,
             KraidNailPastLedges(cartridge),
-            WordWrap.Signed(cartridge.ReadCartridgeWord(
+            CartridgeWordReads.SignedWord(cartridge.ReadCartridgeWord(
                 BossAndIntroOverreadSourceDefinitions.CrocomireVolleyGradients + CrocomireProjectileDefinitions.AuthoredShotCount * sizeof(ushort))),
             ShellFragmentFallPastCurve(cartridge));
     }
@@ -33,8 +32,8 @@ internal static class BossAndIntroOverreadDecoding
         int record = BossAndIntroOverreadSourceDefinitions.KraidNailContour +
             KraidNailContourDefinitions.LedgeCount * BossAndIntroOverreadSourceDefinitions.KraidNailContourRecordBytes;
         return new BossAndIntroOverreadDocument.ContourRecord(
-            WordWrap.Signed(cartridge.ReadCartridgeWord(record)),
-            WordWrap.Signed(cartridge.ReadCartridgeWord(record + BossAndIntroOverreadSourceDefinitions.KraidNailContourBoundOffset)));
+            CartridgeWordReads.SignedWord(cartridge.ReadCartridgeWord(record)),
+            CartridgeWordReads.SignedWord(cartridge.ReadCartridgeWord(record + BossAndIntroOverreadSourceDefinitions.KraidNailContourBoundOffset)));
     }
 
     /// <summary>
@@ -71,7 +70,7 @@ internal static class BossAndIntroOverreadDecoding
     {
         int step = BossAndIntroOverreadSourceDefinitions.ShellFragmentGravity + frame * BossAndIntroOverreadSourceDefinitions.ShellFragmentGravityStepBytes;
         return SignedSixteenSixteen.FromParts(
-            WordWrap.Signed(cartridge.ReadCartridgeWord(step)),
+            CartridgeWordReads.SignedWord(cartridge.ReadCartridgeWord(step)),
             cartridge.ReadCartridgeWord(step + BossAndIntroOverreadSourceDefinitions.ShellFragmentGravityFractionOffset));
     }
 }

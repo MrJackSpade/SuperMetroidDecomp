@@ -112,7 +112,7 @@ internal sealed class EnemyFramePhase
                 rainbowBrain.RainbowBeam.PresentationColors = room.Enemies.BossArtworkBinding.MotherBrainRainbowColors;
                 rainbowBrain.RainbowBeam.Step(rainbowBrain.RainbowBeamActive,
                     rainbowHead.Position.Whole,
-                    rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
+                    rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth, _room.Camera.PixelPosition);
             }
             if (room.Enemies.DisplaySources.Phantoon is { } phantoon)
             {

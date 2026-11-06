@@ -63,7 +63,7 @@ internal sealed class CeresRidleyBabyScene
                 // The falling speed only grows from zero and the fall ends at Y=192, so it is always a
                 // nonnegative 8.8 velocity well inside the signed range the integrator accepts.
                 state.BabyPosition = state.BabyPosition.WithY(
-                    state.BabyPosition.Y.AddEightEightToHighFraction(Ensure.BetweenInclusive(0, ushort.MaxValue, state.BabyVerticalVelocity)));
+                    state.BabyPosition.Y.MovedBy(new SignedEightEight(Ensure.BetweenInclusive(0, ushort.MaxValue, state.BabyVerticalVelocity))));
                 if (CoordinateAxis.Difference(state.BabyPosition.Y.Whole, 192) >= 0)
                 {
                     state.BabyPosition = state.BabyPosition.WithWholeY(192);

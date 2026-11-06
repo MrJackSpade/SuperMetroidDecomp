@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
@@ -450,6 +449,6 @@ public sealed class InstalledSamusDeathPalettes
     private static int DefaultExplosionPaletteIndex(int frame)
     {
         if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return WordWrap.Unsigned(frame == 0 ? 0 : frame + 1);
+        return frame == 0 ? 0 : frame + 1;
     }
 }

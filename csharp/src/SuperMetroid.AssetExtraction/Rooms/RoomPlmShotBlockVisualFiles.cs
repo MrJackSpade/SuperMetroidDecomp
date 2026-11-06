@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -125,7 +124,7 @@ public static class RoomPlmShotBlockVisualFiles
     private static RoomPlmShotBlockDrawDefinitions.DrawList Export(ShotBlockPlmDraws.Draw draw) =>
         RoomPlmDrawListExport.Runs(PlmDraw.Of(draw), draw.RunCount, _ => draw.BlocksPerRun, draw.BlockAt,
             _ => draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal,
-            static _ => 0, run => WordWrap.SignedLowByte(run + 1 < draw.RunCount ? 1 : 0));
+            static _ => 0, run => run + 1 < draw.RunCount ? 1 : 0);
 
     /// <summary>Yields breakup frames interleaved by shape, followed by the three restoration draws.</summary>
     internal static IEnumerable<ShotBlockPlmDraws.Draw> Calculated

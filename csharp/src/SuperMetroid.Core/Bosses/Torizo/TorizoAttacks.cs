@@ -724,7 +724,7 @@ internal sealed class TorizoAttacks
         bool awayFromSamus)
     {
         ByteAngle bearing = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ReinterpretAsTableAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTableAngle();
         int angle = (awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn()).RawValue;
 
         // Preserve the up-zero angle convention: X is sine, Y is

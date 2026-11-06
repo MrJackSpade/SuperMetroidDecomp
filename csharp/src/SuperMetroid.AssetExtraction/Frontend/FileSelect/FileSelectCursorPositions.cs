@@ -1,5 +1,4 @@
 using static SuperMetroid.Core.Frontend.FileSelect.FileSelectLayout;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Frontend.FileSelect;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
@@ -23,8 +22,8 @@ internal static class FileSelectCursorPositions
     public static int MainSelectionY(int selection)
     {
         if ((uint)selection >= MainSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return WordWrap.Unsigned(selection < SaveSlotCount ? 48 + 40 * selection
-            : 163 + 24 * (selection - SaveSlotCount));
+        return selection < SaveSlotCount ? 48 + 40 * selection
+            : 163 + 24 * (selection - SaveSlotCount);
     }
 
     /// <summary>Calculates copy/clear cursor Y, choices0..3.</summary>
@@ -36,7 +35,7 @@ internal static class FileSelectCursorPositions
     public static int DataSelectionY(int selection)
     {
         if ((uint)selection >= DataSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return selection < SaveSlotCount ? WordWrap.Unsigned(72 + 32 * selection)
+        return selection < SaveSlotCount ? 72 + 32 * selection
             : MainSelectionY(MainSelectionCount - 1);
     }
 
@@ -48,6 +47,6 @@ internal static class FileSelectCursorPositions
     public static int HelmetY(int slot)
     {
         if ((uint)slot >= SaveSlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
-        return WordWrap.Unsigned(MainSelectionY(slot) - 1);
+        return MainSelectionY(slot) - 1;
     }
 }

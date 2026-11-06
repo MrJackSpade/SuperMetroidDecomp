@@ -35,5 +35,5 @@ public static class ReserveRowToggleSpreadBombSpeed
     /// pause screen applies it to the bomb frozen in that slot.
     /// </summary>
     /// <param name="wholeSpeed">The bomb's whole vertical speed before the toggle.</param>
-    public static short Repaint(short wholeSpeed) => unchecked((short)((wholeSpeed & ~LabelPaletteField) | DisabledLabelPalette));
+    public static int Repaint(int wholeSpeed) => unchecked((short)((wholeSpeed & ~LabelPaletteField) | DisabledLabelPalette));
 }

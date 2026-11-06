@@ -509,7 +509,7 @@ internal sealed class CeresRidleyFlight
     {
         // Ridley's velocities are signed 8.8 values that the original routine accumulates into the
         // *high* byte of the ordinary 16-bit subposition.
-        FixedCoordinate moved = position.AddEightEightToHighFraction(velocity.RawValue);
+        FixedCoordinate moved = position.MovedBy(velocity);
 
         if (CoordinateAxis.Difference(moved.Whole, minimum) < 0)
             return new CeresRidleyAxisMotion(moved.WithWhole(minimum), 0);
@@ -520,7 +520,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Adds an 8.8 velocity to a position before boundary checks.</summary>
     private static FixedCoordinate IntegrateUnclampedAxis(FixedCoordinate position, SignedEightEight velocity) =>
-        position.AddEightEightToHighFraction(velocity.RawValue);
+        position.MovedBy(velocity);
 
     /// <summary>Tests an inclusive actor rectangle for hover, lunge or retrieval handoffs.</summary>
     internal static bool IsWithinRidleyRectangle(

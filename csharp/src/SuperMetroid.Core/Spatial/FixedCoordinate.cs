@@ -74,10 +74,4 @@ public readonly record struct FixedCoordinate
     /// </summary>
     public FixedCoordinate MovedBy(SignedEightEight velocity) => MovedBy(velocity.ToSixteenSixteenDelta());
 
-    /// <summary>
-    /// <see cref="MovedBy(SignedEightEight)"/> for a velocity given as its raw value, 0 through 65535; kept for the boss
-    /// callers that still hold the raw value.
-    /// </summary>
-    /// <param name="velocity">The signed 8.8 velocity's raw value, 0 through 65535.</param>
-    public FixedCoordinate AddEightEightToHighFraction(int velocity) => MovedBy(new SignedEightEight(velocity));
 }

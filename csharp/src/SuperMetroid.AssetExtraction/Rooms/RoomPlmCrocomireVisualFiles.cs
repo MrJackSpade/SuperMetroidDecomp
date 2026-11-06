@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -20,7 +19,7 @@ public static class RoomPlmCrocomireVisualFiles
         internal int NextX(int run)
         {
             if ((uint)run >= shape.RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return run + 1 < shape.RunCount ? WordWrap.SignedLowByte(run + 1) : 0;
+            return run + 1 < shape.RunCount ? run + 1 : 0;
         }
     }
 

@@ -27,10 +27,10 @@ internal static class SpatialValuesVerification
 
         // Exact construction from the four native words ($0B58, $0B56, $0B5C, $0B5A).
         var words = FixedVector<RoomPixels>.FromWords(0xfffe, 0x8000, 0x0003, 0x4000);
-        AssertEqual((short)-2, words.X.WholePixels, "signed X whole word");
+        AssertEqual(-2, words.X.WholePixels, "signed X whole word");
         AssertEqual((ushort)0x8000, words.X.Fraction, "X fraction word");
         AssertEqual(unchecked((int)0xfffe8000), words.X.RawValue, "X assembles as signed 16.16");
-        AssertEqual((short)3, words.Y.WholePixels, "Y whole word");
+        AssertEqual(3, words.Y.WholePixels, "Y whole word");
         AssertEqual((ushort)0x4000, words.Y.Fraction, "Y fraction word");
 
         // Axis and half-word replacement leave every other word untouched.

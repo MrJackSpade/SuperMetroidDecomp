@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>Mutually exclusive crawler animation families, each with its own four surface animations.</summary>
-internal enum CrawlerAnimationFamily
+public enum CrawlerAnimationFamily
 {
     /// <summary>The common surface animations of Zoomers, Zeelas, Sovas and M-Zoomers.</summary>
     Shared,

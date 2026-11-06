@@ -257,7 +257,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.SecondPhaseThinking:
-                KraidLimbs.RunKraidSecondPhaseThinking(body, state);
+                KraidLimbs.RunKraidSecondPhaseThinking(state);
                 return;
 
             case KraidAiFunction.DeathInitialize:

@@ -21,7 +21,7 @@ internal sealed class MotherBrainRoomPlms(PlmSlotTable slotTable)
     {
         Ensure.NotNull(level);
         PlmHeaderId plm = Ensure.Listed(Plms, request.Plm);
-        MotherBrainFakeDeathProgram program = Ensure.Listed(Programs, request.Plm);
+        MotherBrainFakeDeathProgram program = Ensure.Listed(MotherBrainRoomMutationDefinitions.Programs, request.Plm);
 
         // Spawning searches the PLM slots in processing order. Do not reserve a boss slot or coalesce adjacent row
         // requests: their allocation order is observable.

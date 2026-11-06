@@ -22,7 +22,7 @@ internal sealed class BotwoonWallPlms(PlmSlotTable slotTable)
     {
         Ensure.NotNull(level);
         PlmHeaderId plm = Ensure.Listed(Plms, mutation);
-        BotwoonWallProgram program = Ensure.Listed(Programs, mutation);
+        BotwoonWallProgram program = Ensure.Listed(BotwoonWallMutationDefinitions.Programs, mutation);
         int firstStepDelay = Ensure.Listed(FirstStepDelays, mutation);
 
         // Resolve the block through the level so a malformed fixture cannot install a wall whose later vertical draws

@@ -37,7 +37,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     {
         DraygonCannonOrientation orientation = setup.Orientation;
         slot.Family = new DraygonCannonPlmState(cannon);
-        if (setup.StartsDestroyed)
+        if (setup.Start is DraygonCannonStart.Destroyed)
         {
             // A destroyed cannon's setup only seeds its hit counter; its program begins at the destruction step,
             // which writes the destroyed terrain.

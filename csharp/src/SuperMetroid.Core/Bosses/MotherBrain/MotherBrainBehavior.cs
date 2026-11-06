@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 ﻿using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;

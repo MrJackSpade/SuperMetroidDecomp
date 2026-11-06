@@ -20,10 +20,10 @@ internal static class PhantoonCasualFlamesVerification
             PhantoonCasualFlameSchedule compiled = PhantoonCasualFlames.Pattern(pattern);
             int flames = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
             AssertEqual(flames, compiled.FlameCount, "Native casual flame count");
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + 2), compiled.Cooldown, "Native casual flame cooldown");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + 2), compiled.Cooldown, "Native casual flame cooldown");
             // The native table stores the intervals last flame first; the burst lists them first flame first.
             for (int flame = 0; flame < flames; flame++)
-                AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + (flames + 1 - flame) * 2),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + (flames + 1 - flame) * 2),
                     compiled.Intervals[flame], "Native casual flame interval");
         }
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));

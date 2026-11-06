@@ -16,7 +16,7 @@ internal sealed class SporeSpawnCeilingPlms(PlmSlotTable slotTable)
     public bool TrySpawn(RoomLevelData level, SporeSpawnCeilingMutation mutation)
     {
         Ensure.NotNull(level);
-        SporeSpawnCeilingProgram program = Ensure.Listed(Programs, mutation);
+        SporeSpawnCeilingProgram program = Ensure.Listed(SporeSpawnCeilingMutationDefinitions.Programs, mutation);
 
         int blockIndex = level.GetBlockIndex(Block);
         if (slotTable.SpawnHardcoded() is not { } slot)

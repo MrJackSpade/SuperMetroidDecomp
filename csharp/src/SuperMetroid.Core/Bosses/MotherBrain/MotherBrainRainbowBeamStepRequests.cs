@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -88,7 +89,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     internal List<MotherBrainEscapeDoorParticleSpawnRequest> EscapeDoorParticleSpawns { get; } = new(capacity: 8);
 
     /// <summary>The escape door's PLM requested, if any.</summary>
-    internal MotherBrainEscapeDoorPlmRequest? EscapeDoorPlm { get; set; }
+    internal PlmSpawnRequest<MotherBrainRoomMutation>? EscapeDoorPlm { get; set; }
 
     /// <summary>Whether the earthquake timer was refreshed.</summary>
     internal bool EarthquakeTimerRefreshed { get; set; }

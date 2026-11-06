@@ -20,13 +20,13 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int step = 0; step < WorkRobotPaletteTimingDefinitions.StepCount; step++)
+        for (int glowStep = 0; glowStep < WorkRobotPaletteTimingDefinitions.StepCount; glowStep++)
         {
             int address = WorkRobotPaletteTimingDefinitions.NativeFirstTimerAddress +
-                step * WorkRobotPaletteTimingDefinitions.RecordByteCount;
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                WorkRobotPaletteTimingDefinitions.Durations[step],
-                $"Work Robot glow step {step} duration");
+                glowStep * WorkRobotPaletteTimingDefinitions.RecordByteCount;
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+                WorkRobotPaletteTimingDefinitions.Durations[glowStep],
+                $"Work Robot glow step {glowStep} duration");
         }
         AssertEqual((ushort)0xffff,
             CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress),
@@ -49,7 +49,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock }),
         };
-        Type type = typeof(RoomEnemySystem);
         enemies.WorkRobotBehavior.GlowStepTimer = WrappingCountdown.Start(1);
         enemies.WorkRobotBehavior.NextGlowStep = 0;
         var step = new Action(enemies.WorkRobotBehavior.AdvanceWorkRobotGlow);

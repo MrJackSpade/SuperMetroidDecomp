@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Puyo;
 namespace SuperMetroid.Verification.Enemies.Puyo;
 
 /// <summary>The Puyo values a kill empties: the current hop, the vertical speed index and the hop cooldown.</summary>

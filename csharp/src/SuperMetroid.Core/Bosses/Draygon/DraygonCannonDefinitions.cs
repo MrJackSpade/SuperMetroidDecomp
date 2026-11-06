@@ -31,8 +31,8 @@ internal static class DraygonCannonDefinitions
     internal static readonly IReadOnlyDictionary<PlmHeaderId, DraygonCannonSetup> Setups =
         new Dictionary<PlmHeaderId, DraygonCannonSetup>
         {
-            [PlmHeaderId.DraygonCannonFacingRight] = new(DraygonCannonOrientation.Right, StartsDestroyed: false),
-            [PlmHeaderId.DraygonCannonFacingRightDestroyed] = new(DraygonCannonOrientation.Right, StartsDestroyed: true),
-            [PlmHeaderId.DraygonCannonFacingLeft] = new(DraygonCannonOrientation.Left, StartsDestroyed: false),
+            [PlmHeaderId.DraygonCannonFacingRight] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Whole),
+            [PlmHeaderId.DraygonCannonFacingRightDestroyed] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed),
+            [PlmHeaderId.DraygonCannonFacingLeft] = new(DraygonCannonOrientation.Left, DraygonCannonStart.Whole),
         };
 }

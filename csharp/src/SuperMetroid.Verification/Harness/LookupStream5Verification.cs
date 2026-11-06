@@ -1652,7 +1652,7 @@ internal static class LookupStream5Verification
             var actual = new OamBuffer(); actual.BeginFrame();
             actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase * 2);
-            AssertEqual((int)unchecked((short)native), CeresDoorQuake.XOffset(phase),
+            AssertEqual(unchecked((short)native), CeresDoorQuake.XOffset(phase),
                 "Quake offset is the authored word of its phase");
             var expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitionsConstants.Bank, Pointer = CeresDoorFrameDefinitionsConstants.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 2, priority: 0).PaletteBits, BaseTileIndex = 0 });

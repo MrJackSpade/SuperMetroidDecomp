@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -668,7 +667,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing;
         requests.EscapeDoorPlm = new(
             Block: new(0, 6),
-            PlmEntry: MotherBrainRoomMutation.EscapeDoor);
+            Plm: MotherBrainRoomMutation.EscapeDoor);
         return false;
     }
 

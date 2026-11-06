@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -117,13 +117,13 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Counts down the grown body's think delay before opening the mouth for its next attack.</summary>
-    internal static void RunKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
+    internal static void RunKraidSecondPhaseThinking(KraidEnemyState state)
     {
         if (!state.ThinkingTimer.IsZero && (state.ThinkingTimer = state.ThinkingTimer.Decrement().Remaining).IsZero)
         {
-            _parts.StateOf(state, body).Function = KraidAiFunction.MouthOpenReaction;
+            state.Part(KraidPart.Kraid).Function = KraidAiFunction.MouthOpenReaction;
             state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-            _parts.StateOf(state, body).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
+            state.Part(KraidPart.Kraid).HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
         }
     }
 

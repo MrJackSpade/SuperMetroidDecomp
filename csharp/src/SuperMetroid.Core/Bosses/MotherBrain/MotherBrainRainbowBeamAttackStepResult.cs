@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -35,5 +36,5 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool MotherBrainBossBitRequested,
     bool ZebesTimebombEventRequested,
     IReadOnlyList<MotherBrainEscapeDoorParticleSpawnRequest> EscapeDoorParticleSpawns,
-    MotherBrainEscapeDoorPlmRequest? EscapeDoorPlm,
+    PlmSpawnRequest<MotherBrainRoomMutation>? EscapeDoorPlm,
     bool EarthquakeTimerRefreshed);

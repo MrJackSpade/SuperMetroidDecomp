@@ -134,7 +134,7 @@ internal sealed class MotherBrainRainbowAndDeath
             _audio.QueueEnemySound(doorDust.SoundEffect, priority: SoundRequestPriority.Low);
         }
         if (step.EscapeDoorPlm is { } doorPlm)
-            _access.RequestMotherBrainPlm(doorPlm.Block, doorPlm.PlmEntry);
+            _access.RequestMotherBrainPlm(doorPlm.Block, doorPlm.Plm);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Parameter);
         if (step.TimeBombSetSubtitleSpawnRequested)
         {

@@ -18,7 +18,7 @@ internal sealed class KraidRoomPlms(PlmSlotTable slotTable)
     {
         Ensure.NotNull(level);
         PlmHeaderId plm = Ensure.Listed(Plms, request.Plm);
-        KraidRoomProgram program = Ensure.Listed(Programs, request.Plm);
+        KraidRoomProgram program = Ensure.Listed(KraidRoomMutationDefinitions.Programs, request.Plm);
 
         int blockIndex = level.GetBlockIndex(request.Block);
         if (slotTable.SpawnHardcoded() is not { } slot)

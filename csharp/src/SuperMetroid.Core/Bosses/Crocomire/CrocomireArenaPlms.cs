@@ -17,7 +17,7 @@ internal sealed class CrocomireArenaPlms(PlmSlotTable slotTable)
     {
         Ensure.NotNull(level);
         PlmHeaderId plm = Ensure.Listed(Plms, request.Plm);
-        CrocomireArenaProgram program = Ensure.Listed(Programs, request.Plm);
+        CrocomireArenaProgram program = Ensure.Listed(CrocomireArenaMutationDefinitions.Programs, request.Plm);
 
         int blockIndex = level.GetBlockIndex(request.Block);
         if (slotTable.SpawnHardcoded() is not { } slot)

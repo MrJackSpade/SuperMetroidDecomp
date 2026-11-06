@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerifica
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsOracleVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;

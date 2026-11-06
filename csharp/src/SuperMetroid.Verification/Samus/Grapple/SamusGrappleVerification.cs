@@ -1008,7 +1008,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     GrappleMovementResult wallReleased = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(wallReleased.Phase == GrapplePhase.WallGrabRelease,
         "wall-grab release opens native thirty-check wall-jump window");
-    AssertEqual(30, wallGrabSamus.Grapple.WallJumpTimer.RawValue,
+    AssertEqual(30, wallGrabSamus.Grapple.WallJumpTimer,
         "wall-grab release seeds decimal thirty before decrementing");
 
     // `$B9` faces left (pose direction four), so `$90:9CAC` probes left even though the
@@ -1017,7 +1017,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     GrappleMovementResult wallJumpQueued = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, controllerInput: ControllerButton.A, newlyPressedInput: ControllerButton.A);
     AssertTrue(wallJumpQueued.Phase == GrapplePhase.WallJumping,
         "fresh Jump plus wall probe queues grapple wall jump");
-    AssertEqual(29, wallGrabSamus.Grapple.WallJumpTimer.RawValue,
+    AssertEqual(29, wallGrabSamus.Grapple.WallJumpTimer,
         "first eligible wall-jump check decrements timer to twenty-nine");
 
     // `$9B:C9CE` mirrors the ordinary route's selective cleanup: it zeros base speed but

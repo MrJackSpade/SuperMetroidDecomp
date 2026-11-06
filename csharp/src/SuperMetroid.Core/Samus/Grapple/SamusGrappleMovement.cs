@@ -94,7 +94,7 @@ public static class SamusGrappleMovement
         grapple.ValidateAnchorEnemy = false;
         grapple.SpecialAngleHandling = false;
         grapple.SlowScrolling = false; // Firing clears the slow-scroll flag.
-        grapple.WallJumpTimer = WrappingCountdown.Start(0);
+        grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
@@ -539,7 +539,7 @@ public static class SamusGrappleMovement
 
         // The wall-grab writes decimal 30 and changes only the grapple function. The contact
         // pose and beam remain visible throughout the following grace-window probes.
-        grapple.WallJumpTimer = WrappingCountdown.Start(30);
+        grapple.WallJumpTimer = 30;
         grapple.Phase = GrapplePhase.WallGrabRelease;
         return new GrappleMovementResult(
             grapple.Phase);
@@ -555,9 +555,9 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple = samus.Grapple;
 
         // The countdown gives values 29..0 thirty eligible checks. The next call
-        // wraps zero to 65535, queues dropped, and deliberately performs no wall probe.
-        grapple.WallJumpTimer = grapple.WallJumpTimer.Decrement().Remaining;
-        if (grapple.WallJumpTimer.IsNegative)
+        // runs past zero, queues dropped, and deliberately performs no wall probe.
+        grapple.WallJumpTimer--;
+        if (grapple.WallJumpTimer < 0)
         {
             grapple.Phase = GrapplePhase.Dropped;
             return new GrappleMovementResult(
@@ -692,7 +692,7 @@ public static class SamusGrappleMovement
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
             grapple.Phase = phase;
-            grapple.WallJumpTimer = WrappingCountdown.Start(0);
+            grapple.WallJumpTimer = 0;
             grapple.SlowScrolling = false; // Connecting clears the slow-scroll flag.
 
             Position16<RoomPixels> cameraPrevious = ClampPreviousPosition(samus.Position.Whole, previousPosition);
@@ -1031,7 +1031,7 @@ public static class SamusGrappleMovement
         grapple.ValidateAnchorBlock = anchor == GrappleAnchorKind.Block;
         grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
         grapple.SpecialAngleHandling = false;
-        grapple.WallJumpTimer = WrappingCountdown.Start(0);
+        grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
 
         // The connection helper clears delta while choosing the new pose, but its caller
@@ -1323,7 +1323,7 @@ public static class SamusGrappleMovement
         grapple.SpecialAngleHandling = false;
         // Dropping and wall jumping clear the slow-scroll flag.
         grapple.SlowScrolling = false;
-        grapple.WallJumpTimer = WrappingCountdown.Start(0);
+        grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;

@@ -796,7 +796,7 @@ internal static void VerifySamusDeathSequence()
         "60 flashing calls enter suit explosion");
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
         "explosion begins at index zero");
-    AssertEqual(20, samus.DeathSequence.AnimationTimer.RawValue,
+    AssertEqual(20, samus.DeathSequence.AnimationTimer,
         "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");

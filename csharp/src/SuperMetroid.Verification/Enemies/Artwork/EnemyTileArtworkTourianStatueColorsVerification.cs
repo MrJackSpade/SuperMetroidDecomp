@@ -49,11 +49,14 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
 
-        // The statue scene's pictures are the installed statue sheet's (#1512): the colours a published shading shows are
-        // that sheet's inks under it, at the places of the native image the import coloured them from.
+        // The statue scene's pictures are the statues' spawned objects', on their installed sheet (#1512, #1513): the statue
+        // enemy itself pictures nothing, so it has no sheet. The colours a published shading shows are that sheet's inks
+        // under it, at the places of the native image the import coloured them from.
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
             candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.TourianStatue));
-        SpriteImage statueSheet = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.TourianStatue).Image;
+        IReadOnlyList<SpriteSheet> statueSheets = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Of(EnemyDefinitionId.TourianStatue)).Sheets;
+        AssertEqual(1, statueSheets.Count, "the statue scene's pictures are on one installed sheet");
+        SpriteImage statueSheet = statueSheets[0].Image;
         var guard = NewTourianStatueColorGuard(bus, forbidden);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {

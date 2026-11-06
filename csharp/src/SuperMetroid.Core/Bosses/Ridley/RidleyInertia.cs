@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public static class RidleyInertia
 {
     /// <summary>The divisor at inertia index <paramref name="index"/>, zero through fifteen.</summary>
-    public static ushort Divisor(int index) => (uint)index < (uint)RidleyInertiaDefinitions.Divisors.Length
+    public static int Divisor(int index) => (uint)index < (uint)RidleyInertiaDefinitions.Divisors.Length
         ? RidleyInertiaDefinitions.Divisors[index]
         : throw new ArgumentOutOfRangeException(nameof(index));
 }

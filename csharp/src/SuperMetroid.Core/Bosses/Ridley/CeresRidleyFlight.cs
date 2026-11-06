@@ -565,7 +565,7 @@ internal sealed class CeresRidleyFlight
             // The wing animation isolates bits 8..11 after multiplying the 8.8 velocity by four,
             // converts the result to a table index, and clamps that index to 14.
             int tableIndex = Math.Min(7, EightEight.WholeOf(largestAxisVelocity << 2) % 16);
-            int delta = CeresRidleyBehavior.CeresRidleyWingAnimationDeltas[tableIndex];
+            int delta = CeresRidleyWingDefinitions.AnimationTimerSteps[tableIndex];
             if (state.Velocity.Y.SignedRawValue >= 0)
                 delta >>= 1;
             state.WingAnimationTimerDelta = delta;

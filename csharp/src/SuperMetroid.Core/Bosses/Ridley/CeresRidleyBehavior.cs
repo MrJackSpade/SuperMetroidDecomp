@@ -338,8 +338,4 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunCeresRidleyMain(slot, frame.Samus);
-
-    /// <summary>Wing frame deltas selected from Ridley's movement speed.</summary>
-    internal static readonly ushort[] CeresRidleyWingAnimationDeltas =
-        [12, 14, 16, 18, 28, 32, 40, 48];
 }

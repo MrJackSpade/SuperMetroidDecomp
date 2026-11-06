@@ -167,7 +167,7 @@ internal sealed class EnemyPresentation
             int? reached = ArtworkProgress.StepOf(variation.Sequence);
             if (reached is null && !variation.DrawnBeforeFirstStep)
                 throw new InvalidDataException($"Sheet frame {frame} is drawn before {variation.Sequence} reaches its first step, when it is never drawn; its sheet holds no picture of it then.");
-            if (reached is int step && variation.PictureAt(step, frame) is int picture)
+            if ((reached is int step ? variation.PictureAt(step, frame) : variation.PictureBeforeFirstStep) is int picture)
                 shown.Add(new EncounterArtworkStep(variation.Sequence, picture));
         }
         return FrameArtworkVariation.PictureName(frame, shown);

@@ -24,7 +24,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 /// corpse lies in it, paints at every screen pixel the colour the frame's parts paint over the sprite characters the
 /// character rot oracle leaves (<see cref="CorpseCharacterRot"/>). It covers both dead Sidehoppers, every dead Zoomer, Ripper
 /// and Skree, the dead Torizo's body and its hook's sand, each half as its main-AI calls last uploaded it, and Mother
-/// Brain's corpse, whose last rot call is never shown, through the pages her escape loads over it afterwards.
+/// Brain's corpse, whose last rot call is never shown, and which keeps its whole picture through her escape's pages.
 /// </summary>
 internal static class CorpseRotDrawingVerification
 {
@@ -134,7 +134,7 @@ internal static class CorpseRotDrawingVerification
 
     /// <summary>
     /// Rots Mother Brain's corpse as Core does, at her last corpse page, and compares her corpse frame at every call; then
-    /// draws it at each later page her escape loads over its characters once it has rotted away.
+    /// requires every later page step it is drawn at to show the same whole corpse picture (#1513).
     /// </summary>
     private static int VerifyMotherBrain(InstalledEnemySheets sheets, CorpseCharacterRot oracle)
     {
@@ -157,17 +157,13 @@ internal static class CorpseRotDrawingVerification
             compared += AssertDrawsAsRotted(sheet, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, corpsePicture), corpsePicture, rotting.Shown, oracle.Characters(loaded, call),
                 EnemyFrameId.MotherBrainHead12, tileBase, $"Mother Brain's corpse after rot call {call}");
         }
-        // Her escape's pages load once the corpse has rotted away, over what its last shown rows left.
-        byte[] escaped = oracle.Characters(loaded, oracle.CallCount);
+        // Her escape's pages load over her corpse's characters once it has rotted; the corpse frame keeps showing her whole
+        // corpse's picture through its rows, never the escape's pages (#1513).
+        string corpse = PictureAt(name, pages, lastCorpsePage);
         for (int step = lastCorpsePage + 1; step < MotherBrainSpritePageDefinitions.Sequence.Count; step++)
         {
-            foreach (EncounterArtworkUpload upload in EncounterArtworkUploads.Step(EncounterArtworkSequence.MotherBrainPages, step, EnemySheetFixtures.Inputs))
-                upload.ApplyTo(escaped);
-            if (!pages.DrawnAt(step))
-                continue;
-            string picture = PictureAt(name, pages, step);
-            compared += AssertDrawsAsRotted(sheet, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, picture), picture, rotting.Shown, escaped,
-                EnemyFrameId.MotherBrainHead12, tileBase, $"Mother Brain's rotted corpse after page step {step}");
+            if (pages.DrawnAt(step))
+                AssertEqual(corpse, PictureAt(name, pages, step), $"Mother Brain's rotted corpse after page step {step} shows her whole corpse's picture");
         }
         return compared;
     }

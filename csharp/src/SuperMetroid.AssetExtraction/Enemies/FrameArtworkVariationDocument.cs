@@ -16,15 +16,22 @@ internal sealed record FrameArtworkVariationDocument
     /// <summary>Whether the frame is drawn before the sequence reaches its first step.</summary>
     public required bool DrawnBeforeFirstStep { get; init; }
 
+    /// <summary>The step whose picture the frame shows before the first step, or null for its loaded picture.</summary>
+    public int? PictureBeforeFirstStep { get; init; }
+
     /// <summary>The manifest's spelling of <paramref name="variation"/>.</summary>
     internal static FrameArtworkVariationDocument Of(FrameArtworkVariation variation) => new()
     {
         Pictures = [.. Ensure.NotNull(variation).Pictures], Drawn = [.. variation.Drawn], DrawnBeforeFirstStep = variation.DrawnBeforeFirstStep,
+        PictureBeforeFirstStep = variation.PictureBeforeFirstStep,
     };
 
     /// <summary>The variation the manifest spells for <paramref name="sequence"/>.</summary>
     /// <exception cref="InvalidDataException">The document is incomplete, or pictures a step the frame is not drawn at.</exception>
     internal FrameArtworkVariation Variation(EncounterArtworkSequence sequence) =>
         new(sequence, [.. Pictures ?? throw new InvalidDataException($"A frame's {sequence} variation lists no pictures.")],
-            [.. Drawn ?? throw new InvalidDataException($"A frame's {sequence} variation lists no drawn steps.")], DrawnBeforeFirstStep);
+            [.. Drawn ?? throw new InvalidDataException($"A frame's {sequence} variation lists no drawn steps.")], DrawnBeforeFirstStep)
+        {
+            PictureBeforeFirstStep = PictureBeforeFirstStep,
+        };
 }

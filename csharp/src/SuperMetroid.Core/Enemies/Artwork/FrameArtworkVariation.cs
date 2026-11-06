@@ -23,6 +23,18 @@ public sealed record FrameArtworkVariation(EncounterArtworkSequence Sequence, Im
         ? Drawn
         : throw new InvalidDataException($"A frame following {Sequence} is drawn at {Drawn.Length} of its {Pictures.Length} steps' pictures, or pictured at a step it is not drawn at.");
 
+    /// <summary>
+    /// The step whose picture the frame shows before the sequence reaches its first step, or none for its loaded picture
+    /// (#1513): a frame whose artwork a run of pages completes shows that picture then, as the room's load does not hold it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The frame is not drawn before the first step, or the sequence has no such step.</exception>
+    public int? PictureBeforeFirstStep
+    {
+        get;
+        init => field = value is not int step || DrawnBeforeFirstStep && (uint)step < (uint)Pictures.Length ? value
+            : throw new InvalidDataException($"A frame following {Sequence} shows step {step}'s picture before the first step, at which it is not drawn or which the sequence lacks.");
+    }
+
     /// <summary>Whether the frame is drawn at <paramref name="step"/>.</summary>
     /// <exception cref="InvalidDataException">The sequence has no such step.</exception>
     public bool DrawnAt(int step) => (uint)step < (uint)Pictures.Length ? Drawn[step]

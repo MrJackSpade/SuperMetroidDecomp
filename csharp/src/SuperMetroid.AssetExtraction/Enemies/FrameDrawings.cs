@@ -40,7 +40,17 @@ internal sealed class FrameDrawings
     {
         EncounterArtworkDrawing[] drawn = [.. listed.Where(entry => entry.Sequence == sequence)];
         return drawn.Length == 0 ? null
-            : new FrameDrawnSteps(drawn.Any(entry => entry.DrawnBeforeFirstStep), [.. drawn.SelectMany(entry => entry.Steps)]);
+            : new FrameDrawnSteps(drawn.Any(entry => entry.DrawnBeforeFirstStep), [.. drawn.SelectMany(entry => entry.Steps)],
+                CompletedBy(sequence, drawn));
+    }
+
+    /// <summary>The one source <paramref name="drawn"/> name as completing the frame's artwork under <paramref name="sequence"/>, or none.</summary>
+    /// <exception cref="InvalidDataException">The entries name different sources.</exception>
+    private static EncounterArtworkSource? CompletedBy(EncounterArtworkSequence sequence, EncounterArtworkDrawing[] drawn)
+    {
+        EncounterArtworkSource?[] completing = [.. drawn.Select(entry => entry.CompletedBy).Distinct()];
+        return completing.Length == 1 ? completing[0]
+            : throw new InvalidDataException($"Entries listing a frame for {sequence} name different sources completing its artwork.");
     }
 
     /// <summary>A catalogue entry with the frames it lists resolved.</summary>

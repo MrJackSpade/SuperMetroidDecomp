@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 13;
+    public const int ManifestVersion = 14;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -189,9 +189,9 @@ public static class EnemySheetFiles
     /// <summary>
     /// How the manifest says each frame of <paramref name="owner"/>'s sheet under <paramref name="set"/> follows the
     /// encounter artwork sequences that change it (#1513), each sequence one the game plays and each step's picture one of
-    /// an earlier or the same step.
+    /// its steps: a frame whose artwork a run of pages completes shows that step's picture at every step it is drawn at.
     /// </summary>
-    /// <exception cref="InvalidDataException">A frame follows no sequence, an unknown one, or shows a picture of a later step.</exception>
+    /// <exception cref="InvalidDataException">A frame follows no sequence, an unknown one, or shows a picture of a step the sequence does not have.</exception>
     private static Dictionary<string, FrameArtworkVariation[]> FrameVariations(
         Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>> manifest, string set, string owner)
     {
@@ -208,8 +208,8 @@ public static class EnemySheetFiles
                 if (!Enum.TryParse(entry.Key, out EncounterArtworkSequence sequence) || !Enum.IsDefined(sequence))
                     throw new InvalidDataException($"Enemy sheet manifest follows {set} {owner} frame {frame} through unknown artwork sequence {entry.Key}.");
                 FrameArtworkVariation variation = entry.Value.Variation(sequence);
-                if (variation.Pictures.Select((picture, step) => picture is int shown && (shown < 0 || shown > step || !variation.Drawn[shown])).Any(invalid => invalid))
-                    throw new InvalidDataException($"Enemy sheet manifest shows {set} {owner} frame {frame} at a step of {entry.Key} by a picture of a later step, or of one it is not drawn at.");
+                if (variation.Pictures.Any(picture => picture is int shown && (uint)shown >= (uint)variation.Pictures.Length))
+                    throw new InvalidDataException($"Enemy sheet manifest shows {set} {owner} frame {frame} at a step of {entry.Key} by a picture of a step the sequence does not have.");
                 return variation;
             }).OrderBy(variation => variation.Sequence)]);
         }

@@ -85,11 +85,26 @@ internal sealed class SetCharacters
         int[] read = [.. frame.Parts.SelectMany(Read).Distinct().Order()];
         string loaded = Shown(table, read);
         var variations = new List<FrameArtworkVariation>();
+        // The sequences whose pages complete the frame's artwork, whose later pages its pictures do not show.
+        var completed = new HashSet<EncounterArtworkSequence>();
         foreach (EncounterArtworkSteps sequence in sequences)
         {
             if (drawings.For(sequence.Sequence) is not FrameDrawnSteps drawn)
                 continue;
             bool[] drawnAt = [.. Enumerable.Range(0, sequence.Steps.Count).Select(drawn.DrawnAt)];
+            if (drawn.CompletedBy is EncounterArtworkSource completing)
+            {
+                // A frame whose artwork a run of pages completes shows that one state wherever it is drawn (#1513).
+                int? complete = EncounterArtworkSources.CompletionStep(sequence.Sequence, completing);
+                int? whole = complete is int step && Shown(afterStep[sequence.Sequence][step], read) != loaded ? step : null;
+                if (whole is not null)
+                {
+                    completed.Add(sequence.Sequence);
+                    variations.Add(new FrameArtworkVariation(sequence.Sequence, [.. drawnAt.Select(isDrawn => isDrawn ? whole : null)], [.. drawnAt],
+                        drawn.DrawnBeforeFirstStep) { PictureBeforeFirstStep = drawn.DrawnBeforeFirstStep ? whole : null });
+                }
+                continue;
+            }
             var first = new Dictionary<string, int>(StringComparer.Ordinal);
             int?[] pictures = [.. afterStep[sequence.Sequence].Select((shown, step) =>
             {
@@ -122,7 +137,7 @@ internal sealed class SetCharacters
         var blank = new List<string>();
         var layouts = new Dictionary<string, CorpsePictureLayout>(StringComparer.Ordinal);
         if (corpse is not null)
-            RequireOneCoverPerPicture(name, corpse, variations);
+            RequireOneCoverPerPicture(name, corpse, [.. variations.Where(variation => !completed.Contains(variation.Sequence))]);
         foreach (IReadOnlyList<EncounterArtworkStep> combination in FrameVariationPictures.Combinations(variations))
         {
             string picture = FrameArtworkVariation.PictureName(name, combination);

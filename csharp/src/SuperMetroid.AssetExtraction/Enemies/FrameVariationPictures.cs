@@ -37,7 +37,8 @@ internal static class FrameVariationPictures
     /// <summary>The picture <paramref name="variation"/> shows once its sequence has reached <paramref name="step"/>, if any.</summary>
     private static EncounterArtworkStep? Shown(FrameArtworkVariation variation, int? step) =>
         // Only steps the frame is drawn at are reached, each within the sequence.
-        step is int reached && variation.Pictures[reached] is int picture ? new EncounterArtworkStep(variation.Sequence, picture) : null;
+        (step is int reached ? variation.Pictures[reached] : variation.PictureBeforeFirstStep) is int picture
+            ? new EncounterArtworkStep(variation.Sequence, picture) : null;
 
     /// <summary>
     /// Each step, or none, the sequences <paramref name="variations"/> follow can have reached together, by variation:

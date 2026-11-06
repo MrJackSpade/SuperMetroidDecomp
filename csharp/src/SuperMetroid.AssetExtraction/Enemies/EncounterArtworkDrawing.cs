@@ -24,4 +24,12 @@ internal sealed record EncounterArtworkDrawing(EncounterArtworkSequence Sequence
 
     /// <summary>The room sprite objects whose frames are drawn.</summary>
     internal IReadOnlyList<RoomSpriteObjectKind> SpriteObjects { get; init; } = [];
+
+    /// <summary>
+    /// The source whose first run of pages completes the listed frames' artwork, or none when each step's look is theirs
+    /// (#1513). Such a frame is whole once that run has loaded, or as the room's load leaves it: it shows that one picture
+    /// at every step it is drawn at and before the first, never a page still loading nor another source's artwork
+    /// written over its characters afterwards, so its sheet holds it whole.
+    /// </summary>
+    internal EncounterArtworkSource? CompletedBy { get; init; }
 }

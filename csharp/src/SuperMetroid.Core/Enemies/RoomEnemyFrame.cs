@@ -36,8 +36,11 @@ public sealed record RoomEnemyFrame
     /// <summary>Samus's colours, which Pseudo Screw's enemy contact changes (#1405).</summary>
     public SamusColours? SamusColours { get; init; } = null;
 
-    /// <summary>The low byte of the game's frame counter; null uses the low byte of the standalone enemy-pass clock.</summary>
-    public int? FrameCounterLowByte { get; init; } = null;
+    /// <summary>
+    /// The game's short frame counter, 0 through 255, which a door's scroll restarts; null counts with the standalone
+    /// enemy-pass clock instead.
+    /// </summary>
+    public int? ShortCounter { get; init; } = null;
 
     /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating Ceres steam samples to derive draw offsets without changing its world collision coordinates.</summary>
     public TurningFloorTransform? TurningFloor { get; init; } = null;

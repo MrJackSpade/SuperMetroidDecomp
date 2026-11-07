@@ -147,7 +147,7 @@ internal static class SamusBodySheetComposer
     /// draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
     /// <exception cref="InvalidDataException">Poses with two different colourings show one body.</exception>
-    private static List<SheetBody> Bodies(InstalledSamusBodyArtwork body, LaidOutProgramContinuation<SamusPoseId> continuation)
+    private static List<SheetBody> Bodies(InstalledSamusBodyArtwork body, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
     {
         SamusSpritemapSources spritemaps = body.Spritemaps.Source;
         var bodies = new List<SheetBody>();

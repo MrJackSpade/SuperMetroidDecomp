@@ -67,6 +67,15 @@ internal static class SamusOverreadSourceDefinitions
     /// <summary>$91:B010: the table of each pose's animation program, a bank-$91 word per pose number.</summary>
     internal const int SamusAnimationProgramTable = 0x91b010;
 
+    /// <summary>Bank $91, which holds the animation programs the table's words name.</summary>
+    internal const int SamusAnimationProgramBank = 0x910000;
+
+    /// <summary>
+    /// The lowest animation program byte the interpreter takes as an instruction (#1535); every byte below it is a delay.
+    /// An instruction's low four bits select its handler, whatever its high bits.
+    /// </summary>
+    internal const int FirstAnimationInstructionByte = 0x80;
+
     /// <summary>
     /// The bytes the Power Bomb fuse adds to the live list pointer to switch to the fast animation. The Chainsaw glitch
     /// beam runs the fuse over its own list, so it applies this offset to a beam list.

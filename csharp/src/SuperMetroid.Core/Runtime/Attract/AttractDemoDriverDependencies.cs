@@ -41,5 +41,5 @@ internal sealed record AttractDemoDriverDependencies
     public required SharedGameState System { get; init; }
 
     /// <summary>What a demo Samus's animation frame past her pose's program reads.</summary>
-    public required LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId> AnimationContinuation { get; init; }
+    public required LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationProgramStep> AnimationContinuation { get; init; }
 }

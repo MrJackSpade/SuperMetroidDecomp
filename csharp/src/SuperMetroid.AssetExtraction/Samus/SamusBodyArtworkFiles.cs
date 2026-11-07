@@ -25,9 +25,10 @@ public static class SamusBodyArtworkFiles
     /// <summary>
     /// Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and body placements.
     /// Revision nine holds each pose's placement and its frames' own placements instead of the cartridge's offset tables
-    /// (#1517).
+    /// (#1517). Revision ten installs with the body sheet that pictures the glitch balls, their knockbacks, the
+    /// Draygon-held ball and its stand-up, which the Baby's Hyper Beam freeze and rainbow stop can install (#1535).
     /// </summary>
-    private const int FormatVersion = 9;
+    private const int FormatVersion = 10;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>

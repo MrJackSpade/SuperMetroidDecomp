@@ -536,7 +536,9 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Every pose some path of the game gives Samus, in the game's numbering: each pose with a record except
-    /// <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513).
+    /// <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513). Among them are the glitch balls, their knockbacks, the
+    /// Draygon-held ball and its stand-up, which the Baby's Hyper Beam freeze and rainbow stop reach by a frame read past a
+    /// transition's program (#1535).
     /// </summary>
     internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
         [.. Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose)

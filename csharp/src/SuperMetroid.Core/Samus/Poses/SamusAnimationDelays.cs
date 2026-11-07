@@ -14,44 +14,42 @@ internal static class SamusAnimationDelays
     /// <summary>The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">No step of the pose's program is numbered <paramref name="frame"/>.</exception>
     /// <remarks>
-    /// A frame past the program's end reads the program laid out after it through <paramref name="continuation"/>, which
-    /// names each program by a pose that animates by it; frame targets that program names are shifted back to this pose's
-    /// frames.
+    /// A frame on an instruction's operand reads the step the operand selects, and a frame past the program's end reads the
+    /// program laid out after it, both through <paramref name="continuation"/>, which names each program by a pose that
+    /// animates by it; frame targets that program names are shifted back to this pose's frames (#1535).
     /// </remarks>
     /// <param name="pose">The pose whose program is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
     /// <param name="continuation">What a frame past a program's end reads.</param>
-    internal static SamusAnimationProgramStep StepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId> continuation) =>
+    internal static SamusAnimationProgramStep StepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
         TryStepFor(pose, frame, continuation) ?? throw new InvalidDataException(
             $"Samus animation frame {frame} is not a step of pose {pose}'s program nor of a program laid out after it.");
 
     /// <summary>
     /// The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>, read as <see cref="StepFor"/> reads
-    /// it, or null when the frame falls between two runs of a program or reads past every program, where the animation
-    /// fails.
+    /// it, or null when the frame reads past every program, or lands on an operand whose step would publish a record no
+    /// gameplay path gives Samus, where the animation fails.
     /// </summary>
     /// <param name="pose">The pose whose program is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
     /// <param name="continuation">What a frame past a program's end reads.</param>
-    internal static SamusAnimationProgramStep? TryStepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId> continuation)
+    internal static SamusAnimationProgramStep? TryStepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
     {
         Ensure.NotNull(continuation);
         SamusPoseId read = pose;
         SamusAnimationProgram program = ProgramOf(read);
         int readFrame = frame;
         int shift = 0;
-        SamusAnimationProgramStep? step = program.TryStepAt(readFrame);
+        SamusAnimationProgramStep? step = program.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
         while (step is null)
         {
-            if (readFrame < program.FrameCount)
-                return null;
             if (continuation.ReadPast(read, readFrame) is not { } past)
                 return null;
             read = past.Program;
             program = ProgramOf(read);
             readFrame = past.Frame;
             shift += past.Shift;
-            step = program.TryStepAt(readFrame);
+            step = program.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
         }
         return shift == 0 ? step : step switch
         {

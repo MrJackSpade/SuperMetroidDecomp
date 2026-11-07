@@ -19,7 +19,7 @@ public sealed class SamusOverreadServices
 
     /// <param name="projectiles">The services Samus's projectiles consult where they read past their data.</param>
     internal SamusOverreadServices(
-        LaidOutProgramContinuation<SamusPoseId> animationContinuation,
+        LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> animationContinuation,
         SamusProjectileOverreads projectiles)
     {
         AnimationContinuation = Ensure.NotNull(animationContinuation);
@@ -27,7 +27,7 @@ public sealed class SamusOverreadServices
     }
 
     /// <summary>What a Samus animation frame past its pose's program reads, by a pose that animates by each program.</summary>
-    internal LaidOutProgramContinuation<SamusPoseId> AnimationContinuation { get; }
+    internal LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation { get; }
 
 
     /// <summary>The services Samus's projectiles consult where their glitch paths read past their data.</summary>

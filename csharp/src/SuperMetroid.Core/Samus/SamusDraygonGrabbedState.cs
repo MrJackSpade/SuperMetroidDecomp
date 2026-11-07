@@ -135,13 +135,15 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Ports <see cref="SamusMovementType.DraygonHeld"/> movement. Its entire normal beta handler clears one result; enemy
-    /// AI has already supplied position through <see cref="ApplyOwnerPosition"/>.
+    /// Ports <see cref="SamusMovementType.DraygonHeld"/> movement for every pose of that movement type: the grabbed poses,
+    /// whose position enemy AI has already supplied through <see cref="ApplyOwnerPosition"/>, and the Draygon-held ball the
+    /// Baby's Hyper Beam freeze can install without Draygon (#1535), which therefore stays where it is. Its entire normal
+    /// beta handler clears one result.
     /// </summary>
     public static void StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
-        EnsureGrabbedPose(samus);
+        EnsureDraygonHeldMovement(samus);
 
         samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
     }
@@ -235,13 +237,13 @@ public sealed class SamusDraygonGrabbedState
         // and movement handler. Crystal Flash can replace both while still held.
     }
 
-    /// <summary>Requires one of the grabbed pose families before running Draygon-held movement.</summary>
-    private static void EnsureGrabbedPose(SamusState samus)
+    /// <summary>Requires a pose of the Draygon-held movement type before running Draygon-held movement.</summary>
+    private static void EnsureDraygonHeldMovement(SamusState samus)
     {
-        if (!SamusPoseMetadata.IsDraygonGrabbedPose(samus.Pose))
+        if (SamusPoseMetadata.ReadMovementType(samus.Pose) != SamusMovementType.DraygonHeld)
         {
             throw new InvalidOperationException(
-                $"Draygon movement requires a Draygon-grabbed pose, not {samus.Pose}.");
+                $"Draygon-held movement requires a pose of the Draygon-held movement type, not {samus.Pose}.");
         }
     }
 }

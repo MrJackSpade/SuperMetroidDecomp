@@ -54,7 +54,7 @@ internal static class InstalledFixtures
     internal static SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices BossAndIntroOverreads => bossAndIntroOverreads.Value;
 
     /// <summary>The installation's continuation of a Samus animation frame past its pose's program, which every Samus takes.</summary>
-    internal static SuperMetroid.Core.Compatibility.LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId> AnimationContinuation =>
+    internal static SuperMetroid.Core.Compatibility.LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationProgramStep> AnimationContinuation =>
         SamusOverreads.AnimationContinuation;
 
     /// <summary>Lazy stock visual-layout, level-stream and block-sheet catalogs.</summary>

@@ -300,6 +300,13 @@ internal sealed class SamusPresentation
                     samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? wallJump.SpaceJumpFrame : wallJump.OrdinaryFrame;
                 break;
 
+            case SamusAnimationVerticalSpeedTransition verticalSpeed:
+                // Read only on an operand's place (#1535): the pose depends on either part of the vertical speed alone.
+                samus.PendingTransitionalPose = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0
+                    ? verticalSpeed.Airborne
+                    : verticalSpeed.Grounded;
+                return;
+
             case SamusAnimationItemTransition item:
                 samus.PendingTransitionalPose = samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped;
                 return;

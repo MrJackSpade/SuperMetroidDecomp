@@ -13,6 +13,11 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// For every pose with an animation program, the program laid out after its own, named by a pose that animates by it,
 /// and the frame shift; null for the last program laid out.
 /// </param>
+/// <param name="AnimationOperandSteps">
+/// For every pose with an animation program, the step the animation reads at each frame of its program that lands on an
+/// instruction's operand rather than on a step of its own, by frame, in the program's own frame numbering (#1535). A place
+/// whose read would name a record no gameplay path gives Samus has no entry.
+/// </param>
 /// <param name="TrailFramesAtListStart">The animation frame a trail reads from a shot whose list has just started, by program name.</param>
 /// <param name="TrailPlacementsPastRecords">
 /// What each trail placement list yields past its run of placements, by list name, then by the frame read; null where
@@ -33,6 +38,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>> AnimationOperandSteps,
     IReadOnlyDictionary<string, int> TrailFramesAtListStart,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Placement?>> TrailPlacementsPastRecords,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
@@ -49,6 +55,62 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Pose">The name of a pose that animates by the later program.</param>
     /// <param name="Shift">How many frames after the earlier program it starts.</param>
     internal sealed record Continuation(string Pose, int Shift);
+
+    /// <summary>The step the animation reads at an operand's place: what the game does on reaching that frame (#1535).</summary>
+    /// <param name="Kind">What the step does.</param>
+    /// <param name="Ticks">A delay's ticks; null for any other kind.</param>
+    /// <param name="Frames">
+    /// The frames the step selects, in the program's own numbering: a repeat's one frame, or the wall-jump selection's
+    /// ordinary, Space Jump and Screw Attack frames; null for any other kind.
+    /// </param>
+    /// <param name="Items">The names of the items an item transition tests; null for any other kind.</param>
+    /// <param name="Poses">
+    /// The names of the poses a transition publishes: a plain or turn transition's one pose; an item transition's unequipped
+    /// and equipped poses; an item and vertical-speed transition's unequipped grounded, unequipped airborne, equipped
+    /// grounded and equipped airborne poses; a vertical-speed transition's grounded and airborne poses; null for any other
+    /// kind.
+    /// </param>
+    internal sealed record OperandStep(string Kind, int? Ticks, IReadOnlyList<int>? Frames, IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
+
+    /// <summary>What the step at an operand's place does, as the animation's handler for it does.</summary>
+    internal enum OperandStepKind
+    {
+        /// <summary>Holds the picture for its ticks, then moves on to the next frame.</summary>
+        Delay,
+
+        /// <summary>Keeps the frame and timer for a tick, then moves on to the next frame.</summary>
+        Hold,
+
+        /// <summary>Restarts the program when Samus is healthy, otherwise moves on to the next frame.</summary>
+        LoopUnlessLowEnergy,
+
+        /// <summary>Hands Samus's movement to the drained fall, then moves on to the next frame.</summary>
+        InstallDrainedFall,
+
+        /// <summary>Publishes a pose as a turn or landing does, unless the pose input chose a jump.</summary>
+        TurnTransition,
+
+        /// <summary>Publishes one of four poses by the tested items and whether Samus moves vertically.</summary>
+        ItemAirborneTransition,
+
+        /// <summary>Publishes one of two poses by whether Samus moves vertically.</summary>
+        VerticalSpeedTransition,
+
+        /// <summary>Selects the wall jump's ordinary, Space Jump or Screw Attack frames.</summary>
+        WallJumpSelect,
+
+        /// <summary>Publishes one of two poses by the tested items.</summary>
+        ItemTransition,
+
+        /// <summary>Publishes a pose.</summary>
+        Transition,
+
+        /// <summary>Goes back to an earlier frame.</summary>
+        Repeat,
+
+        /// <summary>Goes back to the program's first frame.</summary>
+        Restart,
+    }
 
     /// <summary>Where a trail's two sparkles start, as signed offsets from the projectile.</summary>
     /// <param name="Left">The left sparkle's offset.</param>

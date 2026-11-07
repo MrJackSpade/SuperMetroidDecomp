@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
@@ -382,34 +383,32 @@ public static class SaveRamCodec
     /// <summary>
     /// A slot's seven configurable bindings. They follow the four immutable D-pad words and are laid out by WRAM
     /// address rather than by the options-screen row order: cancel precedes select and aim-down precedes aim-up.
-    /// The words are taken unchecked so <see cref="ControllerBindings.RequireRetailPermutation"/> reports a corrupt
-    /// permutation verbatim.
+    /// Each word becomes buttons through <see cref="ControllerWordCodec"/>, which rejects bits no button produces;
+    /// <see cref="ControllerBindings.RequireRetailPermutation"/> then rejects a corrupt permutation.
     /// </summary>
-    [ButtonWordEncoding("SRAM stores each binding as its controller word")]
     private static ControllerBindings ReadControllerBindings(ReadOnlySpan<byte> payload) => new(
-        Shoot: (ControllerButton)ReadWord(payload, SaveRamLayout.ShootButtonOffset),
-        Jump: (ControllerButton)ReadWord(payload, SaveRamLayout.JumpButtonOffset),
-        Dash: (ControllerButton)ReadWord(payload, SaveRamLayout.DashButtonOffset),
-        ItemSelect: (ControllerButton)ReadWord(payload, SaveRamLayout.SelectButtonOffset),
-        ItemCancel: (ControllerButton)ReadWord(payload, SaveRamLayout.CancelButtonOffset),
-        AimUp: (ControllerButton)ReadWord(payload, SaveRamLayout.AimUpButtonOffset),
-        AimDown: (ControllerButton)ReadWord(payload, SaveRamLayout.AimDownButtonOffset));
+        Shoot: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.ShootButtonOffset), "save RAM shoot binding"),
+        Jump: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.JumpButtonOffset), "save RAM jump binding"),
+        Dash: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.DashButtonOffset), "save RAM dash binding"),
+        ItemSelect: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.SelectButtonOffset), "save RAM item-select binding"),
+        ItemCancel: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.CancelButtonOffset), "save RAM item-cancel binding"),
+        AimUp: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.AimUpButtonOffset), "save RAM aim-up binding"),
+        AimDown: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.AimDownButtonOffset), "save RAM aim-down binding"));
 
     /// <summary>The eleven controller words a slot stores: the four D-pad directions, then the bindings in WRAM order.</summary>
-    [ButtonWordEncoding("SRAM stores the button configuration as controller words")]
     private static ushort[] ButtonConfigurationWords(ControllerBindings bindings) =>
     [
-        (ushort)ControllerButton.Up,
-        (ushort)ControllerButton.Down,
-        (ushort)ControllerButton.Left,
-        (ushort)ControllerButton.Right,
-        (ushort)bindings.Shoot,
-        (ushort)bindings.Jump,
-        (ushort)bindings.Dash,
-        (ushort)bindings.ItemCancel,
-        (ushort)bindings.ItemSelect,
-        (ushort)bindings.AimDown,
-        (ushort)bindings.AimUp,
+        ControllerWordCodec.ToJoypadWord(ControllerButton.Up),
+        ControllerWordCodec.ToJoypadWord(ControllerButton.Down),
+        ControllerWordCodec.ToJoypadWord(ControllerButton.Left),
+        ControllerWordCodec.ToJoypadWord(ControllerButton.Right),
+        ControllerWordCodec.ToJoypadWord(bindings.Shoot),
+        ControllerWordCodec.ToJoypadWord(bindings.Jump),
+        ControllerWordCodec.ToJoypadWord(bindings.Dash),
+        ControllerWordCodec.ToJoypadWord(bindings.ItemCancel),
+        ControllerWordCodec.ToJoypadWord(bindings.ItemSelect),
+        ControllerWordCodec.ToJoypadWord(bindings.AimDown),
+        ControllerWordCodec.ToJoypadWord(bindings.AimUp),
     ];
 
     /// <summary>Reads one little-endian word.</summary>

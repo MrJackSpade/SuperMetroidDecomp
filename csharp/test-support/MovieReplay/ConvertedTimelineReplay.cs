@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
@@ -134,7 +135,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
             // The last controller read of an eliminated music wait is still input the
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)
-                Game.AcceptDoorMusicWaitControllerRead(ControllerWordCodec.FromRaw(latched, $"movie update {update} wait latch"));
+                Game.AcceptDoorMusicWaitControllerRead(ControllerWordCodec.FromJoypadWord(latched, $"movie update {update} wait latch"));
             NativeCheckpointMemory? nativeAfter = checkpoints.ReadAfter(update);
             // A dispatch that jumped into CommonBootSection has no checkpoint of its own, and
             // the clear erases the sound handler's waiting states before the next one. Both
@@ -146,7 +147,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
             // The host runs this update's input; a production failure in it is named after the update.
             pendingUpdate = update;
             pendingSourceFrame = step.SourceFrame;
-            yield return ControllerWordCodec.FromRaw(step.Input, $"movie update {update}");
+            yield return ControllerWordCodec.FromJoypadWord(step.Input, $"movie update {update}");
             pendingUpdate = null;
             uploadNmis.AssertSettled();
             // Bank $85's message box runs inside this dispatch on lag frames, polling the
@@ -177,7 +178,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
                 {
                     // The previous frame is complete; the host runs the box's next frame.
                     yield return null;
-                    yield return ControllerWordCodec.FromRaw(frameInputs[frame], $"movie frame {frame}");
+                    yield return ControllerWordCodec.FromJoypadWord(frameInputs[frame], $"movie frame {frame}");
                 }
                 if (step.MessageBoxEndFrame is { } nativeEnd)
                 {

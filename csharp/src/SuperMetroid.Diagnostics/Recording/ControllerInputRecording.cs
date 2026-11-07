@@ -4,6 +4,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.Configuration;
+using SuperMetroid.Diagnostics.Input;
 
 namespace SuperMetroid.Diagnostics.Recording;
 
@@ -48,7 +49,7 @@ public sealed record ControllerInputRecording
     /// enters the game, so a corrupt journal fails at the frame that holds the bad bits.
     /// </summary>
     /// <exception cref="InvalidDataException">The word holds bits no SNES controller produces.</exception>
-    public ControllerButton InputAt(int frame) => ControllerWordCodec.FromRaw(ControllerInputs[frame], $"replay frame {frame}");
+    public ControllerButton InputAt(int frame) => ControllerWordCodec.FromJoypadWord(ControllerInputs[frame], $"replay frame {frame}");
 
     /// <summary>Writes the compact, versioned recording to a stream.</summary>
     public void Write(Stream destination)

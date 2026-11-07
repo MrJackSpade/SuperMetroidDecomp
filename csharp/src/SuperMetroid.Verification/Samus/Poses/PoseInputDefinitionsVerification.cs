@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Diagnostics.Input;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -31,7 +32,7 @@ internal static class PoseInputDefinitionsVerification
             }
             AssertTrue(SamusPoseInputs.TryGetInputList(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
             AssertEqual(pointer, SamusPoseInputListNative.Address(actualPointer), "Native transition-list diagnostic identity");
-            AssertEqual(native.Count != 0, SamusPoseInputs.Match(actualPointer, (ControllerButton)ushort.MaxValue, (ControllerButton)ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
+            AssertEqual(native.Count != 0, SamusPoseInputs.Match(actualPointer, ControllerButtons.All, ControllerButtons.All).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
                 newMask |= native[i].New; heldMask |= native[i].Held;
@@ -40,29 +41,40 @@ internal static class PoseInputDefinitionsVerification
             nativeLists[poseIndex] = native;
         }
 
+        // Native conditions reference eight held bits and six rising-edge bits.
+        // Cover their complete cross product, including impossible edge/held pairs.
+        // Ignored buttons matter only to the initial no-input branch; test both
+        // representatives, not just the masked word. The joypad words become buttons once, here.
+        var heldInputs = new ControllerButton[256 * 2];
+        for (int held = 0; held < 256; held++)
+        for (int noise = 0; noise < 2; noise++)
+            heldInputs[held * 2 + noise] = ControllerWordCodec.FromJoypadWord((ushort)((held << 4) | (noise == 0 ? 0 : 0xf000)), "pose input held word");
+        var edgeInputs = new ControllerButton[64 * 2];
+        for (int pressed = 0; pressed < 64; pressed++)
+        for (int noise = 0; noise < 2; noise++)
+            edgeInputs[pressed * 2 + noise] = ControllerWordCodec.FromJoypadWord((ushort)((pressed << 6) | (noise == 0 ? 0 : 0xf030)), "pose input edge word");
+
         // Each pose's input domain runs on one worker; the lookup reads only immutable tables.
         ParallelSweep.For(0, 253, poseIndex =>
         {
             if (!SamusPoseNumbering.NamesPose(poseIndex)) return;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
             List<PoseInputDefinitionsNative> native = nativeLists[poseIndex];
-            // Native conditions reference eight held bits and six rising-edge bits.
-            // Cover their complete cross product, including impossible edge/held pairs.
-            // Ignored bits matter only to the initial raw-zero-input branch; test both
-            // representatives, not just the masked word.
+            ControllerButton[] nativeHeld = [.. native.Select(condition => ControllerWordCodec.FromJoypadWord(condition.Held, "native pose condition held word"))];
+            ControllerButton[] nativeNew = [.. native.Select(condition => ControllerWordCodec.FromJoypadWord(condition.New, "native pose condition new word"))];
             for (int held = 0; held < 256; held++)
             for (int pressed = 0; pressed < 64; pressed++)
             for (int noise = 0; noise < 4; noise++)
             {
-                ControllerButton input = (ControllerButton)((held << 4) | ((noise & 1) == 0 ? 0 : 0xf00f));
-                ControllerButton edges = (ControllerButton)((pressed << 6) | ((noise & 2) == 0 ? 0 : 0xf03f));
+                ControllerButton input = heldInputs[held * 2 + (noise & 1)];
+                ControllerButton edges = edgeInputs[pressed * 2 + ((noise & 2) >> 1)];
                 SamusPoseTransitionLookup expected;
                 if (input == 0) expected = new(null, true);
                 else
                 {
                     int match = -1;
                     for (int i = 0; i < native.Count; i++)
-                        if ((input & (ControllerButton)native[i].Held) == (ControllerButton)native[i].Held && (edges & (ControllerButton)native[i].New) == (ControllerButton)native[i].New)
+                        if ((input & nativeHeld[i]) == nativeHeld[i] && (edges & nativeNew[i]) == nativeNew[i])
                         { match = i; break; }
                     expected = match < 0 ? new(null, native.Count != 0)
                         : native[match].Target == SamusPoseNumbering.Number(pose) ? new(null, false)
@@ -82,7 +94,7 @@ internal static class PoseInputDefinitionsVerification
             SamusPoseId invalidPose = SamusPoseNumbering.FromNumber(pose);
             AssertTrue(!SamusPoseInputs.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
-                () => SamusPoseTransitionTable.Lookup(invalidPose, (ControllerButton)1, (ControllerButton)1),
+                () => SamusPoseTransitionTable.Lookup(invalidPose, ControllerButton.R, ControllerButton.R),
                 "Non-authored pose graph rejects adjacent code");
             AssertEqual(
                 new SamusPoseTransitionLookup(null, true),
@@ -109,12 +121,20 @@ internal static class PoseInputDefinitionsVerification
                 leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Lookup( forbidden, SamusPoseId.FacingLeftNormalPose, leftRight....")).ProspectivePose,
             "left-facing Left+Right uses the first native Right condition");
 
+        int buttonBits = ControllerWordCodec.ToJoypadWord(ControllerButtons.All);
+        var probeHeld = new ControllerButton[65536];
+        var probeEdges = new ControllerButton[65536];
+        for (int i = 0; i < 65536; i++)
+        {
+            probeHeld[i] = ControllerWordCodec.FromJoypadWord((ushort)(i & buttonBits), "allocation probe held word");
+            probeEdges[i] = ControllerWordCodec.FromJoypadWord((ushort)(~i & buttonBits), "allocation probe edge word");
+        }
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int accepted = 0;
         for (int i = 0; i < 65536; i++)
         {
             if (!SamusPoseNumbering.NamesPose(i % 253)) continue;
-            if (SamusPoseTransitionTable.Lookup(SamusPoseNumbering.FromNumber(i % 253), (ControllerButton)(ushort)i, (ControllerButton)(ushort)~i).Transition.HasValue) accepted++;
+            if (SamusPoseTransitionTable.Lookup(SamusPoseNumbering.FromNumber(i % 253), probeHeld[i], probeEdges[i]).Transition.HasValue) accepted++;
         }
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");

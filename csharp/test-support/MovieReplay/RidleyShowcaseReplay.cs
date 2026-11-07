@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using static SuperMetroid.TestSupport.MovieReplay.RidleySamusDrawReference;
 using SuperMetroid.AssetExtraction;
@@ -347,8 +348,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus Y", samus.Position.Y.Whole, NativeSnapshotMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, NativeSnapshotMemory.YFraction);
             Check("Samus pose", SamusPoseNumbering.Number(samus.Pose), NativeSnapshotMemory.Pose);
-            Check("PreviousDrawHeldInput", (ushort)samus.InputSnapshot.PreviousDrawHeldInput, NativeSnapshotMemory.SamusFilteredHeld);
-            Check("PreviousDrawNewInput", (ushort)samus.InputSnapshot.PreviousDrawNewInput, NativeSnapshotMemory.SamusFilteredNew);
+            Check("PreviousDrawHeldInput", ControllerWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawHeldInput), NativeSnapshotMemory.SamusFilteredHeld);
+            Check("PreviousDrawNewInput", ControllerWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawNewInput), NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
             Check("PreviousHealthForHurtCheck", SamusQuantity.Encode(samus.PreviousHealthForHurtCheck), NativeSnapshotMemory.SamusPreviousHealthForFlash);
             VerificationAssertions.AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,
@@ -1012,7 +1013,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
-                yield return ControllerWordCodec.FromRaw((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}");
+                yield return ControllerWordCodec.FromJoypadWord((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}");
             }
         }
         VerificationAssertions.AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");

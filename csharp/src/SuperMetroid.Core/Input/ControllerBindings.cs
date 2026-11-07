@@ -182,7 +182,7 @@ public readonly record struct ControllerBindings(
     /// A valid save checksum proves only that the slot was written consistently; it does
     /// not make malformed button bindings safe. Replacing a corrupt permutation with defaults
     /// used to hide both bad save data and translation bugs. The caller now gets the exact
-    /// seven words in the exception and can decide whether to delete or repair the save.
+    /// seven bindings in the exception and can decide whether to delete or repair the save.
     /// </remarks>
     public ControllerBindings RequireRetailPermutation()
     {
@@ -190,9 +190,9 @@ public readonly record struct ControllerBindings(
         {
             throw new InvalidDataException(
                 "Controller bindings are not a unique permutation of the seven retail " +
-                $"buttons: shoot=${Shoot:X}, jump=${Jump:X}, dash=${Dash:X}, " +
-                $"select=${ItemSelect:X}, cancel=${ItemCancel:X}, " +
-                $"aim-up=${AimUp:X}, aim-down=${AimDown:X}.");
+                $"buttons: shoot={Shoot}, jump={Jump}, dash={Dash}, " +
+                $"select={ItemSelect}, cancel={ItemCancel}, " +
+                $"aim-up={AimUp}, aim-down={AimDown}.");
         }
 
         return this;

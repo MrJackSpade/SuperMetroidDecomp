@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -167,8 +168,8 @@ internal static class NativeSnapshotImport
         samus.PendingTransitionShot = SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection));
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         samus.ResumeChargingBeamSound = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
-        samus.InputSnapshot.PreviousDrawHeldInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredHeld);
-        samus.InputSnapshot.PreviousDrawNewInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredNew);
+        samus.InputSnapshot.PreviousDrawHeldInput = ControllerWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredHeld), "native Samus filtered held input");
+        samus.InputSnapshot.PreviousDrawNewInput = ControllerWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredNew), "native Samus filtered new input");
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
         samus.PreviousHealthForHurtCheck = SamusQuantity.Decode(W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
         VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.SamusInputHandler) is
@@ -348,7 +349,7 @@ internal static class NativeSnapshotImport
         runtime.Hud.ImportNative(hudWords, samus, highlightedHudItem, (runtime.Artwork.MapPresentation ?? throw new InvalidDataException(
             "The native checkpoint requires the installed HUD artwork.")).GameplayHud);
         samus.PreviousHealthForHurtCheck = samus.Health;
-        runtime.Controller1.Latch((ControllerButton)W(NativeSnapshotMemory.HeldInput));
+        runtime.Controller1.Latch(ControllerWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

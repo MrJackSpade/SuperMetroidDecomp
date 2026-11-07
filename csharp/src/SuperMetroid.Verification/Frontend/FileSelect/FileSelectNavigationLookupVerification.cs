@@ -73,9 +73,9 @@ internal static class FileSelectNavigationLookupVerification
         // irrelevant controller bit set, cover the helper's input masking.
         foreach (ControllerButton direction in new[] { ControllerButton.None, ControllerButton.Up,
             ControllerButton.Down, ControllerButton.Up | ControllerButton.Down })
-        foreach (ushort otherBits in new ushort[] { 0, unchecked((ushort)~(ControllerButton.Up | ControllerButton.Down)) })
+        foreach (ControllerButton otherBits in new[] { ControllerButton.None, ControllerButtons.All & ~(ControllerButton.Up | ControllerButton.Down) })
         {
-            ControllerButton pressed = direction | (ControllerButton)otherBits;
+            ControllerButton pressed = direction | otherBits;
             for (int ordinal = 0; ordinal < original.Length; ordinal++)
             {
                 // Original MoveSubmenuSelection clamps an index into the filtered

@@ -201,18 +201,21 @@ public static class DebuggerSaveStateSmokeTest
                    contentIdentity))
         {
             recordingPath = recorder.Path;
-            recorder.RecordFrame((ControllerButton)0x1234);
+            recorder.RecordFrame(RecordedButtons);
         }
 
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
         if (!recording.RomSha256.SequenceEqual(SupportedCartridge.CreateSha256Digest()) ||
-            recording.ControllerInputs is not [0x1234] ||
+            recording.ControllerInputs.Length != 1 || recording.InputAt(0) != RecordedButtons ||
             recording.ContentIdentity is null)
         {
             throw new InvalidDataException(
                 "Installed recorder did not persist the verified source and selected-content identities.");
         }
     }
+
+    /// <summary>The buttons the installed recorder check records and reads back.</summary>
+    private const ControllerButton RecordedButtons = ControllerButton.R | ControllerButton.L | ControllerButton.Left | ControllerButton.Start;
 
     /// <summary>Provides a named generic method whose identity can be compared after debugger-state serialization.</summary>
     private static T Identity<T>(T value) => value;

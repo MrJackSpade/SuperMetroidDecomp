@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -1527,13 +1528,15 @@ internal static class LookupStream4Verification
     /// <summary>Checks message dispatch IDs and their cartridge table positions.</summary>
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
+        int buttonBits = ControllerWordCodec.ToJoypadWord(ControllerButtons.All);
         for (int bits = 0; bits <= ushort.MaxValue; bits++)
         {
+            ControllerButton held = ControllerWordCodec.FromJoypadWord((ushort)(bits & buttonBits), "message dispatch word");
             int winner = 0;
             while (winner < 7 && (bits & CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8583d5 + winner * 8))) == 0) winner++;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858426 + 2 * winner));
-            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyph((ControllerButton)bits).PackedWord, "Native BIT order and all button glyph attributes, encoded through the codec");
-            AssertEqual(expected, GameplayMessageTilemapDefinitions.Glyphs[GameplayMessageButtons.Shown((ControllerButton)bits)].PackedWord,
+            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyph(held).PackedWord, "Native BIT order and all button glyph attributes, encoded through the codec");
+            AssertEqual(expected, GameplayMessageTilemapDefinitions.Glyphs[GameplayMessageButtons.Shown(held)].PackedWord,
                 "The button the game names for a binding retains first-match precedence");
         }
         GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
@@ -1560,7 +1563,7 @@ internal static class LookupStream4Verification
                 continue;
             // The panel names the button its binding's glyph shows; every other cell is the panel's own.
             BackgroundTile[] template = panels.Build(id);
-            BackgroundTile[] cells = panelMessages.Tiles(new ShownMessage(id, GameplayMessageButtons.Shown((ControllerButton)ushort.MaxValue), null));
+            BackgroundTile[] cells = panelMessages.Tiles(new ShownMessage(id, GameplayMessageButtons.Shown(ControllerButtons.All), null));
             for (int index = 0; index < cells.Length; index++)
                 AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : template[index].PackedWord, cells[index].PackedWord,
                     "Actual button patch preserves every neighboring cell of the panel");

@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -25,7 +26,7 @@ internal static class ElevatorInputDefinitionsVerification
         {
             ushort tableByteOffset = (ushort)(direction * 2);
             ElevatorTravelDirection travel = direction == 0 ? ElevatorTravelDirection.Down : ElevatorTravelDirection.Up;
-            ControllerButton native = (ControllerButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
+            ControllerButton native = ControllerWordCodec.FromJoypadWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
 
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
@@ -44,7 +45,7 @@ internal static class ElevatorInputDefinitionsVerification
             AssertEqual(travel, elevator.Direction,
                 $"elevator parameter {direction} travels {travel}");
 
-            ControllerButton opposite = (ControllerButton)(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
+            ControllerButton opposite = ControllerWordCodec.FromJoypadWord(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))), "native opposite elevator mask");
             ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
             wait(slot, elevator, samus, opposite, null);
@@ -71,7 +72,7 @@ internal static class ElevatorInputDefinitionsVerification
         for (int entry = 0; entry < tableOrder.Length; entry++)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa394e2 + entry * 2);
-            AssertEqual((ControllerButton)native, ElevatorActorDefinitions.RequiredDirectionInputs[tableOrder[entry]], "elevator named direction matches native mask");
+            AssertEqual(ControllerWordCodec.FromJoypadWord(native, "native elevator direction mask"), ElevatorActorDefinitions.RequiredDirectionInputs[tableOrder[entry]], "elevator named direction matches native mask");
         }
     }
 

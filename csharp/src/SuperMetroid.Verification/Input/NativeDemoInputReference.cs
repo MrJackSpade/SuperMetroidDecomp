@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Verification.Input;
@@ -153,8 +154,8 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// <summary>A typed object's words: its cursor as the native instruction pointer and its buttons as joypad words.</summary>
     internal static string Of(DemoInputState state) =>
         $"{state.Enabled}/{DemoInputNativeListAddresses.FrameBehaviorAddress(state.FrameBehavior)}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
-        $"{state.FrameHold.RawValue}/{state.Timer.RawValue}/{(ushort)state.Held}/{(ushort)state.NewlyPressed}/{(ushort)state.PreviousHeld}/" +
-        $"{(ushort)state.PreviousNewlyPressed}/{(ushort)state.PublishedPreviousHeld}/{(ushort)state.PublishedPreviousNewlyPressed}";
+        $"{state.FrameHold.RawValue}/{state.Timer.RawValue}/{ControllerWordCodec.ToJoypadWord(state.Held)}/{ControllerWordCodec.ToJoypadWord(state.NewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
+        $"{ControllerWordCodec.ToJoypadWord(state.PreviousNewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousHeld)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
 
     /// <summary>A pre-instruction for an object whose owner runs none: only the return-only routines may be installed.</summary>
     internal static void ReturnOnly(NativeDemoInputReference _, ushort frameBehavior)

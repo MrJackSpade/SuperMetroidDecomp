@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using System.Diagnostics;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Desktop.Input;
@@ -40,7 +41,7 @@ internal static class LiveGamepadProbe
                 var sample = pad.LastSnapshot;
                 Console.WriteLine($"{clock.ElapsedMilliseconds},{pad.DeviceName ?? "disconnected"}," +
                     $"{sample.Stick.X},{sample.Stick.Y},{sample.PointOfView}," +
-                    $"{sample.Buttons:X8},{(ushort)mapped:X4}");
+                    $"{sample.Buttons:X8},{ControllerWordCodec.ToJoypadWord(mapped):X4}");
                 previous = current;
             }
             Thread.Sleep(10);

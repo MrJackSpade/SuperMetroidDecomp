@@ -60,7 +60,11 @@ internal static class ShitroidGradualAccelerationVerification
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new VerifyShitroidDrainCarryCase[]
-            { new VerifyShitroidDrainCarryCase(5, 0x01c4, 2), new VerifyShitroidDrainCarryCase(1, 0x01c3, 1) })
+            {
+                new VerifyShitroidDrainCarryCase(5, 0x01c4, 2), new VerifyShitroidDrainCarryCase(1, 0x01c3, 1),
+                // A rise slowed past zero (#1562): CMP #4 still sets the carry, but BMI sees a negative difference and keeps the speed.
+                new VerifyShitroidDrainCarryCase(0xffff, 0x01c4, 0xffff),
+            })
         {
             state.Function = ShitroidAiFunction.DrainSamus;
             state.Velocity = default;

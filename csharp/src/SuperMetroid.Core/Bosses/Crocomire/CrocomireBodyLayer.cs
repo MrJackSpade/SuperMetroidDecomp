@@ -39,9 +39,12 @@ internal sealed class CrocomireBodyLayer
         tongue.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>His body shows <paramref name="frame"/> from now on in place of whatever it showed (#1355, #1515), as a melt image replaces it.</summary>
-    internal void ShowCrocomireBodyFrame(CrocomireEnemyState state, BossBodyFrame frame) =>
-        _presentation.RequireBossBody().Show(state.Body.DefinitionId, frame);
+    /// <summary>
+    /// His body shows <paramref name="frame"/> from now on in place of whatever it showed (#1355, #1515, #1540), as a melt
+    /// image replaces it: his body is the one part he draws on it.
+    /// </summary>
+    internal void ShowCrocomireBodyFrame(BossBodyFrame frame) =>
+        _presentation.RequireBossBody().Show(EnemyDefinitionId.Crocomire, frame);
 
     /// <summary>His body shows nothing from now on, until a frame is shown on it again (#1515).</summary>
     internal void ClearCrocomireBody() => _presentation.RequireBossBody().Clear();

@@ -53,7 +53,7 @@ internal sealed class CrocomireMelting
             tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + 16)));
         }
 
-        ShowCrocomireMeltingImage(state, CrocomireMeltingIllustration.First);
+        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.First);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ internal sealed class CrocomireMelting
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
         StartCrocomireMeltingBodyProgram(state, CrocomireBodyProgram.MeltingTwoTopRow);
-        ShowCrocomireMeltingImage(state, CrocomireMeltingIllustration.Second);
+        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
     }
 
     /// <summary>
@@ -85,8 +85,8 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>Shows melt image <paramref name="illustration"/> as his whole body, in place of the body frame it showed (#1515).</summary>
-    private void ShowCrocomireMeltingImage(CrocomireEnemyState state, CrocomireMeltingIllustration illustration) =>
-        _bodyLayer.ShowCrocomireBodyFrame(state, RequireCrocomireMeltingImage(illustration));
+    private void ShowCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
+        _bodyLayer.ShowCrocomireBodyFrame(RequireCrocomireMeltingImage(illustration));
 
     /// <summary>
     /// Begins <paramref name="pass"/>'s melt: resets the background scroll table and the distortion, and starts
@@ -175,7 +175,7 @@ internal sealed class CrocomireMelting
         state.Body.Position = state.Body.Position.WithWholeX(
             death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0));
 
-        EraseNextCrocomireMeltingColumn(state);
+        EraseNextCrocomireMeltingColumn();
 
         // The melting's end places his body layer again, which also moves the tongue onto the body.
         _bodyLayer.PlaceCrocomireBodyLayer(state);
@@ -201,7 +201,7 @@ internal sealed class CrocomireMelting
     /// band at the new step, starting the bands over after the last, and his body shows the whole melt image as the step
     /// leaves it (#1513). Once every column is erased it shows nothing more, while the distortion runs on to its end.
     /// </summary>
-    internal void EraseNextCrocomireMeltingColumn(CrocomireEnemyState state)
+    internal void EraseNextCrocomireMeltingColumn()
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (death.MeltColumnsErased == CrocomireMeltingDefinitions.ColumnCount)
@@ -210,7 +210,7 @@ internal sealed class CrocomireMelting
         if (death.NextMeltBand == BandCount(death.MeltPass))
             death.NextMeltBand = 0;
         ShowMeltBand(death, death.NextMeltBand++);
-        _bodyLayer.ShowCrocomireBodyFrame(state, _bossArtwork.Body(BossBodyOwner.Crocomire)
+        _bodyLayer.ShowCrocomireBodyFrame(_bossArtwork.Body(BossBodyOwner.Crocomire)
             .Frame(CrocomireMeltingFrameNames.Of(death.MeltPass, death.MeltColumnsErased)));
     }
 

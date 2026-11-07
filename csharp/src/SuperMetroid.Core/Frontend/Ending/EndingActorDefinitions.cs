@@ -90,26 +90,6 @@ internal static class EndingActorDefinitions
     /// <summary>The colouring the clear time's digits draw in, as the colon does.</summary>
     internal const EndingSpriteColouring ClearTimeDigitColouring = EndingSpriteColouring.ClearTimeDigits;
 
-    /// <summary>The escapes' clouds: the first escape's four and the second's four (#1513).</summary>
-    internal static readonly EndingSpriteDefinition[] EscapeClouds =
-    [
-        EscapeACloudRightTop, EscapeACloudLeftTop, EscapeACloudRightBottom, EscapeACloudLeftBottom,
-        EscapeBCloudTopA, EscapeBCloudTopB, EscapeBCloudBottomA, EscapeBCloudBottomB,
-    ];
-
-    /// <summary>The planet explosion's actors: the planet, its lava, glow, stars and silhouette, the side stars and the afterglow (#1513).</summary>
-    internal static readonly EndingSpriteDefinition[] ExplosionActors =
-    [
-        ExplodingZebes, ExplosionLava, ExplosionGlow, ExplosionStars, ExplosionSilhouette, ExplosionStarsRight, ExplosionStarsLeft,
-        ExplosionAfterglow,
-    ];
-
-    /// <summary>The result text's actors: the completion message's two lines, the clear-time label and its colon (#1513).</summary>
-    internal static readonly EndingSpriteDefinition[] ResultTextActors =
-    [
-        OperationWasText, CompletedSuccessfullyText, ClearTimeText, ClearTimeColon,
-    ];
-
     /// <summary>The suitless reward's idle actors, its body then its legs.</summary>
     internal static readonly EndingSpriteDefinition[] SuitlessRewardIdle = [SuitlessRewardBody, SuitlessRewardLegs];
 

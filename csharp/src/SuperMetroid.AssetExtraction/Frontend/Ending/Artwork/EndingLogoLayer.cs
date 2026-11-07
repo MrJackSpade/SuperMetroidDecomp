@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>One of the ending logo's two colour layers, which its crossfade moves in opposite directions.</summary>
 internal enum EndingLogoLayer

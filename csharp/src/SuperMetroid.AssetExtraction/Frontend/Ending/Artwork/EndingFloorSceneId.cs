@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The three mutually exclusive turning-floor ending backdrops.</summary>
 public enum EndingFloorSceneId

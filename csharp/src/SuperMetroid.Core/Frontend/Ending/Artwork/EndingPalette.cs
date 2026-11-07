@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public sealed class EndingPalette
 {
     /// <summary>The colours of the logo crossfade's layers at one step.</summary>
-    private const int CrossfadeLayerColours = 16;
+    internal const int CrossfadeLayerColours = 16;
 
     /// <summary>The logo crossfade's colours: every step's background colours, then its sprite colours.</summary>
     private const int CrossfadeColours = EndingLogoDefinitions.PaletteSteps * 2 * CrossfadeLayerColours;
@@ -20,7 +20,7 @@ public sealed class EndingPalette
     /// <summary>The colours in resource order.</summary>
     internal readonly ImmutableArray<RgbColor> colours;
     /// <summary>What the colours are: a whole screen's, a run's or the logo crossfade's.</summary>
-    private readonly Kind kind;
+    internal readonly Kind kind;
 
     /// <summary>Keeps a whole screen's, a run's or the logo crossfade's decoded colours.</summary>
     /// <param name="colours">
@@ -29,7 +29,7 @@ public sealed class EndingPalette
     /// </param>
     /// <param name="kind">What the colours are.</param>
     /// <exception cref="ArgumentException">A whole screen's or the crossfade's colours are not as many as it holds.</exception>
-    private EndingPalette(ImmutableArray<RgbColor> colours, Kind kind)
+    internal EndingPalette(ImmutableArray<RgbColor> colours, Kind kind)
     {
         if (colours.IsDefault || (kind == Kind.Screen && colours.Length != 2 * SpriteImage.SpriteColourCount)
             || (kind == Kind.LogoCrossfade && colours.Length != CrossfadeColours))
@@ -47,53 +47,18 @@ public sealed class EndingPalette
     {
     }
 
-    /// <summary>The logo crossfade's decoded colours: its steps in order, each step's background colours before its sprite colours.</summary>
-    /// <exception cref="ArgumentException">The colours are not every step's.</exception>
-    internal static EndingPalette LogoCrossfade(ImmutableArray<RgbColor> colours) => new(colours, Kind.LogoCrossfade);
-
-    /// <summary>Whether this resource is a whole screen's colours.</summary>
-    public bool IsScreen => kind == Kind.Screen;
-
-    /// <summary>
-    /// The colours in resource order: a whole screen's background colours, then its sprite colours; a run's in order; the
-    /// crossfade's steps in order, each step's background colours before its sprite colours.
-    /// </summary>
-    public ImmutableArray<RgbColor> Colours => colours;
-
-    /// <summary>A whole screen's sprite colours.</summary>
-    /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
-    public ReadOnlySpan<RgbColor> Sprites => RequireScreen().AsSpan(SpriteImage.SpriteColourCount, SpriteImage.SpriteColourCount);
-
     /// <summary>The solid colour a whole screen shows behind every layer once it is loaded: its first background colour.</summary>
     /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
     public RgbColor Backdrop => RequireScreen()[0];
 
-    /// <summary>The logo crossfade's colour <paramref name="colour"/> of <paramref name="layer"/> at crossfade step <paramref name="step"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The step, layer or colour is outside the crossfade.</exception>
-    /// <exception cref="InvalidOperationException">This resource is not the logo crossfade.</exception>
-    internal RgbColor LogoCrossfadeColour(int step, EndingLogoLayer layer, int colour)
-    {
-        if (kind != Kind.LogoCrossfade)
-            throw new InvalidOperationException("Only the logo crossfade is read by step and layer.");
-        Ensure.BetweenInclusive(0, EndingLogoDefinitions.PaletteSteps - 1, step);
-        Ensure.BetweenInclusive(0, CrossfadeLayerColours - 1, colour);
-        int place = layer switch
-        {
-            EndingLogoLayer.Background => 0,
-            EndingLogoLayer.Sprites => 1,
-            _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined logo layer."),
-        };
-        return colours[(step * 2 + place) * CrossfadeLayerColours + colour];
-    }
-
     /// <summary>The whole screen's colours.</summary>
     /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
-    private ImmutableArray<RgbColor> RequireScreen() => kind == Kind.Screen
+    internal ImmutableArray<RgbColor> RequireScreen() => kind == Kind.Screen
         ? colours
         : throw new InvalidOperationException("This ending palette is not a whole screen's colours.");
 
     /// <summary>What an ending colour resource holds.</summary>
-    private enum Kind
+    internal enum Kind
     {
         /// <summary>A whole screen's colours.</summary>
         Screen,

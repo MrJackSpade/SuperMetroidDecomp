@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -18,6 +19,15 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingScreenShades
 {
+    /// <summary>Every palette object the ending spawns, whose records the ending's sheets are pre-coloured in (#1512).</summary>
+    private static readonly PaletteFxObject[] PaletteFxObjects =
+    [
+        EndingPaletteFxDefinitions.FadePlanet, EndingPaletteFxDefinitions.Supernova, EndingPaletteFxDefinitions.SupernovaFinale,
+        EndingPaletteFxDefinitions.Explosion, EndingPaletteFxDefinitions.Lava, EndingPaletteFxDefinitions.Crust,
+        EndingPaletteFxDefinitions.GreyClouds, EndingPaletteFxDefinitions.WideExplosion, EndingPaletteFxDefinitions.PlanetAfterglow,
+        EndingPaletteFxDefinitions.GunshipEmergence, EndingLogoDefinitions.LandingPaletteFx,
+    ];
+
     /// <summary>Every shade of the ending's screen colours, coloured from <paramref name="palettes"/> and <paramref name="paletteFx"/>.</summary>
     /// <param name="palettes">The ending's installed colours.</param>
     /// <param name="paletteFx">The palette effects' installed colours.</param>
@@ -69,7 +79,7 @@ internal static class EndingScreenShades
             shades.Add(new SheetShade(EndingShades.LogoCrossfade(step), EndingScreenInks.LogoCrossfade, colours));
         }
         // Every record any ending object can show, over the colours its group writes.
-        foreach ((PaletteFxColours group, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy(EndingPaletteFxDefinitions.Objects))
+        foreach ((PaletteFxColours group, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy(PaletteFxObjects))
             shades.Add(PaletteFxRecordShades.Shade(group, record, EndingScreenInks.PaletteFx(group), paletteFx));
         return shades;
     }

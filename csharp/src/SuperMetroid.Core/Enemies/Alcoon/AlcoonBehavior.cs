@@ -120,7 +120,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
-    /// <summary>Ports <c>MainAI_Alcoon</c> and all seven indirect targets.</summary>
+    /// <summary>Runs Alcoon's per-frame behaviour through all seven of its functions.</summary>
     private void RunAlcoonMain(
         RoomEnemySlot slot,
         AlcoonEnemyState state,

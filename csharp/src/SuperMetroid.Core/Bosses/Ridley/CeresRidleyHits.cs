@@ -75,7 +75,7 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Executes the non-area-two half of <c>EnemyShot_Ridley</c> after the projectile
+    /// Executes the non-Norfair half of Ridley's shot reaction after the projectile
     /// collision has accepted and marked an overlapping projectile. Both the ordinary-shot and
     /// physical normal-bomb walkers dispatch this exact callback; keeping the reaction here
     /// prevents those two collision owners from acquiring subtly different cinematic rules.
@@ -144,7 +144,7 @@ internal sealed class CeresRidleyHits
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common overlap.</summary>
     internal void AddCeresRidleyBombReactions(EnemySharedReactions table)
     {
-        // EnemyShot_Ridley branches on area index before it ever reaches common vulnerability damage. Ceres therefore
+        // Ridley's shot reaction branches on area index before it ever reaches common vulnerability damage. Ceres therefore
         // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the 
         // walker has already marked the physical bomb, while Ridley alternates hurt timing and advances the 100-hit
         // escape condition.

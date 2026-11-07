@@ -74,7 +74,7 @@ internal sealed class WreckedShipTreadmillObjects : IRoomObjectFamilySource
 
     /// <summary>
     /// Spawns the effectively invisible elevatube PLM at (1,0). Its ordinary
-    /// instruction list supplies a sixteen-frame delay, queues library-two sound $15, and
+    /// instruction list supplies a sixteen-frame delay, queues the elevatube sound, and
     /// deletes; the shared interpreter already owns each of those operations.
     /// </summary>
     /// <returns>False only when all forty PLM slots are occupied.</returns>

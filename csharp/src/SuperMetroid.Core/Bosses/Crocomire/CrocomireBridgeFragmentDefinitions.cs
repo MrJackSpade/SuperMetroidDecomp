@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireBridgeFragmentDefinitions
 {
     /// <summary>
-    /// <c>MainAI_Crocomire_DeathSequence_2_Falling.XPositions</c>.
+    /// The bridge columns of Crocomire's fall, in the order they crumble.
     /// The collapse steps through it one fragment at a time.
     /// </summary>
     /// <remarks>

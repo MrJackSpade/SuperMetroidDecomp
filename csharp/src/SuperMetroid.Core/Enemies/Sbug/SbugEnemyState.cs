@@ -58,13 +58,13 @@ public sealed class SbugEnemyState
     public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }
     /// <summary>Spawn-computed unsigned 16.16 vertical magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public UnsignedSixteenSixteen ForwardYVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle - $20</c>, used by the left zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>
     public SignedSixteenSixteen LeftXVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle - $20</c>, used by the left zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>
     public SignedSixteenSixteen LeftYVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle + $20</c>, used by the right zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightXVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + $20</c>, used by the right zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightYVelocity { get; internal set; }
     /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
     public SignedSixteenSixteen CustomXVelocity { get; internal set; }

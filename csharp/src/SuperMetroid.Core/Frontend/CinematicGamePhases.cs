@@ -73,7 +73,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         if (destruction.Finished)
         {
             // CADF forces blank and publishes state six. The loader's special
-            // `$22` branch—not cinematic code—selects area zero/station eighteen.
+            // Ceres-destruction branch, not cinematic code, selects area zero/station eighteen.
             session.RouteLoading(SaveLoadingGameState.CeresDestruction);
             session.GameState = SuperMetroidGameState.LoadingGameData;
             session.display.PublishBlack();

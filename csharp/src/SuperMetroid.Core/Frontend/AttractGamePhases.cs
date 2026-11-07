@@ -43,8 +43,8 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 break;
 
             case SuperMetroidGameState.TransitionToDemoB:
-                // State $29 runs one gameplay frame before revealing the room. Its
-                // extra frame does not decrement the state-$2A demo countdown.
+                // The demo's transition state runs one gameplay frame before revealing the room. Its
+                // extra frame does not decrement the demo-playing state's countdown.
                 session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(session.GameplayRuntime) });
                 session.display.PublishGameplay(session.GameplayRuntime);
                 session.GameState = SuperMetroidGameState.PlayingDemo;

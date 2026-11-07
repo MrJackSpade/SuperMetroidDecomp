@@ -20,7 +20,7 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemySlot slot, Ene
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceBoyonAnimation;
 
-    /// <summary>Ports <c>MainAI_Boyon</c>.</summary>
+    /// <summary>Runs a Boyon's per-frame behaviour.</summary>
     private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         BoyonBehavior.RunBoyonMain(slot, slot.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
 }

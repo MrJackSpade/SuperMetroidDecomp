@@ -57,7 +57,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>
-    /// Ports <c>InitAI_KraidNail_Common</c>. Unlike the other parts it has no
+    /// Sets a fingernail up when the room spawns it. Unlike the other parts it has no
     /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
     /// deleting themselves only once slot zero's health reads below one.
     /// </summary>

@@ -170,7 +170,7 @@ internal sealed class RidleyTail
         if (state.FacingDirection == RidleyFacing.Left)
         {
             // Facing-left Ridley cannot aim through his own body. Angles inside the
-            // forbidden forward interval clamp to $E8 before expansion.
+            // forbidden forward interval clamp to angle 232 before expansion.
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardEnd;
             int target = CoordinateAxis.Wrap(RidleyTailDefinitions.LeftWhipTargetBase + targetByte - additional);
@@ -488,7 +488,7 @@ internal sealed class RidleyTail
             projectile.Position = projectile.Position.WithWhole(joint.Position);
             projectile.IsSpent = true;
 
-            // A missile gets the tiny dud and library-one sound $3D. Beams and supers
+            // A missile gets the tiny dud and the dud-shot sound. Beams and supers
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.
             bool missile = projectile.Type.Family == SamusProjectileFamily.Missile;
             MiscDustAnimation dustVariant = missile ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;

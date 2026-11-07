@@ -11,6 +11,6 @@ internal enum BotwoonBodyFunction
     DyingDelay,
     /// <summary>Enemy projectile behaviour: botwoons body, dying, falling.</summary>
     Falling,
-    /// <summary><c>RTS_86EB93</c>, the inert state after a body segment lands.</summary>
+    /// <summary>The inert state after a body segment lands.</summary>
     Landed,
 }

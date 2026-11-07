@@ -125,7 +125,7 @@ public sealed class DraygonEnemyState
     /// <summary>Long facing word: zero left, one right.</summary>
     public bool FacingRight { get; internal set; }
 
-    /// <summary>Number of physical object-$18 breath bubbles admitted during a swoop.</summary>
+    /// <summary>Number of breath-bubble projectiles admitted during a swoop.</summary>
     public int BreathBubblesSpawned { get; internal set; }
 
     /// <summary>
@@ -202,7 +202,7 @@ public sealed class DraygonEnemyState
     /// <summary>Set when the init routine schedules the intro Evirs' tiles.</summary>
     public bool IntroEvirGraphicsLoaded { get; internal set; }
 
-    /// <summary>Number of physical object-$3B intro Evirs admitted to the shared pool.</summary>
+    /// <summary>Number of intro Evir projectiles admitted to the shared pool.</summary>
     public int IntroEvirsSpawned { get; internal set; }
 
     /// <summary>Number of exact 64-frame turret-selection RNG draws observed.</summary>

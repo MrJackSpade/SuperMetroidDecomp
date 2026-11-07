@@ -60,7 +60,7 @@ internal static class MotherBrainFakeDeathDraws
     }
 
     /// <summary>
-    /// Twelve horizontal thirteen-cell rows at 84:9505..966C, spaced thirty
+    /// Twelve horizontal thirteen-cell rows of the fake-death background draw, spaced thirty
     /// bytes apart. Top/bottom rows are slopes; interior rows are air.
     /// Appearances remain independent from these physical boundaries.
     /// </summary>
@@ -86,7 +86,7 @@ internal static class MotherBrainFakeDeathDraws
     }
 
     /// <summary>
-    /// 84:94A3/94B1: a three-cell wall centered on the origin, or a two-column
+    /// The wall-fill and escape-door draws: a three-cell wall centered on the origin, or a two-column
     /// four-cell door. Both use vertical runs.
     /// </summary>
     internal readonly record struct BoundaryDraw(MotherBrainFakeDeathDraw Frame)

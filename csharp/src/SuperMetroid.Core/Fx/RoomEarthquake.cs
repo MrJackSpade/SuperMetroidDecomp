@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The room's earthquake: the shared wrapping shake timer and type that actors and effects write, the projectile
-/// displacement they imply, and the per-frame background displacement <c>Handle_Room_Shaking</c> consumes.
+/// displacement they imply, and the per-frame background displacement the room-shaking step consumes.
 /// </summary>
 internal sealed class RoomEarthquake
 {
@@ -67,7 +67,7 @@ internal sealed class RoomEarthquake
         LastRoomShake = default;
 
         // Hardware leaves both the timer and scroll words untouched while time is frozen.
-        // Types $24+ are also deliberately ignored; their values are outside the 36-entry
+        // Types 36+ are also deliberately ignored; their values are outside the 36-entry
         // displacement table and are owned by other effects rather than room shaking.
         if (EarthquakeTimer.IsZero ||
             timeIsFrozen ||
@@ -88,7 +88,7 @@ internal sealed class RoomEarthquake
 
         EarthquakeTimer = EarthquakeTimer.Decrement().Remaining;
         LastRoomShake = new RoomShakeFrameResult(foreground, background);
-        // Types $12-$23 shake every actor selected by DetermineWhichEnemiesToProcess.
+        // Types 18-35 shake every actor the enemy pass processes.
         return EarthquakeType >= RoomEarthquakeDefinitions.FirstEnemyShakingType;
     }
 }

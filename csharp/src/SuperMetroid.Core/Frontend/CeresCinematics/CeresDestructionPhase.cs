@@ -13,7 +13,7 @@ internal enum CeresDestructionPhase
     FlyingAwayFromExplosion,
     /// <summary>Holds the explosion scene for its authored post-flight interval.</summary>
     HoldAfterExplosion,
-    /// <summary>Darkens Ceres before Zebes reveal or the state-$25 game-over exit.</summary>
+    /// <summary>Darkens Ceres before Zebes reveal or the game-over exit with Samus aboard.</summary>
     FadeOutCeres,
     /// <summary>Transfers the planet-reveal art on the following dispatcher call.</summary>
     FlyToZebesInitial,

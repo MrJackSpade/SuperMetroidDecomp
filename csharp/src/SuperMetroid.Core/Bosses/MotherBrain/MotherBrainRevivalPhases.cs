@@ -132,8 +132,8 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWalkUpToBaby(MotherBrainRainbowBeamStepRequests requests)
     {
-        // Once `$80` underflows, the timer deliberately remains negative and the
-        // helper is retried after every body-program call until X has overshot `$50`.
+        // Once the 128-count timer underflows, the timer deliberately remains negative and the
+        // helper is retried after every body-program call until X has overshot 80.
         if (--_state.FunctionTimer < 0)
         {
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 4).Requested;
@@ -222,7 +222,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhasePrepareForFinalBabyAttack(MotherBrainRainbowBeamStepRequests requests)
     {
         // This function has no state transition. It requests stand-up and a
-        // fast backward walk toward `$40` every call until the Baby overwrites it.
+        // fast backward walk toward X 64 every call until the Baby overwrites it.
         _state.MakeBodyStandUp(out bool postureRequested);
         requests.BodyPostureRequested = postureRequested;
         requests.BodyWalkRequested |= _state.RequestWalkBackward(64, 4).Requested;

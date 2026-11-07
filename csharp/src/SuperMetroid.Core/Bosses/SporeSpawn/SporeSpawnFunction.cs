@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 public enum SporeSpawnFunction
 {
-    /// <summary><c>RTS_A5EB1A</c>; performs no main-AI movement while instruction lists control the idle or open phase.</summary>
+    /// <summary>Performs no main-AI movement while instruction lists control the idle or open phase.</summary>
     Idle = 1,
     /// <summary>Lowers the body one room pixel per AI update until Y reaches 624 and installs the fight-start list.</summary>
     Descending,

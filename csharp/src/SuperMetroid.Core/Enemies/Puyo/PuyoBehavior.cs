@@ -71,7 +71,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
     }
 
-    /// <summary>Ports <c>MainAI_Puyo</c> and its indirect top-level dispatch.</summary>
+    /// <summary>Runs a Puyo's per-frame behaviour and its top-level function dispatch.</summary>
     private void RunPuyoMain(
         RoomEnemySlot slot,
         PuyoEnemyState state,

@@ -11,21 +11,21 @@ public enum KraidSinkCallback
     /// </summary>
     NoOperation,
 
-    /// <summary><c>CrumbleLeftPlatform_Left</c>.</summary>
+    /// <summary>Crumbles the left platform's left block.</summary>
     CrumbleLeftPlatformLeft,
 
-    /// <summary><c>CrumbleRightPlatform_Middle</c>.</summary>
+    /// <summary>Crumbles the right platform's middle block.</summary>
     CrumbleRightPlatformMiddle,
 
-    /// <summary><c>CrumbleRightPlatform_Left</c>.</summary>
+    /// <summary>Crumbles the right platform's left block.</summary>
     CrumbleRightPlatformLeft,
 
-    /// <summary><c>CrumbleLeftPlatform_Right</c>.</summary>
+    /// <summary>Crumbles the left platform's right block.</summary>
     CrumbleLeftPlatformRight,
 
-    /// <summary><c>CrumbleLeftPlatform_Middle</c>.</summary>
+    /// <summary>Crumbles the left platform's middle block.</summary>
     CrumbleLeftPlatformMiddle,
 
-    /// <summary><c>CrumbleRightPlatform_Right</c>.</summary>
+    /// <summary>Crumbles the right platform's right block.</summary>
     CrumbleRightPlatformRight,
 }

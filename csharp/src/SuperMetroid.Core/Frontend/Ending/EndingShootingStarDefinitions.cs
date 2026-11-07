@@ -7,7 +7,7 @@ internal static class EndingShootingStarDefinitions
 {
     /// <summary>The colouring every star draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.ShootingStars;
-    /// <summary>Initialize_ShootingStars creates forty sixteen-byte records.</summary>
+    /// <summary>The shooting-star setup creates forty records.</summary>
     internal const int Count = 40;
     /// <summary>Initialization and reset put both coordinates at the screen center.</summary>
     internal const int Origin = 128;
@@ -19,7 +19,7 @@ internal static class EndingShootingStarDefinitions
     internal const int SpriteOffset = 4;
     /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>
     internal static Offset16<ScreenPixels> SpriteCenter => new(CoordinateAxis.AsSigned(SpriteOffset), CoordinateAxis.AsSigned(SpriteOffset));
-    /// <summary>ShootingStar_Table: X/Y acceleration, animation period, initial delay.</summary>
+    /// <summary>The shooting stars: X/Y acceleration, animation period, initial delay.</summary>
     private static readonly EndingShootingStarDefinition[] records = [
         new(new(16, -16), 6, 8), new(new(12, -1), 6, 0), new(new(13, -10), 6, 6), new(new(8, -16), 6, 0),
         new(new(2, -14), 6, 8), new(new(16, -8), 6, 0), new(new(2, -1), 3840, 0), new(new(1, -2), 3840, 0),
@@ -34,7 +34,7 @@ internal static class EndingShootingStarDefinitions
     ];
     /// <summary>Exposes the forty star records in order for initialization and motion updates.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Records => records;
-    /// <summary>The animation frames Handle_ShootingStars.tilemapValues gives attributes for.</summary>
+    /// <summary>The animation frames the shooting stars' tile values give attributes for.</summary>
     internal const int FrameCount = 20;
 
     /// <summary>The first animation frame showing the full star; every later frame shows it too.</summary>

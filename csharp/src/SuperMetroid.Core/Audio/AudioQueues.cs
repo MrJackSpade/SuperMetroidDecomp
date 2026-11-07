@@ -101,7 +101,7 @@ public sealed class AudioQueues
         }
     }
 
-    /// <summary>Restores the same audio queue state initialized by <c>Vector_RESET</c>.</summary>
+    /// <summary>Restores the audio queue state the game starts with at power-on.</summary>
     public void Reset()
     {
         DoorTransitionSoundsDisabled = false;

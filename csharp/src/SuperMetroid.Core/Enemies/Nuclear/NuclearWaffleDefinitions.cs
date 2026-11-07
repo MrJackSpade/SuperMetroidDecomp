@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal static class NuclearWaffleDefinitions
 {
 
-    /// <summary>Sound effect $5E in library two, queued when a joint makes its rising turn.</summary>
+    /// <summary>The Sidehopper landing sound, queued when a joint makes its rising turn.</summary>
     internal static readonly SoundEffectId TurnSoundEffect = Library2Sound.SidehopperLanding;
 
     /// <summary>The sweep endpoint pairs mirror around angle 320.</summary>

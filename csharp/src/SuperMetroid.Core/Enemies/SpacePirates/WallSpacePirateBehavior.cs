@@ -78,7 +78,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
         // The USA/Japan build uses byte angles. Bit fifteen selects 63 two-step frames;
         // clearing it selects 32 four-step frames with adjusted endpoints. These values are
-        // not approximations: they are the literal $BE/$42/$02 and $C0/$40/$04 branches.
+        // not approximations: they are the literal 190/66/2 and 192/64/4 branches.
         state.RightJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? 190 : 192);
         state.LeftJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? 66 : 64);
         state.JumpAngleDelta = slowJump ? 2 : 4;
@@ -86,7 +86,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToTile(slot);
     }
 
-    /// <summary>Ports <c>MainAI_PirateWall</c> and its six function targets.</summary>
+    /// <summary>Runs a wall Space Pirate's per-frame behaviour and its six functions.</summary>
     private static void RunWallSpacePirateMain(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,

@@ -21,7 +21,7 @@ public static class LiquidEffects
     /// This is an exact integer triangular waveform, without a floating-point
     /// generation claim. Water background/effect overlay and the identical vertical lava/acid wave
     /// share this mapping. All original words at C46E and B60A are independently
-    /// checked against supported NTSC J/U v1.0 and pinned bank_88.asm
+    /// checked against supported NTSC J/U v1.0 and the pinned reference sources
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).
     /// Reject outside the original sixteen-word span before periodic folding.</remarks>
     public static int WaterWaveDisplacement(int index)

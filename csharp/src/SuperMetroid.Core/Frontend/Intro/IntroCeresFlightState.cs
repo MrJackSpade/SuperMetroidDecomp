@@ -48,7 +48,7 @@ internal sealed class IntroCeresFlightState
     private int flashIntensity;
     /// <summary>How many of the caption's letters are shown, in order; the next letter typed is this one.</summary>
     internal int CaptionLettersShown { get; private set; }
-    /// <summary>Sixteen-frame glyph cadence and final $80-frame caption hold.</summary>
+    /// <summary>Sixteen-frame glyph cadence and final 128-frame caption hold.</summary>
     private int spaceColonyTimer;
     /// <summary>Distinguishes the completed caption's final hold from its glyph-writing phase.</summary>
     private bool spaceColonyHoldStarted;
@@ -157,12 +157,12 @@ internal sealed class IntroCeresFlightState
 
             case IntroCeresFlightPhase.StartGameAtCeres:
                 // The handoff runs as the update after the screen goes black; it hands control to state
-                // $1F, whose owner also performs this function's area-six checkpoint save.
+                // the new-game setup state, whose owner also performs this function's area-six checkpoint save.
                 Phase = IntroCeresFlightPhase.Finished;
                 break;
 
             case IntroCeresFlightPhase.Finished:
-                // The flight has ended; its owner moves to state $1F.
+                // The flight has ended; its owner moves to the new-game setup state.
                 break;
 
             default:
@@ -330,7 +330,7 @@ internal sealed class IntroCeresFlightState
             return;
         }
 
-        // The list's final record holds the completed caption for $80 frames before
+        // The list's final record holds the completed caption for 128 frames before
         // the fade step installs the ordinary fade owner.
         if (!spaceColonyHoldStarted)
         {

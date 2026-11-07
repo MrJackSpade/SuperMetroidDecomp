@@ -21,7 +21,7 @@ internal static class BabyMetroidGradualAcceleration
 
     /// <summary>
     /// Returns the new X velocity. <paramref name="isVaguelyOffScreen"/> runs only on the
-    /// reversal path, as <c>CheckIfEnemyIsVagulyOnScreen</c> does natively.
+    /// reversal path, as the original's vaguely-on-screen check does.
     /// </summary>
     /// <param name="position">The mover's whole X coordinate.</param>
     /// <param name="target">The target's whole X coordinate.</param>
@@ -121,7 +121,7 @@ internal static class BabyMetroidGradualAcceleration
     private static int Step(int distance, int divisor)
     {
         if (divisor is < 1 or > 16)
-            throw new ArgumentOutOfRangeException(nameof(divisor), "The divisor table holds $10..$01.");
+            throw new ArgumentOutOfRangeException(nameof(divisor), "The divisor table holds 16 down to 1.");
         int quotient = distance / divisor;
         return quotient == 0 ? 1 : quotient;
     }

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>The main function a Bomb or Golden Torizo runs; each member names the routine it replaced (#1413: the values are arbitrary).</summary>
 public enum TorizoFunction
 {
-    /// <summary><c>RTS_AAC6AB</c>: dormant.</summary>
+    /// <summary>Dormant.</summary>
     Idle = 1,
 
     /// <summary>Torizo behaviour: simple movement.</summary>

@@ -74,7 +74,7 @@ internal sealed class TorizoCombat
 
         if (isGoldenTorizo && !state.AnimationLocked)
         {
-            // A bomb is neither Missile nor Super Missile, so Golden Torizo's shot callback takes LABEL_11 and arms the
+            // A bomb is neither Missile nor Super Missile, so Golden Torizo's shot callback takes its stun branch and arms the
             // stun latch before common damage, whether or not the Super-catch latch is set.
             SetBehavior(torizo, TorizoBehaviorFlags.Stunned);
         }
@@ -125,7 +125,7 @@ internal sealed class TorizoCombat
         state.Function = TorizoFunction.Idle;
         TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.DeathSequence0));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
-        // EnemyShot_Torizo_Normal makes the actor intangible when
+        // The normal Torizo shot reaction makes the actor intangible when
         // entering the death stream. This removes the dying actor from Samus contact and
         // solid-enemy collision while its flashing/invisible instruction frames continue.
         torizo.Properties = torizo.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -274,7 +274,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Registers Torizo_Hurt for each variant; the common instruction interpreter still
+    /// Registers the Torizo hurt reaction for each variant; the common instruction interpreter still
     /// advances after the hurt callback, as EnemyMain does.
     /// </summary>
     internal void AddBombTorizoHurtAi(EnemySharedReactions table) =>

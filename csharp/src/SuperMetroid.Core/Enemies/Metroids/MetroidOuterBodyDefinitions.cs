@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>A frozen Metroid's two outer-body sprite objects: their frozen programs and palette.</summary>
 internal static class MetroidOuterBodyDefinitions
 {
-    /// <summary>The first outer body's frozen program, <c>InstList_SpriteObject_32_MetroidElectricity</c>.</summary>
+    /// <summary>The first outer body's frozen program, the Metroid's electricity.</summary>
     internal const RoomSpriteObjectProgram OuterBodyAFrozenProgram = RoomSpriteObjectProgram.MetroidElectricity;
 
-    /// <summary>The second outer body's frozen program, <c>InstList_SpriteObject_34_MetroidShell</c>.</summary>
+    /// <summary>The second outer body's frozen program, the Metroid's shell.</summary>
     internal const RoomSpriteObjectProgram OuterBodyBFrozenProgram = RoomSpriteObjectProgram.MetroidShell;
 
     /// <summary>The frozen outer bodies' graphics: the shared sheet in the frozen colours.</summary>

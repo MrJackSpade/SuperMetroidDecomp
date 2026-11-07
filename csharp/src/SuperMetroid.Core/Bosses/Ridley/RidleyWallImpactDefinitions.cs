@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Wall-impact request made by Ridley_Func_113.</summary>
+/// <summary>Wall-impact request made when Ridley slams into a wall.</summary>
 internal static class RidleyWallImpactDefinitions
 {
     /// <summary>The wall impact compares the larger absolute 8.8 velocity against 2.5 pixels/frame.</summary>

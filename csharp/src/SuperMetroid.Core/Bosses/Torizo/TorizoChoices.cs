@@ -238,7 +238,7 @@ internal sealed class TorizoChoices
         SamusState samus)
     {
         // The walking steps compare the facing bit against the sign of SamusX-enemyX.
-        // Keep that subtraction direction explicit: Torizo_Func_12 below deliberately uses
+        // Keep that subtraction direction explicit: the awakening facing check deliberately uses
         // the inverse delta, and collapsing both tests into one "faces Samus" helper silently
         // reverses one family of the game's branches.
         return _access.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;

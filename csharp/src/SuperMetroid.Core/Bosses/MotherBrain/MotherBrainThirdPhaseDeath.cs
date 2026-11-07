@@ -200,8 +200,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         }
 
         // The escape-door dust advances the one shared RNG exactly once per emitted projectile.
-        // Values below a quarter of the range select the smoke animation ($0C); all remaining
-        // values retain the preloaded small explosion ($03).
+        // Values below a quarter of the range select the smoke animation; all remaining
+        // values retain the preloaded small explosion.
         int random = nextRandomNumber();
         MiscDustAnimation animation = random < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
         return new DustExplosionRequest(
@@ -618,7 +618,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathDoorExplodingStartTimer(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The keep-earthquake-going step always runs the periodic dust producer before touching the escape
-        // countdown. The freshly loaded `$20` therefore receives 33 calls (32..0,
+        // countdown. The freshly loaded 32 therefore receives 33 calls (32..0,
         // then -1) and can emit dust even on the transition call.
         requests.EscapeDoorExplosion = GenerateEscapeDoorExplosion(frame.NextRandomNumber);
         if (--_state.FunctionTimer >= 0)

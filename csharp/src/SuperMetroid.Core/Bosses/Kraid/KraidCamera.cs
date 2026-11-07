@@ -8,7 +8,7 @@ internal static class KraidCamera
     /// <summary>Scrolls[0..3] written: only the lower-left screen is open.</summary>
     public static RoomScrollState InitialScroll(int screen) => KraidCameraDefinitions.InitialScrolls[CheckScreen(screen)];
 
-    /// <summary>Scrolls[0..3] written by Kraid_GetsBig_ReleaseCamera.</summary>
+    /// <summary>Scrolls[0..3] written as Kraid grows and releases the camera.</summary>
     public static RoomScrollState GrownScroll(int screen) => KraidCameraDefinitions.GrownScrolls[CheckScreen(screen)];
 
     /// <summary>Rejects a screen outside the room's four.</summary>

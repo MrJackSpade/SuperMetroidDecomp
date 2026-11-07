@@ -10,15 +10,15 @@ internal static class EndingWavySamusDefinitions
     /// the screen.
     /// </summary>
     internal const int AngleStepPerFrame = 8;
-    /// <summary>Instruction_Setup_WavySamus: the wave's angle at screen line zero before its first advance, one step before the cycle's start.</summary>
+    /// <summary>The wavy-Samus setup: the wave's angle at screen line zero before its first advance, one step before the cycle's start.</summary>
     internal const int InitialAngle = -1;
     /// <summary>
-    /// FrameBehavior_WavySamus: the screen lines of one whole cycle of the wave, a half cycle of 64 lines
+    /// The wavy-Samus frame behaviour: the screen lines of one whole cycle of the wave, a half cycle of 64 lines
     /// and its sign-inverted mirror.
     /// </summary>
     internal const int Period = 128;
     /// <summary>
-    /// The frame the wave first shows: the frame it starts on only sets it up (Instruction_Setup_WavySamus), and the
+    /// The frame the wave first shows: the frame it starts on only sets it up (the wavy-Samus setup), and the
     /// following frame is its first advance.
     /// </summary>
     internal const int FirstWaveAge = 2;

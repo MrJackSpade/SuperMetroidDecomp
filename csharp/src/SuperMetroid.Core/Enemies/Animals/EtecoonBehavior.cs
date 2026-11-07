@@ -102,7 +102,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FunctionTimer = WrappingCountdown.Start(ushort.MaxValue);
     }
 
-    /// <summary>Ports <c>Etecoon_Main</c> and its indirect function dispatcher.</summary>
+    /// <summary>Runs an Etecoon's per-frame behaviour and its function dispatcher.</summary>
     private void RunEtecoonMain(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -644,7 +644,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningLeft);
     }
 
-    /// <summary>Ports <c>Etecoon_Func_1</c>'s quake-owned parameter and timer writes.</summary>
+    /// <summary>Makes the earthquake's parameter and timer writes that pause an Etecoon.</summary>
     private void PauseEtecoonForEarthquake(RoomEnemySlot slot, EtecoonEnemyState state)
     {
         if (_earthquake.EarthquakeTimer.IsZero)
@@ -654,7 +654,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = slot.FrameHold.AddFrames(128);
     }
 
-    /// <summary>Ports <c>Etecoon_Func_2</c>'s signed 16.16 horizontal mover.</summary>
+    /// <summary>Moves an Etecoon horizontally by its signed 16.16 speed.</summary>
     private bool MoveEtecoonHorizontally(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -664,7 +664,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             state.Velocity.X.RawValue);
 
-    /// <summary>Ports <c>Etecoon_Func_3</c>, including its five-pixel gravity cap.</summary>
+    /// <summary>Moves an Etecoon vertically, including its five-pixel gravity cap.</summary>
     private bool MoveEtecoonVertically(
         RoomEnemySlot slot,
         EtecoonEnemyState state,

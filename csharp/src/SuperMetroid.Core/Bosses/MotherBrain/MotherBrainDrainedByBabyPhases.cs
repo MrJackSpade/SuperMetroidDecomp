@@ -121,7 +121,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             _state.RainbowBeamSoundPlaying = false;
             _state.BrainPaletteHandlingEnabled = false;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut;
-            requests.SoundQueued = true; // Sound library one, effect `$02`.
+            requests.SoundQueued = true; // The rainbow-drain sound stops as the beam runs out.
         }
         return false;
     }

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Origin admission operands from the cinematic sprite draw dispatcher.</summary>
 internal static class CinematicSpriteDrawDefinitions
 {
-    /// <summary>DrawCinematicSpriteObjects_Intro: bias Y by 128 before the unsigned admission test.</summary>
+    /// <summary>The intro's cinematic sprite draw: bias Y by 128 before the unsigned admission test.</summary>
     public const int OriginYBias = 128;
 
     /// <summary>Admit biased Y strictly below 511, corresponding to signed origins -128 through 382.</summary>

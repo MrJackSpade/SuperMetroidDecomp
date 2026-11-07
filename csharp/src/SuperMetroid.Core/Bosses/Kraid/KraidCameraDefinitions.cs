@@ -12,7 +12,7 @@ internal static class KraidCameraDefinitions
     public static readonly RoomScrollState[] InitialScrolls =
         [RoomScrollState.RedBoundary, RoomScrollState.RedBoundary, RoomScrollState.Blue, RoomScrollState.RedBoundary];
 
-    /// <summary>Scrolls[0..3] written by Kraid_GetsBig_ReleaseCamera.</summary>
+    /// <summary>Scrolls[0..3] written as Kraid grows and releases the camera.</summary>
     /// <remarks>The two-column room permits vertical scrolling on the upper row only.</remarks>
     public static readonly RoomScrollState[] GrownScrolls =
         [RoomScrollState.Green, RoomScrollState.Green, RoomScrollState.Blue, RoomScrollState.Blue];

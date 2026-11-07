@@ -12,15 +12,15 @@ internal static class BabyMetroidRouteDefinitions
 
     /// <summary>
     /// The eight authored waypoints. Each leg steers to its waypoint with a zero acceleration
-    /// divisor index; the first five legs use the wrong-way extra-$10 callback and the final
-    /// three the extra-$08 callback. Reaching the last waypoint ends the route.
+    /// divisor index; the first five legs use the wrong-way extra-16 callback and the final
+    /// three the extra-8 callback. Reaching the last waypoint ends the route.
     /// </summary>
     internal static readonly Position16<RoomPixels>[] Waypoints =
     [
         new(160, 120), new(304, 122), new(192, 64), new(192, 112),
         new(224, 128), new(205, 144), new(204, 160), new(203, 176),
     ];
-    /// <summary>First route leg that switches from the extra-$10 to extra-$08 wrong-way correction.</summary>
+    /// <summary>First route leg that switches from the extra-16 to extra-8 wrong-way correction.</summary>
     internal const int FirstExtraEightLeg = 5;
 
     /// <summary>The wrong-way horizontal speed addition of each movement callback.</summary>

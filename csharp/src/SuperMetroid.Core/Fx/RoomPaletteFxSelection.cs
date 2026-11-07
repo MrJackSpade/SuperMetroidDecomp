@@ -10,7 +10,7 @@ internal static class RoomPaletteFxSelection
     /// <summary>Selects setup callback and initial program by palette-FX object.</summary>
     /// <remarks>Each object dispatches to one setup operation and animation program. Named setup cases preserve
     /// null/intro/Norfair/Brinstar semantics, including aliases between distinct objects. Both fields are
-    /// independently checked against supported NTSC J/U v1.0 and pinned bank_8D.asm
+    /// independently checked against supported NTSC J/U v1.0 and the pinned reference sources
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
     internal static RoomPaletteFxDefinition Get(PaletteFxObject paletteFxObject) => paletteFxObject switch
     {

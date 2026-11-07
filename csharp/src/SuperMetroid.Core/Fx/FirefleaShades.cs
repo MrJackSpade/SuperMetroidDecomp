@@ -10,7 +10,7 @@ internal static class FirefleaShades
 {
     /// <summary>Returns the triangular flashing shade level 6-abs(index-6), index 0..11.</summary>
     /// <remarks>Independently checked for #1165 against every original NTSC J/U v1.0
-    /// word and pinned bank_88.asm. The six-frame timer and phase wrap are caller-owned;
+    /// word and the pinned reference sources. The six-frame timer and phase wrap are caller-owned;
     /// this exact integer wave requires no sampled floating-point construction.</remarks>
     internal static int FlashingShade(int index)
     {
@@ -25,7 +25,7 @@ internal static class FirefleaShades
 
     /// <summary>Returns the capped six-step darkness shade level, plus the level read past the ramp at offset 12.</summary>
     /// <remarks>Independently checked for #1165 against all seven original physical reads
-    /// and pinned bank_88.asm. Even byte offsets 0..10 use min(3*offset,25).
+    /// and the pinned reference sources. Even byte offsets 0..10 use min(3*offset,25).
     /// Offset 12 reads past the ramp, not an extrapolated ramp value. The death
     /// counter permits that offset. Reject odd offsets and offsets above 12; retain the
     /// caller's wrapped flash-plus-darkness level addition.</remarks>

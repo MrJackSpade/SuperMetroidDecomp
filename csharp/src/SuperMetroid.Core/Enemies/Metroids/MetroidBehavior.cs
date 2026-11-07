@@ -52,7 +52,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case MetroidCueKind.PlayDrainingSound:
-                // The attached loop emits library-two sound $50.
+                // The attached loop emits the Metroid's animation sound.
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
                 break;
             case MetroidCueKind.PlayRandomCry:
@@ -103,7 +103,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);
     }
 
-    /// <summary>Ports <c>Metroid_Main</c> and its four-entry movement dispatch.</summary>
+    /// <summary>Runs a Metroid's per-frame behaviour and its four-entry movement dispatch.</summary>
     private void RunMetroidMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
     {
         if (samus is null)
@@ -138,7 +138,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionMetroidOuterBody(state.OuterBodyB, slot, SpriteGraphics.SpawnedBy(slot));
     }
 
-    /// <summary>Ports proportional 16.16 attraction in <c>Metroid_Func_1</c>.</summary>
+    /// <summary>Runs the Metroid's proportional 16.16 attraction toward Samus.</summary>
     private void RunMetroidHoming(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -161,7 +161,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             StoreMetroidXVelocity(state, 0);
     }
 
-    /// <summary>Ports the byte-oriented fixed-speed seek in <c>Metroid_Func_2</c>.</summary>
+    /// <summary>Runs the Metroid's byte-oriented fixed-speed seek as it closes on Samus.</summary>
     private void RunMetroidClosing(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -201,7 +201,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             MetroidMaximumVelocity);
     }
 
-    /// <summary>Ports <c>Metroid_Func_3</c>; attachment is a hard positional lock.</summary>
+    /// <summary>Holds an attached Metroid on Samus; attachment is a hard positional lock.</summary>
     private static void RunMetroidAttached(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -213,7 +213,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         StoreMetroidYVelocity(state, 0);
     }
 
-    /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
+    /// <summary>Runs the Metroid's escape from a power bomb, including post-decrement timer semantics.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
         slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer);
@@ -227,7 +227,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
     }
 
-    /// <summary>Ports the family-specific tail of <c>Metroid_Frozen</c>.</summary>
+    /// <summary>Runs the family-specific tail of a frozen Metroid's update.</summary>
     internal static void RunMetroidFrozen(RoomEnemySlot slot)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
@@ -256,7 +256,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(EnemyShades.HitFlashed);
     }
 
-    /// <summary>Ports ordinary/contact-damage branches of <c>Metroid_Touch</c>.</summary>
+    /// <summary>Resolves the ordinary and contact-damage branches of a Metroid's touch.</summary>
     private void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
@@ -311,7 +311,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.DrainBorrows(drainRate))
             return;
 
-        // Samus_DealDamage(1) performs a saturating subtract and deliberately does not
+        // Dealing Samus one damage performs a saturating subtract and deliberately does not
         // start ordinary hurt flash, invincibility, knockback, or suit division.
         samus.Health = samus.Health == 0 ? 0 : samus.Health - 1;
     }
@@ -330,13 +330,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The bomb collision pass presents the exploding power bomb as family 0x0500;
             // family 0x0300 is its earlier expansion/controller record and is not the value
-            // tested by Metroid_Shot.
+            // tested by the Metroid's shot reaction.
             if (family == SamusProjectileFamily.Bomb)
                 DetachMetroidWithPowerBomb(slot, state, samus);
             return;
         }
 
-        // Metroid_Shot intentionally reads projectile position slot zero, not the current
+        // The Metroid's shot reaction intentionally reads projectile position slot zero, not the current
         // collision slot. The overlapping byte stores encode delta/8 as signed 16.16.
         StoreMetroidXVelocity(
             state,
@@ -509,7 +509,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // Like the ordinary path, the walker only marks the direction word. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
-            // EnemyShot_Metroid.
+            // the Metroid's shot reaction.
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
 
             EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);

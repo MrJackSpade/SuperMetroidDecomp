@@ -297,8 +297,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CarryRecord = carryRecord;
         int signedVelocity = motion.Velocity;
 
-        // Enemy_MoveRight_IgnoreSlopes receives a signed 8.8 word promoted to 16.16 by
-        // INT16_SHL8. Enemy_MoveDown receives its absolute magnitude in the same format.
+        // The slope-ignoring horizontal mover receives a signed 8.8 word promoted to 16.16 by
+        // an eight-bit shift. The vertical mover receives its absolute magnitude in the same format.
         _ = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             statue,

@@ -76,7 +76,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     private int? _arrivalPlacementSlot;
 
     /// <summary>
-    /// Returns and clears the slot of the arriving elevator whose <c>Elevator_Init</c>
+    /// Returns and clears the slot of the arriving elevator whose setup
     /// placed Samus during the room load just performed.
     /// </summary>
     public int? ConsumeElevatorArrivalPlacementSlot()
@@ -89,7 +89,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>
     /// Publishes type-$9 pseudo-door collision before the next EnemyMain pass.
     /// Repeated collision scans may set the same word again; the waiting AI clears it when
-    /// the direction button is not newly pressed, exactly like <c>Elevator_Func_1</c>.
+    /// the direction button is not newly pressed, exactly like the elevator's waiting step.
     /// </summary>
     public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
 

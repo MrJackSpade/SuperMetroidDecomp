@@ -281,7 +281,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             CoordinateAxis.Wrap(slot.Position.X.Whole + xOffset), CoordinateAxis.Wrap(slot.Position.Y.Whole + yOffset));
 
         // GenerateRandomNumber is called exactly once per explosion. Values below 0x4000
-        // select animation $0C; all other values select animation three (smoke).
+        // select the large explosion; all other values select animation three (smoke).
         int randomNumber = _room.Random.Generate();
         MiscDustAnimation animation = randomNumber < 16384
             ? CeresDoorExplosionAnimation

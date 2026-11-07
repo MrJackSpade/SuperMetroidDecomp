@@ -16,7 +16,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         _state = state;
     }
 
-    /// <summary>Applies Gravity/Varia damage reduction and the extra scaling used only by the $50 beam strike.</summary>
+    /// <summary>Applies Gravity/Varia damage reduction and the extra scaling used only by the 80-damage beam strike.</summary>
     /// <remarks>The nominal damage is 80 or 160, so the scaled threshold never exceeds 340.</remarks>
     private static int CalculateFinishOffHealthThreshold(SamusState samus, int nominalDamage)
     {
@@ -74,7 +74,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             return false;
         }
 
-        // A weaker `$A0` nominal-hit threshold biases wounded Samus toward onion
+        // A weaker 160 nominal-hit threshold biases wounded Samus toward onion
         // rings. Only when Samus is above it does the top 16/4096 RNG band choose a
         // bomb; all remaining admitted values still choose two onion rings.
         if (CalculateFinishOffHealthThreshold(samus, 160) >= samus.Health ||
@@ -115,7 +115,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
-        // Stand-up falls through here, so the freshly written `$10` becomes `$0F`
+        // Stand-up falls through here, so the freshly written 16 becomes 15
         // on the same AI call. BPL accepts zero and expires only after underflow.
         if (--_state.FunctionTimer < 0)
         {
@@ -174,7 +174,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
-            requests.FinalBeamSoundQueued = true; // Sound library two, effect `$71`.
+            requests.FinalBeamSoundQueued = true; // The final beam's sound.
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding;
         }
         return false;

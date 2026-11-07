@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public enum PhantoonFlameSpawnType
 {
-    /// <summary>$00: a casual flame that falls from Phantoon and bounces.</summary>
+    /// <summary>A casual flame that falls from Phantoon and bounces.</summary>
     Casual = 0,
-    /// <summary>$02: an enraged wave flame, indexed by direction.</summary>
+    /// <summary>An enraged wave flame, indexed by direction.</summary>
     Enraged = 2,
-    /// <summary>$04: a rain flame, indexed by packed column and fall delay.</summary>
+    /// <summary>A rain flame, indexed by packed column and fall delay.</summary>
     Rain = 4,
-    /// <summary>$06: a spiral flame, indexed by direction 0-7.</summary>
+    /// <summary>A spiral flame, indexed by direction 0-7.</summary>
     Spiral = 6,
 }

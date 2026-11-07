@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Literal inventory writes in InitAI_Torizo.GTCode.</summary>
+/// <summary>Literal inventory writes of Golden Torizo's initialization code.</summary>
 internal static class GoldenTorizoCodeDefinitions
 {
     /// <summary>The chord the code compares: exactly held A+B+X+Y, with no other controller bits.</summary>

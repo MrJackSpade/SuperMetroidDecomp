@@ -49,7 +49,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Rio_Init writes the list directly rather than calling Rio_6. The installed animation must
+        // The Rio's setup writes the list directly rather than calling the animation installer. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
         state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.Idle);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -64,7 +64,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData? level,
         Position16<RoomPixels> camera)
     {
-        // Rio_Main advances the global enemy RNG even though this particular family never
+        // The Rio's main behaviour advances the global enemy RNG even though this particular family never
         // consumes the returned word. Omitting that apparently-useless call changes every
         // later random enemy in the room, so it is part of Rio's observable behavior.
         _room.Random.Generate();
@@ -222,7 +222,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports Rio_6: install an animation only when it actually changes.</summary>
+    /// <summary>Installs an animation only when it actually changes.</summary>
     private static void InstallRioAnimationScript(
         RoomEnemySlot slot,
         RioEnemyState state,
@@ -241,7 +241,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reads one sign-extended entry from kSinCosTable8bit_Sext. Rio consumes
+    /// Reads one sign-extended entry from the eight-bit sine/cosine table. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
     internal static int ReadRioSignedSineCosineSample(ByteAngle angle) =>

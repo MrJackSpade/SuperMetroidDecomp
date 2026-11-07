@@ -62,10 +62,10 @@ internal static class IntroEggMotion
     /// <summary>Returns one shell fragment's final world-space spawn position.</summary>
     /// <remarks>
     /// Issues #625 and #975: the fragment spawn indexes six interleaved 16-bit X/Y
-    /// origin pairs with index*4, then adds $10 and $3B
+    /// origin pairs with index*4, then adds 16 and 59
     /// respectively with sixteen-bit wrap. The original data
-    /// gives source pairs ($5C,$58), ($63,$58), ($59,$5D),
-    /// ($60,$5B), ($66,$5E), and ($63,$60); all twelve words match this
+    /// gives source pairs (92,88), (99,88), (89,93),
+    /// (96,91), (102,94), and (99,96); all twelve words match this
     /// selector after the biases. The spawn opcode creates exactly indices
     /// 0..5, and unknown indices throw. The irregular positions compose the
     /// shell artwork, so retaining six explicit pairs is clearer than a

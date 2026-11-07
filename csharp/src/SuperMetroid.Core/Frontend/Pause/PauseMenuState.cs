@@ -137,7 +137,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ? entry.MapRevealMode
             : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
 
-        // GameState_13 uploads the map, pause interface, menu sprites and HUD characters; the
+        // The pause's setup uploads the map, pause interface, menu sprites and HUD characters; the
         // screen binds that artwork and its capture places the characters.
         screen = new PauseScreen(entry.MapPresentation, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);
@@ -228,7 +228,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// <c>Handle_PauseScreen_StartButton</c>, run last on both stable
+    /// The pause screen's Start-button handling, run last on both stable
     /// pages. It reads the delayed-held word: a fresh press is excluded for three frames by
     /// the controller's delayed-held filter before becoming menu input. True requests the unpause state.
     /// </summary>

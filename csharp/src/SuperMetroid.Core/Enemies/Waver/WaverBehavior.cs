@@ -105,7 +105,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        // Once per half-wave, the phase's position within its half-turn equals $38. Waver temporarily swaps to
+        // Once per half-wave, the phase's position within its half-turn equals 56. Waver temporarily swaps to
         // the four-map spin without changing its facing.
         if (state.Angle.ToByteAngle().HalfWaveIndex == 56)
         {

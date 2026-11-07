@@ -22,7 +22,7 @@ public enum RoomFxType
     Fog,
     /// <summary>Scrolling exterior-sky background driven by the active room's sky tilemap.</summary>
     ScrollingSky,
-    /// <summary>Unused retail dispatcher entry <c>$22</c> that targets the alternate scrolling-sky routine.</summary>
+    /// <summary>An unused retail FX entry that targets the alternate scrolling-sky routine.</summary>
     UnusedScrollingSky,
     /// <summary>Fireflea-room darkness and palette behavior, including enemy-driven light flashes.</summary>
     Fireflea,

@@ -15,7 +15,7 @@ internal static class SbugDefinitions
     /// </summary>
     internal const int FoldedFacingCount = 4;
 
-    /// <summary>Rotates an angle by $30 before quantizing it to one of eight facings.</summary>
+    /// <summary>Rotates an angle by 48 before quantizing it to one of eight facings.</summary>
     internal const int FacingQuantizationOffset = 48;
 
     /// <summary>Heading table units covered by one of the eight facings.</summary>

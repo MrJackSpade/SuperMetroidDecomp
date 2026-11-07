@@ -69,8 +69,8 @@ internal sealed class DraygonSwoops
         state.SwoopPathEntryCount = frameCount;
         state.SwoopYPositions[frameCount] = state.Body.Position.Y.Whole;
 
-        // UnsignedDivision_32bit divides the absolute whole-pixel distance promoted to
-        // 16.16 by the number of path entries. Split the quotient into the same var_D/E
+        // The unsigned 32-bit division divides the absolute whole-pixel distance promoted to
+        // 16.16 by the number of path entries. Split the quotient into the same swoop-speed
         // whole/subpixel words consumed by AddToHiLo during descent.
         int distance = CoordinateAxis.Distance(
             state.LeftSideReset.X, samus.Position.X.Whole);
@@ -217,7 +217,7 @@ internal sealed class DraygonSwoops
 
     /// <summary>
     /// Sets the swoop's 16.16 horizontal velocity: the whole-pixel distance promoted to 16.16 and divided by the path's
-    /// frame count, the quotient code splits into the var_D/E whole and subpixel words.
+    /// frame count, the quotient code splits into the swoop speed's whole and subpixel words.
     /// </summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>
     /// <param name="distance">The whole-pixel distance, 0 through 65535.</param>

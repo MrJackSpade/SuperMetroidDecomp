@@ -36,7 +36,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
         if (projectile is null)
             return; // Spawning fails when all eighteen projectile slots are live.
 
-        // SpawnEnemyProjectileY_ParameterA_RoomGraphics uses graphics index zero.
+        // The room-graphics enemy-projectile spawn uses graphics index zero.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,

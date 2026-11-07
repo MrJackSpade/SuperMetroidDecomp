@@ -94,7 +94,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.FakeKraid, sound, SoundRequestPriority.Normal);
 
 
-    /// <summary>Ports <c>FakeKraid_Init</c>.</summary>
+    /// <summary>Sets Mini-Kraid up when the room spawns it.</summary>
     internal void InitializeFakeKraid(RoomEnemySlot slot, SamusState? samus)
     {
         if (samus is null)
@@ -132,7 +132,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>FakeKraid_Main</c>.</summary>
+    /// <summary>Runs Mini-Kraid's per-frame behaviour.</summary>
     private void RunFakeKraidMain(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,
@@ -295,7 +295,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Ports <c>EprojPreInit_MiniKraidSpit</c>.</summary>
+    /// <summary>Runs Mini-Kraid's spit per frame.</summary>
     internal static void RunFakeKraidSpitFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -314,7 +314,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(nextVelocity));
     }
 
-    /// <summary>Ports <c>EprojPreInstr_MiniKraidSpikes</c>.</summary>
+    /// <summary>Runs Mini-Kraid's body spikes per frame.</summary>
     internal static void RunFakeKraidSpikeFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -337,7 +337,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) >= 0;
 
     /// <summary>
-    /// Ports <c>Reaction_MiniKraid_Common</c>: <c>EnemyDeath</c> spawns death
+    /// Mini-Kraid's shared death reaction: <c>EnemyDeath</c> spawns death
     /// explosion three and clears the slot, then <c>MiniKraidDeathItemDropRoutine</c>
     ///  scatters four pickups from the coordinates saved before the shot AI.
     /// The explosion therefore takes the first free projectile slot.

@@ -48,7 +48,7 @@ internal sealed class DraygonParts
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
     public DraygonEnemyState? Draygon { get; internal set; }
 
-    /// <summary>Ports <c>InitAI_DraygonBody</c>.</summary>
+    /// <summary>Sets Draygon's body up when the room spawns it.</summary>
     internal void InitializeDraygonBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)

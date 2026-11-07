@@ -33,9 +33,9 @@ public enum KraidPartProgram
     ArmRisingOrSinking,
     /// <summary>Kraid arm animation script: dying, preparing to lunge forward.</summary>
     ArmDyingOrPreparingToLunge,
-    /// <summary><c>kKraid_Ilist_8AFE</c>.</summary>
+    /// <summary>The lint's first program, before Kraid has grown.</summary>
     LintInitial,
-    /// <summary><c>kKraid_Ilist_8B04</c>.</summary>
+    /// <summary>The lint's program after Kraid has grown.</summary>
     LintPostGrowth,
     /// <summary>Kraid nail animation script.</summary>
     NailLoop,

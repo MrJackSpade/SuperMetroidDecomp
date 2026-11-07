@@ -36,7 +36,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports <c>Function_DraygonBody_ChaseSamus</c>. The speed-divisor
+    /// Chases Samus and tries to grab her. The speed-divisor
     /// test is the real communication channel from goop; no host-only encounter
     /// flag or proximity shortcut is used to start this branch.
     /// </summary>
@@ -80,7 +80,7 @@ internal sealed class DraygonGrab
                 ? DraygonProgram.ArmsFacingRightGrab
                 : DraygonProgram.ArmsFacingLeftGrab);
 
-        // Samus command $0D returns nonzero whenever the grapple-beam function is anything
+        // Samus's grapple query returns nonzero whenever the grapple-beam function is anything
         // other than its inactive entry. In that case Draygon drops the beam and retreats;
         // it must not enter a grabbed pose and then undo it with a bespoke correction.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)

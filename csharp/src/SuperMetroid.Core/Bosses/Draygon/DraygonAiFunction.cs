@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's body function, held in its <c>var_A</c>. Each member names the routine it ports; the
+/// Draygon's body function, the behaviour its body runs each frame. Each member names the behaviour it ports; the
 /// slot stores the member, not the routine's address. Members start at one so a cleared slot is never
 /// mistaken for a function.
 /// </summary>
@@ -31,7 +31,7 @@ public enum DraygonAiFunction
     SwoopLeftAscending,
     /// <summary>Starts the one-pixel-per-frame rightward goop path at X=-80, Y=384.</summary>
     GoopRightSetup,
-    /// <summary>Follows the oscillating path until horizontal separation from Samus is below $D0 pixels.</summary>
+    /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
     GoopRight,
     /// <summary>Requests right-facing goop lists from RNG samples and begins chasing when goop slows Samus.</summary>
     GoopRightTail,
@@ -39,7 +39,7 @@ public enum DraygonAiFunction
     GoopRightRecovery,
     /// <summary>Starts the one-pixel-per-frame leftward goop path at the right reset X and Y=384.</summary>
     GoopLeftSetup,
-    /// <summary>Follows the oscillating path until horizontal separation from Samus is below $D0 pixels.</summary>
+    /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
     GoopLeft,
     /// <summary>Requests left-facing goop lists from RNG samples and begins chasing when goop slows Samus.</summary>
     GoopLeftTail,

@@ -804,9 +804,9 @@ internal sealed class EnemyProjectileEngine
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 
-        // EprojInit_DustCloudOrExplosion ignores the definition's placeholder list and
+        // The dust-cloud-or-explosion initializer ignores the definition's placeholder list and
         // indexes this literal thirty-word table with the spawn parameter. Parameter three
-        // selects the small explosion for Rinka; Boulder passes $11 for its impact cloud.
+        // selects the small explosion for Rinka; Boulder passes 17 for its impact cloud.
         projectile.StartAnimation(new MiscDustProjectileAnimation(program));
     }
 

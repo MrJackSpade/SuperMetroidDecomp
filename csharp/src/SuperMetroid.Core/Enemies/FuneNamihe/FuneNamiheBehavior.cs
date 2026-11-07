@@ -36,7 +36,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case FuneNamiheCueKind.SpitSound:
-                // Shared mouth animation queues library-two sound $1F.
+                // Shared mouth animation queues the spit sound.
                 QueueFuneNamiheSpitSound();
                 break;
             case FuneNamiheCueKind.NamiheFireLeft:

@@ -12,10 +12,10 @@ internal static class RidleyTailReach
     /// <summary>The initial link angle of segment <paramref name="segmentIndex"/>, base through tip.</summary>
     internal static int InitialAngle(int segmentIndex) => Segment(RidleyTailDefinitions.InitialAngles, segmentIndex);
 
-    /// <summary>SetRidleyTailAngleExtrema_minClockwiseAngle for left/front/right facing.</summary>
+    /// <summary>The tail's minimum clockwise angle for left/front/right facing.</summary>
     internal static RotationAngle MinimumClockwise(RidleyFacing facing) => RidleyTailDefinitions.MinimumClockwiseAngles[facing];
 
-    /// <summary>SetRidleyTailAngleExtrema_maxCounterClockwiseAngle for left/front/right facing.</summary>
+    /// <summary>The tail's maximum counter-clockwise angle for left/front/right facing.</summary>
     internal static RotationAngle MaximumCounterClockwise(RidleyFacing facing) => RidleyTailDefinitions.MaximumCounterClockwiseAngles[facing];
 
     /// <summary>Reads one of the seven segments' values, rejecting a segment outside the tail.</summary>

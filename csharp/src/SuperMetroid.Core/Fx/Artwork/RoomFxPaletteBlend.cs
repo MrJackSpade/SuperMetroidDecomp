@@ -8,20 +8,20 @@ public enum RoomFxPaletteBlend
 {
     /// <summary>Selection zero clears the effect overlay blend color instead of loading a resource.</summary>
     None = 0,
-    /// <summary>FX-record selector $02, used primarily for lava/acid.</summary>
+    /// <summary>The blend used primarily for lava/acid.</summary>
     Lava = 1,
-    /// <summary>FX-record selector $22, used by Landing Site rain.</summary>
+    /// <summary>The blend used by Landing Site rain.</summary>
     LandingSiteRain,
-    /// <summary>FX-record selector $42, used by several Maridia water rooms.</summary>
+    /// <summary>The blend used by several Maridia water rooms.</summary>
     MaridiaWaterA,
-    /// <summary>FX-record selector $48, used by Ceres and other water/acid rooms.</summary>
+    /// <summary>The blend used by Ceres and other water/acid rooms.</summary>
     WaterAndAcid,
-    /// <summary>FX-record selector $62, used by fog and nonliquid room states.</summary>
+    /// <summary>The blend used by fog and nonliquid room states.</summary>
     Fog,
-    /// <summary>FX-record selector $E2, used by western Maridia water rooms.</summary>
+    /// <summary>The blend used by western Maridia water rooms.</summary>
     MaridiaWaterB,
-    /// <summary>FX-record selector $E8, used by central Maridia water rooms.</summary>
+    /// <summary>The blend used by central Maridia water rooms.</summary>
     MaridiaWaterC,
-    /// <summary>FX-record selector $EE, used by eastern Maridia water rooms.</summary>
+    /// <summary>The blend used by eastern Maridia water rooms.</summary>
     MaridiaWaterD,
 }

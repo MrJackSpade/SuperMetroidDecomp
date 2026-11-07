@@ -52,7 +52,7 @@ internal sealed class KraidCombat
                 }
 
                 // The arm's shot reaction creates a room-graphics dust actor at the selected physical projectile
-                // coordinates, then returns to the multibox walker that has already installed direction bit `$10`.
+                // coordinates, then returns to the multibox walker that has already recorded the hit's direction.
                 // Protected arm frames and every foot rectangle ignore the shot.
                 if (c.SelectedShotAi == EnemyReaction.KraidArmShot)
                     SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
@@ -132,7 +132,7 @@ internal sealed class KraidCombat
         !KraidFunctionGroups.BeforeSinking.Contains(_access.Part(body).Function);
 
     /// <summary>
-    /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c>. Projectile
+    /// Resolves projectile hits on Kraid's mouth. Projectile
     /// removal is deferred to the projectile pre-instruction.
     /// </summary>
     internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)
@@ -209,7 +209,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Ports <c>KraidBody_vs_Projectile_CollisionHandling</c>, the independent
+    /// Resolves projectile hits on Kraid's body, the independent
     /// outer mouth/body pass.
     /// </summary>
     internal int ResolveKraidBodyProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)

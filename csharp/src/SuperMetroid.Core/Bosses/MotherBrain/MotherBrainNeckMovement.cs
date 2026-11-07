@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public enum MotherBrainNeckMovement
 {
-    /// <summary>Index 0: the joint does not move (<c>RTS_A99084</c>/<c>RTS_A9911B</c>).</summary>
+    /// <summary>Index 0: the joint does not move.</summary>
     None = 0,
 
     /// <summary>Index 2: bob down, reversing at the lower limit.</summary>

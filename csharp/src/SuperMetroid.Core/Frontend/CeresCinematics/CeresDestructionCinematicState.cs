@@ -14,7 +14,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
-/// Installed-asset implementation of game state <c>$22</c>: Ceres explodes and the
+/// Installed-asset implementation of the Ceres-destruction game state: Ceres explodes and the
 /// camera subsequently follows Samus's gunship toward Zebes.
 /// </summary>
 /// <remarks>
@@ -132,14 +132,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private bool usesFloor = true;
     /// <summary>Whether the turning floor shows during the turning-floor scenes, or only the sprites do.</summary>
     private ScreenLayers shownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
-    /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
+    /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
 
     /// <param name="audio">The shared music and sound queue.</param>
     /// <param name="fixedColors">Installed power-bomb fixed colors for the station explosion.</param>
     /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
     /// <param name="outcome">
-    /// Game state $25 rather than $22: the escape timer expired before Samus left, so the
+    /// The Ceres-destruction state with Samus aboard: the escape timer expired before Samus left, so the
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
@@ -390,7 +390,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         if (CeresDestructionPhaseGroups.CeresScene.Contains(Phase))
             StepCeresActors();
 
-        // GameState_37 runs PaletteFxHandler after cinematic objects, including the
+        // The cinematic's game state runs the palette effects after cinematic objects, including the
         // frame which spawns the program.
         if (!CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
         {
@@ -407,7 +407,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
         }
 
-        // GameState_37 increments the shared cinematic frame word after calling the
+        // The cinematic's game state increments the shared cinematic frame word after calling the
         // current function but before object handling. The mosaic test therefore observes
         // this pre-increment value on its following dispatcher call.
         cinematicFrameCounter++;
@@ -558,9 +558,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         explosionSpawnerFrame++;
 
-        // CF33 remains invisible for $80 frames, spawns five staggered small blasts,
-        // waits $50 BEFORE installing the repeating-blast pre-instruction, then runs
-        // it during the final $40-frame wait. The pre-instruction stops on departure;
+        // The explosion spawner remains invisible for 128 frames, spawns five staggered small blasts,
+        // waits 80 BEFORE installing the repeating-blast pre-instruction, then runs
+        // it during the final 64-frame wait. The pre-instruction stops on departure;
         // the instruction list still reaches its four terminal blasts afterward.
         CeresExplosionSpawnEvents events = CeresExplosions.EventsAtFrame(explosionSpawnerFrame,
             CeresDestructionPhaseGroups.BeforeFlyingAway.Contains(Phase), ref explosionRepeatCountdown);
@@ -717,12 +717,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                         "PLANET ZEBES title actor remained active when scene sliding began.");
                 }
                 actor.InstallFrameBehavior(definition.SlideFrameBehavior);
-                // Zebes accelerates by $40 in 8.8; all four star sheets use $20. Star
+                // Zebes accelerates by 64 in 8.8; all four star sheets use 32. Star
                 // sheet five owns the reveal's completion. Identify the actors
                 // by ownership, not their mutable list index: actors delete as they
-                // cross -$80, so indexes necessarily shift during this loop.
-                // The slide speed grows by at most $40 a frame and the actor is deleted within a few dozen frames, once
-                // it crosses -$80, so the speed never nears the word's wrap.
+                // cross -128, so indexes necessarily shift during this loop.
+                // The slide speed grows by at most 64 a frame and the actor is deleted within a few dozen frames, once
+                // it crosses -128, so the speed never nears the word's wrap.
                 actor.GeneralTimer += definition.SlideAcceleration;
                 SubtractEightEightY(actor, actor.GeneralTimer);
                 if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)

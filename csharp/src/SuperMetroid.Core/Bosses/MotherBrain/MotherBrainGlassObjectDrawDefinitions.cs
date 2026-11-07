@@ -12,7 +12,7 @@ internal static class MotherBrainGlassObjectDrawDefinitions
     /// <summary>
     /// The cells of the eleven glass states, one row per draw run. Vertical panes reflect their lower halves;
     /// the shifted pane mirrors its inner column, and shatter states clear the outer columns before replacing the
-    /// centre supports. NTSC source: 84:9717..9846.
+    /// centre supports.
     /// </summary>
     internal static readonly Dictionary<MotherBrainGlassDraw, RoomTerrainBlock[][]> Cells = new()
     {

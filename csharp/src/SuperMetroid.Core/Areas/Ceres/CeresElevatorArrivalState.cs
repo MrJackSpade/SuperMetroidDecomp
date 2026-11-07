@@ -51,7 +51,7 @@ public sealed class CeresElevatorArrivalState
     /// <summary>
     /// Runs the two freshly spawned projectiles in the projectile pass's order.
     /// </summary>
-    /// <returns>True on and after the frame that calls Samus command <c>$0E</c>.</returns>
+    /// <returns>True on and after the frame that hands Samus control back after the elevator descent.</returns>
     public bool Step(SamusState samus)
     {
         Ensure.NotNull(samus);

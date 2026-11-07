@@ -55,13 +55,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private GunshipLoadScenario _gunshipLoadScenario;
     /// <summary>Samus actor captured for the post-Ceres ship's initial placement.</summary>
     private SamusState? _samusAtEnemyInitialization;
-    /// <summary>Whether gunship restoration has requested message box $1C and is awaiting <see cref="GunshipBehavior.AnswerGunshipSavePrompt"/> before its exit animation can resume.</summary>
+    /// <summary>Whether gunship restoration has requested the save message box and is awaiting <see cref="GunshipBehavior.AnswerGunshipSavePrompt"/> before its exit animation can resume.</summary>
     public bool GunshipSavePromptPending { get; internal set; }
-    /// <summary>Persistent Yes/No result of the latest gunship save answer, reset on room load; true requests outer-runtime SRAM persistence rather than performing a save itself.</summary>
+    /// <summary>Persistent Yes/No result of the latest gunship save answer, reset on room load; true requests outer-runtime save-file persistence rather than performing a save itself.</summary>
     public bool GunshipSaveRequested { get; internal set; }
 
     /// <summary>
-    /// Supplies the choice normally returned by message box $1C after restoration. SRAM
+    /// Supplies the choice normally returned by the save message box after restoration. Save-file
     /// persistence remains an outer-runtime seam; the actor publishes a Yes choice while
     /// continuing the game's identical exit animation for either answer.
     /// </summary>
@@ -188,7 +188,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         // The solid bottom decrements its engine-sound timer and reloads 70 on
         // one/underflow. The engine sound is requested before the reload, exactly as it is in
-        // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
+        // the gunship top's main behaviour; this periodic producer continues while the ship is idling/bobbing.
         if (--Part(bottom).EngineSoundTimer <= 0)
         {
             _audio.QueueEnemySound(Library2Sound.GunshipHover, priority: SoundRequestPriority.Normal);
@@ -469,7 +469,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Gunship restoration lost its Samus actor.");
 
-        // Event $0E is set by Mother Brain's death sequence. Bypasses every refill
+        // The Zebes-timebomb-set event is set by Mother Brain's death sequence. Bypasses every refill
         // and save-prompt branch here, installs the takeoff tile uploader, and keeps the
         // already hidden/input-locked Samus rigidly attached to the ship.
         if (_room.Services.Events.Has(EventNumber.ZebesTimebombSet))

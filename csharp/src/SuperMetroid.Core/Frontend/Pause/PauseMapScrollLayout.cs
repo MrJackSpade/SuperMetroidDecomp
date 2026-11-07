@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>Pause-specific bounds from Handle_MapScrollArrows.</summary>
+/// <summary>Pause-specific bounds of the map's scroll arrows.</summary>
 internal static class PauseMapScrollLayout
 {
     /// <summary>Pause arrow anchors are 24 pixels below the matching file-select records.</summary>

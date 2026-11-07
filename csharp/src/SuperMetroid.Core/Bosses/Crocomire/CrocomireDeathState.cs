@@ -23,10 +23,10 @@ public sealed class CrocomireDeathState
     /// <summary>One-shot dust latch for the 1536 bridge approach threshold.</summary>
     public bool BridgeDustAt1536Spawned { get; internal set; }
 
-    /// <summary>One-shot crumble latch for bridge block $61.</summary>
+    /// <summary>One-shot crumble latch for the bridge block at X 1568.</summary>
     public bool BridgeBlockAt1568Crumbling { get; internal set; }
 
-    /// <summary>One-shot crumble latch for bridge blocks $62/$63.</summary>
+    /// <summary>One-shot crumble latch for the two bridge blocks from X 1584.</summary>
     public bool BridgeBlocksAt1584Crumbling { get; internal set; }
 
     /// <summary>The melt pass in progress: which of the two melt images Crocomire's body shows and dissolves.</summary>

@@ -41,7 +41,7 @@ internal sealed class ShaktoolObjects
     }
 
     /// <summary>Opens all scroll cells during a power bomb and retires the controller after Samus passes the cleared-path boundary.</summary>
-    /// <remarks>Retiring clears the PLM ID but leaves its instruction words in RAM.</remarks>
+    /// <remarks>Retiring clears the room object's identity but leaves its instruction words in place.</remarks>
     internal void RunShaktoolRoomFrameBehavior(RoomObjectSlot slot, RoomScrollGrid? scrolls,
         bool powerBombExplosionActive)
     {
@@ -52,7 +52,7 @@ internal sealed class ShaktoolObjects
                 scrolls.SetStorage(cell, RoomScrollState.Blue);
         if (samus.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary) return;
         _events.Set(EventNumber.ShaktoolClearedPath);
-        // B8D2 clears only the ID; inactive instruction/timer words remain in RAM.
+        // Retiring clears only the identity; inactive instruction/timer words remain in place.
         slot.Header = 0;
         slot.Delete();
     }

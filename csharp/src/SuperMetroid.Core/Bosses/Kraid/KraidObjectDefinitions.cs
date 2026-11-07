@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidObjectDefinitions
 {
     /// <summary>
-    /// The final SpawnHardcodedPLM call in KraidDeath_Initialisation:
+    /// The final room-object spawn of Kraid's death setup:
     /// start the animated spike sweep at (5,27), independently of defeated-room clearing.
     /// </summary>
     public static readonly RoomObjectSpawnRequest<KraidRoomMutation> LiveDeathSpikes = new(new(5, 27), KraidRoomMutation.CrumbleSpikes);

@@ -71,7 +71,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int KraidStillPartTimer = 32767;
 
     /// <summary>
-    /// Ports <c>MainAI_Kraid</c>: mouth-projectile collision, palette handling,
+    /// Runs Kraid's body per-frame behaviour: mouth-projectile collision, palette handling,
     /// body-projectile collision and body-vs-Samus collision precede the function. A
     /// killing mouth hit therefore reaches palette handling, which zeroes the hurt frame,
     /// before the death initializer runs in this same frame.

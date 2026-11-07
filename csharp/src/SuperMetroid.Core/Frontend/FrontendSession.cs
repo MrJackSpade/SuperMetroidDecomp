@@ -542,7 +542,7 @@ internal sealed class FrontendSession
         }
 
         // New-game loading first publishes the standard HUD/sprite artwork, then
-        // loads the area-six station-zero room and finally runs SamusCode_08. This is the
+        // loads the area-six station-zero room and finally runs Samus's new-game setup. This is the
         // same sequence used by the room diagnostic; there is no host
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -560,7 +560,7 @@ internal sealed class FrontendSession
     /// <summary>
     /// Enters the fade-in game state with a fully dark screen and the two-frame
     /// brightness cadence. A fresh Ceres game must execute complete gameplay frames in
-    /// this state before state $20 owns the elevator arrival; otherwise the level-data pad
+    /// this state before the Ceres elevator state owns the elevator arrival; otherwise the level-data pad
     /// is briefly visible before its concealing enemy projectile is drawn.
     /// </summary>
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
@@ -571,7 +571,7 @@ internal sealed class FrontendSession
     }
     /// <summary>
     /// The end of the fade-in selects the next state, which then enters main gameplay; the Ceres arrival is
-    /// ordinary gameplay with Samus locked. HandleFadingIn wrote $51 = $0F this frame; the level is published before it
+    /// ordinary gameplay with Samus locked. The fade-in wrote full brightness this frame; the level is published before it
     /// rises, so the register is recorded directly.
     /// </summary>
     internal void FinishGameplayFadeIn()
@@ -596,7 +596,7 @@ internal sealed class FrontendSession
     /// <summary>The waiting updates the current game load still owes.</summary>
     internal GameLoadingWait GameLoading { get; } = new();
     /// <summary>
-    /// The loading state state six branches on (<c>SRAMMirror_LoadingGameState</c>): a save continued
+    /// The loading state state six branches on (the save's loading game state): a save continued
     /// from the file-select map, or the Ceres destruction's Zebes landing.
     /// </summary>
     internal SaveLoadingGameState StateSixLoadingRoute { get; private set; }

@@ -50,7 +50,7 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
     internal CinematicSpritePose? Pose { get; private set; }
 
-    /// <summary>Where the actor's program resumes, in place of <c>CinematicSpriteObject_InstListPointers</c>.</summary>
+    /// <summary>Where the actor's program resumes.</summary>
     internal AnimationProgramCursor<CinematicSpriteProgram> Program { get; private set; }
 
     /// <summary>The program the actor is running.</summary>
@@ -93,7 +93,7 @@ internal sealed class IntroDiscoverySprite
     /// </summary>
     /// <remarks>
     /// This is deliberately not represented by <see cref="GeneralTimer"/>. The latter is
-    /// the separate <c>CinematicSpriteObject_GotoTimers</c> scratch word consumed by the
+    /// the separate loop-timer scratch word consumed by the
     /// loop steps; conflating the two makes a delayed actor interpret its first
     /// frame immediately while merely changing an unrelated loop counter.
     /// </remarks>

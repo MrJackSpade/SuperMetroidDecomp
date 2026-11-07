@@ -24,7 +24,7 @@ public enum SbugEnemyFunction
     ActivateMoveAwayFromSamus,
     /// <summary>Adds the precomputed forward magnitudes with signs derived from the spawn angle.</summary>
     MoveForward,
-    /// <summary>Selects side velocity and facing using bit $10 of the enemy frame counter.</summary>
+    /// <summary>Selects side velocity and facing by whether the enemy frame counter is in the second half of each 32-frame cycle.</summary>
     ZigZag,
     /// <summary>Applies the captured custom velocity without retargeting or block collision checks.</summary>
     MoveTowardSamus,

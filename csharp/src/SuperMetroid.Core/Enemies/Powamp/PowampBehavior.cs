@@ -86,7 +86,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BalloonGrappleTravelDistance = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance;
     }
 
-    /// <summary>Ports <c>MainAI_Powamp</c> and every body function it dispatches.</summary>
+    /// <summary>Runs a Powamp's per-frame behaviour and every body function it dispatches.</summary>
     internal void RunPowampMain(RoomEnemySlot slot, PowampEnemyState state, RoomLevelData? level)
     {
         if (state.IsBalloon)
@@ -344,7 +344,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyDeathExplosions.ForLeftoverNumber(PowampBurstExplosion.AuthoredExplosionAfter(lastSpikePlace)));
     }
 
-    /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>
+    /// <summary>Resolves the body-only private tail of a Powamp's touch.</summary>
     private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus)
     {
         PictureShading originalShading = body.Shading;
@@ -381,7 +381,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the paired state propagation after <c>PowerBombReaction_Powamp</c>.</summary>
+    /// <summary>Runs the paired state propagation after a power bomb hits a Powamp.</summary>
     private void ResolvePowampPowerBombAfterCommon(RoomEnemySlot body)
     {
         PowampBalloon balloon = RequirePowampBalloon(body);

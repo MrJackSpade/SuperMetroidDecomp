@@ -375,7 +375,7 @@ internal sealed class EnemyCollision
                     if (freezeInsteadOfKilling)
                     {
                         // A lethal Ice-bearing beam leaves health unchanged and freezes the
-                        // actor. This is not the same path as an authored `$FF` entry above:
+                        // actor. This is not the same path as an authored freezing entry above:
                         // hurt flash/bit two were already installed before the lethal test.
                         FreezeEnemyFromNormalShot(enemy, samus);
                     }
@@ -573,7 +573,7 @@ internal sealed class EnemyCollision
         EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
         int damage = (bomb.Damage >> 1) * vulnerability.Multiplier;
 
-        // A zero multiplier still consumes the collision and leaves direction bit $10 on
+        // A zero multiplier still consumes the collision and leaves the hit direction on
         // the bomb. Emits a dud sprite/sound here; those presentation queues are not
         // yet shared by the host bomb system, so enemy state correctly remains untouched.
         if (damage == 0)
@@ -724,7 +724,7 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Installs the common frozen handler. Norfair (area two) uses 300 frames; every other
-    /// retail area uses 400. The ten-frame invincibility word is shared by direct `$FF`
+    /// retail area uses 400. The ten-frame invincibility word is shared by direct authored
     /// freezing and the lethal-Ice substitution path.
     /// </summary>
     internal void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, SamusState? samus)
@@ -944,7 +944,7 @@ internal sealed class EnemyCollision
         int damageBeforeSuit,
         int damageSourceX)
     {
-        // Suit_Damage_Division quarters the source header's damage for Gravity or halves
+        // The suit's damage division quarters the source header's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
         int damage = SamusSuitDamage.Reduce(Ensure.BetweenInclusive(0, ushort.MaxValue, damageBeforeSuit), samus.EquippedItems);
         samus.Health = samus.Health <= damage

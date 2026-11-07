@@ -107,7 +107,7 @@ internal sealed class CeresRidleyBehavior
                 {
                     state.FadeStep = 0;
                     CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
-                    // Function_Ridley_RoarBeforeFly primes the wing
+                    // Ridley's roar before flying primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs the flying animation script.
                     state.WingAnimationTimer = 8;
@@ -311,7 +311,7 @@ internal sealed class CeresRidleyBehavior
                     $"Ceres Ridley function {state.Function} is not translated.");
         }
 
-        // Once the eye fade enables composite animation, CeresRidley_Main performs the
+        // Once the eye fade enables composite animation, Ceres Ridley's main behaviour performs the
         // common Ridley 8.8 movement pass after every dispatcher call. Keeping that order
         // matters at A6AF/A6C8: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)

@@ -79,7 +79,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
     /// <param name="elevatorDoorDestroyed">Whether the Ceres elevator door's destruction has released the rotation.</param>
     /// <param name="allowDeparture">
-    /// True only when the outer dispatcher is state eight. States $20/$21 still call the
+    /// True only when the outer dispatcher is state eight. The elevator-arrival and blackout states still call the
     /// ordinary gameplay body, but the room main explicitly rejects their game-state
     /// numbers; keeping that input explicit preserves the same ownership boundary.
     /// </param>

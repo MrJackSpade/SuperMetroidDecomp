@@ -459,7 +459,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
             (direction == HorizontalDirection.Right ? NinjaPirateDiveHorizontalPixels : -NinjaPirateDiveHorizontalPixels));
 
-        // MoveEnemyDownBy_14_12 receives the high speed byte as the signed integer word and
+        // The vertical mover receives the high speed byte as the signed integer word and
         // the low byte as only the low eight bits of the fractional word. This odd packing is
         // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
         // different from the game's own speed arithmetic.

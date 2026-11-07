@@ -252,7 +252,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// <c>bodyTargetXPosition</c> used while the bomb decision walks the body toward
-    /// X=$40 or $60 before entering its posture sequence.
+    /// X=64 or 96 before entering its posture sequence.
     /// </summary>
     public int BodyTargetXPosition { get; internal set; }
 
@@ -268,7 +268,7 @@ public sealed class MotherBrainEnemyState
     /// starts from this exact 16.16 position, advances the cursor by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
-    /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus $30).</remarks>
+    /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus 48).</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
     /// <summary>Signed 8.8 aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }

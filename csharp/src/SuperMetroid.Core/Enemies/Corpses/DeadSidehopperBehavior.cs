@@ -263,8 +263,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 horizontalDisplacement);
         }
 
-        // Upward motion accelerates by $20 in signed 8.8; falling motion accelerates by
-        // $80. The sign test is performed before the addition in the game.
+        // Upward motion accelerates by 32 in signed 8.8; falling motion accelerates by
+        // 128. The sign test is performed before the addition in the game.
         int acceleration = state.Velocity.Y.SignedRawValue < 0
             ? 32
             : 128;

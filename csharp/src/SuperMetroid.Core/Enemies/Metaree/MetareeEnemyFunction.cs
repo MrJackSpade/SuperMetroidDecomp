@@ -8,7 +8,7 @@ public enum MetareeEnemyFunction
 {
     /// <summary>Activates within 72 horizontal pixels, without checking that Samus is below, and fixes the unsigned downward speed for the attack.</summary>
     Idling = 1,
-    /// <summary>Waits for the animation's attack-ready flag, then installs dive art and requests library-2 sound $5B.</summary>
+    /// <summary>Waits for the animation's attack-ready flag, then installs dive art and requests the library-2 dive sound.</summary>
     PreparingAttack,
     /// <summary>Reloads the 21-update burrow timer, probes solid blocks below, and otherwise dives at fixed whole-pixel Y speed while steering two pixels toward Samus.</summary>
     LaunchedAttack,

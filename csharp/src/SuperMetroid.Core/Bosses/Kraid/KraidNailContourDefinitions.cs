@@ -11,7 +11,7 @@ internal static class KraidNailContourDefinitions
     internal const int LedgeCount = 4;
 
     /// <summary>
-    /// Each ledge's left offset. Independently reviewed for #1165 against pinned bank_A7.asm and original NTSC words:
+    /// Each ledge's left offset. Independently reviewed for #1165 against the original NTSC values:
     /// the four ledges advance 24 pixels from -64 to 8.
     /// </summary>
     internal static readonly short[] Lefts = [-64, -40, -16, 8];

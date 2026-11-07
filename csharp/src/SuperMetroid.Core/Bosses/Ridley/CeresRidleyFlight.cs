@@ -38,7 +38,7 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// Ports the Ceres branch of <c>CeresRidley_Init</c>. The shared routine also
+    /// Sets up the Ceres branch of Ridley's initializer. The shared routine also
     /// initializes Norfair Ridley, but selecting that branch here would be fiction:
     /// this loader currently has no saved boss-bit input and the playable path is fresh Ceres.
     /// </summary>
@@ -149,12 +149,12 @@ internal sealed class CeresRidleyFlight
             return;
         }
 
-        // A6:A763 is the shared cooldown/return-to-hover movement: accelerate toward
+        // The shared cooldown/return-to-hover movement: accelerate toward (192, 100)
         //  using divisor table entry zero.
         AccelerateRidleyToward(slot, state, target: new(192, 100), divisorIndex: 0);
         if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {
-            // Shitroid_Func_2 returns zero on rectangle overlap. The hover wait therefore waits
+            // The hover-box overlap test returns zero on rectangle overlap. The hover wait therefore waits
             // only while Ridley is still outside the hover box, with 124 as the authentic
             // timeout. The previous translation inverted this branch and selected attacks
             // while he was still above the arena, making every fireball route hit its
@@ -324,12 +324,12 @@ internal sealed class CeresRidleyFlight
             state.Function = RidleyAiFunction.CeresFakeRetreatRising;
     }
 
-    /// <summary>Raises Ridley above Y=$20 before releasing the Baby into its independent fall.</summary>
+    /// <summary>Raises Ridley above Y=32 before releasing the Baby into its independent fall.</summary>
     internal static void TickCeresRidleyFakeRetreatRising(
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        // Ridley rises past Y=$20 while the Baby still follows his original hand
+        // Ridley rises past Y=32 while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent falling function and a
         // 21-underflow wait before Ridley changes to the retrieval pose.
         state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));

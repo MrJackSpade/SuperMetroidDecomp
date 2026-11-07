@@ -67,8 +67,8 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Literal <c>MakeMotherBrainWalkBackwards($28, $08)</c>. Offset eight selects the slow
-    /// authored gait; the helper's hard floor at X=$30 can report arrival before target $28.
+    /// Walks Mother Brain backwards toward X 40 at gait offset 8. Offset eight selects the slow
+    /// authored gait; the helper's hard floor at X=48 can report arrival before target 40.
     /// </summary>
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
         MotherBrainEnemyState state)

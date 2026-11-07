@@ -6,7 +6,7 @@ internal static class HibashiDefinitions
 
 
 
-    /// <summary>Sound effect $61 in library two, queued when an eruption begins.</summary>
+    /// <summary>The fire-spit sound, queued when an eruption begins.</summary>
     internal static readonly SoundEffectId EruptionSoundEffect = Library2Sound.FireSpit;
 
     /// <summary>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One exploding normal bomb overlapping one enemy in the ordinary bomb pass.</summary>
 /// <param name="Enemy">The enemy whose selected shot callback runs.</param>
-/// <param name="Bomb">The exploding bomb slot, already marked with direction bit $10.</param>
+/// <param name="Bomb">The exploding bomb slot, already marked with its hit direction.</param>
 /// <param name="OrdinaryProjectiles">Samus's beam/missile slots (callbacks read slot zero's aim).</param>
 /// <param name="Samus">Samus, when the pass has one.</param>
 /// <param name="SelectedShotAi">The named callback of the selected hitbox (the header's on the radius path), if named.</param>

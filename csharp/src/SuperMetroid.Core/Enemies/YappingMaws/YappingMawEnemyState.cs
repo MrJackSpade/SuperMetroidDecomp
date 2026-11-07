@@ -58,7 +58,7 @@ public sealed class YappingMawEnemyState
 
     /// <summary>
     /// Signed room-pixel reference samples subtracted from each raw link before curl correction:
-    /// X at angle $80 and SegmentRadius, Y at angle $80 and half SegmentRadius.
+    /// X at angle 128 and SegmentRadius, Y at angle 128 and half SegmentRadius.
     /// </summary>
     public Offset16<RoomPixels> Baseline { get; internal set; }
 

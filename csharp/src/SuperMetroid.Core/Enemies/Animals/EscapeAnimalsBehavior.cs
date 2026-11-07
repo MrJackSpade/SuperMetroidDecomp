@@ -50,7 +50,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new EscapeEtecoonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Event $0F means the animals already escaped on an earlier visit. Code
+        // The critters-escaped event means the animals already escaped on an earlier visit. Code
         // deletes the actor before changing any animation, position, palette, or AI fields.
         if (HasCrittersEscaped())
         {
@@ -98,7 +98,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.RequireSpeciesState<EscapeDachoraEnemyState>().Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);
     }
 
-    /// <summary>Ports <c>EscapeEtecoon_Main</c> and its complete indirect dispatch.</summary>
+    /// <summary>Runs an escaping Etecoon's per-frame behaviour through its complete function dispatch.</summary>
     private void RunEscapeEtecoonMain(
         RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,
@@ -141,7 +141,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Escape Etecoon walking requires room collision data.");
 
-        // The stored speed is signed 8.8; Enemy_MoveRight_IgnoreSlopes receives signed
+        // The stored speed is signed 8.8; the slope-ignoring horizontal mover receives signed
         // 16.16, hence the exact eight-bit shift. The event test is inside the collision
         // branch in the retail routine and must not turn an animal around in open space.
         int horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta().RawValue;
@@ -156,7 +156,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                     : EscapeEtecoonProgram.RunningRightLowTide);
         }
 
-        // Enemy_MoveDown is called even after horizontal collision, and its carry result is
+        // The vertical mover is called even after horizontal collision, and its carry result is
         // ignored. This one-pixel probe lets the common collision helper settle the actor on
         // the room's actual floor without introducing a bespoke ground model.
         _ = _terrain.MoveEnemyVertically(level, slot, EscapeEtecoonGravity);
@@ -224,7 +224,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Samples event $0F for Dachora's instruction-list branch and room revisit handling.</summary>
+    /// <summary>Samples the critters-escaped event for Dachora's instruction-list branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(EventNumber.CrittersEscaped);
 
     /// <summary>Treats absent Samus/liquid context as the maximum Y for acid-height branches.</summary>

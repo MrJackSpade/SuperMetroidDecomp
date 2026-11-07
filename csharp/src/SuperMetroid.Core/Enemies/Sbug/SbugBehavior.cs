@@ -30,7 +30,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Random-wandering activation resets the shared enemy RNG to 11.</summary>
     private const int SbugRandomSeed = 11;
-    /// <summary>Random and forward-then-wait legs last $20 enemy frames before selection changes.</summary>
+    /// <summary>Random and forward-then-wait legs last 32 enemy frames before selection changes.</summary>
     private const int SbugMovementSegmentFrames = 32;
     /// <summary>Long wandering mode tracks $200 frames before dropping its distance-based reversal gate.</summary>
     private const int SbugLongRandomLifetime = 512;
@@ -85,7 +85,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSbugFacing(slot, state, state.ForwardFacing);
     }
 
-    /// <summary>Ports <c>MainAI_Sbug</c> and its complete indirect dispatch table.</summary>
+    /// <summary>Runs an Sbug's per-frame behaviour through its complete function dispatch.</summary>
     internal void RunSbugMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
     {
         if (samus is null)
@@ -177,8 +177,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugHeading relativeHeading)
     {
         // CalculateAngleOfSamusFromEnemy uses zero-up/clockwise units. Subtracting it from
-        // $40 converts to Sbug's zero-right/counter-clockwise mathematical convention;
-        // adding $80 selects the exact opposite direction for behavior six.
+        // 64 converts to Sbug's zero-right/counter-clockwise mathematical convention;
+        // adding 128 selects the exact opposite direction for behavior six.
         ByteAngle heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
         state.FaceCustomHeading(heading.AddTableUnits(relativeHeading == SbugHeading.Away ? ByteAngle.HalfTurn.RawValue : 0).ToAngle());
@@ -272,7 +272,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         AddSbugVelocity(slot, state.CustomXVelocity, state.CustomYVelocity);
     }
 
-    /// <summary>Offsets the current angle by a random byte, then begins a $20-frame movement leg.</summary>
+    /// <summary>Offsets the current angle by a random byte, then begins a 32-frame movement leg.</summary>
     private void ChooseSbugRandomDirection(
         RoomEnemySlot slot,
         SbugEnemyState state,

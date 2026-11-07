@@ -8,7 +8,7 @@ public enum BullEnemyFunction
 {
     /// <summary>Waits for the sixteen-call activation countdown to reach zero, reloads it, and selects Samus targeting.</summary>
     MovementDelay = 1,
-    /// <summary>Captures the byte angle toward Samus, sets acceleration delta $18, and starts accelerating without moving that call.</summary>
+    /// <summary>Captures the byte angle toward Samus, sets acceleration delta 24, and starts accelerating without moving that call.</summary>
     TargetSamus,
     /// <summary>Increases speed on configured interval expiries while below the maximum threshold, moves along the captured angle, and checks the 48-unit off-target deceleration.</summary>
     Accelerating,

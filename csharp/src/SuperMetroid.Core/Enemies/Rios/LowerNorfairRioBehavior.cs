@@ -36,7 +36,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         _slotTable = slotTable;
     }
 
-    /// <summary>Samus must be strictly within $70 horizontal pixels to permit a swoop.</summary>
+    /// <summary>Samus must be strictly within 112 horizontal pixels to permit a swoop.</summary>
     private const int LowerNorfairRioHorizontalTriggerDistance = 112;
     /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
     private const int LowerNorfairRioGravity = 32;

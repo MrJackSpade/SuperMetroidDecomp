@@ -12,7 +12,7 @@ public enum BeetomEnemyFunction
     DecideAction = 1,
     /// <summary>Advances the shared RNG and selects an idle or hop setup, storing the low bit as direction.</summary>
     DecideActionSamusNotInProximity,
-    /// <summary>Loads timer $20 and enters the stationary countdown on the next gameplay frame.</summary>
+    /// <summary>Loads a 32-update timer and enters the stationary countdown on the next gameplay frame.</summary>
     StartIdling,
     /// <summary>Installs left-facing crawling art and selects movement without moving on this setup frame.</summary>
     StartCrawlingLeft,

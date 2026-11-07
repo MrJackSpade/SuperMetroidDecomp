@@ -59,7 +59,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
     }
 
-    /// <summary>Ports <c>Kago_Main</c> and its one useful indirect target.</summary>
+    /// <summary>Runs a Kago's per-frame behaviour and its one useful function.</summary>
     private static void RunKagoMain(KagoEnemyState state)
     {
         switch (state.Function)

@@ -35,7 +35,7 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
     {
         RoomEnemyProjectileSlot projectile = context.Projectile;
         AnimationProgramCursor<TProgram> cursor = Cursor;
-        // Counter steps use the projectile's general timer, as the TimerInY and DecrementTimer_GotoYIfNonZero do.
+        // Counter steps use the projectile's general timer, as the original's timer-setting and timer-decrementing instructions do.
         int timerBefore = Ensure.BetweenInclusive(0, ushort.MaxValue, projectile.GeneralTimer);
         WrappingCountdown counter = WrappingCountdown.FromRaw(timerBefore);
         AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter,

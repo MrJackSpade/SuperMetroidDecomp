@@ -17,7 +17,7 @@ public sealed class BeetomEnemyState
     /// Starts one Beetom, facing the way the previous Beetom in its slot last faced, or left for the slot's first.
     /// </summary>
     /// <remarks>
-    /// Setup (<c>InitAI_Beetom</c>) never writes the facing, and the touch handler reads it to choose the drain's side
+    /// The Beetom's setup never writes the facing, and the touch handler reads it to choose the drain's side
     /// before the Beetom's first action decision writes it, so a fresh Beetom touched at once drains facing its
     /// predecessor's way. Every other value setup writes itself.
     /// </remarks>

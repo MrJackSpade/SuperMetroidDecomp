@@ -46,7 +46,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaxSpeed = settings.MaximumSpeed;
     }
 
-    /// <summary>Ports <c>MainAI_Bull</c> and all four indirect function targets.</summary>
+    /// <summary>Runs a Bull's per-frame behaviour through all four of its functions.</summary>
     internal static void RunBullMain(RoomEnemySlot slot, BullEnemyState state, SamusState? samus)
     {
         state.ShotReactionDisableTimer = state.ShotReactionDisableTimer.Decrement().Remaining;
@@ -130,7 +130,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Decelerate();
     }
 
-    /// <summary>Starts braking when the signed angle difference reaches $30.</summary>
+    /// <summary>Starts braking when the signed angle difference reaches 48.</summary>
     private static void TriggerBullDecelerationIfOffTarget(
         RoomEnemySlot slot,
         BullEnemyState state,

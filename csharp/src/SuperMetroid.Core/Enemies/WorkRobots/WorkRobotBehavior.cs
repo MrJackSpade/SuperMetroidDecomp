@@ -430,7 +430,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (projectile is null)
             return;
 
-        // SpawnEnemyProjectileY_ParameterA_XGraphics installs the complete seven-word
+        // The enemy-projectile spawn installs the complete seven-word
         // definition before entering the family initializer. Keeping that division here is
         // important: the five records do not share radii or damage, and the common helper
         // also supplies the pre-draw map sentinel and all three property bits.

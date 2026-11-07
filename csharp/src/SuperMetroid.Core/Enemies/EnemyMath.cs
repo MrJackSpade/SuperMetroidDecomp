@@ -67,7 +67,7 @@ internal static class EnemyMath
     /// <summary>
     /// Sign-extends one 8.8 velocity and shifts it into the signed 16.16 displacement
     /// consumed by the shared enemy collision routines. Rio-family AI uses this exact
-    /// <c>INT16_SHL8</c> conversion on both axes.
+    /// eight-bit-shift conversion on both axes.
     /// </summary>
     internal static int ToEightBitVelocityDisplacement(SignedEightEight velocity) =>
         velocity.ToSixteenSixteenDelta().RawValue;

@@ -22,7 +22,7 @@ public sealed class ShaktoolSegmentState
     /// </summary>
     public int AngularVelocity { get; internal set; }
     /// <summary>
-    /// The centre segment's heading bucket: one of eight eighth-turns in table units (0, $20, ... $E0), selected
+    /// The centre segment's heading bucket: one of eight eighth-turns in table units (0, 32, ... 224), selected
     /// from the midpoint of its neighbours' angles and choosing its head animation.
     /// </summary>
     public int OrientationBucket { get; internal set; }

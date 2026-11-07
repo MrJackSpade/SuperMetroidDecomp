@@ -83,7 +83,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
     }
 
-    /// <summary>Ports <c>MainAI_Cacatac</c> and its three indirect targets.</summary>
+    /// <summary>Runs a Cacatac's per-frame behaviour through its three functions.</summary>
     private void RunCacatacMain(RoomEnemySlot slot, CacatacEnemyState state)
     {
         switch (state.Function)

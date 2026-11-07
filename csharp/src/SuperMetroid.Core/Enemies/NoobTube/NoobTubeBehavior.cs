@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 [RoomLifetime]
 internal sealed class NoobTubeBehavior
 {
-    /// <summary>The program each even shard spawn parameter ($00-$12) selects, by parameter / 2.</summary>
+    /// <summary>The program each even shard spawn parameter (0-18) selects, by parameter / 2.</summary>
     private static readonly NoobTubeProjectileProgram[] ShardPrograms =
     [
         NoobTubeProjectileProgram.Shard0, NoobTubeProjectileProgram.Shard1, NoobTubeProjectileProgram.Shard2,

@@ -107,7 +107,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = BeetomEnemyFunction.DecideAction;
     }
 
-    /// <summary>Ports <c>MainAI_Beetom</c> and all indirect function targets.</summary>
+    /// <summary>Runs a Beetom's per-frame behaviour through all of its functions.</summary>
     private void RunBeetomMain(
         RoomEnemySlot slot,
         BeetomEnemyState state,

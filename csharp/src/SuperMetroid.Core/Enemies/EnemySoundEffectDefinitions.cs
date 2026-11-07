@@ -44,13 +44,13 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Library-two cue published by a Dragon fireball volley.</summary>
     internal static readonly SoundEffectId DragonFireballSound = Library2Sound.FireSpit;
 
-    /// <summary>Library-three selector $25 plays when arrival reaches the resting height.</summary>
+    /// <summary>The library-three sound that plays when arrival reaches the resting height.</summary>
     internal static readonly SoundEffectId ElevatorArrivalSoundLibrary3 = Library3Sound.SpeedBoosterEnd;
 
-    /// <summary>Library-one selector $32 accompanies departure.</summary>
+    /// <summary>The library-one sound that accompanies departure.</summary>
     internal static readonly SoundEffectId ElevatorDepartureSoundLibrary1 = Library1Sound.SpinJumpEnd;
 
-    /// <summary>Library-three selector $0B accompanies departure.</summary>
+    /// <summary>The library-three elevator sound that accompanies departure.</summary>
     internal static readonly SoundEffectId ElevatorDepartureSoundLibrary3 = Library3Sound.Elevator;
 
     /// <summary>Library-two sound queued at an audible teaching hop.</summary>
@@ -77,7 +77,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Library-two landing cue published when the falling top reaches its target.</summary>
     internal static readonly SoundEffectId KzanLandingSoundEffect = Library2Sound.SpikePlatformStop;
 
-    /// <summary>Library-two selector $64 is published when the Rio starts its return.</summary>
+    /// <summary>The library-two sound published when the Rio starts its return.</summary>
     internal static readonly SoundEffectId LowerNorfairRioReturnSound = Library2Sound.HoltzCry;
 
     /// <summary>Library-two sound requested by the spinning animation instruction.</summary>

@@ -128,7 +128,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MetareeEnemyFunction.PreparingAttack;
     }
 
-    /// <summary>Consumes the preparation list's ready flag, installs the dive list, and publishes sound $5B.</summary>
+    /// <summary>Consumes the preparation list's ready flag, installs the dive list, and publishes the dive sound.</summary>
     internal void RunMetareePreparation(RoomEnemySlot slot, MetareeEnemyState state)
     {
         if (!state.AttackReady)

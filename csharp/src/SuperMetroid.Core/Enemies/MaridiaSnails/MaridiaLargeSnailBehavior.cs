@@ -550,7 +550,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 if (c.HitboxShotAi == EnemyReaction.Ignore)
                 {
                     // Multibox collision marks the projectile before calling the
-                    // no-op. It does not run normal shot AI, create an impact, play $57,
+                    // no-op. It does not run normal shot AI, create an impact, play the shot sound,
                     // or consult vulnerability for this protected shell component.
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                     return true;

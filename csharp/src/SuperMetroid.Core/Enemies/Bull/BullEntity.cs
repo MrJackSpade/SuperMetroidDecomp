@@ -30,7 +30,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
     public override EnemyBombReaction? FindBombCommon(EnemyBombContext context) =>
         species.BombReaction.Matches(context) ? species.BombReaction : base.FindBombCommon(context);
 
-    /// <summary>Ports <c>MainAI_Bull</c>.</summary>
+    /// <summary>Runs a Bull's per-frame behaviour.</summary>
     private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         BullBehavior.RunBullMain(slot, slot.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 

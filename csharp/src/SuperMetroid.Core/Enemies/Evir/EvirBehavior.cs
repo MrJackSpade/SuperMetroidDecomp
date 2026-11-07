@@ -569,7 +569,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
     internal void AddEvirShotReactions(EnemySharedReactions table)
     {
-        // Evir's shot tail runs after every accepted common shot, including the $FF ice result. That is
+        // Evir's shot tail runs after every accepted common shot, including the freezing ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
                                                      enemy.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&

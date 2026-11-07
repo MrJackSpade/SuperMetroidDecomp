@@ -491,7 +491,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail, including its read
-    /// of the owner index after common death has cleared the struck enemy's RAM.
+    /// of the owner index after common death has cleared the struck enemy's state.
     /// </summary>
     private void ResolveShaktoolShotAfterCommon(RoomEnemySlot struckSegment)
     {

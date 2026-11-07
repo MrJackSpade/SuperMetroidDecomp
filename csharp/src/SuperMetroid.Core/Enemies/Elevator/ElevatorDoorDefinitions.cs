@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Elevator;
 
-/// <summary>Constants of the state-$09 door functions for elevator pseudo-doors.</summary>
+/// <summary>Constants of the elevator-door functions for elevator pseudo-doors.</summary>
 public static class ElevatorDoorDefinitions
 {
     /// <summary>

@@ -73,7 +73,7 @@ internal sealed class FallingSparksBehavior
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         if (spark.VerticalSpeed.WholePixels >= 0)
         {
-            // Move_EnemyProjectile_Vertically, slope reactions included, reads the spark's whole speed in
+            // The enemy-projectile vertical mover, slope reactions included, reads the spark's whole speed in
             // pixels as an 8.8 speed in 1/256ths of a pixel.
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical,
                     new SignedEightEight(spark.VerticalSpeed.WholeWord)))

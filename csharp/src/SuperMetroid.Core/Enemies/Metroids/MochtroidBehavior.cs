@@ -49,7 +49,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Room clearing initializes both parallel words to zero. Installing the
         // first nonzero list is important: the original's equality shortcut is also the
-        // source of its documented respawning-Mochtroid crash when stale extension RAM is
+        // source of its documented respawning-Mochtroid crash when stale extension state is
         // retained. Ordinary room loads start clean and therefore take the safe path.
         var state = new MochtroidEnemyState
         {
@@ -63,7 +63,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             slot, state, MochtroidProgram.FreeFlight);
     }
 
-    /// <summary>Ports the reset-before-dispatch behavior of <c>MainAI_Mochtroid</c>.</summary>
+    /// <summary>Runs a Mochtroid's per-frame behaviour, resetting its state before dispatch.</summary>
     private void RunMochtroidMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -191,7 +191,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Program = AnimationProgramCursor<MochtroidProgram>.Start(installed);
         });
 
-    /// <summary>Ports the family-specific portion of <c>EnemyTouch_Mochtroid</c>.</summary>
+    /// <summary>Resolves the family-specific portion of a Mochtroid's touch.</summary>
     private void ResolveMochtroidTouch(
         RoomEnemySlot slot,
         MochtroidEnemyState state,

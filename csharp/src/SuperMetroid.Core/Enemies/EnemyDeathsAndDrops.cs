@@ -184,7 +184,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>
     /// Allocates a pickup projectile using an ordinary enemy header. The
     /// allocation search, slot-zero failure, random selection, and no-drop tail all match
-    /// <c>SpawnEprojWithRoomGfx</c> followed by <c>InitAI_EnemyProjectile_Pickup</c>.
+    /// the original's enemy-projectile spawn followed by the pickup's initializer.
     /// </summary>
     internal RoomEnemyProjectileSlot? SpawnEnemyDropFromEnemyHeader(
         Position16<RoomPixels> position,
@@ -427,7 +427,7 @@ internal sealed class EnemyDeathsAndDrops
         if (samus is null)
             return;
 
-        // Command $0D reports any non-inactive grapple function. A pickup is immune to its
+        // The grapple query reports any non-inactive grapple function. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             pickup.Lifetime < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
@@ -573,7 +573,7 @@ internal sealed class EnemyDeathsAndDrops
         }
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
-        // Unlike Initialise_Enemies and Spawn_Enemy, Respawn_Enemy
+        // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
         // never writes the spritemap: the actor keeps EnemyDeath's cleared word,
         // or what its init AI wrote, until its first instruction. A zero spritemap is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
@@ -616,7 +616,7 @@ internal sealed class EnemyDeathsAndDrops
                 _projectiles.SpawnRandomEnemyDeathSprite(projectile, cue.SpriteObject, mask: 31, center: 16);
                 return null;
             case EnemyDeathProjectileCueKind.PlayEnemyKilledSound:
-                // EprojInstr_QueueSfx2_9 returns the pointer it was passed, so the following duration starts the next frame.
+                // The sound-queueing instruction returns to the next instruction, so the following duration starts the next frame.
                 QueueEnemyKilledSound();
                 return null;
             case EnemyDeathProjectileCueKind.PlaySmallExplosionSound:

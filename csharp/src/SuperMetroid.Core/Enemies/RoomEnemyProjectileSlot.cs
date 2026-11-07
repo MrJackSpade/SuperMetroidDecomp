@@ -119,7 +119,7 @@ public sealed class RoomEnemyProjectileSlot
     internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
 
     /// <summary>
-    /// A bare <c>STZ EnemyProjectile_ID,X</c>: frees the slot but leaves every other word,
+    /// Clears only the projectile's identity: frees the slot but leaves every other word,
     /// so a routine that keeps running after the store still moves the released slot.
     /// </summary>
     internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;

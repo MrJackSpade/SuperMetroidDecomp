@@ -13,19 +13,13 @@ internal static class TitleTypedCards
         TitleSequenceDefinitions.TextSequences.Presents.Phase, TitleSequenceDefinitions.TextSequences.MetroidThree.Phase,
     ];
 
-    /// <summary>Each card's reveals in typing order.</summary>
-    private static readonly Dictionary<TitleSequencePhase, TitleSprite[]> Reveals = Typed();
+    /// <summary>Each card's reveals in typing order: the reveal at each place shows every glyph up to it.</summary>
+    internal static readonly IReadOnlyDictionary<TitleSequencePhase, TitleSprite[]> Reveals = Typed();
 
     /// <summary>Each reveal's step.</summary>
     private static readonly Dictionary<TitleSprite, TitleTypedStep> StepOf = Reveals
         .SelectMany(card => card.Value.Select((sprite, glyph) => new KeyValuePair<TitleSprite, TitleTypedStep>(sprite, new(card.Key, glyph))))
         .ToDictionary(entry => entry.Key, entry => entry.Value);
-
-    /// <summary>The compositions <paramref name="card"/> reveals, in typing order: the reveal at each place shows every glyph up to it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The phase shows no card.</exception>
-    internal static IReadOnlyList<TitleSprite> Steps(TitleSequencePhase card) => Reveals.TryGetValue(card, out TitleSprite[]? sprites)
-        ? sprites
-        : throw new ArgumentOutOfRangeException(nameof(card), card, "Phase shows no title card.");
 
     /// <summary>The reveal <paramref name="sprite"/> shows, or none for a composition no card reveals.</summary>
     internal static TitleTypedStep? Find(TitleSprite sprite) => StepOf.TryGetValue(sprite, out TitleTypedStep step) ? step : null;

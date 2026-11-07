@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// Names the game-over document's Baby frames, cursor frames and Baby palettes (<see cref="GameOverPresentationDefinitions"/>).
+/// Names the game-over document's Baby frames and cursor frames (<see cref="GameOverPresentationDefinitions"/>).
 /// </summary>
 public static class GameOverPresentationNames
 {
@@ -18,11 +18,4 @@ public static class GameOverPresentationNames
     /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
     public static string CursorFrameName(int frame) =>
         Ensure.Listed(GameOverPresentationDefinitions.CursorFrameNames, frame);
-
-    /// <summary>Maps a compiled Baby palette phase to its authored color-array identity.</summary>
-    /// <param name="palette">Idle, closed-cry, middle-cry, or open-cry palette phase.</param>
-    /// <returns>The corresponding <c>Baby.</c> palette dictionary key.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
-    public static string BabyPaletteName(GameOverBabyPalette palette) =>
-        Ensure.Listed(GameOverPresentationDefinitions.BabyPaletteNamesByPhase, palette);
 }

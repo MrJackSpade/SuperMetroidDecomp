@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>The shape of one map highlight palette frame.</summary>
 public static class MapPaletteCycleFormat

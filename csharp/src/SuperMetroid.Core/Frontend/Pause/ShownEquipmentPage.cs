@@ -26,16 +26,4 @@ internal sealed record ShownEquipmentPage(ImmutableArray<ShownEquipmentLabel> La
             new ShownEquipmentLabel(key.Label, inventory.StateOf(PauseEquipmentRules.Mask(key.Category, key.Item))))];
         return new(labels, inventory.HyperBeam, PauseEquipmentRules.WireframeKind(inventory.EquippedItems), reserve, arrow);
     }
-
-    /// <summary>How <paramref name="label"/> shows.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The label is not an ordinary item label.</exception>
-    internal ShownEquipmentLabel Label(PauseEquipmentLabelId label)
-    {
-        foreach (ShownEquipmentLabel shown in Labels)
-        {
-            if (shown.Label == label)
-                return shown;
-        }
-        throw new ArgumentOutOfRangeException(nameof(label), label, "The equipment page shows no such ordinary label.");
-    }
 }

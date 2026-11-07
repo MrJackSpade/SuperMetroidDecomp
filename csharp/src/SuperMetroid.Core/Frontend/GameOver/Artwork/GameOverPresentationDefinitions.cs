@@ -28,14 +28,4 @@ public static class GameOverPresentationDefinitions
             [2] = "Cursor.2",
             [3] = "Cursor.3",
         };
-
-    /// <summary>Maps a compiled Baby palette phase to its authored color-array identity.</summary>
-    internal static readonly IReadOnlyDictionary<GameOverBabyPalette, string> BabyPaletteNamesByPhase =
-        new Dictionary<GameOverBabyPalette, string>
-        {
-            [GameOverBabyPalette.Idle] = "Baby.Idle",
-            [GameOverBabyPalette.ClosedCry] = "Baby.ClosedCry",
-            [GameOverBabyPalette.MiddleCry] = "Baby.MiddleCry",
-            [GameOverBabyPalette.OpenCry] = "Baby.OpenCry",
-        };
 }

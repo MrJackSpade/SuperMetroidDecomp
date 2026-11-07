@@ -9,7 +9,7 @@ public static class AtmosphereDrift
     /// selects positive rather than negative motion. Multiply by256, then preserve
     /// the two's-complement ushort representation. The four original values and
     /// all ushort RNG inputs are independently verified against NTSC J/U v1.0 and
-    /// pinned bank_88.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+    /// pinned reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).
     /// Invalid selectors retain the former indexed span's rejection.</remarks>
     public static int RainHorizontalVelocity(int selection)
     {

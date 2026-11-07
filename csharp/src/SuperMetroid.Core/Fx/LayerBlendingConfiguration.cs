@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 public enum LayerBlendingConfiguration
 {
     /// <summary>
-    /// <c>LayerBlending_Config</c> zero: <c>LayerBlending_Handler</c> branches past initialization
+    /// No configuration: the layer-blending handler branches past initialization
     /// and the configuration table, leaving the layer settings as they are.
     /// </summary>
     Unconfigured = 0,
@@ -15,58 +15,58 @@ public enum LayerBlendingConfiguration
     /// <summary>The configuration used by ordinary gameplay without a special room effect.</summary>
     NormalGameplay = 1,
 
-    /// <summary>Dispatcher offset <c>$04</c>, which omits Phantoon's body before its fade-in.</summary>
+    /// <summary>The configuration that omits Phantoon's body before its fade-in.</summary>
     PhantoonHidden,
 
-    /// <summary>Dispatcher offset <c>$06</c>, an unused configuration with semi-transparent sprites.</summary>
+    /// <summary>An unused configuration with semi-transparent sprites.</summary>
     UnusedSemiTransparentSprites,
 
-    /// <summary>Dispatcher offset <c>$08</c>, Wrecked Ship with its power off.</summary>
+    /// <summary>Wrecked Ship with its power off.</summary>
     WreckedShipPowerOff,
 
-    /// <summary>Dispatcher offset <c>$0A</c>, which composites the drifting-spore effect overlay atmosphere.</summary>
+    /// <summary>The configuration that composites the drifting-spore effect overlay atmosphere.</summary>
     Spores,
 
-    /// <summary>Dispatcher offset <c>$0C</c>, which applies the Fireflea room's darkness and light effects.</summary>
+    /// <summary>The configuration that applies the Fireflea room's darkness and light effects.</summary>
     Fireflea,
 
-    /// <summary>Dispatcher offset <c>$0E</c>, which adds the full-screen rain effect overlay plane.</summary>
+    /// <summary>The configuration that adds the full-screen rain effect overlay plane.</summary>
     Rain,
 
-    /// <summary>Dispatcher offset <c>$10</c>, the Morph Ball eye room.</summary>
+    /// <summary>The Morph Ball eye room.</summary>
     MorphBallEye,
 
-    /// <summary>Dispatcher offset <c>$12</c>, the suit-pickup rooms.</summary>
+    /// <summary>The suit-pickup rooms.</summary>
     SuitPickup,
 
-    /// <summary>Dispatcher offset <c>$14</c>, which subtracts the water effect overlay plane from the gameplay scene.</summary>
+    /// <summary>The configuration that subtracts the water effect overlay plane from the gameplay scene.</summary>
     WaterSubtractive,
 
-    /// <summary>Dispatcher offset <c>$16</c>, the subtractive water variant whose window setup supports a waterfall.</summary>
+    /// <summary>The subtractive water variant whose window setup supports a waterfall.</summary>
     WaterfallSubtractive,
 
-    /// <summary>Dispatcher offset <c>$18</c>, which adds a liquid or fog effect overlay plane to the gameplay scene.</summary>
+    /// <summary>The configuration that adds a liquid or fog effect overlay plane to the gameplay scene.</summary>
     LiquidOrFogAdditive,
 
-    /// <summary>Dispatcher offset <c>$1A</c>, which presents Phantoon through the configured translucent composition.</summary>
+    /// <summary>The configuration that presents Phantoon through the configured translucent composition.</summary>
     PhantoonSemiTransparent,
 
-    /// <summary>Dispatcher offset <c>$1C</c>, an unused half-additive configuration with reversed backgrounds.</summary>
+    /// <summary>An unused half-additive configuration with reversed backgrounds.</summary>
     UnusedHalfAdditiveReversedBackgrounds,
 
-    /// <summary>Dispatcher offset <c>$1E</c>, which adds the lava or acid effect overlay plane and fixed-color effect.</summary>
+    /// <summary>The configuration that adds the lava or acid effect overlay plane and fixed-color effect.</summary>
     LavaAcidAdditive,
 
-    /// <summary>Dispatcher offset <c>$20</c>, an alternate normal-gameplay configuration.</summary>
+    /// <summary>An alternate normal-gameplay configuration.</summary>
     NormalGameplayAlternate,
 
-    /// <summary>Dispatcher offset <c>$22</c>, an unused subtractive water configuration.</summary>
+    /// <summary>An unused subtractive water configuration.</summary>
     UnusedWaterSubtractive,
 
-    /// <summary>Dispatcher offset <c>$24</c>, Mother Brain's window configuration.</summary>
+    /// <summary>Mother Brain's window configuration.</summary>
     MotherBrainWindow,
 
-    /// <summary>Dispatcher offset <c>$26</c>, an unused half-additive configuration.</summary>
+    /// <summary>An unused half-additive configuration.</summary>
     UnusedHalfAdditive,
 
     /// <summary>The first of two backdrop modes that advance the visor palette animation.</summary>
@@ -75,18 +75,18 @@ public enum LayerBlendingConfiguration
     /// <summary>The second of two backdrop modes that advance the visor palette animation.</summary>
     VisorBackdrop2A,
 
-    /// <summary>Dispatcher offset <c>$2C</c>, haze rooms and the Torizo rooms.</summary>
+    /// <summary>Haze rooms and the Torizo rooms.</summary>
     HazeOrTorizo,
 
-    /// <summary>Dispatcher offset <c>$2E</c>, an unused subtractive configuration.</summary>
+    /// <summary>An unused subtractive configuration.</summary>
     UnusedSubtractive,
 
-    /// <summary>Dispatcher offset <c>$30</c>, which adds the full-screen fog effect overlay plane.</summary>
+    /// <summary>The configuration that adds the full-screen fog effect overlay plane.</summary>
     FogAdditive,
 
-    /// <summary>Dispatcher offset <c>$32</c>, an unused subtractive background configuration.</summary>
+    /// <summary>An unused subtractive background configuration.</summary>
     UnusedSubtractiveBackground,
 
-    /// <summary>Dispatcher offset <c>$34</c>, installed during Mother Brain's second-phase room transformation.</summary>
+    /// <summary>The configuration installed during Mother Brain's second-phase room transformation.</summary>
     MotherBrainPhaseTwo,
 }

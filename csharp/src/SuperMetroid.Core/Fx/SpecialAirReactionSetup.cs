@@ -9,9 +9,9 @@ public enum SpecialAirReactionSetup
     Nothing = 1,
     /// <summary>Clears the carry: the block reacts as air.</summary>
     ClearCarry,
-    /// <summary>The Brinstar floor plant, selected by Brinstar inside BTS $80.</summary>
+    /// <summary>The Brinstar floor plant, selected by Brinstar's first special air block.</summary>
     BrinstarFloorPlant,
-    /// <summary>The Brinstar ceiling plant, selected by Brinstar inside BTS $81.</summary>
+    /// <summary>The Brinstar ceiling plant, selected by Brinstar's second special air block.</summary>
     BrinstarCeilingPlant,
     /// <summary>Ice physics.</summary>
     IcePhysics,

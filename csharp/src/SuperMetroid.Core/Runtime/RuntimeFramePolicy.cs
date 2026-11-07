@@ -8,7 +8,7 @@ public sealed record RuntimeFramePolicy
 
     /// <summary>
     /// Allows the Ceres shaft room-main trigger to request departure; the outer dispatcher enables
-    /// this only in state eight, not departure states $20/$21. Shaft rotation still advances independently.
+    /// this only in state eight, not the elevator-hold and blackout departure states. Shaft rotation still advances independently.
     /// </summary>
     public bool AllowCeresElevatorDeparture { get; init; } = true;
 

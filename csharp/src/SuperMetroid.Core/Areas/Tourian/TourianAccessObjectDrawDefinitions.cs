@@ -13,7 +13,7 @@ internal static class TourianAccessObjectDrawDefinitions
 {
     /// <summary>
     /// The rows and air block of each Tourian access draw. Clear selects six blank rows; empty selects one. The three
-    /// crumble records show successive blocks $53..55, unmirrored. Every row is four air cells.
+    /// crumble records show the three successive crumble blocks, unmirrored. Every row is four air cells.
     /// </summary>
     internal static readonly IReadOnlyDictionary<TourianAccessDraw, TourianAccessDrawFill> Fills =
         new Dictionary<TourianAccessDraw, TourianAccessDrawFill>

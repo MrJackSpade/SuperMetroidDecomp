@@ -493,7 +493,7 @@ internal sealed class SuperMetroidRuntime
 
         // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
-        // Its cleanup runs Samus command $1E, which can queue sounds before the Samus
+        // Its cleanup runs a Samus command, which can queue sounds before the Samus
         // handler; the frame's Samus sound window therefore opens here.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
         {
@@ -549,7 +549,7 @@ internal sealed class SuperMetroidRuntime
             if (Room.LoadedScope.FxOverlay.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
-                // type $15. Apply that global side effect before the ordinary shake handler
+                // type 21. Apply that global side effect before the ordinary shake handler
                 // later in this frame so its first displacement is visible immediately.
                 Room.LoadedScope.Enemies.Earthquake.EarthquakeType = roomFxEarthquake.Type;
                 Room.LoadedScope.Enemies.Earthquake.AddTimerBits(roomFxEarthquake.TimerBits);
@@ -678,20 +678,20 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Parks the frame's tail when a PLM opened a message box; returns whether it did.</summary>
     private bool SuspendTailForMessageBox(GameplayFrameContext context)
     {
-        // The message routine runs inside PLM_Handler: the rest of this gameplay
+        // The message routine runs inside the room-object handler: the rest of this gameplay
         // frame (enemy-projectile collision, scrolling, drawing, room main and the shared
         // tail) resumes only after the box closes, after the item routine finishes.
         if (context.Tail is not { } suspendedTail || !MessageBox.IsActive)
             return false;
         _suspendedFrameTail = suspendedTail;
-        // Producers up to PLM_Handler queued their sounds before DisplayMessageBox's
+        // Producers up to the room-object handler queued their sounds before the message box's
         // entry cancel; the frontend publishes this frame's requests at that boundary.
         FrameBoundary.CompletedGameplayAudioPublication++;
         return true;
     }
 
     /// <summary>
-    /// The remainder of gameplay state eight after <c>PLM_Handler</c>. A frame whose PLM
+    /// The remainder of gameplay state eight after the room-object handler. A frame whose PLM
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
     internal RuntimeFrameResult FinishGameplayFrame(
@@ -767,7 +767,7 @@ internal sealed class SuperMetroidRuntime
         {
             if (arrival.Step(samus))
             {
-                // Command $0E installed a locked Samus handler before the projectiles
+                // The arrival's Samus lock installed a locked Samus handler before the projectiles
                 // were spawned. Re-enable the translated ordinary movement path only
                 // after the pad reaches its deletion height.
                 samus.Control.Unlock();
@@ -793,7 +793,7 @@ internal sealed class SuperMetroidRuntime
             previousCameraPoint = RainbowBeamCameraCheckpoint.Consume(samus.ApplyPreviousPositionWrites(previousCameraPoint));
             var currentCameraPoint = samus.Position;
 
-            // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
+            // The main gameplay state runs the main scrolling routine after movement/PLMs and before
             // DrawSamusEnemiesAndProjectiles regardless of which Samus input handler is
             // installed. A locked alpha suppresses controller transitions; it does not
             // suppress scrolling. That is why the station-eighteen gunship can carry
@@ -902,7 +902,7 @@ internal sealed class SuperMetroidRuntime
             // The HUD update rebuilds live energy/ammo words every gameplay frame.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next frame boundary.
-            // PLM_Handler has not returned while a pickup message is open.
+            // The room-object handler has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
             if (Player.Samus is not null && !Room.LoadedScope.RoomObjects.CollectibleObjects.HasPendingCollectibleMessage)
                 Hud.UpdateGameplayCounters(Player.Samus, Freeze.TimeIsFrozen,
@@ -938,7 +938,7 @@ internal sealed class SuperMetroidRuntime
         // Execute the active room's room main at the same seam as Landing Site's
         // room main above: after gameplay drawing/HUD work and before global shaking. The
         // Ceres routine publishes a tilt for the following frame's presentation and may
-        // change the outer dispatcher to state $20 only when its caller is state eight.
+        // change the outer dispatcher to the Ceres elevator state only when its caller is state eight.
         RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
             Room.LoadedScope.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
@@ -1052,7 +1052,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Gameplay-frame state the remainder of state eight reads after <c>PLM_Handler</c>.
+    /// Gameplay-frame state the remainder of state eight reads after the room-object handler.
     /// The message routine runs inside that handler, so a PLM that opens a box
     /// suspends the frame; the port parks this state until the box closes.
     /// </summary>
@@ -1107,7 +1107,7 @@ internal sealed class SuperMetroidRuntime
             return Snapshot(infiniteAmmoGuard);
 
         MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
-        // PLM_Handler returns once the box and its item routine finish; the
+        // The room-object handler returns once the box and its item routine finish; the
         // parked remainder of that gameplay frame runs now, in this same dispatch.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {

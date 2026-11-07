@@ -239,7 +239,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
             // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
-            // from zero to $1E and then reloads either four or six. Expressing the already-
+            // from zero to 30 and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
             lavaAcidBackgroundWaveTimer = UsesLavaAcidVerticalWave
                 ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
@@ -376,7 +376,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         }
 
-        // Fog anchors to the foreground and moves its texture by -$40/+50 in 8.8.
+        // Fog anchors to the foreground and moves its texture by +80 X and -64 Y in 8.8.
         Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
         drift = Offset16<OverlaySubpixels>.Wrapped(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity,
             drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity);
@@ -473,7 +473,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// changing only Samus's projected copy would be undone by the next FX frame.
     /// </summary>
     /// <summary>
-    /// Clears the water-physics-disabled bit as <c>Instruction_PLM_EnableWaterPhysics</c> does; see
+    /// Clears the water-physics-disabled bit as the enable-water-physics instruction does; see
     /// <see cref="SetLiquidMotion"/> for why the room-FX owner holds the word.
     /// </summary>
     internal void EnableWaterPhysics() =>
@@ -505,7 +505,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != RoomLiquidOptions.None)
             waterDrift += WaterDriftVelocity;
 
-        // FX $26 spawns only the effect overlay water object. Its second per-line effect object moves
+        // The Tourian entrance statue's FX spawns only the effect overlay water object. Its second per-line effect object moves
         // the statue vertically instead of installing the ordinary background X wave.
         if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
             return;

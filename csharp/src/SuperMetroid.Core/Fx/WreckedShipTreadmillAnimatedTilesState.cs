@@ -30,7 +30,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     public int NextFrameIndex { get; private set; }
 
     /// <summary>
-    /// Mirrors <c>Spawn_AnimatedTilesObject</c> for either treadmill object. Both scripts begin
+    /// Spawns the animated-tiles object for either treadmill, as the game does. Both scripts begin
     /// on the wait-for-area-boss step with a frame hold of one.
     /// </summary>
     public void Start(WreckedShipTreadmillDirection direction)

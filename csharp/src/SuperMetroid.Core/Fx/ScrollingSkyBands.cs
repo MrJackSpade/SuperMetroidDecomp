@@ -10,7 +10,7 @@ public static class ScrollingSkyBands
     /// and three quarters of a pixel a frame; band 17 drifts seven sixteenths, bands 18/19 three quarters then a half,
     /// and the three bottom bands are stationary. Slots follow band indices except band 11 targets slot 8 again, giving
     /// it two additions per frame. All four fields are independently verified against supported NTSC J/U v1.0 and
-    /// pinned bank_88.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+    /// pinned reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).
     /// Reject outside 0..22 before computing fields; no row array/cache remains.</remarks>
     public static SkyScrollSection GetSection(int index)
     {

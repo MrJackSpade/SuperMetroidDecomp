@@ -16,7 +16,7 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
     /// <remarks>Seven named spike/sand/liquid/weather objects select script starts,
     /// transfer sizes and encoded destinations. Each field and the full ushort
     /// identity domain are independently verified against NTSC J/U v1.0 and pinned
-    /// bank_87.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+    /// reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).
     /// Frame schedules use the separately verified arithmetic view; neither headers
     /// nor frames are retained in a generated table.</remarks>
     internal static readonly IReadOnlyDictionary<AnimatedTileObject, RoomFxAnimatedTileLoop> Objects =

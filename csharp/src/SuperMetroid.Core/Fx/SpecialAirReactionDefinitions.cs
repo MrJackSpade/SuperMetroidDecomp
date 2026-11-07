@@ -24,13 +24,13 @@ public static class SpecialAirReactionDefinitions
     /// </summary>
     public static readonly SpecialAirReactionDefinition ClearCarry = new(RoomObjectHeaderId.CollisionReactionClearCarry, SpecialAirReactionSetup.ClearCarry);
 
-    /// <summary>Norfair inside-reaction no-op for BTS <c>$80</c>.</summary>
+    /// <summary>Norfair inside-reaction no-op for the first special air block.</summary>
     public static readonly SpecialAirReactionDefinition NorfairInsideNothing80 = new(RoomObjectHeaderId.InsideReactionNothingFirst, SpecialAirReactionSetup.Nothing);
 
-    /// <summary>Norfair inside-reaction no-op for BTS <c>$81</c>.</summary>
+    /// <summary>Norfair inside-reaction no-op for the second special air block.</summary>
     public static readonly SpecialAirReactionDefinition NorfairInsideNothing81 = new(RoomObjectHeaderId.InsideReactionNothingSecond, SpecialAirReactionSetup.Nothing);
 
-    /// <summary>Norfair inside-reaction no-op for BTS <c>$82</c>.</summary>
+    /// <summary>Norfair inside-reaction no-op for the third special air block.</summary>
     public static readonly SpecialAirReactionDefinition NorfairInsideNothing82 = new(RoomObjectHeaderId.InsideReactionNothingThird, SpecialAirReactionSetup.Nothing);
 
     /// <summary>
@@ -46,7 +46,7 @@ public static class SpecialAirReactionDefinitions
     public static readonly SpecialAirReactionDefinition BrinstarCeilingPlant = new(RoomObjectHeaderId.InsideReactionBrinstarCeilingPlant, SpecialAirReactionSetup.BrinstarCeilingPlant);
 
     /// <summary>
-    /// The Crateria inside reaction for BTS <c>$80</c> and its
+    /// The Crateria inside reaction for the first special air block and its
     /// ice-physics setup.
     /// </summary>
     public static readonly SpecialAirReactionDefinition CrateriaIcePhysics = new(RoomObjectHeaderId.InsideReactionCrateria80, SpecialAirReactionSetup.IcePhysics);

@@ -164,7 +164,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Ceres steam requires extended touch AI {EnemyReaction.CeresSteamTouch}; " +
                         $"extended={context.UsesExtendedHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
-                        $"map=$A6:{context.Slot.Frame}.");
+                        $"frame={context.Slot.Frame}.");
                 }
 
                 // The steam's touch reaction restores health immediately before entering common touch AI.

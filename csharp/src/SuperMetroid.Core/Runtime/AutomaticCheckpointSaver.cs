@@ -25,7 +25,7 @@ internal static class AutomaticCheckpointSaver
     public static void SaveCeresDeparture(SaveSlotStore saves, SuperMetroidRuntime runtime, int slot) =>
         SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresDestruction);
 
-    /// <summary>Publishes the requested Ceres loading state, then saves Samus, system state, game time, and player options through the ordinary SRAM encoder.</summary>
+    /// <summary>Publishes the requested Ceres loading state, then saves Samus, system state, game time, and player options through the ordinary save-file encoder.</summary>
     private static void SaveCeresCheckpoint(
         SaveSlotStore saves, SuperMetroidRuntime runtime, int slot, SaveLoadingGameState route)
     {
@@ -40,7 +40,7 @@ internal static class AutomaticCheckpointSaver
     }
 
     /// <summary>
-    /// Saves Crateria station zero on the single frame where <c>GunshipTop_7</c> restores
+    /// Saves Crateria station zero on the single frame where the gunship restores
     /// control after the arrival cutscene. Returns false on every other gameplay frame.
     /// </summary>
     public static bool TrySaveGunshipLanding(

@@ -7,7 +7,7 @@ internal static class RoomShakes
 {
     /// <summary>Returns the physical displacement record for earthquake type 0..35.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A0/86.asm.
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and the pinned reference sources.
     /// Type encodes group=type/9, magnitude=(type/3)%3+1 and direction=type%3:
     /// horizontal, vertical, diagonal. The foreground is enabled except group 3; background except group 0;
     /// projectiles only in groups 2/3. All 216 original words follow this Cartesian

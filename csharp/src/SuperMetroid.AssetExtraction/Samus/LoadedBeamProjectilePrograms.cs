@@ -12,7 +12,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <item>the lists of the combination's uncharged and charged shots in every direction, its special attack's first list,
 /// and, for the combination the Hyper Beam loads, the charged Plasma lists the Hyper Beam fires;</item>
 /// <item>the missiles' and Super Missiles' lists in every direction, the bombs', Power Bombs' and the Super Missile
-/// link's first lists, and the Spazer special attack's trail and Shinespark echo lists in every direction;</item>
+/// link's first lists, the Spazer special attack's trail and Shinespark echo lists in every direction, and the lists of
+/// the uncharged Spazer and Plasma-Wave shots those echoes become when an enemy reflects them (#1559);</item>
 /// <item>the explosions projectiles turn into and the bombs' fast lists;</item>
 /// <item>every list those continue into.</item>
 /// </list>
@@ -60,7 +61,13 @@ internal static class LoadedBeamProjectilePrograms
         foreach (SamusProjectileFamily family in BombFamilies)
             AddFirst(starts, SamusProjectileSelection.NonBeam(family));
         foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
+        {
             AddEveryDirection(starts, SamusProjectileSelection.Echo(echo));
+            // An enemy reflecting an echo restarts it as the beam shot its type names, whatever is loaded: a Metal Pirate
+            // turns a Shinespark crash's echo into an uncharged Plasma-Wave shot under the Power Beam (#1559).
+            SamusProjectileType reflected = SamusProjectileType.EchoOf(echo);
+            starts.AddRange(BeamShotPrograms(reflected.BeamCombination, reflected.IsChargedBeam));
+        }
         AddFirst(starts, SamusProjectileHeader.SuperMissileLink);
         starts.AddRange(Explosions);
         starts.AddRange(SamusPowerBombFuseData.FastCounterparts.Values.Select(cursor => cursor.Program));

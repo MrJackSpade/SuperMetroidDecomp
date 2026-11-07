@@ -579,6 +579,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Samus.Artwork.SamusOverreadHeldPoseFramesVerification.VerifyOverreadHeldPoseFrames),
         new(nameof(MotherBrainBombAfterburnPicturesVerification.VerifyMotherBrainBombAfterburnPictures),
             MotherBrainBombAfterburnPicturesVerification.VerifyMotherBrainBombAfterburnPictures),
+        new(nameof(SuperMetroid.Verification.Samus.Projectiles.ReflectedEchoPicturesVerification.VerifyReflectedEchoPictures),
+            SuperMetroid.Verification.Samus.Projectiles.ReflectedEchoPicturesVerification.VerifyReflectedEchoPictures),
         new(nameof(VerifySamusPaletteRomData), () => VerifySamusPaletteRomData()),
         new(nameof(VerifySamusSpecialSequenceDefinitions), () => VerifySamusSpecialSequenceDefinitions()),
         new(nameof(VerifySamusArmCannon), () => VerifySamusArmCannon()),

@@ -177,7 +177,19 @@ internal static class TitleGradientVerification
             }
             TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), TitleSpriteColouring.Text);
             nativeOam.FinalizeFrame(); installedOam.FinishFrame();
-            AssertTrue(nativeOam.ImageEquals(installedOam), "Title composition matches independent native OBJ records");
+            // The glyphs of a typed card never overlap, so the order the objects are listed in shows nothing: the native
+            // spritemap lists the newest glyph first and the installed draw places glyph 0 first. Compare the objects as a set.
+            AssertEqual(string.Join(',', ObjectRecords(nativeOam)), string.Join(',', ObjectRecords(ScreenSpritesFixtures.ToOam(installedOam))),
+                $"Title composition {frame.Sprite} holds the independent native OBJ records");
+        }
+        // Every object's record and size bits, in a fixed order, so two frames listing the same objects compare equal.
+        static string[] ObjectRecords(OamBuffer oam)
+        {
+            var records = new string[oam.LowTable.Length / 4];
+            for (int index = 0; index < records.Length; index++)
+                records[index] = $"{Convert.ToHexString(oam.LowTable.Slice(index * 4, 4))}/{oam.HighTable[index / 4] >> (index % 4 * 2) & 3}";
+            Array.Sort(records, StringComparer.Ordinal);
+            return records;
         }
         TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);
         SpriteVisualPart originalPart = year.Parts[0];

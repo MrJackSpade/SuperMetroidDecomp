@@ -11,7 +11,7 @@ internal static class BotwoonHealthColors
     internal static RgbColor Read(BotwoonHealthPaint health, int band, int color)
     {
         if ((uint)band >= BotwoonHealthPaletteDefinitions.PaletteCount ||
-            (uint)color >= BotwoonHealthPaletteDefinitions.ColorsPerPalette)
+            (uint)color >= BotwoonColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(band),
                 $"Botwoon health band {band}, color {color} is outside the authored images.");
         return health.Resolve(band, color);

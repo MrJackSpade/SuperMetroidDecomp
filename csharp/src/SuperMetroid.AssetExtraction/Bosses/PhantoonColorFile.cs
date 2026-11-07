@@ -27,9 +27,9 @@ public static class PhantoonColorFile
             throw new InvalidDataException("Phantoon colors require eight health palettes.");
         return new(PhantoonColorEdits.Select(
             document.HealthBands.Select((band, index) =>
-                Compile(band, PhantoonColorDefinitions.HealthBandColorCount,
+                Compile(band, PhantoonColorFormat.HealthBandColorCount,
                     $"health palette {index}")).ToArray(),
-            Compile(document.FadeOut, PhantoonColorDefinitions.FadeOutCount, "fade-out"),
+            Compile(document.FadeOut, PhantoonColorFormat.FadeOutCount, "fade-out"),
             PowerOnByPart(Compile(document.PowerOn, PhantoonSourceDefinitions.PowerOnColourCount, "power-on"))));
     }
 
@@ -41,7 +41,7 @@ public static class PhantoonColorFile
     {
         var parts = new Dictionary<WreckedShipPoweredPart, RgbColor[]>();
         for (int first = 0; first < colours.Length; first += SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount)
-            parts.Add(PhantoonColorDefinitions.PoweredParts[first / SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount],
+            parts.Add(PhantoonColorFormat.PoweredParts[first / SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount],
                 colours[first..(first + SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount)]);
         return parts;
     }

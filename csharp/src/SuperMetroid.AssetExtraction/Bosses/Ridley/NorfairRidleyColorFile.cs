@@ -28,7 +28,7 @@ public static class NorfairRidleyColorFile
 
         if (document.Version != NorfairRidleyColorFormat.Version ||
             document.Initial is null ||
-            document.Initial.Length != NorfairRidleyPaletteDefinitions.InitialColorCount ||
+            document.Initial.Length != NorfairRidleyColorFormat.InitialColorCount ||
             document.Reveal is null ||
             document.Reveal.Length != NorfairRidleyPaletteDefinitions.RevealStepCount)
             throw new InvalidDataException("Norfair Ridley colors require the initial palette and all reveal rows.");
@@ -38,7 +38,7 @@ public static class NorfairRidleyColorFile
         for (int row = 0; row < reveal.Length; row++)
         {
             if (document.Reveal[row] is null ||
-                document.Reveal[row].Length != NorfairRidleyPaletteDefinitions.RevealColorCount)
+                document.Reveal[row].Length != NorfairRidleyColorFormat.RevealColorCount)
                 throw new InvalidDataException($"Norfair Ridley reveal row {row} requires fourteen colors.");
             reveal[row] = Compile(document.Reveal[row], $"reveal row {row}");
         }

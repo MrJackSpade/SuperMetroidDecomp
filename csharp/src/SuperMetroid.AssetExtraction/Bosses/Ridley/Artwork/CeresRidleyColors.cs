@@ -13,7 +13,7 @@ internal static class CeresRidleyColors
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition.</summary>
     internal static RgbColor RetreatBg(CeresRidleyColorCatalog colors, int color)
     {
-        if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatBgColorCount)
+        if ((uint)color >= CeresRidleyColorFormat.RetreatBgColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return colors.selection.RetreatBg.TryGetValue(new PaintColour(0, color), out RgbColor edited)
             ? edited
@@ -28,7 +28,7 @@ internal static class CeresRidleyColors
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8.</summary>
     internal static RgbColor RetreatShared(CeresRidleyColorCatalog colors, int color)
     {
-        if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatSharedColorCount)
+        if ((uint)color >= CeresRidleyColorFormat.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return colors.selection.RetreatShared.TryGetValue(new PaintColour(0, color), out RgbColor edited) ? edited : colors.selection.Start.Resolve(color + 1);
     }

@@ -22,8 +22,8 @@ public static class CeresRidleyMode7ColorExtractor
             byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RidleySourceDefinitions.Ceres.GetawayZoomColors +
                 row * RidleySourceDefinitions.Ceres.GetawayZoomRowBytes,
-                CeresRidleyPaletteDefinitions.GetawayZoomColorCount * sizeof(ushort));
-            rows[row] = new PaletteRgb5[CeresRidleyPaletteDefinitions.GetawayZoomColorCount];
+                CeresRidleyColorFormat.GetawayZoomColorCount * sizeof(ushort));
+            rows[row] = new PaletteRgb5[CeresRidleyColorFormat.GetawayZoomColorCount];
             for (int color = 0; color < rows[row].Length; color++)
             {
                 int word = LittleEndianBytes.Word(bytes[color * 2], bytes[color * 2 + 1]);

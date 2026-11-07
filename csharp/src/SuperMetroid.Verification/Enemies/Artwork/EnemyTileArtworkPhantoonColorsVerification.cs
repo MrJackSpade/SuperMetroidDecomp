@@ -30,14 +30,14 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         PhantoonColorCatalog native = stock.Bosses.PhantoonColors ??
             throw new InvalidDataException("Installed enemy art has no Phantoon colors.");
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.FadeOutColors,
-            PhantoonColorDefinitions.FadeOutCount, native.ResolveFadeOut, "fade-out"));
+            PhantoonColorFormat.FadeOutCount, native.ResolveFadeOut, "fade-out"));
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.PowerOnColors,
             PhantoonSourceDefinitions.PowerOnColourCount, color => native.ResolvePowerOnAtNative(color), "power-on"));
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
-        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
+        for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     PhantoonSourceDefinitions.HealthBandColors +
-                    (band * PhantoonColorDefinitions.HealthBandColorCount + color) *
+                    (band * PhantoonColorFormat.HealthBandColorCount + color) *
                         sizeof(ushort)),
                 native.ResolveHealth(band, color),
                 $"installed Phantoon health palette {band} color {color} preserves RGB5");
@@ -55,7 +55,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             address => address is >= PhantoonSourceDefinitions.FadeOutColors and
                 < (PhantoonSourceDefinitions.HealthBandColors +
                     PhantoonColorDefinitions.HealthBandCount *
-                    PhantoonColorDefinitions.HealthBandColorCount * sizeof(ushort)),
+                    PhantoonColorFormat.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

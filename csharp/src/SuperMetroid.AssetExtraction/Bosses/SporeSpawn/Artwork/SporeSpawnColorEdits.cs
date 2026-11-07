@@ -32,7 +32,7 @@ internal static class SporeSpawnColorEdits
         var calculated = new SporeSpawnHealthBands(supplied[0], supplied[last], intermediatePaint, new Dictionary<PaintColour, RgbColor>());
         var edits = new Dictionary<PaintColour, RgbColor>();
         for (int frame = 1; frame < last; frame++)
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
+        for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
             if (SporeSpawnHealthBands.IsCalculated(color) && supplied[frame][color] != calculated.Resolve(frame, color))
                 edits.Add(new PaintColour(frame, color), supplied[frame][color]);
         return new SporeSpawnHealthBands(supplied[0], supplied[last], intermediatePaint, edits);
@@ -42,7 +42,7 @@ internal static class SporeSpawnColorEdits
     private static Dictionary<PaintColour, RgbColor> SporeEdits(RgbColor[] spores, RgbColor[][] health)
     {
         var edits = new Dictionary<PaintColour, RgbColor>();
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
+        for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
             if (spores[color] != health[0][color]) edits[new PaintColour(0, color)] = spores[color];
         return edits;
     }
@@ -51,8 +51,8 @@ internal static class SporeSpawnColorEdits
     private static Dictionary<PaintColour, RgbColor> DeathSpriteEdits(RgbColor[][] deathSprite, RgbColor[][] health)
     {
         var edits = new Dictionary<PaintColour, RgbColor>();
-        int last = SporeSpawnColorDefinitions.DeathSpriteFrameCount - 1;
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
+        int last = SporeSpawnColorFormat.DeathSpriteFrameCount - 1;
+        for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
         {
             if (deathSprite[0][color] != health[SporeSpawnColorDefinitions.HealthFrameCount - 1][color])
                 edits[new PaintColour(0, color)] = deathSprite[0][color];
@@ -68,8 +68,8 @@ internal static class SporeSpawnColorEdits
     private static Dictionary<PaintColour, RgbColor> DeathLevelEdits(RgbColor[][] deathLevel)
     {
         var edits = new Dictionary<PaintColour, RgbColor>();
-        int levelLast = SporeSpawnColorDefinitions.DeathSceneFrameCount - 1;
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
+        int levelLast = SporeSpawnColorFormat.DeathSceneFrameCount - 1;
+        for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
         {
             edits[new PaintColour(levelLast, color)] = deathLevel[levelLast][color];
             for (int frame = 0; frame < levelLast; frame++)
@@ -84,8 +84,8 @@ internal static class SporeSpawnColorEdits
     private static Dictionary<PaintColour, RgbColor> DeathBackgroundEdits(RgbColor[][] deathBackground)
     {
         var edits = new Dictionary<PaintColour, RgbColor>();
-        int backgroundLast = SporeSpawnColorDefinitions.DeathSceneFrameCount - 1;
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
+        int backgroundLast = SporeSpawnColorFormat.DeathSceneFrameCount - 1;
+        for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
         {
             edits[new PaintColour(backgroundLast, color)] = deathBackground[backgroundLast][color];
             for (int frame = 0; frame < backgroundLast; frame++)

@@ -45,7 +45,7 @@ internal static class DachoraColors
         if (!(phase == DachoraPalettePhase.Default && frame == 0) &&
             !(animated && (uint)frame < DachoraColorDefinitions.AnimatedFrameCount))
             throw new ArgumentOutOfRangeException(nameof(frame), $"Dachora phase {phase} has no frame {frame}.");
-        if ((uint)color >= DachoraColorDefinitions.ColorsPerFrame)
+        if ((uint)color >= DachoraColorFormat.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
         var key = new ColourStep(frame, color);
         return phase switch

@@ -15,7 +15,7 @@ internal static class PhantoonColorCatalogAccess
     {
         /// <summary>The power-on target the cartridge holds at position <paramref name="position"/> of its background colours.</summary>
         internal RgbColor ResolvePowerOnAtNative(int position) =>
-            self.ResolvePowerOn(PhantoonColorDefinitions.PoweredParts[position / WreckedShipPowerPaintDefinitions.PartColourCount],
+            self.ResolvePowerOn(PhantoonColorFormat.PoweredParts[position / WreckedShipPowerPaintDefinitions.PartColourCount],
                 position % WreckedShipPowerPaintDefinitions.PartColourCount);
     }
 }

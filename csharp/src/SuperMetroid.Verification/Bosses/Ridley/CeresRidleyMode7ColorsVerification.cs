@@ -34,7 +34,7 @@ internal static class CeresRidleyMode7ColorsVerification
                 row * RidleySourceDefinitions.Ceres.GetawayZoomRowBytes;
             AssertEqual(0xa60000 | nativePointer, rowAddress,
                 $"Mode-7 row {row} matches cartridge wrapped source expression");
-            for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
+            for (int color = 0; color < CeresRidleyColorFormat.GetawayZoomColorCount; color++)
             {
                 int address = rowAddress + color * sizeof(ushort);
                 forbidden.Add(address);
@@ -64,7 +64,7 @@ internal static class CeresRidleyMode7ColorsVerification
             select(checked((ushort)frame.Zoom));
             // The colours the encounter shows are the import's shades of the installed colours, laid as the getaway laid them (#1512).
             RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, original);
-            for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
+            for (int color = 0; color < CeresRidleyColorFormat.GetawayZoomColorCount; color++)
                 AssertEqual(InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(original).Resolve(row, color),
                     cgram[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");

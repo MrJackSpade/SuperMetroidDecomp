@@ -130,6 +130,6 @@ internal static class ActorColourContentIdentity
     /// <summary>Materializes four selected animated frames for stable content hashing.</summary>
     private static RgbColor[][] DachoraFrames(DachoraColorCatalog colors, DachoraPalettePhase phase) =>
         Enumerable.Range(0, DachoraColorDefinitions.AnimatedFrameCount)
-            .Select(frame => Enumerable.Range(0, DachoraColorDefinitions.ColorsPerFrame)
+            .Select(frame => Enumerable.Range(0, DachoraColorFormat.ColorsPerFrame)
                 .Select(color => DachoraColors.Resolve(colors, phase, frame, color)).ToArray()).ToArray();
 }

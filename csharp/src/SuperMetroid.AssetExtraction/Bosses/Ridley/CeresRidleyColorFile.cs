@@ -22,16 +22,16 @@ public static class CeresRidleyColorFile
         if (document.Version != CeresRidleyColorFormat.Version)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         RgbColor[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
-            CeresRidleyPaletteDefinitions.BodyFadeColorCount, "body fade");
-        RgbColor[] start = Compile(document.Start, CeresRidleyPaletteDefinitions.StartColorCount, "start");
-        RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeShadeCount,
-            CeresRidleyPaletteDefinitions.EyeFadeColorCount, "eye fade");
-        RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthBandCount,
-            CeresRidleyPaletteDefinitions.HealthColorCount, "health");
-        RgbColor[][] alarm = CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmStepCount,
-            CeresRidleyPaletteDefinitions.AlarmColorCount, "alarm");
-        RgbColor[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteDefinitions.RetreatBgColorCount, "retreat BG");
-        RgbColor[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
+            CeresRidleyColorFormat.BodyFadeColorCount, "body fade");
+        RgbColor[] start = Compile(document.Start, CeresRidleyColorFormat.StartColorCount, "start");
+        RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyColorFormat.EyeFadeShadeCount,
+            CeresRidleyColorFormat.EyeFadeColorCount, "eye fade");
+        RgbColor[][] health = CompileRows(document.Health, CeresRidleyColorFormat.HealthBandCount,
+            CeresRidleyColorFormat.HealthColorCount, "health");
+        RgbColor[][] alarm = CompileRows(document.Alarm, CeresRidleyColorFormat.AlarmStepCount,
+            CeresRidleyColorFormat.AlarmColorCount, "alarm");
+        RgbColor[] retreatBg = Compile(document.RetreatBg, CeresRidleyColorFormat.RetreatBgColorCount, "retreat BG");
+        RgbColor[] retreatShared = Compile(document.RetreatShared, CeresRidleyColorFormat.RetreatSharedColorCount,
             "retreat shared");
         CeresBabyShadeColours baby = CompileShades(document.BabyShades
             ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades."));
@@ -69,7 +69,7 @@ public static class CeresRidleyColorFile
 
     /// <summary>Validates one Baby shade's fifteen colours.</summary>
     private static RgbColor[] CompileShade(CeresBabyShadeColorsDocument shades, CeresBabyShade shade) =>
-        Compile(shades.Of(shade), CeresRidleyPaletteDefinitions.BabyColorCount, $"Baby {shade}");
+        Compile(shades.Of(shade), CeresRidleyColorFormat.BabyColorCount, $"Baby {shade}");
 
     /// <summary>Converts an exact-width RGB5 row to BGR555 after rejecting missing colors and channels outside five-bit range.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? colors, int count, string name) =>

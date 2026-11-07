@@ -48,10 +48,10 @@ internal static class PhantoonColorEdits
     private static Dictionary<WreckedShipPoweredColour, RgbColor> PowerEdits(IReadOnlyDictionary<WreckedShipPoweredPart, RgbColor[]> powerOn)
     {
         Ensure.NotNull(powerOn);
-        if (powerOn.Count != PhantoonColorDefinitions.PoweredParts.Length)
+        if (powerOn.Count != PhantoonColorFormat.PoweredParts.Length)
             throw new ArgumentException("The power-on targets must name exactly the parts the power-on fades.", nameof(powerOn));
         var edits = new Dictionary<WreckedShipPoweredColour, RgbColor>();
-        foreach (WreckedShipPoweredPart part in PhantoonColorDefinitions.PoweredParts)
+        foreach (WreckedShipPoweredPart part in PhantoonColorFormat.PoweredParts)
         {
             RgbColor[] colours = powerOn.TryGetValue(part, out RgbColor[]? supplied)
                 ? supplied

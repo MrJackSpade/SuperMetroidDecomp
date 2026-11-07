@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -51,12 +55,12 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
         ("InstalledBeamPalettes", "Colours", "selection") => new(0, BeamPaletteFile.SelectionCount),
         ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorDefinitions.HealthBandCount),
-        ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorDefinitions.HealthBandColorCount),
-        ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorDefinitions.FadeOutCount),
+        ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorFormat.HealthBandColorCount),
+        ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorFormat.FadeOutCount),
         ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount),
         ("TourianStatuePalettes", "ResolveEye", "glow") => new(0, TourianStatueColorDefinitions.EyeGlowCount),
         ("TourianStatuePalettes", "ResolveEye", "color") => new(0, TourianStatueColorDefinitions.EyeColorCount),
-        ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth", "color") => new(0, SporeSpawnColorDefinitions.ColorsPerFrame),
+        ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth", "color") => new(0, SporeSpawnColorFormat.ColorsPerFrame),
         ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorDefinitions.HealthFrameCount),
         ("MotherBrainRainbowPalettePresentation", "TryReadBeamColor", "index") => new(0,
             MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 1),
@@ -90,7 +94,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("InstalledPowerBombFixedColors", "Resolve", "index") => new(0, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount),
         ("HyperBeamFxColours", "Apply", "frame") => new(0, SamusPaletteDefinitions.HyperBeamFx.CycleFrameCount),
         ("BotwoonColorCatalog", "HealthColor", "band") => new(0, BotwoonHealthPaletteDefinitions.PaletteCount),
-        ("BotwoonColorCatalog", "HealthColor", "color") => new(0, BotwoonHealthPaletteDefinitions.ColorsPerPalette),
+        ("BotwoonColorCatalog", "HealthColor", "color") => new(0, BotwoonColorFormat.ColorsPerPalette),
         ("BabyMetroidCutsceneColorCatalog", "InitialColor", "color") => new(0, BabyMetroidCutsceneColorDefinitions.InitialColorCount),
         ("BabyMetroidCutsceneColorCatalog", "FadeColor", "paletteIndex") => new(1, BabyMetroidCutsceneColorDefinitions.FadeFrameCount),
         ("BabyMetroidCutsceneColorCatalog", "FadeColor", "color") => new(0, BabyMetroidCutsceneColorDefinitions.FadeColorCount),
@@ -101,7 +105,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("ShitroidColorCatalog", "NormalColor", "color") => new(0, ShitroidColorDefinitions.NormalColorsPerFrame),
         ("ShitroidColorCatalog", "TargetColor", "color") => new(0, ShitroidColorDefinitions.TargetColorCount),
         ("DachoraColorCatalog", "Resolve", "frame") => new(0, DachoraColorDefinitions.AnimatedFrameCount),
-        ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorDefinitions.ColorsPerFrame),
+        ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorFormat.ColorsPerFrame),
         ("CreditsPresentation", "GetRow", "index") => new(0, CreditsRollDefinitions.ExpectedCompiledRows),
         ("MapArrowPresentation", "Get", "direction") => new(1, MapArrowDefinitions.Count),
         ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.RetailCount),

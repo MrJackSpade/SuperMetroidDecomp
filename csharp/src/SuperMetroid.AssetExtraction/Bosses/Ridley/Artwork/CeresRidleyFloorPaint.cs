@@ -44,7 +44,7 @@ internal sealed class CeresRidleyFloorPaint
     internal RgbColor Resolve(int step, int color)
     {
         if ((uint)step >= CeresRidleyPaletteDefinitions.GetawayZoomStepCount) throw new ArgumentOutOfRangeException(nameof(step));
-        if ((uint)color >= CeresRidleyPaletteDefinitions.GetawayZoomColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+        if ((uint)color >= CeresRidleyColorFormat.GetawayZoomColorCount) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(new PaintColour(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 

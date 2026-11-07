@@ -241,7 +241,7 @@ internal static class BossSheetShades
         {
             int shown = band;
             yield return SheetShade.Run(BotwoonShades.Health(shown), firstInk,
-                [.. Enumerable.Range(0, BotwoonHealthPaletteDefinitions.ColorsPerPalette).Select(colour => botwoon.HealthColor(shown, colour))]);
+                [.. Enumerable.Range(0, BotwoonColorFormat.ColorsPerPalette).Select(colour => botwoon.HealthColor(shown, colour))]);
         }
     }
 

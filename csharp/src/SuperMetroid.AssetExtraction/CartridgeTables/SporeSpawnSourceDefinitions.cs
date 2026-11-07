@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core;
 
@@ -32,5 +33,5 @@ internal static class SporeSpawnSourceDefinitions
     /// The bytes of one sixteen-colour image: the stride between consecutive images, and the unit of the byte-offset
     /// operand the cartridge's palette instructions and health selector name an image by.
     /// </summary>
-    internal const int ImageBytes = SporeSpawnColorDefinitions.ColorsPerFrame * ColorWordBytes;
+    internal const int ImageBytes = SporeSpawnColorFormat.ColorsPerFrame * ColorWordBytes;
 }

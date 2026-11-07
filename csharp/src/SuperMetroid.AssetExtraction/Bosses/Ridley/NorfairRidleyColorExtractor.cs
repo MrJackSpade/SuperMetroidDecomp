@@ -26,7 +26,7 @@ public static class NorfairRidleyColorExtractor
             if (pointer < SnesBusLayout.RomWindowStart)
                 throw new InvalidDataException($"Norfair Ridley reveal row {row} has invalid source ${pointer:X4}.");
             reveal[row] = ReadColors(bus, CartridgeBankWindow.At(EnemySourceDefinitions.RidleyBank, pointer),
-                NorfairRidleyPaletteDefinitions.RevealColorCount);
+                NorfairRidleyColorFormat.RevealColorCount);
         }
         int terminator = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             EnemySourceDefinitions.RevealSourcePointers.AddWithinBank(reveal.Length * sizeof(ushort)));
@@ -36,7 +36,7 @@ public static class NorfairRidleyColorExtractor
         {
             Version = NorfairRidleyColorFormat.Version,
             Initial = ReadColors(bus, EnemySourceDefinitions.NorfairRidleyInitialColors,
-                NorfairRidleyPaletteDefinitions.InitialColorCount),
+                NorfairRidleyColorFormat.InitialColorCount),
             Reveal = reveal,
         });
     }

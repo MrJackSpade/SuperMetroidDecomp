@@ -29,7 +29,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         if (stock.Bosses.NorfairRidleyColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Norfair Ridley colors.");
         var forbidden = new HashSet<int>();
-        for (int color = 0; color < NorfairRidleyPaletteDefinitions.InitialColorCount; color++)
+        for (int color = 0; color < NorfairRidleyColorFormat.InitialColorCount; color++)
             CheckSource(EnemySourceDefinitions.NorfairRidleyInitialColors + color * sizeof(ushort),
                 stock.Bosses.NorfairRidleyColors.ResolveInitial(color).ToWord());
         for (int row = 0; row < NorfairRidleyPaletteDefinitions.RevealStepCount; row++)
@@ -39,7 +39,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
             AssertTrue(pointer >= 0x8000, $"Norfair Ridley reveal row {row} has a bank-$A6 source");
-            for (int color = 0; color < NorfairRidleyPaletteDefinitions.RevealColorCount; color++)
+            for (int color = 0; color < NorfairRidleyColorFormat.RevealColorCount; color++)
                 CheckSource(0xa60000 + pointer + color * sizeof(ushort),
                     (stock.Bosses.NorfairRidleyColors.ResolveReveal(row, color)).ToWord());
         }

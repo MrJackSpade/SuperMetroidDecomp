@@ -16,7 +16,7 @@ internal static class PhantoonColors
     internal static RgbColor Health(Dictionary<PaintColour, RgbColor> edits, int band, int color)
     {
         _ = CheckBand(band);
-        if ((uint)color >= PhantoonColorDefinitions.HealthBandColorCount)
+        if ((uint)color >= PhantoonColorFormat.HealthBandColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         var key = new PaintColour(band, color);
         return edits.TryGetValue(key, out RgbColor edit) ? edit : PhantoonHealthPaint.Color(band, color);
@@ -25,7 +25,7 @@ internal static class PhantoonColors
     /// <summary>Resolves one fade-out target: its edit, or black.</summary>
     internal static RgbColor FadeOut(Dictionary<PaintColour, RgbColor> edits, int color)
     {
-        if ((uint)color >= PhantoonColorDefinitions.FadeOutCount)
+        if ((uint)color >= PhantoonColorFormat.FadeOutCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return edits.GetValueOrDefault(new PaintColour(0, color));
     }
@@ -33,7 +33,7 @@ internal static class PhantoonColors
     /// <summary>Resolves one powered-ship colour of a faded part from its edit or the calculated paint.</summary>
     internal static RgbColor PowerOn(Dictionary<WreckedShipPoweredColour, RgbColor> edits, WreckedShipPoweredPart part, int color)
     {
-        if (!PhantoonColorDefinitions.PoweredParts.Contains(part))
+        if (!PhantoonColorFormat.PoweredParts.Contains(part))
             throw new ArgumentOutOfRangeException(nameof(part), part, "The Wrecked Ship's power-on does not fade this part.");
         if ((uint)color >= WreckedShipPowerPaintDefinitions.PartColourCount) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(new WreckedShipPoweredColour(part, color), out RgbColor edit) ? edit : WreckedShipPowerPaint.Color(part, color);

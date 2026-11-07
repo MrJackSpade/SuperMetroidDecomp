@@ -1,31 +1,14 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The shapes of Ceres Ridley's palettes and the rules that select their steps (#1413). Where each palette sits in the
-/// is the import's knowledge (<c>AssetExtraction/CartridgeTables/RidleySourceDefinitions</c>).
+/// The steps Ceres Ridley's colours pass through and the rules that select them (#1413). The colours themselves, and
+/// their shapes, are the import's.
 /// </summary>
 public static class CeresRidleyPaletteDefinitions
 {
-    /// <summary>The colours Ceres Ridley's initialization loads: the door and Baby container colours and the Baby's initial colours.</summary>
-    public const int StartColorCount = 32;
-
-    /// <summary>The colours of one Baby shade, excluding the transparent colour zero.</summary>
-    public const int BabyColorCount = 15;
-
-    /// <summary>The eye shades, traversed from the last to the first and then held at the first.</summary>
-    public const int EyeFadeShadeCount = 16;
-    /// <summary>The eye colours of one eye-fade shade.</summary>
-    public const int EyeFadeColorCount = 3;
-
     /// <summary>The black-to-visible body shades, one shown every two Ceres Ridley updates.</summary>
     public const int BodyFadeShadeCount = 16;
-    /// <summary>The body colours of one body-fade shade, leaving the eye colours alone.</summary>
-    public const int BodyFadeColorCount = 11;
 
-    /// <summary>The health bands shared by both Ridley encounters, each with its own damage shade: entered by health in Norfair, by accepted hits in Ceres.</summary>
-    public const int HealthBandCount = 3;
-    /// <summary>The colours of one health band's damage shade.</summary>
-    public const int HealthColorCount = 14;
     /// <summary>The health band Ceres Ridley shows from his fiftieth to his sixty-ninth accepted hit while fighting.</summary>
     public const int HealthMidBand = 0;
     /// <summary>
@@ -34,18 +17,6 @@ public static class CeresRidleyPaletteDefinitions
     /// </summary>
     public const int HealthLateBand = 2;
 
-    /// <summary>The self-destruct alarm's EMERGENCY-text steps, one every fourth frame, cycling.</summary>
-    public const int AlarmStepCount = 16;
-    /// <summary>The text colours of one alarm step, excluding the transparent colour.</summary>
-    public const int AlarmColorCount = 3;
-
-    /// <summary>The getaway backdrop's colours one to fifteen, installed when Ridley's real retreat begins.</summary>
-    public const int RetreatBgColorCount = 15;
-    /// <summary>The retreat colours shared by the getaway's background and Ridley's sprite palette.</summary>
-    public const int RetreatSharedColorCount = 8;
-
     /// <summary>The getaway's zoom steps, selected by the whole part of the getaway zoom (zero to eight).</summary>
     public const int GetawayZoomStepCount = 9;
-    /// <summary>The colours of one getaway zoom step, leaving colour zero alone.</summary>
-    public const int GetawayZoomColorCount = 15;
 }

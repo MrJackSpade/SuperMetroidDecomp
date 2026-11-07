@@ -46,9 +46,9 @@ public static class DachoraColorFile
     /// <summary>Checks a full Dachora palette row and converts five-bit channels to hardware color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
-        if (source is null || source.Length != DachoraColorDefinitions.ColorsPerFrame)
+        if (source is null || source.Length != DachoraColorFormat.ColorsPerFrame)
             throw new InvalidDataException(
-                $"Dachora {name} requires {DachoraColorDefinitions.ColorsPerFrame} RGB5 colors.");
+                $"Dachora {name} requires {DachoraColorFormat.ColorsPerFrame} RGB5 colors.");
         var compiled = new RgbColor[source.Length];
         for (int color = 0; color < source.Length; color++)
         {

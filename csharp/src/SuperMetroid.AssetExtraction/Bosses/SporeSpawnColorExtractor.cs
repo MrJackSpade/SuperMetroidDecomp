@@ -29,11 +29,11 @@ public static class SporeSpawnColorExtractor
             Health = ReadFrames(SporeSpawnSourceDefinitions.HealthColors,
                 SporeSpawnColorDefinitions.HealthFrameCount),
             DeathSprite = ReadFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
-                SporeSpawnColorDefinitions.DeathSpriteFrameCount),
+                SporeSpawnColorFormat.DeathSpriteFrameCount),
             DeathLevel = ReadFrames(SporeSpawnSourceDefinitions.DeathLevelColors,
-                SporeSpawnColorDefinitions.DeathSceneFrameCount),
+                SporeSpawnColorFormat.DeathSceneFrameCount),
             DeathBackground = ReadFrames(SporeSpawnSourceDefinitions.DeathBackgroundColors,
-                SporeSpawnColorDefinitions.DeathSceneFrameCount),
+                SporeSpawnColorFormat.DeathSceneFrameCount),
         });
 
         PaletteRgb5[][] ReadFrames(int source, int count)
@@ -46,7 +46,7 @@ public static class SporeSpawnColorExtractor
 
         PaletteRgb5[] Read(int source)
         {
-            var colors = new PaletteRgb5[SporeSpawnColorDefinitions.ColorsPerFrame];
+            var colors = new PaletteRgb5[SporeSpawnColorFormat.ColorsPerFrame];
             for (int color = 0; color < colors.Length; color++)
             {
                 int address = source + color * SporeSpawnSourceDefinitions.ColorWordBytes;

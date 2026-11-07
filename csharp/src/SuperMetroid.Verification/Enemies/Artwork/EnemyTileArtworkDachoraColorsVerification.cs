@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         void VerifyFrame(DachoraPalettePhase phase, int frame)
         {
             int source = DachoraColorSources.Source(phase, frame);
-            for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
+            for (int color = 0; color < DachoraColorFormat.ColorsPerFrame; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)),
                     native.Resolve(phase, frame, color),

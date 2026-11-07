@@ -42,7 +42,7 @@ internal static class SaveSchemaTranslationVerification
         system.SetRoomChozoBit(17);
         // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
-        system.SetEvent(EventNumber.ShitroidApproachCalmed);
+        system.SetEvent(EventNumber.ShitroidEncounterMusicSkipped);
         ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0, JapaneseText = true }));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
@@ -106,8 +106,8 @@ internal static class SaveSchemaTranslationVerification
         SuperMetroidSaveSlot upgradedFourSlot = upgradedFourSaves.ReadSlot(0) ??
             throw new InvalidOperationException("The upgraded schema-four save lost slot 0.");
         AssertEqual(3, upgradedFourSlot.Progression.ZebetitesDestroyed, "schema four's counter events become the Zebetite count");
-        AssertTrue(upgradedFourSlot.Progression.Events.Members.SequenceEqual([EventNumber.ShitroidApproachCalmed.ToEventNumber()]),
-            "schema four's Unused14 becomes ShitroidApproachCalmed and its counter events leave the story events");
+        AssertTrue(upgradedFourSlot.Progression.Events.Members.SequenceEqual([EventNumber.ShitroidEncounterMusicSkipped.ToEventNumber()]),
+            "schema four's Unused14 becomes ShitroidEncounterMusicSkipped and its counter events leave the story events");
         AssertSameBytes(SaveRamCodec.Encode(upgradedFourSaves, RetailPresentationFixture()), SaveRamCodec.Encode(ram, RetailPresentationFixture()),
             "a schema-four save upgrades to the same saves");
         // SpaceTime can leave the counter past four; the Zebetites treat every such value as all four destroyed.
@@ -177,7 +177,7 @@ internal static class SaveSchemaTranslationVerification
     /// <summary>
     /// Rewrites each slot's current progression as schema four wrote it: the Zebetite count as the bits of the counter
     /// events <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c> (the game's events three through five),
-    /// listed in event order, and <see cref="EventNumber.ShitroidApproachCalmed"/> under its schema-four name <c>Unused14</c>.
+    /// listed in event order, and <see cref="EventNumber.ShitroidEncounterMusicSkipped"/> under its schema-four name <c>Unused14</c>.
     /// </summary>
     private static void ToSchemaFourProgression(JsonObject root)
     {
@@ -191,7 +191,7 @@ internal static class SaveSchemaTranslationVerification
             foreach (JsonNode? entry in progression.Required("events").AsArray())
             {
                 EventNumber named = Enum.Parse<EventNumber>(entry?.GetValue<string>() ?? "", ignoreCase: true);
-                byNumber.Add(named.ToEventNumber(), named == EventNumber.ShitroidApproachCalmed ? "Unused14" : named.ToString());
+                byNumber.Add(named.ToEventNumber(), named == EventNumber.ShitroidEncounterMusicSkipped ? "Unused14" : named.ToString());
             }
             for (int bit = 0; bit < 3; bit++)
             {

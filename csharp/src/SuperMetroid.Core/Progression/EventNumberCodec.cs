@@ -21,7 +21,7 @@ public static class EventNumberCodec
         EventNumber.KraidStatueGrey, EventNumber.TourianUnlocked, EventNumber.MaridiaNoobTubeBroken,
         EventNumber.LowerNorfairChozoLoweredAcid, EventNumber.ShaktoolClearedPath, EventNumber.ZebesTimebombSet,
         EventNumber.CrittersEscaped, EventNumber.FirstMetroidHallCleared, EventNumber.FirstMetroidShaftCleared,
-        EventNumber.SecondMetroidHallCleared, EventNumber.SecondMetroidShaftCleared, EventNumber.ShitroidApproachCalmed,
+        EventNumber.SecondMetroidHallCleared, EventNumber.SecondMetroidShaftCleared, EventNumber.ShitroidEncounterMusicSkipped,
         EventNumber.OutranSpeedBoosterLavaquake,
     ];
 

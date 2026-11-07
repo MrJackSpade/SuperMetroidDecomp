@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Frontend.Map;

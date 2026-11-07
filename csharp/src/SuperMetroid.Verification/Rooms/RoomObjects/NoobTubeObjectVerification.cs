@@ -4,7 +4,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDoorsVerification;
-using static SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

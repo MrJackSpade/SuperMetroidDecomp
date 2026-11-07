@@ -46,13 +46,12 @@ public enum EventNumber
     /// <summary>The second Tourian Metroid shaft has met its clear condition; the metroids-cleared PLM records it for later room-state selection.</summary>
     SecondMetroidShaftCleared,
     /// <summary>
-    /// The approach to the Shitroid has calmed. Nothing in the game ever sets this event; the game's own event list
-    /// calls it unused. Only the room-state tests of the three rooms leading to the Shitroid read it: when it is set, the
+    /// The rooms leading to the Shitroid skip its encounter music. Nothing in the game ever sets this event. Only the room-state tests of the three rooms leading to the Shitroid read it: when it is set, the
     /// Blue Hopper room keeps the music already playing and the Dust Torizo room plays Tourian's theme, where both
     /// otherwise start the Baby Metroid encounter's music, and the Big Boy room selects a state identical to its default.
     /// It is named for those alternate states.
     /// </summary>
-    ShitroidApproachCalmed,
+    ShitroidEncounterMusicSkipped,
     /// <summary>The Speed Booster escape PLM has detected that Samus outran the rising-lava earthquake sequence, suppressing that hazard on later activation.</summary>
     OutranSpeedBoosterLavaquake,
 }

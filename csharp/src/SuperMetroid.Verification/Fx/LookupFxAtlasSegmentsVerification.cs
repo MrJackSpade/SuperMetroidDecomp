@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerification;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 

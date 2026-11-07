@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

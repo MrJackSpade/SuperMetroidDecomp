@@ -75,14 +75,14 @@ public static class LegacyGameSaveJson
     private static readonly string[] ZebetiteCounterEventNames =
         ["ZebetiteDestroyedBit0", "ZebetiteDestroyedBit1", "ZebetiteDestroyedBit2"];
 
-    /// <summary>The name schema four gave the event schema five names <see cref="EventNumber.ShitroidApproachCalmed"/>.</summary>
-    private const string ShitroidApproachCalmedSchemaFourName = "Unused14";
+    /// <summary>The name schema four gave the event schema five names <see cref="EventNumber.ShitroidEncounterMusicSkipped"/>.</summary>
+    private const string ShitroidEncounterMusicSkippedSchemaFourName = "Unused14";
 
     /// <summary>
     /// Schema four to five (#1527): schema four listed the Zebetite count as the three events
     /// <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c>, the bits of the cartridge's counter; they leave
     /// a slot's events and become its <c>zebetitesDestroyed</c> count, read as the cartridge's table codec reads the
-    /// counter. The event schema four called <c>Unused14</c> is renamed to <see cref="EventNumber.ShitroidApproachCalmed"/>.
+    /// counter. The event schema four called <c>Unused14</c> is renamed to <see cref="EventNumber.ShitroidEncounterMusicSkipped"/>.
     /// </summary>
     private static void UpgradeSchemaFour(JsonObject root)
     {
@@ -107,8 +107,8 @@ public static class LegacyGameSaveJson
                     counterName => string.Equals(counterName, name, StringComparison.OrdinalIgnoreCase));
                 if (bit >= 0)
                     counter |= 1 << bit;
-                else if (string.Equals(name, ShitroidApproachCalmedSchemaFourName, StringComparison.OrdinalIgnoreCase))
-                    upgraded.Add(nameof(EventNumber.ShitroidApproachCalmed));
+                else if (string.Equals(name, ShitroidEncounterMusicSkippedSchemaFourName, StringComparison.OrdinalIgnoreCase))
+                    upgraded.Add(nameof(EventNumber.ShitroidEncounterMusicSkipped));
                 else
                     upgraded.Add(name);
             }

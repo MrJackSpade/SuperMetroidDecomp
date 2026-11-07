@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
-using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Verification.Harness;
 

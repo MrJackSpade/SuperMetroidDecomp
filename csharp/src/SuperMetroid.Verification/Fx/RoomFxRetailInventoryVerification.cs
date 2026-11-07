@@ -11,7 +11,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
@@ -192,7 +191,7 @@ internal static class RoomFxRetailInventoryVerification
 
         // Each tide runs its own FX owner over the bus's extracted catalogs, which the audit above has already extracted,
         // and reads nothing another tide writes, so the tidal paths run across cores (#1532).
-        ParallelSweep.For(0, tidalPaths.Count, path => VerifyRetailLiquidTide(bus, tidalPaths[path].Room, tidalPaths[path].Door));
+        ParallelSweep.For(0, tidalPaths.Count, path => VerifyRetailLiquidTide(tidalPaths[path].Room, tidalPaths[path].Door));
         AssertEqual(RetailRoomFxStateCount, auditedStatePointers.Count,
             "every retail room state has an FX classification");
         AssertKnownRetailLiquidExamples(knownExamples);
@@ -868,7 +867,6 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Advances a native tide through both waveform halves and checks its bounded surface displacement.</summary>
     private static void VerifyRetailLiquidTide(
-        SuperMetroidAddressSpace bus,
         SelectedRoom room,
         ushort doorPointer)
     {

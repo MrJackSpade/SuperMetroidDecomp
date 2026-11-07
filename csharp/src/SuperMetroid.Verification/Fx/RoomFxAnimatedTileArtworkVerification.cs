@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

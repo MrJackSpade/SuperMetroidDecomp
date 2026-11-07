@@ -3,7 +3,6 @@ using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

@@ -17,6 +17,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -37,7 +38,7 @@ internal static void VerifySamusMorphBallMovement()
     // slice are populated, but the complete eight-byte records make direction, movement,
     // fallback, graphics offset, and collision radius independently observable.
     void WritePose(SamusPoseId pose, byte[] definition) =>
-        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbers.Number(pose), definition);
     WritePose(SamusPoseId.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
     WritePose(SamusPoseId.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]);
     WritePose(SamusPoseId.MorphBallGroundRightPose, [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
@@ -462,21 +463,21 @@ tunnel, SamusPoseId.UnmorphingTransitionRightPose, frameCounter: 1),
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(fallingUnmorph, 
 empty, targetPose, frameCounter: 3),
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} accepts same-facing falling input");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} accepts same-facing falling input");
         AssertEqual(targetPose, fallingUnmorph.Pose,
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} installs falling target");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} installs falling target");
         AssertEqual(19, fallingUnmorph.Kinematics.Radius.Y,
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} reads falling radius from ROM");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} reads falling radius from ROM");
         AssertEqual(2, fallingUnmorph.HorizontalSpeed.BaseSpeed.Whole,
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} preserves horizontal whole speed");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} preserves horizontal whole speed");
         AssertEqual(0x3456, fallingUnmorph.HorizontalSpeed.BaseSpeed.Fraction,
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} preserves horizontal subspeed");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} preserves horizontal subspeed");
         AssertEqual(SamusVerticalDirection.Down, fallingUnmorph.Kinematics.YDirection,
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} preserves falling direction");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} preserves falling direction");
         AssertEqual(2, fallingUnmorph.Kinematics.YSpeed.Whole,
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} preserves falling whole speed");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} preserves falling whole speed");
         AssertEqual(0x8000, fallingUnmorph.Kinematics.YSpeed.Fraction,
-            $"unmorph ${(int)SamusPoseNumbering.Number(sourcePose):X2} preserves falling subspeed");
+            $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} preserves falling subspeed");
     }
 
     // Re-run entry with a nonzero vertical word to prove F9 uses its airborne operand, not

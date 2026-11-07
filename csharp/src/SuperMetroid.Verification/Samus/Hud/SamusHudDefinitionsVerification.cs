@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Hud;
 
 using SuperMetroid.Verification.Harness;
@@ -33,9 +34,9 @@ internal static class SamusHudDefinitionsVerification
     /// <summary>Compares every native handler and posture branch, then checks Grapple admission and charged-shot preservation.</summary>
     internal static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
-        bool Transition(SamusPoseId pose, bool active) => SamusPoseNumbering.Number(pose) >= StandardTransitionNumber ||
-            (SamusPoseNumbering.Number(pose) < NonFiringTransitionNumber &&
-                (rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + SamusPoseNumbering.Number(pose) -
+        bool Transition(SamusPoseId pose, bool active) => SamusPoseNumbers.Number(pose) >= StandardTransitionNumber ||
+            (SamusPoseNumbers.Number(pose) < NonFiringTransitionNumber &&
+                (rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + SamusPoseNumbers.Number(pose) -
                     FirstTransitionNumber) == 0 || active));
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
@@ -85,7 +86,7 @@ internal static class SamusHudDefinitionsVerification
         {
             if (!SamusPoseNumbering.NamesPose(poseIndex)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
-            byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8 + 1);
+            byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
             samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
@@ -102,7 +103,7 @@ internal static class SamusHudDefinitionsVerification
             shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
-            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)SamusPoseNumbering.Number(pose):X2} turn={turn}");
+            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)SamusPoseNumbers.Number(pose):X2} turn={turn}");
             AssertTrue(shots.Slots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
         AssertThrows<ArgumentOutOfRangeException>(

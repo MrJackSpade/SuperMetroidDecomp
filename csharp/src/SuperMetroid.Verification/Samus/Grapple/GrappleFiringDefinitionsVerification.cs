@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 
@@ -59,11 +60,11 @@ internal static class GrappleFiringDefinitionsVerification
                 // Every authored aim/movement pose for the direction, each signed graphics-Y
                 // class and the X/Y position wrap boundaries.
                 samus.Pose = sourcePose = pose;
-                byte movement = GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(samus.Pose) * 8 + 1);
+                byte movement = GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(samus.Pose) * 8 + 1);
                 bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
-                int correctedY = y - GrappleFiringDefinitionsRomByte(rom, 0x91b629 + SamusPoseNumbering.Number(samus.Pose) * 8 + 4);
+                int correctedY = y - GrappleFiringDefinitionsRomByte(rom, 0x91b629 + SamusPoseNumbers.Number(samus.Pose) * 8 + 4);
                 samus.Position = samus.Position.WithWhole(new(raw, unchecked((ushort)~raw)));
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -113,7 +114,7 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
                 AssertEqual(dy, grapple.EndpointOffset.Y.RawValue, "Native extension Y trajectory");
                 AssertEqual(unchecked((ushort)(512 + Word(0x9bc122 + direction * 2) + (dx >> 16))), grapple.Anchor.X, "Native endpoint X");
-                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(samus.Pose) * 8 + 4) + (dy >> 16))), grapple.Anchor.Y, "Native endpoint Y with authored physical correction");
+                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(samus.Pose) * 8 + 4) + (dy >> 16))), grapple.Anchor.Y, "Native endpoint Y with authored physical correction");
             }
         }
         // Moving Draygon-held poses use controller-derived direction and a fixed six-
@@ -253,7 +254,7 @@ internal static class GrappleFiringDefinitionsVerification
     internal static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,
         Func<SamusPoseId> sourcePose)
     {
-        int PoseRecord() => SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(sourcePose()) * 8;
+        int PoseRecord() => SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(sourcePose()) * 8;
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address == PoseRecord() + 1, _ => "Compiled pose movement read ROM.")
             .Forbid(address => address == PoseRecord() + 4, _ => "Installed graphics offset read ROM.")

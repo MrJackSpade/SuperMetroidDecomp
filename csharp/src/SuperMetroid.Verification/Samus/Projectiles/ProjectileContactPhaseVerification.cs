@@ -61,7 +61,7 @@ internal static class ProjectileContactPhaseVerification
             runtime.StepFrame(0);
             var actual = new ProjectileContactPhaseExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Pose,
                 checked((ushort)samus.KnockbackTimer), (ushort)samus.KnockbackDirection);
-            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)SamusPoseNumbering.Number(samus.Pose):X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
+            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");
         }
@@ -95,7 +95,7 @@ internal static class ProjectileContactPhaseVerification
             projectile.InvincibilityFrames = 96;
             projectile.CanDamageSamus = true;
             runtime.Enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
-            Console.WriteLine($"PROJECTILE suit={suit.ToEquipmentWord():X4} health={samus.Health} pose={(int)SamusPoseNumbering.Number(samus.Pose):X2} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+            Console.WriteLine($"PROJECTILE suit={suit.ToEquipmentWord():X4} health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
             ushort expectedHealth = suit == 0 ? (ushort)79 : suit == SamusEquipmentFlags.VariaSuit ? (ushort)89 : (ushort)94;
             if (samus.Health != expectedHealth) failures.Add($"suit {suit.ToEquipmentWord():X4}: expected health {expectedHealth}, got {samus.Health}");
             if (verifyPhase && (samus.Pose != SamusPoseId.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != 0))

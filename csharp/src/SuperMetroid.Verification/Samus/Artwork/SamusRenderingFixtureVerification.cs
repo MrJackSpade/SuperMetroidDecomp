@@ -33,13 +33,13 @@ internal static class SamusRenderingFixtureVerification
 
     /// <summary>Points one pose's <c>$92:D94E</c> tile-animation list pointer at a synthetic record.</summary>
     internal static void WriteSamusTileAnimationPointer(TestAddressSpace bus, SamusPoseId pose, ushort pointer) =>
-        WriteTestWord(bus, SamusSourceDefinitions.AnimationDefinitionListPointers.Value + SamusPoseNumbering.Number(pose) * 2, pointer);
+        WriteTestWord(bus, SamusSourceDefinitions.AnimationDefinitionListPointers.Value + SamusPoseNumbers.Number(pose) * 2, pointer);
 
     /// <summary>Seeds one pose's <c>$92:9263/$92:945D</c> top and bottom spritemap base indices.</summary>
     internal static void WriteSamusSpritemapBases(TestAddressSpace bus, SamusPoseId pose, ushort top, ushort bottom)
     {
-        WriteTestWord(bus, InstalledSamusSpritemaps.TopBaseAddress + SamusPoseNumbering.Number(pose) * 2, top);
-        WriteTestWord(bus, InstalledSamusSpritemaps.BottomBaseAddress + SamusPoseNumbering.Number(pose) * 2, bottom);
+        WriteTestWord(bus, InstalledSamusSpritemaps.TopBaseAddress + SamusPoseNumbers.Number(pose) * 2, top);
+        WriteTestWord(bus, InstalledSamusSpritemaps.BottomBaseAddress + SamusPoseNumbers.Number(pose) * 2, bottom);
     }
     /// <summary>
     /// Adapts sparse seeded rendering tables to the installed catalog boundary. Unspecified

@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Samus.Grapple;
 
@@ -186,7 +187,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
         var cancel = new Func<RoomLevelData, SamusState, ControllerButton, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
-        var drop = (ISnesAddressSpace memory, SamusState player) => SamusPoseNumbering.Number(SamusGrappleMovement.SelectDroppedPose(player));
+        var drop = (ISnesAddressSpace memory, SamusState player) => SamusPoseNumbers.Number(SamusGrappleMovement.SelectDroppedPose(player));
         // Exercise only combinations owned by actual pose records. Older coverage routed
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
         // bytes in a fake bus; that did not represent a cartridge-reachable state.

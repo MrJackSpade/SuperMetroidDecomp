@@ -58,12 +58,12 @@ internal static class SamusOverreadDecoding
     {
         var starts = new Dictionary<SamusAnimationProgram, int>();
         var namedBy = new Dictionary<SamusAnimationProgram, SamusPoseId>();
-        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbering.HasRecord).OrderBy(SamusPoseNumbering.Number)];
+        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord).OrderBy(SamusPoseNumbers.Number)];
         foreach (SamusPoseId pose in poses)
         {
             SamusAnimationProgram program = SamusAnimationDelays.ProgramForPose(pose);
             int start = cartridge.ReadCartridgeWord(
-                SamusOverreadSourceDefinitions.SamusAnimationProgramTable + SamusPoseNumbering.Number(pose) * sizeof(ushort));
+                SamusOverreadSourceDefinitions.SamusAnimationProgramTable + SamusPoseNumbers.Number(pose) * sizeof(ushort));
             if (starts.TryGetValue(program, out int known))
             {
                 if (known != start)
@@ -293,9 +293,9 @@ internal static class SamusOverreadDecoding
     private static Dictionary<string, bool> PostureAdmissions(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusPoseId>()
             .Where(pose => SamusPoseMetadata.PostureTransitionAdmission(pose) == SamusPostureTransitionAdmission.BeyondTable)
-            .OrderBy(SamusPoseNumbering.Number)
+            .OrderBy(SamusPoseNumbers.Number)
             .ToDictionary(pose => pose.ToString(), pose =>
-                cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbering.Number(pose)) == 0);
+                cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbers.Number(pose)) == 0);
 
     /// <summary>
     /// The colours Gravity copies on each Speed Booster step past its cycle: the expansion window's open-bus words, then
@@ -347,7 +347,7 @@ internal static class SamusOverreadDecoding
         DrainedCrashPoses.ToDictionary(pose => pose.ToString(), pose =>
         {
             int pair = SamusOverreadSourceDefinitions.CrashDepartureTable +
-                (SamusPoseNumbering.Number(pose) - SamusPoseNumbering.Number(SamusPoseId.ShinesparkHorizontalRightPose)) * 2;
+                (SamusPoseNumbers.Number(pose) - SamusPoseNumbers.Number(SamusPoseId.ShinesparkHorizontalRightPose)) * 2;
             return new SamusOverreadDocument.CrashDepartures(cartridge.ReadCartridgeByte(pair), cartridge.ReadCartridgeByte(pair + 1));
         });
 

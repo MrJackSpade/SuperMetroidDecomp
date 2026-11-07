@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.TestSupport.ScenarioFixtures;
 
@@ -47,7 +48,7 @@ internal sealed class ShallowWaterJumpScenario
 
     /// <summary>Native WRAM seed words for the takeoff state, in the capture tool's order.</summary>
     internal string TakeoffSeed() =>
-        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbering.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
+        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbers.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
     internal JumpTrace Jump()
@@ -58,7 +59,7 @@ internal sealed class ShallowWaterJumpScenario
         {
             Runtime.StepFrame(ControllerButton.A, new RuntimeFrameRequest());
             apex = Math.Min(apex, Samus.Kinematics.Position.Y.RawValue);
-            rows.Add($"{frame},{(int)SamusPoseNumbering.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
+            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }
         return new JumpTrace(rows, apex);
     }

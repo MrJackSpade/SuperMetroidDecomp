@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -11,11 +12,11 @@ internal static class NativePoseNumberRanges
 {
     /// <summary>Whether <paramref name="pose"/>'s number lies from <paramref name="first"/>'s through <paramref name="last"/>'s.</summary>
     internal static bool InRange(SamusPoseId pose, SamusPoseId first, SamusPoseId last) =>
-        SamusPoseNumbering.Number(pose) >= SamusPoseNumbering.Number(first) && SamusPoseNumbering.Number(pose) <= SamusPoseNumbering.Number(last);
+        SamusPoseNumbers.Number(pose) >= SamusPoseNumbers.Number(first) && SamusPoseNumbers.Number(pose) <= SamusPoseNumbers.Number(last);
 
     /// <summary>Whether <paramref name="pose"/>'s number is below <paramref name="bound"/>'s, as the cartridge compares pose numbers.</summary>
-    internal static bool Precedes(SamusPoseId pose, SamusPoseId bound) => SamusPoseNumbering.Number(pose) < SamusPoseNumbering.Number(bound);
+    internal static bool Precedes(SamusPoseId pose, SamusPoseId bound) => SamusPoseNumbers.Number(pose) < SamusPoseNumbers.Number(bound);
 
     /// <summary>How many pose numbers <paramref name="pose"/> lies past <paramref name="first"/>, for tables indexed from a family's first pose.</summary>
-    internal static int Offset(SamusPoseId pose, SamusPoseId first) => SamusPoseNumbering.Number(pose) - SamusPoseNumbering.Number(first);
+    internal static int Offset(SamusPoseId pose, SamusPoseId first) => SamusPoseNumbers.Number(pose) - SamusPoseNumbers.Number(first);
 }

@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -18,6 +19,6 @@ internal static class ConstantDomainNumbers
     {
         if (type?.ToDisplayString() != typeof(SamusPoseId).FullName) return Convert.ToInt32(value);
         var pose = (SamusPoseId)Convert.ToInt32(value);
-        return Enum.IsDefined(pose) ? SamusPoseNumbering.Number(pose) : null;
+        return Enum.IsDefined(pose) ? SamusPoseNumbers.Number(pose) : null;
     }
 }

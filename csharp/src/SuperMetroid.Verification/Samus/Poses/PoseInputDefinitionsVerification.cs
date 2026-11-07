@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerific
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Poses;
 using SuperMetroid.Verification.Harness;
 
@@ -23,7 +24,7 @@ internal static class PoseInputDefinitionsVerification
         {
             if (!SamusPoseNumbering.NamesPose(poseIndex)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + SamusPoseNumbering.Number(pose) * 2));
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + SamusPoseNumbers.Number(pose) * 2));
             var native = new List<PoseInputDefinitionsNative>();
             for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {
@@ -77,7 +78,7 @@ internal static class PoseInputDefinitionsVerification
                         if ((input & nativeHeld[i]) == nativeHeld[i] && (edges & nativeNew[i]) == nativeNew[i])
                         { match = i; break; }
                     expected = match < 0 ? new(null, native.Count != 0)
-                        : native[match].Target == SamusPoseNumbering.Number(pose) ? new(null, false)
+                        : native[match].Target == SamusPoseNumbers.Number(pose) ? new(null, false)
                         : new(new SamusPoseTransition(SamusPoseNumbering.FromNumber(native[match].Target)), false);
                 }
                 AssertEqual(expected, SamusPoseTransitionTable.Lookup(pose, input, edges),

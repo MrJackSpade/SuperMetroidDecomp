@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 using SuperMetroid.Verification.Harness;
@@ -69,7 +70,7 @@ internal static class GroundedSpreadTransitionVerification
             }
             runtime.StepFrame(input);
             if (trace is not null)
-                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbering.Number(samus.Pose):X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
+                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(samus.Pose):X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
                     $"native/runtime charge-preserving unmorph frame {frame}");
             AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.Charge.FlareCounter, "runtime charge mirror stays synchronized");
             if (frame == 99)

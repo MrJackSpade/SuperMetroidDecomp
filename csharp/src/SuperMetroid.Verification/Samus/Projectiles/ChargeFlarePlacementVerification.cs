@@ -55,7 +55,7 @@ internal static class ChargeFlarePlacementVerification
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
-            int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8;
+            int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running);
             // The turning placements follow the standing rows only; no running pose selects past the named directions.
             if (running && direction >= ChargeFlarePlacementDefinitions.DirectionCount)
@@ -89,7 +89,7 @@ internal static class ChargeFlarePlacementVerification
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             PrepareRetailSamusFixture(samus);
-            int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8;
+            int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             int turnRow = bus.ReadCartridgeByte(record + 3) & 15;
             AssertTrue(turnRow >= ChargeFlarePlacementDefinitions.DirectionCount, $"{pose} selects a turn row");
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;

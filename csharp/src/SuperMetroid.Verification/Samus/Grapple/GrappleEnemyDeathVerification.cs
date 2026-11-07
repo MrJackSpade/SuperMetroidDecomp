@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 using SuperMetroid.Verification.Harness;
@@ -127,7 +128,7 @@ internal static class GrappleEnemyDeathVerification
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32]);
             var result = SamusGrappleMovement.Step(new SamusTerrain { Level = movementRoom }, samus, 0, 0);
-            AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)SamusPoseNumbering.Number(pose):X2} completes grapple cleanup");
+            AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)SamusPoseNumbers.Number(pose):X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,
                 samus.Pose, "native dropped table selects aim or standing body");

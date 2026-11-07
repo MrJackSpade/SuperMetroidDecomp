@@ -70,7 +70,7 @@ internal static class SamusOverreadServicesReader
     private static LaidOutProgramContinuation<SamusPoseId> AnimationContinuation(
         IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> continuations)
     {
-        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbering.HasRecord)];
+        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord)];
         if (continuations.Count != poses.Length)
             throw new InvalidDataException($"Samus overread file holds {continuations.Count} animation continuations, not {poses.Length}.");
         var successors = new Dictionary<SamusPoseId, LaidOutProgramContinuation<SamusPoseId>.Successor?>();

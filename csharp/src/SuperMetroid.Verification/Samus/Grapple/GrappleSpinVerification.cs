@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 using SuperMetroid.Verification.Harness;
@@ -38,7 +39,7 @@ internal static class GrappleSpinVerification
             samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             runtime.StepFrame(ControllerButton.X);
-            Console.WriteLine($"Spin fire first frame: pose={(int)SamusPoseNumbering.Number(samus.Pose):X2}, grapple={samus.Grapple.Phase}");
+            Console.WriteLine($"Spin fire first frame: pose={(int)SamusPoseNumbers.Number(samus.Pose):X2}, grapple={samus.Grapple.Phase}");
             AssertEqual(left ? SamusPoseId.NormalJumpGunExtendedLeftPose : SamusPoseId.NormalJumpGunExtendedRightPose,
                 samus.Pose, "Fire exits the spin through the ROM pose table");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "spin HUD handler does not fire before pose transition");

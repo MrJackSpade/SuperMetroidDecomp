@@ -384,9 +384,15 @@ internal static class EnemySheetComposer
         return [.. loaded, .. spawned];
     }
 
-    /// <summary>The room states that load graphics set <paramref name="set"/>.</summary>
+    /// <summary>
+    /// The room states that draw under graphics set <paramref name="set"/>: those that load it, and, for the session-start
+    /// set, every state whose population is empty. The room load skips the set of a state with no enemies
+    /// (<c>RoomEnemySystem</c>'s population load), so such a room's spawned objects draw under the session-start set,
+    /// whatever set its state names (#1560).
+    /// </summary>
     private static RoomStateSettings[] StatesOf(RoomEnemyGraphicsSetDefinition set) =>
-        [.. RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)];
+        [.. RoomStateDefinitions.All.Where(state =>
+            (state.EnemyPopulation.Records.IsEmpty ? RoomEnemyGraphicsSetDefinitions.SessionStart : state.EnemyGraphicsSet).Name == set.Name)];
 
     /// <summary>
     /// The artwork sequences played under graphics set <paramref name="set"/> (#1513): each its members' encounters play,

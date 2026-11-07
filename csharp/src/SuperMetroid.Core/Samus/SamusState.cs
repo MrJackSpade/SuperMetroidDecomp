@@ -479,7 +479,7 @@ public sealed class SamusState
     /// What an animation frame past her pose's program reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
-    internal LaidOutProgramContinuation<SamusPoseId> AnimationContinuation { get; }
+    internal LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation { get; }
 
     /// <summary>
     /// Operand published by the animation's pose-transition command through the “super-special
@@ -517,7 +517,7 @@ public sealed class SamusState
     /// <remarks>Construction performs no reads of the original data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
     /// <param name="animationContinuation">What an animation frame past her pose's program reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
-    internal SamusState(LaidOutProgramContinuation<SamusPoseId> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence)
+    internal SamusState(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence)
     {
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);

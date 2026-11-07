@@ -266,17 +266,13 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Called only by the drained-fall animation instruction; the generic delay
-    /// interpreter performs the command's separate frame increment.
+    /// interpreter performs the command's separate frame increment. The instruction does not look at the pose: the drained
+    /// crouches' programs hold it, and a landing pose whose frame the Baby's Hyper Beam freeze or rainbow stop sets reads
+    /// into the drained crouch's program and reaches it too, so that pose falls as a drained Samus does (#1535).
     /// </summary>
     internal void InstallFallingMovementHandler(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (samus.Pose is not (
-            SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose))
-        {
-            throw new InvalidOperationException(
-                $"Drained falling command requires a drained crouching pose, not {samus.Pose}.");
-        }
 
         // The instruction installs the drained falling handler as Samus's one movement handler.
         // It therefore replaces either kind of special owner: an ordinary uncrashed spark

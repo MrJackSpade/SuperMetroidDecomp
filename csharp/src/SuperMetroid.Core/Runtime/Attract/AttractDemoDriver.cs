@@ -39,7 +39,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly SharedGameState _system;
     /// <summary>What a demo Samus's animation frame past her pose's program reads.</summary>
-    private readonly LaidOutProgramContinuation<SamusPoseId> _animationContinuation;
+    private readonly LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> _animationContinuation;
 
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)

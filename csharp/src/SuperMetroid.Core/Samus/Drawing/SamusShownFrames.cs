@@ -17,9 +17,10 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// The program holds a picture on each of its delays and on a hold, which keeps the animation on its own frame for a tick.
 /// When a frame's delay runs out the animation moves to the next frame, which shows if it is a delay or a hold. A repeat,
 /// a restart, the breathing loop, the wall-jump spin selection and the drained fall's handover move it on to the delay they
-/// select; a selected frame that is no delay, a frame between two runs, or one past every program fails the game's
-/// animation there, so nothing shows. A transition ends the pose: the pose update that follows the animation in the same
-/// update replaces it before the draw. A frame past the end of a program reads the program laid out after it.
+/// select; a selected frame that is no delay, or one past every program, fails the game's animation there, so nothing
+/// shows. A transition ends the pose: the pose update that follows the animation in the same update replaces it before the
+/// draw. A frame on an instruction's operand reads the step the operand selects, and a frame past the end of a program
+/// reads the program laid out after it (#1535).
 /// </para>
 /// <para>
 /// A pose's animation starts on the frames pose initialization and the Crystal Flash, X-ray, death, fast-fall,
@@ -50,7 +51,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 internal sealed class SamusShownFrames
 {
     /// <summary>The frames computed for each continuation an animation reads past its programs with.</summary>
-    private static readonly ConditionalWeakTable<LaidOutProgramContinuation<SamusPoseId>, SamusShownFrames> computed = new();
+    private static readonly ConditionalWeakTable<LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep>, SamusShownFrames> computed = new();
 
     /// <summary>
     /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
@@ -62,7 +63,7 @@ internal sealed class SamusShownFrames
         [.. SamusPoseMetadata.ReachablePoses.Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
 
     /// <summary>What a frame past a program's end reads.</summary>
-    private readonly LaidOutProgramContinuation<SamusPoseId> continuation;
+    private readonly LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation;
 
     /// <summary>The frames each pose can show.</summary>
     private readonly Dictionary<SamusPoseId, SortedSet<int>> shown = [];
@@ -76,6 +77,12 @@ internal sealed class SamusShownFrames
     /// <summary>The frames of its own pose each shown frame can follow as the animation advances.</summary>
     internal readonly Dictionary<SamusPoseFrame, HashSet<int>> predecessors = [];
 
+    /// <summary>
+    /// The poses other than the drained crouches whose animation reaches the drained fall's handover, by reading into a
+    /// drained crouch's program, and so lands on the drained landing's frame when the fall ends (#1535).
+    /// </summary>
+    private readonly HashSet<SamusPoseId> fallingWithoutDrain = [];
+
     /// <summary>Each pose's picture frames: the delays and holds of its program its own animation shows.</summary>
     internal readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
 
@@ -87,7 +94,7 @@ internal sealed class SamusShownFrames
     /// frames, then the unauthored paths, until no further frame shows; and maps every shown frame to its picture frame.
     /// </summary>
     /// <exception cref="InvalidDataException">A shown frame has no picture frame of its pose at or before it.</exception>
-    private SamusShownFrames(LaidOutProgramContinuation<SamusPoseId> continuation)
+    private SamusShownFrames(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
     {
         this.continuation = continuation;
         var pending = new Queue<SamusPoseFrame>();
@@ -117,7 +124,7 @@ internal sealed class SamusShownFrames
     }
 
     /// <summary>The frames Samus's body can show, for the programs <paramref name="continuation"/> reads past.</summary>
-    internal static SamusShownFrames Of(LaidOutProgramContinuation<SamusPoseId> continuation) =>
+    internal static SamusShownFrames Of(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
         computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
 
     /// <summary>Every pose some path of the game gives Samus, in the game's numbering: the poses the body can show.</summary>
@@ -246,13 +253,23 @@ internal sealed class SamusShownFrames
                 .. Reach(pose, select.SpaceJumpFrame, FrameReach.Selection),
                 .. Reach(pose, select.ScrewAttackFrame, FrameReach.Selection),
             ],
-            // The drained fall's handover fails for any pose but the drained crouch.
-            SamusAnimationInstallDrainedFall => pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
-                ? Reach(pose, frame + 1, FrameReach.Selection) : [],
+            // The drained fall's handover installs the fall whatever the pose, then moves on to the next frame (#1535).
+            SamusAnimationInstallDrainedFall => InstallDrainedFall(pose, frame),
             SamusAnimationTransition or SamusAnimationTurnTransition or SamusAnimationItemTransition or
-                SamusAnimationItemAirborneTransition => [],
+                SamusAnimationItemAirborneTransition or SamusAnimationVerticalSpeedTransition => [],
             _ => throw new InvalidDataException($"Samus animation step {step} has no handler."),
         };
+    }
+
+    /// <summary>
+    /// The frames the drained fall's handover at <paramref name="frame"/> of <paramref name="pose"/> moves on to, noting a
+    /// pose other than the drained crouches that reaches it.
+    /// </summary>
+    private int[] InstallDrainedFall(SamusPoseId pose, int frame)
+    {
+        if (pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose))
+            fallingWithoutDrain.Add(pose);
+        return Reach(pose, frame + 1, FrameReach.Selection);
     }
 
     /// <summary>
@@ -313,6 +330,10 @@ internal sealed class SamusShownFrames
             publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
             publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
         }
+        // The drained fall a pose's animation installed by reading into a drained crouch's program lands it on the
+        // landing frame, during movement and with the landing's timer, so the draw shows it as written.
+        if (fallingWithoutDrain.Contains(pose))
+            publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, PublishedFrameDrawing.AsWritten));
         // Wall contact rewinds whatever pose holds the spin's movement: a drained pose written over a spin keeps it.
         if (SamusPoseMetadata.ReadMovementType(pose) != SamusMovementType.SpinJumping &&
             MovementTypesHeldIn(pose).Contains(SamusMovementType.SpinJumping))

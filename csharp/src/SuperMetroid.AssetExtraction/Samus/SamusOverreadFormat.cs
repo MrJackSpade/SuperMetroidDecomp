@@ -12,9 +12,10 @@ internal static class SamusOverreadFormat
     /// orbs, items, doors, stations and maps it decides rather than table bytes (#1475); revision ten adds what the Spazer
     /// and Plasma beams' launch, the Chainsaw beam's palette and the drained Shinespark crash read past their tables (#1500);
     /// revision eleven adds the Spazer and Plasma beams' cooldowns (#1506); revision twelve names the poses by their
-    /// renamed identities and holds no entry for a record no gameplay path reaches (#1517).
+    /// renamed identities and holds no entry for a record no gameplay path reaches (#1517); revision thirteen adds the step
+    /// the animation reads at each place of a program that lands on an instruction's operand (#1535).
     /// </summary>
-    internal const int Version = 12;
+    internal const int Version = 13;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Manifest filename recording the overread file's cartridge identity and digest.</summary>

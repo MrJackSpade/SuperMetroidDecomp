@@ -35,6 +35,7 @@ internal static class SamusOverreadDecoding
         return new SamusOverreadDocument(
             SamusOverreadFormat.Version,
             AnimationContinuations(cartridge),
+            SamusAnimationOperandDecoding.OperandSteps(cartridge),
             Enum.GetValues<SamusProjectileProgram>().ToDictionary(program => program.ToString(), program => (int)lists.Prefix(program)),
             TrailPlacementsPastRecords(cartridge, lists),
             SpaceTimeOverwrites(cartridge, lists),
@@ -55,34 +56,16 @@ internal static class SamusOverreadDecoding
     /// <exception cref="InvalidDataException">Two poses of one program start apart, or two programs start together.</exception>
     private static Dictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations(IImportCartridgeSource cartridge)
     {
-        var starts = new Dictionary<SamusAnimationProgram, int>();
-        var namedBy = new Dictionary<SamusAnimationProgram, SamusPoseId>();
-        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord).OrderBy(SamusPoseNumbers.Number)];
-        foreach (SamusPoseId pose in poses)
-        {
-            SamusAnimationProgram program = SamusAnimationDelays.ProgramForPose(pose);
-            int start = cartridge.ReadCartridgeWord(
-                SamusOverreadSourceDefinitions.SamusAnimationProgramTable + SamusPoseNumbers.Number(pose) * sizeof(ushort));
-            if (starts.TryGetValue(program, out int known))
-            {
-                if (known != start)
-                    throw new InvalidDataException($"Pose {pose}'s animation program starts at {start}, but another pose of the same program starts at {known}.");
-                continue;
-            }
-            starts.Add(program, start);
-            namedBy.Add(program, pose);
-        }
-        if (starts.Values.Distinct().Count() != starts.Count)
-            throw new InvalidDataException("Two Samus animation programs start at the same place.");
-        KeyValuePair<SamusAnimationProgram, int>[] laidOut = [.. starts.OrderBy(pair => pair.Value)];
+        SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
         var successors = new Dictionary<SamusAnimationProgram, SamusOverreadDocument.Continuation?>();
         for (int index = 0; index < laidOut.Length; index++)
         {
-            successors.Add(laidOut[index].Key, index + 1 < laidOut.Length
-                ? new SamusOverreadDocument.Continuation(namedBy[laidOut[index + 1].Key].ToString(), laidOut[index + 1].Value - laidOut[index].Value)
+            successors.Add(laidOut[index].Program, index + 1 < laidOut.Length
+                ? new SamusOverreadDocument.Continuation(laidOut[index + 1].NamedBy.ToString(), laidOut[index + 1].Start - laidOut[index].Start)
                 : null);
         }
-        return poses.ToDictionary(pose => pose.ToString(), pose => successors[SamusAnimationDelays.ProgramForPose(pose)]);
+        return SamusAnimationProgramLayout.PosesWithRecords()
+            .ToDictionary(pose => pose.ToString(), pose => successors[SamusAnimationDelays.ProgramForPose(pose)]);
     }
 
     /// <summary>

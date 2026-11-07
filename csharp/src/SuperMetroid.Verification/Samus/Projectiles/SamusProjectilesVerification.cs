@@ -1817,9 +1817,9 @@ static void InstallSamusBeamPaletteFixture(TestAddressSpace bus)
     // ten Hyper-shot pointers. Every palette/color word is unique and remains valid BGR555.
     ushort[] normalSuitPalettePointers =
     [
-        SamusPaletteDefinitions.Common.NormalSuitPalettePointer(0),
-        SamusPaletteDefinitions.Common.NormalSuitPalettePointer(2),
-        SamusPaletteDefinitions.Common.NormalSuitPalettePointer(4),
+        SamusPaletteNative.NormalSuitPalettePointer(0),
+        SamusPaletteNative.NormalSuitPalettePointer(2),
+        SamusPaletteNative.NormalSuitPalettePointer(4),
     ];
     for (int suit = 0; suit < normalSuitPalettePointers.Length; suit++)
     {

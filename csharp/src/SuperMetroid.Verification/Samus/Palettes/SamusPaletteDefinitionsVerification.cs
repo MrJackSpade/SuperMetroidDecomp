@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.Verification.Samus.Palettes;
 
@@ -48,13 +49,13 @@ internal static class SamusPaletteDefinitionsVerification
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        TouchRange(bus, SamusPaletteDefinitions.Common.NormalSuitPointers,
+        TouchRange(bus, SamusPaletteDefinitionsCommonConstants.NormalSuitPointers,
             3 * sizeof(ushort), "normal suit palette pointers");
         TouchRange(bus, SamusSourceDefinitions.HurtFlashColors.Value,
-            SamusPaletteDefinitions.Common.ColoursPerSet * sizeof(ushort),
+            SamusColourSets.ColoursPerSet * sizeof(ushort),
             "Samus hurt-flash colors");
         TouchRange(bus, SamusSourceDefinitions.IntroHurtFlashColors.Value,
-            SamusPaletteDefinitions.Common.ColoursPerSet * sizeof(ushort),
+            SamusColourSets.ColoursPerSet * sizeof(ushort),
             "intro Samus colors");
         TouchRange(bus, SamusSourceDefinitions.VisorColors.Value,
             SamusPaletteDefinitions.Visor.CycleEndShade * sizeof(ushort),

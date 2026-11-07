@@ -30,13 +30,13 @@ internal static class SamusColorPresentationContractChecks
                     InstalledCrystalFlashColors flash, InstalledPowerBombFixedColors bomb,
                     HyperBeamFxColours fx) {
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerSet - 1);
+                        SamusSuit.Gravity, 3), SamusColourSets.ColoursPerSet - 1);
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerSet);
+                        SamusSuit.Gravity, 3), SamusColourSets.ColoursPerSet);
                     hurt.Resolve(SamusHurtColorVariant.Intro, SamusHurtColorFormat.ColorsPerPalette - 1);
                     hurt.Resolve((SamusHurtColorVariant)int.MaxValue, 0);
                     hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1,
-                        SamusPaletteDefinitions.Common.ColoursPerSet - 1);
+                        SamusColourSets.ColoursPerSet - 1);
                     hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount, 0);
                     visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
                     visor.Resolve(SamusVisorColorFormat.ColorCount);

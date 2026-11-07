@@ -33,11 +33,11 @@ internal static class NormalSuitPalettePointersVerification
         for (int selection = 0; selection < equipment.Length; selection++)
         {
             ushort offset = SamusPaletteNative.SuitTableByteOffset(equipment[selection].ShownSuit());
-            int source = SamusPaletteDefinitions.Common.NormalSuitPointers + offset;
+            int source = SamusPaletteDefinitionsCommonConstants.NormalSuitPointers + offset;
             ushort nativePointer = LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, source), CpuBusRegionRead.Read(rom, source + 1));
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"normal suit pointer selection {selection} matches retail ROM");
-            AssertEqual(nativePointer, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(offset),
+            AssertEqual(nativePointer, SamusPaletteNative.NormalSuitPalettePointer(offset),
                 $"compiled normal suit pointer selection {selection} matches retail ROM");
 
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())

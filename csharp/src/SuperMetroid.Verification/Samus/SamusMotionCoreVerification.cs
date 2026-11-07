@@ -260,7 +260,7 @@ internal static void VerifySamusHorizontalSpeed()
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostFirst, 0x1234);
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostSecond, 0x4567);
     SyntheticSamusCartridge.WriteSamusPaletteColors(
-        bus, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(0), 0x0321);
+        bus, SamusPaletteNative.NormalSuitPalettePointer(0), 0x0321);
 
     var boostColours = new SamusColours();
     AssertTrue(booster.UpdateSpeedBoosterPalette(boostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
@@ -323,7 +323,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Gravity Screw palette remains ROM-authored");
 
     SyntheticSamusCartridge.WriteSamusPaletteColors(
-        bus, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(4), 0x3a2a);
+        bus, SamusPaletteNative.NormalSuitPalettePointer(4), 0x3a2a);
     AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(submergedScrewColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 27, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true }),
         "Gravity Screw frame 27 restores normal suit colors underwater");
     AssertEqual(0x3a2a, submergedScrewColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],

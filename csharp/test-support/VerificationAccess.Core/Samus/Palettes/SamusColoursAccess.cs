@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -61,15 +62,15 @@ internal static class SamusColoursAccess
 
         /// <summary>The sixteen colours her suit shows.</summary>
         internal RgbColor[] ShownSuit(SamusShadeSources sources) =>
-            self.ShownInks(sources)[SamusSheetInks.Suit..(SamusSheetInks.Suit + SamusColourDefinitions.SuitColours)];
+            self.ShownInks(sources)[SamusSheetInks.Suit..(SamusSheetInks.Suit + SamusColourSets.ColoursPerSet)];
 
         /// <summary>The sixteen colours her beams show.</summary>
         internal RgbColor[] ShownBeams(SamusShadeSources sources) =>
-            self.ShownInks(sources)[SamusSheetInks.Beams..(SamusSheetInks.Beams + SamusColourDefinitions.SuitColours)];
+            self.ShownInks(sources)[SamusSheetInks.Beams..(SamusSheetInks.Beams + SamusColourSets.ColoursPerSet)];
 
         /// <summary>The sixteen colours her body without the suit shows.</summary>
         internal RgbColor[] ShownSuitless(SamusShadeSources sources) =>
-            self.ShownInks(sources)[SamusSheetInks.Suitless..(SamusSheetInks.Suitless + SamusColourDefinitions.SuitColours)];
+            self.ShownInks(sources)[SamusSheetInks.Suitless..(SamusSheetInks.Suitless + SamusColourSets.ColoursPerSet)];
 
         /// <summary>The colour her visor shows.</summary>
         internal RgbColor ShownVisor(SamusShadeSources sources) => self.ShownInks(sources)[SamusSheetInks.Suit + SamusSheetInks.VisorColour];

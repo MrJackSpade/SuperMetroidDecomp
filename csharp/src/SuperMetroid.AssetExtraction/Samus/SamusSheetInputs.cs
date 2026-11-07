@@ -86,7 +86,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     /// </summary>
     internal RgbColor[] SuitedColours() =>
         WithBeams(WithRun(RoomLoadSpriteColours(), SamusSheetInks.Suit,
-            [.. Enumerable.Range(0, SamusColourDefinitions.SuitColours).Select(colour => ShadeSources.Suits.Resolve(SamusSuit.Power, colour))]),
+            [.. Enumerable.Range(0, SamusColourSets.ColoursPerSet).Select(colour => ShadeSources.Suits.Resolve(SamusSuit.Power, colour))]),
             SamusBeamCombination.Power);
 
     /// <summary><paramref name="colours"/>, sprite colours, with <paramref name="combination"/>'s beam colours in her beams' place.</summary>

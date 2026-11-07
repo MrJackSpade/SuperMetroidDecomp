@@ -9,13 +9,6 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </remarks>
 public static class SamusPaletteDefinitions
 {
-    /// <summary>Shared full-body sprite palette layout and suit selection table.</summary>
-    public static class Common
-    {
-        /// <summary>The colours in each of Samus's colour sets: her suit's, her beams' and every palette her effects show.</summary>
-        public const int ColoursPerSet = 16;
-    }
-
     /// <summary>Shared visor colors used by room animation and the X-ray Scope.</summary>
     public static class Visor
     {
@@ -63,8 +56,6 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Expected no-op setup callback in the object definition.</summary>
         public const PaletteFxSetup SetupCallback = PaletteFxSetup.Null;
-        /// <summary>The frames of the Hyper Beam's own colour cycle: red, yellow, green, blue and magenta, each followed by its blend into the next.</summary>
-        public const int CycleFrameCount = 10;
     }
 
     /// <summary>Palette tables consumed by the fatal-damage sequence.</summary>
@@ -104,10 +95,6 @@ public static class SamusPaletteDefinitions
         public const int BodyRecordCount = 10;
         /// <summary>Number of bubble palette pointers.</summary>
         public const int BubblePaletteCount = 6;
-        /// <summary>Number of colors copied for the body portion.</summary>
-        public const int BodyColorCount = 10;
-        /// <summary>Number of colors copied for the bubble portion.</summary>
-        public const int BubbleColorCount = 6;
     }
 
     /// <summary>The light beam's colour endpoints in the shared Varia/Gravity pickup sequence, in five-bit channels.</summary>

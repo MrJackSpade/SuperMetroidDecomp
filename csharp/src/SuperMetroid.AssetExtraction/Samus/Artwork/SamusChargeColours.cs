@@ -28,7 +28,7 @@ public sealed class SamusChargeColours
     {
         Ensure.NotNull(palettes);
         foreach (ImmutableArray<RgbColor> colours in palettes.Values)
-            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.SuitColours);
+            Ensure.LengthEqual(colours.AsSpan(), SamusColourSets.ColoursPerSet);
         this.palettes = new(palettes);
         this.hyperShot = Ensure.NotNull(hyperShot);
     }

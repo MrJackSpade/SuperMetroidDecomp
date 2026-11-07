@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -195,7 +196,7 @@ internal static class FullBodyPalettePointerListsVerification
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SamusColours actual, int pointer, string context)
     {
-        for (int color = 0; color < SamusPaletteDefinitions.Common.ColoursPerSet; color++)
+        for (int color = 0; color < SamusColourSets.ColoursPerSet; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(rom),
                     SamusSourceDefinitions.PaletteBank.Value | (pointer + color * sizeof(ushort))) & 0x7fff),

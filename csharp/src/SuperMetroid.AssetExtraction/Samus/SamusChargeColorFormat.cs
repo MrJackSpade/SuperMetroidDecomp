@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Palettes;
 
 
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Installed filename and bounded suit, phase, frame, and palette geometry for selected Samus charge-related body colors.</summary>
@@ -43,5 +44,5 @@ public static class SamusChargeColorFormat
     /// <summary>Ten Hyper-shot playback frames in the native $91:D82B–$D83D reverse palette sequence.</summary>
     public const int HyperFrameCount = 10;
     /// <summary>Sixteen RGB5 words per Samus OBJ palette row, including the retained transparent-slot word and fifteen visible inks.</summary>
-    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColoursPerSet;
+    public const int ColorsPerPalette = SamusColourSets.ColoursPerSet;
 }

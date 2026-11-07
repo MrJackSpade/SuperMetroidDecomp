@@ -855,7 +855,7 @@ static void InstallHyperBeamSuitPaletteFixture(TestAddressSpace bus)
     }
     for (ushort color = 0; color < 16; color++)
         WriteTestWord(bus, SamusSourceDefinitions.PaletteBank.Value |
-            (SamusPaletteDefinitions.Common.NormalSuitPalettePointer(0) + color * 2),
+            (SamusPaletteNative.NormalSuitPalettePointer(0) + color * 2),
             unchecked((ushort)(0x3000 + color)));
 }
 

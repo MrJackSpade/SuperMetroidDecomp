@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>
@@ -40,10 +41,10 @@ internal static class CrystalFlashVisualsVerification
             int bubble = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.BubblePointers.Value + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
             // Samus names the body and bubble shades (#1512); the installation's shades hold the authored colours.
             RgbColor[] beams = runtime.Player.Colours.ShownBeams(InstalledFixtures.SamusShadeSources);
-            for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
+            for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
                 AssertEqual(Word(body + color * 2), beams[color],
                     $"runtime Crystal Flash body palette at frame {elapsed}");
-            for (int color = 0; color < CrystalFlash.BubbleColorCount; color++)
+            for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
                 AssertEqual(Word(bubble + color * 2), beams[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
                     $"runtime Crystal Flash bubble palette at frame {elapsed}");
         }

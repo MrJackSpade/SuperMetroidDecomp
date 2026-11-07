@@ -207,7 +207,7 @@ internal static class SamusOverreadServicesReader
         foreach (SpeedBoosterPaletteOverrun step in Enum.GetValues<SpeedBoosterPaletteOverrun>())
         {
             if (!colours.TryGetValue(step.ToString(), out IReadOnlyList<PaletteRgb5>? row) ||
-                row.Count != SamusPaletteDefinitions.Common.ColoursPerSet)
+                row.Count != SamusColourSets.ColoursPerSet)
                 throw new InvalidDataException($"Samus overread file holds no suit row of colours for Speed Booster {step}.");
             result.Add(step, [.. row.Select(colour => colour.ToRgbColor())]);
         }

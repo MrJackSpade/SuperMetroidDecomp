@@ -8,7 +8,7 @@ internal static class BossColorClosedContractDefinitions
     [
         new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledBeamPalettes", "beam-palettes-v1-twelve-selections", ["Colours"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledBeamPalettes.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaintDefinitions.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusEquipmentFlags.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs")]),

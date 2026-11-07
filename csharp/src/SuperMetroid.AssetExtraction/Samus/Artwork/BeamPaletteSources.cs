@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Which single beam's paint each palette slot copies its colour from, and which slots are black.</summary>
 public static class BeamPaletteSources
@@ -12,7 +12,7 @@ public static class BeamPaletteSources
         if (selection.HasIce) return SamusBeamCombination.Ice;
         if (selection.HasPlasma) return SamusBeamCombination.Plasma;
         if (selection.HasWave) return SamusBeamCombination.Wave;
-        if (selection.HasSpazer) return SamusBeamCombination.Spazer;
+        if ((selection.Components & SamusBeamFlags.Spazer) != SamusBeamFlags.None) return SamusBeamCombination.Spazer;
         return SamusBeamCombination.Power;
     }
 

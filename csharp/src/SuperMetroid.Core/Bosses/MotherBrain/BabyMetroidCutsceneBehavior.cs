@@ -227,9 +227,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.BabyFadeShade is int shade)
             LoadBabyMetroidCutsceneFadePalette(shade);
 
-        if (step.AttackPage is { } attackPage)
-            _motherBrainEncounter.ShowSpritePage(attackPage);
-
         if (step.RecoveryLightsFrame is int lightsFrame)
             LoadMotherBrainRecoveryLights(lightsFrame);
     }

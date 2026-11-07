@@ -121,8 +121,11 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public int DeathExplosionPatternIndex { get; private set; }
 
-    /// <summary>How many attack pages the cutscene has shown again, which is also the next to show.</summary>
-    public int AttackPagesShown { get; private set; }
+    /// <summary>
+    /// The updates the cutscene has spent readying Mother Brain's attacks again so far, zero through
+    /// <see cref="MotherBrainReadyingDefinitions.AttacksAgainDuration"/>.
+    /// </summary>
+    public int AttacksAgainReadyingElapsed { get; private set; }
 
     /// <summary>Palette-table argument used while restoring the phase-three room lights, 0 through 8.</summary>
     public int RoomLightsTransitionCounter { get; private set; }
@@ -183,7 +186,7 @@ public sealed class BabyMetroidCutsceneState
         FadeToBlackPaletteIndex = 0;
         DeathExplosionTimer = 0;
         DeathExplosionPatternIndex = 0;
-        AttackPagesShown = 0;
+        AttacksAgainReadyingElapsed = 0;
         RoomLightsTransitionCounter = 0;
         SamusRainbowPaletteAnimationCounter = 0;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
@@ -228,7 +231,6 @@ public sealed class BabyMetroidCutsceneState
         bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
         int? babyFadeShade = null;
-        MotherBrainSpritePage? attackPage = null;
         int? recoveryLightsFrame = null;
 
         // EnemyCollisionHandling runs touch AI before main AI, against the Baby's
@@ -642,9 +644,9 @@ public sealed class BabyMetroidCutsceneState
                 if (StepFadeToBlack(ref babyFadeShade))
                 {
                     // Completion does not write palette index seven. It hides the actor,
-                    // installs the attack-page step, and waits through 128..0 before the first transfer.
+                    // starts readying Mother Brain's attacks again, and waits through 128..0 before its first update.
                     Properties = Properties.With(EnemyProperties.Invisible);
-                    Phase = BabyMetroidCutscenePhase.UnloadTiles;
+                    Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
                     FunctionTimer = 128;
                 }
                 else
@@ -657,22 +659,19 @@ public sealed class BabyMetroidCutsceneState
                 }
                 break;
 
-            case BabyMetroidCutscenePhase.UnloadTiles:
+            case BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain:
                 StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
                 if (--FunctionTimer < 0)
                 {
-                    int attackPages = MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Attack);
-                    if (AttackPagesShown >= attackPages)
-                        throw new InvalidOperationException("Every Mother Brain attack page has already shown again.");
+                    if (AttacksAgainReadyingElapsed >= MotherBrainReadyingDefinitions.AttacksAgainDuration)
+                        throw new InvalidOperationException("Mother Brain's attacks are already readied again.");
 
-                    attackPage = MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Attack, AttackPagesShown);
-                    AttackPagesShown++;
+                    AttacksAgainReadyingElapsed++;
 
-                    if (AttackPagesShown == attackPages)
+                    if (AttacksAgainReadyingElapsed == MotherBrainReadyingDefinitions.AttacksAgainDuration)
                     {
-                        // ProcessSpriteTilesTransfers observes the zero terminator after
-                        // publishing entry four. Falls straight into the next step, so the
-                        // newly written 176 becomes 175 on this same call.
+                        // The last readying update falls straight into the next step, so the newly written 176
+                        // becomes 175 on this same call.
                         Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                         FunctionTimer = 176;
                         goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
@@ -740,7 +739,6 @@ public sealed class BabyMetroidCutsceneState
             ambientCrySoundQueued,
             deathExplosion,
             babyFadeShade,
-            attackPage,
             recoveryLightsFrame);
     }
 

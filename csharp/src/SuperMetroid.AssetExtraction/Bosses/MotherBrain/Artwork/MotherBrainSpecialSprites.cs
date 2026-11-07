@@ -19,10 +19,10 @@ public static class MotherBrainSpecialSprites
     /// <summary>Which sheet each special sheet is, and the sprite character its first page shows from.</summary>
     private static readonly Dictionary<MotherBrainSpecialSpriteSheetDefinition, MotherBrainSpecialSheetPlacement> Placements = new()
     {
-        [MotherBrainSpecialSpriteSheetDefinitions.Legs] = new(MotherBrainSpritePageSheet.Legs, 320),
-        [MotherBrainSpecialSpriteSheetDefinitions.BabyMetroid] = new(MotherBrainSpritePageSheet.BabyMetroid, 448),
-        [MotherBrainSpecialSpriteSheetDefinitions.Attack] = new(MotherBrainSpritePageSheet.Attack, 448),
-        [MotherBrainSpecialSpriteSheetDefinitions.ExplodedDoor] = new(MotherBrainSpritePageSheet.ExplodedDoor, 256),
+        [MotherBrainSpecialSpriteSheetDefinitions.Legs] = new(MotherBrainSpriteSheet.Legs, 320),
+        [MotherBrainSpecialSpriteSheetDefinitions.BabyMetroid] = new(MotherBrainSpriteSheet.BabyMetroid, 448),
+        [MotherBrainSpecialSpriteSheetDefinitions.Attack] = new(MotherBrainSpriteSheet.Attack, 448),
+        [MotherBrainSpecialSpriteSheetDefinitions.ExplodedDoor] = new(MotherBrainSpriteSheet.ExplodedDoor, 256),
     };
 
     /// <summary>The page geometry every special sheet shares.</summary>
@@ -37,7 +37,7 @@ public static class MotherBrainSpecialSprites
     {
         /// <summary>The sheet this is.</summary>
         /// <exception cref="InvalidDataException">The definition is not one of the four special sheets.</exception>
-        internal MotherBrainSpritePageSheet Sheet => Placement(sheet).Sheet;
+        internal MotherBrainSpriteSheet Sheet => Placement(sheet).Sheet;
 
         /// <summary>The sprite character the sheet's first page shows from; each later page follows the one before.</summary>
         /// <exception cref="InvalidDataException">The definition is not one of the four special sheets.</exception>
@@ -57,11 +57,11 @@ public static class MotherBrainSpecialSprites
     /// <summary>Copies the installed sheets after requiring exactly the four complete sheets.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="sheets"/> is null.</exception>
     /// <exception cref="InvalidDataException">A required sheet is missing/null, its compiled byte length differs from the page extent, or the mapping contains additional identities.</exception>
-    internal static Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> Validated(
-        IReadOnlyDictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> sheets)
+    internal static Dictionary<MotherBrainSpriteSheet, RoomCharacterAtlas> Validated(
+        IReadOnlyDictionary<MotherBrainSpriteSheet, RoomCharacterAtlas> sheets)
     {
         Ensure.NotNull(sheets);
-        var copied = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>(sheets);
+        var copied = new Dictionary<MotherBrainSpriteSheet, RoomCharacterAtlas>(sheets);
         if (copied.Count != MotherBrainSpecialSpriteSheetDefinitions.All.Count ||
             MotherBrainSpecialSpriteSheetDefinitions.All.Any(definition =>
                 !copied.TryGetValue(definition.Sheet, out RoomCharacterAtlas? artwork) ||
@@ -72,7 +72,7 @@ public static class MotherBrainSpecialSprites
     }
 
     /// <summary>Returns the validated installed characters of <paramref name="sheet"/>.</summary>
-    internal static RoomCharacterAtlas Get(Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> sheets, MotherBrainSpritePageSheet sheet) =>
+    internal static RoomCharacterAtlas Get(Dictionary<MotherBrainSpriteSheet, RoomCharacterAtlas> sheets, MotherBrainSpriteSheet sheet) =>
         sheets.TryGetValue(sheet, out RoomCharacterAtlas? artwork)
             ? artwork
             : throw new InvalidDataException(

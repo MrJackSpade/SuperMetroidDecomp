@@ -18,16 +18,16 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 internal static class TorizoTransferPicturesVerification
 {
     /// <summary>
-    /// In Bomb Torizo's and Golden Torizo's rooms, every frame of the room's sheets each Torizo's sequence changes shows, at
-    /// each of its steps, its picture of that step.
+    /// In Bomb Torizo's and Golden Torizo's rooms, every frame of the room's sheets each Torizo's looks change shows, in each
+    /// look it is drawn in, its finished picture of that look.
     /// </summary>
     internal static void VerifyTorizoTransferPictures()
     {
         int frames = 0;
-        foreach ((RoomHeaderDefinition room, EncounterArtworkSequence sequence, int steps) in new[]
+        foreach ((RoomHeaderDefinition room, EncounterArtwork torizo) in new[]
                  {
-                     (RoomHeaderDefinitions.BombTorizo, EncounterArtworkSequence.BombTorizo, TorizoArtworkSwapDefinitions.BombSequence.Count),
-                     (RoomHeaderDefinitions.GoldenTorizo, EncounterArtworkSequence.GoldenTorizo, TorizoArtworkSwapDefinitions.GoldenSequence.Count),
+                     (RoomHeaderDefinitions.BombTorizo, EncounterArtwork.BombTorizo),
+                     (RoomHeaderDefinitions.GoldenTorizo, EncounterArtwork.GoldenTorizo),
                  })
         {
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
@@ -35,9 +35,9 @@ internal static class TorizoTransferPicturesVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(room);
-            frames += UploadedPictureChecks.AssertFramesFollowSequence(runtime.Enemies.GraphicsSet.LoadedSet, sequence, steps, $"{room.Name}'s swaps");
+            frames += UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet.LoadedSet, torizo, $"{room.Name}'s swaps");
         }
-        Console.WriteLine($"Torizo transfer pictures: {frames} frames of both Torizos' rooms follow every step of their artwork sequences.");
+        Console.WriteLine($"Torizo transfer pictures: {frames} frames of both Torizos' rooms follow every look of their swaps.");
     }
 
     /// <summary>Runs the Torizo transfer picture check.</summary>

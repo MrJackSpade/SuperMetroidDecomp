@@ -30,4 +30,7 @@ internal sealed record SpawnedObjectSheetDocument
 
     /// <summary>On the shared sheet, the common spawners whose objects it holds, by spawner name (#1513).</summary>
     public required List<string> Common { get; init; }
+
+    /// <summary>The owner's finished pictures that show nothing, which no sheet holds (#1538).</summary>
+    public required List<string> Empty { get; init; }
 }

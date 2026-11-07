@@ -38,21 +38,32 @@ internal static class EnemySheetFixtures
     private static readonly Dictionary<RoomEnemyGraphicsSetDefinition, SetCharacters> characters = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
-    /// The OBJ characters graphics set <paramref name="set"/> leaves once its encounters have played each sequence
-    /// <paramref name="reached"/> names through the step it names (#1513): the room load's characters with every step up to
-    /// it copied in order, from the installation's artwork, which a frame's picture of those steps paints like.
+    /// The OBJ characters graphics set <paramref name="set"/> leaves once its encounters show each look of
+    /// <paramref name="shown"/> (#1538): the room load's characters with every look of each up to the one shown copied in
+    /// order, from the installation's artwork, which a frame's picture of those looks paints like.
     /// </summary>
-    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterArtworkStep> reached)
+    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown) =>
+        Characters(set).Page(shown);
+
+    /// <summary>
+    /// The OBJ characters graphics set <paramref name="set"/> leaves once <paramref name="encounter"/> shows its look at
+    /// <paramref name="look"/> (#1538), whose looks gameplay may never show: the room load's characters with every look up
+    /// to it copied in order, which a frame drawn in that look paints like.
+    /// </summary>
+    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, ComposedEncounter encounter, int look) =>
+        Characters(set).Page(encounter, look);
+
+    /// <summary>The characters the import composes graphics set <paramref name="set"/>'s pictures from, composed once.</summary>
+    private static SetCharacters Characters(RoomEnemyGraphicsSetDefinition set)
     {
         ArgumentNullException.ThrowIfNull(set);
-        SetCharacters? composedCharacters;
         lock (characters)
         {
-            if (!characters.TryGetValue(set, out composedCharacters))
+            if (!characters.TryGetValue(set, out SetCharacters? composedCharacters))
                 characters.Add(set, composedCharacters = EnemySheetComposer.Load(
                     inputs.Value with { SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }, set).Characters);
+            return composedCharacters;
         }
-        return composedCharacters.Page(reached);
     }
 
     /// <summary>The sheets enemies drawn with <paramref name="enemies"/> draw from.</summary>
@@ -119,21 +130,21 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<FrameArtworkVariation> Variations(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
+        public IReadOnlyList<EncounterArtwork> ChangingEncounters(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.Variations(set, enemy, frame);
-            return Set(set).Variations.TryGetValue(enemy, out IReadOnlyDictionary<string, FrameArtworkVariation[]>? frames)
-                && frames.TryGetValue(frame, out FrameArtworkVariation[]? followed) ? followed : [];
+                return installed.ChangingEncounters(set, enemy, frame);
+            return Set(set).ChangingEncounters.TryGetValue(enemy, out IReadOnlyDictionary<string, EncounterArtwork[]>? frames)
+                && frames.TryGetValue(frame, out EncounterArtwork[]? changing) ? changing : [];
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<FrameArtworkVariation> SpawnedVariations(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame)
+        public IReadOnlyList<EncounterArtwork> SpawnedChangingEncounters(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.SpawnedVariations(set, owner, frame);
-            return Set(set).SpawnedVariations.TryGetValue(owner, out IReadOnlyDictionary<string, FrameArtworkVariation[]>? frames)
-                && frames.TryGetValue(frame, out FrameArtworkVariation[]? followed) ? followed : [];
+                return installed.SpawnedChangingEncounters(set, owner, frame);
+            return Set(set).SpawnedChangingEncounters.TryGetValue(owner, out IReadOnlyDictionary<string, EncounterArtwork[]>? frames)
+                && frames.TryGetValue(frame, out EncounterArtwork[]? changing) ? changing : [];
         }
 
         /// <inheritdoc/>
@@ -154,22 +165,6 @@ internal static class EnemySheetFixtures
                 && pictures.TryGetValue(picture, out CorpsePictureLayout? layout) ? layout : null;
         }
 
-        /// <inheritdoc/>
-        public bool ShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture)
-        {
-            if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.ShowsNothing(set, enemy, picture);
-            return Set(set).BlankPictures.TryGetValue(enemy, out IReadOnlySet<string>? blank) && blank.Contains(picture);
-        }
-
-        /// <inheritdoc/>
-        public bool SpawnedShowsNothing(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture)
-        {
-            if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.SpawnedShowsNothing(set, owner, picture);
-            return Set(set).SpawnedBlankPictures.TryGetValue(owner, out IReadOnlySet<string>? blank) && blank.Contains(picture);
-        }
-
         /// <summary>
         /// Gathers one graphics set's sheet sources; each sheet is composed and registered the first time it is drawn, so a
         /// check reading one enemy's sheet composes that sheet alone.
@@ -181,39 +176,38 @@ internal static class EnemySheetFixtures
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, Lazy<SpriteSheet>>();
-            var variations = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
+            var changingEncounters = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, EncounterArtwork[]>>();
             var corpsePictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CorpsePictureLayout>>();
-            var blankPictures = new Dictionary<EnemyDefinitionId, IReadOnlySet<string>>();
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, FrameArtworkVariation[]> frameVariations,
-                         IReadOnlyDictionary<string, CorpsePictureLayout> frameCorpses, IReadOnlySet<string> shownNothing) in setSources.Enemies)
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> frameChanges,
+                         IReadOnlyDictionary<string, CorpsePictureLayout> frameCorpses) in setSources.Enemies)
             {
                 string name = $"{enemy}-{owner}";
                 enemies[enemy] = new Lazy<SpriteSheet>(() => Load(sources, name));
-                variations[enemy] = frameVariations;
+                changingEncounters[enemy] = Encounters(frameChanges);
                 corpsePictures[enemy] = frameCorpses;
-                blankPictures[enemy] = shownNothing;
             }
             var spawned = new Dictionary<SpawnedObjectOwner, Lazy<SpawnedObjectSheet>>();
-            var spawnedVariations = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
+            var spawnedChangingEncounters = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, EncounterArtwork[]>>();
             var spawnedCorpsePictures = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, CorpsePictureLayout>>();
-            var spawnedBlankPictures = new Dictionary<SpawnedObjectOwner, IReadOnlySet<string>>();
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, FrameArtworkVariation[]> frameVariations,
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> frameChanges,
                          IReadOnlyDictionary<string, CorpsePictureLayout> frameCorpses, IReadOnlySet<string> shownNothing) in setSources.Spawned)
             {
                 string name = $"Spawned-{plan.Owner}-{owner}";
                 // A fixture's set holds each of its spawned objects' pictures on its own sheet: none is common to another set.
-                var sheet = new Lazy<SpawnedObjectSheet>(() => new SpawnedObjectSheet(Load(sources, name), new Dictionary<string, SpriteSheet>()));
+                var sheet = new Lazy<SpawnedObjectSheet>(() => new SpawnedObjectSheet(Load(sources, name), new Dictionary<string, SpriteSheet>(), shownNothing));
                 foreach (SpawnedObjectOwner spawnedOwner in plan.AlsoOwnedBy.Prepend(plan.Owner))
                 {
                     spawned[spawnedOwner] = sheet;
-                    spawnedVariations[spawnedOwner] = frameVariations;
+                    spawnedChangingEncounters[spawnedOwner] = Encounters(frameChanges);
                     spawnedCorpsePictures[spawnedOwner] = frameCorpses;
-                    spawnedBlankPictures[spawnedOwner] = shownNothing;
                 }
             }
-            return new ComposedSet(enemies, spawned, variations, spawnedVariations, corpsePictures, spawnedCorpsePictures, blankPictures,
-                spawnedBlankPictures);
+            return new ComposedSet(enemies, spawned, changingEncounters, spawnedChangingEncounters, corpsePictures, spawnedCorpsePictures);
         }
+
+        /// <summary>The encounters whose looks change each frame <paramref name="frameChanges"/> names, in encounter order.</summary>
+        private static Dictionary<string, EncounterArtwork[]> Encounters(IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> frameChanges) =>
+            frameChanges.ToDictionary(frame => frame.Key, frame => frame.Value.Select(change => change.Encounter).Order().ToArray(), StringComparer.Ordinal);
 
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
         private static SpriteSheet Load(SpriteSheetSources sources, string name)
@@ -229,18 +223,14 @@ internal static class EnemySheetFixtures
     /// <summary>One composed graphics set's sheets.</summary>
     /// <param name="Enemies">Each enemy's sheet, composed when first drawn.</param>
     /// <param name="Spawned">Each spawned-object sheet by tile base, composed when first drawn.</param>
-    /// <param name="Variations">Each enemy sheet's frames encounter artwork sequences change, and how each follows them.</param>
-    /// <param name="SpawnedVariations">The same for each spawned-object sheet, by tile base.</param>
+    /// <param name="ChangingEncounters">Each enemy sheet's frames encounters' looks change, and the encounters that change each.</param>
+    /// <param name="SpawnedChangingEncounters">The same for each spawned-object sheet, by owner.</param>
     /// <param name="CorpsePictures">Each enemy sheet's frames that show a rotting corpse, and where the corpse lies in each.</param>
     /// <param name="SpawnedCorpsePictures">The same for each spawned-object sheet.</param>
-    /// <param name="BlankPictures">Each enemy sheet's frames' pictures that show nothing.</param>
-    /// <param name="SpawnedBlankPictures">The same for each spawned-object sheet.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, Lazy<SpriteSheet>> Enemies,
         IReadOnlyDictionary<SpawnedObjectOwner, Lazy<SpawnedObjectSheet>> Spawned,
-        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, FrameArtworkVariation[]>> Variations,
-        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, FrameArtworkVariation[]>> SpawnedVariations,
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, EncounterArtwork[]>> ChangingEncounters,
+        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, EncounterArtwork[]>> SpawnedChangingEncounters,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CorpsePictureLayout>> CorpsePictures,
-        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, CorpsePictureLayout>> SpawnedCorpsePictures,
-        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlySet<string>> BlankPictures,
-        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlySet<string>> SpawnedBlankPictures);
+        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, CorpsePictureLayout>> SpawnedCorpsePictures);
 }

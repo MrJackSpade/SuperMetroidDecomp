@@ -102,10 +102,10 @@ internal sealed class MotherBrainLateFightState
     public WrappingCountdown EarthquakeTimer { get; internal set; }
 
     /// <summary>
-    /// How many Baby Metroid pages have shown, which is also the next to show. Four means the
-    /// last page has shown and the spawn handoff has run.
+    /// The updates the finish-off has spent readying the Baby Metroid's arrival so far.
+    /// <see cref="MotherBrainReadyingDefinitions.BabyArrivalDuration"/> means it has arrived and the spawn handoff has run.
     /// </summary>
-    public int BabyMetroidPagesShown { get; internal set; }
+    public int BabyArrivalReadyingElapsed { get; internal set; }
 
     /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }

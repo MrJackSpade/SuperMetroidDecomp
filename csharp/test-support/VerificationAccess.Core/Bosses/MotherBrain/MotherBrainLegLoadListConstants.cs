@@ -15,7 +15,7 @@ internal static class MotherBrainLegLoadListConstants
     {
         int offset = pointer - NativeListPointer;
         if (offset < 0 || offset % RecordByteCount != 0 ||
-            offset / RecordByteCount >= MotherBrainEnemyState.LegLoadPageCount)
+            offset / RecordByteCount >= MotherBrainReadyingDefinitions.StandingBodyDuration)
             throw new InvalidDataException(
                 $"Mother Brain leg-loading pointer ${pointer:X4} is outside the twelve-record list.");
         return offset / RecordByteCount;

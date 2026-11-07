@@ -467,7 +467,7 @@ internal sealed class MotherBrainRainbowAttackPhases
                 // body animation when Mother Brain is standing and left of 128.
                 requests.BodyWalkRequested = RequestWalkForwardReallySlow(
                     CoordinateAxis.Wrap(_state.Body.Position.X + 16)).Requested;
-                _state.BabyMetroidPagesShown = 0;
+                _state.BabyArrivalReadyingElapsed = 0;
                 _state.BabyMetroidSpawned = false;
                 _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOff;
             }

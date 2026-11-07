@@ -94,18 +94,18 @@ internal static class SpawnedObjectFixtures
     }
 
     /// <summary>
-    /// Shows in <paramref name="enemies"/>' session the first step each encounter artwork sequence <paramref name="drawings"/>
-    /// draws its frame at, for a sequence that never draws it before its first step: the sheet holds that frame's picture
-    /// only from the steps it is drawn at (#1513), so a fixture draws it there, as the encounter does.
+    /// Shows in <paramref name="enemies"/>' session the first look of each encounter gameplay shows the looks of that
+    /// <paramref name="drawings"/> draws its frame in, for an encounter that never draws it as its room loads: the sheet holds
+    /// that frame's pictures of only the looks it is drawn in (#1538), so a fixture draws it in one, as the encounter does.
     /// </summary>
-    internal static void ShowDrawnSteps(RoomEnemySystem enemies, FrameDrawings drawings)
+    internal static void ShowDrawnLooks(RoomEnemySystem enemies, FrameDrawings drawings)
     {
         ArgumentNullException.ThrowIfNull(enemies);
         ArgumentNullException.ThrowIfNull(drawings);
-        foreach (EncounterArtworkSequence sequence in Enum.GetValues<EncounterArtworkSequence>())
+        foreach (ComposedEncounter encounter in Enum.GetValues<ComposedEncounter>())
         {
-            if (drawings.For(sequence) is { DrawnBeforeFirstStep: false, Steps: [var first, ..] })
-                enemies.Room.Session.ArtworkProgress.Show(sequence, first.First);
+            if (EncounterLookUploads.ShownAs(encounter) is EncounterArtwork shown && drawings.For(encounter) is { Looks: [int first and > 0, ..] })
+                enemies.Room.Session.Looks.Show(new EncounterLook(shown, EncounterLookUploads.Looks(encounter)[first]));
         }
     }
 

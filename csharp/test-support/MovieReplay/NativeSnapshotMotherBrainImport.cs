@@ -89,7 +89,7 @@ internal static class NativeSnapshotMotherBrainImport
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
         state.UpperNeckMovementIndex = ClosedEnumWordDecoding.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
-        state.NextLegTilePage = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
+        state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         state.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
@@ -138,7 +138,7 @@ internal static class NativeSnapshotMotherBrainImport
         MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp,
         MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire,
         MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam,
-        MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles,
+        MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby,
         MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam,
         MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding,
         MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback,
@@ -175,13 +175,13 @@ internal static class NativeSnapshotMotherBrainImport
         MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions,
         MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation,
         MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround,
-        MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles,
+        MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse,
         MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey,
         MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey,
         MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver,
         MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway,
         MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay,
-        MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles,
+        MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning,
         MotherBrainBodyFunction.ThirdPhaseDeathStartEscape,
         MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle,
         MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText,
@@ -262,7 +262,7 @@ internal static class NativeSnapshotMotherBrainImport
         var function = MotherBrainNativeWords.MotherBrainBodyFunctions.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyFunction");
         bool transferred = state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath && function is
             MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain or MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense or
-            MotherBrainBodyFunction.FakeDeathAscentPrepareForRising or MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles or
+            MotherBrainBodyFunction.FakeDeathAscentPrepareForRising or MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody or
             MotherBrainBodyFunction.FakeDeathAscentContinuePausing or MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake or
             MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain or MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched or
             MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray);

@@ -114,7 +114,6 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.MusicStopQueued) _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         if (step.EscapeMusicQueued) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.BossFight1), MusicQueueDelay.Shortest);
         if (step.EscapeMusicTrackQueued) _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
-        foreach (MotherBrainSpritePage page in step.EscapeSequencePages) _motherBrainEncounter.ShowSpritePage(page);
         if (step.EscapeTypewriterSetupRequested)
         {
             state.EnableUnpauseHook = sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled;
@@ -146,7 +145,7 @@ internal sealed class MotherBrainRainbowAndDeath
             }
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround &&
-            step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles ||
+            step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse ||
             step.EscapeMusicTrackQueued || step.EarthquakeTimerRefreshed)
         {
             _earthquake.EarthquakeType = Ensure.BetweenInclusive(0, ushort.MaxValue, sequence.State.EarthquakeType);
@@ -361,8 +360,6 @@ internal sealed class MotherBrainRainbowAndDeath
             }
         }
 
-        if (current.SpritePage is { } page)
-            _motherBrainEncounter.ShowSpritePage(page);
         if (current.BabySpawnRequested)
             _roomActors.SpawnBabyMetroid(state);
         if (current.Explosion is { } explosion)

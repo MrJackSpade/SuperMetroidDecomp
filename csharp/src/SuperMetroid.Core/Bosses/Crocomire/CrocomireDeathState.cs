@@ -45,11 +45,11 @@ public sealed class CrocomireDeathState
     public int NextMeltBand { get; internal set; }
 
     /// <summary>
-    /// The skeleton's character chunks shown so far, in their fixed order, zero through
-    /// <see cref="CrocomireSkeletonTransferDefinitions.FrameCount"/>: one more each update the skeleton waits behind the wall
-    /// breaking through; the final sink starts it over. His skeleton frames draw the pictures of the chunks shown.
+    /// The updates his death has spent baring the skeleton so far, zero through
+    /// <see cref="CrocomireSkeletonLookDefinitions.BaringDuration"/>: one more each update the skeleton waits behind the wall
+    /// breaking through, the skeleton look showing from the last on; the final sink starts it over.
     /// </summary>
-    public int SkeletonChunksShown { get; internal set; }
+    public int SkeletonBaringElapsed { get; internal set; }
 
     /// <summary>Lowest background source row the melt distortion stretches back to, from the active pass.</summary>
     public int LowestDistortionSourceRow { get; internal set; }

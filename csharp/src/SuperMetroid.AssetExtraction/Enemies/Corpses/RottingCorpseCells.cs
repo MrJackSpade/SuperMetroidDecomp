@@ -20,18 +20,18 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// </summary>
 internal sealed class RottingCorpseCells
 {
-    /// <summary>No encounter's sequence loads the corpse's own characters; declared first, as the corpses below are built from it.</summary>
-    private static readonly Func<EncounterArtworkSequence, int, bool> LoadedByNoSequence = static (_, _) => false;
+    /// <summary>No encounter's look loads the corpse's own characters; declared first, as the corpses below are built from it.</summary>
+    private static readonly Func<ComposedEncounter, int, bool> LoadedByNoLook = static (_, _) => false;
 
     /// <summary>The band of the corpse's rows each of its characters holds, by character.</summary>
     private readonly Dictionary<int, int> bandOf;
 
-    /// <summary>The sequence and its steps that load the corpse's own characters before it rots; none for a corpse no sequence loads.</summary>
-    private readonly Func<EncounterArtworkSequence, int, bool> loadsFlesh;
+    /// <summary>The encounter and its looks that load the corpse's own characters before it rots; none for a corpse no look loads.</summary>
+    private readonly Func<ComposedEncounter, int, bool> loadsFlesh;
 
     /// <summary>A corpse's characters, from runs of the table it uploads its rows into, each run within one row of the table.</summary>
     /// <exception cref="InvalidDataException">A run is empty or crosses a row of the table.</exception>
-    private RottingCorpseCells(string name, IEnumerable<CorpseCharacterRun> runs, Func<EncounterArtworkSequence, int, bool> loadsFlesh)
+    private RottingCorpseCells(string name, IEnumerable<CorpseCharacterRun> runs, Func<ComposedEncounter, int, bool> loadsFlesh)
     {
         Name = name;
         this.loadsFlesh = loadsFlesh;
@@ -74,46 +74,46 @@ internal sealed class RottingCorpseCells
     }
 
     /// <summary>
-    /// Requires every step of <paramref name="sequences"/> that copies over the characters the corpse's rows show in to
-    /// belong to a sequence that loads the corpse's own characters: the game draws the corpse's frames through its rows
-    /// over those characters, and only such a sequence's pictures say where its steps have covered them.
+    /// Requires every look of <paramref name="encounters"/> that copies over the characters the corpse's rows show in to
+    /// belong to an encounter whose looks load the corpse's own characters: the game draws the corpse's frames through its
+    /// rows over those characters, and only such an encounter's pictures say where its looks have covered them.
     /// </summary>
-    /// <exception cref="InvalidDataException">A sequence that never loads the corpse's own characters copies over them.</exception>
-    internal void RequireUnchangedBy(IReadOnlyList<EncounterArtworkSteps> sequences)
+    /// <exception cref="InvalidDataException">An encounter whose looks never load the corpse's own characters copies over them.</exception>
+    internal void RequireUnchangedBy(IReadOnlyList<EncounterLookSteps> encounters)
     {
-        foreach (EncounterArtworkSteps sequence in Ensure.NotNull(sequences))
+        foreach (EncounterLookSteps encounter in Ensure.NotNull(encounters))
         {
-            if (Enumerable.Range(0, sequence.Steps.Count).Any(step => loadsFlesh(sequence.Sequence, step)))
+            if (Enumerable.Range(0, encounter.Looks.Count).Any(look => loadsFlesh(encounter.Encounter, look)))
                 continue;
-            for (int step = 0; step < sequence.Steps.Count; step++)
+            for (int look = 0; look < encounter.Looks.Count; look++)
             {
-                if (Written(sequence.Steps[step]).Where(Holds).ToArray() is [int character, ..])
+                if (Written(encounter.Looks[look]).Where(Holds).ToArray() is [int character, ..])
                     throw new InvalidDataException(
-                        $"Step {step} of {sequence.Sequence} copies over character {character} of {Name}'s rows, which the game draws the corpse's frames through.");
+                        $"Look {look} of {encounter.Encounter} copies over character {character} of {Name}'s rows, which the game draws the corpse's frames through.");
             }
         }
     }
 
     /// <summary>
-    /// Whether some step of <paramref name="sequence"/> up to <paramref name="step"/> has loaded the corpse's own
-    /// characters, so that the corpse can rot once the sequence has reached it.
+    /// Whether some look of <paramref name="encounter"/> up to <paramref name="look"/> has loaded the corpse's own
+    /// characters, so that the corpse can rot once the encounter shows it.
     /// </summary>
-    internal bool LoadedBy(EncounterArtworkSteps sequence, int step) =>
-        Enumerable.Range(0, Ensure.NotNull(sequence).Steps.Count).Take(step + 1).Any(earlier => loadsFlesh(sequence.Sequence, earlier));
+    internal bool LoadedBy(EncounterLookSteps encounter, int look) =>
+        Enumerable.Range(0, Ensure.NotNull(encounter).Looks.Count).Take(look + 1).Any(earlier => loadsFlesh(encounter.Encounter, earlier));
 
     /// <summary>
-    /// The characters the corpse's rows show in that the steps of <paramref name="sequence"/> up to <paramref name="step"/>
-    /// have copied other characters over since the corpse's own last loaded (#1531): a picture of that step shows those
-    /// characters as the later step left them, not rotting.
+    /// The characters the corpse's rows show in that the looks of <paramref name="encounter"/> up to <paramref name="look"/>
+    /// have copied other characters over since the corpse's own last loaded (#1531): a picture of that look shows those
+    /// characters as the later look left them, not rotting.
     /// </summary>
-    internal IReadOnlySet<int> CoveredBy(EncounterArtworkSteps sequence, int step)
+    internal IReadOnlySet<int> CoveredBy(EncounterLookSteps encounter, int look)
     {
-        Ensure.NotNull(sequence);
+        Ensure.NotNull(encounter);
         var covered = new HashSet<int>();
-        for (int earlier = 0; earlier <= step && earlier < sequence.Steps.Count; earlier++)
+        for (int earlier = 0; earlier <= look && earlier < encounter.Looks.Count; earlier++)
         {
-            IEnumerable<int> written = Written(sequence.Steps[earlier]).Where(Holds);
-            if (loadsFlesh(sequence.Sequence, earlier))
+            IEnumerable<int> written = Written(encounter.Looks[earlier]).Where(Holds);
+            if (loadsFlesh(encounter.Encounter, earlier))
                 covered.ExceptWith(written);
             else
                 covered.UnionWith(written);
@@ -121,9 +121,9 @@ internal sealed class RottingCorpseCells
         return covered;
     }
 
-    /// <summary>Every character the uploads of one step copy over.</summary>
-    private static IEnumerable<int> Written(IReadOnlyList<EncounterArtworkUpload> step) =>
-        step.SelectMany(upload => Enumerable.Range(upload.FirstCharacter, upload.Characters.Length / SpriteArtwork.CharacterByteCount));
+    /// <summary>Every character the copies of one look land over.</summary>
+    private static IEnumerable<int> Written(IReadOnlyList<EncounterArtworkUpload> look) =>
+        look.SelectMany(upload => Enumerable.Range(upload.FirstCharacter, upload.Characters.Length / SpriteArtwork.CharacterByteCount));
     /// <summary>
     /// Whether frame <paramref name="frame"/>, drawn by <paramref name="enemy"/> or its encounter, is one the game shows a
     /// rotting corpse in: any frame of a dead monster's or the dead Torizo's, and Mother Brain's dead brain.
@@ -158,27 +158,27 @@ internal sealed class RottingCorpseCells
         return corpses;
     }
 
-    /// <summary>A dead monster of <paramref name="kind"/>, which no encounter's sequence loads.</summary>
+    /// <summary>A dead monster of <paramref name="kind"/>, which no encounter's look loads.</summary>
     private static RottingCorpseCells DeadMonster(RottingCorpseKind kind) =>
-        new(kind.Name, DeadMonsterRowUploadDefinitions.ForKind(kind).Select(Run), LoadedByNoSequence);
+        new(kind.Name, DeadMonsterRowUploadDefinitions.ForKind(kind).Select(Run), LoadedByNoLook);
 
     /// <summary>The dead Torizo's body: the body rows of both its halves.</summary>
     private static RottingCorpseCells TorizoBody { get; } = new("Torizo",
-        [.. Halves.SelectMany(half => half.Take(DeadTorizoRowUploadDefinitions.BodyRows)).Select(Run)], LoadedByNoSequence);
+        [.. Halves.SelectMany(half => half.Take(DeadTorizoRowUploadDefinitions.BodyRows)).Select(Run)], LoadedByNoLook);
 
     /// <summary>The dead Torizo's sand heap: the strip of each half, the odd half's on top.</summary>
     private static RottingCorpseCells TorizoSand { get; } = new("TorizoSand",
-        [.. Halves.Select(half => half[DeadTorizoRowUploadDefinitions.BodyRows]).Select(Run)], LoadedByNoSequence);
+        [.. Halves.Select(half => half[DeadTorizoRowUploadDefinitions.BodyRows]).Select(Run)], LoadedByNoLook);
 
     /// <summary>The dead Torizo's two halves of uploads, even then odd.</summary>
     private static IEnumerable<DeadTorizoRowUploadDefinitions.PhaseRows> Halves =>
         new[] { false, true }.Select(DeadTorizoRowUploadDefinitions.ForHalf);
 
-    /// <summary>Mother Brain's corpse, whose own characters her corpse's pages load.</summary>
+    /// <summary>Mother Brain's corpse, whose own characters her corpse's look loads.</summary>
     private static RottingCorpseCells MotherBrain { get; } = new("MotherBrain",
         [.. MotherBrainCorpseSheet.RotRows.Select(row => new CorpseCharacterRun(MotherBrainCorpseSheet.RotRowFirstCharacter(row), row.ColumnCount))],
-        static (sequence, step) => sequence == EncounterArtworkSequence.MotherBrainPages
-            && MotherBrainSpritePageDefinitions.Sequence[step].Sheet == MotherBrainSpritePageSheet.Corpse);
+        static (encounter, look) => encounter == ComposedEncounter.MotherBrain
+            && EncounterLookUploads.Looks(encounter)[look] == EncounterLookUploads.MotherBrainCorpseLook);
 
 
     /// <summary>The characters <paramref name="upload"/> uploads a row into.</summary>

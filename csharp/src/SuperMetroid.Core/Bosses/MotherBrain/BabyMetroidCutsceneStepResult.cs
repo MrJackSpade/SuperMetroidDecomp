@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What one step of the Baby's entrance did: its phase before and after and the requests it made.</summary>
@@ -13,7 +11,6 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool AmbientCrySoundQueued,
     DustExplosionRequest? DeathExplosion,
     int? BabyFadeShade,
-    MotherBrainSpritePage? AttackPage,
     int? RecoveryLightsFrame)
 {
     /// <summary>The one-call fatal-impact edge, before the ongoing shake phase.</summary>

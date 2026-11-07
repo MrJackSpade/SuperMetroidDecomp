@@ -12,8 +12,11 @@ internal sealed class GunshipPartState
     /// <summary>The top hull's function timer, decremented by the waiting functions; 144 updates per pad movement.</summary>
     public int FunctionTimer { get; internal set; }
 
-    /// <summary>The top hull's next liftoff page to show, 0 through the last of the five.</summary>
-    public int NextLiftoffPage
+    /// <summary>
+    /// The updates the takeoff has spent readying the engines so far, fewer than
+    /// <see cref="GunshipTakeoffDefinitions.EngineReadyingDuration"/>; zero once they fire up.
+    /// </summary>
+    public int EngineReadyingElapsed
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
@@ -72,7 +75,7 @@ internal sealed class GunshipPartState
     internal void ClearWithRecord()
     {
         FunctionTimer = 0;
-        NextLiftoffPage = 0;
+        EngineReadyingElapsed = 0;
         BobPhase = 0;
         BobTimer = 0;
         EngineSoundTimer = 0;

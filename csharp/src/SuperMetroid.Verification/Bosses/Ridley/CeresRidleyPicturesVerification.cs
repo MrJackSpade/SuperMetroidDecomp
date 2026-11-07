@@ -28,7 +28,7 @@ internal static class CeresRidleyPicturesVerification
     private static readonly Position16<RoomPixels> Camera = Position16<RoomPixels>.Zero;
 
     /// <summary>
-    /// In Ceres Ridley's room no frame follows his getaway's escape pages, and, with them all brought up, the Baby holding a
+    /// In Ceres Ridley's room no frame follows his getaway's escape warning look, and, with it brought up, the Baby holding a
     /// pose, the door overlay, and his tail and wings each paint exactly what their frames' parts paint over the characters
     /// the room's load leaves.
     /// </summary>
@@ -41,9 +41,9 @@ internal static class CeresRidleyPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        AssertEqual(0, UploadedPictureChecks.AssertFramesFollowSequence(set, EncounterArtworkSequence.CeresEscapePages,
-            CeresEscapePageDefinitions.ObjectPageCount, "Ceres Ridley's getaway", requireFrames: false), "no frame is drawn over Ceres Ridley's escape pages");
-        runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.CeresEscapePages, CeresEscapePageDefinitions.ObjectPageCount - 1);
+        AssertEqual(0, UploadedPictureChecks.AssertFramesFollowLooks(set, EncounterArtwork.CeresEscape, "Ceres Ridley's getaway", requireFrames: false),
+            "no frame is drawn in Ceres Ridley's escape warning look");
+        runtime.EnemySession.Looks.Show(CeresEscapeReadyingDefinitions.WarningLook);
 
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
         RoomEnemySlot door = runtime.Enemies.SlotTable.Slots[1];
@@ -57,7 +57,7 @@ internal static class CeresRidleyPicturesVerification
         ImmutableArray<SpriteDraw> scene = Draw(sprites =>
             runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(sprites, Camera));
         AssertTrue(scene.Any(draw => draw.Source.Kind == SpriteSourceKind.CeresBaby), "Ceres Ridley's scene draws the Baby");
-        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, [], scene,
+        UploadedPictureChecks.AssertPicturesPaintOverLooks(set, [], scene,
             $"Ceres Ridley's scene with {door.DefinitionId} following him");
 
         runtime.Enemies.RidleyEncounter.Ridley = new RidleyEnemyState
@@ -73,7 +73,7 @@ internal static class CeresRidleyPicturesVerification
         ImmutableArray<SpriteDraw> supplements = Draw(sprites =>
             runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, ridley, Camera));
         AssertTrue(supplements.Any(draw => draw.Source.Kind == SpriteSourceKind.RidleyWings), "Ceres Ridley draws his wings");
-        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, [], supplements, "Ceres Ridley's tail and wings");
+        UploadedPictureChecks.AssertPicturesPaintOverLooks(set, [], supplements, "Ceres Ridley's tail and wings");
         Console.WriteLine($"Ceres Ridley pictures: {scene.Length} scene and {supplements.Length} tail and wing pictures paint their frames over the room's own characters.");
     }
 
@@ -105,7 +105,7 @@ internal static class CeresRidleyPicturesVerification
         RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.WrittenOverForeground
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
-        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, UploadedPictureChecks.Reached(runtime)).Characters;
+        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, UploadedPictureChecks.Shown(runtime)).Characters;
         int written = 0;
         for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {

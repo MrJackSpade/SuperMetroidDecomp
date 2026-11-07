@@ -21,11 +21,6 @@ internal static class GunshipLiftoffArtwork
     internal static RoomCharacterAtlas[] Validated(RoomCharacterAtlas[] frames)
     {
         Ensure.NotNull(frames);
-        // The game turns the takeoff's pages by its own count; the installed frames must be exactly that many.
-        if (GunshipLiftoffTransferDefinitions.Frames.Length != SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDefinitions.PageCount)
-            throw new InvalidOperationException(
-                $"The import transfers {GunshipLiftoffTransferDefinitions.Frames.Length} gunship takeoff frames but the game turns " +
-                $"{SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDefinitions.PageCount} pages.");
         if (frames.Length != GunshipLiftoffTransferDefinitions.Frames.Length ||
             frames.Any(frame => frame is null ||
                 frame.Characters.Length != GunshipLiftoffCharacterDefinitions.ByteCount))

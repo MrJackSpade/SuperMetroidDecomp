@@ -31,6 +31,6 @@ internal static class CrocomireSourceDefinitions
 
     /// <summary>The cartridge source of skeleton chunk <paramref name="index"/>; the end-of-sequence entry has none.</summary>
     internal static int SkeletonChunk(int index) =>
-        SkeletonFirstChunk + Ensure.BetweenInclusive(0, CrocomireSkeletonTransferDefinitions.FrameCount - 1, index) *
+        SkeletonFirstChunk + Ensure.BetweenInclusive(0, CrocomireSkeletonCharacterDefinitions.ChunkCount - 1, index) *
             CrocomireSkeletonCharacterDefinitions.ChunkByteCount;
 }

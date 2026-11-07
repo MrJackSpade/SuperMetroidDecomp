@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The earlier general attack-selection logic and the spawned Baby Metroid's independent AI
 /// remain separate actor phases. This class owns the neck extension, both charge waits, body
 /// walks and posture changes, active beam, low-energy attack selection, final charge, the four
-/// frame-spread Baby tile transfers, spawn request, final-beam hold, painful stagger, live neck
+/// updates readying the Baby's arrival, spawn request, final-beam hold, painful stagger, live neck
 /// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
 /// Palette, beam-effect, projectile, earthquake, graphics, spawn, and sound writes are retained as
 /// inspectable requests; coordinate, resource, timer, instruction-list, and Samus-command
@@ -103,7 +103,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void StartAttackCycle()
     {
-        State.BabyMetroidPagesShown = 0;
+        State.BabyArrivalReadyingElapsed = 0;
         State.BabyMetroidSpawned = false;
         RainbowAttack.BeginExtendingNeckForAttack();
     }
@@ -299,8 +299,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam:
                     handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffChargeFinalBeam();
                     break;
-                case MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffLoadBabyTiles(requests);
+                case MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby:
+                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffReadyBaby(requests);
                     break;
                 case MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam:
                     handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffFireFinalBeam(requests);
@@ -410,8 +410,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround:
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeathBrainFallsToGround();
                     break;
-                case MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathLoadCorpseTiles(requests);
+                case MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse:
+                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathReadyCorpse();
                     break;
                 case MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey:
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeathSetupFadeToGrey();
@@ -428,8 +428,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay:
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeath20FrameDelay();
                     break;
-                case MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathLoadEscapeTimerTiles(requests);
+                case MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning:
+                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathReadyEscapeWarning();
                     break;
                 case MotherBrainBodyFunction.ThirdPhaseDeathStartEscape:
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeathStartEscape(frame, requests);
@@ -468,7 +468,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
                 case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:
                 case MotherBrainBodyFunction.FakeDeathAscentPrepareForRising:
-                case MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles:
+                case MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody:
                 case MotherBrainBodyFunction.FakeDeathAscentContinuePausing:
                 case MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake:
                 case MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain:

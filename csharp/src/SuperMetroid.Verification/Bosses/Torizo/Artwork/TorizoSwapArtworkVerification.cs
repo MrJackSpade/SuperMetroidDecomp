@@ -48,8 +48,8 @@ internal static class TorizoSwapArtworkVerification
             int nativeSource = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{instruction:X4} source");
-            (EncounterArtworkSequence sequence, int step) = StepOf(new TorizoArtworkSwap(transferIndex));
-            EncounterArtworkUpload upload = EncounterArtworkUploads.Step(sequence, step, new EnemyTileTransfers(stock)).Single();
+            EncounterLook look = LookOf(new TorizoArtworkSwap(transferIndex));
+            EncounterArtworkUpload upload = UploadOf(look, stock);
             AssertEqual(ObjCharacterNativeWords.Of(upload.FirstByte / 32), CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{instruction:X4} VRAM destination");
             AssertTrue((stock.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires stock.TorizoSwaps.")).TryResolve(
@@ -61,8 +61,8 @@ internal static class TorizoSwapArtworkVerification
                     installed.Span[offset],
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
             ShowTorizoArtwork(installedEnemies, installedSlot, new TorizoArtworkSwap(transferIndex));
-            AssertEqual<int?>(step, installedEnemies.Room.Session.ArtworkProgress.StepOf(sequence),
-                $"production Torizo swap $AA:{instruction:X4} reaches its step of {sequence}");
+            AssertTrue(installedEnemies.Room.Session.Looks.Shows(look),
+                $"production Torizo swap $AA:{instruction:X4} shows its look {look}");
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset], upload.Characters.Span[offset],
                     $"production Torizo upload $AA:{instruction:X4} byte {offset:X4}");
@@ -103,10 +103,11 @@ internal static class TorizoSwapArtworkVerification
         AssertEqual(golden.SourceAddress, TorizoArtworkSwapDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial swap shows its awakening sheet");
         ShowTorizoArtwork(goldenEnemies, goldenSlot, goldenSwap);
-        (EncounterArtworkSequence goldenSequence, int goldenStep) = StepOf(goldenSwap);
-        AssertEqual<int?>(goldenStep, goldenEnemies.Room.Session.ArtworkProgress.StepOf(goldenSequence),
-            "Golden Torizo's swap reaches its sequence's first step");
-        EncounterArtworkUpload awakening = EncounterArtworkUploads.Step(goldenSequence, goldenStep, new EnemyTileTransfers(stock)).Single();
+        EncounterLook goldenLook = LookOf(goldenSwap);
+        AssertTrue(goldenEnemies.Room.Session.Looks.Shows(goldenLook), "Golden Torizo's swap shows its awakening look");
+        AssertEqual(1, EncounterLookUploads.IndexOf(ComposedEncounter.GoldenTorizo, goldenLook.Name),
+            "Golden Torizo's awakening is the first look after its room's load");
+        EncounterArtworkUpload awakening = UploadOf(goldenLook, stock);
         AssertEqual((0x6d00 - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2, awakening.FirstByte,
             "Golden Torizo's awakening sheet lands where the cartridge copies it");
         AssertTrue(awakening.Characters.Span.SequenceEqual(stockBytes.Span),
@@ -117,18 +118,21 @@ internal static class TorizoSwapArtworkVerification
             "byte parity and the awakening sheet's upload pass.");
     }
 
-    /// <summary>The artwork sequence and step <paramref name="swap"/> takes: Golden Torizo's swaps, else Bomb Torizo's (#1513).</summary>
-    private static EncounterArtworkStep StepOf(TorizoArtworkSwap swap)
+    /// <summary>The look <paramref name="swap"/> gives the Torizo whose programs make it: Golden Torizo's swaps, else Bomb Torizo's (#1538).</summary>
+    private static EncounterLook LookOf(TorizoArtworkSwap swap) =>
+        swap.Look(TorizoArtworkSwapDefinitions.GoldenSequence.Contains(swap) ? EncounterArtwork.GoldenTorizo : EncounterArtwork.BombTorizo);
+
+    /// <summary>The one copy Torizo look <paramref name="look"/> makes, resolved against <paramref name="stock"/>.</summary>
+    private static EncounterArtworkUpload UploadOf(EncounterLook look, InstalledEnemyArtwork stock)
     {
-        int golden = TorizoArtworkSwapDefinitions.GoldenSequence.ToList().IndexOf(swap);
-        return golden >= 0 ? new EncounterArtworkStep(EncounterArtworkSequence.GoldenTorizo, golden)
-            : new EncounterArtworkStep(EncounterArtworkSequence.BombTorizo, TorizoArtworkSwapDefinitions.BombSequence.ToList().IndexOf(swap));
+        ComposedEncounter torizo = look.Encounter == EncounterArtwork.GoldenTorizo ? ComposedEncounter.GoldenTorizo : ComposedEncounter.BombTorizo;
+        return EncounterLookUploads.Uploads(torizo, EncounterLookUploads.IndexOf(torizo, look.Name), new EnemyTileTransfers(stock)).Single();
     }
 
     /// <summary>Shows artwork swap <paramref name="swap"/> through the production cue of the Torizo whose programs make it.</summary>
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, TorizoArtworkSwap swap) =>
         AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot,
-                new TorizoEnemyState(slot, isGolden: StepOf(swap).Sequence == EncounterArtworkSequence.GoldenTorizo),
+                new TorizoEnemyState(slot, isGolden: LookOf(swap).Encounter == EncounterArtwork.GoldenTorizo),
                 new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(swap),
                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,

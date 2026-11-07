@@ -315,7 +315,7 @@ internal sealed class CrocomireBridgeCollapse
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
-        _access.RequireCrocomireDeath().SkeletonChunksShown = 0;
+        _access.RequireCrocomireDeath().SkeletonBaringElapsed = 0;
     }
 
     /// <summary>Picks the next crumbling bridge column and runs the bridge fragment's initializer.</summary>

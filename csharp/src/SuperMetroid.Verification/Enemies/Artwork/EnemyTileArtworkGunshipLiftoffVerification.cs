@@ -79,11 +79,10 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);
-            for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
-                enemies.GunshipBehavior.ShowGunshipTakeoffPage(top);
-            AssertEqual<int?>(GunshipLiftoffTransferDefinitions.Frames.Length - 1,
-                enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.GunshipLiftoff), "five native takeoff calls reach the fifth page");
-            return EncounterArtworkPlacements.Of(enemies.Room.Session.ArtworkProgress, resolver);
+            for (int index = 0; index < GunshipTakeoffDefinitions.EngineReadyingDuration; index++)
+                enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(top);
+            AssertTrue(enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "readying the engines shows the takeoff look");
+            return EncounterArtworkPlacements.Of(enemies.Room.Session.Looks, resolver);
         }
     }
 }

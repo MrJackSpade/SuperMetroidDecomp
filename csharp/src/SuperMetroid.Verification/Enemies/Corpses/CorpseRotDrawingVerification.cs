@@ -134,37 +134,29 @@ internal static class CorpseRotDrawingVerification
     }
 
     /// <summary>
-    /// Rots Mother Brain's corpse as Core does, at her last corpse page, and compares her corpse frame at every call; then
-    /// requires every later page step it is drawn at to show the same whole corpse picture (#1513).
+    /// Rots Mother Brain's corpse as Core does, over her corpse's look, and compares her corpse frame at every call; her
+    /// corpse frame has one finished picture, which no later look changes, so it shows her whole corpse through its rows,
+    /// never the escape's pages copied over its characters (#1538).
     /// </summary>
     private static int VerifyMotherBrain(InstalledEnemySheets sheets, CorpseCharacterRot oracle)
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.MotherBrainHead);
-        int lastCorpsePage = MotherBrainSpritePageDefinitions.Sequence.ToList().FindLastIndex(page => page.Sheet == MotherBrainSpritePageSheet.Corpse);
-        AssertTrue(lastCorpsePage >= 0, "Mother Brain's pages load her corpse");
         string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHead12);
-        FrameArtworkVariation pages = sheets.Variations(set, EnemyDefinitionId.MotherBrainHead, name)
-            .Single(variation => variation.Sequence == EncounterArtworkSequence.MotherBrainPages);
+        AssertEqual(0, sheets.ChangingEncounters(set, EnemyDefinitionId.MotherBrainHead, name).Count,
+            "Mother Brain's corpse frame has one finished picture, which no later look changes");
         SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);
         int tileBase = TileBase(set, EnemyDefinitionId.MotherBrainHead);
-        byte[] loaded = Loaded(set, [new EncounterArtworkStep(EncounterArtworkSequence.MotherBrainPages, lastCorpsePage)]);
+        byte[] loaded = EnemySheetFixtures.LivePage(set, ComposedEncounter.MotherBrain,
+                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook))
+            .Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
         var rotting = new MotherBrainCorpseRottingState();
         int compared = 0;
         for (int call = 0; call <= oracle.CallCount; call++)
         {
             if (call > 0)
                 _ = rotting.Step(new Position16<RoomPixels>(128, 112), MotherBrainRandomSample.FromGenerator(unchecked((ushort)(call * 37))), call);
-            string corpsePicture = PictureAt(name, pages, lastCorpsePage);
-            compared += AssertDrawsAsRotted(sheet.Frame, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, corpsePicture), corpsePicture, rotting.Shown, oracle.Characters(loaded, call),
+            compared += AssertDrawsAsRotted(sheet.Frame, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, name), name, rotting.Shown, oracle.Characters(loaded, call),
                 EnemyFrameId.MotherBrainHead12, tileBase, $"Mother Brain's corpse after rot call {call}");
-        }
-        // Her escape's pages load over her corpse's characters once it has rotted; the corpse frame keeps showing her whole
-        // corpse's picture through its rows, never the escape's pages (#1513).
-        string corpse = PictureAt(name, pages, lastCorpsePage);
-        for (int step = lastCorpsePage + 1; step < MotherBrainSpritePageDefinitions.Sequence.Count; step++)
-        {
-            if (pages.DrawnAt(step))
-                AssertEqual(corpse, PictureAt(name, pages, step), $"Mother Brain's rotted corpse after page step {step} shows her whole corpse's picture");
         }
         return compared;
     }
@@ -293,10 +285,6 @@ internal static class CorpseRotDrawingVerification
     private static IEnumerable<EnemyFrameId> CorpseFrames(InstalledEnemySheets sheets, RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) =>
         EnemyDefinitionFrameDefinitions.Frames[enemy].Where(frame => sheets.CorpseLayout(set, enemy, EnemySheetDefinitions.FrameName(frame)) is not null);
 
-    /// <summary>The name of <paramref name="frame"/>'s picture once its pages have reached <paramref name="step"/>.</summary>
-    private static string PictureAt(string frame, FrameArtworkVariation pages, int step) => FrameArtworkVariation.PictureName(frame,
-        pages.PictureAt(step, frame) is int picture ? [new EncounterArtworkStep(pages.Sequence, picture)] : []);
-
     /// <summary>The first graphics set that installs a sheet of <paramref name="enemy"/>.</summary>
     private static RoomEnemyGraphicsSetDefinition SetDrawing(InstalledEnemySheets sheets, EnemyDefinitionId enemy)
     {
@@ -307,9 +295,9 @@ internal static class CorpseRotDrawingVerification
     /// <summary>The character a frame of <paramref name="enemy"/> under <paramref name="set"/> counts its parts' characters from.</summary>
     private static int TileBase(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(set)).TileBaseOf(enemy);
 
-    /// <summary>The sprite characters <paramref name="set"/>'s load and <paramref name="reached"/> steps leave.</summary>
-    private static byte[] Loaded(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterArtworkStep> reached) =>
-        EnemySheetFixtures.LivePage(set, reached).Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
+    /// <summary>The sprite characters <paramref name="set"/>'s load and its encounters' <paramref name="shown"/> looks leave.</summary>
+    private static byte[] Loaded(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown) =>
+        EnemySheetFixtures.LivePage(set, shown).Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
 
     /// <summary>One screen pixel.</summary>
     /// <param name="X">Its column.</param>

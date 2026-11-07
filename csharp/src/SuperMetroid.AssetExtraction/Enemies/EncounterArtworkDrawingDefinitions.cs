@@ -1,10 +1,13 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles.Artwork;
@@ -13,11 +16,11 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Which frames each encounter artwork sequence is drawn under, and at which of its steps (#1513). A sheet holds a frame's
-/// picture of a step only when the frame is drawn at that step, and its loaded picture only when it is drawn before the
-/// sequence's first step or a step leaves it as loaded. A frame no entry lists for a sequence shows only its loaded
-/// picture under it. A step that lands in the same update as a later one is never seen and is listed for no frame. Ceres
-/// Ridley's escape pages show through his room's backgrounds alone, so no frame is listed for them.
+/// Which frames each encounter draws in which of its looks (#1513, #1538). A sheet holds a frame's finished picture of each
+/// look it is drawn in, and a frame drawn alike in every look it is drawn in has one picture. A frame no entry lists for
+/// an encounter shows only its room's load under it. A look whose copies land in the same update as a later look's is
+/// never seen and is listed for no frame. Ceres Ridley's escape warning shows through his room's backgrounds alone, so no
+/// frame is listed for it.
 /// </summary>
 internal static class EncounterArtworkDrawingDefinitions
 {
@@ -36,100 +39,97 @@ internal static class EncounterArtworkDrawingDefinitions
     /// the Evirs her death releases long after, so none is drawn before it.
     /// </summary>
     private static readonly EncounterArtworkDrawing DraygonEvirs =
-        new(EncounterArtworkSequence.DraygonEvirs, DrawnBeforeFirstStep: false, [new(0, 0)])
+        new(ComposedEncounter.DraygonEvirs, [EncounterLookUploads.DraygonEvirsLook])
         {
             SpriteObjects = [RoomSpriteObjectKind.DraygonIntroEvir, RoomSpriteObjectKind.DraygonDeathEvirFacingRight],
         };
 
-    /// <summary>The gunship's hull, drawn throughout its takeoff, one page an update.</summary>
+    /// <summary>The gunship's hull, drawn landed and through its takeoff.</summary>
     private static readonly EncounterArtworkDrawing GunshipHull =
-        new(EncounterArtworkSequence.GunshipLiftoff, DrawnBeforeFirstStep: true, [new(0, null)])
+        new(ComposedEncounter.Gunship, [EncounterLook.LoadedName, GunshipTakeoffDefinitions.TakeoffLook.Name])
         {
             Frames = [.. GunshipFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
         };
 
-    /// <summary>
-    /// The takeoff's dust, which the engines raise once the fifth page has shown: never before the takeoff's first page,
-    /// so it has no picture of the characters the room's load leaves.
-    /// </summary>
+    /// <summary>The takeoff's dust, which the engines raise once they fire up: never while the gunship is landed.</summary>
     private static readonly EncounterArtworkDrawing GunshipDust =
-        new(EncounterArtworkSequence.GunshipLiftoff, DrawnBeforeFirstStep: false, [new(4, 4)])
+        new(ComposedEncounter.Gunship, [GunshipTakeoffDefinitions.TakeoffLook.Name])
         {
             Projectiles = [.. GunshipDustVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
-    /// <summary>Crocomire's skeleton, shown only once his death's delay has loaded its last chunk, one chunk an update.</summary>
+    /// <summary>Crocomire's skeleton, shown only once his death has bared it.</summary>
     private static readonly EncounterArtworkDrawing CrocomireSkeleton =
-        new(EncounterArtworkSequence.CrocomireSkeleton, DrawnBeforeFirstStep: false, [new(5, 5)])
+        new(ComposedEncounter.Crocomire, [CrocomireSkeletonLookDefinitions.SkeletonLook.Name])
         {
             Frames = [.. CrocomireSkeletonVisualDefinitions.Frames],
         };
 
     /// <summary>Crocomire's projectiles: his fight's before his death, and the spike wall's pieces after the skeleton shows.</summary>
     private static readonly EncounterArtworkDrawing CrocomireProjectiles =
-        new(EncounterArtworkSequence.CrocomireSkeleton, DrawnBeforeFirstStep: true, [new(5, 5)])
+        new(ComposedEncounter.Crocomire, [EncounterLook.LoadedName, CrocomireSkeletonLookDefinitions.SkeletonLook.Name])
         {
             Projectiles = [.. CrocomireProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
     /// <summary>
-    /// Bomb Torizo's body: drawn as its statue crumbles (steps 0 to 7); its gut's swaps land in one update, seen at step 11;
-    /// its face's swaps land in two updates, seen at steps 15 and 20.
+    /// Bomb Torizo's body: drawn as a statue and as it crumbles (its first eight swaps); its gut's swaps land in one update,
+    /// seen at the twelfth swap; its face's swaps land in two updates, seen at the sixteenth and the twenty-first.
     /// </summary>
     private static readonly EncounterArtworkDrawing BombTorizoBody =
-        new(EncounterArtworkSequence.BombTorizo, DrawnBeforeFirstStep: true, [new(0, 7), new(11, 11), new(15, 15), new(20, 20)])
+        new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(Enumerable.Range(0, 8)), .. Bomb([11, 15, 20])])
         {
             Frames = [.. TorizoFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
         };
 
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
-        new(EncounterArtworkSequence.BombTorizo, DrawnBeforeFirstStep: false, [new(7, 7), new(11, 11), new(15, 15), new(20, 20)])
+        new(ComposedEncounter.BombTorizo, [.. Bomb([7, 11, 15, 20])])
         {
             Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
     /// <summary>
     /// Golden Torizo's body and projectiles: its awakening is its first program's first cue, before any frame shows; it is
-    /// drawn as it crumbles (steps 1 to 8), its egg release's swaps land two to an update, seen at every second step from 10
-    /// to 22, and its eye glow and stun are seen at every step (23 to 30).
+    /// drawn as it crumbles (its first nine swaps), its egg release's swaps land two to an update, seen at every second swap
+    /// from the eleventh to the twenty-third, and its eye glow and stun are seen at every swap from the twenty-third on.
     /// </summary>
     private static readonly EncounterArtworkDrawing GoldenTorizo =
-        new(EncounterArtworkSequence.GoldenTorizo, DrawnBeforeFirstStep: false,
-            [new(0, 8), new(10, 10), new(12, 12), new(14, 14), new(16, 16), new(18, 18), new(20, 20), new(22, null)])
+        new(ComposedEncounter.GoldenTorizo, [.. Golden(Enumerable.Range(0, 9)), .. Golden([10, 12, 14, 16, 18, 20]),
+            .. Golden(Enumerable.Range(22, TorizoArtworkSwapDefinitions.GoldenSequence.Count - 22))])
         {
             Frames = [.. TorizoFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
             Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
     /// <summary>
-    /// The Ceres doors: the pre-explosion overlay door readies its artwork at its initialization, before its first draw;
-    /// the doors of the set's other rooms are drawn as their load leaves them.
+    /// The Ceres doors: the pre-explosion overlay door shows its look at its initialization, before its first draw; the doors
+    /// of the set's other rooms are drawn as their load leaves them.
     /// </summary>
     private static readonly EncounterArtworkDrawing CeresDoors =
-        new(EncounterArtworkSequence.CeresDoor, DrawnBeforeFirstStep: true, [new(0, 0)])
+        new(ComposedEncounter.CeresDoor, [EncounterLook.LoadedName, CeresDoorLookDefinitions.OverlayLook.Name])
         {
             Frames = [.. CeresDoorFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
         };
 
-    /// <summary>The faces of Mother Brain's dead brain, which her leg pages complete.</summary>
+    /// <summary>The faces of Mother Brain's dead brain, which her legs' look holds.</summary>
     private static readonly EnemyFrameId[] MotherBrainDeadBrainFaces =
         [EnemyFrameId.MotherBrainHead6, EnemyFrameId.MotherBrainHead7, EnemyFrameId.MotherBrainHead8];
 
-    /// <summary>Her collapsed corpse, which her corpse's pages hold.</summary>
+    /// <summary>Her collapsed corpse, which her corpse's look holds.</summary>
     private static readonly EnemyFrameId[] MotherBrainCollapsedCorpse = [EnemyFrameId.MotherBrainHead11, EnemyFrameId.MotherBrainHead12];
 
-    /// <summary>The faces of her living brain her leg pages complete; her other living faces are her room's load.</summary>
+    /// <summary>The faces of her living brain her legs' look holds; her other living faces are her room's load.</summary>
     private static readonly EnemyFrameId[] MotherBrainAttackFaces = [EnemyFrameId.MotherBrainHead9, EnemyFrameId.MotherBrainHead10];
 
-    /// <summary>Her onion rings, whose characters her leg pages complete.</summary>
+    /// <summary>Her onion rings, whose characters her legs' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainRings =
     [
         EnemyProjectileFrameId.MotherBrainBlueRing00, EnemyProjectileFrameId.MotherBrainBlueRing01, EnemyProjectileFrameId.MotherBrainBlueRing02,
         EnemyProjectileFrameId.MotherBrainBlueRing03, EnemyProjectileFrameId.MotherBrainBlueRing04, EnemyProjectileFrameId.MotherBrainBlueRing05,
     ];
 
-    /// <summary>Her bombs, which her attack pages complete.</summary>
+    /// <summary>Her bombs, which her attacks' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainAttackEffects =
     [
         EnemyProjectileFrameId.Projectile86C76eFrame00, EnemyProjectileFrameId.Projectile86C76eFrame01, EnemyProjectileFrameId.Projectile86C76eFrame02,
@@ -137,7 +137,7 @@ internal static class EncounterArtworkDrawingDefinitions
         EnemyProjectileFrameId.Projectile86C76eFrame06, EnemyProjectileFrameId.Projectile86C76eFrame07, EnemyProjectileFrameId.Projectile86C76eFrame08,
     ];
 
-    /// <summary>The escape door's fragments, which the exploded door's pages complete.</summary>
+    /// <summary>The escape door's fragments, which the exploded door's look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainDoorFragments =
     [
         EnemyProjectileFrameId.Projectile86Ca22Frame00, EnemyProjectileFrameId.Projectile86Ca22Frame01, EnemyProjectileFrameId.Projectile86Ca22Frame02,
@@ -145,131 +145,116 @@ internal static class EncounterArtworkDrawingDefinitions
         EnemyProjectileFrameId.Projectile86Ca22Frame06, EnemyProjectileFrameId.Projectile86Ca22Frame07,
     ];
 
-    /// <summary>The escape's subtitle, which the escape message's pages complete.</summary>
+    /// <summary>The escape's subtitle, which the escape message's look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainSubtitle = [EnemyProjectileFrameId.Projectile86Cb0dFrame00];
 
-    /// <summary>
-    /// Mother Brain's living brain: drawn in her tank before her legs load, hidden as she rises (steps 0 to 11), and drawn
-    /// through the Baby, her second attack pages and the loading of her corpse (12 to 25); her room's load holds its faces.
-    /// </summary>
+    /// <summary>Mother Brain's living brain, whose faces her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainHead =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(12, 25)])
+        new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
         {
             Frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value).Except(MotherBrainCorpseFrames).Except(MotherBrainAttackFaces),
                 MotherBrainVisualDefinitions.NeckJointFrame],
-            CompletedBy = EncounterArtworkSource.RoomLoad,
         };
 
-    /// <summary>The faces of her living brain her leg pages complete, drawn as the rest of her living brain is.</summary>
+    /// <summary>The faces of her living brain her legs' look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainHeadAttackFaces =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(12, 25)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainLegsLook])
         {
             Frames = MotherBrainAttackFaces,
-            CompletedBy = EncounterArtworkSource.MotherBrainLegs,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>
-    /// Mother Brain's dead brain's faces: drawn as her living brain is, and on through her escape (26 to 34), since her
-    /// brain's draw hook keeps drawing it, parked at the room's corner once it has rotted, until Samus leaves the room.
-    /// </summary>
+    /// <summary>Mother Brain's dead brain's faces, which her legs' look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainDeadBrain =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(12, 34)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainLegsLook])
         {
             Frames = MotherBrainDeadBrainFaces,
-            CompletedBy = EncounterArtworkSource.MotherBrainLegs,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>Her collapsed corpse, drawn as her dead brain's faces are, which her corpse's pages complete.</summary>
+    /// <summary>Her collapsed corpse, which her corpse's look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainCorpse =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(12, 34)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainCorpseLook])
         {
             Frames = MotherBrainCollapsedCorpse,
-            CompletedBy = EncounterArtworkSource.MotherBrainCorpse,
+            ArtworkOfLook = true,
         };
 
     /// <summary>
-    /// Mother Brain's body sprites, drawn before her first page loads (a glitched fight shows them in phase one, as the
-    /// Mother Brain glitch movie does) and through every page until her death; her leg pages complete them.
+    /// Mother Brain's body sprites, which her legs' look holds; a glitched fight draws them in phase one, as the Mother Brain
+    /// glitch movie does, in that same look.
     /// </summary>
     private static readonly EncounterArtworkDrawing MotherBrainBody =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(0, 25)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainLegsLook])
         {
             Frames = [.. MotherBrainBodyVisualDefinitions.ShownFrames.Select(entry => entry.Value)],
-            CompletedBy = EncounterArtworkSource.MotherBrainLegs,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>The Baby, drawn only once its last page has loaded, and hidden as her attack pages load again.</summary>
+    /// <summary>The Baby, which the Baby's look holds.</summary>
     private static readonly EncounterArtworkDrawing BabyMetroid =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: false, [new(15, 15)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainBabyLook])
         {
             Frames = [.. BabyMetroidVisualDefinitions.ShownFrames.Select(entry => entry.Value)],
-            CompletedBy = EncounterArtworkSource.MotherBrainBabyMetroid,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>Her onion rings, which fly from her first attack pages until her death.</summary>
+    /// <summary>Her onion rings, which her legs' look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainRingsDrawn =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(8, 25)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainLegsLook])
         {
             Projectiles = MotherBrainRings,
-            CompletedBy = EncounterArtworkSource.MotherBrainLegs,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>Her bombs, which fly from her first attack pages until her death.</summary>
+    /// <summary>Her bombs, which her attacks' look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainAttacks =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(8, 25)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainAttackLook])
         {
             Projectiles = MotherBrainAttackEffects,
-            CompletedBy = EncounterArtworkSource.MotherBrainAttack,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>
-    /// Mother Brain's other effects, which her room's load holds: her breath, drool and blasts fly from her first attack
-    /// pages until her death, and on once the exploded door's last page has loaded.
-    /// </summary>
+    /// <summary>Mother Brain's other effects, her breath, drool and blasts, which her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainEffects =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(8, 25), new(34, 34)])
+        new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
         {
             Projectiles = [.. MotherBrainEffectFrameDefinitions.ShownProjectileFrames.Select(entry => entry.Value)
                 .Except(MotherBrainRings).Except(MotherBrainAttackEffects).Except(MotherBrainDoorFragments).Except(MotherBrainSubtitle)],
-            CompletedBy = EncounterArtworkSource.RoomLoad,
         };
 
-    /// <summary>The escape door's fragments, which spawn once the exploded door's last page has loaded.</summary>
+    /// <summary>The escape door's fragments, which the exploded door's look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainDoorFragmentsDrawn =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: false, [new(34, 34)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainExplodedDoorLook])
         {
             Projectiles = MotherBrainDoorFragments,
-            CompletedBy = EncounterArtworkSource.MotherBrainExplodedDoor,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>The escape's subtitle, which spawns once the exploded door's last page has loaded.</summary>
+    /// <summary>The escape's subtitle, which the escape message's look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainSubtitleDrawn =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: false, [new(34, 34)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainEscapeTextLook])
         {
             Projectiles = MotherBrainSubtitle,
-            CompletedBy = EncounterArtworkSource.EscapeText,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>
-    /// Mother Brain's red hand beam, which only her second phase fires and her attack pages complete: she stands to attack
-    /// once her rise has shown its last attack page, and her rainbow beam ends the phase long before the Baby's first page.
-    /// </summary>
+    /// <summary>Mother Brain's red hand beam, which only her second phase fires and her attacks' look holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainHandBeam =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: false, [new(11, 11)])
+        new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainAttackLook])
         {
             Projectiles = [.. MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
-            CompletedBy = EncounterArtworkSource.MotherBrainAttack,
+            ArtworkOfLook = true,
         };
 
-    /// <summary>The dust rising from Mother Brain's death, her corpse's rot and the exploding escape door.</summary>
+    /// <summary>The dust rising from Mother Brain's death, her corpse's rot and the exploding escape door, which her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainDust =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(20, 34)])
+        new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
         {
             Projectiles = [.. MiscDustProjectileFrameDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
-            CompletedBy = EncounterArtworkSource.RoomLoad,
         };
 
-    /// <summary>Every entry, by sequence.</summary>
+    /// <summary>Every entry, by encounter.</summary>
     internal static IReadOnlyList<EncounterArtworkDrawing> All { get; } =
     [
         DraygonEvirs,
@@ -295,4 +280,12 @@ internal static class EncounterArtworkDrawingDefinitions
         MotherBrainHandBeam,
         MotherBrainDust,
     ];
+
+    /// <summary>The names of the looks Bomb Torizo's swaps at <paramref name="places"/> of its order give it.</summary>
+    private static IEnumerable<string> Bomb(IEnumerable<int> places) =>
+        places.Select(place => TorizoArtworkSwapDefinitions.BombSequence[place].Look(EncounterArtwork.BombTorizo).Name);
+
+    /// <summary>The names of the looks Golden Torizo's swaps at <paramref name="places"/> of its order give it.</summary>
+    private static IEnumerable<string> Golden(IEnumerable<int> places) =>
+        places.Select(place => TorizoArtworkSwapDefinitions.GoldenSequence[place].Look(EncounterArtwork.GoldenTorizo).Name);
 }

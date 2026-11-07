@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -8,67 +9,65 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Holds every frame whose artwork a run of an encounter's pages completes to its own artwork (#1513): on every installed
-/// enemy and spawned-object sheet of a graphics set that plays the sequence, such a frame is pictured as those pages leave
-/// it, or not at all. A frame pictured as the room's load leaves it, under its plain name, reads characters its completing
-/// pages never write: what lies there is another family's artwork, as Mother Brain's initial body frame read the head
-/// artwork her room loads where her legs never land, and her leg sheet showed a white head.
+/// Holds every frame whose artwork is its one look's own to one finished picture (#1513, #1538): on every installed enemy
+/// and spawned-object sheet of a graphics set that plays the encounter, such a frame is pictured once, under its own name,
+/// as its look leaves it, or shows nothing where its look's copies never write the characters it reads, as Mother Brain's
+/// initial body frame reads the head artwork her room loads where her legs never land. No such frame has a picture of
+/// another look.
 /// </summary>
 internal static class CompletedFramesOwnArtworkVerification
 {
-    /// <summary>Fails, naming every frame a completing run of pages never writes that a sheet pictures over the room's load.</summary>
+    /// <summary>Fails, naming every frame whose artwork is its look's own that a sheet pictures in more than one look.</summary>
     internal static void VerifyCompletedFramesOwnArtwork()
     {
         InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
         var findings = new List<string>();
         int checkedFrames = 0;
-        foreach (EncounterArtworkDrawing drawing in EncounterArtworkDrawingDefinitions.All)
+        foreach (EncounterArtworkDrawing drawing in EncounterArtworkDrawingDefinitions.All.Where(drawing => drawing.ArtworkOfLook))
         {
-            if (drawing.CompletedBy is not EncounterArtworkSource completing || completing == EncounterArtworkSource.RoomLoad)
-                continue;
+            AssertEqual(1, drawing.Looks.Count, $"a frame whose artwork is its look's own is drawn in one look of {drawing.Encounter}");
             string[] frames = [.. drawing.Frames.SelectMany(frame => new[] { EnemySheetDefinitions.FrameName(frame), EnemySheetDefinitions.EncounterFrameName(frame),
                     EnemySheetDefinitions.SpriteObjectFrameName(frame) })
                 .Concat(drawing.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName))];
             foreach ((EnemySheetKey key, SpriteSheet sheet) in sheets.sheets)
             {
-                if (Plays(key.Set, drawing.Sequence))
-                    checkedFrames += Check($"{key.Set} {key.Enemy}", sheet.frames, frames, completing, findings);
+                if (Plays(key.Set, drawing.Encounter))
+                    checkedFrames += Check($"{key.Set} {key.Enemy}", [.. sheet.FrameNames, .. sheet.BlankFrameNames], frames, drawing.Looks[0], findings);
             }
             // A set's spawned-object pictures are on its own sheet and the common sheets (#1513).
             foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet sheet) in sheets.spawned)
             {
-                if (Plays(key.Set, drawing.Sequence))
-                    checkedFrames += Check($"{key.Set} spawned {key.Owner}", sheet.frames, frames, completing, findings);
+                if (Plays(key.Set, drawing.Encounter))
+                    checkedFrames += Check($"{key.Set} spawned {key.Owner}", [.. sheet.frames.Keys, .. sheet.empty], frames, drawing.Looks[0], findings);
             }
         }
-        AssertTrue(checkedFrames > 0, "some sheet holds a frame whose artwork an encounter's pages complete");
+        AssertTrue(checkedFrames > 0, "some sheet holds a frame whose artwork is its look's own");
         AssertTrue(findings.Count == 0,
-            $"{findings.Count} frames are pictured over their room's load, which their completing pages never write:{Environment.NewLine}"
+            $"{findings.Count} frames whose artwork is their look's own are pictured in more than one look:{Environment.NewLine}"
             + string.Join(Environment.NewLine, findings.Distinct(StringComparer.Ordinal)));
-        Console.WriteLine($"  Completed frames: {checkedFrames} frames whose pages complete them show those pages' artwork or nothing.");
+        Console.WriteLine($"  Completed frames: {checkedFrames} frames whose artwork is their look's own show one finished picture or nothing.");
     }
 
     /// <summary>
     /// Counts the frames of <paramref name="frames"/> that <paramref name="pictures"/>, a sheet's or a set's spawned-object
-    /// pictures by name, hold in any picture, and records each they picture under its plain name, as the room's load leaves it.
+    /// picture names, hold, and records each they picture in a look of an encounter's, under a name that carries one.
     /// </summary>
-    private static int Check(string label, Dictionary<string, SpriteSheetFrame> pictures, string[] frames, EncounterArtworkSource completing,
-        List<string> findings)
+    private static int Check(string label, IReadOnlyList<string> pictures, string[] frames, string look, List<string> findings)
     {
         int held = 0;
         foreach (string frame in frames)
         {
-            if (pictures.Keys.Any(picture => picture == frame || picture.StartsWith(frame + "|", StringComparison.Ordinal)))
+            if (pictures.Contains(frame, StringComparer.Ordinal))
                 held++;
-            if (pictures.TryGetValue(frame, out SpriteSheetFrame? plain))
-                findings.Add($"{label} ({plain.Sheet.Name}) pictures {frame} over its room's load, which {completing}'s pages never write");
+            foreach (string picture in pictures.Where(picture => picture.StartsWith(frame + "|", StringComparison.Ordinal)))
+                findings.Add($"{label} pictures {frame}, whose artwork is its {look} look's own, as {picture}");
         }
         return held;
     }
 
-    /// <summary>Whether the graphics set named <paramref name="set"/> plays <paramref name="sequence"/>.</summary>
-    private static bool Plays(string set, EncounterArtworkSequence sequence) =>
-        EncounterArtworkUploads.Of(RoomEnemyGraphicsSetLists.Members[set]).Contains(sequence);
+    /// <summary>Whether the graphics set named <paramref name="set"/> plays <paramref name="encounter"/>.</summary>
+    private static bool Plays(string set, ComposedEncounter encounter) =>
+        EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.Members[set]).Contains(encounter);
 
     /// <summary>Runs the completed frames' own-artwork rule.</summary>
     [VerificationCommand("--completed-frames-own-artwork")]

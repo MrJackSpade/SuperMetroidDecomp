@@ -23,10 +23,11 @@ internal static class CrocomireSkeletonArtworkVerification
     {
         CrocomireSkeletonArtwork artwork = stock.Bosses.CrocomireSkeleton ??
             throw new InvalidDataException("Installed enemy art omitted Crocomire skeleton tiles.");
-        int frames = CrocomireSkeletonTransferDefinitions.FrameCount;
+        int frames = CrocomireSkeletonCharacterDefinitions.ChunkCount;
         AssertEqual(6, frames, "Crocomire has six native skeleton uploads");
-        IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> steps =
-            EncounterArtworkUploads.Steps(EncounterArtworkSequence.CrocomireSkeleton, new EnemyTileTransfers(stock));
+        IReadOnlyList<EncounterArtworkUpload> chunks = EncounterLookUploads.Uploads(ComposedEncounter.Crocomire,
+            EncounterLookUploads.IndexOf(ComposedEncounter.Crocomire, CrocomireSkeletonLookDefinitions.SkeletonLook.Name), new EnemyTileTransfers(stock));
+        AssertEqual(frames, chunks.Count, "the skeleton look copies every native skeleton chunk");
         for (int index = 0; index < frames; index++)
         {
             // The import's source of each chunk is the cartridge's own selection.
@@ -35,7 +36,7 @@ internal static class CrocomireSkeletonArtworkVerification
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             ushort source = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
-            AssertEqual(destination, steps[index].Single().FirstByte / 2,
+            AssertEqual(destination, chunks[index].FirstByte / 2,
                 $"Crocomire skeleton destination {index} matches the cartridge");
             AssertEqual(0xad0000 | source, chunkSource,
                 $"Crocomire skeleton source {index} matches the cartridge");
@@ -73,9 +74,9 @@ internal static class CrocomireSkeletonArtworkVerification
         AssertEqual(nativeCharacters.Length, installedCharacters.Length, "the OBJ page spans the native OBJ characters");
         AssertEqual(-1, Enumerable.Range(0, nativeCharacters.Length).FirstOrDefault(index => installedCharacters[index] != nativeCharacters[index], -1),
             "all six installed Crocomire skeleton uploads match the native OBJ characters (first differing byte)");
-        AssertEqual(frames,
-            installedState.SkeletonChunksShown,
-            "the update after the last chunk shows no further chunk");
+        AssertEqual(CrocomireSkeletonLookDefinitions.BaringDuration,
+            installedState.SkeletonBaringElapsed,
+            "the update after the skeleton is bared bares nothing more");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire skeleton upload reads no ROM bytes");
 
@@ -84,18 +85,23 @@ internal static class CrocomireSkeletonArtworkVerification
 
         static RunInstalledResult RunInstalled(InstalledEnemyArtwork art)
         {
+            // The skeleton look shows on the last update of the baring, and an update after it bares nothing more (#1538).
             var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             var vram = new SnesVram();
             var guard = NewCrocomireSkeletonNoReadBus();
             var state = new CrocomireDeathState();
             SetRuntimeFields(system, guard, vram);
-            for (int index = 0;
-                 index <= CrocomireSkeletonTransferDefinitions.FrameCount; index++)
-                ShowNextChunk(system, state);
-            // The skeleton's chunks as its sheets picture them: every step of its artwork sequence copied in order (#1406, #1513).
+            for (int index = 0; index < CrocomireSkeletonLookDefinitions.BaringDuration; index++)
+            {
+                AssertTrue(!system.Room.Session.Looks.Shows(CrocomireSkeletonLookDefinitions.SkeletonLook), $"the skeleton is not yet bared before baring update {index}");
+                BareSkeleton(system, state);
+            }
+            AssertTrue(system.Room.Session.Looks.Shows(CrocomireSkeletonLookDefinitions.SkeletonLook), "the skeleton look shows from the baring's last update");
+            BareSkeleton(system, state);
+            // The skeleton's chunks as its sheets picture them: every copy of the skeleton look in order (#1406, #1538).
             var characters = new byte[SpriteArtworkPlacements.TableByteCount];
-            foreach (EncounterArtworkUpload upload in EncounterArtworkUploads.Steps(EncounterArtworkSequence.CrocomireSkeleton, new EnemyTileTransfers(art))
-                         .SelectMany(step => step))
+            foreach (EncounterArtworkUpload upload in EncounterLookUploads.Steps(ComposedEncounter.Crocomire, new EnemyTileTransfers(art)).Looks
+                         .SelectMany(look => look))
                 upload.ApplyTo(characters);
             return new RunInstalledResult(characters, state, guard);
         }
@@ -106,9 +112,9 @@ internal static class CrocomireSkeletonArtworkVerification
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         }
 
-        static void ShowNextChunk(RoomEnemySystem system, CrocomireDeathState state)
+        static void BareSkeleton(RoomEnemySystem system, CrocomireDeathState state)
         {
-            system.CrocomireBehavior.Skeleton.ShowNextCrocomireSkeletonChunk(state);
+            system.CrocomireBehavior.Skeleton.BareCrocomireSkeleton(state);
         }
     }
 

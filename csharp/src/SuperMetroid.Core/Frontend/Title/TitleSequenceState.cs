@@ -150,7 +150,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
 
         // Title setup expands the four artwork streams; the title binds that
-        // artwork and its capture places the turning-floor planes, sprite characters and Baby page.
+        // artwork and its capture places the turning floor, the sprites and the Baby's pose.
         objects = new ScreenSprites();
         ResetConsolePaletteFx();
 

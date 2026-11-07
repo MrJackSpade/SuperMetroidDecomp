@@ -127,14 +127,14 @@ internal sealed class CrocomireSkeleton
             : death.RumbleYOffset + death.RumbleDelta;
     }
 
-    /// <summary>Loads skeleton graphics and replaces the wall blocks as the bones break through.</summary>
+    /// <summary>Bares the skeleton behind the wall while its wait runs, then replaces the wall blocks as the bones break through.</summary>
     internal void RunCrocomireSkeletonTileLoadAndWallBreak(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (state.DeathPhaseDelay != 0)
         {
             state.DeathPhaseDelay--;
-            ShowNextCrocomireSkeletonChunk(death);
+            BareCrocomireSkeleton(death);
             return;
         }
 
@@ -246,16 +246,17 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>
-    /// Shows, at this update, one more of the skeleton's chunks (#1406, #1513), in their fixed order, while the skeleton
-    /// waits behind the wall; once all are shown it shows nothing more. From then on his frames show their pictures of it.
+    /// Runs one update of his death baring the skeleton while it waits behind the wall (#1406, #1538): on the last of
+    /// <see cref="CrocomireSkeletonLookDefinitions.BaringDuration"/> updates his frames show the skeleton look from this
+    /// update's frame on; once bared, a later update bares nothing more.
     /// </summary>
-    internal void ShowNextCrocomireSkeletonChunk(CrocomireDeathState death)
+    internal void BareCrocomireSkeleton(CrocomireDeathState death)
     {
-        int chunk = death.SkeletonChunksShown;
-        if (chunk == CrocomireSkeletonTransferDefinitions.FrameCount)
+        if (death.SkeletonBaringElapsed == CrocomireSkeletonLookDefinitions.BaringDuration)
             return;
-        _presentation.ShowArtwork(EncounterArtworkSequence.CrocomireSkeleton, chunk);
-        death.SkeletonChunksShown++;
+        death.SkeletonBaringElapsed++;
+        if (death.SkeletonBaringElapsed == CrocomireSkeletonLookDefinitions.BaringDuration)
+            _presentation.ShowLook(CrocomireSkeletonLookDefinitions.SkeletonLook);
     }
 
     /// <summary>

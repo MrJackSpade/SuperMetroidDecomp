@@ -150,20 +150,17 @@ public sealed class MotherBrainEnemyState
     /// <summary>Upper-neck table byte offset 0, 2, 4, 6, or 8; processed after the lower half so raising targets observe its newly updated angle.</summary>
     public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
 
-    /// <summary>The pages the ascent shows one per call: the eight leg pages, then the four attack pages the legs covered.</summary>
-    public static int LegLoadPageCount =>
-        MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Legs) + MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Attack);
-
     /// <summary>
-    /// The next of the twelve leg-loading pages the ascent shows, one per call. Zero both starts the list and is the
-    /// resting value after the final page, because a list that is not running starts from the first page.
+    /// The updates her rise has spent readying her standing body so far, fewer than
+    /// <see cref="MotherBrainReadyingDefinitions.StandingBodyDuration"/>. Zero both starts the readying and is the resting
+    /// value after its last update, because readying that is not running starts from its first update.
     /// </summary>
-    public int NextLegTilePage
+    public int StandingBodyReadyingElapsed
     {
         get;
-        internal set => field = (uint)value < LegLoadPageCount
+        internal set => field = (uint)value < MotherBrainReadyingDefinitions.StandingBodyDuration
             ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain's ascent shows twelve pages.");
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain's rise readies her standing body over twelve updates.");
     }
 
     /// <summary>True while the floor clips Mother Brain's body as she rises from the fake death.</summary>

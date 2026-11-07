@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Bosses.Artwork;
+﻿using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -65,7 +65,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             Presentation = dependencies.Presentation, FrameContext = dependencies.FrameContext, Audio = dependencies.Audio,
         });
         Turrets = new DraygonTurrets(_room, dependencies.Projectiles);
-        Intro = new DraygonIntro(dependencies.SpriteObjects, dependencies.Presentation, Turrets);
+        Intro = new DraygonIntro(dependencies.SpriteObjects, Turrets);
         Movement = new DraygonMovement(dependencies.SpriteObjects);
         Swoops = new DraygonSwoops(_room, Parts, Turrets, Movement);
         Goop = new DraygonGoop(_room, dependencies.Audio, dependencies.DeathsAndDrops, Parts, Turrets, Movement);

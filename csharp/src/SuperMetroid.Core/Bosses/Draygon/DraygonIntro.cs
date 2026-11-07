@@ -12,16 +12,13 @@ internal sealed class DraygonIntro
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonIntro(RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, DraygonTurrets turrets)
+    internal DraygonIntro(RoomSpriteObjectPool spriteObjects, DraygonTurrets turrets)
     {
         _spriteObjects = spriteObjects;
-        _presentation = presentation;
         _turrets = turrets;
     }
 
@@ -36,9 +33,6 @@ internal sealed class DraygonIntro
         {
             if (state.IntroFrames == 0)
             {
-                _presentation.ShowArtwork(EncounterArtworkSequence.DraygonEvirs, 0);
-                state.IntroEvirGraphicsLoaded = true;
-
                 // Each spawn takes the next slot in processing order, so these become the first four slots in
                 // processing order, the exact four the dance later moves.
                 for (int actor = 0; actor < DraygonIntroDanceDefinitions.EvirCount; actor++)

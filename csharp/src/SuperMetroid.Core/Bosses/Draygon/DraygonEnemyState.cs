@@ -199,9 +199,6 @@ public sealed class DraygonEnemyState
     /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 
-    /// <summary>Set when the init routine schedules the intro Evirs' tiles.</summary>
-    public bool IntroEvirGraphicsLoaded { get; internal set; }
-
     /// <summary>Number of intro Evir projectiles admitted to the shared pool.</summary>
     public int IntroEvirsSpawned { get; internal set; }
 

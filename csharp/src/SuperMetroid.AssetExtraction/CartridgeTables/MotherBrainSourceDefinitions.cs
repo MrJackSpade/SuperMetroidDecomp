@@ -136,13 +136,13 @@ internal static class MotherBrainSourceDefinitions
         /// Where each sheet's characters begin: $B7:9000 (legs, eight pages), $B1:8800 (Baby Metroid, four), $B7:A000
         /// (attack, four) and $AB:F400 (exploded door, two). The installed manifest names each sheet's hash by its source.
         /// </summary>
-        internal static readonly IReadOnlyDictionary<MotherBrainSpritePageSheet, int> Sources =
-            new Dictionary<MotherBrainSpritePageSheet, int>
+        internal static readonly IReadOnlyDictionary<MotherBrainSpriteSheet, int> Sources =
+            new Dictionary<MotherBrainSpriteSheet, int>
             {
-                [MotherBrainSpritePageSheet.Legs] = 0xb79000,
-                [MotherBrainSpritePageSheet.BabyMetroid] = 0xb18800,
-                [MotherBrainSpritePageSheet.Attack] = 0xb7a000,
-                [MotherBrainSpritePageSheet.ExplodedDoor] = 0xabf400,
+                [MotherBrainSpriteSheet.Legs] = 0xb79000,
+                [MotherBrainSpriteSheet.BabyMetroid] = 0xb18800,
+                [MotherBrainSpriteSheet.Attack] = 0xb7a000,
+                [MotherBrainSpriteSheet.ExplodedDoor] = 0xabf400,
             };
     }
 

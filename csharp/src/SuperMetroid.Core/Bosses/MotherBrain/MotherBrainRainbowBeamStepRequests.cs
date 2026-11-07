@@ -31,9 +31,6 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the body was asked to change posture.</summary>
     internal bool BodyPostureRequested { get; set; }
 
-    /// <summary>The page the call shows the sprites, if any.</summary>
-    internal MotherBrainSpritePage? SpritePage { get; set; }
-
     /// <summary>Whether the Baby Metroid's spawn was requested.</summary>
     internal bool BabySpawnRequested { get; set; }
 
@@ -51,9 +48,6 @@ internal sealed class MotherBrainRainbowBeamStepRequests
 
     /// <summary>Whether the escape music was queued.</summary>
     internal bool EscapeMusicQueued { get; set; }
-
-    /// <summary>The escape sequence's pages the call shows the sprites, in order.</summary>
-    internal List<MotherBrainSpritePage> EscapeSequencePages { get; } = new(capacity: 2);
 
     /// <summary>Whether the exploded door's palette was requested.</summary>
     internal bool ExplodedDoorPaletteRequested { get; set; }
@@ -98,9 +92,9 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     internal MotherBrainRainbowBeamAttackStepResult ToResult(
         MotherBrainBodyFunction? phaseBefore, MotherBrainBodyFunction? phaseAfter, bool headAnimationScriptRequested) =>
         new(phaseBefore, phaseAfter, Movement, SoundQueued, PaletteRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
-            headAnimationScriptRequested, BodyPostureRequested, SpritePage, BabySpawnRequested, FinalBeamSoundQueued,
+            headAnimationScriptRequested, BodyPostureRequested, BabySpawnRequested, FinalBeamSoundQueued,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
-            EscapeSequencePages, ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
+            ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
             EscapeDoorObject, EarthquakeTimerRefreshed);

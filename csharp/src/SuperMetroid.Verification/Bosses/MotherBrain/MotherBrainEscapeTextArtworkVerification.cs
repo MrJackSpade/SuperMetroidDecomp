@@ -43,7 +43,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
             int destination = LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + 5), CpuBusRegionRead.Read(rom, record + 6));
             cartridgeVram.LoadBytes(destination * 2, RomDataReader.ReadFixedBank(rom, source, count));
         }
-        for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
+        for (int page = 0; page < EscapeTextSheetFormat.PageCount; page++)
         {
             int sourceOffset = EscapeTextPages.PageOffset(page);
             int destinationOffset =
@@ -61,20 +61,14 @@ internal static class MotherBrainEscapeTextArtworkVerification
             "  Mother Brain escape text art: five guarded OBJ pages and cartridge parity pass.");
     }
 
-    /// <summary>Shows all five escape-text pages through the production Mother Brain path.</summary>
+    /// <summary>Copies all five escape-text pages her escape message's look copies (#1538).</summary>
     private static SnesVram TransferMotherBrainEscapeTextPages(
         InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
-            (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
-        MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, EscapeTextArtworkDefinitions.PageCount)
-            .Select(page => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeText, page))];
-        foreach (MotherBrainSpritePage page in pages)
-            enemies.MotherBrainEncounter.ShowSpritePage(page);
-        IReadOnlyList<int> steps = EncounterArtworkPlacements.MotherBrainSteps(pages);
-        AssertEqual<int?>(steps[^1], enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages),
-            "the encounter reaches the last escape-text page's step");
-        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, resolver), resolver);
+        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
+        int text = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainEscapeTextLook);
+        AssertEqual(EscapeTextSheetFormat.PageCount, EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, text, resolver).Count,
+            "her escape message's look copies every escape-text page");
+        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [text], resolver), resolver);
     }
 }

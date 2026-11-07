@@ -200,8 +200,8 @@ public sealed class RidleyEnemyState
 
     /// <summary>Which step of the Ceres self-destruct warning runs next; the getaway's end starts it.</summary>
     internal CeresSelfDestructPhase CeresSelfDestructPhase { get; set; }
-    /// <summary>Where the Ceres self-destruct stands in its current page list, advanced as each page is shown (#1406).</summary>
-    internal CeresEscapePageCursor CeresEscapePages { get; set; }
+    /// <summary>Where the Ceres self-destruct stands in its current stage of readying the warning, advanced each update (#1406, #1538).</summary>
+    internal CeresEscapeReadying CeresEscapeReadying { get; set; }
     /// <summary>Gets the Ceres warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>
     public int CeresEscapeTextDelayTimer { get; internal set; }
     /// <summary>Gets the installed Ceres warning typewriter state, created after the initial delay when presentation data is available.</summary>

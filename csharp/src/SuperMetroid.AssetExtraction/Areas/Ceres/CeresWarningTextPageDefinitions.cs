@@ -6,6 +6,9 @@ internal static class CeresWarningTextPageDefinitions
     /// <summary>The installed Ceres escape character page holding the warning text.</summary>
     internal const int InstalledPage = 0;
 
+    /// <summary>The warning text's pages: four full pages, then a half page.</summary>
+    internal const int PageCount = 5;
+
     /// <summary>The characters one full warning page holds.</summary>
     internal const int PageCharacters = 16;
 

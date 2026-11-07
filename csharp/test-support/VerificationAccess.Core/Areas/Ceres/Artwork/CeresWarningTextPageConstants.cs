@@ -14,7 +14,7 @@ internal static class CeresWarningTextPageConstants
     internal static int? ForTransfer(int sourceAddress, int byteCount)
     {
         int offset = sourceAddress - CeresEscapeNativeSources.PageSource(CeresWarningTextPageDefinitions.InstalledPage);
-        for (int page = 0; page < CeresEscapePageDefinitions.WarningPageCount; page++)
+        for (int page = 0; page < CeresWarningTextPageDefinitions.PageCount; page++)
         {
             if (CeresWarningTextPages.ByteOffset(page) == offset && CeresWarningTextPages.ByteCount(page) == byteCount)
                 return page;

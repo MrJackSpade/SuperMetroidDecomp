@@ -21,24 +21,9 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
-/// <summary>Checks installed Mother Brain sprite pages, the native leg-loading records and the page selection bounds.</summary>
+/// <summary>Checks installed Mother Brain sprite pages, the native leg-loading records and the looks that copy them.</summary>
 internal static class MotherBrainSpecialSpriteArtworkVerification
 {
-    /// <summary>
-    /// Refuses a page none of Mother Brain's sheets has (#1406): the encounter selects pages by sheet and number, so a
-    /// selection past either end of a sheet fails where it is made.
-    /// </summary>
-    internal static void VerifyMotherBrainSpritePageBounds()
-    {
-        foreach (MotherBrainSpritePageSheet sheet in Enum.GetValues<MotherBrainSpritePageSheet>())
-        {
-            int pages = MotherBrainSpritePage.PageCount(sheet);
-            AssertEqual(pages - 1, MotherBrainSpritePage.Of(sheet, pages - 1).Page, $"{sheet}'s last page is selectable");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(sheet, pages), $"{sheet} has no page past its last");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(sheet, -1), $"{sheet} has no page before its first");
-        }
-    }
-
     /// <summary>Compares installed legs, Baby, attack and exploded-door sheets with native records and guarded VRAM uploads.</summary>
     internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(InstalledEnemyArtwork stock)
     {
@@ -90,17 +75,13 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
-            EncounterArtworkUpload shown = EncounterArtworkUploads.Step(EncounterArtworkSequence.MotherBrainPages,
-                EncounterArtworkPlacements.MotherBrainSteps([MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)])[0],
-                new EnemyTileTransfers(stock)).Single();
+            EncounterArtworkUpload shown = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
+                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainBabyLook), new EnemyTileTransfers(stock))[page];
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)) - ObjectCharactersByte, shown.FirstByte,
-                $"Baby page {page} selection shows at its record's characters");
+                $"the Baby's look copies page {page} at its record's characters");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.Characters.Length,
-                $"Baby page {page} selection shows its record's bytes");
+                $"the Baby's look copies page {page}'s record's bytes");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, baby.PageCount),
-            "the Baby Metroid has no page past the terminator");
         Suite(nameof(VerifyMotherBrainLegLoadPages), () => VerifyMotherBrainLegLoadPages(stock, rom));
         Suite(nameof(VerifyMotherBrainEscapeTimerPages), () => VerifyMotherBrainEscapeTimerPages(stock, rom));
         Console.WriteLine(
@@ -108,20 +89,22 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>
-    /// Checks every page the ascent shows against the native leg-loading list, one per call: where each shows, its bytes,
-    /// the call that completes the list and the produced characters.
+    /// Checks every page her standing body's looks copy, her legs' then her attacks', against the native leg-loading list,
+    /// one an update of the rise's readying: where each lands, its bytes and the produced characters; and that the readying
+    /// completes on the list's last record, as the cartridge's list ends there (#1538).
     /// </summary>
     private static void VerifyMotherBrainLegLoadPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
-        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
-            (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
-        var shownSteps = new List<int>();
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, shownSteps, resolver), resolver);
+        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork));
+        EncounterArtworkUpload[] standing = [.. new[] { EncounterLookUploads.MotherBrainLegsLook, EncounterLookUploads.MotherBrainAttackLook }
+            .SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), resolver))];
+        AssertEqual(MotherBrainReadyingDefinitions.StandingBodyDuration, standing.Length, "her rise readies her standing body one update a page her looks copy");
+        SnesVram ObjVram(int copied) => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(standing.Take(copied)), resolver);
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
-        for (int page = 0; page < MotherBrainEnemyState.LegLoadPageCount; page++)
+        for (int page = 0; page < MotherBrainReadyingDefinitions.StandingBodyDuration; page++)
         {
             int record = MotherBrainLegLoadListConstants.NativeListAddress +
                 page * MotherBrainLegLoadListConstants.RecordByteCount;
@@ -130,60 +113,52 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
             int nativeDestination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5);
 
-            bool completed = enemies.MotherBrainBehavior.Ascent.ShowNextLegPage(state);
-            AssertEqual(page + 1 == MotherBrainEnemyState.LegLoadPageCount,
-                completed, $"Mother Brain leg-loading page {page} completion frame");
-            AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
-                $"Mother Brain leg-loading page {page} next page, back to the first after the last");
+            bool completed = MotherBrainAscent.ReadyStandingBodyOnce(state);
+            AssertEqual(page + 1 == MotherBrainReadyingDefinitions.StandingBodyDuration,
+                completed, $"Mother Brain's standing body readying update {page} completion frame");
+            AssertEqual(completed ? 0 : page + 1, state.StandingBodyReadyingElapsed,
+                $"Mother Brain's standing body readying update {page} count, back to the first after the last");
             int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
-            int step = enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages)
-                ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} reaches no step.");
-            shownSteps.Add(step);
-            EncounterArtworkUpload shown = EncounterArtworkUploads.Step(EncounterArtworkSequence.MotherBrainPages, step, resolver).Single();
+            EncounterArtworkUpload shown = standing[page];
             AssertEqual(nativeTableByte, shown.FirstByte,
-                $"Mother Brain leg-loading page {page} shows where the cartridge's record places it");
-            AssertEqual(nativeSize, shown.Characters.Length, $"Mother Brain leg-loading page {page} shows its record's bytes");
+                $"Mother Brain leg-loading page {page} lands where the cartridge's record places it");
+            AssertEqual(nativeSize, shown.Characters.Length, $"Mother Brain leg-loading page {page} copies its record's bytes");
             byte[] nativePixels = RomDataReader.ReadFixedBank(rom, nativeSource, nativeSize);
-            AssertTrue(ObjVram().Bytes.Slice(nativeDestination * 2, nativeSize)
+            AssertTrue(ObjVram(page + 1).Bytes.Slice(nativeDestination * 2, nativeSize)
                 .SequenceEqual(nativePixels),
                 $"Mother Brain leg-loading page {page} characters match cartridge");
         }
         int terminator = MotherBrainLegLoadListConstants.NativeListAddress +
-            MotherBrainEnemyState.LegLoadPageCount *
+            MotherBrainReadyingDefinitions.StandingBodyDuration *
             MotherBrainLegLoadListConstants.RecordByteCount;
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), terminator),
             "Mother Brain leg-loading page eleven is followed by native zero terminator");
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => state.NextLegTilePage = MotherBrainEnemyState.LegLoadPageCount,
-            "Mother Brain's ascent has no page past the twelfth");
+            () => state.StandingBodyReadyingElapsed = MotherBrainReadyingDefinitions.StandingBodyDuration,
+            "Mother Brain's rise has no readying update past the twelfth");
         AssertThrows<InvalidDataException>(
             () => NativeSnapshotMotherBrainImport.DecodeLegTilePage(unchecked(
                 MotherBrainLegLoadListConstants.NativeListPointer + 1)),
             "a misaligned snapshot leg-loading pointer is rejected at the import");
     }
 
-    /// <summary>Shows both escape-timer digit pages and compares the characters they show with the cartridge's pages.</summary>
+    /// <summary>Copies both escape-timer digit pages her escape timer's look copies and compares the characters with the cartridge's pages.</summary>
     private static void VerifyMotherBrainEscapeTimerPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         EscapeTimerCharacters timer = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
-        {
-            TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, 
-        };
         var resolver = new EnemyTileTransfers(stock, timer: timer);
-        var shownSteps = new List<int>();
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, shownSteps, resolver), resolver);
+        IReadOnlyList<EncounterArtworkUpload> copies = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
+            EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainEscapeTimerLook), resolver);
+        SnesVram ObjVram(int copied) => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(copies.Take(copied)), resolver);
 
         EscapeTimerTilePage[] pages = Enum.GetValues<EscapeTimerTilePage>();
+        AssertEqual(pages.Length, copies.Count, "her escape timer's look copies both timer pages");
         for (int page = 0; page < pages.Length; page++)
         {
-            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, page));
-            shownSteps.Add(enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages)
-                ?? throw new InvalidOperationException($"Mother Brain timer page {page} reaches no step."));
             byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePagesConstants.SourceAddressOf(pages[page]), EscapeTimerTilePageTransfers.ByteCountOf(pages[page]));
-            AssertTrue(ObjVram().Bytes.Slice(EscapeNativePageWords.Of(EscapeTimerTilePageTransfers.FirstCharacterOf(pages[page])) * 2, native.Length)
+            AssertTrue(ObjVram(page + 1).Bytes.Slice(EscapeNativePageWords.Of(EscapeTimerTilePageTransfers.FirstCharacterOf(pages[page])) * 2, native.Length)
                 .SequenceEqual(native),
                 "installed Mother Brain timer page matches cartridge without visual ROM reads");
         }
@@ -215,27 +190,24 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         }
         return vram;
     }
-    /// <summary>Shows every page of <paramref name="sheet"/> through the installed artwork and the production encounter.</summary>
+    /// <summary>Copies every page of <paramref name="sheet"/> her first look that copies it copies, through the installed artwork (#1538).</summary>
     private static SnesVram ShowMotherBrainSpecialPages(
         InstalledEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
-            (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
-        MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, sheet.PageCount).Select(page => MotherBrainSpritePage.Of(sheet.Sheet, page))];
-        foreach (MotherBrainSpritePage page in pages)
-            enemies.MotherBrainEncounter.ShowSpritePage(page);
-        IReadOnlyList<int> steps = EncounterArtworkPlacements.MotherBrainSteps(pages);
-        AssertEqual<int?>(steps[^1], enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages),
-            $"the encounter reaches the last {sheet.Sheet} page's step");
-        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, resolver), resolver);
-    }
-
-    /// <summary>Runs the Mother Brain sprite page bounds check from the verification command.</summary>
-    [VerificationCommand("--mother-brain-transfer-sources")]
-    internal static int MotherBrainTransferSourcesCommand()
-    {
-        Suite(nameof(VerifyMotherBrainSpritePageBounds), () => VerifyMotherBrainSpritePageBounds());
-        return 0;
+        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
+        string look = sheet.Sheet switch
+        {
+            MotherBrainSpriteSheet.Legs => EncounterLookUploads.MotherBrainLegsLook,
+            MotherBrainSpriteSheet.BabyMetroid => EncounterLookUploads.MotherBrainBabyLook,
+            MotherBrainSpriteSheet.Attack => EncounterLookUploads.MotherBrainAttackLook,
+            MotherBrainSpriteSheet.ExplodedDoor => EncounterLookUploads.MotherBrainExplodedDoorLook,
+            MotherBrainSpriteSheet.Corpse or MotherBrainSpriteSheet.EscapeTimer or MotherBrainSpriteSheet.EscapeText =>
+                throw new InvalidOperationException($"{sheet.Sheet} is not one of her special sheets."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpriteSheet)} {sheet.Sheet}."),
+        };
+        int place = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look);
+        AssertEqual(sheet.PageCount, EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, place, resolver).Count,
+            $"her {look} look copies every page of {sheet.FileName}");
+        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [place], resolver), resolver);
     }
 }

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -17,14 +16,12 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool BodyWalkRequested,
     bool HeadAnimationScriptRequested,
     bool BodyPostureRequested,
-    MotherBrainSpritePage? SpritePage,
     bool BabySpawnRequested,
     bool FinalBeamSoundQueued,
     IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions,
     IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
     bool MusicStopQueued,
     bool EscapeMusicQueued,
-    IReadOnlyList<MotherBrainSpritePage> EscapeSequencePages,
     bool ExplodedDoorPaletteRequested,
     bool EscapeMusicTrackQueued,
     IReadOnlyList<PaletteFxObject> EscapePaletteFxRequests,

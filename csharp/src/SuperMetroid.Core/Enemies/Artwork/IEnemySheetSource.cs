@@ -14,13 +14,14 @@ public interface IEnemySheetSource
     SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner);
 
     /// <summary>
-    /// How frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set <paramref name="set"/>
-    /// follows the artwork sequences the set's encounters play (#1513); none for a frame no sequence changes.
+    /// The encounters whose looks change frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set
+    /// <paramref name="set"/> (#1538), in encounter order: the sheet holds the frame's finished picture of each look they
+    /// show while it is drawn. None for a frame no encounter's look changes, which has one picture.
     /// </summary>
-    IReadOnlyList<FrameArtworkVariation> Variations(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
+    IReadOnlyList<EncounterArtwork> ChangingEncounters(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
 
     /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
-    IReadOnlyList<FrameArtworkVariation> SpawnedVariations(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame);
+    IReadOnlyList<EncounterArtwork> SpawnedChangingEncounters(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame);
 
     /// <summary>
     /// Where a rotting corpse lies in picture <paramref name="picture"/> of a frame of <paramref name="enemy"/>'s sheet under
@@ -31,15 +32,4 @@ public interface IEnemySheetSource
 
     /// <summary>The same for picture <paramref name="picture"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
     CorpsePictureLayout? SpawnedCorpseLayout(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
-
-    /// <summary>
-    /// Whether <paramref name="picture"/>, a picture of a frame of <paramref name="enemy"/>'s sheet under graphics set
-    /// <paramref name="set"/>, shows nothing: every character the frame reads is blank in it, as the room's load, an
-    /// encounter's artwork sequence leaves them, so the sheet holds no such picture and the frame draws
-    /// nothing then (#1513).
-    /// </summary>
-    bool ShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);
-
-    /// <summary>The same for a picture of a frame of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
-    bool SpawnedShowsNothing(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
 }

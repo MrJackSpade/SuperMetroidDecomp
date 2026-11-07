@@ -659,7 +659,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
-            SpawnedObjectFixtures.ShowDrawnSteps(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame));
+            SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame));
             return enemies;
         }
 
@@ -714,7 +714,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it.
             EnemyProjectileFrameId shown = slot.Frame ?? throw new InvalidOperationException($"Key ${presentationKey:X4} shows a frame.");
             slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies, shown, SpawnedGraphics);
-            SpawnedObjectFixtures.ShowDrawnSteps(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
+            SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
             return enemies;
         }
 

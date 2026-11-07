@@ -67,10 +67,10 @@ public sealed class EnemySession
     internal BossAndIntroOverreadServices? BossOverreads { get; set; }
 
     /// <summary>
-    /// How far the room's encounters have played their artwork sequences (#1513), which their frames' pictures and the Ceres
+    /// The look each of the room's encounters shows (#1538), which the frames its looks change and the Ceres
     /// Ridley arena's backgrounds follow. Each room load starts it afresh.
     /// </summary>
-    internal EncounterArtworkProgress ArtworkProgress { get; } = new();
+    internal EncounterLooks Looks { get; } = new();
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null

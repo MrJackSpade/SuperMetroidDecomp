@@ -50,7 +50,7 @@ internal static class SpawnedObjectSheetContractChecks
         CSharpCompilation forged = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Enemies.Artwork;
             class SheetForger {
-                SpawnedObjectSheet Forge() => new SpawnedObjectSheet(null, null!);
+                SpawnedObjectSheet Forge() => new SpawnedObjectSheet(null, null!, null!);
             }
             """, path: "fixture-spawned-object-forger.cs"));
         AuditReport revoked = Inspect(forged, calls, adapted: true);

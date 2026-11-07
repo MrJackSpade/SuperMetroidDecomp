@@ -57,7 +57,7 @@ public sealed class BackgroundScrollState
         Position16<RoomPixels> retainedForegroundScroll,
         Position16<RoomPixels> stagedForeground)
     {
-        // State $0B preserves foreground's source-room mirrors (with the down-door one-pixel
+        // The door transition preserves foreground's source-room mirrors (with the down-door one-pixel
         // adjustment already supplied by the caller) and clears both background mirrors before
         // the four offsets are derived. Keeping the scroll writes here makes the
         // returned offset state and the block snapshot one indivisible action.

@@ -3,15 +3,15 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>A command of the old Tourian escape-shaft fake-wall explosion's program.</summary>
 internal enum OldTourianWallExplosionCue
 {
-    /// <summary>Stops the explosion's movement (<c>Instruction_EnemyProjectile_ClearFrameBehavior</c>).</summary>
+    /// <summary>Stops the explosion's movement.</summary>
     ClearFrameBehavior,
 
-    /// <summary>Scatters the explosion about the wall (<c>Instruction_EnemyProjectile_MoveRandomlyWithinXRadius_YRadius</c>).</summary>
+    /// <summary>Scatters the explosion about the wall.</summary>
     Scatter,
 
     /// <summary>Requests the small-explosion sound.</summary>
     ExplosionSound,
 
-    /// <summary>Deletes the explosion (<c>Instruction_EnemyProjectile_Delete</c>).</summary>
+    /// <summary>Deletes the explosion.</summary>
     Delete,
 }

@@ -6,62 +6,62 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 public enum RoomGraphicsSet
 {
-    /// <summary>Graphics-set selector $00.</summary>
+    /// <summary>The Upper Crateria graphics set.</summary>
     UpperCrateria,
-    /// <summary>Graphics-set selector $01.</summary>
+    /// <summary>The Red Crateria graphics set.</summary>
     RedCrateria,
-    /// <summary>Graphics-set selector $02.</summary>
+    /// <summary>The Lower Crateria graphics set.</summary>
     LowerCrateria,
-    /// <summary>Graphics-set selector $03.</summary>
+    /// <summary>The Old Tourian graphics set.</summary>
     OldTourian,
-    /// <summary>Graphics-set selector $04.</summary>
+    /// <summary>The Wrecked Ship Power On graphics set.</summary>
     WreckedShipPowerOn,
-    /// <summary>Graphics-set selector $05.</summary>
+    /// <summary>The Wrecked Ship Power Off graphics set.</summary>
     WreckedShipPowerOff,
-    /// <summary>Graphics-set selector $06.</summary>
+    /// <summary>The Green Blue Brinstar graphics set.</summary>
     GreenBlueBrinstar,
-    /// <summary>Graphics-set selector $07.</summary>
+    /// <summary>The Red Brinstar Kraid graphics set.</summary>
     RedBrinstarKraid,
-    /// <summary>Graphics-set selector $08.</summary>
+    /// <summary>The Statues Hall graphics set.</summary>
     StatuesHall,
-    /// <summary>Graphics-set selector $09.</summary>
+    /// <summary>The Heated Norfair graphics set.</summary>
     HeatedNorfair,
-    /// <summary>Graphics-set selector $0A.</summary>
+    /// <summary>The Unheated Norfair graphics set.</summary>
     UnheatedNorfair,
-    /// <summary>Graphics-set selector $0B.</summary>
+    /// <summary>The Sandless Maridia graphics set.</summary>
     SandlessMaridia,
-    /// <summary>Graphics-set selector $0C.</summary>
+    /// <summary>The Sandy Maridia graphics set.</summary>
     SandyMaridia,
-    /// <summary>Graphics-set selector $0D.</summary>
+    /// <summary>The Tourian graphics set.</summary>
     Tourian,
-    /// <summary>Graphics-set selector $0E.</summary>
+    /// <summary>The Mother Brain graphics set.</summary>
     MotherBrain,
-    /// <summary>Graphics-set selector $0F.</summary>
+    /// <summary>The Blue Ceres graphics set.</summary>
     BlueCeres,
-    /// <summary>Graphics-set selector $10.</summary>
+    /// <summary>The White Ceres graphics set.</summary>
     WhiteCeres,
-    /// <summary>Graphics-set selector $11.</summary>
+    /// <summary>The Blue Ceres Elevator graphics set.</summary>
     BlueCeresElevator,
-    /// <summary>Graphics-set selector $12.</summary>
+    /// <summary>The White Ceres Elevator graphics set.</summary>
     WhiteCeresElevator,
-    /// <summary>Graphics-set selector $13.</summary>
+    /// <summary>The Blue Ceres Ridley graphics set.</summary>
     BlueCeresRidley,
-    /// <summary>Graphics-set selector $14.</summary>
+    /// <summary>The White Ceres Ridley graphics set.</summary>
     WhiteCeresRidley,
-    /// <summary>Graphics-set selector $15.</summary>
+    /// <summary>The Map Statues graphics set.</summary>
     MapStatues,
-    /// <summary>Graphics-set selector $16.</summary>
+    /// <summary>The Wrecked Ship Map Power Off graphics set.</summary>
     WreckedShipMapPowerOff,
-    /// <summary>Graphics-set selector $17.</summary>
+    /// <summary>The Blue Refill graphics set.</summary>
     BlueRefill,
-    /// <summary>Graphics-set selector $18.</summary>
+    /// <summary>The Yellow Refill graphics set.</summary>
     YellowRefill,
-    /// <summary>Graphics-set selector $19.</summary>
+    /// <summary>The Save Station graphics set.</summary>
     SaveStation,
-    /// <summary>Graphics-set selector $1A.</summary>
+    /// <summary>The Kraid graphics set.</summary>
     Kraid,
-    /// <summary>Graphics-set selector $1B.</summary>
+    /// <summary>The Crocomire graphics set.</summary>
     Crocomire,
-    /// <summary>Graphics-set selector $1C.</summary>
+    /// <summary>The Draygon graphics set.</summary>
     Draygon,
 }

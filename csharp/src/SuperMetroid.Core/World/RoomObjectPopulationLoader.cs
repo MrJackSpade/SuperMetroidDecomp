@@ -44,8 +44,8 @@ internal sealed class RoomObjectPopulationLoader
     }
     /// <summary>
     /// Allocates one decoded room population exactly once, in increasing source-record
-    /// order. Each record is allocated before its setup routine runs, matching
-    /// <c>Spawn_Room_PLM</c>. A setup may immediately delete its slot;
+    /// order. Each record is allocated before its setup routine runs, as the original game's room-object spawn
+    /// does. A setup may immediately delete its slot;
     /// the next record can consequently reuse that same highest slot. Retail
     /// loads require decoded records; no population or header can be read from a bus.
     /// </summary>

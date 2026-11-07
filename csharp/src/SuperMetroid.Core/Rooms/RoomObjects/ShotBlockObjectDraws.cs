@@ -17,7 +17,7 @@ internal static class ShotBlockObjectDraws
         RoomObjectDraw.Of(new Draw(shape != Shape.Single ? shape : throw new ArgumentOutOfRangeException(nameof(shape)), 0, Restore: true));
 
     /// <summary>A shot-block draw: four breakup stages per shape, or parent/child restoration. Breakup uses consecutive
-    /// visual blocks $53-$55 then air; restoration uses the shape's base tile,
+    /// visual blocks 83 to 85 then air; restoration uses the shape's base tile,
     /// consecutive columns and a 32-index row stride, with collision links.</summary>
     [IndependentFlag("whether a shot-block draw is the restoring variant, a fact of the decoded draw list")]
     internal readonly record struct Draw(Shape Layout, int Frame, bool Restore)

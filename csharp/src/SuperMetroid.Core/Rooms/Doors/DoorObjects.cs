@@ -225,7 +225,7 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
     /// preserving its appearance; the opening program then animates all four cap blocks and ends on the ordinary
     /// air-door frame.
     /// A power bomb is the one rejected projectile family. Exhausting all forty PLM slots
-    /// silently loses the request, matching <c>Spawn_PLM_to_CurrentBlockIndex</c>.
+    /// silently loses the request, as the original game's block-spawned objects do.
     /// </remarks>
     public bool TrySpawnBlueDoorOpening(
         RoomLevelData level,

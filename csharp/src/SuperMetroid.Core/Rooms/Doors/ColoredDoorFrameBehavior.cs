@@ -5,10 +5,10 @@ internal enum ColoredDoorFrameBehavior
 {
     /// <summary>No pre-instruction.</summary>
     None = 1,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstructionIfHitWithPowerBomb</c> (yellow).</summary>
+    /// <summary>The yellow cap wakes when a Power Bomb hits it.</summary>
     WakeOnPowerBomb = 2,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstructionIfShotWithAMissile</c> (red; a Super Missile seeds the counter).</summary>
+    /// <summary>The red cap wakes when a missile hits it; a Super Missile seeds the counter.</summary>
     WakeOnMissile = 3,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstIfShotWithASuperMissile</c> (green).</summary>
+    /// <summary>The green cap wakes when a Super Missile hits it.</summary>
     WakeOnSuperMissile = 4,
 }

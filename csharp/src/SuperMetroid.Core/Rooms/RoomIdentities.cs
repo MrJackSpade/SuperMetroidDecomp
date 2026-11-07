@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms;
 public static class RoomIdentities
 {
 
-    /// <summary>Crateria's first Space Pirate shaft, room pair <c>$00/$1C</c>.</summary>
+    /// <summary>Crateria's first Space Pirate shaft, Crateria room 28.</summary>
     public static readonly RoomIdentity CrateriaSpacePirateShaft =
         new(AreaId.Crateria, 28);
 

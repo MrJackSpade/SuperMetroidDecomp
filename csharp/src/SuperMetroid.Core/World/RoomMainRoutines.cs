@@ -32,7 +32,7 @@ internal sealed class RoomMainRoutines
         _room = dependencies.Room;
         _system = dependencies.System;
     }
-    /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking.</summary>
+    /// <summary>The hidden-wall branch of Crocomire's room shaking.</summary>
     internal void RunCrocomireComebackRoomMain(RoomScope room)
     {
         if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
@@ -62,9 +62,9 @@ internal sealed class RoomMainRoutines
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; internal set; }
 
     /// <summary>
-    /// <c>AnimatedTilesObject_Handler</c>: gameplay and the door
-    /// transition's scroll and every fade step call it. XraySetup's
-    /// Disable_AnimatedTilesObjects freezes every object until the scope ends.
+    /// The animated tiles objects' step: gameplay and the door
+    /// transition's scroll and every fade step call it. The X-Ray Scope's setup
+    /// disables the animated tiles objects, freezing every object until the scope ends.
     /// </summary>
     internal void RunAnimatedTilesObjectHandler(RoomScope room)
     {
@@ -89,8 +89,7 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Implements the complete visibility test in <c>SamusDisplayHandler_UsingElevator</c>
-    /// at the elevator display handler. The retail handler returns on odd frames and calls the fatal/no-
+    /// Implements the complete visibility test of Samus's display while she rides an elevator. The retail handler returns on odd frames and calls the fatal/no-
     /// animation body renderer on even frames, producing the deliberate 30 Hz elevator
     /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
     /// from being mistaken for the original game-authored effect.
@@ -123,8 +122,8 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Sixteen debris columns, sixteen pixels apart from X $50 through $F0, then
-    /// thirty-two pixels apart through $190.
+    /// Sixteen debris columns, sixteen pixels apart from X 80 through 240, then
+    /// thirty-two pixels apart through 400.
     /// </summary>
     internal static int CeresFallingDebrisX(int column) => (uint)column < 16
         ? CoordinateAxis.Wrap(column <= 10 ? 80 + 16 * column : 240 + 32 * (column - 10))

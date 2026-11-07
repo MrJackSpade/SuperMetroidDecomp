@@ -65,7 +65,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
     /// <summary>
     /// The map station's side of gameplay resume. Map access-list deletion does
     /// not restore the normal Samus handlers; leaving the automatically opened map does,
-    /// through command $0C (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
+    /// through the map-unpause release command (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
@@ -86,7 +86,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
     /// <summary>
     /// Sets the room-entry lockout used when loading directly onto a save
     /// station. Ordinary destination-room construction clears it by creating a fresh PLM
-    /// owner; an SRAM load explicitly sets it after the station population is installed.
+    /// owner; loading a saved game explicitly sets it after the station population is installed.
     /// </summary>
     public void LockSaveStationForCurrentRoomEntry() => SaveStationLockedOut = true;
 
@@ -138,7 +138,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         {
             throw new InvalidOperationException(
                 $"Save station {activation.AreaIndex}:{activation.StationIndex} completed " +
-                $"message $18 while in {station.SavePhase}.");
+                $"save-completed message while in {station.SavePhase}.");
         }
 
         IRoomSamus samus = _samus?.Current
@@ -636,8 +636,8 @@ internal sealed class StationObjects : IRoomObjectFamilySource
 
             bool setupAccepted = setupGate == StationSetupGate.Bypassed || access switch
             {
-                // Right-side access is entered while moving left in pose $8A; left-side
-                // access is the mirror in pose $89. These are the stations' setup tests
+                // Right-side access is entered while moving left into the wall in the ran-into-wall-left pose;
+                // left-side access is the mirror in the ran-into-wall-right pose. These are the stations' setup tests
                 // before cannon-height alignment.
                 StationAccessBehavior.MapRight or
                     StationAccessBehavior.EnergyRight or
@@ -804,7 +804,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
                         station.AccessBlockIndex = -1;
                         station.AccessBehavior = null;
                         // Every access list only deletes itself here. Recharges released
-                        // input at activation; map pause teardown's command $0C owns its release.
+                        // input at activation; map pause teardown's release command owns its release.
                         break;
                     case StationOperationPhase.Idle:
                     case StationOperationPhase.AwaitingMapUnpause:
@@ -1017,7 +1017,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         Retracting,
         /// <summary>The short arm pose is holding before the access list ends.</summary>
         FinalRetractionHold,
-        /// <summary>The access actor has finished; command <c>$0C</c> still owns Samus release.</summary>
+        /// <summary>The access actor has finished; the map-unpause release command still owns Samus release.</summary>
         AwaitingMapUnpause,
     }
 }

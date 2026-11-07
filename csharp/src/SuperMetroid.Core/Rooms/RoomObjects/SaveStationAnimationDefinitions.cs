@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class SaveStationAnimationDefinitions
 {
     /// <summary>
-    /// Operand byte for
-    /// <c>Instruction_PLM_TimerEqualsY_8Bit</c>. The pinned NTSC uses 21
-    /// alternating electricity loops before displaying the saved-game message.
+    /// The number of alternating electricity loops the save animation plays: 21
+    /// loops before displaying the saved-game message.
     /// </summary>
     public const int SaveAnimationLoops = 21;
 }

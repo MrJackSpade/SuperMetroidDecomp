@@ -1080,7 +1080,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         return BuildFrameResult();
     }
 
-    /// <summary>Ports <c>Handle_Room_Shaking</c>: the earthquake's frame step, then the actor shake it selects.</summary>
+    /// <summary>Runs the room shaking: the earthquake's frame step, then the actor shake it selects.</summary>
     public RoomShakeFrameResult HandleRoomShaking(bool timeIsFrozen)
     {
         Room.EnsureLoaded();

@@ -9,27 +9,27 @@ internal static class SpeedBoosterBlockObjectDefinitions
     /// <summary>The behaviour of a Speed Booster block that stays broken.</summary>
     internal const int PermanentBts = 15;
 
-    /// <summary>Brinstar behaviour <c>$82</c>: respawning, slower crumble.</summary>
+    /// <summary>Brinstar's respawning Speed Booster block with the slower crumble.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition BrinstarSlowRespawning = new(
         RoomObjectHeaderId.SpeedBlockBrinstarSlowRespawning,
         SpeedBoosterBlockProgram.BrinstarSlowRespawning);
 
-    /// <summary>Brinstar behaviour <c>$83</c>: permanent, slower crumble.</summary>
+    /// <summary>Brinstar's permanent Speed Booster block with the slower crumble.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition BrinstarSlowPermanent = new(
         RoomObjectHeaderId.SpeedBlockBrinstarSlowPermanent,
         SpeedBoosterBlockProgram.BrinstarSlowPermanent);
 
-    /// <summary>Area-independent behaviour <c>$0E</c>: standard respawning block.</summary>
+    /// <summary>The area-independent standard respawning block.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition Respawning = new(
         RoomObjectHeaderId.SpeedBlockRespawning,
         SpeedBoosterBlockProgram.Respawning);
 
-    /// <summary>Brinstar behaviour <c>$84</c>: Dachora-room standard respawning block.</summary>
+    /// <summary>Brinstar's Dachora-room standard respawning block.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition DachoraRespawning = new(
         RoomObjectHeaderId.SpeedBlockDachoraRespawning,
         SpeedBoosterBlockProgram.DachoraRespawning);
 
-    /// <summary>Area-independent behaviour <c>$0F</c> and Brinstar behaviour <c>$85</c>: permanent block.</summary>
+    /// <summary>The permanent block, by the area-independent behaviour or Brinstar's own.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition Permanent = new(
         RoomObjectHeaderId.SpeedBlockPermanent,
         SpeedBoosterBlockProgram.Permanent);

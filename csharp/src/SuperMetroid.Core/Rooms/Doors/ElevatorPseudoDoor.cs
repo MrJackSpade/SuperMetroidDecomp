@@ -4,15 +4,15 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public enum ElevatorPseudoDoor
 {
     /// <summary>
-    /// The shared elevator pseudo-door, <c>Door_VariousRooms_Elevator</c>. Its zero destination is what marks
+    /// The elevator pseudo-door that the elevator rooms share. Its zero destination is what marks
     /// it as a pseudo-door; the remaining bytes overlap the first physical door record because collision never consumes them
     /// for this entry.
     /// </summary>
     Shared,
 
     /// <summary>
-    /// <c>Door_MaridiaElev_3_TourianFirst_2</c>. This second zero-destination elevator sentinel overlaps
-    /// Door_BowlingAlley_0; it is a list entry, not a terminator.
+    /// The elevator pseudo-door of the Maridia elevator room's door 3 and the first Tourian room's door 2. This second
+    /// zero-destination elevator sentinel overlaps the Bowling Alley room's door 0; it is a list entry, not a terminator.
     /// </summary>
     MaridiaTourian,
 }

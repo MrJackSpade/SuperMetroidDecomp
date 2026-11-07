@@ -54,6 +54,10 @@ internal static class RoomBlockPicturesVerification
     /// What each tileset's rooms show over their characters after loading, as the import pipeline replays it (#1466): the
     /// test's reference for which characters an animation paints and what the room's load leaves.
     /// </summary>
+    /// <summary>The installation's room block sheet inputs, which the boss rooms' characters are read from.</summary>
+    private static readonly Lazy<RoomBlockSheetInputs> BossRoomInputs =
+        new(() => RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.ContentDirectory));
+
     private static readonly Lazy<IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads>> TilesetUploads =
         new(() => RoomBlockUploads.ByTileset(RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.ContentDirectory)));
 
@@ -250,10 +254,22 @@ internal static class RoomBlockPicturesVerification
         runtime.StepFrame(0);
         BossBodySheet sheet = (runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("No boss body sheets are installed.")).Of(owner);
         BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
-        ReadOnlySpan<byte> vram = runtime.ComposedVram();
+        byte[] loaded = runtime.ComposedVram();
+        // A frame pictured under a room animation's frames (Crocomire's melt states, #1513) shows those frames' characters
+        // where they paint, as the body painter composes it, and the room's load elsewhere.
+        IReadOnlyList<AnimatedCharacterPlacement> animated = RoomBlockUploads.ShownUnderBoss(BossRoomInputs.Value, room,
+            RoomStateLists.GetStates(room).First(state => !state.EnemyPopulation.Records.IsEmpty)).Animated;
         int frames = 0;
         foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses.Sources, owner))
         {
+            byte[] vram = loaded;
+            if (frame.Selected.Count > 0)
+            {
+                vram = [.. loaded];
+                foreach (AnimatedCharacterPlacement placement in animated.Where(placement => placement.Set == BgCharacterSet.Tiles
+                    && frame.Selected.TryGetValue(placement.Frame.Animation, out ArtworkFrame selected) && selected == placement.Frame))
+                    placement.Bytes.Span.CopyTo(vram.AsSpan(placement.FirstCharacter * TileCharacterWords * sizeof(ushort)));
+            }
             BossBodyFrame shown = sheet.Frame(frame.Name);
             foreach ((int cell, BackgroundTile tile) in frame.Cells)
             {

@@ -53,12 +53,12 @@ internal sealed class SamusPoseTransitionPhase
         if (samus.KnockbackTimer == 0 && samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None)
             SamusPoseMetadata.RejectUnsupportedPublishedBombJump(samus, _freeze.TimeIsFrozen);
 
-        // Command $F8's command-three “super-special” transition wins at this seam.
-        // F8 publishes a turn-completion pose only if alpha did not select one
+        // The turn-transition animation instruction's command-three “super-special” transition wins at this seam.
+        // It publishes a turn-completion pose only if alpha did not select one
         // of its four jump exceptions. When published, it still wins here.
         // The hurt-expiry check samples hurt expiry before the pose update applies a queued
         // animation command. Preserve that decision even if Shinespark setup
-        // clears the live knockback direction while installing `$C7/$C8`.
+        // clears the live knockback direction while installing the shinespark windup poses.
         bool hitInterruptionExpiryPending =
             SamusKnockbackMovement.IsExpiredHitInterruptionPending(samus);
         bool animationTransitionApplied =
@@ -81,7 +81,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Crouching)
             samus.HorizontalSpeed.ApplyStoppedInputFallback(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // Windup still runs the ordinary type-$1B input lookup. Its unmatched
+        // Windup still runs the ordinary special-movement-type input lookup. Its unmatched
         // chord selects command two, just like crouching. Skipping
         // this loses the one-frame momentum cancellation before a delayed
         // midair launch. A selected launch or timeout must win instead.
@@ -365,9 +365,9 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // Morph landing has its own prospective-pose and collision tables. A hard
-        // impact retains `$31/$32` and launches bounce one; the next collision
+        // impact retains the falling morph ball poses and launches bounce one; the next collision
         // launches bounce two; only a gentle/second-bounce collision installs
-        // grounded `$1D/$41`. Treat every branch as a consumed transition so input
+        // the grounded morph ball poses. Treat every branch as a consumed transition so input
         // selected before collision cannot override the game's bounce result.
         // The collision table ignores ground-family type four, even if hurt
         // movement left that pose with nonzero Y speed. Do not infer an airborne
@@ -393,7 +393,7 @@ internal sealed class SamusPoseTransitionPhase
         // Spring Ball's three movement families share collision result three, but
         // the Spring Ball handler makes held Jump an immediate relaunch and stores the jump intent
         // during automatic rebounds. Keep it distinct from ordinary-ball state.
-        // Ground-family type $11 likewise has the table's no-transition entry.
+        // The grounded Spring Ball movement type likewise has the table's no-transition entry.
         if (!animationTransitionApplied &&
             _player.LastMorphBallMovement is { Landed: true } &&
             SamusPoseMetadata.IsAirborneSpringBallPose(frame.PoseAtFrameStart))
@@ -442,8 +442,8 @@ internal sealed class SamusPoseTransitionPhase
         // standing (including landing art), running, and stable crouching types,
         // data zero
         // selects airborne family zero and the falling check chooses falling art.
-        // Turn types `$0E/$17` contain `$04` (no pose change) in that literal table;
-        // they finish `$F8`, then the destination pose detects the missing floor.
+        // The ground and jumping turn types contain the no-pose-change entry in that literal table;
+        // they finish their turn transition, then the destination pose detects the missing floor.
         if (!animationTransitionApplied &&
             _player.LastGroundedSamusMovement is
                 { Vertical.IsUnobstructedDownwardMovement: true } &&
@@ -466,7 +466,7 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // Movement type four publishes ordinary airborne `$31/$32` when its
+        // Movement type four publishes the ordinary airborne morph ball poses when its
         // no-speed grounding probe finds no floor. The shared rolling animation is
         // preserved, while Y speed starts at zero/down exactly like the falling check.
         if (!animationTransitionApplied &&
@@ -490,7 +490,7 @@ internal sealed class SamusPoseTransitionPhase
     {
         SamusPoseId targetPose = unchecked(inputTransition.ProspectivePose);
 
-        // Reinitializing frame zero would prevent $F8 from ever being reached.
+        // Reinitializing frame zero would prevent the turn transition from ever being reached.
         if (targetPose == frame.PoseAtFrameStart)
             return;
         if (!TryApplySpecialBodyTransition(frame, samus, targetPose, roomObjects) && !TryApplyAimRunOrTurnTransition(frame, samus, targetPose))
@@ -534,10 +534,10 @@ internal sealed class SamusPoseTransitionPhase
             case var (source, target)
                 when SamusPoseMetadata.IsMoonwalkingPose(source) &&
                      SamusPoseMetadata.IsMoonwalkTurnJumpPose(target):
-                // The stable `$49/$4A/$75-$78` table publishes a generic
+                // The stable moonwalk poses' table publishes a generic
                 // reversal target. The reversal check validates it against the old
-                // shot direction, folds momentum, and leaves `$BF-$C4`
-                // grounded until either its input table or `$F8` starts jump.
+                // shot direction, folds momentum, and leaves the moonwalk turn-jump poses
+                // grounded until either its input table or the turn transition starts the jump.
                 SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(samus, targetPose);
                 return true;
             case var (source, target)
@@ -578,9 +578,9 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.TurningRightToLeftFallingPose) ||
                       (SamusPoseMetadata.IsLeftFacingFallingPose(source) &&
                        target == SamusPoseId.TurningLeftToRightFallingPose)):
-                // `$2F/$30/$87/$88` are generic table outputs. The helper
+                // The generic jumping and falling turns are table outputs. The helper
                 // reads the source shot-direction record, chooses the exact
-                // `$8F-$A1` art when needed, folds momentum, and runs compact
+                // aimed aerial turn art when needed, folds momentum, and runs compact
                 // pose-expansion collision before committing the turn.
                 SamusAerialPoseTransitions.TryApplyAerialTurn(samus, 
 
@@ -709,7 +709,7 @@ internal sealed class SamusPoseTransitionPhase
                      forwardTarget is
                          SamusPoseId.TurningRightToLeftPose or
                          SamusPoseId.TurningLeftToRightPose:
-                // Ceres releases controls while `$00` is still active.
+                // Ceres releases controls while the forward-facing pose is still active.
                 // Its own transition table maps Left/Right to generic
                 // turning poses; the reversal check recognizes the old front-facing pose and
                 // preserves that target without inventing a source facing.
@@ -768,11 +768,11 @@ internal sealed class SamusPoseTransitionPhase
                           SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
                           SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose) ||
                      SamusPoseMetadata.IsLandingToNormalJumpTransition(source, target):
-                // All `$A4-$A7/$E0-$E7` landing records expose the same
+                // All the landing records expose the same
                 // standing input table while their brief streams are active.
                 // A fresh Jump edge can therefore preserve any authored
-                // normal-jump aim target, even from horizontal-fire `$E6/$E7`
-                // before `$F8` fallback.
+                // normal-jump aim target, even from the firing landings
+                // before the turn-transition fallback.
             case (SamusPoseId.MovingRightNormalPose,
                   SamusPoseId.SpinJumpRightPose):
             case (SamusPoseId.MovingRightGunExtendedPose,
@@ -793,7 +793,7 @@ internal sealed class SamusPoseTransitionPhase
                 when SamusPoseMetadata.IsStandingGroundTurnToJumpTransition(
                     turnSourcePose,
                     turnTargetPose):
-                // Every standing `$0E` turn—including the aimed `$8B-$8E`
+                // Every standing turn on the ground—including the aimed turns
                 // and moonwalk records—continues consulting the standing transition table.
                 // That table can interrupt the art with either same-facing
                 // spin or neutral jump. Preserve newly pressed Shoot as well:
@@ -808,7 +808,7 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.NeutralJumpTransitionRightPose) ||
                       (SamusPoseMetadata.IsLeftFacingCrouchingPose(source) &&
                        target == SamusPoseId.NeutralJumpTransitionLeftPose)):
-                // The crouched aim records use the ordinary `$4B/$4C` transition
+                // The crouched aim records use the ordinary neutral-jump transition
                 // art for every crouched aim direction. The helper preserves
                 // the crouching-turn poses' literal ten-pixel adjustment.
                 SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(samus, 
@@ -824,10 +824,10 @@ internal sealed class SamusPoseTransitionPhase
                       SamusPoseMetadata.IsWallJumpPose(source)) &&
                      (SamusPoseMetadata.IsRightFacingNormalJumpPose(target) ||
                       SamusPoseMetadata.IsLeftFacingNormalJumpPose(target)):
-                // Aim and Fire cancel both compact spin and `$83/$84` wall-
+                // Aim and Fire cancel both compact spin and wall-
                 // jump bodies through the same normal-jump initializer without
                 // restarting the jump arc. The wall-jump Shot record, for example, maps Shot
-                // directly from `$83` to `$13`. The shared helper performs
+                // directly from the right wall jump to the right gun-extended normal jump. The shared helper performs
                 // changed-pose collision for every radius expansion; a rejected
                 // body leaves the compact source pose installed.
                 SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(samus, 
@@ -847,7 +847,7 @@ internal sealed class SamusPoseTransitionPhase
                 // Route an animation/collision-selected falling body through
                 // ordinary expansion collision while preserving the fall.
                 // Posture transitions do not poll controller pose tables:
-                // the type-$0F input handler returns before lookup.
+                // the posture-transition movement type's input handler returns before lookup.
                 SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(samus, 
 
                     _room.LevelData ?? throw new InvalidOperationException(
@@ -861,8 +861,8 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.FacingRightNormalPose) ||
                       (SamusPoseMetadata.IsLeftFacingCrouchingPose(source) &&
                        target == SamusPoseId.FacingLeftNormalPose)):
-                // These direct `$01/$02` records bypass the animated
-                // `$F7-$FC` stand-up family, but still run pose-expansion
+                // These direct facing-normal records bypass the animated
+                // aimed standing-transition family, but still run pose-expansion
                 // collision before installing the final standing body.
                 SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, 
 
@@ -917,7 +917,7 @@ internal sealed class SamusPoseTransitionPhase
                     targetPose);
                 break;
             default:
-                // MOVEMENT_COVERAGE exhaustively audits every active retail
+                // The movement-coverage check exhaustively audits every active retail
                 // transition pair entering this dispatcher. An authored match not
                 // owned by one of the explicit families above means the pose
                 // table or state was mixed from an incompatible revision.
@@ -948,7 +948,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } boostFallback &&
                  boostFallback != frame.PoseAtFrameStart)
         {
-            // Releasing every boost chord reaches definition byte two, `$4D/$4E`:
+            // Releasing every boost chord reaches definition byte two, the neutral jump poses:
             // the same initializer as the table's held-Jump exit.
             SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                 samus,
@@ -959,7 +959,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } draygonFallback)
         {
             // Zero input uses pose-definition byte two, returning aimed/firing/
-            // struggling art to neutral `$BA/$EC` without touching owner placement.
+            // struggling art to the neutral Draygon-grabbed poses without touching owner placement.
             SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
                 unchecked(draygonFallback));
         }
@@ -968,7 +968,7 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
         {
             // Definition byte two leaves the launch animation for ordinary spin
-            // art. Type $14 selects command six. HandleSamusPoseChange
+            // art. The wall-jumping movement type selects command six. HandleSamusPoseChange
             //  sets carry only when InitializeSamusPose itself replaces the
             // installed pose; then UpdateSamusPose skips the command. So
             // a spin jump keeps its launch speed only when initialization promotes it
@@ -988,7 +988,7 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.SpringBallFallingRightPose or SamusPoseId.SpringBallFallingLeftPose &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
-            // Spring Ball in air/falling (types $12/$13) select command six in
+            // Spring Ball in air/falling (their own movement types) select command six in
             // the pose command table. After this frame's movement, command six clears mode and base
             // speed and falls through to its boost/extra-speed cancel.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -1068,8 +1068,8 @@ internal sealed class SamusPoseTransitionPhase
         else if (SamusPoseMetadata.IsAimedRanIntoWallPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose is { } wallFallback)
         {
-            // `$CF-$D2` store `$89/$8A` in pose-definition byte two. The stable
-            // target shares radius, animation list, and type-$15 cleanup physics.
+            // The aimed ran-into-wall poses store the plain ran-into-wall poses in pose-definition byte two. The stable
+            // target shares radius, animation list, and ran-into-wall cleanup physics.
             SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, 
                 unchecked(wallFallback));
         }
@@ -1102,9 +1102,9 @@ internal sealed class SamusPoseTransitionPhase
                  (SamusPoseMetadata.IsAerialTurnPose(frame.PoseAtFrameStart) ||
                   frame.MovementTypeAtFrameStart == SamusMovementType.TurningOnGround))
         {
-            // A $FF definition fallback retains the animation, not the momentum
+            // A definition without a fallback pose retains the animation, not the momentum
             // command. Command two still cancels reverse acceleration,
-            // for ground turns ($0E) exactly as for aerial ones ($17/$18).
+            // for ground turns exactly as for aerial ones.
             SamusGroundedPoseTransitions.ApplyTurnInputFallback(samus, frame.MovementTypeAtFrameStart);
         }
         else if (frame.MovementTypeAtFrameStart == SamusMovementType.NormalJumping &&

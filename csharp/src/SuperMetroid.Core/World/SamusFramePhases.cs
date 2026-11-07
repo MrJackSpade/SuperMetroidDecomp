@@ -59,7 +59,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs <c>Update_Beam_Tiles_and_Palette</c> for the live beam word supplied by pause teardown.
+    /// Updates the beam artwork for the live beams supplied by pause teardown.
     /// Unpausing performs this restore while the screen is dark, so the first resumed gameplay frame uses the newly
     /// equipped combination.
     /// </summary>
@@ -67,9 +67,9 @@ internal sealed class SamusFramePhases
         _artwork.UpdateBeamTilesAndPalette(_player.Colours, equippedBeams);
 
     /// <summary>
-    /// <c>GrappleBeamHandler</c>, reached from the HUD-selection dispatch of
-    /// <c>HandleHUDSpecificBehaviorAndProjectiles</c> in Samus's alpha pass.
-    /// It therefore runs before Samus's projectiles and before <c>Main_Enemy_Routine</c>,
+    /// The grapple beam's step, reached from the HUD-selection dispatch of
+    /// Samus's HUD-specific behaviour and projectiles in her alpha pass.
+    /// It therefore runs before Samus's projectiles and before the enemies' main step,
     /// so enemies see the beam endpoint and Samus position it leaves this frame. Only
     /// connected and release functions own Samus's movement; an extending or cancelling
     /// beam coexists with the current pose's ordinary movement.
@@ -82,7 +82,7 @@ internal sealed class SamusFramePhases
         bool grappleOwnsMovement = false;
         if (beta is SamusBetaHandler.Fatal or SamusBetaHandler.SuitPickup)
         {
-            // Game states `$15-$18` do not call the ordinary Samus alpha/beta
+            // The death sequence's game states do not call the ordinary Samus alpha/beta
             // handlers. The death state advances later at the animation seam.
         }
         else if (_player.Samus.Grapple.Phase == GrapplePhase.Firing)
@@ -179,7 +179,7 @@ internal sealed class SamusFramePhases
 
     /// <summary>
     /// Runs Samus's movement-type table for a pose stored without
-    /// <c>InitializeSamusPose_1</c>: the cached movement type, not the pose, selects the mover.
+    /// initializing it: the cached movement type, not the pose, selects the mover.
     /// </summary>
     private void StepUninitializedPoseMovement(ISamusRoomObjects roomObjects)
     {
@@ -314,7 +314,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // In particular its draw-only zero input must not release a held charge.
         // X-ray's freeze leaves the normal state handler installed, so the normal handler
         // still runs cooldown, HUD switching and the HUD handler; only its
-        // Handle_Projectiles tail stops, which both projectile owners
+        // projectile-handling tail stops, which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
         frame.SampleAlphaRuns(!_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !room.Enemies.Elevator.ElevatorDoorTransitionActive);
         if (frame.AlphaRuns)
@@ -394,7 +394,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             samus.ProjectileFlareCounter = room.Projectiles.Charge.FlareCounter;
         }
 
-        // Samus_Func10 snapshots movement at the end of alpha,
+        // Samus's end-of-alpha step snapshots movement,
         // before beta applies animation/input transitions. Admission reads the
         // preceding snapshot; a newly queued X-ray pose is not installed yet.
         _player.PreviousMovementTypeForXray = frame.XrayActivatedThisFrame
@@ -516,8 +516,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
         else if (frame.GrappleOwnsMovement)
         {
-            // Movement type $16's beta handler is empty. Discard input transitions
-            // sampled from the pre-grapple pose once connection installs $B2/$B3.
+            // The grappling movement type's beta handler is empty. Discard input transitions
+            // sampled from the pre-grapple pose once connection installs the grapple swing poses.
             if (!frame.GrappleReleaseAcceptsPoseInput)
             {
                 _player.ProspectiveSamusPose = null;
@@ -525,7 +525,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             }
         }
         // The real grabbed route uses the explicit empty handler installed at the grab,
-        // not the otherwise reachable type-$1A normal dispatcher. Keep
+        // not the otherwise reachable Draygon-held movement type's normal dispatcher. Keep
         // the latter in the pose switch below for direct/diagnostic dispatcher use.
         else if (samus.DraygonGrabbed.OwnsMovement)
         {
@@ -533,7 +533,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
         // Special prospective-pose command five installs the X-ray movement handler instead of the
         // normal movement-type dispatcher. Stable X-ray bodies select one of five
-        // angle frames; type-`$0E` turning deliberately performs no beta movement.
+        // angle frames; turning on the ground deliberately performs no beta movement.
         else if (samus.Xray.OwnsSamusControl)
         {
             _player.ProspectiveSamusPose = null;
@@ -541,13 +541,13 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             samus.Xray.StepMovement(samus);
         }
         // Ceres Ridley's grab installs a separate movement/gamma-handler pair for Ceres
-        // Ridley's retreat. It must precede ordinary damage knockback because pose
-        // `$53/$54` is shared while ownership, duration, and termination are not.
+        // Ridley's retreat. It must precede ordinary damage knockback because the knockback
+        // poses are shared while ownership, duration, and termination are not.
         else if (samus.CeresRidleyEjection.IsActive)
         {
             // The hurt setup installs the hurt pose and clears every prospective pose and
             // command. Afterwards the damage-boost check suppresses only a
-            // damage-boost result `$4F/$50` selected from pose `$53/$54`; it does not
+            // damage-boost result selected from a knockback pose; it does not
             // replace the complete input handler. A lookup failure there keeps the
             // knockback pose and its Stop command, which clears the X acceleration
             // mode when the pose is committed.
@@ -574,7 +574,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
         // Knockback's handler takes precedence over the normal movement-
         // type dispatcher. Unlike bomb jump, normal pose input remains active so
-        // `$53/$54` can still select the retail damage-boost escape chord.
+        // the knockback poses can still select the retail damage-boost escape chord.
         else if (samus.KnockbackActive)
         {
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
@@ -634,16 +634,16 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 room.BombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
             }
         }
-        // Drained controller functions install movement-type-$1B poses whose normal
-        // beta dispatcher is empty. Only animation command $F7 replaces the handler
+        // Drained controller functions install special-movement-type poses whose normal
+        // beta dispatcher is empty. Only the drained-fall animation instruction replaces the handler
         // with the drained-falling mover; the other phases stay motionless while enemy AI controls
         // pose/timing. This branch is reached only when no independently retained
         // Crystal Flash pointer still owns the physical movement-handler word.
         // Controller zero changes only the pose, so a crashing spark keeps
-        // its handler and finishes below; `$F7` relinquishes the spark itself.
+        // its handler and finishes below; the drained-fall instruction relinquishes the spark itself.
         // The rainbow-beam lock is the beta lock itself: once command one restores
         // the normal beta during enemy AI, this same frame's beta dispatches the knockback
-        // pose's type-$0A mover below, as the movement table does.
+        // pose's knockback mover below, as the movement table does.
         // The controller-held standing/crouching phases last only while Samus keeps a
         // drained body: a pose the movement installs (a wall jump out of a drained
         // spin) returns her to the ordinary movement and input dispatch.
@@ -666,7 +666,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             else if (samus.InitializedPose != samus.Pose)
             {
                 // The drained-pose controllers store a drained pose without
-                // InitializeSamusPose_1, and the movement table keeps dispatching the cached
+                // initializing it, and the movement table keeps dispatching the cached
                 // movement type. An airborne Samus therefore keeps her jump
                 // physics in the drained pose until a real initializer runs.
                 StepUninitializedPoseMovement(room.RoomObjects);
@@ -674,27 +674,27 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
         // The shinespark replaces the normal movement handler. Windup, active
         // launch, and crash therefore own beta movement regardless of the pose's
-        // table index; ordinary type-$1B physics does not exist to fall back to.
+        // table index; ordinary special-movement-type physics does not exist to fall back to.
         else if (samus.Shinespark.OwnsMovementHandler)
         {
-            // Determine_Samus_YAcceleration supplies the environment-selected pair
-            // used as spark acceleration. Projectile_Func7 does not replace it.
+            // Samus's environment-selected vertical acceleration pair is used
+            // as spark acceleration. The projectile step does not replace it.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, ProjectileCounter = room.Projectiles.SlotTable.ProjectileCounter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
             if (_player.LastShinesparkMovement.Value.WindupTimedOut)
             {
                 // The movement handler publishes an interrupted vertical pose. That
-                // priority beats an ordinary input record sampled from `$C7/$C8`
+                // priority beats an ordinary input record sampled from the shinespark windup poses
                 // earlier in alpha during the timeout frame.
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }
         }
-        // SamusCode_00 installs an alpha handler which advances existing
+        // Samus's lock command installs an alpha handler which advances existing
         // room.Projectiles but a beta handler which performs no movement at all. All
         // translated special movement owners above take priority; an otherwise
         // locked standing body must not run generic ground collision or drift while
-        // state $20 waits at the Ceres elevator.
+        // the game waits at the Ceres elevator.
         else if (samus.Control.AlphaLocked &&
             !(SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
               room.Enemies.Elevator.ElevatorRunsSamusMovement))
@@ -713,10 +713,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         {
             // No positional movement.
         }
-        // Type `$1B` also has a normal movement-table entry.
+        // The special movement type also has a normal movement-table entry.
         // It only clears the momentum-transition selector. This path is reachable
         // when hurt-expiry command one replaces a freshly installed Shinespark
-        // handler while retaining its `$C7/$C8` body and palette (Shinespark Suit).
+        // handler while retaining its shinespark windup body and palette (Shinespark Suit).
         else if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Special)
         {
             // No positional movement.
@@ -1032,7 +1032,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
     }
 
-    /// <summary>Runs forward-facing <c>$00/$9B</c> movement, including the elevator's one-pixel downward block scan.</summary>
+    /// <summary>Runs the forward-facing poses' movement, including the elevator's one-pixel downward block scan.</summary>
     private void StepForwardFacingMovement(SamusState samus, ISamusRoomObjects roomObjects, RoomScope room)
     {
         if (_room.LevelData is null)
@@ -1064,8 +1064,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The movement table dispatches strictly through the pose definition's
         // movement-type byte. Y direction is data consumed by the selected
         // handler, never a replacement dispatcher. In particular, crouched
-        // turn `$44` can retain downward direction while its type remains
-        // `$0E`; treating it as type `$17` sent it into the aerial turn's handler
+        // left-to-right turn can retain downward direction while its type remains
+        // turning on the ground; treating it as turning while jumping sent it into the aerial turn's handler
         // and produced the live replay crash from issue 58.
         SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementKind(samus);
         if (turnMovementType == SamusMovementType.TurningOnGround ||
@@ -1098,13 +1098,13 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
     }
 
-    /// <summary>Runs knockback's normal type-$0A entry: the one-frame grounding tail before the knockback ending's target.</summary>
+    /// <summary>Runs the knockback movement type's normal entry: the one-frame grounding tail before the knockback ending's target.</summary>
     private void StepKnockbackEndingMovement(SamusState samus, ISamusRoomObjects roomObjects)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
-        // Knockback's normal type-$0A movement-table entry is this one. Active
+        // The knockback movement type's normal movement-table entry is this one. Active
         // knockback and Ceres ejection were intercepted above; this branch
         // is their authentic one-frame normal-dispatch tail before 
         // installs the input/no-input target chosen during alpha.
@@ -1117,7 +1117,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             _clock.Counter,
             roomObjects);
         _player.LastGroundedSamusMovement = new GroundedMovementResult(default, grounding);
-        // Normal type-$0A still publishes collision result one when its
+        // The normal knockback entry still publishes collision result one when its
         // downward probe hits the floor. Reuse the ordinary landing seam
         // for presentation, pose selection and command-five speed cleanup.
         if (grounding.Collided && groundingDisplacement >= 0)
@@ -1149,14 +1149,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         frame.SampleCameraPoint(camera.PreviousSamusPoint ?? cameraPointAtFrameStart ??
             throw new InvalidOperationException("A gameplay frame with Samus samples her camera point at its start."));
 
-        // Retain the dispatch pose because command $F8 can replace Samus.Pose during
+        // Retain the dispatch pose because the turn-transition animation instruction can replace Samus.Pose during
         // animation later in this same frame. Alpha/beta/transition phases all
         // agree on that order; using the mutable value afterward would apply an input
         // match selected for the old pose to the newly installed one.
         _attractDemo.BeginAttractSamusInput();
         frame.SampleFrameStartPose(samus.Pose);
         // Beta dispatches on the pose installed when it runs, which EnemyMain can have
-        // replaced since alpha: Draygon's death releases a sparking Samus to pose $01,
+        // replaced since alpha: Draygon's death releases a sparking Samus to facing right normally,
         // and standing movement runs. The pose update then reads that pose's type.
         // Ordinary alpha publishes the current pose's live radius before input
         // and collision. Prospective transitions later in beta can retain the
@@ -1168,9 +1168,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             SamusPoseMetadata.RefreshCollisionRadii(samus);
         // Samus beta precedes PLMs. A lock/unlock issued by a PLM
         // affects the next beta, not the animation already owned this frame.
-        // Suit command $15 installs an empty beta, not just locked pose input:
-        // the suspended movement pointer and all of its timers survive, so command
-        // $0B can resume it after the suit's light-beam transformation (including Blue Suit).
+        // The suit pickup lock installs an empty beta, not just locked pose input:
+        // the suspended movement and all of its timers survive, so the unlock
+        // command can resume it after the suit's light-beam transformation (including Blue Suit).
         // The empty beta also skips periodic damage and the energy checks.
         frame.SampleMovementType(SamusPoseMetadata.ReadMovementType(samus));
 
@@ -1195,7 +1195,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _controller1.Current);
         }
 
-        // The type-$0F input dispatcher is empty. Transition
+        // The posture-transition movement type's input dispatcher is empty. Transition
         // poses can still have table entries, but reading them here prematurely
         // interrupts crouch/morph animations before their animation command wins.
         frame.SamplePoseInputLocks(samus,
@@ -1239,7 +1239,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// </summary>
     private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, ISamusRoomObjects roomObjects, RoomScope room)
     {
-        // Samus_MovementHandler_Normal calls the speed-echo update after the selected movement
+        // Samus's normal movement handler calls the speed-echo update after the selected movement
         // function and before animation/pose transitions. Every fourth gameplay frame
         // at boost stage four, it alternates between two exact world-position snapshots.
         // Keeping this producer here means the draw handler below consumes post-motion
@@ -1273,7 +1273,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
 
         // The timer/hack handler runs after movement and before animation.
-        // Commands five/$18 install the Mother Brain-specific Up-edge branches; the
+        // Two of Samus's commands install the Mother Brain-specific Up-edge branches; the
         // method is a cheap no-op for every ordinary gameplay state.
         if (frame.Mode.Beta != SamusBetaHandler.SuitPickup)
             samus.Drained.StepGetUpHandler(samus, _controller1.NewlyPressed);
@@ -1283,7 +1283,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // The movement handler calls this installed hack handler after movement and before
             // animation. A locked grapple cancels the prospective pose chosen in alpha;
             // an escape release additionally clears every pending route while installing
-            // ordinary `$01/$02` and zeroing the documented velocity words.
+            // the ordinary facing-normal poses and zeroing the documented velocities.
             _player.LastDraygonEscape = samus.DraygonGrabbed.StepEscapeHandler(
                 samus,
                 _controller1.NewlyPressed,
@@ -1322,8 +1322,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // Normal beta ends with HandlePeriodicDamageToSamus, PauseCheck and
             // LowEnergyCheck, before the enemy-projectile and PLM handlers. Damage those
             // handlers accumulate this frame therefore lands next frame.
-            // Demo beta omits these calls, and so does suit command $15's empty beta
-            // (RTL_90E8CD): damage pending during the transformation stays accumulated
+            // Demo beta omits these calls, and so does the suit pickup lock's empty beta:
+            // damage pending during the transformation stays accumulated
             // until the first ordinary beta after it, which divides it by the new suit.
             // X-ray freezes time and therefore clears
             // rather than applies accumulated damage; fatal zero-energy game-state
@@ -1331,8 +1331,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             samus.LiquidPhysics.ApplyPeriodicDamage(
                 samus,
                 timeIsFrozen: _freeze.TimeIsFrozen);
-            // Locked/elevator/appearance handlers omit LowEnergyCheck; gunship command
-            // $1A installs a dedicated checker. Automatic reserves invoke their external
+            // Locked/elevator/appearance handlers omit LowEnergyCheck; the gunship command
+            // installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
             if (frame.Mode.Beta is SamusBetaHandler.Normal or SamusBetaHandler.Gunship && !samus.Xray.OwnsSamusControl)
                 audio.CheckLowHealth?.Invoke();

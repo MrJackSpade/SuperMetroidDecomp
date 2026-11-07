@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 
@@ -21,9 +20,4 @@ internal sealed record RuntimeArtworkDependencies
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
-
-
-    /// <summary>The session that holds every room's installed FX catalogs.</summary>
-    public required RoomFxSession RoomFx { get; init; }
-
 }

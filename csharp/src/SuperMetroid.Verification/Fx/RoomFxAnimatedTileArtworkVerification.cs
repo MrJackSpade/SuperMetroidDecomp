@@ -28,7 +28,6 @@ internal static class RoomFxAnimatedTileArtworkVerification
                  RoomFxAnimatedTileLoops.All)
         {
             var state = new RoomFxAnimatedTilesState();
-            var frames = new ArtworkFrameSelections();
             state.LoadDefinition(definition.AnimatedObject);
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
@@ -41,13 +40,16 @@ internal static class RoomFxAnimatedTileArtworkVerification
                     installed.Span.SequenceEqual(native),
                     $"room-FX frame $87:{frame.InstructionPointer:X4} preserves every native art byte");
                 int ticksUntilFrame = frameIndex == 0 ? 1 : definition.Frames[frameIndex - 1].Duration;
-                for (int tick = 0; tick < ticksUntilFrame; tick++)
-                    state.Step(frames);
-                AssertEqual(source, AnimatedTileImageSources.Of(state.LastImage),
-                    $"room-FX frame $87:{frame.InstructionPointer:X4} selects its compiled art source");
+                // The frame's pass selects into fresh selections, so the selection read back is the one that pass made.
+                for (int tick = 1; tick < ticksUntilFrame; tick++)
+                    state.Step(new ArtworkFrameSelections());
+                var frames = new ArtworkFrameSelections();
+                state.Step(frames);
                 AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
                         shown == AnimatedTileFrames.Frame(definition.AnimatedObject, frameIndex),
                     $"room-FX frame $87:{frame.InstructionPointer:X4} is the frame its animation shows from this update");
+                AssertEqual(source, AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
+                    $"room-FX frame $87:{frame.InstructionPointer:X4} selects its compiled art source");
                 frameCount++;
             }
         }
@@ -56,11 +58,11 @@ internal static class RoomFxAnimatedTileArtworkVerification
                  Enum.GetValues<WreckedShipTreadmillDirection>())
         {
             var treadmill = new WreckedShipTreadmillAnimatedTilesState();
-            var treadmillFrames = new ArtworkFrameSelections();
+            var waitFrames = new ArtworkFrameSelections();
             treadmill.Start(direction);
-            treadmill.Step(areaBossDefeated: false, treadmillFrames);
+            treadmill.Step(areaBossDefeated: false, waitFrames);
             AnimatedTileObject treadmillObject = WreckedShipTreadmills.ForDirection(direction).AnimatedObject;
-            AssertTrue(!treadmillFrames.TryShown(AnimatedTileFrames.Of(treadmillObject), out _),
+            AssertTrue(!waitFrames.TryShown(AnimatedTileFrames.Of(treadmillObject), out _),
                 $"{direction} waits for Phantoon's area-boss bit before presenting art");
             for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount;
                  frame++)
@@ -74,12 +76,14 @@ internal static class RoomFxAnimatedTileArtworkVerification
                         out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
                     $"{direction} treadmill frame {frame} preserves every cartridge pixel byte");
+                // Each pass selects into fresh selections, so the selection read back is the one this pass made.
+                var treadmillFrames = new ArtworkFrameSelections();
                 treadmill.Step(areaBossDefeated: true, treadmillFrames);
-                AssertEqual(source, AnimatedTileImageSources.Of(treadmill.LastImage),
-                    $"{direction} frame {frame} selects the compiled artwork identity");
                 AssertTrue(treadmillFrames.TryShown(AnimatedTileFrames.Of(treadmillObject), out ArtworkFrame shown) &&
                         shown == AnimatedTileFrames.Frame(treadmillObject, frame),
                     $"{direction} frame {frame} is the frame the treadmill shows from this update");
+                AssertEqual(source, AnimatedTileImageSources.OfShown(treadmillFrames, treadmillObject),
+                    $"{direction} frame {frame} selects the compiled artwork identity");
             }
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed animations never read bank-$87 ROM data");

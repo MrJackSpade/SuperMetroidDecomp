@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -37,7 +38,19 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         CeresRidleyColors = Ensure.NotNull(sources.CeresRidleyColors);
         CeresRidleyFloorColors = Ensure.NotNull(sources.CeresRidleyFloorColors);
         EscapeTimerTiles = Ensure.NotNull(sources.EscapeTimerTiles);
+        RoomFxAnimatedTiles = Ensure.NotNull(sources.RoomFxAnimatedTiles);
     }
+
+    /// <summary>
+    /// The animated tiles' installed characters, which only the import reads to compose room sheets and the Tourian
+    /// statues' pictures (#1527).
+    /// </summary>
+    public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
+
+    /// <summary>The animated tiles' characters the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static RoomFxAnimatedTileAtlas RoomFxAnimatedTilesOf(IGameplayPresentationContent maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.RoomFxAnimatedTiles
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no animated tiles.");
 
     /// <summary>The escape timer's characters, which only the import reads to compose the escape encounters' sheets (#1513).</summary>
     public EscapeTimerCharacters EscapeTimerTiles { get; }

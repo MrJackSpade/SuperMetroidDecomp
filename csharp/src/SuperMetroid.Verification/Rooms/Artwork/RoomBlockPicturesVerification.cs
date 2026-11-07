@@ -3,6 +3,8 @@ using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.World;
@@ -307,8 +309,8 @@ internal static class RoomBlockPicturesVerification
             int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
             ArtworkFrameSelections frames = RoomScopeOf(runtime).ArtworkFrames;
             IReadOnlyList<AppearanceOption> effects = UploadsOf(runtime).Bg3Options;
-            RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
-                ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.");
+            RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
+                ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed presentation."));
             // The overlay shows the effect's page picture (#1514): each of its cells paints the word the cartridge writes
             // there, from the row it writes the page to.
             FxOverlayPage page = new WrittenPictureResolver((runtime.Room.Scope
@@ -411,8 +413,8 @@ internal static class RoomBlockPicturesVerification
     private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
     {
         IReadOnlyList<AppearanceOption> options = UploadsOf(runtime).Options;
-        RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
-            ?? throw new InvalidOperationException($"{where}: the runtime has no installed animated tiles.");
+        RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
+            ?? throw new InvalidOperationException($"{where}: the runtime has no installed presentation."));
         RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.BackgroundImage
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
@@ -535,8 +537,8 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     private static (int Pictures, int Uploaded) AssertPicturesPaintLive(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
     {
-        RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
-            ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");
+        RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
+            ?? throw new InvalidOperationException("The runtime has no installed presentation."));
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Foreground.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
         RoomAppearanceView appearance = AppearanceOf(runtime, latched);

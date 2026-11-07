@@ -31,7 +31,7 @@ internal static class InstalledSporesTests
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
         AreaMapPresentation stock = MapPresentationFiles.Load(maps);
-        CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
+        CheckArtwork(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock), maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         CheckOwners(stock, packets);
         CheckPixels(packets);
@@ -64,7 +64,7 @@ internal static class InstalledSporesTests
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             byte[] initialRam = memory.WorkRam.ToArray();
             var baselineFrames = new ArtworkFrameSelections();
-            RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(Create(stock), definition, 0);
+            RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(new RoomFxSession(), definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
@@ -89,7 +89,7 @@ internal static class InstalledSporesTests
                         unchecked((ushort)(camera.Y + (sbyte)(LittleEndianBytes.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
                     int source = AnimatedTileImageSources.OfCursor(mechanics,
                         mechanics.Frames[tick / 10 % 3].InstructionPointer);
-                    Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
+                    Require(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock).TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
                     ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
                     Require(baselineFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
@@ -128,12 +128,6 @@ internal static class InstalledSporesTests
         Require(records > 0, "Source-selected spore records were not exercised.");
         Console.WriteLine($"{records} compiled spores records: {comparisons} control steps; signed wrap and freeze verified.");
     }
-
-    /// <summary>Constructs a Layer 3 FX owner using the selected installed tile, map, and palette catalogs.</summary>
-    private static RoomFxSession Create(AreaMapPresentation presentation) => new()
-    {
-        AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
-    };
 
     /// <summary>Reports a spores verification failure with its specific source or rendering context.</summary>
     private static void Require(bool condition, string context)

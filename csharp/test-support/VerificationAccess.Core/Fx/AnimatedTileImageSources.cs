@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Fx;
@@ -13,8 +14,13 @@ internal static class AnimatedTileImageSources
     /// <summary>The cartridge address the import reads <paramref name="image"/>'s characters from.</summary>
     internal static int Of(AnimatedTileImage image) => RoomFxAnimatedTileSources.Of(image).Value;
 
-    /// <summary>The cartridge address of the picture <paramref name="image"/> names, or null when there is none.</summary>
-    internal static int? Of(AnimatedTileImage? image) => image is { } shown ? Of(shown) : null;
+    /// <summary>
+    /// The cartridge address of the picture the frame <paramref name="animatedObject"/> shows in <paramref name="frames"/>
+    /// names, or null when it shows none: the selected frame folded through the import's frame-to-picture mapping
+    /// (#1527), for a ROM oracle comparing a native frame operand.
+    /// </summary>
+    internal static int? OfShown(ArtworkFrameSelections frames, AnimatedTileObject animatedObject) =>
+        frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown) ? AnimatedTileFrameArtwork.SourceOf(shown) : null;
 
     /// <summary>The cartridge address the import reads the picture of the rightward treadmill's frame <paramref name="frame"/> from.</summary>
     internal static int Treadmill(int frame) =>

@@ -37,11 +37,58 @@ public static class RoomFxAnimatedTileLoops
         }
     }
 
-    /// <summary>The distinct pictures one loop's frames show.</summary>
+    /// <summary>The distinct pictures one loop's frames show, as the installed atlas stores them (#1527).</summary>
     extension(RoomFxAnimatedTileLoop loop)
     {
+        /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
+        /// <exception cref="InvalidDataException">
+        /// The object has no pictures in the atlas, or its picture count is not between one and its frame count.
+        /// </exception>
+        internal int ImageCount
+        {
+            get
+            {
+                if (!RoomFxAnimatedTilePictureCountDefinitions.PictureCounts.TryGetValue(loop.AnimatedObject, out int count))
+                    throw new InvalidDataException($"{loop.AnimatedObject} has no pictures in the room-FX atlas.");
+                if (count <= 0 || count > loop.Frames.Count)
+                    throw new InvalidDataException(
+                        $"{loop.AnimatedObject} shows {count} pictures over {loop.Frames.Count} frames.");
+                return count;
+            }
+        }
+
         /// <summary>The distinct pictures the object's frames show, in order.</summary>
         internal IEnumerable<AnimatedTileImage> Images =>
             Enumerable.Range(0, loop.ImageCount).Select(index => new AnimatedTileImage(loop.AnimatedObject, index));
+
+        /// <summary>The picture <paramref name="frame"/> shows: past the last picture, the loop plays its pictures back.</summary>
+        /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of this object's frames.</exception>
+        internal AnimatedTileImage Image(RoomFxAnimatedTileFrameDefinition frame)
+        {
+            if (frame.Object != loop.AnimatedObject || (uint)frame.Index >= (uint)loop.Frames.Count)
+                throw new InvalidDataException(
+                    $"Room-FX object {loop.AnimatedObject} has no artwork frame {frame.Index} of {frame.Object}.");
+            int count = loop.ImageCount;
+            int index = frame.Index < count ? frame.Index : 2 * (count - 1) - frame.Index;
+            return new(loop.AnimatedObject, index);
+        }
+    }
+
+    /// <summary>The pictures a Wrecked Ship treadmill's frames show, as the installed atlas stores them (#1527).</summary>
+    extension(WreckedShipTreadmillLoop treadmill)
+    {
+        /// <summary>
+        /// The picture loop frame <paramref name="frameIndex"/>, 0 through 3, shows: both directions show the rightward
+        /// treadmill's four pictures, the leftward loop in reverse order.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="frameIndex"/> is not one of the loop's frames.</exception>
+        internal AnimatedTileImage Image(int frameIndex)
+        {
+            if ((uint)frameIndex >= WreckedShipTreadmillMechanicsDefinitions.FrameCount)
+                throw new ArgumentOutOfRangeException(nameof(frameIndex));
+            return new(AnimatedTileObject.WreckedShipTreadmillRightwards,
+                treadmill.Direction == WreckedShipTreadmillDirection.Rightwards
+                    ? frameIndex : WreckedShipTreadmillMechanicsDefinitions.FrameCount - 1 - frameIndex);
+        }
     }
 }

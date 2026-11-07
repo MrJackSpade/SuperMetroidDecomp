@@ -29,6 +29,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="CeresRidleyColors">Ceres Ridley's, the shared Norfair Ridley health and the Ceres Baby's colours, which their sheets and Ceres Ridley's room are pre-coloured from (#1512).</param>
 /// <param name="CeresRidleyFloorColors">Ceres Ridley's Mode 7 floor colours for each getaway zoom step, which the floor's shades are pre-coloured from (#1512).</param>
 /// <param name="EscapeTimerTiles">The escape timer's characters, which the escape encounters' sheets are composed from (#1513).</param>
+/// <param name="RoomFxAnimatedTiles">The animated tiles' installed characters, which room sheets and the Tourian statues' pictures are composed from (#1527).</param>
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
     GameplayMessageArtwork Messages,
@@ -44,4 +45,5 @@ internal sealed record InstalledPresentationSources(
     MapStaticPalettes Palettes,
     CeresRidleyColorCatalog CeresRidleyColors,
     CeresRidleyFloorColorCatalog CeresRidleyFloorColors,
-    EscapeTimerCharacters EscapeTimerTiles);
+    EscapeTimerCharacters EscapeTimerTiles,
+    RoomFxAnimatedTileAtlas RoomFxAnimatedTiles);

@@ -349,10 +349,8 @@ internal static class NoobTubeObjectVerification
     /// </summary>
     internal static RoomFxOverlayState CreateNoobTubeWaterFx()
     {
-        // FX mechanics now come from compiled records. Use the actual Glass Tunnel
-        // record and import its presentation dependencies at this verification boundary.
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var roomFxSession = CreateRetailFxSession(rom);
+        // FX mechanics now come from compiled records. Use the actual Glass Tunnel record.
+        var roomFxSession = new RoomFxSession();
         var roomFx = RoomFxOverlayState.ForRoom(roomFxSession, RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
         return roomFx;

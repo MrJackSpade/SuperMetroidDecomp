@@ -33,26 +33,17 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>Expected number of physical bank-$83 entry doors exercised by the audit.</summary>
     private const int RetailRoomFxDoorCount = 597;
 
-    /// <summary>One bus's extracted room-FX catalogs; immutable, so every FX state built on that bus shares them.</summary>
-    internal sealed record RetailFxCatalogs(RoomFxBlendInks PaletteBlends, RoomFxAnimatedTileAtlas AnimatedTiles);
+    /// <summary>Reuses the animated tiles extracted from an import bus without keeping that bus alive.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RoomFxAnimatedTileAtlas>
+        retailAnimatedTiles = new();
 
-    /// <summary>Reuses extracted FX art for states sharing an import bus without keeping that bus alive.</summary>
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RetailFxCatalogs>
-        retailFxCatalogs = new();
-
-    /// <summary>Creates a production layer-three FX owner bound to art extracted once from the supplied retail bus.</summary>
-    internal static RoomFxSession CreateRetailFxSession(SuperMetroidAddressSpace bus)
-    {
-        RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
-            RoomFxPaletteBlendFile.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(source))),
-            RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
-        return new()
-        {
-            AnimatedTileArtwork = catalogs.AnimatedTiles,
-        };
-    }
+    /// <summary>
+    /// The animated tiles' characters the import extracts once from the supplied retail bus (#1527): checks that render
+    /// a room effect's BG3 from VRAM place the selected frame's characters from them.
+    /// </summary>
+    internal static RoomFxAnimatedTileAtlas RetailAnimatedTiles(SuperMetroidAddressSpace bus) =>
+        retailAnimatedTiles.GetValue(bus, source => RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
+            RoomFxAnimatedTileAtlasExtractor.Extract(source))));
 
     /// <summary>
     /// Exhaustively compares every named retail room state and every physical entry door
@@ -274,7 +265,7 @@ internal static class RoomFxRetailInventoryVerification
                 expectedRecord,
                 RoomFxRomDataRecordTooling.YVelocityOffset);
 
-        var actualSession = CreateRetailFxSession(bus);
+        var actualSession = new RoomFxSession();
         var actual = RoomFxOverlayState.ForRoom(actualSession,
             room.State.Fx,
             EntryDoor(doorPointer),
@@ -353,8 +344,7 @@ internal static class RoomFxRetailInventoryVerification
         actual.Step(liquidFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         // The liquid's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         if (RoomFxAnimatedTilesState.ObjectOf(expectedType) is var liquidTiles and not AnimatedTileObject.None)
-            AnimatedTileFrameArtwork.ShowIn(vram, liquidFrames, actualSession.AnimatedTileArtwork
-                ?? throw new InvalidOperationException("The retail FX session has no animated tiles."), liquidTiles);
+            AnimatedTileFrameArtwork.ShowIn(vram, liquidFrames, RetailAnimatedTiles(bus), liquidTiles);
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -415,7 +405,7 @@ internal static class RoomFxRetailInventoryVerification
             RetailRoomFxDefinitions.VisibleLavaRoom);
         var vram = new SnesVram();
         var cgram = new RgbColor[SnesCgram.ColorCount];
-        var fxSession = CreateRetailFxSession(bus);
+        var fxSession = new RoomFxSession();
         var fx = RoomFxOverlayState.ForRoom(fxSession, room.State.Fx, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
@@ -428,7 +418,7 @@ internal static class RoomFxRetailInventoryVerification
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         // The lava's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         var lavaFrames = new ArtworkFrameSelections();
-        RoomFxAnimatedTileAtlas lavaArtwork = fxSession.AnimatedTileArtwork ?? throw new InvalidOperationException("The retail FX session has no animated tiles.");
+        RoomFxAnimatedTileAtlas lavaArtwork = RetailAnimatedTiles(bus);
         fx.Step(lavaFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, AnimatedTileObject.Lava);
 
@@ -693,7 +683,7 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
-        var fxSession = CreateRetailFxSession(bus);
+        var fxSession = new RoomFxSession();
         var fx = RoomFxOverlayState.ForRoom(fxSession,
             room.State.Fx,
             door,
@@ -724,8 +714,7 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(definition.TargetY, fx.BaseY.Whole,
             $"room {definition.Room} lava stops at its cartridge target");
 
-        AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, fxSession.AnimatedTileArtwork
-            ?? throw new InvalidOperationException("The retail FX session has no animated tiles."), AnimatedTileObject.Lava);
+        AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, RetailAnimatedTiles(bus), AnimatedTileObject.Lava);
         ushort[] finalPlane = EffectPlane(fx);
         RoomFxOverlayRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
@@ -883,7 +872,7 @@ internal static class RoomFxRetailInventoryVerification
         SelectedRoom room,
         ushort doorPointer)
     {
-        var fxSession = CreateRetailFxSession(bus);
+        var fxSession = new RoomFxSession();
         RoomFxOverlayState fx;
         fx = RoomFxOverlayState.ForRoom(fxSession,
             room.State.Fx,
@@ -928,7 +917,7 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
-        var fxSession = CreateRetailFxSession(bus);
+        var fxSession = new RoomFxSession();
         var fx = RoomFxOverlayState.ForRoom(fxSession, visibleRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });

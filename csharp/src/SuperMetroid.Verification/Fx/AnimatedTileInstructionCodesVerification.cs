@@ -127,19 +127,25 @@ internal static class AnimatedTileInstructionCodesVerification
         state.Step(areaBossDefeated: false, frames);
         AssertTrue(!frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out _), $"{direction} retail boss wait");
 
+        // Each pass selects into fresh selections, so a selection read back is the one this pass made.
         for (int frame = 0; frame < expectedSources.Length; frame++)
         {
+            frames = new ArtworkFrameSelections();
             state.Step(areaBossDefeated: true, frames);
-            AssertEqual(expectedSources[frame], AnimatedTileImageSources.Of(state.LastImage),
-                $"{direction} retail source frame {frame}");
             AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
                     shown == AnimatedTileFrames.Frame(definition.AnimatedObject, frame),
                 $"{direction} retail frame {frame} is the frame the treadmill shows");
+            AssertEqual(expectedSources[frame], AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
+                $"{direction} retail source frame {frame}");
         }
 
+        frames = new ArtworkFrameSelections();
         state.Step(areaBossDefeated: true, frames);
-        AssertEqual(expectedSources[0], AnimatedTileImageSources.Of(state.LastImage),
+        AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame wrapped) &&
+                wrapped == AnimatedTileFrames.Frame(definition.AnimatedObject, 0),
             $"{direction} compiled goto returns to frame zero");
+        AssertEqual(expectedSources[0], AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
+            $"{direction} compiled goto returns to frame zero's source");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{direction} performs no treadmill mechanics ROM reads");
         AssertEqual(0, guardedPresentationReads.Value,

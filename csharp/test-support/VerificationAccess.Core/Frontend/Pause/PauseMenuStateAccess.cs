@@ -60,7 +60,7 @@ internal static class PauseMenuStateAccess
             int index = AreaMapPages.GetTilemapWordIndex(cell);
             if (self.ScreenMode != PauseScreenMode.Map && index < PauseEquipmentBaseDefinitions.Cells)
                 return self.ShownEquipmentTiles[index];
-            return MapCellCharacters.Tile(self.ShownMap.Cells[cell.Y * AreaMapLayout.WidthInTiles + cell.X]);
+            return MapCellCharacters.Tile(self.ShownMap.Cells[cell.Y * AreaMapSize.WidthInTiles + cell.X]);
         }
 
         /// <summary>

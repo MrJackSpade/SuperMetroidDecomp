@@ -18,7 +18,7 @@ public sealed class PersistentProgress
     public const int StationsPerArea = 16;
 
     /// <summary>The cells of one area's 64-by-32 map.</summary>
-    private const int MapCellsPerArea = AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles;
+    private const int MapCellsPerArea = AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles;
 
     /// <summary>Each area's defeated bosses, by area index.</summary>
     private readonly BossBits[] _defeatedBosses = new BossBits[AreaIds.RetailCount];
@@ -92,7 +92,7 @@ public sealed class PersistentProgress
 
     /// <summary>The explored cells of <paramref name="area"/>'s map, in row-major order.</summary>
     public IEnumerable<Position16<MapTiles>> ExploredCells(AreaId area) =>
-        _explored[AreaIds.ToIndex(area)].Members.Select(AreaMapLayout.Size.CellAtRowMajorIndex);
+        _explored[AreaIds.ToIndex(area)].Members.Select(AreaMapSize.Extent.CellAtRowMajorIndex);
 
     /// <summary>
     /// Applies SpaceTime's progression overwrite: every story event, boss, orb, item, door, station and map it decides
@@ -144,7 +144,7 @@ public sealed class PersistentProgress
         [.. Enumerable.Range(0, AreaIds.RetailCount).Select(_ => new NumberedFlagSet(capacity))];
 
     /// <summary>The number of a map cell, rejecting a cell outside the area map.</summary>
-    private static int CellNumber(Position16<MapTiles> cell) => AreaMapLayout.Size.Contains(cell)
-        ? AreaMapLayout.Size.RowMajorIndex(cell)
+    private static int CellNumber(Position16<MapTiles> cell) => AreaMapSize.Extent.Contains(cell)
+        ? AreaMapSize.Extent.RowMajorIndex(cell)
         : throw new ArgumentOutOfRangeException(nameof(cell), cell, "The cell lies outside the 64-by-32 area map.");
 }

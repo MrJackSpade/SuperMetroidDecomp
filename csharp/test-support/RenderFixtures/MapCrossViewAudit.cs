@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Pause;
@@ -33,7 +34,7 @@ internal static class MapCrossViewAudit
             bus,
             MapCrossViewAuditDefinitions.WaterRoom);
         if (reportedRoom.Identity != new RoomIdentity(AreaId.Brinstar, 0x27) ||
-            reportedRoom.MapPosition.X < AreaMapLayout.PageWidthInTiles)
+            reportedRoom.MapPosition.X < AreaMapPages.PageWidthInTiles)
         {
             throw new InvalidDataException(
                 $"Map audit expected right-page room $01/$27, got {reportedRoom.Identity} " +

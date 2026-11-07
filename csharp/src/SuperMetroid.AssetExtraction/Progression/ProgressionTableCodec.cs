@@ -37,7 +37,7 @@ public static class ProgressionTableCodec
     public const int MapStationByteCount = 12;
 
     /// <summary>Bytes of one area's explored-map plane.</summary>
-    public const int ExploredPlaneByteCount = AreaMapLayout.BitPlaneBytesPerPage * (AreaMapLayout.WidthInTiles / AreaMapLayout.PageWidthInTiles);
+    public const int ExploredPlaneByteCount = AreaMapPages.BitPlaneBytesPerPage * (AreaMapSize.WidthInTiles / AreaMapPages.PageWidthInTiles);
 
     /// <summary>The value the game stores for an acquired area map.</summary>
     private const byte AcquiredMap = byte.MaxValue;
@@ -204,9 +204,9 @@ public static class ProgressionTableCodec
     {
         Ensure.NotNull(progress);
         Ensure.LengthEqual(plane, ExploredPlaneByteCount);
-        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
+        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
         {
-            for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+            for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
             {
                 var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
                 progress.SetExplored(area, cell, (plane[AreaMapPages.GetBitByteIndex(cell)] & AreaMapPages.GetBitMask(x)) != 0);

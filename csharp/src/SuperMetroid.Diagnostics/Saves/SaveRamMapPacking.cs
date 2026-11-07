@@ -22,7 +22,7 @@ public static class SaveRamMapPacking
     private const int CellsPerByte = 8;
 
     /// <summary>Plane bytes per row of one page.</summary>
-    private const int BytesPerPageRow = AreaMapLayout.PageWidthInTiles / CellsPerByte;
+    private const int BytesPerPageRow = AreaMapPages.PageWidthInTiles / CellsPerByte;
 
     /// <summary>
     /// Where <paramref name="area"/>'s bytes start in the packed field, the sum of the earlier areas' byte counts, and the
@@ -104,9 +104,9 @@ public static class SaveRamMapPacking
     /// <summary>The first, leftmost cell a plane byte holds.</summary>
     private static Position16<MapTiles> FirstCell(int planeByte)
     {
-        int page = planeByte / AreaMapLayout.BitPlaneBytesPerPage;
-        int local = planeByte % AreaMapLayout.BitPlaneBytesPerPage;
-        int x = page * AreaMapLayout.PageWidthInTiles + local % BytesPerPageRow * CellsPerByte;
+        int page = planeByte / AreaMapPages.BitPlaneBytesPerPage;
+        int local = planeByte % AreaMapPages.BitPlaneBytesPerPage;
+        int x = page * AreaMapPages.PageWidthInTiles + local % BytesPerPageRow * CellsPerByte;
         return new Position16<MapTiles>(checked((ushort)x), checked((ushort)(local / BytesPerPageRow)));
     }
 }

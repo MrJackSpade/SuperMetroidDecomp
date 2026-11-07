@@ -20,6 +20,6 @@ internal sealed class AreaMapStockRules(IAreaMapView stock, IReadOnlySet<int> st
     public bool IsRevealedByMapStation(Position16<MapTiles> cell)
     {
         _ = AreaMapPages.GetTilemapWordIndex(cell);
-        return stationCells.Contains(AreaMapLayout.Size.RowMajorIndex(cell));
+        return stationCells.Contains(AreaMapSize.Extent.RowMajorIndex(cell));
     }
 }

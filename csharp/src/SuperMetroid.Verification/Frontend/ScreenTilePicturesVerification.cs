@@ -69,7 +69,7 @@ internal static class ScreenTilePicturesVerification
             SpriteSheet roomPictures = sheets.Get(SpriteSheetId.RoomMapPictures);
             ImmutableArray<ShownMapCell> shownCells = room.AreaMap.Cells;
             AssertTrue(roomScene.Layers.Length == 2 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
-                && grid.Cells.Length == AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles && grid.Cells.Length == shownCells.Length
+                && grid.Cells.Length == AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles && grid.Cells.Length == shownCells.Length
                 && grid.Cells.Select((cell, index) => roomPictures.ShowsNothing(AreaMapPictures.FrameName(shownCells[index]))
                     ? cell is null
                     : cell is { } shown && ReferenceEquals(shown.Picture, roomPictures.Frame(AreaMapPictures.FrameName(shownCells[index])))).All(matches => matches),
@@ -301,7 +301,7 @@ internal static class ScreenTilePicturesVerification
     {
         LayeredScene scene = pause.CaptureRenderSnapshot();
         byte[] vram = pause.ShownVram();
-        var pageSize = new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles);
+        var pageSize = new Extent16<TilemapCells>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles);
         BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles, pageSize);
         BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles, MenuScreen.PageSize);
         PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);

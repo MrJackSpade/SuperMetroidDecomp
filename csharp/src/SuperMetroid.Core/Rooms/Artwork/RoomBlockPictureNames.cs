@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// Names a pre-coloured block picture (#1392, #1431, #1466): the block's index among those its room loads, marked when
-/// it shows the sprites' artwork, then the values of the appearance inputs it depends on. A collectible shown in a slot,
-/// Kraid's backdrop or an animation's frame therefore names another picture of the same block, and extraction and the
-/// room resolve the same name.
+/// it shows the sprites' artwork, then the values of the appearance inputs it depends on. Kraid's backdrop or an
+/// animation's frame therefore names another picture of the same block, and extraction and the room resolve the same
+/// name. A collectible showing its own picture names its kind and frame (#1538).
 /// </summary>
 public static class RoomBlockPictureNames
 {
@@ -24,4 +24,8 @@ public static class RoomBlockPictureNames
     public static string Of(int block, RoomBlockArtwork artwork, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values) =>
         AppearancePictureNames.Of(Ensure.AtLeastZero(block).ToString("X3", CultureInfo.InvariantCulture)
             + (artwork == RoomBlockArtwork.Sprites ? OverSprites : ""), inputs, values);
+
+    /// <summary>The name of the picture of <paramref name="collectible"/>'s frame (#1538), which depends on no input.</summary>
+    public static string OfCollectible(CollectiblePicture collectible) =>
+        string.Create(CultureInfo.InvariantCulture, $"collectible {collectible.Kind} frame {collectible.Frame}");
 }

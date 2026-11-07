@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Abilities;
@@ -15,12 +16,15 @@ internal static class XrayOverlaysVerification
     /// <summary>The fixture's room-specific overlay.</summary>
     private static readonly XrayRoomOverlayDefinition SpecialRoom = new("fixture special room");
 
-    /// <summary>Applies synthetic reveal data to confirm item slot order, collection gates, and room overrides.</summary>
+    /// <summary>
+    /// Applies synthetic reveal data to confirm item order, collection gates, room overrides, and that an item other than a
+    /// tank is revealed as its kind's own picture's first frame (#1538) while a tank shows its installed block.
+    /// </summary>
     internal static void VerifyXrayOverlays()
     {
         var bus = new TestAddressSpace();
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(
-            Enumerable.Range(1, 8).Select(value => RoomBlockAppearance.Of(value)),
+            Enumerable.Range(5, InstalledXrayOverlays.TankCount).Select(value => RoomBlockAppearance.Of(value)),
             new XrayRoomOverlayTiles[]
             {
                 new(SpecialRoom, new XrayRoomOverlayVisual[]
@@ -42,18 +46,19 @@ internal static class XrayOverlaysVerification
         var system = new SharedGameState();
         var items = new[]
         {
-            new CollectibleObjectSnapshot(RoomObjectHeaderId.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs, 1),
-            new CollectibleObjectSnapshot(RoomObjectHeaderId.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
+            new CollectibleObjectSnapshot(RoomObjectHeaderId.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs),
+            new CollectibleObjectSnapshot(RoomObjectHeaderId.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank),
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.
         var map = new RevealedBlock?[XrayRevealArea.BlockCount];
         RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
-        AssertEqual(Defined(2), map[0], "descending item slot order leaves the lower physical slot's reveal last");
+        AssertEqual(Defined(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(InWorldCollectibleKind.Bombs, 0))), map[0],
+            "descending item order leaves the lower item's reveal last, and Bombs is revealed as its own picture's first frame");
         system.SetCollectedItemBit(1);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
-        AssertEqual(Defined(5), map[0], "collected items do not obscure another live reveal");
+        AssertEqual(Defined(5), map[0], "collected items do not obscure another live reveal, and the Energy Tank shows its installed block");
         XrayRevealOverlays.Apply(level, map, items, system, SpecialRoom, new(16, 16), visuals);
         AssertEqual(new RevealedBlock(9, RevealedBlockArrangement.RowsSwapped), map[0],
             "special-room override follows item writes, and its vertical flip swaps the block's rows without mirroring them");
@@ -65,7 +70,7 @@ internal static class XrayOverlaysVerification
         system.SetCollectedItemBit(2);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
         AssertTrue(map.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");
-        Console.WriteLine("  X-ray overlays: item graphics slots, collection gates, slot order, room override, vertical flip and viewport bounds agree.");
+        Console.WriteLine("  X-ray overlays: item pictures, tank blocks, collection gates, item order, room override, vertical flip and viewport bounds agree.");
     }
 
     /// <summary>Runs the overlay and X-ray setup buffer checks.</summary>

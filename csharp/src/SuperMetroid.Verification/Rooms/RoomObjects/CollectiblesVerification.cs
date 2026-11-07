@@ -80,16 +80,16 @@ internal static class CollectiblesVerification
             fixture.RoomObjects.Step(fixture.Level);
             if (kind >= InWorldCollectibleKind.Bombs)
             {
-                // LoadItemPLMGfx shows the item in its graphics slot before the first item draw; BG1 shows the slot's
-                // first-frame block, whose picture the collectible shown in the slot names (#1431, #1466).
+                // The room's only collectible takes the first block pair, whose first-frame block its first draw writes into
+                // the terrain; BG1 shows the item's own picture's first frame over it (#1538).
                 AssertEqual(
-                    RoomBlockAppearance.Of(0x08e + loaded.GraphicsSlot * 2),
-                    fixture.Level.DisplayedAppearance(fixture.BlockIndex),
-                    $"{kind} shown block is its slot's first-frame block");
-                AssertEqual<InWorldCollectibleKind?>(
-                    kind,
-                    fixture.Appearance.CollectibleIn(loaded.GraphicsSlot),
-                    $"{kind} shows in its graphics slot");
+                    RoomBlockAppearance.Of(0x08e),
+                    fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain.Appearance,
+                    $"{kind} writes the first block pair's first-frame block");
+                AssertEqual(
+                    CollectibleCellPictures.DefinitionOf(new CollectiblePicture(kind, 0)),
+                    fixture.Level.ForegroundPlane.Cells.Cells[fixture.BlockIndex].Definition,
+                    $"{kind} shows its own picture's first frame");
             }
             RoomTerrainBlock visibleItemWord = fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain;
             AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.BlockIndex),

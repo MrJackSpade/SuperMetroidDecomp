@@ -1,26 +1,19 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
-/// <summary>Installed item and room-specific X-ray presentation, independent of PLM state.</summary>
+/// <summary>Installed tank and room-specific X-ray presentation, independent of room object state.</summary>
 public sealed class InstalledXrayOverlays
 {
-    /// <summary>Item graphics slots that rotate with the room's items; the same number of fixed ammo and tank slots follow.</summary>
-    public const int DynamicGraphicsSlots = 4;
-
-    /// <summary>Eight installed X-ray item appearances indexed by graphics slot.</summary>
+    /// <summary>The installed block the X-ray reveal shows for each tank kind, in tank order.</summary>
     /// <remarks>
-    /// Issue #1038: the item overlay table holds eight little-endian draw
-    /// pointers; the shown block is at pointer + 2.
-    /// The original data yields slots 0..7 as $08E, $090,
-    /// $092, $094, $04A, $04D, $04F, $050. The overlay caller bounds
-    /// checks each selected slot; the independent installation verifier
-    /// compared all eight stock values with the game. These are
-    /// authored visual choices and reveals.json may replace them, so no
-    /// universal formula can replace this bounded installed array.
+    /// Issue #1038: the original data reveals the four tanks as blocks $04A, $04D, $04F and $050. These are authored
+    /// visual choices and reveals.json may replace them, so no universal formula can replace this bounded installed
+    /// array. Every other uncollected item is revealed as its kind's own picture (#1538).
     /// </remarks>
-    internal readonly RoomBlockAppearance[] itemMetatiles;
+    internal readonly RoomBlockAppearance[] tankMetatiles;
     /// <summary>Installed room-specific X-ray tile lists keyed by overlay.</summary>
     /// <remarks>
     /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
@@ -36,27 +29,27 @@ public sealed class InstalledXrayOverlays
     /// </remarks>
     internal readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 
-    /// <summary>Copies item-slot metatiles and ordered special-room records, requiring all compiled overlay sources without changing item collection or PLM state.</summary>
-    /// <param name="itemMetatiles">Exactly eight appearances in graphics-slot order.</param>
+    /// <summary>Copies tank metatiles and ordered special-room records, requiring all compiled overlay sources without changing item collection or room object state.</summary>
+    /// <param name="tankMetatiles">Exactly four appearances, one for each tank kind in tank order: Energy, Missile, Super Missile, Power Bomb.</param>
     /// <param name="rooms">Nonempty ordered tile lists keyed by overlay; each list is copied.</param>
     /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>
-    /// <exception cref="InvalidDataException">Item values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
-    public InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> itemMetatiles,
+    /// <exception cref="InvalidDataException">Tank values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
+    public InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankMetatiles,
         IEnumerable<XrayRoomOverlayTiles> rooms)
-        : this(itemMetatiles, rooms, requiredOverlays: XrayRoomOverlayDefinitions.All)
+        : this(tankMetatiles, rooms, requiredOverlays: XrayRoomOverlayDefinitions.All)
     {
     }
 
-    /// <summary>Copies validated item and room overlays and requires each of <paramref name="requiredOverlays"/>.</summary>
-    internal InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> itemMetatiles,
+    /// <summary>Copies validated tank and room overlays and requires each of <paramref name="requiredOverlays"/>.</summary>
+    internal InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankMetatiles,
         IEnumerable<XrayRoomOverlayTiles> rooms,
         IEnumerable<XrayRoomOverlayDefinition> requiredOverlays)
     {
-        Ensure.NotNull(itemMetatiles);
+        Ensure.NotNull(tankMetatiles);
         Ensure.NotNull(rooms);
-        this.itemMetatiles = itemMetatiles.ToArray();
-        if (this.itemMetatiles.Length != DynamicGraphicsSlots * 2)
-            throw new InvalidDataException("X-ray item visuals require eight appearances.");
+        this.tankMetatiles = tankMetatiles.ToArray();
+        if (this.tankMetatiles.Length != TankCount)
+            throw new InvalidDataException($"X-ray tank visuals require {TankCount} appearances.");
         this.rooms = new Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]>();
         foreach ((XrayRoomOverlayDefinition overlay, IReadOnlyList<XrayRoomOverlayVisual> tiles) in rooms)
         {
@@ -70,11 +63,16 @@ public sealed class InstalledXrayOverlays
                 throw new InvalidDataException($"Missing required X-ray room overlay {overlay.Name}.");
     }
 
-    /// <summary>Selects the installed item reveal metatile by graphics-slot index, independently of whether an item has been collected.</summary>
-    /// <param name="graphicsSlot">Zero-based slot 0..7: four dynamic item graphics followed by the four fixed collectible graphics.</param>
+    /// <summary>The tank kinds, whose installed reveals this holds.</summary>
+    public static int TankCount => RoomObjectCollectibleDrawDefinitions.TankKinds.Length;
+
+    /// <summary>Selects the installed reveal metatile of tank kind <paramref name="tank"/>, independently of whether it has been collected.</summary>
     /// <returns>The selected appearance.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The slot is outside the installed eight-entry array.</exception>
-    public RoomBlockAppearance ItemMetatile(int graphicsSlot) => itemMetatiles[graphicsSlot];
+    /// <exception cref="ArgumentOutOfRangeException">The kind is not a tank.</exception>
+    public RoomBlockAppearance TankMetatile(InWorldCollectibleKind tank) =>
+        Array.IndexOf(RoomObjectCollectibleDrawDefinitions.TankKinds, tank) is var index and >= 0
+            ? tankMetatiles[index]
+            : throw new ArgumentOutOfRangeException(nameof(tank), tank, "The X-ray reveals only a tank by an installed block.");
 
     /// <summary>Returns a room overlay's installed records in draw order.</summary>
     /// <param name="overlay">The active room state's overlay; a state without one is handled by the caller.</param>

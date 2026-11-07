@@ -1,15 +1,14 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>In-world collectible PLMs: item and tank setup, pickup, fanfare and the dynamic collectible graphics slots.</summary>
+/// <summary>In-world collectibles: item and tank setup, pickup, fanfare, and each collectible's picture where it lies.</summary>
 [RoomLifetime]
 internal sealed class CollectibleObjects : IRoomObjectFamilySource
 {
-    /// <summary>Words in one collectible character slot: two 16x16 frames of four characters.</summary>
-
     /// <summary>Registers the Collectible family's step.</summary>
     public void AddObjectFamilies(RoomObjectFamilyTable table)
     {
@@ -44,8 +43,8 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
 
     /// <summary>Pickup events published by the current PLM handler pass.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
-    /// <summary>Next of four $100-byte dynamic collectible character allocations.</summary>
-    private int _nextCollectibleGraphicsSlot;
+    /// <summary>The terrain block pairs the room's collectibles that show their own picture take in turn.</summary>
+    private readonly CollectibleBlockPairs _blockPairs = new();
     /// <summary>One-shot fanfare edge independent of the retained pickup event list.</summary>
     private bool _collectibleFanfareRequested;
     /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
@@ -114,7 +113,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectibleObjectState { } item
-            ? [new CollectibleObjectSnapshot(slot.Header, slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.ItemBit, item.Kind, item.GraphicsSlot)]
+            ? [new CollectibleObjectSnapshot(slot.Header, slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.ItemBit, item.Kind)]
             : Array.Empty<CollectibleObjectSnapshot>())
         .ToArray();
 
@@ -189,9 +188,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = slot.Argument is CollectedItemArgument placedItem &&
             system.HasCollectedItemBit(placedItem.ItemBit);
-        int graphicsSlot = UsesDynamicGraphics(kind)
-            ? ShowInNextGraphicsSlot(room.Appearance, kind)
-            : -1;
+        int? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
@@ -214,14 +211,14 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
             };
         // Both item setup paths increment the saved load counter, even for collected items.
         system.LoadedItemCount = WrappingCounter.IncrementWord(system.LoadedItemCount);
-        slot.Family = new CollectibleObjectState(kind, presentation, graphicsSlot, phase);
+        slot.Family = new CollectibleObjectState(kind, presentation, blockPair, phase);
     }
 
     /// <summary>
-    /// Whether a collectible loads its own graphics into a dynamic slot (#1452): every item but the four tanks, which
-    /// draw from the resident tank graphics.
+    /// Whether a collectible shows its own picture where it lies (#1452, #1538): every item but the four tanks, whose
+    /// pictures are blocks every room loads.
     /// </summary>
-    internal static bool UsesDynamicGraphics(InWorldCollectibleKind kind) => kind is not (InWorldCollectibleKind.EnergyTank
+    internal static bool ShowsOwnPicture(InWorldCollectibleKind kind) => kind is not (InWorldCollectibleKind.EnergyTank
         or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or InWorldCollectibleKind.PowerBombTank);
 
     /// <summary>
@@ -238,22 +235,6 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         presentation = item.Presentation;
         return found;
     }
-
-    /// <summary>
-    /// Shows <paramref name="kind"/> in the next collectible graphics slot (#1350, #1453, #1466, #1513): the slot's blocks,
-    /// which the collectible writes where it lies, show the room block sheet's pictures of that collectible in that slot
-    /// (#1431), drawn from its own graphics. Nothing is uploaded; the pictures are the only collectible artwork.
-    /// </summary>
-    private int ShowInNextGraphicsSlot(RoomAppearance appearance, InWorldCollectibleKind kind)
-    {
-        int graphicsSlot = _nextCollectibleGraphicsSlot;
-        _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
-        appearance.ShowCollectible(graphicsSlot, kind);
-        return graphicsSlot;
-    }
-
-    /// <summary>The collectible graphic slots the collectible-rotation animation step rotates through.</summary>
-    internal const int GraphicsSlots = 4;
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
     internal bool TryStepCollectible(RoomLevelData level, RoomObjectSlot slot)
@@ -306,7 +287,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
                     AcquireCollectible(slot);
                     return true;
                 }
-                DrawCollectible(level, slot, GetVisibleCollectibleDraw(item));
+                DrawVisibleCollectible(level, slot, item);
                 item.AnimationIndex ^= 1;
                 item.Timer = 4;
                 return true;
@@ -317,7 +298,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
                     AcquireCollectible(slot);
                     return true;
                 }
-                DrawCollectible(level, slot, GetVisibleCollectibleDraw(item));
+                DrawVisibleCollectible(level, slot, item);
                 if (item.AnimationIndex == 1 && --item.VisibleFramePairsRemaining == 0)
                 {
                     item.Phase = CollectiblePhase.ShotBlockReconceal;
@@ -435,10 +416,16 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         }
     }
 
-    /// <summary>Selects the visible frame for an item's kind, animation index, and dynamic art slot.</summary>
-    private static RoomObjectFrameDraw<RoomObjectCollectibleDrawDefinitions.Draw> GetVisibleCollectibleDraw(CollectibleObjectState item) =>
-        CollectibleObjectDraws.VisibleFrame(
-            item.Kind, item.AnimationIndex, item.GraphicsSlot);
+    /// <summary>
+    /// Draws an item's visible frame: the terrain its kind and block pair write, and over it, for an item that shows its
+    /// own picture, its kind's picture of that frame (#1538).
+    /// </summary>
+    private void DrawVisibleCollectible(RoomLevelData level, RoomObjectSlot slot, CollectibleObjectState item)
+    {
+        DrawCollectible(level, slot, CollectibleObjectDraws.VisibleFrame(item.Kind, item.AnimationIndex, item.BlockPair));
+        if (item.BlockPair is not null)
+            level.ShowCollectible(slot.BlockIndex, new CollectiblePicture(item.Kind, item.AnimationIndex));
+    }
 
     /// <summary>Executes a compiled item draw instruction against the level.</summary>
     private void DrawCollectible(RoomLevelData level, RoomObjectSlot slot, RoomObjectDraw draw) =>
@@ -651,11 +638,11 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
-    /// <summary>Tracks one physical item's presentation, graphics allocation, and instruction phase.</summary>
+    /// <summary>Tracks one physical item's presentation, terrain block pair, and instruction phase.</summary>
     internal sealed class CollectibleObjectState(
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
-        int graphicsSlot,
+        int? blockPair,
         CollectiblePhase phase) : RoomObjectFamilyState
     {
         /// <inheritdoc/>
@@ -665,8 +652,11 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         public InWorldCollectibleKind Kind { get; } = kind;
         /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>
         public CollectiblePresentation Presentation { get; } = presentation;
-        /// <summary>Dynamic character slot used by equipment and beam item art.</summary>
-        public int GraphicsSlot { get; } = graphicsSlot;
+        /// <summary>
+        /// The terrain block pair an item that shows its own picture writes its frames into (<see cref="CollectibleBlockPairs"/>);
+        /// null for a tank, whose frames are its kind's own blocks.
+        /// </summary>
+        public int? BlockPair { get; } = blockPair;
         /// <summary>Current reveal, visible, message, empty, or respawn instruction phase.</summary>
         public CollectiblePhase Phase { get; set; } = phase;
         /// <summary>Frames remaining in the current item instruction hold.</summary>

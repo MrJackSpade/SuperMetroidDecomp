@@ -5,10 +5,8 @@
 /// <param name="BlockIndex">The item owner's foreground block index in room level data.</param>
 /// <param name="ItemBit">The collected-item bit the pickup sets, or null for an item placed without one.</param>
 /// <param name="Kind">The permanent item kind decoded from the header's position in its presentation table.</param>
-/// <param name="GraphicsSlot">The rotating dynamic-art allocation from zero through three, or -1 for an item using static art.</param>
 public readonly record struct CollectibleObjectSnapshot(
     RoomObjectHeaderId Header,
     int BlockIndex,
     int? ItemBit,
-    InWorldCollectibleKind Kind,
-    int GraphicsSlot);
+    InWorldCollectibleKind Kind);

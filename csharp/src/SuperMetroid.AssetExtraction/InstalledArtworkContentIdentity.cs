@@ -215,10 +215,10 @@ internal static class InstalledArtworkContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledXrayOverlays"/>.</summary>
     extension(InstalledXrayOverlays overlays)
     {
-        /// <summary>Identity of selected item appearances and room overlay coordinates and blocks, in record order.</summary>
+        /// <summary>Identity of selected tank appearances and room overlay coordinates and blocks, in record order.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledXrayOverlays), content =>
         {
-            content.AppendAppearances("item metatiles", overlays.itemMetatiles);
+            content.AppendAppearances("tank metatiles", overlays.tankMetatiles);
             foreach ((XrayRoomOverlayDefinition overlay, XrayRoomOverlayVisual[] tiles) in overlays.rooms.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
             {
                 content.Append("room overlay", Encoding.UTF8.GetBytes(overlay.Name));

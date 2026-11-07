@@ -20,9 +20,6 @@ internal static class AppearanceInputSpellings
         ArgumentException.ThrowIfNullOrEmpty(token);
         if (token == AppearanceInputTokens.KraidBackdrop)
             return KraidBackdrop;
-        if (token.StartsWith(AppearanceInputTokens.CollectibleSlotPrefix, StringComparison.Ordinal)
-            && int.TryParse(token.AsSpan(AppearanceInputTokens.CollectibleSlotPrefix.Length), NumberStyles.None, CultureInfo.InvariantCulture, out int slot))
-            return new CollectibleSlotAppearance(slot);
         if (token.StartsWith(AppearanceInputTokens.AnimationPrefix, StringComparison.Ordinal) && token.Length > AppearanceInputTokens.AnimationPrefix.Length)
             return new AnimationAppearance(new ArtworkAnimation(token[AppearanceInputTokens.AnimationPrefix.Length..]));
         if (token.StartsWith(AppearanceInputTokens.EncounterLookPrefix, StringComparison.Ordinal)

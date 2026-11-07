@@ -14,11 +14,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// Pre-assembles and pre-colours each tileset's room blocks (#1392, #1431, #1466, #1513): every block its rooms load, once
 /// from its own tiles and again for each value each appearance input that shows other artwork over the characters it
-/// reads can take (an animation's frame, Kraid's backdrop, an encounter's look), and a collectible slot's blocks as each
-/// collectible the tileset's rooms place, pictured from the collectible's own graphics. No block is pictured over a
-/// collectible's graphics. Each picture is coloured with the tileset's standard background palette and named by
-/// <see cref="RoomBlockPictureNames"/> from the block's index and the inputs' values; with the inputs each block depends
-/// on, which the room reads to choose among them.
+/// reads can take (an animation's frame, Kraid's backdrop, an encounter's look), and each frame of each collectible the
+/// tileset's rooms place that shows its own picture, pictured from the collectible's own graphics alone (#1538). No block
+/// is pictured over a collectible's graphics. Each picture is coloured with the tileset's standard background palette and
+/// named by <see cref="RoomBlockPictureNames"/> from the block's index and the inputs' values, or from the collectible's
+/// kind and frame; with the inputs each block depends on, which the room reads to choose among them.
 /// </summary>
 internal static class RoomBlockSheetComposer
 {
@@ -128,13 +128,13 @@ internal static class RoomBlockSheetComposer
         var loaded = new BgArtworkBindings();
         foreach (BgCharacterUpload placement in load)
             placement.BindTo(loaded);
-        // A collectible is pictured only as itself, on its slot's blocks, below: no other block or background cell is pictured
-        // over its graphics (#1513), though the cartridge loads them into characters the room's blocks read.
+        // A collectible is pictured only as its kind, from its own graphics, below: no block or background cell is pictured
+        // over its graphics (#1513, #1538).
         var options = new AppearanceOptions(uploads.Options);
         var looks = new AppearanceOptions(uploads.ObjectPageLooks);
         var bytes = new Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>();
         foreach (BgCharacterUpload placement in load.Concat(options.All.Select(option => option.Upload))
-            .Concat(uploads.Collectibles.Select(slot => slot.Option.Upload)).Concat(uploads.ObjectPageLoad ?? [])
+            .Concat(uploads.ObjectPageLoad ?? [])
             .Concat(uploads.ObjectPageLooks.Select(option => option.Upload)))
             bytes[placement.Identity] = placement.Bytes;
         // A room whose blocks show the sprites' artwork shows them over what its load places there, and over the looks its
@@ -156,41 +156,27 @@ internal static class RoomBlockSheetComposer
             if (spriteInputs is not null)
                 spriteInputs[block] = [];
             BackgroundTile[] tiles = blocks.TilesOf(block).ToArray();
-            if (blocks.IsCollectibleSlotBlock(block))
-            {
-                // A collectible slot's block shows the collectible shown in the slot, pictured below, and the room's load until
-                // a collectible shows there (#1486): a room can show the block while its slot holds none. In a tileset whose
-                // rooms place no collectible, no collectible shows there, and the block is pictured from its own tiles alone.
-                if (uploads.Collectibles.Count == 0)
-                {
-                    tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, blocks.LoadRunsOfSlotBlock(block), tiles, options, loaded);
-                    continue;
-                }
-                int slot = CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots)
-                    ?? throw new InvalidOperationException($"Block {block} is a collectible slot's block in no slot.");
-                ImmutableArray<AppearanceInput> slotInput = [new CollectibleSlotAppearance(slot)];
-                string[] loadedValue = [RoomAppearanceValues.Loaded];
-                tilesetInputs[block] = slotInput;
-                AddPicture(RoomBlockPictureNames.Of(block, RoomBlockArtwork.Tileset, slotInput, loadedValue), blocks.LoadRunsOfSlotBlock(block),
-                    tiles, slotInput, loadedValue, options, loaded);
-                continue;
-            }
             tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, blocks.Characters.RunsOf(block), tiles, options, loaded);
             if (spriteInputs is not null)
                 spriteInputs[block] = AddBlock(block, RoomBlockArtwork.Sprites, blocks.Characters.RunsOf(block), tiles, looks, objectPage);
         }
-        foreach (RoomBlockUploads.CollectibleSlotCharacters slot in uploads.Collectibles)
+        foreach (RoomObjectDynamicCollectibleGraphic collectible in uploads.Collectibles)
         {
-            // A collectible's blocks show its own graphics, written and bound together: the collectible shown in the slot
-            // names both the tiles and their colours.
-            ImmutableArray<AppearanceInput> slotInputs = [slot.Option.Input];
-            string[] values = [slot.Option.Value];
-            var slotOptions = new AppearanceOptions([slot.Option]);
-            for (int block = 0; block < slot.Tiles.Length / RoomMetatileFormat.TilesPerBlock; block++)
+            // A collectible's picture shows its own graphics alone, each frame its four characters in the colour variants its
+            // palette selectors give them, whatever the room loaded or showed before it.
+            BgArtworkIdentity graphics = RoomBgArtwork.Collectible(collectible.Kind);
+            bytes[graphics] = collectible.Tiles;
+            for (int frame = 0; frame < CollectiblePicture.Frames; frame++)
             {
-                BackgroundTile[] tiles = slot.Tiles[(block * RoomMetatileFormat.TilesPerBlock)..((block + 1) * RoomMetatileFormat.TilesPerBlock)];
-                AddPicture(RoomBlockPictureNames.Of(slot.FirstBlock + block, RoomBlockArtwork.Tileset, slotInputs, values),
-                    blocks.Characters.RunsOf(slot.FirstBlock + block), tiles, slotInputs, values, slotOptions, null);
+                var tiles = new BackgroundTile[RoomMetatileFormat.TilesPerBlock];
+                var shown = new BgArtworkShown[RoomMetatileFormat.TilesPerBlock];
+                for (int tile = 0; tile < tiles.Length; tile++)
+                {
+                    int character = frame * RoomMetatileFormat.TilesPerBlock + tile;
+                    tiles[tile] = new BackgroundTile(character, collectible.PaletteOffsets.Span[character], highPriority: false);
+                    shown[tile] = new BgArtworkShown(graphics, character * BgCharacterSet.Tiles.CharacterBytes() / sizeof(ushort));
+                }
+                pictures.Add(RoomBlockPictureNames.OfCollectible(new CollectiblePicture(collectible.Kind, frame)), new Picture(tiles, shown));
             }
         }
         // A library background's image shows its room's load; each 16x16 cell whose characters an input reaches draws the

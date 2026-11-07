@@ -119,7 +119,7 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectCollectibleDrawDefinitions.DrawGroup.Orb => Offset(RoomObjectDrawSourceDefinitions.CollectibleOrbFirst, item.Index * OneBlockStride),
         RoomObjectCollectibleDrawDefinitions.DrawGroup.OrbBurst => RoomObjectDrawSourceDefinitions.CollectibleOrbBurst,
         RoomObjectCollectibleDrawDefinitions.DrawGroup.Tank => Offset(RoomObjectDrawSourceDefinitions.CollectibleTankFirst, item.Index * OneBlockStride),
-        RoomObjectCollectibleDrawDefinitions.DrawGroup.Dynamic => Offset(RoomObjectDrawSourceDefinitions.CollectibleDynamicFirst, item.Index * OneBlockStride),
+        RoomObjectCollectibleDrawDefinitions.DrawGroup.OwnPicture => Offset(RoomObjectDrawSourceDefinitions.CollectibleDynamicFirst, item.Index * OneBlockStride),
         RoomObjectCollectibleDrawDefinitions.DrawGroup.ShotReveal => Offset(RoomObjectDrawSourceDefinitions.CollectibleShotRevealFirst, item.Index * OneBlockStride),
         _ => throw new InvalidDataException($"Collectible draw {item} has no cartridge address."),
     };

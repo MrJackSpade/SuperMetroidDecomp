@@ -120,7 +120,6 @@ internal static class RoomAppearanceComposition
         AnimationAppearance => AppearancePrecedence.Animation,
         KraidBackdropAppearance => AppearancePrecedence.KraidBackdrop,
         EncounterLookAppearance => AppearancePrecedence.EncounterLook,
-        CollectibleSlotAppearance => AppearancePrecedence.CollectibleSlot,
         _ => throw new InvalidDataException($"No precedence is defined for appearance input {input.Token}."),
     };
 }

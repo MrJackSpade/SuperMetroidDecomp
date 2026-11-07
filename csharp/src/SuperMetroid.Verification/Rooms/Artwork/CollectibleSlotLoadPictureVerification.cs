@@ -9,14 +9,14 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Rooms.Artwork;
 
 /// <summary>
-/// Confirms a collectible slot's block is pictured over the room's load while its slot holds no collectible (#1486): the
-/// 100% movie shows Upper Crateria's block 08E with graphics slot 0 empty, and the sheet had no picture for it. The block
-/// depends on its slot only in a tileset whose rooms place a collectible (#1513), so the picture checked is the one the
-/// room names from the inputs the sheet records for the block, each showing the room's load.
+/// Confirms the block under a collectible's first frame is pictured over the room's load where no collectible lies (#1486):
+/// the 100% movie shows Upper Crateria's block 08E with no collectible on it, and the sheet had no picture for it. A
+/// collectible shows its own picture over the block (#1538), so the picture checked is the one the room names from the
+/// inputs the sheet records for the block, each showing the room's load.
 /// </summary>
 internal static class CollectibleSlotLoadPictureVerification
 {
-    /// <summary>The block the 100% movie shows over an empty graphics slot.</summary>
+    /// <summary>The block the 100% movie shows with no collectible on it.</summary>
     private const int ReportedBlock = 0x8E;
 
     /// <summary>Every Upper Crateria tileset's installed sheet holds block 08E's picture showing the room's load.</summary>
@@ -33,7 +33,7 @@ internal static class CollectibleSlotLoadPictureVerification
             SpriteSheetFrame picture = sheet.Picture(name);
             AssertEqual(RoomBlockSheet.BlockPixels, (int)picture.Size.X, $"{sheet.Sheet.Image.Name} picture {name} is one block wide");
         }
-        Console.WriteLine($"Collectible slot load picture: {sheets.Length} Upper Crateria sheet(s) hold block {ReportedBlock:X3}'s picture over the room's load.");
+        Console.WriteLine($"Collectible block load picture: {sheets.Length} Upper Crateria sheet(s) hold block {ReportedBlock:X3}'s picture over the room's load.");
     }
 
     [VerificationCommand("--collectible-slot-load-picture")]

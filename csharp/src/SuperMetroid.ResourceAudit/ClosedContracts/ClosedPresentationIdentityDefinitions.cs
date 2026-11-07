@@ -69,6 +69,9 @@ internal static class ClosedPresentationIdentityDefinitions
             .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)
             .Select(frame => frame.Pose.Index).Distinct().ToArray(),
         ("InstalledProjectileTrails", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
+        ("InstalledXrayOverlays", "TankMetatile", "tank") =>
+            [(int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.EnergyTank, (int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.MissileTank,
+                (int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.SuperMissileTank, (int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.PowerBombTank],
         ("RoomFxLayer3Pages", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxBlendInks", "Inks", "selection") => RoomFxPaletteBlendDocumentRules.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteSheetDefinitions.All

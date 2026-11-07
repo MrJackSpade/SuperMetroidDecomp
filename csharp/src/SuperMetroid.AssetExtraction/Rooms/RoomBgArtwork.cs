@@ -18,8 +18,8 @@ public static class RoomBgArtwork
 
 
     /// <summary>
-    /// Collectible <paramref name="kind"/> over a collectible graphics slot, two animation frames of four characters: the
-    /// slot's blocks show the room block sheet's pictures named for it.
+    /// Collectible <paramref name="kind"/>'s own graphics, two animation frames of four characters, which the room block
+    /// sheet's pictures of the kind are composed from (#1538).
     /// </summary>
     public static BgArtworkIdentity Collectible(InWorldCollectibleKind kind) => new($"collectible {kind}");
 

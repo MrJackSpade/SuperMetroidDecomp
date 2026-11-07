@@ -31,8 +31,7 @@ public sealed class RoomBackgroundImage
 
     /// <summary>Checks the picture spans a page's width and whole cell rows, and that each changing cell lies in it once.</summary>
     /// <exception cref="InvalidDataException">
-    /// The picture is not whole cell rows across a page, a cell lies outside it or repeats, or a cell is pictured over a
-    /// collectible's graphics.
+    /// The picture is not whole cell rows across a page, or a cell lies outside it or repeats.
     /// </exception>
     public RoomBackgroundImage(string name, SpriteSheet sheet, IEnumerable<RoomBackgroundCell> cells)
     {
@@ -49,9 +48,6 @@ public sealed class RoomBackgroundImage
         Cells = [.. Ensure.NotNull(cells)];
         if (Cells.Any(cell => cell.Cell < 0 || cell.Cell >= CellCount) || Cells.DistinctBy(cell => cell.Cell).Count() != Cells.Count)
             throw new InvalidDataException($"Room background {name} records a changing cell outside its {CellCount} cells, or one twice.");
-        // A collectible is pictured only as itself, where it lies (#1513): no background cell is pictured over its graphics.
-        if (Cells.FirstOrDefault(cell => cell.Inputs.Any(input => input is CollectibleSlotAppearance)) is { } overCollectible)
-            throw new InvalidDataException($"Room background {name}'s cell {overCollectible.Cell} is pictured over a collectible's graphics.");
     }
 
     /// <summary>The background's installed name.</summary>

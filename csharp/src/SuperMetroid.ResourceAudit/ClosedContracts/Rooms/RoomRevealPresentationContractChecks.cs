@@ -24,6 +24,7 @@ internal static class RoomRevealPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Rooms.LevelData;
+            using SuperMetroid.Core.Rooms.RoomObjects;
             using SuperMetroid.Core.Rooms.Xray;
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class RevealConsumer {
@@ -31,9 +32,9 @@ internal static class RoomRevealPresentationContractChecks
                     reveals.Apply(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(2));
                     reveals.Apply(RoomCollisionType.SolidBlock, new RoomBlockBehavior(0));
                     reveals.Apply(RoomCollisionType.HorizontalExtension, new RoomBlockBehavior(3));
-                    overlays.ItemMetatile(0);
-                    overlays.ItemMetatile(7);
-                    overlays.ItemMetatile(8);
+                    overlays.TankMetatile(InWorldCollectibleKind.EnergyTank);
+                    overlays.TankMetatile(InWorldCollectibleKind.PowerBombTank);
+                    overlays.TankMetatile(InWorldCollectibleKind.Bombs);
                     overlays.RoomTiles(XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks);
                 }
             }
@@ -57,7 +58,7 @@ internal static class RoomRevealPresentationContractChecks
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 7, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 6 && after.UnresolvedCount == 1 && after.MissingCount == 0 &&
-            after.Consumers.Count == 7, "complete reveals, item slots and required overlays qualify, not invalid slots" + " (" + after.Describe() + ")");
+            after.Consumers.Count == 7, "complete reveals, tanks and required overlays qualify, not an item that is no tank" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Confirms one collision kind and behaviour select both its compiled reveal command and matching installed blocks.</summary>

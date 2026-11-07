@@ -46,4 +46,8 @@ public sealed class RoomBlockSheet
             throw new InvalidDataException($"Room block sheet {Sheet.Image.Name} picture {name} is not one block.");
         return picture;
     }
+
+    /// <summary>The picture of <paramref name="collectible"/>'s frame, which its kind shows where it lies in the tileset's rooms (#1538).</summary>
+    /// <exception cref="InvalidDataException">The sheet has no such picture: no room of the tileset places the kind.</exception>
+    public SpriteSheetFrame PictureOf(CollectiblePicture collectible) => Picture(RoomBlockPictureNames.OfCollectible(collectible));
 }

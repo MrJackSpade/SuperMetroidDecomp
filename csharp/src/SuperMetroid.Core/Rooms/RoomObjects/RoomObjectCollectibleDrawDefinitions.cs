@@ -13,8 +13,11 @@ internal static class RoomObjectCollectibleDrawDefinitions
     internal const int OrbBurstBlock = 117;
     /// <summary>The visual block of a tank's first frame; a tank is a special block.</summary>
     internal const int TankFirstBlock = 74;
-    /// <summary>The visual block of a dynamic collectible's first frame; it is a special block.</summary>
-    internal const int DynamicFirstBlock = 142;
+    /// <summary>
+    /// The block of the first block pair's first frame, which an item that shows its own picture writes under the picture;
+    /// it is a special block.
+    /// </summary>
+    internal const int OwnPictureFirstBlock = 142;
     /// <summary>The visual block of a shot reveal's first frame; the reveal is solid.</summary>
     internal const int ShotRevealFirstBlock = 83;
 
@@ -29,8 +32,8 @@ internal static class RoomObjectCollectibleDrawDefinitions
         OrbBurst,
         /// <summary>Two visible frames for each of four tank pickup kinds.</summary>
         Tank,
-        /// <summary>Two frames for each dynamically allocated item graphics slot.</summary>
-        Dynamic,
+        /// <summary>Two frames for each of the block pairs items that show their own picture take in turn.</summary>
+        OwnPicture,
         /// <summary>Three solid frames of a shot-block item reveal.</summary>
         ShotReveal,
     }

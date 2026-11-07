@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefinitions;
 
@@ -21,7 +22,7 @@ internal static class CollectibleObjectDraws
         DrawGroup.Orb => 3,
         DrawGroup.OrbBurst => 1,
         DrawGroup.Tank => 8,
-        DrawGroup.Dynamic => 8,
+        DrawGroup.OwnPicture => CollectibleBlockPairs.Count * 2,
         DrawGroup.ShotReveal => 3,
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
     };
@@ -37,7 +38,7 @@ internal static class CollectibleObjectDraws
         DrawGroup.Orb => RoomTerrainBlock.Of(OrbFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.ShootableBlock),
         DrawGroup.OrbBurst => RoomTerrainBlock.Of(OrbBurstBlock, BlockMirroring.None, RoomCollisionType.SolidBlock),
         DrawGroup.Tank => RoomTerrainBlock.Of(TankFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock),
-        DrawGroup.Dynamic => RoomTerrainBlock.Of(DynamicFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+        DrawGroup.OwnPicture => RoomTerrainBlock.Of(OwnPictureFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock),
         DrawGroup.ShotReveal => RoomTerrainBlock.Of(ShotRevealFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SolidBlock),
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
     };
@@ -60,9 +61,12 @@ internal static class CollectibleObjectDraws
         return RoomObjectDraw.Of(new Draw(DrawGroup.ShotReveal, animationIndex));
     }
 
-    /// <summary>Two draws per tank kind or allocated dynamic graphics slot.</summary>
+    /// <summary>
+    /// The visible frame <paramref name="animationIndex"/> of a tank kind, or of the block pair an item that shows its own
+    /// picture took (<see cref="CollectibleBlockPairs"/>): two draws each.
+    /// </summary>
     internal static RoomObjectFrameDraw<Draw> VisibleFrame(InWorldCollectibleKind kind,
-        int animationIndex, int graphicsSlot)
+        int animationIndex, int? blockPair)
     {
         if ((uint)animationIndex >= 2)
             throw new InvalidDataException(
@@ -70,9 +74,9 @@ internal static class CollectibleObjectDraws
         int tank = Array.IndexOf(TankKinds, kind);
         if (tank >= 0)
             return RoomObjectDraw.Of(new Draw(DrawGroup.Tank, tank * 2 + animationIndex));
-        if ((uint)graphicsSlot >= 4)
+        if (blockPair is not { } pair || pair is < 0 or >= CollectibleBlockPairs.Count)
             throw new InvalidDataException(
-                $"Dynamic collectible graphics slot {graphicsSlot} is outside four allocations.");
-        return RoomObjectDraw.Of(new Draw(DrawGroup.Dynamic, graphicsSlot * 2 + animationIndex));
+                $"Collectible {kind} block pair {blockPair} is not one of the {CollectibleBlockPairs.Count} pairs.");
+        return RoomObjectDraw.Of(new Draw(DrawGroup.OwnPicture, pair * 2 + animationIndex));
     }
 }

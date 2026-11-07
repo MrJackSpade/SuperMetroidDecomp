@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
@@ -18,12 +20,15 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [EncodingOwner("retail X-ray reveal table words")]
 public static class XrayRevealVisualFiles
 {
-    /// <summary>Family-relative version-two installed JSON filename for reveal-rule operands, eight item metatiles, and special-room overlay records.</summary>
+    /// <summary>Family-relative version-three installed JSON filename for reveal-rule operands, four tank metatiles, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
-    /// <summary>Stock manifest filename containing version-two format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
+    /// <summary>Stock manifest filename containing version-three format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
-    /// <summary>Schema revision that includes rule operands, item metatiles, and room-overlay records.</summary>
-    private const int FormatVersion = 2;
+    /// <summary>
+    /// Schema revision that includes rule operands, tank metatiles, and room-overlay records: revision 3 holds the four tanks'
+    /// reveal blocks alone, every other item being revealed as its kind's own picture (#1538).
+    /// </summary>
+    private const int FormatVersion = 3;
 
     /// <summary>Uses camel-case enum names and strict constructor/property admission for the installed reveal JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -36,14 +41,18 @@ public static class XrayRevealVisualFiles
         Converters = { new JsonStringEnumConverter() },
     };
 
-    /// <summary>Checks all 16-by-256 cartridge collision-kind and behaviour reveal results, then exports drawable blocks, item-slot appearances, and room-specific X-ray overlays.</summary>
+    /// <summary>
+    /// Checks all 16-by-256 cartridge collision-kind and behaviour reveal results and that the X-ray reveals each item that
+    /// shows its own picture by its first frame, then exports drawable blocks, tank appearances, and room-specific X-ray
+    /// overlays.
+    /// </summary>
     /// <param name="bus">Cartridge source for bank-$91 reveal records, eight bank-$84 item draw pointers at $84:839D, and bank-$8F special-X-ray lists referenced by compiled room states.</param>
     /// <param name="directory">Family directory, created before native validation; receives new <see cref="VisualFileName"/> and <see cref="ManifestFileName"/> files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; loading requires the supported cartridge identity.</param>
     /// <remarks>Drawable rules are grouped by collision kind and definition. Item and room-overlay level words are decoded to appearances by <see cref="RoomLevelWordCodec"/>; room coordinates are unsigned 16-pixel block positions. Create-new writes refuse existing outputs and are not an atomic JSON/manifest transaction.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">A native rule differs from compiled definitions, a pointer/command is invalid, or a room overlay is empty, unterminated, or contains nonvisual words.</exception>
+    /// <exception cref="InvalidDataException">A native rule differs from compiled definitions, a pointer/command is invalid, the X-ray reveals an item showing its own picture other than by its block pair's first frame, or a room overlay is empty, unterminated, or contains nonvisual words.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
@@ -78,18 +87,22 @@ public static class XrayRevealVisualFiles
             .OrderBy(entry => entry.CollisionType)
             .ThenBy(entry => entry.BehaviorValues[0])
             .ToArray();
-        RoomBlockAppearance[] itemMetatiles = Enumerable.Range(0, InstalledXrayOverlays.DynamicGraphicsSlots * 2)
-            .Select(slot =>
-            {
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + slot * sizeof(ushort)));
-                if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
-                    throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-                return RoomLevelWordCodec.DecodeAppearance(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
-            }).ToArray();
+        // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
+        // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in tank order.
+        for (int pair = 0; pair < CollectibleBlockPairs.Count; pair++)
+        {
+            RoomBlockAppearance firstFrame = CollectibleObjectDraws.TryGetBlock(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, 0, pair),
+                out RoomTerrainBlock written) ? written.Appearance
+                : throw new InvalidOperationException($"Block pair {pair}'s first frame has no compiled block.");
+            if (ItemDrawAppearance(bus, pair) != firstFrame)
+                throw new InvalidDataException($"The X-ray reveals the item in block pair {pair} other than by the pair's first frame.");
+        }
+        RoomBlockAppearance[] tankMetatiles = Enumerable.Range(CollectibleBlockPairs.Count, InstalledXrayOverlays.TankCount)
+            .Select(index => ItemDrawAppearance(bus, index)).ToArray();
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlaySources.Pointers
             .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new XrayRevealVisualDocument(FormatVersion, entries, itemMetatiles, rooms),
+            new XrayRevealVisualDocument(FormatVersion, entries, tankMetatiles, rooms),
             JsonOptions);
         using (var file = new FileStream(Path.Combine(directory, VisualFileName),
                    FileMode.CreateNew, FileAccess.Write))
@@ -100,9 +113,9 @@ public static class XrayRevealVisualFiles
             new XrayRevealVisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
-    /// <summary>Validates the installed version-two X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
+    /// <summary>Validates the installed version-three X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
     /// <param name="directory">Family directory containing the installed reveal JSON and its provenance manifest.</param>
-    /// <returns>A ROM-independent catalog with copied rule operands, eight item slots, and ordered special-room tile lists.</returns>
+    /// <returns>A ROM-independent catalog with copied rule operands, four tank reveals, and ordered special-room tile lists.</returns>
     /// <remarks>Loading does not repeat cartridge reads. Strict JSON rejects unknown/missing constructor properties. Every entry must name a compiled drawable rule with its shape, every drawable rule must be covered once, and the special rooms keep their identities; blocks, appearances, tile lists and byte-range room coordinates may change.</remarks>
     /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Manifest provenance, strict JSON schema, rule coverage/shape, unused operands, or overlay identities are invalid.</exception>
@@ -127,7 +140,7 @@ public static class XrayRevealVisualFiles
             foreach (int value in entry.BehaviorValues)
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, new RoomBlockBehavior(value), visual));
         }
-        var overlays = new InstalledXrayOverlays(document.ItemMetatiles,
+        var overlays = new InstalledXrayOverlays(document.TankMetatiles,
             document.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
                 room.Tiles.Select(tile =>
                     new XrayRoomOverlayVisual(tile.Block, RoomBlockAppearance.Of(tile.Appearance.Block, tile.Appearance.Mirroring))).ToArray())));
@@ -138,8 +151,8 @@ public static class XrayRevealVisualFiles
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
-            document.ItemMetatiles is null || document.Rooms is null ||
-            document.ItemMetatiles.Length != InstalledXrayOverlays.DynamicGraphicsSlots * 2 ||
+            document.TankMetatiles is null || document.Rooms is null ||
+            document.TankMetatiles.Length != InstalledXrayOverlays.TankCount ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
         ushort[] nativePointers = XrayRoomOverlaySources.Pointers.ToArray();
@@ -234,6 +247,16 @@ public static class XrayRevealVisualFiles
         }
     }
 
+    /// <summary>The block item draw <paramref name="index"/> of the X-ray's item draw table reveals.</summary>
+    /// <exception cref="InvalidDataException">The draw pointer is invalid.</exception>
+    private static RoomBlockAppearance ItemDrawAppearance(ISnesAddressSpace bus, int index)
+    {
+        int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + index * sizeof(ushort)));
+        if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
+            throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
+        return RoomLevelWordCodec.DecodeAppearance(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
+    }
+
     /// <summary>Reads one fixed-bank $91 word only after rejecting addresses outside the native table bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer)
     {
@@ -289,9 +312,9 @@ public static class XrayRevealVisualFiles
 
     /// <summary>Stock provenance and SHA-256 of the exact reveal JSON bytes.</summary>
     private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256);
-    /// <summary>Complete editable rule, item, and room-overlay families for the installed format.</summary>
+    /// <summary>Complete editable rule, tank, and room-overlay families for the installed format.</summary>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
-        RoomBlockAppearance[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
+        RoomBlockAppearance[] TankMetatiles, XrayRoomOverlayEntry[] Rooms);
     /// <summary>One compiled collision-kind and behaviour rule's editable blocks with its fixed copy shape.</summary>
     /// <param name="CollisionType">The rule's collision kind.</param>
     /// <param name="BehaviorValues">The behaviour values the rule covers, 0 through 255.</param>

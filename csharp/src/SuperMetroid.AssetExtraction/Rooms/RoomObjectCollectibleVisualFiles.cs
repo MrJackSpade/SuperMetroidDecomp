@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Rooms.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -108,7 +110,7 @@ public static class RoomObjectCollectibleVisualFiles
         DrawGroup.Orb => $"chozo-orb-{draw.Index}",
         DrawGroup.OrbBurst => "chozo-orb-burst",
         DrawGroup.Tank => $"{TankKindName(draw.Index / 2)}-tank-{draw.Index % 2}",
-        DrawGroup.Dynamic => $"dynamic-slot-{draw.Index / 2}-frame-{draw.Index % 2}",
+        DrawGroup.OwnPicture => $"dynamic-slot-{draw.Index / 2}-frame-{draw.Index % 2}",
         DrawGroup.ShotReveal => $"shot-reveal-{draw.Index}",
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
     };
@@ -152,21 +154,24 @@ public static class RoomObjectCollectibleVisualFiles
         }
     }
 
-    /// <summary>Checks eight dynamic selectors and all 24 one-cell native draws before extracting appearance.</summary>
+    /// <summary>
+    /// Checks the eight selectors of the frames each block pair's collectible writes (<see cref="CollectibleBlockPairs"/>)
+    /// and all 24 one-cell native draws before extracting appearance.
+    /// </summary>
     private static RoomObjectVisualBlockEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
-        for (int slot = 0; slot < 4; slot++)
-        for (int animation = 0; animation < 2; animation++)
+        for (int pair = 0; pair < CollectibleBlockPairs.Count; pair++)
+        for (int animation = 0; animation < CollectiblePicture.Frames; animation++)
         {
             int table = animation == 0
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + slot * 2)))));
+            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + pair * 2)))));
             int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame(
-                InWorldCollectibleKind.Bombs, animation, slot));
+                InWorldCollectibleKind.Bombs, animation, pair));
             if (native != compiled)
                 throw new InvalidDataException(
-                    $"Dynamic collectible selector $84:{table + slot * 2:X4} differs from the cartridge.");
+                    $"Collectible block pair selector $84:{table + pair * 2:X4} differs from the cartridge.");
         }
 
         var entries = new List<RoomObjectVisualBlockEntry>();

@@ -18,9 +18,10 @@ public static class RoomBlockAppearanceFiles
 {
     /// <summary>
     /// The schema revision: revision 2 records a collectible slot only on the blocks a collectible writes where it lies,
-    /// alone, and only in tilesets whose rooms place one (#1513).
+    /// alone, and only in tilesets whose rooms place one (#1513); revision 3 records no collectible slot at all, a
+    /// collectible's pictures being named by its kind and frame (#1538).
     /// </summary>
-    private const int Version = 2;
+    private const int Version = 3;
 
     /// <summary>The installed file name of <paramref name="tileset"/>'s record.</summary>
     public static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";

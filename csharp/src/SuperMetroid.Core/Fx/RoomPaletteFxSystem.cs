@@ -47,14 +47,14 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     public RoomPaletteFxSystem(PaletteFxSessionState session) => _session = Ensure.NotNull(session);
 
     /// <summary>
-    /// Bit 15 of the palette-FX enable word, checked first by the handler; it lives on the session.
+    /// Whether the palette effects run at all, checked first by every handler pass; it lives on the session.
     /// </summary>
     public bool HandlerEnabled => _session.HandlerEnabled;
 
-    /// <summary>Sound calls published by palette bytecode during the current frame.</summary>
+    /// <summary>Sound calls published by palette programs during the current frame.</summary>
     public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
 
-    /// <summary>Music calls published by palette bytecode during the current frame.</summary>
+    /// <summary>Music calls published by palette programs during the current frame.</summary>
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => musicRequests;
 
     /// <summary>Whether a particular definition currently owns a slot.</summary>
@@ -142,7 +142,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         }
     }
 
-    /// <summary>Runs one <c>PaletteFXObject_Handler</c> pass in descending slot order during gameplay.</summary>
+    /// <summary>Runs one palette-effect handler pass in descending slot order during gameplay.</summary>
     /// <remarks>
     /// No colour is written (#1512): each record shown is recorded as its colour group's last, which the room's pictures
     /// take as a shade, and the records of Samus's and the enemies' groups are handed to their owners through
@@ -158,7 +158,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs one <c>PaletteFXObject_Handler</c> pass for a frontend screen (#1512): each record shown is recorded as its colour
+    /// Runs one palette-effect handler pass for a frontend screen (#1512): each record shown is recorded as its colour
     /// group's last, which the screen shades its pictures with, and no owner's colours are written.
     /// </summary>
     /// <exception cref="InvalidOperationException">A record is shown in colours no frontend screen shows.</exception>
@@ -169,7 +169,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs one <c>PaletteFXObject_Handler</c> pass for a frontend screen that orders each record shown among its own colour
+    /// Runs one palette-effect handler pass for a frontend screen that orders each record shown among its own colour
     /// loads (#1512): each record is recorded as its colour group's last and handed to <paramref name="shown"/> as it is shown,
     /// so a record shown again after a load overwrote its colours shows over that load, as the handler's write does.
     /// </summary>
@@ -188,7 +188,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>Runs the slots in descending order, handing each record a slot's program shows to <paramref name="show"/>.</summary>
     private void RunHandler(PaletteFxConditions conditions, Action<PaletteFxSlot, PaletteFxFrame> show)
     {
-        // PaletteFXObject_Handler owns a new publication window on every game frame.
+        // Each handler pass owns a new publication window on every game frame.
         // Requests are momentary calls into the shared queues, not persistent object state.
         soundRequests.Clear();
         musicRequests.Clear();
@@ -201,7 +201,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             if (slot.Object is null)
                 continue;
 
-            RunFrameBehavior(slot, slotIndex, conditions);
+            RunFrameBehavior(slot, conditions);
             if (slot.Object is null)
                 continue;
 
@@ -220,9 +220,9 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
-        // Spawn_PaletteFXObject searches byte offsets 14,12,...,0, which is slot order
-        // 7..0. A full pool silently rejects another spawn; this is a documented
-        // allocation result, not a failed translation that should be hidden by an exception.
+        // Spawning searches the slots from the highest down. A full pool silently rejects
+        // another spawn; this is a documented allocation result, not a failed translation
+        // that should be hidden by an exception.
         PaletteFxSlot? slot = null;
         for (int index = SlotCount - 1; index >= 0; index--)
         {
@@ -271,8 +271,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         }
     }
 
-    /// <summary>Runs the slot's condition handler before timer and bytecode execution, including room heat and cutscene gates.</summary>
-    private void RunFrameBehavior(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
+    /// <summary>Runs the slot's condition handler before its timer and program run, including room heat and cutscene gates.</summary>
+    private void RunFrameBehavior(PaletteFxSlot slot, PaletteFxConditions conditions)
     {
         if (slot.FrameBehavior is not { } frameBehavior || !Enum.IsDefined(frameBehavior))
         {
@@ -319,24 +319,10 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 RunHeatFrameBehavior(slot, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
                 return;
 
-            case PaletteFxFrameBehavior.InspectAdjacentSlot:
-                if (InspectedNeighbourIsSet(slotIndex)) slot.Clear();
-                return;
-
             default:
                 throw new InvalidOperationException($"Undefined palette-FX pre-instruction {frameBehavior}.");
         }
     }
-
-    /// <summary>
-    /// Whether the neighbour the inspecting pre-instruction looks at is set. It looks
-    /// <see cref="PaletteFxSlotInspectionDefinitions.InspectedSlotDistance"/> slots below its own, reading the live
-    /// slots so deletions earlier in this descending pass are visible. A slot with no slot that far below looks at
-    /// the handler's own enable and running-slot state instead, which are always set while the handler runs.
-    /// </summary>
-    private bool InspectedNeighbourIsSet(int slotIndex) =>
-        slotIndex < PaletteFxSlotInspectionDefinitions.InspectedSlotDistance
-        || slots[slotIndex - PaletteFxSlotInspectionDefinitions.InspectedSlotDistance].Object is not null;
 
     /// <summary>
     /// Runs the Samus-in-heat per-frame behaviour step. The palette
@@ -524,12 +510,12 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         public PaletteFxFrameBehavior? FrameBehavior { get; set; }
         /// <summary>Where this object's typed program resumes.</summary>
         public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
-        /// <summary>Frames remaining before this object's next bytecode step.</summary>
+        /// <summary>Frames remaining before this object's next program step.</summary>
         public int FrameHold { get; set; }
         /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
         public WrappingCountdown Timer { get; set; }
 
-        /// <summary>Releases the object and clears every interpreter word for reuse.</summary>
+        /// <summary>Releases the object and clears all of its program state for reuse.</summary>
         public void Clear()
         {
             Object = null;

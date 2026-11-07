@@ -97,11 +97,12 @@ internal static class NativeSnapshotImport
             // starting there.
             paletteSlot.Target = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(paletteSlot.Object,
                 RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), paletteSlot.Id));
-            // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native view.
+            // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native view,
+            // where the deleted adjacent-slot inspection (#1526) stands for the behaviour the port's glow keeps.
             paletteSlot.FrameBehavior = paletteSlot.Id == 0
                 ? default
-                : SuperMetroid.Core.Fx.FxNativeWords.PaletteFxFrameBehaviors.Decode(
-                    W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2), "palette-FX pre-instruction");
+                : SuperMetroid.Core.Fx.FxNativeWords.RecordedPaletteFxFrameBehavior(
+                    W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2));
             // A live object resumes its typed program where the recorded native pointer stands.
             paletteSlot.Cursor = paletteSlot.Id == 0
                 ? default

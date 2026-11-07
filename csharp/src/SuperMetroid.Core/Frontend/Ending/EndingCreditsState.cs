@@ -96,7 +96,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>The staff credits and what follows them: the reward copyright and palette, the white flash and the post-credits logo.</summary>
     internal EndingCreditsRoll CreditsRoll { get; }
 
-    /// <summary>Initializes state-$27 from the saved clear-time and ending setup snapshot.</summary>
+    /// <summary>Initializes the ending and credits from the saved clear-time and ending setup snapshot.</summary>
     public EndingCreditsState(AudioQueues audio, EndingCreditsSetup setup)
     {
         this.audio = Ensure.NotNull(audio);
@@ -118,7 +118,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal bool ResumesAfterFrameWait =>
         Stage.Phase == EndingCreditsPhase.SetupEscapeFromZebes && setupFrameWaits > 0;
 
-    /// <summary>Runs one state-$27 dispatcher call.</summary>
+    /// <summary>Runs one update of the ending and credits.</summary>
     public void Step()
     {
         switch (Stage.Phase)
@@ -289,7 +289,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 CreditsRoll.ApplyWaitingBackdropPalette(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - Stage.PhaseTimer + 1);
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // Func131 finishes its palette fade, then Func132 holds the waiting
+                    // The palette fade finishes, then the waiting phase holds the
                     // backdrop for three seconds before displaying the producer panel.
                     Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingBackdropFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingBackdrop;
@@ -383,8 +383,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsCopyright:
-                // The sprite interpreter continues behind TM=$01; hiding the actors
-                // must not reset their instruction lists or their reveal palette state.
+                // The sprites keep animating while only the first background layer shows; hiding the actors
+                // must not reset their programs or their reveal palette state.
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {
@@ -414,7 +414,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.SeeYouNextMission:
-                // Retail parks in the final null cinematic function. There is no hidden
+                // The game parks on this final screen. There is no hidden
                 // automatic reset: the console remains on this frame until reset/power-off.
                 EscapeScenes.StepSprites();
                 InstalledArtwork.ActivePostCreditsText?.Step();
@@ -440,13 +440,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
     /// <summary>
     /// The backdrop a palette-effect <paramref name="record"/> in <paramref name="colours"/> shows (#1512): the space behind
-    /// the exploding planet is the backdrop, so a record of its colours that writes its first colour shows that colour
-    /// behind every layer; any other record leaves the backdrop as it was.
+    /// the exploding planet is the backdrop, and every record writes its first colour before any colour it skips, so a
+    /// record of its colours shows that colour behind every layer; any other record leaves the backdrop as it was.
     /// </summary>
     /// <exception cref="InvalidDataException">The record's first colour is not installed.</exception>
     private static RgbColor? PaletteFxBackdrop(PaletteFxColours colours, PaletteFxFrame record, IPaletteFxColorSource installed)
     {
-        if (colours != EndingPaletteFxDefinitions.SpaceColours || PaletteFxRecordDefinitions.Layout(record)[0].Skip)
+        if (colours != EndingPaletteFxDefinitions.SpaceColours)
             return null;
         return installed.TryReadColor(new PaletteFxColorKey(record, 0), out RgbColor backdrop)
             ? backdrop
@@ -456,7 +456,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>Rotates the turning floor every other cinematic call while applying the current zoom delta.</summary>
     private void StepAtmosphericTransform(int scaleDelta)
     {
-        // Func111/114 run during both fades as well as the fully visible interval.
+        // The floor turns during both fades as well as the fully visible interval.
         if ((Flyaway.CinematicFrame & 1) == 0)
             Stage.FloorAngle = Stage.FloorAngle.AddTableUnits(-1);
         Stage.FloorZoom += scaleDelta;

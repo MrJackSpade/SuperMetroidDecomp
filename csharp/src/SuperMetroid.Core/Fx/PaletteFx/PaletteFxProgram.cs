@@ -298,9 +298,7 @@ public enum PaletteFxProgram
     Tourian4,
     /// <summary>The Tourian palette effect 2 program.</summary>
     Tourian2,
-    /// <summary>The shared Tourian palette effect 2 and Tourian palette effect 4 program its variants continue into, step 0.</summary>
-    CommonTourian2Tourian40,
-    /// <summary>The shared Tourian palette effect 2 and Tourian palette effect 4 program its variants continue into, step 1.</summary>
+    /// <summary>The shared Tourian palette effect 2 and Tourian palette effect 4 program its variants continue into.</summary>
     CommonTourian2Tourian41,
     /// <summary>The Tourian palette effect 8 program, step 0.</summary>
     Tourian80,

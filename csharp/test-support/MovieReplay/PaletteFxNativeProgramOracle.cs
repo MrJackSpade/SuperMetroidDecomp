@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -10,7 +11,10 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>
 /// The ROM oracle of the palette-FX objects' typed programs (#1298): each program matched step by step to its native
-/// bank-$8D list, and the typed cursor a recording's native instruction pointer stands for.
+/// bank-$8D list, and the typed cursor a recording's native instruction pointer stands for. The one native instruction
+/// the programs deliberately do not reproduce is the set-pre-instruction of the deleted adjacent-slot inspection (#1526),
+/// a presentation quirk: the comparison steps over exactly that instruction, wherever a list runs or branches into it, and
+/// fails on any other native instruction the typed steps do not match.
 /// </summary>
 internal static class PaletteFxNativeProgramOracle
 {
@@ -46,6 +50,7 @@ internal static class PaletteFxNativeProgramOracle
         ushort cursor = entry;
         for (int index = 0; index < steps.Count; index++)
         {
+            cursor = PastDeletedInspection(cursor);
             string at = $"palette-FX {program} step {index} at $8D:{cursor:X4}";
             addresses[index] = cursor;
             var step = steps[index];
@@ -72,7 +77,7 @@ internal static class PaletteFxNativeProgramOracle
             {
                 case PaletteFxInstruction.Goto:
                     var goTo = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.GoToStep>(step, $"{at}: goto");
-                    VerificationAssertions.AssertEqual(byEntry[operandWord], goTo.Target, $"{at}: goto target");
+                    VerificationAssertions.AssertEqual(byEntry[PastDeletedInspection(operandWord)], goTo.Target, $"{at}: goto target");
                     VerificationAssertions.AssertEqual(steps.Count, index + 1, $"{at}: the goto ends the program");
                     return addresses;
                 case PaletteFxInstruction.Delete:
@@ -81,7 +86,7 @@ internal static class PaletteFxNativeProgramOracle
                     return addresses;
                 case PaletteFxInstruction.DecrementTimerAndGoto:
                     var repeat = VerificationAssertions.AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
-                    VerificationAssertions.AssertEqual(byEntry[operandWord], repeat.Target, $"{at}: repeat target");
+                    VerificationAssertions.AssertEqual(byEntry[PastDeletedInspection(operandWord)], repeat.Target, $"{at}: repeat target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetTimer:
@@ -134,6 +139,14 @@ internal static class PaletteFxNativeProgramOracle
         throw new InvalidDataException($"palette-FX {program} ran past its typed steps at $8D:{cursor:X4}.");
 
         ushort Word(int address) => cartridge.ReadCartridgeWord(PaletteFxListWords.ListBank | address);
+
+        // The deleted adjacent-slot inspection (#1526) is a presentation quirk the port does not reproduce: where the native
+        // list sets that one pre-instruction, the typed program runs straight on to what follows it.
+        ushort PastDeletedInspection(ushort address) =>
+            Word(address) == (ushort)PaletteFxInstruction.SetFrameBehavior &&
+            Word(address + 2) == FxNativeWords.DeletedSlotInspectionPreInstruction
+                ? unchecked((ushort)(address + 4))
+                : address;
 
         // A record is its timer, its colour words and skip commands, then the closing wait.
         ushort CompareLayout(ushort record, IReadOnlyList<PaletteFxRecordPart> layout, string at)

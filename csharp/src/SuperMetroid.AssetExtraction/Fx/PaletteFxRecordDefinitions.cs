@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The presentation boundary of the palette-FX programs (#1298): each <see cref="PaletteFxFrame"/> record's layout of
-/// written colours and skipped colour entries. Its colours are installed artwork keyed by <see cref="PaletteFxColorKey"/>.
-/// Generated from the verified animation scripts.
+/// The import's palette write layout of the palette-FX programs (#1298, #1526): each <see cref="PaletteFxFrame"/>
+/// record's runs of written colours and skipped colour entries, which the import reads to locate each record's colours
+/// and to lay its shade over the inks its group recolours. The game sees only the installed colours, keyed by
+/// <see cref="PaletteFxColorKey"/>. Generated from the verified animation scripts.
 /// </summary>
 internal static class PaletteFxRecordDefinitions
 {

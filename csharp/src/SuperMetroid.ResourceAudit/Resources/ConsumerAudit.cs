@@ -99,24 +99,29 @@ internal static class ConsumerAudit
         // coverage boundary; inventory instance operations, not just public Get().
         // A static operation is a lookup when a reviewed contract names it: a draw from a pre-coloured sheet maps an
         // identity to its frame without reading the presentation's own state (#1392).
-        if (method.IsStatic && !ReviewedStaticOperation(method)) return;
+        // An extension member is called on the type it extends, as an instance operation of that type; its own static
+        // declaring class is not the receiver a contract names.
+        INamedTypeSymbol ownerType = method.ContainingType is { IsExtension: true, ExtensionParameter.Type: INamedTypeSymbol extended }
+            ? extended : method.ContainingType;
+        bool extensionMember = !SymbolEqualityComparer.Default.Equals(ownerType, method.ContainingType);
+        if (method.IsStatic && !extensionMember && !ReviewedStaticOperation(method)) return;
         // A reviewed closed contract classifies the call first: it may be reached through a narrow interface that
         // lives outside the artwork layer (gameplay reads the frontend's map install through IGameplayPresentationContent).
         if (closedProviders?.TryInspect(call, semantic, method, exports, report, source) == true) return;
-        if (!IsResourceType(method.ContainingType)) return;
-        string owner = method.ContainingType.Name + "." + method.Name;
+        if (!IsResourceType(ownerType)) return;
+        string owner = ownerType.Name + "." + method.Name;
         string arguments = string.Join(", ", call.ArgumentList.Arguments.Select(arg => arg.Expression.ToString()));
         if (UnboundArguments(call, semantic) is { } unbound)
         {
             report.Consumers.Add(new(owner, source, "unresolved"));
-            report.Gap(Domain(method.ContainingType.Name, method.Name) ?? method.ContainingType.Name, owner, source, unbound);
+            report.Gap(Domain(ownerType.Name, method.Name) ?? ownerType.Name, owner, source, unbound);
             return;
         }
-        string? domain = Domain(method.ContainingType.Name, method.Name);
+        string? domain = Domain(ownerType.Name, method.Name);
         string? key = domain is null ? null : ConstantKey(domain, call, semantic);
         if (domain is null || key is null)
         {
-            string actualDomain = domain ?? method.ContainingType.Name;
+            string actualDomain = domain ?? ownerType.Name;
             report.Consumers.Add(new(owner, source, "unresolved"));
             report.Gap(actualDomain, owner, source, domain is null
                 ? "No definition-coverage adapter for this resource domain. Arguments: " + arguments

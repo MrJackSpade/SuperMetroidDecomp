@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Installed artwork the game loads by name (#1422): character runs and one tilemap row that rooms, the HUD, the escape,

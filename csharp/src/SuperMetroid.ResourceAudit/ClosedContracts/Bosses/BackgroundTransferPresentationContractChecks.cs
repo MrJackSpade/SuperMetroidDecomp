@@ -19,6 +19,7 @@ internal static class BackgroundTransferPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Assets;
+            using SuperMetroid.AssetExtraction.Artwork;
             using SuperMetroid.AssetExtraction.Enemies;
             using SuperMetroid.AssetExtraction.Fx;
             using SuperMetroid.AssetExtraction.Fx.Artwork;
@@ -47,7 +48,7 @@ internal static class BackgroundTransferPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("BackgroundTransferProviderFixture", sources,
-            platforms.Append(typeof(SuperMetroid.Core.Assets.InstalledArtworkId).Assembly.Location).Distinct()
+            platforms.Append(typeof(SuperMetroid.Core.Assets.RgbColor).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -61,7 +62,11 @@ internal static class BackgroundTransferPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 12, "constructed calls must first expose the missing adapters" + " (" + before.Describe() + ")");
+        // A fixture that does not compile leaves calls unbound, so its errors explain a count that comes out short.
+        string compileErrors = string.Join(" | ", compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+            .Select(diagnostic => diagnostic.ToString()).Distinct());
+        Require(before.UnresolvedCount == 12, "constructed calls must first expose the missing adapters" + " (" + before.Describe() + ")" +
+            (compileErrors.Length == 0 ? string.Empty : "; fixture errors: " + compileErrors));
         Require(after.Classifications.Count == 7 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
             after.Consumers.Count == 12, "complete owned sets/false queries qualify; bad selections and owned lengths fail" + " (" + after.Describe() + ")");
     }

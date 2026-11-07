@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -5,7 +6,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

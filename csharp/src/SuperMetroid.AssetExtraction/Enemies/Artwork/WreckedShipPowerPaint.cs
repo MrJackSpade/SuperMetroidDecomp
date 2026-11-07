@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;

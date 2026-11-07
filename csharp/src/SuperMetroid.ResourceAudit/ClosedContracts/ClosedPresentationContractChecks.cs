@@ -73,8 +73,8 @@ internal static class ClosedPresentationContractChecks
                     _ = beam.Colours(0);
                     _ = beam.Colours(SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);
                     spores.ResolveSpore(0);
-                    phantoon.ResolvePowerOn(SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart.Lights, 15);
-                    phantoon.ResolvePowerOn(SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
+                    phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 15);
+                    phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
                     statues.ResolveEye(3, 0);
                     statues.ResolveEye(4, 0);
                     rainbow.TryReadBeamColor(38, out _);

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.AssetExtraction.Samus.GrappleTileDefinitions;
 

@@ -1,9 +1,9 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime;

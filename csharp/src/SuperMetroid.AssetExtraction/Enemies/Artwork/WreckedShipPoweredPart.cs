@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// The parts of the Wrecked Ship the power coming on after Phantoon's death recolours (#1512), each painted toward its

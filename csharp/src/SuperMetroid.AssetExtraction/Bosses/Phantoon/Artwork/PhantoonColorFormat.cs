@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 
 /// <summary>Defines the installed Phantoon color resource contract.</summary>

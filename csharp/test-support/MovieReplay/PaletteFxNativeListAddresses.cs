@@ -160,7 +160,6 @@ internal static class PaletteFxNativeListAddresses
         new PaletteFxNativeListAddressesEntry(PaletteFxProgram.Maridia41, 0xf57d),
         new PaletteFxNativeListAddressesEntry(PaletteFxProgram.Tourian4, 0xf62a),
         new PaletteFxNativeListAddressesEntry(PaletteFxProgram.Tourian2, 0xf632),
-        new PaletteFxNativeListAddressesEntry(PaletteFxProgram.CommonTourian2Tourian40, 0xf636),
         new PaletteFxNativeListAddressesEntry(PaletteFxProgram.CommonTourian2Tourian41, 0xf63a),
         new PaletteFxNativeListAddressesEntry(PaletteFxProgram.Tourian80, 0xf7a9),
         new PaletteFxNativeListAddressesEntry(PaletteFxProgram.Tourian81, 0xf7ad),

@@ -93,8 +93,25 @@ internal static class FxNativeWords
         [PaletteFxFrameBehavior.SwitchAboveY380] = 0xec59,
         [PaletteFxFrameBehavior.SwitchAboveY380Second] = 0xed84,
         [PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies] = 0xeec5,
-        [PaletteFxFrameBehavior.InspectAdjacentSlot] = 0xf621,
     });
+
+    /// <summary>
+    /// The bank-$8D pre-instruction routine of the deleted adjacent-slot inspection (#1526): Tourian's glowing blocks and
+    /// orbs set it to delete their object when the slot two below holds one. It only decided whether the glow kept
+    /// showing, a presentation quirk the port does not reproduce, so no <see cref="PaletteFxFrameBehavior"/> names it.
+    /// </summary>
+    internal const ushort DeletedSlotInspectionPreInstruction = 0xf621;
+
+    /// <summary>
+    /// The frame behaviour a recorded pre-instruction routine <paramref name="word"/> stands for in the port: the deleted
+    /// adjacent-slot inspection stands for <see cref="PaletteFxFrameBehavior.Null"/>, which the port's glow program keeps
+    /// from its spawn; any other word must name a behaviour.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="word"/> names no behaviour and is not the deleted inspection.</exception>
+    internal static PaletteFxFrameBehavior RecordedPaletteFxFrameBehavior(ushort word) =>
+        word == DeletedSlotInspectionPreInstruction
+            ? PaletteFxFrameBehavior.Null
+            : PaletteFxFrameBehaviors.Decode(word, "palette-FX pre-instruction");
 
     /// <summary>The bank-$8D setup routine naming each <see cref="PaletteFxSetup"/>.</summary>
     internal static readonly NativeWordIdentities<PaletteFxSetup> PaletteFxSetups = new(new Dictionary<PaletteFxSetup, ushort>

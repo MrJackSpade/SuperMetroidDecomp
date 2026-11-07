@@ -1215,16 +1215,11 @@ public static class PaletteFxAnimations
         [P.Tourian4] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
-            GoTo(P.CommonTourian2Tourian40),
+            GoTo(P.CommonTourian2Tourian41),
         ],
         [P.Tourian2] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
-            FallInto(P.CommonTourian2Tourian40),
-        ],
-        [P.CommonTourian2Tourian40] =
-        [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.InspectAdjacentSlot)),
             FallInto(P.CommonTourian2Tourian41),
         ],
         [P.CommonTourian2Tourian41] =

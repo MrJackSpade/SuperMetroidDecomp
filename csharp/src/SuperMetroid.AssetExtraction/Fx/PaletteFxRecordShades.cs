@@ -135,7 +135,6 @@ internal static class PaletteFxRecordShades
         PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies => null,
         PaletteFxFrameBehavior.Heat => null,
         PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies => null,
-        PaletteFxFrameBehavior.InspectAdjacentSlot => null,
         _ => throw new ArgumentOutOfRangeException(nameof(behavior), behavior, "Undefined palette-FX frame behaviour."),
     };
 }

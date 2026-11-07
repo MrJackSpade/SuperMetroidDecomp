@@ -21,6 +21,4 @@ public enum PaletteFxFrameBehavior
     SwitchAboveY380Second,
     /// <summary>Deletes the object when the area's mini-boss dies.</summary>
     DeleteWhenAreaMiniBossDies,
-    /// <summary>Deletes the object when a slot below its own holds an object.</summary>
-    InspectAdjacentSlot,
 }

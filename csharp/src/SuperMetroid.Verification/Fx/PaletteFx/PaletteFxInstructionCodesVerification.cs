@@ -37,14 +37,14 @@ internal static class PaletteFxInstructionCodesVerification
         AssertPaletteFxCatalog(nameof(PaletteFxInstruction), CatalogWords(PaletteFxInstructionCodesType()), expectedCount: 19);
         // The setups' and pre-instructions' values are arbitrary (#1415): their routine words are the native view's.
         AssertPaletteFxCatalog(nameof(PaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
-        AssertPaletteFxCatalog(nameof(PaletteFxFrameBehavior), NativeWords(FxNativeWords.PaletteFxFrameBehaviors), expectedCount: 9);
+        AssertPaletteFxCatalog(nameof(PaletteFxFrameBehavior), NativeWords(FxNativeWords.PaletteFxFrameBehaviors), expectedCount: 8);
         AssertPaletteFxHeatDefinitions();
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
         {
             Console.WriteLine(
-                "  Palette FX: 32 instruction, setup and pre-instruction " +
+                "  Palette FX: 31 instruction, setup and pre-instruction " +
                 "pointers are structurally valid; retail ROM reads skipped.");
             return;
         }
@@ -716,17 +716,6 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(0x0019, cgram.Colors[0x78],
                 "Tourian glow resumes after the native six-byte skip");
         }
-
-        var deletionFxSession = new PaletteFxSessionState();
-        var deletionFx = new RoomPaletteFxSystem(deletionFxSession);
-        deletionFx.SpawnDefinition(TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer, 0);
-        deletionFx.SpawnDefinition(0xf795, 0);
-        deletionFx.SpawnDefinition(0xf799, 0);
-        StepShowing(deletionFx, new ReferencePaletteFxColorSource(bus));
-        StepShowing(deletionFx, new ReferencePaletteFxColorSource(bus));
-        AssertTrue(!deletionFx.IsDefinitionActive(
-                TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer),
-            "Tourian glow pre-instruction deletes its owner when two later slots exist");
     }
 
 

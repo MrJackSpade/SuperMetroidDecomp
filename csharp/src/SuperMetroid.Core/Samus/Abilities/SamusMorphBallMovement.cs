@@ -37,7 +37,7 @@ public static class SamusMorphBallMovement
             (!spring || movementType != SamusMovementType.SpringBallGround))
         {
             throw new InvalidOperationException(
-                $"Grounded ball movement requires type-$04 or type-$11 pose, not {samus.Pose}/type {movementType}.");
+                $"Grounded ball movement requires a grounded morph-ball or Spring Ball pose, not {samus.Pose}/type {movementType}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -60,7 +60,7 @@ public static class SamusMorphBallMovement
         else
         {
             // The rolling morph-ball poses, plus either stable pose carrying reversal mode one, enter
-            // the full deceleration-allowed `Samus_X_Movement` route. Its run-momentum
+            // the full deceleration-allowed horizontal movement. Its run-momentum
             // call retains established run momentum and republishes boost contact damage.
             speed.HandleExtraRunSpeed(
                 movementType, controllerInput: 0,
@@ -78,7 +78,7 @@ public static class SamusMorphBallMovement
         bool hitCeiling;
         if (samus.Kinematics.YDirection != SamusVerticalDirection.None)
         {
-            // `Simple_Samus_Y_Movement` handles a rebound already in progress through the
+            // The simple vertical movement handles a rebound already in progress through the
             // same falling check and one-frame-lag gravity routine as airborne morph.
             vertical = MoveVerticallyWithGravity(
 
@@ -126,7 +126,7 @@ public static class SamusMorphBallMovement
             (!spring || movementType != SamusMovementType.SpringBallFalling))
         {
             throw new InvalidOperationException(
-                $"Falling ball movement requires type-$08 or type-$13 pose, not {samus.Pose}/type {movementType}.");
+                $"Falling ball movement requires a falling morph-ball or Spring Ball pose, not {samus.Pose}/type {movementType}.");
         }
 
         bool directionHeld = (controllerInput &
@@ -143,9 +143,9 @@ public static class SamusMorphBallMovement
     }
 
     /// <summary>
-    /// Executes <c>Samus_Morphed_Falling_Movement</c> or, while
+    /// Executes the morph ball's fall or, while
     /// <see cref="SamusState.MorphBallBounceState"/> is nonzero,
-    /// <c>Samus_Morphed_Bouncing_Movement</c>. Morph-ball falling
+    /// its bounce. Morph-ball falling
     /// and both Spring Ball air handlers dispatch here.
     /// </summary>
     private static MorphBallMovementResult StepMorphedFallingOrBouncing(
@@ -228,7 +228,7 @@ public static class SamusMorphBallMovement
             SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpringBallInAir)
         {
             throw new InvalidOperationException(
-                $"Spring-Ball powered jump requires type-$12 pose $7F/$80, not {samus.Pose}.");
+                $"Spring-Ball powered jump requires a rising Spring Ball jump pose, not {samus.Pose}.");
         }
 
         // A nonzero bounce state selects the bouncing routine instead of the
@@ -259,7 +259,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         bool directionHeld = (controllerInput &
             (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         int requestedHorizontal;
-        // Null when the game skips MoveSamus_Horizontally entirely: no probe runs.
+        // Null when the game skips horizontal movement entirely: no probe runs.
         SamusCollisionDirection? collisionDirection = null;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
@@ -276,7 +276,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
             collisionDirection = calculated.CollisionDirection;
         }
 
-        // The game skips MoveSamus_Horizontally entirely, including its slope alignment.
+        // The game skips horizontal movement entirely, including its slope alignment.
         BlockMoveResult horizontal = collisionDirection is null
             ? BlockMoveResult.NotMoved
             : SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal, CollisionMovementDirection = collisionDirection });
@@ -310,7 +310,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
             SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.PostureTransition)
         {
             throw new InvalidOperationException(
-                $"Morph transition movement requires type-$0F pose $37/$38/$3D/$3E, not {samus.Pose}.");
+                $"Morph transition movement requires a morphing or unmorphing transition pose, not {samus.Pose}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

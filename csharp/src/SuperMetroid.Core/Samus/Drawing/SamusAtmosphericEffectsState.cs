@@ -76,7 +76,7 @@ public sealed class SamusAtmosphericEffectsState
     }
 
     /// <summary>
-    /// Ports <c>Handle_AtmosphericEffects</c>, including timer
+    /// Runs the atmospheric effects, including timer
     /// underflow, reverse slot order, per-type motion, clipping, and the two sprite paths.
     /// </summary>
     /// <param name="sprites">Frame receiving visible effects as draws, the highest slot first.</param>

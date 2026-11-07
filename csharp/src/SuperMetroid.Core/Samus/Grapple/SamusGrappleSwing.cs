@@ -194,7 +194,7 @@ public static class SamusGrappleSwing
                 probeDistance);
             if (IsSwingCollision(level, samus, point.Block))
             {
-                // The game stores GrappleCollision_NewBeamLength, which is the last accepted
+                // The game stores the new beam length, which is the last accepted
                 // length rather than the colliding candidate. It deliberately leaves the
                 // signed delta alive so a held adjustment retries on the following frame.
                 grapple.RopeLength = currentLength;
@@ -210,7 +210,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>
-    /// The D-pad kick-start compares only the angle's high byte with $80;
+    /// The D-pad kick-start compares only the angle's high byte with 128;
     /// the release-time drop test instead requires exactly 32768.
     /// </summary>
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
@@ -351,7 +351,7 @@ public static class SamusGrappleSwing
             if (collision.Collided)
             {
                 // A collision restores the last safe whole angle byte and forces the
-                // fractional half-byte `$80`. The body therefore stops just before the
+                // fractional half value 128. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
                 grapple.Angle = RotationAngle.FromRaw(
                     RotationAngle.FromTableIndex(lastSafeAngleByte).AddRaw(128).RawValue);
@@ -545,7 +545,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // The anchor validation calls the firing block dispatcher again at the stored endpoint and tests
-        // carry only. Persistent type-$E/behaviour-$00 or $03 therefore stays connected; replacing
+        // carry only. A persistent grapple block of behaviour zero or three therefore stays connected; replacing
         // it with air disconnects. PLM-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
             level,

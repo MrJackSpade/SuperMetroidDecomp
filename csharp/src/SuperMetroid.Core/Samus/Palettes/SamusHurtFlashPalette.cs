@@ -43,7 +43,7 @@ public static class SamusHurtFlashPalette
 
 
         // The hurt flash plays the impact sound exactly on call two. Cinematics and the
-        // Mother-Brain drained `$54` handler are the two exceptions; the latter is
+        // Mother-Brain drained knockback handler are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its handler word.
         if (counterBefore == 2 &&
             !samus.LiquidPhysics.CinematicFunctionActive &&
@@ -94,7 +94,7 @@ public static class SamusHurtFlashPalette
     /// property retains the word so later power-bomb and door handlers can share it.
     /// </summary>
     /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever nonzero regardless of the held buttons.</param>
-    /// <param name="controllerInput">Current held buttons; X must still be held to queue library-one sound $41.</param>
+    /// <param name="controllerInput">Current held buttons; X must still be held to queue the resume-charging sound.</param>
     /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
     public static bool ConsumeResumeChargingBeamSound(SamusState samus, ControllerButton controllerInput)
     {

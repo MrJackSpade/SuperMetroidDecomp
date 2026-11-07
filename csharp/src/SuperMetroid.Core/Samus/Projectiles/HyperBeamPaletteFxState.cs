@@ -48,7 +48,7 @@ public sealed class HyperBeamPaletteFxState
     public int CompletedCycles { get; private set; }
 
     /// <summary>
-    /// Performs <c>Spawn_PaletteFXObject</c>'s state initialization for object
+    /// Performs the palette effect's spawn-time state initialization for
     /// the Hyper Beam palette object. No colors are copied until the global handler runs.
     /// </summary>
     public void Spawn()
@@ -63,7 +63,7 @@ public sealed class HyperBeamPaletteFxState
         Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
     }
 
-    /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
+    /// <summary>Runs one call of the palette effect handler for the Hyper Beam object.</summary>
     public HyperBeamPaletteFxStepResult Step(SamusColours colours)
     {
         Ensure.NotNull(colours);

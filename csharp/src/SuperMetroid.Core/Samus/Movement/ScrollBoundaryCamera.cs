@@ -108,7 +108,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Keeps the fraction words of the camera this one replaces.
     /// Room and game loads write only the integer positions, so the
-    /// previous room's fractions remain in RAM.
+    /// previous room's fractions remain.
     /// </summary>
     public void RetainSubpositions(ScrollBoundaryCamera previous) =>
         RetainSubpositions(previous.Position);
@@ -447,7 +447,7 @@ public sealed class ScrollBoundaryCamera
         }
 
         // The horizontal routines sample the row containing the screen's vertical center
-        // (Y+$80), then the screen immediately to the right of the camera's high X byte.
+        // (Y plus half a screen), then the screen immediately to the right of the camera's high X byte.
         int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int rightCell = row + (EightEight.WholeOf(Position.X.Whole)) + 1;
         if (Scrolls.ReadCameraState(rightCell) != RoomScrollState.RedBoundary)

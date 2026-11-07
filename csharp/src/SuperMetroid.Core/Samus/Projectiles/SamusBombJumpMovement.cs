@@ -133,7 +133,7 @@ public static class SamusBombJumpMovement
             state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
         }
-        // A non-negative displacement, including the apex's zero, takes MoveSamus_Down.
+        // A non-negative displacement, including the apex's zero, moves Samus down.
         return new BombJumpRise(result, displacement >= 0);
     }
 

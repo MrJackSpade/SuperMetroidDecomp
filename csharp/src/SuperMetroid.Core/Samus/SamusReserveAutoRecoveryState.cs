@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Game state <c>$1B</c>: automatic reserve-tank recovery.
+/// The game state of automatic reserve-tank recovery.
 /// </summary>
 /// <remarks>
 /// This is an outer game-state owner, not an inventory convenience. It locks Samus, leaves
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus;
 /// </remarks>
 public sealed class SamusReserveAutoRecoveryState
 {
-    /// <summary>True between Samus command <c>$1B</c> and command <c>$10</c>.</summary>
+    /// <summary>True between the Samus command that locks her for reserve recovery and the one that restores control.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>Starts only the retail automatic-mode path selected by reserve-mode bit zero.</summary>
@@ -25,11 +25,11 @@ public sealed class SamusReserveAutoRecoveryState
         if (samus.ReserveTankMode != ReserveTankMode.Auto || samus.ReserveEnergy == 0)
             throw new InvalidOperationException("Automatic reserve recovery requires enabled reserves.");
 
-        // CallSomeSamusCode($1B) conditionally installs the ordinary locked handler pair.
+        // The reserve-recovery Samus command conditionally installs the ordinary locked handler pair.
         // The pair suppresses animation as well as input/movement. A generic input
         // gate alone leaves AnimateSamus running during the frozen recovery frames.
-        // If X-Ray installed its own pair earlier in this state-eight frame, command
-        // $1B replaces those handlers without ending the independently running cone effect.
+        // If X-Ray installed its own pair earlier in this state-eight frame, the reserve-recovery
+        // command replaces those handlers without ending the independently running cone effect.
         // It leaves Mother Brain's rainbow-beam pair in place.
         bool rainbowBeam = samus.Control.Mode.Beta == SamusBetaHandler.RainbowBeam;
         if (!rainbowBeam)
@@ -68,11 +68,11 @@ public sealed class SamusReserveAutoRecoveryState
         bool completed = samus.ReserveEnergy == 0;
         if (completed)
         {
-            // State $1B clears the one shared freeze word before command $10 restores
+            // The reserve-recovery state clears the one shared freeze word before the restore command restores
             // normal control. X-Ray phase five deliberately checks that word and skips
             // cleanup when it is zero, which is the game's Reserve Mode glitch.
             samus.Xray.ClearSharedFreezeForReserveMode();
-            // CallSomeSamusCode($10) restores the ordinary input/movement handlers unless
+            // The restore command restores the ordinary input/movement handlers unless
             // Mother Brain's rainbow-beam pair holds them.
             if (samus.Control.Mode.Beta != SamusBetaHandler.RainbowBeam)
                 samus.Control.Unlock();

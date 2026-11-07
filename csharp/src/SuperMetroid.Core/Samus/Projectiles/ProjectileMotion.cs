@@ -187,7 +187,7 @@ internal sealed class ProjectileMotion
         int direction = slot.Direction.ToAimIndex();
 
         // The missile's frame behaviour first applies the same small directional
-        // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
+        // acceleration as beams. On the ignition frame the missile's ignition below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
         Accelerate(slot, new EightEightVector<RoomPixels>(SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamXAccelerations + direction * 2), SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)));
 
@@ -241,7 +241,7 @@ internal sealed class ProjectileMotion
 
         // The Super Missile trail begins with the producer's value four but reloads two after every
         // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
-        // both families still select the same trail art through pointer entries $20/$21.
+        // both families still select the same trail art.
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
@@ -514,7 +514,7 @@ internal sealed class ProjectileMotion
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
             // Bombable reactions always index the bomb-block PLM table for nonnegative behaviour.
-            // A missile or Super Missile still performs Spawn_PLM, but the bomb-block setup
+            // A missile or Super Missile still spawns the room object, but the bomb-block setup
             // immediately clears the new slot because its family is neither a bomb
             // nor a power bomb; no terrain write, timer, sound, or persistent PLM survives that call.
             // The reaction's carry is independent of setup: bombable air passes through,

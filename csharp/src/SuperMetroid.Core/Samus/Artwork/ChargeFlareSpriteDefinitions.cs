@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>The charge/Hyper flare and its directional sparks.</summary>
 public static class ChargeFlareSpriteDefinitions
 {
-    /// <summary>FlareSpritemapTable_IndexOffsets: both facing rows select the main flare at offset zero.</summary>
+    /// <summary>The flare frame offsets: both facing rows select the main flare at offset zero.</summary>
     public const int MainFlareSelectorOffset = 0;
 
     /// <summary>How many compositions each flare family holds: four main flares, then the right slow, right fast, left slow and left fast spark groups.</summary>

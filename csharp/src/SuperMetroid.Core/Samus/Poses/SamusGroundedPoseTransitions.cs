@@ -11,14 +11,14 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Installs the lookup-failure pose of an aimed crouching turn when every input is
-    /// released. Definition byte two is `$28` for all six records,
+    /// released. The definition's fallback is left-facing crouching for all six records,
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
     /// Because the pose changes, the prospective pose handler skips command two; only the pose initializer runs.
     /// </summary>
     public static void ApplyAimedCrouchingTurnInputFallback(SamusState samus, SamusPoseId targetPose)
     {
         if (!SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"Aimed crouching turn fallback requires a type-$17 crouching turn, not {samus.Pose}.");
+            throw new InvalidOperationException($"Aimed crouching turn fallback requires a turning-while-jumping crouching turn, not {samus.Pose}.");
         if (!SamusPoseMetadata.IsRightFacingCrouchingPose(targetPose) && !SamusPoseMetadata.IsLeftFacingCrouchingPose(targetPose))
             throw new InvalidDataException($"Aimed crouching turn {samus.Pose} names non-crouching fallback {targetPose}.");
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Aimed crouching turn release");
@@ -27,8 +27,8 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies prospective pose change command two when a turn's input lookup
-    /// fails and the pose definition retains the current pose. Movement types $0E, $17 and
-    /// $18 all select command two in the lookup-failure table. This stops reverse acceleration without
+    /// fails and the pose definition retains the current pose. The three turning movement types
+    /// all select command two in the lookup-failure table. This stops reverse acceleration without
     /// restarting the unfinished turn animation or erasing velocity words.
     /// </summary>
     public static void ApplyTurnInputFallback(SamusState samus, SamusMovementType movementType)
@@ -59,7 +59,7 @@ internal static class SamusGroundedPoseTransitions
     /// <summary>
     /// Applies a same-facing arm-body transition within the movement-type-zero standing
     /// family and movement-type-one running family. Besides aimed bodies, this includes the
-    /// real `$0B/$0C` horizontal-fire records.
+    /// real gun-extended running horizontal-fire records.
     /// </summary>
     /// <remarks>
     /// All admitted records have radius 21. If both endpoints are running, the pose initializer writes
@@ -184,7 +184,7 @@ internal static class SamusGroundedPoseTransitions
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         if (samus.Kinematics.InteractiveEnemies.Count != 0)
         {
-            // Samus_vs_SolidEnemy_CollisionDetection with a requested distance of one whole pixel
+            // Samus's solid-enemy collision detection with a requested distance of one whole pixel
             // and the facing direction stored as the collision movement direction.
             SamusCollisionDirection direction = facingLeft
                 ? SamusCollisionDirection.Left
@@ -238,7 +238,7 @@ internal static class SamusGroundedPoseTransitions
     }
 
 
-    /// <summary>Applies `$89/$8A/$CF-$D2`'s same-facing exit to a type-one running pose.</summary>
+    /// <summary>Applies a ran-into-wall pose's same-facing exit to a running pose.</summary>
     public static void ApplyRanIntoWallToRunning(SamusState samus, SamusPoseId targetPose)
     {
         bool rightRoute = SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) &&
@@ -257,13 +257,13 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies the movement-type-$10 option gate and stable-pose changes surrounding
-    /// <c>InitializeSamusPose_Moonwalking</c>.
+    /// Applies the moonwalk option gate and stable-pose changes surrounding
+    /// the moonwalking pose initializer.
     /// </summary>
     /// <remarks>
     /// Standing transition tables always publish a moonwalk candidate when Shoot and the
     /// backward direction are held. The settings word decides what that candidate
-    /// means: enabled retains `$49/$4A/$75-$78`; disabled substitutes ordinary `$25/$26`
+    /// means: enabled retains the moonwalk pose; disabled substitutes the ordinary standing
     /// turn art. Once active, aim changes and the direct return to forward running are
     /// ordinary radius-21 pose installations with no invented velocity adjustment.
     /// </remarks>
@@ -286,13 +286,13 @@ internal static class SamusGroundedPoseTransitions
 
         if (entering && !moonwalkEnabled)
         {
-            // Normal landing `$A4/$A5` points at the same grounded input records as
+            // Normal landing points at the same grounded input records as
             // ordinary standing. Consequently a backward direction can nominate the
             // corresponding Moonwalk pose before the option gate runs. The initializer
             // does not special-case the old landing movement type: with Moonwalk off it
-            // substitutes the same ordinary `$25/$26` turn used from `$01/$02`.
-            // Tests the candidate pose-X byte. `$4A/$76/$78` store four
-            // and become right-to-left `$25`; `$49/$75/$77` store eight and become `$26`.
+            // substitutes the same ordinary standing turn used from normal standing.
+            // Tests the candidate pose-X byte. The right-facing moonwalk poses store four
+            // and become the right-to-left turn; the left-facing ones store eight and become left-to-right.
             ApplyGroundedTurn(samus, 
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
@@ -322,7 +322,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the moonwalk turn when a stable moonwalk pose reverses while Jump is held.
-    /// The six requested `$BF-$C4` records are not airborne yet: they retain the grounded
+    /// The six requested moonwalk turn-jump records are not airborne yet: they retain the grounded
     /// turn movement handler while their three visible frames play.
     /// </summary>
     public static void ApplyMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
@@ -375,14 +375,14 @@ internal static class SamusGroundedPoseTransitions
         if (samus.Pose != SamusPoseId.FacingRightNormalPose)
         {
             throw new InvalidOperationException(
-                $"Standing-right to running-right transition requires pose $01, not {samus.Pose}.");
+                $"Standing-right to running-right transition requires the right-facing normal pose, not {samus.Pose}.");
         }
 
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
         // The pose initializer resets animation frame zero and loads MovingRightNormalPose's first
-        // delay byte after SamusFunc_F433 refreshes pose direction/movement metadata.
+        // delay byte after the pose refresh updates direction/movement metadata.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
@@ -396,13 +396,14 @@ internal static class SamusGroundedPoseTransitions
         if (samus.Pose != SamusPoseId.MovingRightNormalPose)
         {
             throw new InvalidOperationException(
-                $"Running-right to standing-right transition requires pose $09, not {samus.Pose}.");
+                $"Running-right to standing-right transition requires the right-moving normal pose, not {samus.Pose}.");
         }
 
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // MovingRightNormalPose's new-pose-unless-buttons byte is $01. Once Samus_Pose_Func2 selects
+        // MovingRightNormalPose's new-pose-unless-buttons byte is the right-facing normal pose. Once the pose
+        // handling selects
         // momentum index two, the momentum cancellation cancels the boost words but deliberately leaves the
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion word.
@@ -411,7 +412,7 @@ internal static class SamusGroundedPoseTransitions
     }
 
 
-    /// <summary>Applies the ordinary grounded $02 -> $0A start-moving-left transition.</summary>
+    /// <summary>Applies the ordinary grounded start-moving-left transition from left-facing standing.</summary>
     public static void ApplyStandingLeftToRunningLeft(SamusState samus) =>
         ApplySimpleGroundedPoseChange(samus, 
             SamusPoseId.FacingLeftNormalPose,
@@ -419,7 +420,7 @@ internal static class SamusGroundedPoseTransitions
             "Standing-left to running-left");
 
 
-    /// <summary>Applies the no-button grounded $0A -> $02 fallback.</summary>
+    /// <summary>Applies the no-button grounded fallback from moving left to standing left.</summary>
     public static void ApplyRunningLeftToStandingLeft(SamusState samus)
     {
         ApplySimpleGroundedPoseChange(samus, 
@@ -427,7 +428,7 @@ internal static class SamusGroundedPoseTransitions
             SamusPoseId.FacingLeftNormalPose,
             "Running-left to standing-left");
 
-        // This is the mirrored momentum-index-two cancellation route used by `$09 -> $01`.
+        // This is the mirrored momentum-index-two cancellation route used from moving right to standing right.
         // ExtraRunSpeed/Subspeed remain available to standing's ordered movement/clear pass.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
     }
@@ -435,8 +436,8 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the shared standing/landing transition-table route from any right-facing
-    /// landing (including firing `$E6`) to running right `$09`, or from the mirrored left
-    /// family (including `$E7`) to `$0A`. Landing movement has already cleared momentum in
+    /// landing (including the firing landing) to running right, or from the mirrored left
+    /// family to running left. Landing movement has already cleared momentum in
     /// this frame; the new running pose begins accelerating on the next frame.
     /// </summary>
     public static void ApplyLandingToRunning(SamusState samus, SamusPoseId targetPose)
@@ -457,8 +458,8 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the grounded turn initialization. Input tables
-    /// first publish generic `$25/$26`; the initializer indexes the previous pose's shot
-    /// direction through the grounded turn table and may replace it with `$8B-$8E/$9C/$9D`.
+    /// first publish the generic standing turn; the initializer indexes the previous pose's shot
+    /// direction through the grounded turn table and may replace it with an aimed standing turn.
     /// </summary>
     public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, ControllerButton controllerInput = ControllerButton.None)
     {
@@ -466,12 +467,12 @@ internal static class SamusGroundedPoseTransitions
         // Gives the two front-view poses a deliberately unusual route.
         // Their pose-X direction is zero, so they cannot honestly be classified as either
         // a right-facing or left-facing source. The game instead skips the shot-direction
-        // lookup entirely when the previous pose is `$00/$9B`, retaining the generic
-        // `$25/$26` selected by that front-view pose's input transition table.
+        // lookup entirely when the previous pose is forward-facing, retaining the generic
+        // standing turn selected by that front-view pose's input transition table.
         bool wasForwardFacing = SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
 
-        // Crouching transition tables publish `$43/$44` directly, whereas every admitted
-        // standing/running/landing table publishes `$25/$26`. The initializer still uses
+        // Crouching transition tables publish the crouching turn directly, whereas every admitted
+        // standing/running/landing table publishes the standing turn. The initializer still uses
         // previous movement type five to choose the full crouched aim-preserving table.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         bool wasCrouching = sourceMovementType == SamusMovementType.Crouching;
@@ -526,7 +527,7 @@ internal static class SamusGroundedPoseTransitions
         if (wasForwardFacing)
         {
             // This is the literal early branch: keep the transition-table
-            // result. Reading byte three from `$00/$9B` here would manufacture an aim/facing
+            // result. Reading the shot direction of a forward-facing pose here would manufacture an aim/facing
             // direction that the game explicitly declines to inspect.
             selectedTurnPose = targetPose;
         }

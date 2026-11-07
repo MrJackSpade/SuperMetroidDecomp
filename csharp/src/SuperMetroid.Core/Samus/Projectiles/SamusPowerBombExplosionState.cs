@@ -399,7 +399,7 @@ public sealed class SamusPowerBombExplosionState
     private void StepCrystalFlashExplosion()
     {
         // Crystal Flash's explosion is a deliberately shorter clone of the yellow Power Bomb expansion.
-        // It uses the same curve and fixed-color table, but stops at radius `$20.00`.
+        // It uses the same curve and fixed-color table, but stops at radius 32.
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.Explosion,

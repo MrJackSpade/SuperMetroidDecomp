@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// pendulum terrain interaction, collision kicks, and release.
 /// </summary>
 /// <remarks>
-/// The retail game does not run grapple physics through movement type $16's tiny handler.
+/// The retail game does not run grapple physics through the grappling movement type's tiny handler.
 /// <c>GrappleBeamHandler</c> updates the pendulum before normal beta
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 public static class SamusGrappleMovement
 {
     /// <summary>
-    /// Ports <c>GrappleBeamFunc_FireGoToCancel</c>, stopping immediately
+    /// Fires the grapple beam (cancelling it when it cannot fire), stopping immediately
     /// before its function-pointer return. The current pose supplies all direction/origin
     /// policy; no host aiming vector is accepted.
     /// </summary>
@@ -65,7 +65,7 @@ public static class SamusGrappleMovement
         grapple.MirroredAngle = grapple.Angle;
 
         // Firing selects run offsets solely for movement type one. Moonwalking is
-        // distinct type `$10`, so every stable/aimed moonwalk pose naturally takes the
+        // distinct moonwalking type, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
         var origin = GrappleFiring.Origin(direction, useRunOffsets);
@@ -157,7 +157,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Ports <c>GrappleBeamFunc_Firing</c>, including the enemy
+    /// Advances the extending grapple beam, including the enemy
     /// enemy pass which precedes <c>BlockCollGrappleBeam</c>.
     /// </summary>
     internal static GrappleMovementResult StepFiring(
@@ -452,7 +452,7 @@ public static class SamusGrappleMovement
         }
 
         // Both release and block disconnection install the cancel. Mark the origin because
-        // firing cancellation coexists with ordinary movement, whereas a locked type-$16
+        // firing cancellation coexists with ordinary movement, whereas a locked grappling
         // body must own this beta pass until its pose-definition fallback is committed.
         grapple.CancelFromConnectedPose = !samus.DraygonGrabbed.IsActive;
         grapple.Phase = GrapplePhase.CancelPending;
@@ -490,7 +490,7 @@ public static class SamusGrappleMovement
     /// <summary>
     /// Applies common grapple reaction six. Unlike ordinary body contact, the grapple selects
     /// horizontal knockback from Samus's facing direction, but suit division and the
-    /// `$60/$05` hurt lifetimes are the same shared gameplay contracts.
+    /// 96-update invincibility and five-update knockback lifetimes are the same shared gameplay contracts.
     /// </summary>
     private static void ApplyGrappleEnemyDamage(
 
@@ -600,8 +600,9 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple)
     {
         // The wall-jump function runs one frame after the grace check selected it, matching every other grapple
-        // function-pointer handoff. The Samus helper keeps the peculiar `$B8->$84` and
-        // `$B9->$83` reversal separate from ordinary spin-contact wall jumps.
+        // function-pointer handoff. The Samus helper keeps the peculiar reversal of the left
+        // wall-contact pose into the left wall jump, and the right into the right, separate from
+        // ordinary spin-contact wall jumps.
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
         ClearConnectedGrapple(grapple);
@@ -640,8 +641,8 @@ public static class SamusGrappleMovement
     /// <summary>Chooses the fall pose from shot direction and body radius, with standing exceptions for both swinging poses.</summary>
     internal static SamusPoseId SelectDroppedPose(SamusState samus)
     {
-        // Swinging `$B2/$B3` bypass the direction tables and always fall to ordinary
-        // standing `$01/$02`, even though their live collision radius is compact.
+        // The swinging poses bypass the direction tables and always fall to ordinary
+        // standing, even though their live collision radius is compact.
         if (samus.Pose == SamusPoseId.GrappleSwingRightPose)
             return SamusPoseId.FacingRightNormalPose;
         if (samus.Pose == SamusPoseId.GrappleSwingLeftPose)
@@ -652,7 +653,7 @@ public static class SamusGrappleMovement
         if (!ordinaryDirection)
         {
             // The drop functions use the pose direction when the direction byte is a command
-            // sentinel. Standing selects `$01/$02`; compact bodies select `$27/$28`.
+            // sentinel. Standing selects the normal standing poses; compact bodies select crouching.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
             return samus.Kinematics.Radius.Y >= 17
                 ? facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose
@@ -870,7 +871,7 @@ public static class SamusGrappleMovement
                     }
                     // Blue caps occupy the same table as breakable blocks but
                     // select door PLMs. Grapple's negative projectile index bypasses the
-                    // power-bomb rejection in Setup_BlueDoor; the ordinary opening owner
+                    // blue door setup's power-bomb rejection; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
                     if (block.Behavior.TryGetDownwardGateTrigger(out _))
                         roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
@@ -965,7 +966,7 @@ public static class SamusGrappleMovement
         GrappleConnectionFunction nextFunction = connection.Function;
         GrappleConnectionHandler handler = connection.Handler;
 
-        // Each tiny connection handler installs one prospective type-$16 pose and then jumps
+        // Each tiny connection handler installs one prospective grappling pose and then jumps
         // to either the swinging or the stuck tail. Keep the handlers distinct:
         // pose alone is insufficient to distinguish malformed fallback data from data.
         (SamusPoseId pose, bool swinging) = handler switch
@@ -1112,8 +1113,8 @@ public static class SamusGrappleMovement
 
     /// <summary>
     /// Integer octant translation of <c>CalculateAngleFromXY</c>.
-    /// The return byte is measured clockwise from negative Y: $00 up, $40 right, $80 down,
-    /// and $C0 left. Division truncates exactly as the game's unsigned divide does.
+    /// The return byte is measured clockwise from negative Y: zero up, 64 right, 128 down,
+    /// and 192 left. Division truncates exactly as the game's unsigned divide does.
     /// </summary>
     internal static RotationAngle CalculateAngleFromXY(Offset16<RoomPixels> delta)
     {
@@ -1183,7 +1184,7 @@ public static class SamusGrappleMovement
             SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         if (cancelledConnectedPose)
         {
-            // The cancel runs the pose-definition fallback while the current movement type is `$16`.
+            // The cancel runs the pose-definition fallback while the current movement type is grappling.
             // Its command-six table entry kills all X/run momentum and the pose-definition
             // byte selects the exact standing/crouching body that existed before locking.
             SamusPoseId fallback = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
@@ -1275,7 +1276,7 @@ public static class SamusGrappleMovement
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         // The release bases facing on the angular-velocity word retained from the swing. A
-        // nonnegative value selects left-facing $52; a negative value selects right $51.
+        // nonnegative value selects the left-facing forward jump; a negative value selects the right.
         // It publishes the pose as a super-special prospective pose (command 7), which
         // Samus's pose handling commits after this frame's hit interruption and movement.
         SamusPoseId releasePose = grapple.AngularVelocity >= 0

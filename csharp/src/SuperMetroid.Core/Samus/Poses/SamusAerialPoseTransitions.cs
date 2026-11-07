@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusAerialPoseTransitions
 {
     /// <summary>
-    /// Shared momentum initialization in SamusFunc_F468_NormalJump and
-    /// SamusFunc_F468_Falling. Base velocity survives; extra dash momentum
+    /// Shared momentum initialization of the normal-jump and falling pose
+    /// initializers. Base velocity survives; extra dash momentum
     /// alone selects deceleration mode two instead of ordinary acceleration.
     /// </summary>
     internal static void InitializeOrdinaryAerialAcceleration(SamusState samus)
@@ -26,16 +26,16 @@ internal static class SamusAerialPoseTransitions
     /// <summary>
     /// Applies a normal-jump body selected when aim or Fire cancels a spin, Space Jump,
     /// Screw Attack, or wall-jump pose. This is the shared
-    /// <c>$19/$1A/$1B/$1C/$81-$84 -&gt; movement-type-$02</c> route through
+    /// spin, Space Jump, Screw Attack and wall-jump to normal-jumping route through
     /// the spin-jump, wall-jump and crouch-adjustment initializers.
     /// </summary>
     /// <remarks>
-    /// The transition does not call <c>Make_Samus_Jump</c>: <c>$13/$14</c> are deliberately
+    /// The transition does not start a new jump: the gun-extended normal-jump poses are deliberately
     /// excluded by the crouch-adjustment initializer, so the live vertical velocity survives. Spin bodies are
     /// shorter than the resulting normal-jump body, however, so the shared changed-pose
     /// collision pass must still be allowed to reject the expansion under a low ceiling.
-    /// The wall-jump tables use this very same route for their `$69-$6C` aim
-    /// records and `$13/$14` Shot records; they do not have a separate wall-fire handler.
+    /// The wall-jump tables use this very same route for their diagonal-aim
+    /// records and gun-extended Shot records; they do not have a separate wall-fire handler.
     /// </remarks>
     public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus, 
 
@@ -96,7 +96,7 @@ internal static class SamusAerialPoseTransitions
         if (!beganShinespark)
             InitializeOrdinaryAerialAcceleration(samus);
 
-        // SamusFunc_F433 reloads the ordinary suit palette whenever the previous movement
+        // The pose-metadata refresh reloads the ordinary suit palette whenever the previous movement
         // type was spin/wall-jump and Screw Attack is equipped, even if the visible source
         // happened to be generic spin or Space Jump art.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
@@ -236,16 +236,16 @@ internal static class SamusAerialPoseTransitions
             SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
 
             // Unlike the grounded/aerial turn initializers, the spin-jump initializer calls
-            // `Samus_CancelSpeedBoost` immediately after folding the extra pair. Waiting
+            // Cancels the speed boost immediately after folding the extra pair. Waiting
             // for another movement frame would leave the running-momentum flag observably stale.
             samus.HorizontalSpeed.CancelRunningMomentum(oldDirection);
         }
 
-        // Ordinary and wall-jump definition fallbacks publish generic `$19/$1A`, whereas
-        // the dedicated `$81/$82` and `$1B/$1C` input tables can publish their already-
+        // Ordinary and wall-jump definition fallbacks publish the generic spin jump, whereas
+        // the dedicated Screw Attack and Space Jump input tables can publish their already-
         // specialized opposite-facing record directly. Reduce either form back to the
         // generic direction before applying the spin-jump initializer's live equipment priority. This is
-        // observable when both bits are equipped: an `$81 -> $82` authored record must remain
+        // observable when both bits are equipped: an authored right-to-left Screw Attack record must remain
         // Screw art, while the same directional intent with Screw unequipped becomes Space
         // Jump art instead of trusting stale pose-table equipment state.
         SamusPoseId genericTarget = newDirection == SamusFacingDirection.Left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
@@ -277,7 +277,7 @@ internal static class SamusAerialPoseTransitions
     {
 
         // Only the type-3 spin mover reaches the wall-jump check. The cached movement type, not the
-        // live pose, gates it: a drained pose stored without InitializeSamusPose_1 keeps
+        // live pose, gates it: a drained pose stored without the pose initializer keeps
         // spinning and still wall-jumps.
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
             throw new InvalidOperationException(
@@ -302,7 +302,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
 
         // Observes previous movement type three plus equipped Screw Attack and
-        // immediately reloads the normal suit palette before `$83/$84` starts. The desktop
+        // immediately reloads the normal suit palette before the wall jump starts. The desktop
         // runtime performs palette writes later in the frame, so preserve that phase split.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
@@ -315,11 +315,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         // Clears acceleration and the ordinary base-speed pair before
         // the jump installs the launch. It deliberately does *not* touch the extra-run
         // pair or the running-momentum flag: a wall jump made
-        // out of a Dash therefore carries that speed into movement type $14.
+        // out of a Dash therefore carries that speed into wall-jumping movement.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
 
-        // SolidVerticalCollision_WallJumpTriggered queues library-three sound five with a
+        // A triggered wall jump queues the landing sound with a
         // six-entry threshold after clearing the base-speed words and before pose setup.
         samus.LiquidPhysics.QueueMovementSound(Library3Sound.Landing, priority: SoundRequestPriority.Normal);
 
@@ -332,10 +332,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// <summary>
     /// Applies the pose/launch half of the grapple wall jump after the grapple wall-grace probe
     /// has accepted a fresh Jump edge. This route intentionally reverses the contact pose:
-    /// `$B8` launches through left-facing `$84`, while `$B9` launches through `$83`.
+    /// the left wall-contact pose launches through the left-facing wall jump, while the right
+    /// launches through the right-facing one.
     /// </summary>
     /// <remarks>
-    /// The eventual seven-pixel horizontal push remains the ordinary `$FB` animation-command
+    /// The eventual seven-pixel horizontal push remains the ordinary wall-jump animation-command
     /// path already implemented by <see cref="SamusPresentation.AnimateNoFx"/>. This method performs only the
     /// immediate cleanup, prospective-pose command six, and environment-selected
     /// vertical launch that occur when the wall-jump function runs.
@@ -345,11 +346,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         if (samus.Pose is not (SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose))
         {
             throw new InvalidOperationException(
-                $"Grapple wall jump requires contact pose $B8/$B9, not {samus.Pose}.");
+                $"Grapple wall jump requires a grapple wall-contact pose, not {samus.Pose}.");
         }
 
         // Tests the contact pose's X-direction byte, not its descriptive
-        // wall side. Direction eight selects `$84`; direction four selects `$83`.
+        // wall side. Direction eight selects the left wall jump; direction four selects the right.
         samus.Pose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
@@ -372,7 +373,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// Commits the pose selected by <c>GrappleBeamFunction_Dropped</c>.
+    /// Commits the pose selected when the grapple beam drops Samus.
     /// The caller supplies the exact transition-table target and this method runs the shared
     /// block-only pose-expansion collision before clearing grapple fall momentum.
     /// </summary>
@@ -448,13 +449,13 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies the early wall-jump rewind when an early spin frame finds the wall-jump chord.
-    /// This does not launch Samus: it rewinds the ordinary spin sequence to frame `$0A`
+    /// This does not launch Samus: it rewinds the ordinary spin sequence to frame ten
     /// with a one-tick timer so the visible wall-contact pose reaches eligibility naturally.
     /// </summary>
     /// <remarks>
     /// Tests only for the Screw Attack poses. It runs for whatever pose holds the
     /// cached spin-jump movement type, including a drained pose stored without
-    /// InitializeSamusPose_1.
+    /// the pose initializer.
     /// </remarks>
     public static void ApplyWallContactAnimationRewind(SamusState samus)
     {
@@ -470,8 +471,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// Applies equipment, liquid and start-sound selection from <c>SamusFunc_F468_SpinJump</c>
-    /// to a generic transition-table target `$19/$1A`.
+    /// Applies the spin-jump initializer's equipment, liquid and start-sound selection
+    /// to a generic spin-jump transition-table target.
     /// </summary>
     internal static SamusPoseId SelectEquippedSpinPose(SamusState samus, SamusPoseId genericPose, SpinPoseStart start = SpinPoseStart.FirstFrame)
     {
@@ -712,13 +713,13 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 SamusPoseId.DraygonGrabbingLeftPose => throw new ArgumentOutOfRangeException(
                 nameof(genericPose),
                 genericPose,
-                "Equipment spin selection requires generic pose $19 or $1A."),
+                "Equipment spin selection requires a generic spin-jump pose."),
             SamusPoseId.AdjacentCodePoseFD or
                 SamusPoseId.AdjacentCodePoseFE or
                 SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(
                 nameof(genericPose),
                 genericPose,
-                "Equipment spin selection requires generic pose $19 or $1A."),
+                "Equipment spin selection requires a generic spin-jump pose."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
 
@@ -729,7 +730,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             return genericPose;
 
         // The game tests Screw Attack first. A save with both bits equipped therefore uses
-        // `$81/$82`, not Space Jump art, while retaining Space Jump's repeat-jump physics.
+        // Screw Attack art, not Space Jump art, while retaining Space Jump's repeat-jump physics.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
         {
             if (start != SpinPoseStart.SkipFirstFrame)
@@ -749,13 +750,14 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// Applies <c>SamusFunc_F468_NormalJump</c> after a normal-jump
+    /// Applies the normal-jump pose initializer after a normal-jump
     /// transition has selected one of the six approved launch bodies.
     /// </summary>
     /// <remarks>
     /// This deliberately receives the already-selected target instead of testing the
-    /// transition art `$4B/$4C/$55-$5A`. The game does not consume stored shine when Jump is
-    /// first pressed; it waits until command `$F8/$FD` installs `$4D/$4E/$15/$16/$69/$6A`.
+    /// neutral and aimed jump-transition art. The game does not consume stored shine when Jump is
+    /// first pressed; it waits until the animation's pose-transition command installs the neutral,
+    /// aimed-up or diagonally-up normal jump.
     /// That delay is visible both to animation and to the 180-frame palette countdown.
     /// </remarks>
     internal static bool TryBeginShinesparkWindup(SamusState samus, 
@@ -791,7 +793,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// Applies a `$C7/$C8 -> $C9-$CE` input-table match and installs its exact special
+    /// Applies a shinespark windup's directional input-table match and installs its exact special
     /// movement handler. No ordinary jump velocity or grounded momentum routine runs.
     /// </summary>
     public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
@@ -808,10 +810,9 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies the verified ordinary-input jump transitions selected from the game's
-    /// table, including <c>HandleJumpTransition</c>'s call to
-    /// <c>Make_Samus_Jump</c>. Only explicitly verified no-equipment/no-aim routes admitted
-    /// by the current runtime are accepted, including interrupting any same-facing landing
-    /// stream `$A4-$A7/$E0-$E7` with a fresh Jump edge.
+    /// table, including <c>HandleJumpTransition</c>'s jump start. Only explicitly verified
+    /// no-equipment/no-aim routes admitted by the current runtime are accepted, including
+    /// interrupting any same-facing landing stream with a fresh Jump edge.
     /// </summary>
     public static void ApplyOrdinaryJumpTransition(SamusState samus, 
         SamusPoseId targetPose,
@@ -842,16 +843,16 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.MovingLeftNormalPose or SamusPoseId.MovingLeftGunExtendedPose or SamusPoseId.RunningAimUpLeftPose or
                 SamusPoseId.RunningAimDiagonalUpLeftPose or SamusPoseId.RunningAimDiagonalDownLeftPose,
              SamusPoseId.SpinJumpLeftPose) or
-            // Turning-on-ground uses its own movement-type-$0E input handler, but a Jump
+            // Turning-on-ground uses its own input handler, but a Jump
             // record still enters the ordinary spin-jump initializer. The turn pose has
             // already folded run momentum in the moonwalk turn; the spin-jump initializer now owns the same jump
             // speed, radius, equipment substitution, and frame-zero setup as a run jump.
             // Keeps consulting the turning pose's live input table. A fresh
-            // Jump with no horizontal direction selects neutral-transition `$4B/$4C`;
-            // holding the completed facing selects spin `$19/$1A`. Both pairs enter the
+            // Jump with no horizontal direction selects the neutral jump transition;
+            // holding the completed facing selects the spin jump. Both pairs enter the
             // same jump initializer and differ only in their authored body.
             // Can leave the moonwalk turn art early while the backward
-            // direction remains held, or select `$4B/$4C` on a fresh Jump edge. Both
+            // direction remains held, or select the neutral jump transition on a fresh Jump edge. Both
             // routes call the same dry-air jump initializer after changing pose.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
@@ -865,7 +866,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
              SamusPoseId.NeutralJumpTransitionLeftPose) ||
             // Every landing body shares its facing's ordinary standing input table. The
             // centralized predicate deliberately covers normal, spin, aimed, and firing
-            // landings, while still rejecting a corrupt cross-facing `$4B/$4C` target.
+            // landings, while still rejecting a corrupt cross-facing neutral jump-transition target.
             SamusPoseMetadata.IsLandingToNormalJumpTransition(samus.Pose, targetPose);
         if (!verified)
         {
@@ -904,7 +905,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// <c>InitializeSamusPose_NormalJumping</c> for a normal-jump pose already
+    /// The normal-jumping pose initializer for a normal-jump pose already
     /// installed by a transition that reaches the ordinary initializer. Stored shine
     /// diverts the six shinespark-capable poses into a windup; otherwise retained extra run
     /// speed selects deceleration and a fresh Shoot press arms the transition shot.
@@ -933,7 +934,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// <summary>
     /// Applies a same-facing input/fallback transition within normal-jump type two or
     /// falling type six without replacing the live 16.16 velocity words. The horizontal
-    /// gun-extended records `$13/$14/$67/$68` use this same initialization seam;
+    /// gun-extended jumping and falling records use this same initialization seam;
     /// “aim” survives in the historical method name only because that was the first slice.
     /// </summary>
     public static void ApplyAerialAimTransition(SamusState samus, SamusPoseId targetPose)
@@ -962,8 +963,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Kinematics.Radius.Y != oldRadius)
         {
-            // The admitted family deliberately excludes compact straight-down `$17/$18`
-            // and `$2D/$2E`; reaching a different radius proves a caller crossed that seam.
+            // The admitted family deliberately excludes the compact straight-down jumping
+            // and falling poses; reaching a different radius proves a caller crossed that seam.
             // Every retail member admitted above has the same collision radius. A mismatch
             // can only come from inconsistent/corrupt pose metadata, not an omitted route.
             throw new InvalidDataException(
@@ -984,8 +985,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// Applies same-facing transitions where either endpoint is compact straight-down
-    /// `$17/$18/$2D/$2E`, preserving live velocity while reproducing pose-change collision.
+    /// Applies same-facing transitions where either endpoint is a compact straight-down
+    /// jumping or falling pose, preserving live velocity while reproducing pose-change collision.
     /// </summary>
     /// <remarks>
     /// Entering radius ten from radius nineteen requires no collision work in the larger-radius check.

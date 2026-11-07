@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 internal static class SamusPoseAimDefinitions
 {
-    /// <summary>Shot-direction column: upper-aim turning restriction $FA, distinct from any firing direction.</summary>
+    /// <summary>Shot-direction column: the upper-aim turning restriction, distinct from any firing direction.</summary>
     internal const int TurningUpperRestriction = 250;
-    /// <summary>Shot-direction column: horizontal turning restriction $FB, including unused pose C6.</summary>
+    /// <summary>Shot-direction column: the horizontal turning restriction, including the unused Draygon-grabbing pose.</summary>
     internal const int TurningHorizontalRestriction = 251;
-    /// <summary>Shot-direction column: lower-aim turning restriction $FC.</summary>
+    /// <summary>Shot-direction column: the lower-aim turning restriction.</summary>
     internal const int TurningLowerRestriction = 252;
-    /// <summary>Shot-direction column: $FF disallows shooting and cancels Grapple.</summary>
+    /// <summary>Shot-direction column: shooting disallowed, which also cancels Grapple.</summary>
     internal const int ShootingDisabled = 255;
     /// <summary>The value each key selects; Read looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseId, byte> AimRestrictions = new Dictionary<SamusPoseId, byte>

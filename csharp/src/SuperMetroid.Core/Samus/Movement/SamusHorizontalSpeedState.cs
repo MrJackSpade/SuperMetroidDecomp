@@ -86,7 +86,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Host-side publication of the immediate suit-palette copy performed by
-    /// <c>Cancel_SpeedBoosting</c>. Movement owns the cancellation,
+    /// cancelling a speed boost. Movement owns the cancellation,
     /// while the runtime owns the colours, so this flag preserves the same-frame handoff
     /// without passing a renderer through every collision and pose routine.
     /// </summary>
@@ -118,7 +118,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Whole-pixel per-frame velocity of departing echo one; only X moves.</summary>
     public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
-    /// <summary>The total horizontal speed produced by <c>Samus_CalcSpeed_X</c>.</summary>
+    /// <summary>The total horizontal speed produced by the total-speed calculation.</summary>
     public UnsignedSixteenSixteen TotalSpeed { get; internal set; }
 
     /// <summary>
@@ -160,8 +160,8 @@ public sealed class SamusHorizontalSpeedState
     public void SelectNormalAirSpeedTable() => ActiveSpeedTable = SamusLiquidMedium.Air;
 
     /// <summary>
-    /// Ports <c>Determine_Samus_X_Speed_Table_Entry_Pointer</c>'s environmental selection
-    ///. The selected table's records are indexed later by movement type.
+    /// Selects the horizontal speed table for the environment.
+    /// The selected table's records are indexed later by movement type.
     /// </summary>
     public void SelectEnvironmentSpeedTable(SamusLiquidMedium liquidMedium)
     {
@@ -170,7 +170,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports the dry-air portion of <c>Handle_Samus_XExtraRunSpeed</c>.
+    /// Runs the dry-air portion of the extra run speed.
     /// Both routes accelerate by hexadecimal <c>0.1000</c>. Ordinary Dash caps at
     /// <c>2.0000</c>; equipped Speed Booster caps at <c>7.0000</c> and initializes its
     /// counter through the boost stage table. Their shared momentum flag survives release and jumps.
@@ -327,8 +327,8 @@ public sealed class SamusHorizontalSpeedState
         SamusRunningCadences.Delay(unauthoredBoostCadence, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage), frame);
 
     /// <summary>
-    /// Ports the dry-room Speed Booster branch of
-    /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c>.
+    /// Runs the dry-room Speed Booster branch of the Screw Attack and
+    /// speed-boosting palette.
     /// </summary>
     /// <returns>True when this call copied an authored palette into Samus's colours.</returns>
     /// <param name="colours">Samus's colours, which the copied palette replaces.</param>
@@ -389,7 +389,7 @@ public sealed class SamusHorizontalSpeedState
 
             if (frame.AnimationFrame < 3)
             {
-                // Wall-jump command `$FB` reserves frames 0..2 for the normal suit colors;
+                // The wall-jump animation command reserves frames 0..2 for the normal suit colors;
                 // its Screw family begins on frame three and shares the same six pointers.
                 CyclePaletteStep = 0;
                 return paletteCopied;
@@ -459,7 +459,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>Samus_UpdateSpeedEchoPos</c> for ordinary active boost.
+    /// Captures the speed-echo position for ordinary active boost.
     /// The gameplay clock, not the frame counter, selects the four-frame sampling phase.
     /// </summary>
     /// <param name="gameTimeFrames">The gameplay clock's frame count, 0 to 65535; only its four-frame phase is read and nothing stores it.</param>
@@ -546,7 +546,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>Samus_CancelSpeedBoost</c>, including the transition
+    /// Cancels the speed boost, including the transition
     /// from alternating captured positions into the high-bit echo-departure state.
     /// </summary>
     /// <param name="facing">
@@ -653,7 +653,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Advances one cancellation echo during <c>Samus_DrawEchoes</c>.
+    /// Advances one cancellation echo while the echoes are drawn.
     /// </summary>
     /// <remarks>
     /// This side effect really belongs to drawing in the game: Y approaches the live
@@ -718,7 +718,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Resolves the row of the entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c>
+    /// Resolves the row of the entry the horizontal speed-table selection picks
     /// among the three adjacent tables, assuming the already-modeled inside-block
     /// reaction chose the table.
     /// </summary>
@@ -739,7 +739,7 @@ public sealed class SamusHorizontalSpeedState
                 $"Samus horizontal speed row {row} is past the {SamusHorizontalMotionDefinitions.RowCount} authored mechanics records.");
 
     /// <summary>
-    /// Ports <c>Samus_CalcBaseSpeed_X</c> and returns its unsigned
+    /// Calculates the horizontal base speed and returns its unsigned
     /// 16.16 result. It mutates the modeled speed words exactly once.
     /// </summary>
     public uint CalculateBaseSpeed(SamusMovementType movementType)
@@ -792,8 +792,8 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>CalculateSamusXBaseSpeed_DecelerationDisallowed</c>.
-    /// Despite its name, acceleration-mode bit zero still selects the
+    /// Calculates the horizontal base speed with deceleration disallowed.
+    /// Despite the name, acceleration-mode bit zero still selects the
     /// turning/deceleration branch; modes zero and two both accelerate toward the table
     /// maximum. The returned flag is the routine's carry result and is important to spin
     /// jump's decision to retain horizontal motion.
@@ -838,7 +838,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>Samus_CalcSpeed_X</c>: add extra run speed, shift by
+    /// Calculates the total horizontal speed: add extra run speed, shift by
     /// min(divisor, 4), and publish the total-speed pair used by animation/collision.
     /// </summary>
     public uint CalculateTotalSpeed(uint baseSpeed)
@@ -851,14 +851,14 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports the non-collision portion of <c>Samus_CalcDisplacementMoveRight</c>,
+    /// Calculates the non-collision portion of a rightward displacement,
     /// including the ±15-pixel whole-word clamp.
     /// </summary>
     public int CalculateRightDisplacement(uint baseSpeed, int extraDisplacement = 0) =>
         ClampDisplacement(unchecked((int)CalculateTotalSpeed(baseSpeed) + extraDisplacement));
 
     /// <summary>
-    /// Ports the non-collision portion of <c>Samus_CalcDisplacementMoveLeft</c>.
+    /// Calculates the non-collision portion of a leftward displacement.
     /// Left is <c>extra displacement - total speed</c>, not merely
     /// a sign bit attached to the rightward result.
     /// </summary>

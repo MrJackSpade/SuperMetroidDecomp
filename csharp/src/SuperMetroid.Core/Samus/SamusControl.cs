@@ -2,8 +2,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The installed frame-handler pair and the Samus commands that replace it, the port of <c>Run_Samus_Command</c>
-/// and the direct handler installs elsewhere. Every change to who controls Samus goes through one of these
+/// The installed frame-handler pair and the Samus commands that replace it, both through
+/// Samus commands and through the direct handler installs elsewhere. Every change to who controls Samus goes through one of these
 /// operations; gates read <see cref="Mode"/>.
 /// </summary>
 internal sealed class SamusControl : IRoomSamusControl
@@ -36,12 +36,12 @@ internal sealed class SamusControl : IRoomSamusControl
 
     /// <summary>
     /// Samus command six: the locked alpha with an empty beta, which neither moves nor
-    /// animates Samus. A map station keeps it through the pause menu until command $0C restores the normal pair.
+    /// animates Samus. A map station keeps it through the pause menu until the unpause command restores the normal pair.
     /// </summary>
     public void LockIntoRefillStation() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.RefillStation);
 
     /// <summary>
-    /// The handler part of unpause command $0C: whenever the beta is command six's empty one, it
+    /// The handler part of the unpause command: whenever the beta is command six's empty one, it
     /// restores the normal pair. Any station that locked Samus, map or recharge, therefore lets go when the pause menu
     /// closes.
     /// </summary>
@@ -51,11 +51,11 @@ internal sealed class SamusControl : IRoomSamusControl
             Unlock();
     }
 
-    /// <summary>Suit command $15: the inert pair of the suit transformation.</summary>
+    /// <summary>The suit-pickup command: the inert pair of the suit transformation.</summary>
     public void LockForSuitPickup() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.SuitPickup);
 
     /// <summary>
-    /// Gunship command $1A after the face-forward lock: a beta which checks low health despite the
+    /// The gunship command after the face-forward lock: a beta which checks low health despite the
     /// locked alpha, until the ship restores the normal pair.
     /// </summary>
     public void EnterGunship() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.Gunship);

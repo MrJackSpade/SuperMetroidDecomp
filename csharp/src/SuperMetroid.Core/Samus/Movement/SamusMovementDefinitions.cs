@@ -14,10 +14,10 @@ public static class SamusMovementDefinitions
     /// <summary>Ball-landing handlers: signed whole-speed threshold for the first automatic bounce.</summary>
     public const int FirstBallBounceMinimumSpeed = 3;
 
-    /// <summary>SamusMovement_Standing: held-shot animation timer before the animation tick.</summary>
+    /// <summary>Standing movement's held-shot animation timer before the animation tick.</summary>
     public const int StandingShotAnimationTimer = 16;
 
-    /// <summary>Samus_Movement_06_Falling: minimum signed whole speed selecting fast-fall art.</summary>
+    /// <summary>Falling movement's minimum signed whole speed selecting fast-fall art.</summary>
     public const int FastFallAnimationSpeed = 5;
     /// <summary>Falling handler: first fast-fall animation frame.</summary>
     public const int FastFallAnimationFrame = 5;
@@ -37,7 +37,7 @@ public static class SamusMovementDefinitions
         public const SamusPoseId RetainCurrentPoseFallback = SamusPoseId.AdjacentCodePoseFF;
 
         /// <summary>
-        /// $FF in pose-definition byte three: the pose has no shot direction. Hurt and
+        /// The pose definition's shot direction is absent: the pose has no shot direction. Hurt and
         /// damage-boost art store it, and the landing transition lands them through the facing pair.
         /// </summary>
         public const int NoShotDirection = 255;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>The pose-change command each movement type runs.</summary>
 public static class SamusPoseChangeCommands
 {
-    /// <summary>Reads <c>Set_ProspectivePoseChangeCommand</c>'s table entry for a movement type.</summary>
+    /// <summary>Reads the lookup-failure prospective pose-change command for a movement type.</summary>
     public static SamusProspectivePoseChangeCommand ForLookupFailure(SamusMovementType movementType) =>
         movementType switch
         {

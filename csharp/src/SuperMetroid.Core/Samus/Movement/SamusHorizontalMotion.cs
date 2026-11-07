@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal static class SamusHorizontalMotion
 {
     /// <summary>
-    /// The row <c>Samus_DetermineSpeedTableEntryPtr_X</c> selects for a movement type in a medium's table: the
+    /// The row the horizontal speed-table selection picks for a movement type in a medium's table: the
     /// table's first row plus the movement type's record position, which for the air table's held and special
     /// movement lands in the water table.
     /// </summary>

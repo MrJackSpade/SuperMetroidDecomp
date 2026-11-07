@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 internal enum ChargeFlareDelayCommand
 {
-    /// <summary>Stream byte $FE: subtracts the following byte from the selected frame.</summary>
+    /// <summary>Subtracts the following delay from the selected frame.</summary>
     Rewind,
-    /// <summary>Stream byte $FF: resets the frame to zero.</summary>
+    /// <summary>Resets the frame to zero.</summary>
     Restart,
 }

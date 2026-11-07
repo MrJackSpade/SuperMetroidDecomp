@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Samus;
 public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose)
 {
     /// <summary>
-    /// Ports the pose-definition fallback with <c>Set_ProspectivePoseChangeCommand</c>.
+    /// Resolves the pose-definition fallback with its prospective pose-change command.
     /// Decelerate retains the current pose while base X speed remains and otherwise
-    /// becomes Stop; every other command consults pose-definition byte two, where $FF
-    /// retains the current pose.
+    /// becomes Stop; every other command consults the pose definition's fallback pose, where an
+    /// absent fallback retains the current pose.
     /// </summary>
     public static SamusLookupFailurePose Resolve(
         SamusMovementType movementType,

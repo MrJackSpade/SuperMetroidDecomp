@@ -35,8 +35,8 @@ public sealed class SamusBodyFrameState
     public SamusBodyPictures Shown { get; private set; }
 
     /// <summary>
-    /// Selects the pictures of <paramref name="animationFrame"/> of <paramref name="pose"/>, porting
-    /// <c>Set_SamusTilesDefinitions_ForCurrentAnimation</c>: the top half always changes, and the bottom half changes
+    /// Selects the pictures of <paramref name="animationFrame"/> of <paramref name="pose"/>
+    /// for the current animation: the top half always changes, and the bottom half changes
     /// only when the frame names one, otherwise keeping the bottom half already shown.
     /// </summary>
     public void Select(SamusPoseId pose, int animationFrame)

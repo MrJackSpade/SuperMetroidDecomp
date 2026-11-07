@@ -61,8 +61,8 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Ports <c>BlockColl_Handle_Horiz</c>, the position addition in
-    /// <c>Samus_MoveRight_NoSolidColl</c>, and the subsequent non-square slope alignment.
+    /// Runs horizontal block collision, the position addition of a move
+    /// without solid-enemy collision, and the subsequent non-square slope alignment.
     /// </summary>
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion words are updated.</param>
@@ -184,8 +184,8 @@ public static class SamusBlockCollision
 
                     case RoomCollisionType.DoorBlock:
                         // Resolves behaviour through the current room's door
-                        // list. A normal destination publishes `door_def_ptr`, sets
-                        // game state $09, and returns carry clear, so this scan must allow
+                        // list. A normal destination publishes the door, enters
+                        // the door-transition game state, and returns carry clear, so this scan must allow
                         // Samus into the doorway. Elevator pseudo-destinations have bit 15
                         // clear and fall through to the ordinary solid clipping routine.
                         DoorListEntry horizontalDoor = terrain.Level.ResolveDoorCollision(
@@ -244,7 +244,7 @@ public static class SamusBlockCollision
 
                     case RoomCollisionType.SpecialBlock when
                         block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger:
-                        // Visible item frames are type-$B/behaviour-$45. Block collision spawns the
+                        // Visible item frames are special blocks of the item-frame behaviour. Block collision spawns the
                         // shared item detector, whose setup triggers the item at this
                         // origin and returns carry clear; Samus therefore passes through
                         // rather than clipping against the item's visual block.
@@ -256,7 +256,7 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
-                        // Both special-solid dispatchers enter Spawn_PLM with clear carry.
+                        // Both special-solid dispatchers spawn the room object with clear carry.
                         // A full pool returns without running setup, so even a block whose
                         // setup would normally reject contact falls through as air.
                         if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
@@ -325,9 +325,9 @@ public static class SamusBlockCollision
                                 $"Collision bomb block {block.Index} has invalid behaviour ${block.Behavior.Value:X2}.");
                         }
                         // Production movement supplies the active room PLM owner, matching
-                        // the collision's immediate call into Spawn_PLM. Keeping the null
+                        // the collision's immediate room-object spawn. Keeping the null
                         // fallback preserves this low-level collision routine as a usable
-                        // setup-only unit seam: it performs CE83's synchronous clear, while
+                        // setup-only unit seam: it performs the bomb block's synchronous clear, while
                         // explicitly omitting the later independent animation lifecycle.
                         bool spawned = terrain.RoomObjects is null
                             ? ClearCollisionTypeWithoutLifecycle(terrain.Level, block.Index)
@@ -396,7 +396,7 @@ public static class SamusBlockCollision
         bool sandContact = false;
         SolidEnemyCollisionResult? enemyCollision = null;
 
-        // Most callers enter through MoveSamus_Up/Down and therefore probe the
+        // Most callers enter through the upward or downward move and therefore probe the
         // solid-enemy list before dispatching terrain. A few callers use
         // the explicitly named *NoSolidEnemyCollision* entry instead. Keep that
         // distinction as an argument at the shared collision seam; clearing the caller's
@@ -621,7 +621,7 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.SpecialBlock:
-                    // Spawn_PLM preserves clear carry when all forty slots
+                    // Spawning a room object preserves clear carry when all forty slots
                     // are occupied. No setup runs, so the unchanged special block is
                     // treated as air for this collision probe.
                     if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
@@ -737,8 +737,8 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Ports <c>BlockCollisionDetectionDueToChangeOfPose_SingleBlock</c>:
-    /// the terrain scan alone, with direction $F, then the probe's position addition.
+    /// The single-block collision check after a change of pose:
+    /// the terrain scan alone, in the downward direction, then the probe's position addition.
     /// Unlike the ordinary vertical entry it has no zero-distance exit, so a zero probe still tests the
     /// blocks under the current bottom boundary. It checks no solid enemies.
     /// </summary>
@@ -859,7 +859,7 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Ports <c>BlockColl_Horiz_Slope_Square</c>.
+    /// Reacts to a square slope during horizontal block collision.
     /// </summary>
     private static bool ReactHorizontalSquareSlope(
         SamusKinematicsState state,
@@ -921,7 +921,7 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Ports <c>BlockColl_Vert_Slope_Square</c>.
+    /// Reacts to a square slope during vertical block collision.
     /// </summary>
     private static bool ReactVerticalSquareSlope(
         SamusKinematicsState state,

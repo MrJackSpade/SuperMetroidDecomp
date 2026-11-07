@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusSlopePhysics
 {
     /// <summary>
-    /// Ports <c>BlockColl_Horiz_Slope_NonSquare</c>.
+    /// Reacts to a non-square slope during horizontal block collision.
     /// </summary>
     /// <param name="behavior">
     /// The slope block's behaviour. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
@@ -68,7 +68,7 @@ public static class SamusSlopePhysics
         int xPosition)
     {
 
-        // behaviour bit $40 mirrors the profile horizontally. XORing the complete coordinate by
+        // the behaviour's horizontal-flip bit mirrors the profile horizontally. XORing the complete coordinate by
         // 15 is equivalent to flipping its low nibble while retaining sixteen-bit word math.
         int sampledX = behavior.SlopeFlipsHorizontally
             ? CoordinateAxis.Wrap(xPosition ^ 15)
@@ -77,13 +77,13 @@ public static class SamusSlopePhysics
     }
 
     /// <summary>
-    /// Ports <c>Samus_AlignYPosSlope</c>, the post-horizontal correction
+    /// Aligns Samus's Y position to a slope: the post-horizontal correction
     /// for non-square floor and ceiling slopes.
     /// </summary>
     /// <remarks>
     /// This routine does not perform the preceding horizontal collision scan. It consumes
     /// the position that scan accepted and adjusts only whole-pixel Y, exactly like the
-    /// original call immediately after <c>Samus_MoveRight_NoSolidColl</c>.
+    /// original call immediately after a move without solid-enemy collision.
     /// </remarks>
     public static SlopeAlignmentResult AlignYPosition(
         RoomLevelData level,
@@ -101,7 +101,7 @@ public static class SamusSlopePhysics
         bool adjusted = false;
 
         // First probes the center-X block containing Samus's bottom pixel. Only
-        // type 1, shapes >=5, and behaviour bit $80 clear participate as floor slopes.
+        // type 1, shapes >=5, and the behaviour's ceiling bit clear participate as floor slopes.
         int bottomPosition = CoordinateAxis.Wrap(yPosition + yRadius - 1);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
@@ -121,7 +121,7 @@ public static class SamusSlopePhysics
         }
 
         // Recompute the top probe after any floor correction. Ceiling slopes use behaviour bit
-        // $80 set and reverse the same signed correction.
+        // the ceiling bit set and reverse the same signed correction.
         int topPosition = CoordinateAxis.Wrap(yPosition - yRadius);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&

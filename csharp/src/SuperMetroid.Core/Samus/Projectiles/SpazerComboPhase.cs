@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Per-projectile phase word (<c>SamusProjectile_Phases</c>). Only the
+/// Per-projectile phase word. Only the
 /// Spazer special beam attack uses it, as the offset into the phase table.
 /// </summary>
 public enum SpazerComboPhase

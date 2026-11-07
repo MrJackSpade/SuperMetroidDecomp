@@ -15,13 +15,13 @@ public sealed class SamusGrappleState
     public Position16<RoomPixels> Anchor { get; set; }
 
     /// <summary>
-    /// <c>GrappleBeam_StartX/YPosition</c>: the physical rope origin at Samus's hand.
+    /// The physical rope origin at Samus's hand.
     /// It differs from the flare/draw origin while firing and in stuck-in-place poses.
     /// </summary>
     public Position16<RoomPixels> RopeStart { get; set; }
 
     /// <summary>
-    /// <c>GrappleBeam_FlareX/YPosition</c>, retained under the original host-facing
+    /// The flare position, retained under the original host-facing
     /// BeamStart name. <c>DrawConnectedBeam</c> starts drawing
     /// here; do not use this position to reconstruct command-10 body positioning.
     /// </summary>
@@ -45,14 +45,14 @@ public sealed class SamusGrappleState
     /// the hand and flare origins and the connection record. Firing admits only those ten directions.
     /// </summary>
     public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
-    /// <summary>GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
+    /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
     public int PoseChangeAutoFireTimer { get; set; }
     /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
-    /// <c>GrappleCollision_X/YQuarterSubVelocity</c> and <c>X/YQuarterVelocity</c>
-    ///. Each firing frame rebuilds them from the extension
+    /// The beam's quarter velocity, whole and fractional, on both axes.
+    /// Each firing frame rebuilds them from the extension
     /// velocity, but the outer bytes keep last frame's values, so they are state rather than
     /// a pure function of the velocity.
     /// </summary>
@@ -114,8 +114,8 @@ public sealed class SamusGrappleState
     public bool SpecialAngleHandling { get; set; }
 
     /// <summary>
-    /// <c>GrappleBeam_SlowScrollingFlag</c>: set by the swing while it is fast,
-    /// it switches <c>Main_Scrolling_Routine</c> to its slow three-pixel camera branch.
+    /// Set by the swing while it is fast,
+    /// it switches the camera's scrolling to its slow three-pixel branch.
     /// </summary>
     public bool SlowScrolling { get; set; }
 
@@ -126,7 +126,7 @@ public sealed class SamusGrappleState
     public int WallJumpTimer { get; set; }
 
     /// <summary>
-    /// Distinguishes a cancel reached from a locked type-$16 pose from ordinary firing
+    /// Distinguishes a cancel reached from a locked grappling pose from ordinary firing
     /// cancellation, whose pre-existing movement and pose continue in the same frame.
     /// </summary>
     public bool CancelFromConnectedPose { get; set; }
@@ -172,8 +172,8 @@ public sealed class SamusGrappleState
     public WrappingCountdown[] SegmentAnimationTimers { get; } = new WrappingCountdown[16];
 
     /// <summary>
-    /// Readable $21-$24 animation phases of the sixteen rope slots.
-    /// Values zero through three are added to base tile $21 only when drawn.
+    /// Readable four-tile animation phases of the sixteen rope slots.
+    /// Values zero through three are added to the first rope tile only when drawn.
     /// </summary>
     public int[] SegmentAnimationFrames { get; } = new int[16];
 

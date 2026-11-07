@@ -47,8 +47,8 @@ internal sealed class SamusPresentation
         BodyFrames.Select(samus.Pose, SamusShownFrames.Of(samus.AnimationContinuation).PictureFrame(samus.Pose, samus.AnimationFrame));
 
     /// <summary>
-    /// Seeds the animation frame timer as <c>Set_Samus_AnimationFrame_if_PoseChanged</c>
-    /// does, including its bottom-minus-one liquid boundary test.
+    /// Seeds the animation frame timer as a pose change does, including its
+    /// bottom-minus-one liquid boundary test.
     /// </summary>
     public static void InitializeAnimation(SamusState samus, int initialFrame = 0)
     {
@@ -70,7 +70,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// <c>Set_Samus_AnimationFrame_if_PoseChanged</c> as a scene setup
+    /// The pose-change animation reset as a scene setup
     /// calls it before committing pose history: the animation restarts only when Pose
     /// differs from PreviousPose, and otherwise keeps its frame and timer running.
     /// </summary>
@@ -168,8 +168,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Ports the animation-only core of <c>Draw_Samus_Starting_Death_Animation</c>,
-    /// the death animation. Unlike ordinary gameplay animation, this call deliberately skips liquid-
+    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this call deliberately skips liquid-
     /// FX delay buffering, neutral-jump hacks, and controller-dependent Dash interception.
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
@@ -342,7 +341,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Ports the standing and ordinary-running portions of <c>Samus_Draw</c>.
+    /// Draws Samus in her standing and ordinary-running poses.
     /// </summary>
     /// <remarks>
     /// The body's origin and the halves it shows come from <see cref="SamusBodyDrawing"/>: the origin is the placement the
@@ -411,10 +410,10 @@ internal sealed class SamusPresentation
 
     /// <summary>
     /// Draws the two ordinary Speed-Booster echoes from the positions captured by
-    /// <c>Samus_UpdateSpeedEchoPos</c>.
+    /// the speed-echo position update.
     /// </summary>
     /// <remarks>
-    /// This preserves both branches of <c>Samus_DrawEchoes</c>. A
+    /// This preserves both branches of the echo draw. A
     /// nonnegative index draws stationary trailing snapshots only at boost stage four.
     /// Cancellation changes the index to 65535; drawing then advances each body's
     /// ±8 X / ±2 Y convergence before deciding whether it crossed the live Samus.
@@ -497,7 +496,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Ports <c>Samus_DrawShinesparkCrashEchoProjectiles</c>. These
+    /// Draws the released shinespark crash echoes. These
     /// copies are ordinary projectile-phase visuals after the centered crash circle ends.
     /// </summary>
     public void DrawReleasedShinesparkCrashEchoes(SamusState samus, 

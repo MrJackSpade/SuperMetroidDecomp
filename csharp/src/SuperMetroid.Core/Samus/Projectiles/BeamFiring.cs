@@ -37,7 +37,7 @@ internal sealed class BeamFiring
         _unauthoredFiring = Ensure.NotNull(unauthoredFiring);
     }
     /// <summary>
-    /// Applies the shared side effect of all six <c>SwitchToHudHandler_*</c> routines:
+    /// Applies the shared side effect of all six HUD weapon selections:
     /// cancel beam charge and remove every live flare-animation layer before the newly
     /// selected weapon producer runs.
     /// </summary>
@@ -154,7 +154,7 @@ internal sealed class BeamFiring
                 }
 
                 // The flare draw owns both flare graphics and their audio. Its draw-time call
-                // queues library-one sequence `$08` exactly once at counter sixteen. The
+                // queues the charging sound exactly once at counter sixteen. The
                 // C# renderer is intentionally side-effect free, so publish the same command
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
@@ -195,7 +195,7 @@ internal sealed class BeamFiring
     /// Applies the shared tail of <c>FireUnchargedBeam</c>/<c>FireChargedBeam</c>. A
     /// successful shot's own essential-priority sound replaces the charging sound. If allocation or
     /// muzzle initialization rejects a release after counter sixteen, the game queues
-    /// library-one `$02` instead so the sustained charge cannot remain audible.
+    /// the charge-silencing sound instead so the sustained charge cannot remain audible.
     /// </summary>
     private BeamFiringResult CompleteBeamRelease(
         BeamShot firing)
@@ -309,7 +309,7 @@ internal sealed class BeamFiring
             _charge.ChargedShotGlowTimer = WrappingCountdown.Start(4);
 
         // FireUnchargedBeam and FireChargedBeam explicitly zero both speed words and call
-        // CheckBeamCollByDir/WaveBeam_CheckColl before installing the pre-instruction and
+        // the directional or Wave beam collision check before installing the pre-instruction and
         // initial speed. This is what lets a muzzle already overlapping a door cap trigger
         // its shot reaction instead of moving its leading edge beyond the cap.
         bool initialImpact = _terrainCollision.RunInitialBeamCollision(
@@ -388,7 +388,7 @@ internal sealed class BeamFiring
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 1000;
 
-        // Hyper uses WaveBeam_CheckColl at this same producer seam. It publishes door and
+        // Hyper uses the Wave beam collision check at this same producer seam. It publishes door and
         // shootable-block reactions but, like every Wave family, ignores solid carry and
         // survives to receive its normal movement state.
         _ = _terrainCollision.RunInitialBeamCollision(

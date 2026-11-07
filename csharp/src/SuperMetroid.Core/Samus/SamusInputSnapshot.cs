@@ -16,7 +16,7 @@ internal sealed class SamusInputSnapshot
         ? samus.CrystalFlash.SpecialPaletteTimer.RemainingFrames : samus.Shinespark.ShineTimer;
 
     /// <summary>
-    /// Joypad1_newinput_samusfilter: the Fire edge retained by the post-draw input filter
+    /// The Fire edge retained by the post-draw input filter
     /// after drawing Samus and projectiles. Missile admission and grapple's inactive function accept either
     /// this previous-frame edge or the current frame's edge, allowing a press that first
     /// exits a non-firing pose to fire on the next frame. Demo alpha replaces it with

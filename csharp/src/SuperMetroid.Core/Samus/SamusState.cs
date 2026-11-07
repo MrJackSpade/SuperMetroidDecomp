@@ -40,7 +40,7 @@ public sealed class SamusState
 
     /// <summary>Current one-byte pose index.</summary>
     /// <remarks>
-    /// An ordinary write also models <c>InitializeSamusPose_1</c>, publishing the
+    /// An ordinary write also models the pose initializer, publishing the
     /// pose's direction and movement type to <see cref="InitializedPose"/>. Only the
     /// writers that skip that initializer use <see cref="WritePoseWithoutInitialization"/>.
     /// </remarks>
@@ -59,14 +59,14 @@ public sealed class SamusState
     } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
-    /// The pose whose definition bytes zero and one <c>InitializeSamusPose_1</c> last copied to
+    /// The pose whose definition bytes zero and one the pose initializer last copied to
     /// the cached X direction and movement type. Movement dispatch and camera
     /// tracking read those cached bytes, not the live pose.
     /// </summary>
     public SamusPoseId InitializedPose { get; private set; } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
-    /// Writes the pose as the game does when it skips <c>InitializeSamusPose_1</c>
+    /// Writes the pose as the game does when it skips the pose initializer
     /// (the drained-Samus controllers): the previous pose's
     /// direction and movement type stay in force.
     /// </summary>
@@ -78,7 +78,7 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Set when a Samus command returns carry set during enemy AI: <c>Run_Samus_Command</c>
+    /// Set when a Samus command returns carry set during enemy AI: running the command
     /// then clears every prospective pose and command, so this frame's pending
     /// transition is not committed. The runtime consumes it before the pose update.
     /// </summary>
@@ -152,7 +152,7 @@ public sealed class SamusState
     public SamusXrayState Xray { get; } = new();
 
     /// <summary>
-    /// Fatal-damage `$D7/$D8` ownership, death tiles/palettes, whiteout, and suit explosion.
+    /// Fatal-damage death-pose ownership, death tiles/palettes, whiteout, and suit explosion.
     /// The outer music wait and post-explosion room fade remain explicit game-state seams.
     /// </summary>
     public SamusDeathSequenceState DeathSequence { get; } = new();
@@ -190,7 +190,7 @@ public sealed class SamusState
         set => HorizontalSpeed.SpeedDivisor = value;
     }
 
-    /// <summary>Current energy, also used by animation command `$F6`.</summary>
+    /// <summary>Current energy, also used by the animation's low-energy command.</summary>
     public int Health { get; set; } = 99;
 
     /// <summary>
@@ -292,12 +292,12 @@ public sealed class SamusState
     /// <summary>
     /// Collected-beam bitfield. Unlike
     /// <see cref="EquippedBeams"/>, this retains beams disabled from the pause equipment
-    /// screen and is therefore the authoritative ownership word saved to SRAM.
+    /// screen and is therefore the authoritative ownership word the save file keeps.
     /// </summary>
     public SamusBeamFlags CollectedBeams { get; set; }
 
     /// <summary>
-    /// <c>SamusProjectile_FlareCounter</c>. Values at least 60 mean the charge
+    /// The projectile flare counter. Values at least 60 mean the charge
     /// beam is fully charged; spin and wall-jump movement use that producer-owned word to
     /// publish contact-damage index four without owning the projectile charge lifecycle. It mirrors the projectile
     /// charge's flare counter, 0 through 65535.
@@ -306,7 +306,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The shared bomb-spread charge timeout. The game clears this
-    /// word in <c>InitializeSamusPose_MorphingTransition</c> after a
+    /// word in the morphing-transition pose initializer after a
     /// successful Morph Ball item check, regardless of the humanoid movement family that
     /// selected the transition. Keeping it separate from the beam flare counter prevents a
     /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
@@ -336,7 +336,7 @@ public sealed class SamusState
     /// <summary>
     /// Equipped-item bitfield. Bit two is Morph
     /// Ball, bit one is Spring Ball, and bit twelve is Bombs. Animation
-    /// command $F9 and the Morph-Ball projectile handler read this word directly.
+    /// command's equipment test and the Morph-Ball projectile handler read this word directly.
     /// </summary>
     public SamusEquipmentFlags EquippedItems { get; set; }
 
@@ -458,7 +458,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Host-visible equivalent of the knockback movement handler. It is separate from
-    /// movement type `$0A` because the game also uses that type for crystal-flash art.
+    /// the knockback movement type because the game also uses that type for crystal-flash art.
     /// </summary>
     public bool KnockbackActive { get; set; }
 
@@ -482,7 +482,7 @@ public sealed class SamusState
     internal LaidOutProgramContinuation<SamusPoseId> AnimationContinuation { get; }
 
     /// <summary>
-    /// Operand published by animation command $F8 through the “super-special
+    /// Operand published by the animation's pose-transition command through the “super-special
     /// prospective pose” seam. Null means the animation has not requested that transition.
     /// </summary>
     /// <remarks>
@@ -538,7 +538,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The solid vertical collision result the latest vertical movement or wall jump published. Most translated
-    /// movement methods return collision results directly; movement type `$1A` has no displacement and its sole
+    /// movement methods return collision results directly; Draygon-held movement has no displacement and its sole
     /// side effect is explicitly clearing this otherwise-stale result.
     /// </summary>
     public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
@@ -694,8 +694,8 @@ level,
     }
 
     /// <summary>
-    /// Executes the unusual two-pass distance probe in
-    /// <c>Samus_CollDetectChangedPose</c>.
+    /// Executes the unusual two-pass distance probe of the
+    /// changed-pose collision detection.
     /// </summary>
     /// <remarks>
     /// A pose expansion of eight pixels or more is not tested only at its final leading
@@ -708,7 +708,7 @@ level,
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because
     /// the game collision routine publishes a distance without moving live Samus.
     /// The probe carries the pose being installed: the pose initializer writes it to samus_pose
-    /// before the larger-radius check, so the elevator pseudo-door's below-$09 gate tests it.
+    /// before the larger-radius check, so the elevator pseudo-door's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
 
@@ -753,7 +753,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
 
     /// <summary>
     /// Applies the crouch selector's non-morph fallback after simultaneous above/below collision.
-    /// Direction metadata selects `$27/$28`; an aimed crouch consequently loses its aim.
+    /// Direction metadata selects ordinary crouching; an aimed crouch consequently loses its aim.
     /// </summary>
     internal void ApplyPoseChangeCollisionCrouchFallback(SamusPoseId sourcePose)
     {
@@ -772,7 +772,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
         {
             // Subtracts the extra crouch radius from center Y. This is
             // normally invisible for radius-16 aimed crouches, but compact radius ten must
-            // move up six pixels when simultaneous initial probes force `$27/$28`.
+            // move up six pixels when simultaneous initial probes force ordinary crouching.
             Kinematics.Position = Kinematics.Position.WithWrappedWholeY(
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
@@ -804,7 +804,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
         _previousXPositionWrite = xPosition;
 
     /// <summary>
-    /// Applies Samus_AlignBottomWithPrevPose after installing a new pose:
+    /// Aligns Samus's bottom with the previous pose after installing a new pose:
     /// preserve the feet and shift the previous whole-Y checkpoint by the same delta.
     /// Neither fractional word changes.
     /// </summary>
@@ -881,7 +881,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     }
 
     /// <summary>
-    /// Called by unpause command $0C: reconcile Morph/Spring Ball
+    /// Called by the unpause command: reconcile Morph/Spring Ball
     /// equipment without changing position, velocity, or vertical direction.
     /// </summary>
     public void ReconcilePauseBallEquipment()

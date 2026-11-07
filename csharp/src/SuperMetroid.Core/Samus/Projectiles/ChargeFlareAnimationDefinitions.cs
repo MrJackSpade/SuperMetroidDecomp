@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>NTSC charge-flare cadence and loop commands, independent of sprite composition.</summary>
 internal static class ChargeFlareAnimationDefinitions
 {
-    /// <summary>FlareAnimationDelays_MainFlare, the region's first program: thirty delays followed by rewind fourteen.</summary>
+    /// <summary>The main flare, the region's first program: thirty delays followed by rewind fourteen.</summary>
     internal const int MainFlare = 0;
-    /// <summary>FlareAnimationDelays_FlareSlowSparks: six delays followed by restart.</summary>
+    /// <summary>The flare's slow sparks: six delays followed by restart.</summary>
     internal const int SlowSparks = 32;
-    /// <summary>FlareAnimationDelays_FlareFastSparks: six delays followed by restart.</summary>
+    /// <summary>The flare's fast sparks: six delays followed by restart.</summary>
     internal const int FastSparks = 39;
     /// <summary>The bytes the three programs fill, end to end.</summary>
     internal const int RegionByteCount = 46;

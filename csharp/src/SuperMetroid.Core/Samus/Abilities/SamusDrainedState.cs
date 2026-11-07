@@ -249,7 +249,7 @@ public sealed class SamusDrainedState
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Special ||
             samus.Kinematics.Radius.Y != 21)
-            throw new InvalidDataException("Drained pose $E8/$E9 metadata changed unexpectedly.");
+            throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
 
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
         // but movement remains the normal empty special-movement handler until the drained-fall
@@ -275,7 +275,7 @@ public sealed class SamusDrainedState
             SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose))
         {
             throw new InvalidOperationException(
-                $"Drained falling command requires pose $E8/$E9, not {samus.Pose}.");
+                $"Drained falling command requires a drained crouching pose, not {samus.Pose}.");
         }
 
         // The instruction installs the drained falling handler as Samus's one movement handler.
@@ -288,7 +288,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs one call of <c>SamusMovementHandler_SamusDrained_Falling</c>, using
+    /// Runs one call of drained Samus's fall, using
     /// the shared Y-speed calculation and block collision.
     /// </summary>
     public DrainedSamusMovementResult StepFalling(

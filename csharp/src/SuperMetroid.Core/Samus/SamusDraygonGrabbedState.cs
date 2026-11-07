@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus;
 
 /// <summary>
 /// Exact Samus-owned half of the grabbed-by-Draygon route and
-/// movement type `$1A`.
+/// the Draygon-held movement type.
 /// </summary>
 /// <remarks>
 /// Draygon is an enemy actor, so its AI computes the boss's flight position and then
@@ -235,13 +235,13 @@ public sealed class SamusDraygonGrabbedState
         // and movement handler. Crystal Flash can replace both while still held.
     }
 
-    /// <summary>Requires one of the grabbed pose families before running movement type $1A.</summary>
+    /// <summary>Requires one of the grabbed pose families before running Draygon-held movement.</summary>
     private static void EnsureGrabbedPose(SamusState samus)
     {
         if (!SamusPoseMetadata.IsDraygonGrabbedPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Draygon movement requires pose $BA-$BE/$EC-$F0, not {samus.Pose}.");
+                $"Draygon movement requires a Draygon-grabbed pose, not {samus.Pose}.");
         }
     }
 }

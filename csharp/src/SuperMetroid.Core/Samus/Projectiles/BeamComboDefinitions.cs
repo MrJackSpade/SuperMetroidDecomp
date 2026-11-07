@@ -3,18 +3,18 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Identities and definition tables for special beam attacks.</summary>
 public static class BeamComboDefinitions
 {
-    /// <summary>ProjPreInstr_PlasmaSba expansion/contraction step in pixels.</summary>
+    /// <summary>The Plasma special beam attack's expansion/contraction step in pixels.</summary>
     public const int PlasmaRadiusStep = 4;
-    /// <summary>ProjPreInstr_PlasmaSbaFunc_0 switches phase at this radius.</summary>
+    /// <summary>The Plasma special beam attack's expansion switches phase at this radius.</summary>
     public const int PlasmaOuterRadius = 192;
-    /// <summary>ProjPreInstr_PlasmaSbaFunc_1 switches phase below this radius.</summary>
+    /// <summary>The Plasma special beam attack's contraction switches phase below this radius.</summary>
     public const int PlasmaInnerThreshold = 45;
-    /// <summary>ProjPreInstr_WaveSba oscillator cap, in signed 8.8 units.</summary>
+    /// <summary>The Wave special beam attack's oscillator cap, in signed 8.8 units.</summary>
     public const int WaveSpeedLimit = 2048;
-    /// <summary>ProjPreInstr_WaveSba per-frame acceleration, in signed 8.8 units.</summary>
+    /// <summary>The Wave special beam attack's per-frame acceleration, in signed 8.8 units.</summary>
     public const int WaveAcceleration = 64;
     /// <summary>The sound of a Wave particle's removal.</summary>
     public static readonly SoundEffectId WaveRemovalSound = Library1Sound.WaveSpecialAttackEnd;
-    /// <summary>ProjPreInstr_WaveSba: the sound of the oscillator's pulse.</summary>
+    /// <summary>The Wave special beam attack: the sound of the oscillator's pulse.</summary>
     public static readonly SoundEffectId WavePulseSound = Library1Sound.WaveSpecialAttack;
 }

@@ -26,7 +26,7 @@ internal static class SamusProjectileDamage
     };
 
     /// <summary>
-    /// ProjectileDataTable_Uncharged_* / Charged_*: the charge state and beams of a beam header. The charged
+    /// The uncharged and charged beam headers: the charge state and beams of a beam header. The charged
     /// half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
     /// </summary>
     internal static SamusBeamIdentity BeamIdentity(SamusProjectileHeader header) => new(

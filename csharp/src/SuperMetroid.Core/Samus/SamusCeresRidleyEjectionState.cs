@@ -49,7 +49,7 @@ public sealed class SamusCeresRidleyEjectionState
 
         // Replaces only MovementHandler. The ordinary pose-input handler stays
         // installed: held controller chords are still matched, projectile/HUD input still
-        // runs, and the shove specifically discards a prospective `$4F/$50` damage boost
+        // runs, and the shove specifically discards a prospective damage boost
         // while the shove remains active. Runtime owns that narrow prospective-pose clear.
         // Do not install a locked handler pair here; doing so changes controller
         // semantics and made this cutscene indistinguishable from an elevator/message lock.
@@ -74,7 +74,7 @@ public sealed class SamusCeresRidleyEjectionState
             InitializationPending = false;
 
             // Selects the ordinary hurt pose from the PREVIOUS pose direction and
-            // refreshes the animation. InitializeSamusPose_1 does not publish the hurt pose's
+            // refreshes the animation. The pose initializer does not publish the hurt pose's
             // radius, so the `21 - radius` alignment uses the source pose's live radius; the
             // ordinary pose epilogue publishes radius 21 on the following frame.
             bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
@@ -101,9 +101,9 @@ public sealed class SamusCeresRidleyEjectionState
             return new CeresRidleyEjectionResult();
         }
 
-        // `Samus_BombJumpFallingXMovement_` deliberately uses the current pose's movement
-        // type ($0A for $53/$54) and the persistent base/extra-run words. Direction comes
-        // from samus_var62 instead of pose facing, so Ridley always throws toward a wall.
+        // The bomb jump's falling horizontal movement deliberately uses the current pose's movement
+        // type (knockback for the knockback poses) and the persistent base/extra-run words. Direction comes
+        // from the ejection's own direction instead of pose facing, so Ridley always throws toward a wall.
         SamusHorizontalSpeedState horizontalSpeed = samus.HorizontalSpeed;
         horizontalSpeed.SelectEnvironmentSpeedTable(
             samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -114,14 +114,14 @@ public sealed class SamusCeresRidleyEjectionState
 
         if (horizontal.Collided)
         {
-            // MoveSamus_Left/Right end in Kill_SamusXSpeed_IfCollisionDetected,
+            // Moving left or right ends by killing X speed when a collision is detected,
             // which cancels speed boosting and clears the extra-run words as well.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
             // Restore the ordinary handlers, then
             // HandleKnockbackVerticalCollision sees the still-set collision flag,
             // clears the movement words and aligns the feet to the previous pose. The push
             // never sets knockback direction, so the knockback check does not convert the
-            // hurt pose; `$53/$54` remains for the ordinary movement handler.
+            // hurt pose; the knockback pose remains for the ordinary movement handler.
             IsActive = false;
             PushDirection = CeresRidleyShoveDirection.None;
             samus.Kinematics.YSpeed = default;

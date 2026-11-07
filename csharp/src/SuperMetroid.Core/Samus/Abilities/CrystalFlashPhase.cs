@@ -5,10 +5,10 @@ public enum CrystalFlashPhase
 {
     /// <summary>No Crystal Flash movement handler is installed; its palette handler may still await the separate restoration pass.</summary>
     Inactive,
-    /// <summary>SamusMovementHandler_CrystalFlash_RaiseSamus_GenerateBubble: raises the whole Y word two pixels for ten calls, then captures the raised center and requests the bubble effect.</summary>
+    /// <summary>Samus rises: her whole Y position goes up two pixels for ten calls, then the raised center is captured and the bubble effect is requested.</summary>
     Raising,
-    /// <summary>SamusMovementHandler_CrystalFlash_DecrementAmmo: consumes missiles, supers, then power bombs, restoring 50 energy per decrement on every eighth frame.</summary>
+    /// <summary>The ammunition drains: missiles, supers, then power bombs are consumed, restoring 50 energy per decrement on every eighth frame.</summary>
     DrainingAmmo,
-    /// <summary>SamusMovementHandler_CrystalFlash_Finish: increments Y one pixel whenever it differs from the retained raised word and waits for standing movement type before releasing input locks and requesting palette restoration.</summary>
+    /// <summary>Samus settles: Y increases by one pixel whenever it differs from the retained raised position, and the phase waits for the standing movement type before releasing input locks and requesting palette restoration.</summary>
     Finishing,
 }

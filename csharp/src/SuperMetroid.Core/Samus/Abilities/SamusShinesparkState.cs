@@ -145,7 +145,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Consumes <c>Projectile_Func7_Shinespark</c>'s charge-cancellation sound request,
+    /// Consumes the shinespark windup's charge-cancellation sound request,
     /// emitted only when windup cancels a charge whose counter reached sixteen.
     /// </summary>
     public bool ConsumeChargeCancellationSoundRequest()
@@ -223,7 +223,7 @@ public sealed class SamusShinesparkState
     internal readonly ReleasedEchoSlot SecondReleasedCrashEchoSlot = new();
 
     /// <summary>
-    /// Samus_HandleTransitionsB_5 clears the special-palette timer and replaces the shared
+    /// Starting the X-ray scope clears the special-palette timer and replaces the shared
     /// special-palette handler with X-Ray. Relinquish this owner's palette state so
     /// it cannot keep ticking or repaint over the newly installed visor palette.
     /// </summary>
@@ -250,7 +250,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Ports <c>Samus_CrouchTrans</c>: a crouch at the full boost stage stores a shinespark.
+    /// A crouch at the full boost stage stores a shinespark.
     /// </summary>
     public bool TryStoreFromSpeedBooster(SamusSpeedBoostCounter speedBoostCounter)
     {
@@ -266,7 +266,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Ports <c>Projectile_Func7_Shinespark</c> after Samus's pose handling has
+    /// Starts the shinespark windup after Samus's pose handling has
     /// selected windup <see cref="SamusPoseId.ShinesparkWindupRightPose"/> and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/>.
     /// </summary>
     public void BeginWindup(SamusState samus)
@@ -278,7 +278,7 @@ public sealed class SamusShinesparkState
         InitializeWindup(samus);
     }
 
-    /// <summary>DemoSetFunc_5/6 call the windup initializer without a stored shine.</summary>
+    /// <summary>The two shinespark demos start the windup without a stored shine.</summary>
     internal void BeginDemoLaunch(SamusState samus, SamusPoseId targetPose)
     {
         InitializeWindup(samus);
@@ -288,7 +288,7 @@ public sealed class SamusShinesparkState
     /// <summary>Cancels beam charge and installs the 30-frame spark windup, palette and boost state.</summary>
     private void InitializeWindup(SamusState samus)
     {
-        // Projectile_Func7_Shinespark checks the charge counter before clearing it. A charge that has
+        // The windup checks the charge counter before clearing it. A charge that has
         // reached the draw-time sound threshold first queues the charge-cancellation sound; shorter
         // charges are still torn down without a sound call. The live projectile owner
         // contains the flare layers and previous-counter word, while Samus mirrors the charge counter
@@ -336,7 +336,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c>
+    /// Installs the launch handler the shinespark's direction selects
     /// for <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/> through <see cref="SamusPoseId.ShinesparkDiagonalLeftPose"/>.
     /// </summary>
     public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose,
@@ -840,7 +840,7 @@ false);
                     $"Shinespark crash orbit stage {CrashOrbitStage} is undefined.");
         }
 
-        // Projectile_SinLookup consumes a byte angle/radius and returns wrapped 16-bit
+        // The projectile sine lookup consumes a byte angle/radius and returns wrapped 16-bit
         // offsets. Both additions below deliberately retain that unsigned sixteen-bit wrapping.
         int orbitRadius = Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius);
         Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);

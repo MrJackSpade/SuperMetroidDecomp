@@ -23,7 +23,7 @@ internal sealed class BabyMetroidFade
     /// </summary>
     internal RgbColor Displayed(int paletteIndex, int color) =>
         paletteIndex is >= 1 and <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount &&
-        (uint)color < BabyMetroidCutsceneColorDefinitions.FadeColorCount
+        (uint)color < BabyMetroidCutsceneColorFormat.FadeColorCount
             ? Resolve(paletteIndex - 1, color)
             : throw new ArgumentOutOfRangeException(nameof(paletteIndex),
                 $"Cutscene Baby fade index {paletteIndex}, color {color} is outside the authored images.");

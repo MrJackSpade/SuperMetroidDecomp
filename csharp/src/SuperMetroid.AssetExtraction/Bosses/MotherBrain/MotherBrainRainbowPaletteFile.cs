@@ -19,7 +19,7 @@ public static class MotherBrainRainbowPaletteFile
     /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival, restoration, and beam-backdrop colors; validates frame geometry and channels without importing engine timers or signed loop terminators.</summary>
     /// <param name="json">Caller-owned <c>mother-brain-rainbow-palette.json</c> stream, read from its current position and left open.</param>
     /// <returns>Compiled colors retaining independent edits while sharing calculated native color relationships when their supplied values agree.</returns>
-    public static MotherBrainRainbowPalettePresentation Read(Stream json)
+    public static InstalledMotherBrainRainbowPalette Read(Stream json)
     {
         MotherBrainRainbowPaletteDocument document = JsonAssetDocument.Read<MotherBrainRainbowPaletteDocument>(
             json, ArtworkJson.Options, "Mother Brain rainbow palette");
@@ -28,8 +28,8 @@ public static class MotherBrainRainbowPaletteFile
         return MotherBrainRainbowPaletteRecognition.Create(new MotherBrainRainbowPaletteColours
         {
             Rainbow = CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
-                MotherBrainRainbowPaletteDefinitions.ColorCount,
-                MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
+                MotherBrainRainbowPaletteGeometry.ColorCount,
+                MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
             ToGrey = CompileFrames(document.ToGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.DrainedColors,
                 MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
@@ -37,8 +37,8 @@ public static class MotherBrainRainbowPaletteFile
                 MotherBrainRainbowPaletteGeometry.RevivalColors,
                 MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
             FakeDeathToGrey = CompileFakeDeathFrames(document.FakeDeathToGrey),
-            Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteDefinitions.ColorCount,
-                MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
+            Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteGeometry.ColorCount,
+                MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
             BeamInitial = CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
             BeamCycle = CompileColors(document.BeamCycle, MotherBrainRainbowPaletteGeometry.BeamCycleColorCount,
                 nameof(document.BeamCycle)),
@@ -53,7 +53,7 @@ public static class MotherBrainRainbowPaletteFile
         var frames = new RgbColor[source.Length][];
         for (int frame = 0; frame < source.Length; frame++)
             frames[frame] = CompileColors(source[frame],
-                MotherBrainFakeDeathPaletteDefinitions.ColorCount, $"fake-death frame {frame}");
+                MotherBrainRainbowPaletteGeometry.FakeDeathColors, $"fake-death frame {frame}");
         return frames;
     }
 

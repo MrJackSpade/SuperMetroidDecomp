@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using Presentation = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation;
+using Presentation = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

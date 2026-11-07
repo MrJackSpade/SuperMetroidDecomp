@@ -18,7 +18,7 @@ internal sealed class MotherBrainDeathFade
     /// <summary>Selects the back-leg rather than body starting palette.</summary>
     private readonly MotherBrainPalettePart part;
     /// <summary>Corpse fade endpoint; null selects black for the body and leg fades.</summary>
-    internal readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
+    internal readonly InstalledMotherBrainRainbowPalette.DrainedBodyColors? last;
     /// <summary>Exact edited frames retained when the calculated stock interpolation differs.</summary>
     internal readonly RgbColor[][]? supplied;
     /// <summary>Number of authored palette stages in this fade.</summary>
@@ -33,7 +33,7 @@ internal sealed class MotherBrainDeathFade
     /// <param name="frameCount">The number of stages.</param>
     /// <param name="colorCount">The opaque colours in each stage.</param>
     /// <param name="part">The palette part whose stock starting colours the fade starts from.</param>
-    internal MotherBrainDeathFade(RgbColor[]? first, MotherBrainRainbowPalettePresentation.DrainedBodyColors? last,
+    internal MotherBrainDeathFade(RgbColor[]? first, InstalledMotherBrainRainbowPalette.DrainedBodyColors? last,
         RgbColor[][]? supplied, int frameCount, int colorCount, MotherBrainPalettePart part)
     {
         this.first = first;

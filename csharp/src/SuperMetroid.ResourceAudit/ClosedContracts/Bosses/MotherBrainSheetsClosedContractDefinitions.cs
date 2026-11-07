@@ -9,6 +9,8 @@ internal static class MotherBrainSheetsClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteArtworkCatalog", "mother-brain-special-sheets-complete-pages", ["Get"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSprites.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteSheetDefinitions.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteSheetDefinition.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/Artwork/RoomCharacterAtlas.cs")]),
     ];

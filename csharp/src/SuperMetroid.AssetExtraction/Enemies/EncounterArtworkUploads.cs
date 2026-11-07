@@ -135,7 +135,7 @@ internal static class EncounterArtworkUploads
             case MotherBrainSpritePageSheet.BabyMetroid:
             case MotherBrainSpritePageSheet.Attack:
             case MotherBrainSpritePageSheet.ExplodedDoor:
-                MotherBrainSpecialSpriteSheetDefinition sheet = MotherBrainSpecialSpriteArtworkDefinitions.All.Single(definition => definition.Sheet == page.Sheet);
+                MotherBrainSpecialSpriteSheetDefinition sheet = MotherBrainSpecialSpriteSheetDefinitions.All.Single(definition => definition.Sheet == page.Sheet);
                 MotherBrainSpecialSpriteArtworkCatalog artwork = Bosses(installed).MotherBrainSpecialSprites ??
                     throw new InvalidDataException($"Installed enemy artwork is missing {sheet.FileName}.");
                 return new(MotherBrainSpecialSprites.PageFirstCharacter(sheet, page.Page), artwork.Get(sheet.Sheet).Characters.Slice(

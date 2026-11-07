@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -30,7 +31,7 @@ internal static class MotherBrainHealthPaletteExtractor
             {
                 int pointer = table + state * sizeof(ushort);
                 int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|CartridgeImportSource.Require(bus).ReadCartridgeWord(pointer));
-                states[state] = new PaletteRgb5[MotherBrainRainbowPaletteDefinitions.ColorCount];
+                states[state] = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.ColorCount];
                 for (int color = 0; color < states[state].Length; color++)
                 {
                     int address = source + color * sizeof(ushort);

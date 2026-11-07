@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Development-tool instance members of <see cref="MotherBrainRoomColorPresentation"/>.</summary>
 internal static class MotherBrainRoomColorPresentationToolingExtensions

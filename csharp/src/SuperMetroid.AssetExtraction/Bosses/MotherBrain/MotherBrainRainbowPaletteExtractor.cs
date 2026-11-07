@@ -24,8 +24,8 @@ internal static class MotherBrainRainbowPaletteExtractor
             Version = MotherBrainRainbowPaletteFile.Version,
             Rainbow = ReadTable(MotherBrainSourceDefinitions.Palettes.RainbowPointerTable,
                 MotherBrainRainbowPaletteFormat.RainbowFrameCount,
-                MotherBrainRainbowPaletteDefinitions.ColorCount,
-                MotherBrainRainbowPaletteDefinitions.ColorCount, false),
+                MotherBrainRainbowPaletteGeometry.ColorCount,
+                MotherBrainRainbowPaletteGeometry.ColorCount, false),
             ToGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable,
                 MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.DrainedColors,
@@ -36,8 +36,8 @@ internal static class MotherBrainRainbowPaletteExtractor
                 MotherBrainRainbowPaletteGeometry.BackLegCount, true),
             FakeDeathToGrey = ReadFakeDeathToGrey(),
             Normal = ReadFrame(MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
-                MotherBrainRainbowPaletteDefinitions.ColorCount,
-                MotherBrainRainbowPaletteDefinitions.ColorCount, false,
+                MotherBrainRainbowPaletteGeometry.ColorCount,
+                MotherBrainRainbowPaletteGeometry.ColorCount, false,
                 MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
             BeamInitial = PaletteRgb5.From(MotherBrainBeamDefinitions.InitialColor),
             BeamCycle = ReadBeamCycle(),
@@ -73,7 +73,7 @@ internal static class MotherBrainRainbowPaletteExtractor
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain fake-death fade ends before frame {frame}.");
                 frames[frame] = ReadColors(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
-                    MotherBrainFakeDeathPaletteDefinitions.ColorCount);
+                    MotherBrainRainbowPaletteGeometry.FakeDeathColors);
             }
             if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                 frames.Length * sizeof(ushort))) != 0)

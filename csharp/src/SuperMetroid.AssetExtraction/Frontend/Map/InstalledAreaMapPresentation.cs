@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -39,7 +40,25 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         CeresRidleyFloorColors = Ensure.NotNull(sources.CeresRidleyFloorColors);
         EscapeTimerTiles = Ensure.NotNull(sources.EscapeTimerTiles);
         RoomFxAnimatedTiles = Ensure.NotNull(sources.RoomFxAnimatedTiles);
+        MotherBrainHealthPalette = Ensure.NotNull(sources.MotherBrainHealthPalette);
+        MotherBrainRoomColors = Ensure.NotNull(sources.MotherBrainRoomColors);
     }
+
+    /// <summary>Mother Brain's health-band colours, which only the import reads to pre-colour her sheets and body layer (#1527).</summary>
+    public MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; }
+
+    /// <summary>The Mother Brain health colours the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static MotherBrainHealthPalettePresentation MotherBrainHealthPaletteOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.MotherBrainHealthPalette
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Mother Brain health colours.");
+
+    /// <summary>Mother Brain's room colours, which only the import reads to pre-colour her room's pictures and sheets (#1527).</summary>
+    public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; }
+
+    /// <summary>The Mother Brain room colours the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static MotherBrainRoomColorPresentation MotherBrainRoomColorsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.MotherBrainRoomColors
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Mother Brain room colours.");
 
     /// <summary>
     /// The animated tiles' installed characters, which only the import reads to compose room sheets and the Tourian

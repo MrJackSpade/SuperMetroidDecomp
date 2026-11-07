@@ -1,7 +1,8 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Editable Mother Brain fake-death room flash and phase-two initial colors.</summary>
 public sealed class MotherBrainRoomColorPresentation
@@ -65,7 +66,7 @@ public sealed class MotherBrainRoomColorPresentation
 
         /// <summary>The body's white, which every room colour past the accents repeats.</summary>
         private static RgbColor StockWhite =>
-            MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor);
+            MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorGeometry.WhiteColor);
 
         /// <summary>Selects the paint-derived room colour; colours past the two slices repeat the stock white.</summary>
         private static RgbColor Calculate(int color) => color < StockColors.Length ? StockColors[color] : StockWhite;
@@ -73,41 +74,41 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Builds room wall and shadow ramps plus the selected panel and lens accents.</summary>
         private static ImmutableArray<RgbColor> BuildStockColors()
         {
-            RgbColor[] stock = new RgbColor[2 * MotherBrainRoomColorDefinitions.SliceColors];
+            RgbColor[] stock = new RgbColor[2 * MotherBrainRoomColorGeometry.SliceColors];
             Array.Fill(stock, StockWhite);
-            for (int step = 0; step < MotherBrainRoomColorDefinitions.RoomWallCount; step++)
-                stock[MotherBrainRoomColorDefinitions.RoomWallFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight,
-                    MotherBrainFinalRoomPaintDefinitions.WallDark, step, MotherBrainRoomColorDefinitions.RoomWallCount - 1);
+            for (int step = 0; step < MotherBrainRoomColorGeometry.RoomWallCount; step++)
+                stock[MotherBrainRoomColorGeometry.RoomWallFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight,
+                    MotherBrainFinalRoomPaintDefinitions.WallDark, step, MotherBrainRoomColorGeometry.RoomWallCount - 1);
             // Shadow red is5,4,3,1: ceiling interpolation. Green7,5,4,2
             // and blue8,6,4,2 use nearest interpolation. This is an exact sequence
             // relationship, not a claim about a historical palette tool.
             RgbColor recessedShadow = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, RgbColor.Black,
                 MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor - 1, MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor);
-            for (int step = 0; step < MotherBrainRoomColorDefinitions.RoomShadowCount; step++)
-                stock[MotherBrainRoomColorDefinitions.RoomShadowFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight,
-                    recessedShadow, step, MotherBrainRoomColorDefinitions.RoomShadowCount - 1,
+            for (int step = 0; step < MotherBrainRoomColorGeometry.RoomShadowCount; step++)
+                stock[MotherBrainRoomColorGeometry.RoomShadowFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight,
+                    recessedShadow, step, MotherBrainRoomColorGeometry.RoomShadowCount - 1,
                     ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
             // The panel colours between the shadow ramp and the outline are black except the amber light.
-            for (int color = MotherBrainRoomColorDefinitions.RoomShadowFirst + MotherBrainRoomColorDefinitions.RoomShadowCount;
-                 color < MotherBrainRoomColorDefinitions.RoomOutlineColor; color++)
+            for (int color = MotherBrainRoomColorGeometry.RoomShadowFirst + MotherBrainRoomColorGeometry.RoomShadowCount;
+                 color < MotherBrainRoomColorGeometry.RoomOutlineColor; color++)
                 stock[color] = RgbColor.Black;
             stock[PanelAmberColor] = MotherBrainFinalRoomPaintDefinitions.Amber;
-            stock[MotherBrainRoomColorDefinitions.RoomOutlineColor] = MotherBrainFinalRoomPaintDefinitions.PanelField;
-            for (int step = 0; step < MotherBrainRoomColorDefinitions.RoomGrayCount; step++)
-                stock[MotherBrainRoomColorDefinitions.RoomGrayFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight,
-                    MotherBrainFinalRoomPaintDefinitions.MetalLow, step, MotherBrainRoomColorDefinitions.RoomGrayCount - 1);
+            stock[MotherBrainRoomColorGeometry.RoomOutlineColor] = MotherBrainFinalRoomPaintDefinitions.PanelField;
+            for (int step = 0; step < MotherBrainRoomColorGeometry.RoomGrayCount; step++)
+                stock[MotherBrainRoomColorGeometry.RoomGrayFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight,
+                    MotherBrainFinalRoomPaintDefinitions.MetalLow, step, MotherBrainRoomColorGeometry.RoomGrayCount - 1);
             // Metal contour shadow is half the low gray surface intensity.
             RgbColor contour = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLow, RgbColor.Black,
                 MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor - 1, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor);
-            stock[MotherBrainRoomColorDefinitions.RoomDarkGrayColor] = contour;
-            stock[MotherBrainRoomColorDefinitions.RoomRepeatedDarkGrayColor] = contour;
-            stock[MotherBrainRoomColorDefinitions.RoomRedFirst] = MotherBrainFinalRoomPaintDefinitions.RedLens;
-            stock[MotherBrainRoomColorDefinitions.RoomRedFirst + 1] = new RgbColor(
+            stock[MotherBrainRoomColorGeometry.RoomDarkGrayColor] = contour;
+            stock[MotherBrainRoomColorGeometry.RoomRepeatedDarkGrayColor] = contour;
+            stock[MotherBrainRoomColorGeometry.RoomRedFirst] = MotherBrainFinalRoomPaintDefinitions.RedLens;
+            stock[MotherBrainRoomColorGeometry.RoomRedFirst + 1] = new RgbColor(
                 Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0);
-            stock[MotherBrainRoomColorDefinitions.RoomBlueFirst] = MotherBrainFinalRoomPaintDefinitions.BlueLens;
-            stock[MotherBrainRoomColorDefinitions.RoomBlueFirst + 1] = new RgbColor(0, 0,
+            stock[MotherBrainRoomColorGeometry.RoomBlueFirst] = MotherBrainFinalRoomPaintDefinitions.BlueLens;
+            stock[MotherBrainRoomColorGeometry.RoomBlueFirst + 1] = new RgbColor(0, 0,
                 Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop));
-            stock[MotherBrainRoomColorDefinitions.RoomGlowColor] = MotherBrainFinalRoomPaintDefinitions.WarmAccent;
+            stock[MotherBrainRoomColorGeometry.RoomGlowColor] = MotherBrainFinalRoomPaintDefinitions.WarmAccent;
             return [.. stock];
         }
 
@@ -132,23 +133,23 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Builds cyan and flame ramps and reuses health-palette tissue colors.</summary>
         private static RgbColor Calculate(int color)
         {
-            if (color < MotherBrainRoomColorDefinitions.AttackFlameFirst)
+            if (color < MotherBrainRoomColorGeometry.AttackFlameFirst)
                 return InterpolateShade(MotherBrainAttackPaintDefinitions.RingHighlight, MotherBrainAttackPaintDefinitions.RingEdge,
-                    color - MotherBrainRoomColorDefinitions.AttackCyanFirst,
-                    MotherBrainRoomColorDefinitions.AttackCyanCount - 1);
-            if (color < MotherBrainRoomColorDefinitions.AttackTissueFirst)
+                    color - MotherBrainRoomColorGeometry.AttackCyanFirst,
+                    MotherBrainRoomColorGeometry.AttackCyanCount - 1);
+            if (color < MotherBrainRoomColorGeometry.AttackTissueFirst)
                 return InterpolateShade(MotherBrainAttackPaintDefinitions.CoreHighlight, MotherBrainAttackPaintDefinitions.CoreEdge,
-                    color - MotherBrainRoomColorDefinitions.AttackFlameFirst,
-                    MotherBrainRoomColorDefinitions.AttackFlameCount - 1);
-            if (color < MotherBrainRoomColorDefinitions.AttackGrayFirst)
+                    color - MotherBrainRoomColorGeometry.AttackFlameFirst,
+                    MotherBrainRoomColorGeometry.AttackFlameCount - 1);
+            if (color < MotherBrainRoomColorGeometry.AttackGrayFirst)
                 return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body,
-                    MotherBrainRoomColorDefinitions.AttackBodyTissueFirst + color - MotherBrainRoomColorDefinitions.AttackTissueFirst);
-            if (color == MotherBrainRoomColorDefinitions.WhiteColor)
-                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor);
+                    MotherBrainRoomColorGeometry.AttackBodyTissueFirst + color - MotherBrainRoomColorGeometry.AttackTissueFirst);
+            if (color == MotherBrainRoomColorGeometry.WhiteColor)
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorGeometry.WhiteColor);
             return InterpolateShade(MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight, MotherBrainAttackPaintDefinitions.ShellOutline,
-                color - MotherBrainRoomColorDefinitions.AttackGrayFirst
-                - (color > MotherBrainRoomColorDefinitions.WhiteColor ? 1 : 0),
-                MotherBrainRoomColorDefinitions.AttackGrayLast - MotherBrainRoomColorDefinitions.AttackGrayFirst - 1);
+                color - MotherBrainRoomColorGeometry.AttackGrayFirst
+                - (color > MotherBrainRoomColorGeometry.WhiteColor ? 1 : 0),
+                MotherBrainRoomColorGeometry.AttackGrayLast - MotherBrainRoomColorGeometry.AttackGrayFirst - 1);
         }
         /// <summary>Interpolates an attack shade between its painted endpoints with nearest rounding.</summary>
         private static RgbColor InterpolateShade(RgbColor first, RgbColor last, int shade, int intervals)
@@ -177,15 +178,15 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Builds the glass face ramp and reuses the room's metal accents.</summary>
         private RgbColor Calculate(int color)
         {
-            if (color < MotherBrainRoomColorDefinitions.GlassRampFirst)
-                return room[MotherBrainRoomColorDefinitions.RoomGrayFirst + color];
-            if (color < MotherBrainRoomColorDefinitions.GlassDarkGrayColor)
-                return InterpolateRgb5(MotherBrainGlassPaintDefinitions.FaceHighlight, room[MotherBrainRoomColorDefinitions.RoomOutlineColor],
-                    color - MotherBrainRoomColorDefinitions.GlassRampFirst, MotherBrainRoomColorDefinitions.GlassRampCount - 1);
+            if (color < MotherBrainRoomColorGeometry.GlassRampFirst)
+                return room[MotherBrainRoomColorGeometry.RoomGrayFirst + color];
+            if (color < MotherBrainRoomColorGeometry.GlassDarkGrayColor)
+                return InterpolateRgb5(MotherBrainGlassPaintDefinitions.FaceHighlight, room[MotherBrainRoomColorGeometry.RoomOutlineColor],
+                    color - MotherBrainRoomColorGeometry.GlassRampFirst, MotherBrainRoomColorGeometry.GlassRampCount - 1);
             // The glass colours past the ramp that own individual paint; the rest are stock colours.
             return color switch
             {
-                MotherBrainRoomColorDefinitions.GlassDarkGrayColor => room[MotherBrainRoomColorDefinitions.RoomDarkGrayColor],
+                MotherBrainRoomColorGeometry.GlassDarkGrayColor => room[MotherBrainRoomColorGeometry.RoomDarkGrayColor],
                 GlassNeutralColor => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
                 _ => MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color),
             };
@@ -212,10 +213,10 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Selects a supplied or room-derived tube-projectile color.</summary>
         public RgbColor Color(int color) => supplied is null ? Calculate(color) : supplied[color];
         /// <summary>Uses shared casing highlight, stock black, and room outline colors.</summary>
-        private RgbColor Calculate(int color) => color < MotherBrainRoomColorDefinitions.TubeNeutralCount
-            ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorDefinitions.RoomEntryBlackColor
+        private RgbColor Calculate(int color) => color < MotherBrainRoomColorGeometry.TubeNeutralCount
+            ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorGeometry.RoomEntryBlackColor
                 ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color)
-                : room[MotherBrainRoomColorDefinitions.RoomOutlineColor + color - MotherBrainRoomColorDefinitions.TubeNeutralCount];
+                : room[MotherBrainRoomColorGeometry.RoomOutlineColor + color - MotherBrainRoomColorGeometry.TubeNeutralCount];
     }
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     internal sealed class RoomFlash

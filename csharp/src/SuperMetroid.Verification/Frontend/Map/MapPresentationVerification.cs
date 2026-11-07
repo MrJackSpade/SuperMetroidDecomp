@@ -414,12 +414,12 @@ internal static class MapPresentationVerification
             int pointer = MotherBrainSourceDefinitions.Palettes.RainbowPointerTable + frame * sizeof(ushort);
             int palette = MotherBrainSourceDefinitions.Palettes.PaletteBank |
                 LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
-            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteDefinitions.ColorCount,
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainColorDestinations.BodyColor);
-            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteDefinitions.ColorCount,
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainColorDestinations.BrainColor);
-            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteDefinitions.ColorCount * sizeof(ushort),
-                MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainColorDestinations.RearLegColor);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteGeometry.ColorCount * sizeof(ushort),
+                MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.RearLegColor);
             SnesCgram installed = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Rainbow(frame));
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain rainbow frame {frame} matches all native CGRAM colors");
@@ -460,11 +460,11 @@ internal static class MapPresentationVerification
 
         var nativeNormal = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
-            MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainColorDestinations.BodyColor);
+            MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.BodyColor);
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
-            MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainColorDestinations.BrainColor);
+            MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.BrainColor);
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainSourceDefinitions.Palettes.NormalRearLegColors,
-            MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainColorDestinations.RearLegColor);
+            MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.RearLegColor);
         SnesCgram installedNormal = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Restored);
         AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
             "Mother Brain normal restoration matches both fixed native sources");
@@ -551,13 +551,13 @@ internal static class MapPresentationVerification
         {
             int band = MotherBrainHealthPalette.Band(health);
             SnesCgram native = MotherBrainLook.OfHealth(extracted, band);
-            SnesCgram installed = MotherBrainLook.OfHealth(original.MotherBrainHealthPalette, band);
+            SnesCgram installed = MotherBrainLook.OfHealth(InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(original), band);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
             AssertEqual(0, installed.Colors[MotherBrainColorDestinations.BrainColor - 1],
                 "Mother Brain health palette leaves transparent color untouched");
             AssertEqual(0, installed.Colors[MotherBrainColorDestinations.RearLegColor +
-                MotherBrainRainbowPaletteDefinitions.ColorCount],
+                MotherBrainRainbowPaletteGeometry.ColorCount],
                 "Mother Brain health palette leaves adjacent colors untouched");
             AssertEqual(state, health >= MotherBrainHealthPaletteDefinitions.FirstThreshold ? 0 :
                 health >= MotherBrainHealthPaletteDefinitions.SecondThreshold ? 1 :

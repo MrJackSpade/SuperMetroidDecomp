@@ -14,6 +14,7 @@ using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -101,7 +102,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
 
         void CheckLiveTarget(ShitroidColorTarget target, int destination)
         {
-            ushort[] cgram = BossShadeColours.Laid([ShitroidShades.Targets], shades, BossShadeColours.Sprites, 0);
+            ushort[] cgram = BossShadeColours.Laid([TourianCorpseShades.ShitroidTargets], shades, BossShadeColours.Sprites, 0);
             // Colour zero of each row is the transparent backdrop, which the entry's load leaves alone.
             for (int color = 1; color < ShitroidColorDefinitions.TargetColorCount; color++)
                 AssertEqual(colors.TargetColor(target, color).ToWord(), cgram[destination + color],

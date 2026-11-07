@@ -100,14 +100,8 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Room and cinematic palette-animation colors; step timing, colour destinations, and side effects remain compiled.</summary>
     public required RoomPaletteFxPresentation RoomPaletteFx { get; init; }
 
-    /// <summary>Mother Brain health-selected palette artwork, separate from rainbow and room-color families.</summary>
-    public required MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; init; }
-
-    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors.</summary>
+    /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public required MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; init; }
-
-    /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes.</summary>
-    public required MotherBrainRoomColorPresentation MotherBrainRoomColors { get; init; }
 
     /// <summary>Selected room-FX palette-blend presentation, separate from effect overlay page geometry and animated character bytes.</summary>
     public required RoomFxBlendInks RoomFxPaletteBlends { get; init; }

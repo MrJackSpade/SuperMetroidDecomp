@@ -19,10 +19,10 @@ public static class MotherBrainSpecialSprites
     /// <summary>Which sheet each special sheet is, and the sprite character its first page shows from.</summary>
     private static readonly Dictionary<MotherBrainSpecialSpriteSheetDefinition, MotherBrainSpecialSheetPlacement> Placements = new()
     {
-        [MotherBrainSpecialSpriteArtworkDefinitions.Legs] = new(MotherBrainSpritePageSheet.Legs, 320),
-        [MotherBrainSpecialSpriteArtworkDefinitions.BabyMetroid] = new(MotherBrainSpritePageSheet.BabyMetroid, 448),
-        [MotherBrainSpecialSpriteArtworkDefinitions.Attack] = new(MotherBrainSpritePageSheet.Attack, 448),
-        [MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor] = new(MotherBrainSpritePageSheet.ExplodedDoor, 256),
+        [MotherBrainSpecialSpriteSheetDefinitions.Legs] = new(MotherBrainSpritePageSheet.Legs, 320),
+        [MotherBrainSpecialSpriteSheetDefinitions.BabyMetroid] = new(MotherBrainSpritePageSheet.BabyMetroid, 448),
+        [MotherBrainSpecialSpriteSheetDefinitions.Attack] = new(MotherBrainSpritePageSheet.Attack, 448),
+        [MotherBrainSpecialSpriteSheetDefinitions.ExplodedDoor] = new(MotherBrainSpritePageSheet.ExplodedDoor, 256),
     };
 
     /// <summary>The page geometry every special sheet shares.</summary>
@@ -62,8 +62,8 @@ public static class MotherBrainSpecialSprites
     {
         Ensure.NotNull(sheets);
         var copied = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>(sheets);
-        if (copied.Count != MotherBrainSpecialSpriteArtworkDefinitions.All.Count ||
-            MotherBrainSpecialSpriteArtworkDefinitions.All.Any(definition =>
+        if (copied.Count != MotherBrainSpecialSpriteSheetDefinitions.All.Count ||
+            MotherBrainSpecialSpriteSheetDefinitions.All.Any(definition =>
                 !copied.TryGetValue(definition.Sheet, out RoomCharacterAtlas? artwork) ||
                 artwork is null || artwork.Characters.Length != definition.ByteCount))
             throw new InvalidDataException(

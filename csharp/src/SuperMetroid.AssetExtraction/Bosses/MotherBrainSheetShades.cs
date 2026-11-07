@@ -6,6 +6,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.World.RoomStates;
@@ -14,6 +15,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -101,9 +103,9 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(bosses);
         AreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
-        MotherBrainHealthPalettePresentation health = presentation.MotherBrainHealthPalette;
+        MotherBrainHealthPalettePresentation health = InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(presentation);
         MotherBrainRainbowPalettePresentation rainbow = presentation.MotherBrainRainbowPalette;
-        MotherBrainRoomColorPresentation room = presentation.MotherBrainRoomColors;
+        MotherBrainRoomColorPresentation room = InstalledAreaMapPresentation.MotherBrainRoomColorsOf(presentation);
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors ?? throw Missing("the Baby's cutscene colours");
         RgbColor[] standardRoom = RoomStaticPaletteImage.Colours((roomPalettes ?? throw Missing("Mother Brain's room colours")).Get(RoomPaletteOf(EnemyDefinitionId.MotherBrainBody)));
@@ -114,30 +116,30 @@ internal static class MotherBrainSheetShades
         {
             int shown = frame;
             shades.Add(BrainAndLegs(MotherBrainShades.DeathBody(shown), LegsRow + FirstColour,
-                Colours(MotherBrainDeathDefinitions.BodyColorCount, colour => death.BodyColor(shown, colour)),
-                Colours(MotherBrainDeathDefinitions.BodyColorCount, colour => death.LegColor(shown, colour))));
+                Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(shown, colour)),
+                Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.LegColor(shown, colour))));
         }
         // The corpse's colours are her brain's, copied into the seventh row, so her brain's pictures show them.
         for (int frame = 0; frame < death.selection.CorpseFade.FrameCount; frame++)
         {
             int shown = frame;
             shades.Add(SheetShade.Run(MotherBrainShades.CorpseFade(shown), BrainRow + FirstColour,
-                Colours(MotherBrainDeathDefinitions.CorpseColorCount, colour => death.CorpseColor(shown, colour))));
+                Colours(MotherBrainDeathColorFormat.CorpseColorCount, colour => death.CorpseColor(shown, colour))));
         }
         shades.Add(SheetShade.Run(MotherBrainShades.ExplodedDoor, BrainRow + FirstColour,
-            Colours(MotherBrainDeathDefinitions.BodyColorCount, death.ExplodedDoorColor)));
+            Colours(MotherBrainDeathColorFormat.BodyColorCount, death.ExplodedDoorColor)));
         // The escape's shutter flash recolours the exploded door's colours nine to fourteen in her brain's row.
         shades.AddRange(PaletteFxSpriteShades.Of(PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters,
             BrainRow, presentation.RoomPaletteFx));
         shades.Add(SheetShade.Run(EscapeTypewriterShades.Text, BrainRow + TypewriterFirstColour,
             standardRoom.AsSpan(7 * Group + TypewriterFirstColour, 2)));
         shades.Add(SheetShade.Run(MotherBrainShades.BabyArrives, SeventhRow + FirstColour,
-            Colours(BabyMetroidCutsceneColorDefinitions.InitialColorCount, baby.InitialColor)));
+            Colours(BabyMetroidCutsceneColorFormat.InitialColorCount, baby.InitialColor)));
         for (int shade = 1; shade <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; shade++)
         {
             int shown = shade;
             shades.Add(SheetShade.Run(MotherBrainShades.BabyFade(shown), SeventhRow + FirstColour,
-                Colours(BabyMetroidCutsceneColorDefinitions.FadeColorCount, colour => baby.FadeColor(shown, colour))));
+                Colours(BabyMetroidCutsceneColorFormat.FadeColorCount, colour => baby.FadeColor(shown, colour))));
         }
         return shades;
     }
@@ -151,15 +153,15 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
-        MotherBrainHealthPalettePresentation health = maps.MotherBrainHealthPalette;
+        MotherBrainHealthPalettePresentation health = InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(maps);
         MotherBrainRainbowPalettePresentation rainbow = maps.MotherBrainRainbowPalette;
-        MotherBrainRoomColorPresentation room = maps.MotherBrainRoomColors;
+        MotherBrainRoomColorPresentation room = InstalledAreaMapPresentation.MotherBrainRoomColorsOf(maps);
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
         for (int frame = 0; frame < death.selection.BodyFade.FrameCount; frame++)
         {
             int shown = frame;
-            shades.Add(Body(MotherBrainShades.DeathBody(shown), Colours(MotherBrainDeathDefinitions.BodyColorCount, colour => death.BodyColor(shown, colour))));
+            shades.Add(Body(MotherBrainShades.DeathBody(shown), Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(shown, colour))));
         }
         shades.AddRange(RoomBackground(room));
         return shades;
@@ -174,8 +176,8 @@ internal static class MotherBrainSheetShades
         {
             int shown = band;
             shades.Add(BrainAndLegs(MotherBrainShades.Health(shown), LegsRow + FirstColour,
-                Colours(MotherBrainRainbowPaletteDefinitions.ColorCount, colour => health.body.Color(shown, colour)),
-                Colours(MotherBrainRainbowPaletteDefinitions.ColorCount, colour => health.backLegs.Color(shown, colour))));
+                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Color(shown, colour)),
+                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.backLegs.Color(shown, colour))));
         }
         return shades;
     }
@@ -184,9 +186,9 @@ internal static class MotherBrainSheetShades
     /// The sprite shades of her rainbow colours: her brain's and rear legs' colours in each rainbow phase, restored, in
     /// each step of the drain to grey and the revival from it, and her brain's in each step of the fake death's fades.
     /// </summary>
-    internal static IReadOnlyList<SheetShade> RainbowSprites(MotherBrainRainbowPalettePresentation rainbow)
+    internal static IReadOnlyList<SheetShade> RainbowSprites(MotherBrainRainbowPalettePresentation colours)
     {
-        Ensure.NotNull(rainbow);
+        InstalledMotherBrainRainbowPalette rainbow = InstalledMotherBrainRainbowPalette.Of(colours);
         var shades = new List<SheetShade>();
         for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
             shades.Add(Phase(MotherBrainShades.Rainbow(frame), rainbow.rainbow[frame]));
@@ -209,13 +211,13 @@ internal static class MotherBrainSheetShades
         {
             int shown = frame;
             shades.Add(SheetShade.Run(MotherBrainShades.FakeDeathToGrey(shown), BrainRow + FirstColour,
-                Colours(MotherBrainFakeDeathPaletteDefinitions.ColorCount, colour => rainbow.fakeDeathToGrey.Body(shown, colour))));
+                Colours(MotherBrainRainbowPaletteGeometry.FakeDeathColors, colour => rainbow.fakeDeathToGrey.Body(shown, colour))));
             shades.Add(SheetShade.Run(MotherBrainShades.FakeDeathFromGrey(shown), BrainRow + FirstColour,
-                Colours(MotherBrainFakeDeathPaletteDefinitions.ColorCount, colour => rainbow.fromGrey.Body(shown, colour))));
+                Colours(MotherBrainRainbowPaletteGeometry.FakeDeathColors, colour => rainbow.fromGrey.Body(shown, colour))));
         }
         return shades;
 
-        SheetShade Phase(PictureShade shade, MotherBrainRainbowPalettePresentation.PaletteFrame phase) =>
+        SheetShade Phase(PictureShade shade, InstalledMotherBrainRainbowPalette.PaletteFrame phase) =>
             BrainAndLegs(shade, LegsRow + FirstColour, Colours(phase.Body.Length, colour => phase.Body[colour]), Colours(phase.LegCount, phase.Leg));
     }
 
@@ -227,19 +229,19 @@ internal static class MotherBrainSheetShades
         for (int band = 0; band < MotherBrainHealthPaletteFormat.StateCount; band++)
         {
             int shown = band;
-            shades.Add(Body(MotherBrainShades.Health(shown), Colours(MotherBrainRainbowPaletteDefinitions.ColorCount, colour => health.body.Color(shown, colour))));
+            shades.Add(Body(MotherBrainShades.Health(shown), Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Color(shown, colour))));
         }
         return shades;
     }
 
     /// <summary>The background shades of her rainbow colours: her body's colours in each rainbow phase, restored, and in each step of the drain and revival.</summary>
-    internal static IReadOnlyList<SheetShade> RainbowBackground(MotherBrainRainbowPalettePresentation rainbow)
+    internal static IReadOnlyList<SheetShade> RainbowBackground(MotherBrainRainbowPalettePresentation colours)
     {
-        Ensure.NotNull(rainbow);
+        InstalledMotherBrainRainbowPalette rainbow = InstalledMotherBrainRainbowPalette.Of(colours);
         var shades = new List<SheetShade>();
         for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
         {
-            MotherBrainRainbowPalettePresentation.PaletteFrame phase = rainbow.rainbow[frame];
+            InstalledMotherBrainRainbowPalette.PaletteFrame phase = rainbow.rainbow[frame];
             shades.Add(Body(MotherBrainShades.Rainbow(frame), Colours(phase.Body.Length, colour => phase.Body[colour])));
         }
         shades.Add(Body(MotherBrainShades.Restored, Colours(rainbow.normal.Body.Length, colour => rainbow.normal.Body[colour])));
@@ -263,12 +265,12 @@ internal static class MotherBrainSheetShades
         return
         [
             Rows(MotherBrainShades.PhaseTwo,
-                new ColourRun(AttackRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.PhaseTwoColors, room.phaseTwoAttack.Color)),
-                new ColourRun(LegsRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.PhaseTwoColors, colour =>
+                new ColourRun(AttackRow + FirstColour, Colours(MotherBrainRoomColorGeometry.PhaseTwoColors, room.phaseTwoAttack.Color)),
+                new ColourRun(LegsRow + FirstColour, Colours(MotherBrainRoomColorGeometry.PhaseTwoColors, colour =>
                     room.phaseTwoRearLeg?[colour] ?? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, colour)))),
             Rows(MotherBrainShades.RoomEntry,
-                new ColourRun(LegsRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.InitialColors, room.initialGlassShard.Color)),
-                new ColourRun(SeventhRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.InitialColors, room.initialTubeProjectile.Color))),
+                new ColourRun(LegsRow + FirstColour, Colours(MotherBrainRoomColorGeometry.InitialColors, room.initialGlassShard.Color)),
+                new ColourRun(SeventhRow + FirstColour, Colours(MotherBrainRoomColorGeometry.InitialColors, room.initialTubeProjectile.Color))),
         ];
     }
 
@@ -300,7 +302,7 @@ internal static class MotherBrainSheetShades
         ShitroidColorCatalog shitroid = bosses.ShitroidColors ?? throw Missing("the Shitroid's colours");
         var shades = new List<SheetShade>
         {
-            Rows(ShitroidShades.Targets,
+            Rows(TourianCorpseShades.ShitroidTargets,
                 new ColourRun(BrainRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Sidehopper, colour + FirstColour))),
                 new ColourRun(AttackRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Shitroid, colour + FirstColour)))),
         };
@@ -333,16 +335,16 @@ internal static class MotherBrainSheetShades
     /// <summary>A load of the room flash's three slices: twelve colours, then twelve more mirrored into the third slice.</summary>
     private static SheetShade Flash(PictureShade shade, Func<int, RgbColor> colour)
     {
-        RgbColor[] first = Colours(MotherBrainRoomColorDefinitions.SliceColors, colour);
-        RgbColor[] second = Colours(MotherBrainRoomColorDefinitions.SliceColors, index => colour(MotherBrainRoomColorDefinitions.SliceColors + index));
+        RgbColor[] first = Colours(MotherBrainRoomColorGeometry.SliceColors, colour);
+        RgbColor[] second = Colours(MotherBrainRoomColorGeometry.SliceColors, index => colour(MotherBrainRoomColorGeometry.SliceColors + index));
         return Rows(shade, new ColourRun(FlashFirstInks[0], first), new ColourRun(FlashFirstInks[1], second), new ColourRun(FlashFirstInks[2], second));
     }
 
     /// <summary>A load of the room lights' two fourteen-colour slices.</summary>
     private static SheetShade Lights(PictureShade shade, Func<int, RgbColor> colour) =>
-        Rows(shade, new ColourRun(LightsFirstInks[0], Colours(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors, colour)),
-            new ColourRun(LightsFirstInks[1], Colours(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors,
-                index => colour(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors + index))));
+        Rows(shade, new ColourRun(LightsFirstInks[0], Colours(MotherBrainRoomColorGeometry.RecoveryLightsSliceColors, colour)),
+            new ColourRun(LightsFirstInks[1], Colours(MotherBrainRoomColorGeometry.RecoveryLightsSliceColors,
+                index => colour(MotherBrainRoomColorGeometry.RecoveryLightsSliceColors + index))));
 
     /// <summary>A shade of several runs of colours, each from its first ink, in rising order.</summary>
     private static SheetShade Rows(PictureShade shade, params ColourRun[] runs) =>

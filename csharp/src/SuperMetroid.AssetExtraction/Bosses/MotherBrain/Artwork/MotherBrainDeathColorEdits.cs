@@ -21,7 +21,7 @@ internal static class MotherBrainDeathColorEdits
     /// Keeps a fade as its edited starting colours and endpoint when every stage follows the calculated interpolation,
     /// and keeps every supplied stage when one does not.
     /// </summary>
-    private static MotherBrainDeathFade Fade(RgbColor[][] frames, MotherBrainRainbowPalettePresentation.DrainedBodyColors? last,
+    private static MotherBrainDeathFade Fade(RgbColor[][] frames, InstalledMotherBrainRainbowPalette.DrainedBodyColors? last,
         MotherBrainPalettePart part)
     {
         int colorCount = frames[0].Length;

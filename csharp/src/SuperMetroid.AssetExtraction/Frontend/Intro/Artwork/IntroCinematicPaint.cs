@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicPaintDefinitions;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 

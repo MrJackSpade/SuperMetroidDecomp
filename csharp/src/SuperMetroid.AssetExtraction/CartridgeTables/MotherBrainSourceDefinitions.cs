@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -29,7 +30,7 @@ internal static class MotherBrainSourceDefinitions
         /// $AD:E998 in fourteen-colour strides; the last image is entirely black.
         /// </summary>
         internal static int FadeColors(int paletteIndex) =>
-            FirstFadeColors + (paletteIndex - 1) * BabyMetroidCutsceneColorDefinitions.FadeColorCount * ColorWordBytes;
+            FirstFadeColors + (paletteIndex - 1) * BabyMetroidCutsceneColorFormat.FadeColorCount * ColorWordBytes;
     }
 
     /// <summary>Mother Brain's bank-$AD colour images and the pointer tables that order them.</summary>
@@ -85,7 +86,7 @@ internal static class MotherBrainSourceDefinitions
         internal const int RecoveryLightsFirstColors = 0xadf3d3;
 
         /// <summary>The bytes of one room-light image, two fourteen-colour slices: the stride between images, descending.</summary>
-        internal const int RecoveryLightsImageBytes = 2 * MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * ColorWordBytes;
+        internal const int RecoveryLightsImageBytes = 2 * MotherBrainRoomColorGeometry.RecoveryLightsSliceColors * ColorWordBytes;
 
         /// <summary>The source of room-light image <paramref name="index"/> (0..6): $AD:F3D3 minus the index's images.</summary>
         internal static int RecoveryLightsColors(int index) => RecoveryLightsFirstColors - index * RecoveryLightsImageBytes;
@@ -105,11 +106,11 @@ internal static class MotherBrainSourceDefinitions
 
         /// <summary>The source of body-and-leg fade image <paramref name="frame"/> (0..15).</summary>
         internal static int BodyFadeColors(int frame) =>
-            FirstBodyFadeColors + frame * 2 * MotherBrainDeathDefinitions.BodyColorCount * ColorWordBytes;
+            FirstBodyFadeColors + frame * 2 * MotherBrainDeathColorFormat.BodyColorCount * ColorWordBytes;
 
         /// <summary>The source of corpse-head fade image <paramref name="frame"/> (0..7).</summary>
         internal static int CorpseFadeColors(int frame) =>
-            FirstCorpseFadeColors + frame * MotherBrainDeathDefinitions.CorpseColorCount * ColorWordBytes;
+            FirstCorpseFadeColors + frame * MotherBrainDeathColorFormat.CorpseColorCount * ColorWordBytes;
     }
 
     /// <summary>The rainbow beam's colour cycle.</summary>

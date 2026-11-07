@@ -7,4 +7,10 @@ public static class MotherBrainDeathColorFormat
     public const string FileName = "mother-brain-death-colors.json";
     /// <summary>Supported RGB5 document schema revision, one; it fixes the sixteen-stage body/leg and eight-stage corpse dimensions.</summary>
     public const int Version = 1;
+
+    /// <summary>The colours each body or leg fade image rewrites; the exploded door's colours are as many.</summary>
+    public const int BodyColorCount = 14;
+
+    /// <summary>The colours each corpse fade image rewrites.</summary>
+    public const int CorpseColorCount = 15;
 }

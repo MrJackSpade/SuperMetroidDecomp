@@ -31,7 +31,7 @@ internal sealed class BabyMetroidInitialPalette
     /// <summary>Selects an independently supplied color or the reviewed dome, innard, and fang paint.</summary>
     internal RgbColor Resolve(int color)
     {
-        if ((uint)color >= BabyMetroidCutsceneColorDefinitions.InitialColorCount)
+        if ((uint)color >= BabyMetroidCutsceneColorFormat.InitialColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return supplied is null ? Calculate(color) : supplied[color];
     }

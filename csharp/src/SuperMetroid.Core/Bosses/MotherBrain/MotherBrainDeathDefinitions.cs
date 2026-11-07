@@ -3,15 +3,9 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The definition data of Mother Brain's death and the escape it starts: its colour fades, the escape door and the subtitle.</summary>
+/// <summary>The definition data of Mother Brain's death and the escape it starts: the escape door and the subtitle.</summary>
 public static class MotherBrainDeathDefinitions
 {
-    /// <summary>The colours each body or leg fade image rewrites; the exploded door's colours are as many.</summary>
-    public const int BodyColorCount = 14;
-
-    /// <summary>The colours each corpse fade image rewrites.</summary>
-    public const int CorpseColorCount = 15;
-
     /// <summary>The music track the escape starts.</summary>
     public const int EscapeMusicTrack = 7;
 

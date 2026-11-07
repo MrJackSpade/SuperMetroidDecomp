@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using Presentation = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation;
+using Presentation = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

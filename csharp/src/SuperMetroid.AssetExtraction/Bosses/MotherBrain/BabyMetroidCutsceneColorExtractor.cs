@@ -21,12 +21,12 @@ public static class BabyMetroidCutsceneColorExtractor
         var fade = new PaletteRgb5[BabyMetroidCutsceneColorDefinitions.FadeFrameCount][];
         for (int frame = 0; frame < fade.Length; frame++)
             fade[frame] = Read(MotherBrainSourceDefinitions.BabyMetroid.FadeColors(frame + 1),
-                BabyMetroidCutsceneColorDefinitions.FadeColorCount);
+                BabyMetroidCutsceneColorFormat.FadeColorCount);
         return BabyMetroidCutsceneColorFile.Write(new BabyMetroidCutsceneColorDocument
         {
             Version = BabyMetroidCutsceneColorFormat.Version,
             Initial = Read(MotherBrainSourceDefinitions.BabyMetroid.InitialColors,
-                BabyMetroidCutsceneColorDefinitions.InitialColorCount),
+                BabyMetroidCutsceneColorFormat.InitialColorCount),
             Fade = fade,
         });
 

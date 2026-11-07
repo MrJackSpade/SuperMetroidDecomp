@@ -241,7 +241,7 @@ public static class EnemyTileArtworkFiles
             EscapeTextSheetFormat.FileName), escapeTextPng);
         var motherBrainSpecialHashes = new Dictionary<int, string>();
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
-                 MotherBrainSpecialSpriteArtworkDefinitions.All)
+                 MotherBrainSpecialSpriteSheetDefinitions.All)
         {
             byte[] png = ExtractMotherBrainSpecialSpritePng(bus, sheet);
             File.WriteAllBytes(Path.Combine(directory, sheet.FileName), png);

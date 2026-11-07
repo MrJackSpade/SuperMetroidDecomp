@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Reviewed paints and shade policies for Mother Brain's final room.
 /// These specify this room's chosen color composition; all ramps, repeated slots and neutrals calculate.</summary>

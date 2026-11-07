@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 public static class ShitroidShades
 {
-    /// <summary>The victim Sidehopper's and the Shitroid's colours the encounter's entry loads.</summary>
-    public static PictureShade Targets => TourianCorpseShades.ShitroidTargets;
-
     /// <summary>The Shitroid's membrane at pulse phase <paramref name="phase"/>, zero through seven.</summary>
     public static PictureShade Membrane(int phase) => new("shitroid-membrane", phase);
 

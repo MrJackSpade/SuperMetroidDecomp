@@ -58,13 +58,13 @@ public static class NorfairRoomStateDefinitions
 
 
     /// <summary>The Crocomire room's state 0.</summary>
-    public static RoomStateSettings Crocomire0 { get; } =
-        new(nameof(Crocomire0), RoomLevelDefinitions.Crocomire, 27, new RoomMusic(MusicDataSet.BossFight2, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireState01, RoomEnemyPopulationDefinitions.Crocomire, Enemies.RoomEnemyGraphicsSetDefinitions.Crocomire, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainCallback.CrocomireRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrocomireState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireState0, RoomSetupCallback.SharedReturnC);
+    public static RoomStateSettings CrocomireDefault { get; } =
+        new(nameof(CrocomireDefault), RoomLevelDefinitions.Crocomire, 27, new RoomMusic(MusicDataSet.BossFight2, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.Crocomire, RoomEnemyPopulationDefinitions.Crocomire, Enemies.RoomEnemyGraphicsSetDefinitions.Crocomire, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainCallback.CrocomireRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Crocomire, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireDefault, RoomSetupCallback.SharedReturnC);
 
 
     /// <summary>The Crocomire room's state 1.</summary>
-    public static RoomStateSettings Crocomire1 { get; } =
-        new(nameof(Crocomire1), RoomLevelDefinitions.Crocomire, 27, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireState01, RoomEnemyPopulationDefinitions.Crocomire, Enemies.RoomEnemyGraphicsSetDefinitions.Crocomire, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainCallback.CrocomireRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrocomireState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireState1, RoomSetupCallback.SharedReturnC);
+    public static RoomStateSettings CrocomireWhenAreaMiniBossDead { get; } =
+        new(nameof(CrocomireWhenAreaMiniBossDead), RoomLevelDefinitions.Crocomire, 27, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Crocomire, RoomEnemyPopulationDefinitions.Crocomire, Enemies.RoomEnemyGraphicsSetDefinitions.Crocomire, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainCallback.CrocomireRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Crocomire, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireWhenAreaMiniBossDead, RoomSetupCallback.SharedReturnC);
 
 
     /// <summary>The Hi Jump Boots room's state.</summary>
@@ -288,13 +288,13 @@ public static class NorfairRoomStateDefinitions
 
 
     /// <summary>The Golden Torizo room's state 0.</summary>
-    public static RoomStateSettings GoldenTorizo0 { get; } =
-        new(nameof(GoldenTorizo0), RoomLevelDefinitions.GoldenTorizo, 9, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizoState01, RoomEnemyPopulationDefinitions.GoldenTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.GoldenTorizo, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GoldenTorizoState01, null, RoomSetupCallback.SharedReturnD);
+    public static RoomStateSettings GoldenTorizoDefault { get; } =
+        new(nameof(GoldenTorizoDefault), RoomLevelDefinitions.GoldenTorizo, 9, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizo, RoomEnemyPopulationDefinitions.GoldenTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.GoldenTorizo, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GoldenTorizo, null, RoomSetupCallback.SharedReturnD);
 
 
     /// <summary>The Golden Torizo room's state 1.</summary>
-    public static RoomStateSettings GoldenTorizo1 { get; } =
-        new(nameof(GoldenTorizo1), RoomLevelDefinitions.GoldenTorizo, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizoState01, RoomEnemyPopulationDefinitions.GoldenTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.GoldenTorizo, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GoldenTorizoState01, null, RoomSetupCallback.SharedReturnD);
+    public static RoomStateSettings GoldenTorizoWhenAreaTorizoDead { get; } =
+        new(nameof(GoldenTorizoWhenAreaTorizoDead), RoomLevelDefinitions.GoldenTorizo, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizo, RoomEnemyPopulationDefinitions.GoldenTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.GoldenTorizo, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GoldenTorizo, null, RoomSetupCallback.SharedReturnD);
 
 
     /// <summary>The Fast Ripper room's state.</summary>
@@ -308,13 +308,13 @@ public static class NorfairRoomStateDefinitions
 
 
     /// <summary>The Ridley room's state 0.</summary>
-    public static RoomStateSettings Ridley0 { get; } =
-        new(nameof(Ridley0), RoomLevelDefinitions.Ridley, 9, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(4)), SuperMetroid.Core.Fx.RoomFxDefinitions.RidleyState01, RoomEnemyPopulationDefinitions.Ridley, Enemies.RoomEnemyGraphicsSetDefinitions.Ridley, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainCallback.RidleyRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.RidleyState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
+    public static RoomStateSettings RidleyDefault { get; } =
+        new(nameof(RidleyDefault), RoomLevelDefinitions.Ridley, 9, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(4)), SuperMetroid.Core.Fx.RoomFxDefinitions.Ridley, RoomEnemyPopulationDefinitions.Ridley, Enemies.RoomEnemyGraphicsSetDefinitions.Ridley, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainCallback.RidleyRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Ridley, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
     /// <summary>The Ridley room's state 1.</summary>
-    public static RoomStateSettings Ridley1 { get; } =
-        new(nameof(Ridley1), RoomLevelDefinitions.Ridley, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.RidleyState01, RoomEnemyPopulationDefinitions.Ridley, Enemies.RoomEnemyGraphicsSetDefinitions.Ridley, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainCallback.RidleyRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.RidleyState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
+    public static RoomStateSettings RidleyWhenAreaBossDead { get; } =
+        new(nameof(RidleyWhenAreaBossDead), RoomLevelDefinitions.Ridley, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.Ridley, RoomEnemyPopulationDefinitions.Ridley, Enemies.RoomEnemyGraphicsSetDefinitions.Ridley, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainCallback.RidleyRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Ridley, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
     /// <summary>The LN Farming room's state.</summary>
@@ -329,7 +329,7 @@ public static class NorfairRoomStateDefinitions
 
     /// <summary>The unused room's state.</summary>
     public static RoomStateSettings UnusedRoom8FB3EE { get; } =
-        new(nameof(UnusedRoom8FB3EE), RoomLevelDefinitions.UnusedNorfairRoom, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UnusedRoom8387EC, RoomEnemyPopulationDefinitions.UnusedRoom8FB3EEA1AD06, Enemies.RoomEnemyGraphicsSetDefinitions.UnusedState8FB3EEB48899, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.UnusedRoom8FB3EE, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9HorizontalPatternBrick, RoomSetupCallback.SharedReturnD);
+        new(nameof(UnusedRoom8FB3EE), RoomLevelDefinitions.UnusedNorfairRoom, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UnusedRoom8387EC, RoomEnemyPopulationDefinitions.UnusedRoom8FB3EEA1AD06, Enemies.RoomEnemyGraphicsSetDefinitions.UnusedRoom8FB3EE, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.UnusedRoom8FB3EE, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9HorizontalPatternBrick, RoomSetupCallback.SharedReturnD);
 
 
     /// <summary>The Mickey Mouse room's state.</summary>

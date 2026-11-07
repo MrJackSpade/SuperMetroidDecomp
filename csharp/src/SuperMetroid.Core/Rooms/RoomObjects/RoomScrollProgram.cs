@@ -5,34 +5,34 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal enum RoomScrollProgram
 {
     /// <summary>A scroll program the LandingSiteState012 population places.</summary>
-    LandingSiteState012Scroll0,
+    LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsScroll0,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll0,
+    ParlorDefaultOrWhenZebesAwakeScroll0,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll1,
+    ParlorDefaultOrWhenZebesAwakeScroll1,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll2,
+    ParlorDefaultOrWhenZebesAwakeScroll2,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll3,
+    ParlorDefaultOrWhenZebesAwakeScroll3,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll4,
+    ParlorDefaultOrWhenZebesAwakeScroll4,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll5,
+    ParlorDefaultOrWhenZebesAwakeScroll5,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll6,
+    ParlorDefaultOrWhenZebesAwakeScroll6,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll8,
+    ParlorDefaultOrWhenZebesAwakeScroll8,
 
     /// <summary>A scroll program the ParlorState01 population places.</summary>
-    ParlorState01Scroll9,
+    ParlorDefaultOrWhenZebesAwakeScroll9,
 
     /// <summary>A scroll program the CrateriaKihunter population places.</summary>
     CrateriaKihunterScroll0,
@@ -50,37 +50,37 @@ internal enum RoomScrollProgram
     GauntletETankScroll0,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll1,
+    ClimbDefaultOrWhenZebesAwakeScroll1,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll0,
+    ClimbDefaultOrWhenZebesAwakeScroll0,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll3,
+    ClimbDefaultOrWhenZebesAwakeScroll3,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll2,
+    ClimbDefaultOrWhenZebesAwakeScroll2,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll5,
+    ClimbDefaultOrWhenZebesAwakeScroll5,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll4,
+    ClimbDefaultOrWhenZebesAwakeScroll4,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll6,
+    ClimbDefaultOrWhenZebesAwakeScroll6,
 
     /// <summary>A scroll program the ClimbState01 population places.</summary>
-    ClimbState01Scroll7,
+    ClimbDefaultOrWhenZebesAwakeScroll7,
 
     /// <summary>A scroll program the Pit0 population places.</summary>
-    Pit0Scroll0,
+    PitDefaultScroll0,
 
     /// <summary>A scroll program the Pit0 population places.</summary>
-    Pit0Scroll2,
+    PitDefaultScroll2,
 
     /// <summary>A scroll program the ElevToBlueBrinstarState01 population places.</summary>
-    ElevToBlueBrinstarState01Scroll0,
+    ElevToBlueBrinstarScroll0,
 
     /// <summary>A scroll program the GreenBrinstarElev population places.</summary>
     GreenBrinstarElevScroll0,
@@ -143,22 +143,22 @@ internal enum RoomScrollProgram
     PinkBrinstarPowerBombsScroll1,
 
     /// <summary>A scroll program the MorphBallState0 population places.</summary>
-    MorphBallState0Scroll0,
+    MorphBallDefaultScroll0,
 
     /// <summary>A scroll program the MorphBallState0 population places.</summary>
-    MorphBallState0Scroll1,
+    MorphBallDefaultScroll1,
 
     /// <summary>A scroll program the MorphBallState0 population places.</summary>
-    MorphBallState0Scroll2,
+    MorphBallDefaultScroll2,
 
     /// <summary>A scroll program the MorphBallState0 population places.</summary>
-    MorphBallState0Scroll4,
+    MorphBallDefaultScroll4,
 
     /// <summary>A scroll program the ConstructionZoneState01 population places.</summary>
-    ConstructionZoneState01Scroll0,
+    ConstructionZoneScroll0,
 
     /// <summary>A scroll program the BlueBrinstarETankState01 population places.</summary>
-    BlueBrinstarETankState01Scroll0,
+    BlueBrinstarETankScroll0,
 
     /// <summary>A scroll program the EtecoonETank population places.</summary>
     EtecoonETankScroll0,
@@ -320,7 +320,7 @@ internal enum RoomScrollProgram
     MainHallScroll2,
 
     /// <summary>A scroll program the GoldenTorizoState01 population places.</summary>
-    GoldenTorizoState01Scroll0,
+    GoldenTorizoScroll0,
 
     /// <summary>A scroll program the FastPillarsSetup population places.</summary>
     FastPillarsSetupScroll0,
@@ -413,10 +413,10 @@ internal enum RoomScrollProgram
     LNFirefleaScroll3,
 
     /// <summary>A scroll program the BowlingAlleyState0 population places.</summary>
-    BowlingAlleyState0Scroll0,
+    BowlingAlleyDefaultScroll0,
 
     /// <summary>A scroll program the BowlingAlleyState0 population places.</summary>
-    BowlingAlleyState0Scroll1,
+    BowlingAlleyDefaultScroll1,
 
     /// <summary>A scroll program the WreckedShipMainShaft population places.</summary>
     WreckedShipMainShaftScroll0,
@@ -434,22 +434,22 @@ internal enum RoomScrollProgram
     WreckedShipMainShaftScroll4,
 
     /// <summary>A scroll program the ElectricDeathState0 population places.</summary>
-    ElectricDeathState0Scroll0,
+    ElectricDeathDefaultScroll0,
 
     /// <summary>A scroll program the BasementState0 population places.</summary>
-    BasementState0Scroll0,
+    BasementDefaultScroll0,
 
     /// <summary>A scroll program the BasementState0 population places.</summary>
-    BasementState0Scroll1,
+    BasementDefaultScroll1,
 
     /// <summary>A scroll program the WSEastSuperState0 population places.</summary>
-    WSEastSuperState0Scroll0,
+    WSEastSuperDefaultScroll0,
 
     /// <summary>A scroll program the GlassTunnelState01 population places.</summary>
-    GlassTunnelState01Scroll0,
+    GlassTunnelScroll0,
 
     /// <summary>A scroll program the GlassTunnelState01 population places.</summary>
-    GlassTunnelState01Scroll2,
+    GlassTunnelScroll2,
 
     /// <summary>A scroll program the EastTunnel population places.</summary>
     EastTunnelScroll0,
@@ -512,7 +512,7 @@ internal enum RoomScrollProgram
     EastPantsScroll1,
 
     /// <summary>A scroll program the ThePreciousState01 population places.</summary>
-    ThePreciousState01Scroll0,
+    ThePreciousScroll0,
 
     /// <summary>A scroll program the HalfieClimb population places.</summary>
     HalfieClimbScroll0,

@@ -93,7 +93,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zero, new(1072, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(64), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Zero, new(1520, 88), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(64), SurfaceFamily: CrawlerAnimationFamily.Shared)),
         ], 7),
-        new(nameof(RoomEnemyPopulationDefinitions.ConstructionZone1),
+        new(nameof(RoomEnemyPopulationDefinitions.ConstructionZoneWhenZebesAwake),
         [
             new(EnemyDefinitionId.Zoomer, new(88, 120), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Zoomer, new(168, 148), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
@@ -103,7 +103,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.FaceBlock, new(232, 358), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(24, 278), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarETank1),
+        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarETankWhenZebesAwake),
         [
             new(EnemyDefinitionId.Zoomer, new(168, 712), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Zoomer, new(216, 712), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
@@ -127,7 +127,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zeela, new(768, 118), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(64), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Zeela, new(872, 118), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(64), SurfaceFamily: CrawlerAnimationFamily.Shared)),
         ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.MorphBall1),
+        new(nameof(RoomEnemyPopulationDefinitions.MorphBallWhenZebesAwake),
         [
             new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.SidehopperLarge, new(152, 678), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
@@ -141,7 +141,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.WarehouseSave),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.MorphBall0),
+        new(nameof(RoomEnemyPopulationDefinitions.MorphBallDefault),
         [
             new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountSide: MorphBallEyeMountSide.Left)),
             new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Left, Part: MorphBallEyePart.Eye, MountSide: MorphBallEyeMountSide.Left)),
@@ -230,7 +230,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.RedBrinstarSave),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarETank0),
+        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarETankDefault),
         [
             new(EnemyDefinitionId.Eye, new(552, 616), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountSide: MorphBallEyeMountSide.Right)),
             new(EnemyDefinitionId.Eye, new(552, 616), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.Eye, MountSide: MorphBallEyeMountSide.Left)),
@@ -348,7 +348,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.YappingMaw, new(600, 192), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
             new(EnemyDefinitionId.YappingMaw, new(936, 192), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
         ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.ConstructionZone0),
+        new(nameof(RoomEnemyPopulationDefinitions.ConstructionZoneDefault),
         [
             new(EnemyDefinitionId.Sbug, new(46, 192), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromTableIndex(138), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(222, 179), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromTableIndex(200), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),

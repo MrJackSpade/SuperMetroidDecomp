@@ -34,7 +34,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.MotherBrainSave),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids10),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids1Default),
         [
             new(EnemyDefinitionId.Metroid, new(268, 106), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(637, 116), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
@@ -95,7 +95,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Elevator, new(128, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids20),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids2Default),
         [
             new(EnemyDefinitionId.Metroid, new(152, 277), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Rinka, new(152, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
@@ -104,7 +104,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Rinka, new(8, 328), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Metroid, new(86, 394), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids40),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids4Default),
         [
             new(EnemyDefinitionId.Metroid, new(196, 338), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(62, 251), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
@@ -114,14 +114,14 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Rinka, new(248, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Metroid, new(70, 446), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids11),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids1WhenFirstMetroidHallCleared),
         [
             new(EnemyDefinitionId.Rinka, new(40, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Rinka, new(536, 216), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids21),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids2WhenFirstMetroidShaftCleared),
         [
             new(EnemyDefinitionId.Rinka, new(152, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Rinka, new(216, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
@@ -133,7 +133,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.PirateSilverWall, new(43, 216), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WallSpacePirateSpawnSettings(Options: WallSpacePirateOptions.None, JumpSpan: 160)),
             new(EnemyDefinitionId.PirateSilverWall, new(208, 296), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WallSpacePirateSpawnSettings(Options: WallSpacePirateOptions.StartsOnRightWall, JumpSpan: 160)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids31),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids3WhenSecondMetroidHallCleared),
         [
             new(EnemyDefinitionId.Rinka, new(264, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Rinka, new(24, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
@@ -145,7 +145,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids41),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids4WhenSecondMetroidShaftCleared),
         [
             new(EnemyDefinitionId.Rinka, new(152, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Rinka, new(152, 392), EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
@@ -171,7 +171,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.UpperTourianSave),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Metroids30),
+        new(nameof(RoomEnemyPopulationDefinitions.Metroids3Default),
         [
             new(EnemyDefinitionId.Metroid, new(394, 129), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(871, 119), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),

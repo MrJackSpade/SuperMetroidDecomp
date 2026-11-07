@@ -103,7 +103,7 @@ internal static class FxDefinitionMigrationVerification
             "the statue effect shows the water page");
         AssertEqual(0x89aa02 + 0x62, RoomFxLayer3TilemapSources.PaletteBlend(RoomFxPaletteBlend.Fog).Value, "fog blend source");
         // The FX records hold decoded fields; the record codec encodes them back to the bytes the catalog held before.
-        RoomFxRecordDefinition climb = RoomFxDefinitions.ClimbState2.Records[0];
+        RoomFxRecordDefinition climb = RoomFxDefinitions.ClimbWhenZebesTimebombSet.Records[0];
         AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
         AssertEqual(LayerBlendingConfiguration.LavaAcidAdditive, climb.EffectLayerBlend, "Climb layer-three blend");
         AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");

@@ -9,37 +9,37 @@ internal static class CeresRoomEnemyPopulationDefinitions
     /// <summary>The region's lists, in authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
-        new(nameof(RoomEnemyPopulationDefinitions.CeresElev0),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresElevDefault),
         [
             new(EnemyDefinitionId.CeresDoor, new(232, 631), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.RotatingElevatorPreExplosionOverlay)),
             new(EnemyDefinitionId.CeresDoor, new(224, 639), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.FallingTile0),
+        new(nameof(RoomEnemyPopulationDefinitions.FallingTileDefault),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.MagnetStairs0),
+        new(nameof(RoomEnemyPopulationDefinitions.MagnetStairsDefault),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(224, 383), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.DeadScientist0),
+        new(nameof(RoomEnemyPopulationDefinitions.DeadScientistDefault),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Room58Escape0),
+        new(nameof(RoomEnemyPopulationDefinitions.Room58EscapeDefault),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.CeresRidley0),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresRidleyDefault),
         [
             new(EnemyDefinitionId.RidleyCeres, new(186, 171), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.CeresDoor, new(16, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.RidleyRoomFacingRight)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.CeresElev1),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresElevWhenAreaBossDead),
         [
             new(EnemyDefinitionId.CeresDoor, new(232, 631), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.RotatingElevatorPreExplosionOverlay)),
             new(EnemyDefinitionId.CeresDoor, new(224, 639), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.RotatingElevatorInvisibleWall)),
@@ -55,7 +55,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Steam, new(162, 504), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
             new(EnemyDefinitionId.Steam, new(114, 600), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.RotatingElevatorRight)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.FallingTile1),
+        new(nameof(RoomEnemyPopulationDefinitions.FallingTileWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Steam, new(160, 204), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
             new(EnemyDefinitionId.Steam, new(224, 188), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
@@ -71,7 +71,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.MagnetStairs1),
+        new(nameof(RoomEnemyPopulationDefinitions.MagnetStairsWhenAreaBossDead),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(224, 383), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
@@ -81,17 +81,17 @@ internal static class CeresRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Steam, new(62, 304), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Left)),
             new(EnemyDefinitionId.Steam, new(136, 404), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.DeadScientist1),
+        new(nameof(RoomEnemyPopulationDefinitions.DeadScientistWhenAreaBossDead),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Room58Escape1),
+        new(nameof(RoomEnemyPopulationDefinitions.Room58EscapeWhenAreaBossDead),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.CeresRidley1),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresRidleyWhenAreaBossDead),
         [
             new(EnemyDefinitionId.CeresDoor, new(16, 127), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.RidleyRoomFacingRight)),
         ], 0),

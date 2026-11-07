@@ -21,15 +21,15 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Zoomer),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombway1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayWhenZebesAwake), [
             new(EnemyDefinitionId.FaceBlock),
             new(EnemyDefinitionId.Stoke),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombway0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayDefault), [
             new(EnemyDefinitionId.FaceBlock),
             new(EnemyDefinitionId.Stoke),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Parlor1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesAwake), [
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.Skree),
             new(EnemyDefinitionId.Ripper),
@@ -38,7 +38,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Mellow),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Pit1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PitWithMorphBallAndMissiles), [
             new(EnemyDefinitionId.PirateGreyWalking),
             new(EnemyDefinitionId.PirateGreyWall),
         ]),
@@ -55,15 +55,15 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarElev), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissile0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileDefault), [
             new(EnemyDefinitionId.Eye),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaMap), [
             new(EnemyDefinitionId.BombTorizo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissile1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileWhenZebesAwake), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Climb2), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ClimbWhenZebesTimebombSet), [
             new(EnemyDefinitionId.PirateSilverNinja),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaSave), [
@@ -74,7 +74,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.Moat), [
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Climb0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ClimbDefault), [
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.FaceBlock),
         ]),
@@ -84,7 +84,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.GRipper),
             new(EnemyDefinitionId.Tripper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Parlor0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorDefault), [
             new(EnemyDefinitionId.Sbug),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSite012), [
@@ -99,7 +99,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.HZoomer),
             new(EnemyDefinitionId.Sova),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Climb1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ClimbWhenZebesAwake), [
             new(EnemyDefinitionId.PirateGreyWall),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlleyPath), [
@@ -112,7 +112,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Zebbo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Pit0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PitDefault), [
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.FaceBlock),
         ]),
@@ -137,18 +137,18 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Kago),
             new(EnemyDefinitionId.MZoomer),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSite3), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSiteWhenZebesTimebombSet), [
             new(EnemyDefinitionId.ShipTop),
             new(EnemyDefinitionId.ShipBottomEntrance),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Parlor2), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesTimebombSet), [
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizo2), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizoWhenZebesTimebombSet), [
             new(EnemyDefinitionId.EtecoonEscape),
             new(EnemyDefinitionId.DachoraEscape),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Flyway2), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.FlywayWhenZebesTimebombSet), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaKihunter), [
             new(EnemyDefinitionId.KihunterGreen),

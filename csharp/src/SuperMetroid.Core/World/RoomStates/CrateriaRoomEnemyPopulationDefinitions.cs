@@ -27,7 +27,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The region's lists, in authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
-        new(nameof(RoomEnemyPopulationDefinitions.DraygonState1MotherBrainState2),
+        new(nameof(RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead),
         [
         ], 191),
         new(nameof(RoomEnemyPopulationDefinitions.EastOcean),
@@ -64,7 +64,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zoomer, new(376, 560), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Zoomer, new(664, 416), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
         ], 9),
-        new(nameof(RoomEnemyPopulationDefinitions.FinalMissileBombway1),
+        new(nameof(RoomEnemyPopulationDefinitions.FinalMissileBombwayWhenZebesAwake),
         [
             new(EnemyDefinitionId.FaceBlock, new(256, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(128, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
@@ -73,7 +73,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.FaceBlock, new(256, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(384, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.FinalMissileBombway0),
+        new(nameof(RoomEnemyPopulationDefinitions.FinalMissileBombwayDefault),
         [
             new(EnemyDefinitionId.FaceBlock, new(256, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(128, 72), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
@@ -82,7 +82,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.FaceBlock, new(256, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(384, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Parlor1),
+        new(nameof(RoomEnemyPopulationDefinitions.ParlorWhenZebesAwake),
         [
             new(EnemyDefinitionId.Zoomer, new(1176, 64), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(128), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Zoomer, new(1055, 136), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(128), SurfaceFamily: CrawlerAnimationFamily.Shared)),
@@ -116,7 +116,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Mellow, new(383, 62), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Mellow, new(450, 65), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Pit1),
+        new(nameof(RoomEnemyPopulationDefinitions.PitWithMorphBallAndMissiles),
         [
             new(EnemyDefinitionId.PirateGreyWalking, new(616, 112), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.StartsFacingRight | WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 16)),
             new(EnemyDefinitionId.PirateGreyWall, new(717, 63), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WallSpacePirateSpawnSettings(Options: WallSpacePirateOptions.StartsOnRightWall, JumpSpan: 32)),
@@ -152,7 +152,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Elevator, new(128, 162), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.FinalMissile0),
+        new(nameof(RoomEnemyPopulationDefinitions.FinalMissileDefault),
         [
             new(EnemyDefinitionId.Eye, new(50, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountSide: MorphBallEyeMountSide.Left)),
             new(EnemyDefinitionId.Eye, new(50, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.Eye, MountSide: MorphBallEyeMountSide.Left)),
@@ -160,10 +160,10 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.CrateriaMap),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.FinalMissile1),
+        new(nameof(RoomEnemyPopulationDefinitions.FinalMissileWhenZebesAwake),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Climb2),
+        new(nameof(RoomEnemyPopulationDefinitions.ClimbWhenZebesTimebombSet),
         [
             new(EnemyDefinitionId.PirateSilverNinja, new(128, 2176), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new NinjaSpacePirateSpawnSettings(Options: NinjaSpacePirateOptions.None, PostDistance: 0)),
             new(EnemyDefinitionId.PirateSilverNinja, new(192, 2176), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new NinjaSpacePirateSpawnSettings(Options: NinjaSpacePirateOptions.None, PostDistance: 0)),
@@ -177,7 +177,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.Moat),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Climb0),
+        new(nameof(RoomEnemyPopulationDefinitions.ClimbDefault),
         [
             new(EnemyDefinitionId.Sbug, new(276, 76), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromTableIndex(80), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(272, 88), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(144), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -200,7 +200,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Tripper, new(904, 88), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 0)),
             new(EnemyDefinitionId.Tripper, new(880, 352), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Right, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 0)),
         ], 7),
-        new(nameof(RoomEnemyPopulationDefinitions.Parlor0),
+        new(nameof(RoomEnemyPopulationDefinitions.ParlorDefault),
         [
             new(EnemyDefinitionId.Sbug, new(1214, 192), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(170), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(1188, 201), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(181), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -240,7 +240,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.HZoomer, new(128, 72), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(128), SurfaceFamily: CrawlerAnimationFamily.Shared)),
         ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.Climb1),
+        new(nameof(RoomEnemyPopulationDefinitions.ClimbWhenZebesAwake),
         [
             new(EnemyDefinitionId.PirateGreyWall, new(304, 216), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WallSpacePirateSpawnSettings(Options: WallSpacePirateOptions.SlowJumpAndLaser, JumpSpan: 160)),
             new(EnemyDefinitionId.PirateGreyWall, new(464, 296), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, new WallSpacePirateSpawnSettings(Options: WallSpacePirateOptions.StartsOnRightWall | WallSpacePirateOptions.SlowJumpAndLaser, JumpSpan: 160)),
@@ -272,7 +272,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.YappingMaw, new(136, 56), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 112, Attack: VerticalDirection.Down)),
             new(EnemyDefinitionId.Zebbo, new(136, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
         ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.Pit0),
+        new(nameof(RoomEnemyPopulationDefinitions.PitDefault),
         [
             new(EnemyDefinitionId.Sbug, new(107, 56), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(40), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(112, 52), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromTableIndex(120), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -326,7 +326,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.MZoomer, new(760, 112), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.MZoomer, new(424, 112), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
         ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.LandingSite3),
+        new(nameof(RoomEnemyPopulationDefinitions.LandingSiteWhenZebesTimebombSet),
         [
             new(EnemyDefinitionId.ShipTop, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new GunshipSpawnSettings(Part: GunshipBottomPiece.Hull)),
@@ -354,7 +354,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Steam, new(1478, 1236), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
             new(EnemyDefinitionId.Steam, new(1572, 1236), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Parlor2),
+        new(nameof(RoomEnemyPopulationDefinitions.ParlorWhenZebesTimebombSet),
         [
             new(EnemyDefinitionId.Steam, new(325, 181), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
             new(EnemyDefinitionId.Steam, new(441, 186), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
@@ -376,14 +376,14 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Steam, new(1194, 174), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
             new(EnemyDefinitionId.Steam, new(1228, 166), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BombTorizo2),
+        new(nameof(RoomEnemyPopulationDefinitions.BombTorizoWhenZebesTimebombSet),
         [
             new(EnemyDefinitionId.DachoraEscape, new(224, 184), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.EtecoonEscape, new(224, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new EscapeEtecoonSpawnSettings(Role: EscapeEtecoonRole.LeftWalker)),
             new(EnemyDefinitionId.EtecoonEscape, new(224, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new EscapeEtecoonSpawnSettings(Role: EscapeEtecoonRole.RightWalker)),
             new(EnemyDefinitionId.EtecoonEscape, new(224, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new EscapeEtecoonSpawnSettings(Role: EscapeEtecoonRole.WaitForEscapeEvent)),
         ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.Flyway2),
+        new(nameof(RoomEnemyPopulationDefinitions.FlywayWhenZebesTimebombSet),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrateriaKihunter),

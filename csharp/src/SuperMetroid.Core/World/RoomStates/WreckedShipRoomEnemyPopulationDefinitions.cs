@@ -18,11 +18,11 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     /// <summary>The region's lists, in authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
-        new(nameof(RoomEnemyPopulationDefinitions.SpongeBath1),
+        new(nameof(RoomEnemyPopulationDefinitions.SpongeBathWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Bull, new(240, 136), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: 1791)),
         ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETank1),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETankWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Skultera, new(173, 374), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.Skultera, new(576, 300), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
@@ -30,7 +30,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Kamer2, new(384, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 32)),
             new(EnemyDefinitionId.Kamer2, new(496, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 32)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMainShaft0),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMainShaftDefault),
         [
             new(EnemyDefinitionId.Coven, new(56, 984), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Sbug, new(1090, 842), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(112), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -64,7 +64,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Atomic, new(1072, 2000), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: AtomicProgram.UpRight, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
             new(EnemyDefinitionId.Atomic, new(1232, 2000), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: AtomicProgram.UpRight, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.BowlingAlley0),
+        new(nameof(RoomEnemyPopulationDefinitions.BowlingAlleyDefault),
         [
             new(EnemyDefinitionId.Chozo, new(1224, 394), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)),
             new(EnemyDefinitionId.Sbug, new(1227, 393), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromTableIndex(194), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
@@ -88,7 +88,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sbug, new(863, 473), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 4, InitialAngle: RotationAngle.FromTableIndex(200), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(804, 482), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(196), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Attic1),
+        new(nameof(RoomEnemyPopulationDefinitions.AtticWhenAreaBossDead),
         [
             new(EnemyDefinitionId.KihunterYellow, new(1049, 200), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Wingless)),
             new(EnemyDefinitionId.KihunterYellowWings, new(1049, 200), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
@@ -112,7 +112,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Spark, new(1488, 184), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 16)),
             new(EnemyDefinitionId.Spark, new(1584, 120), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseFunctionTime: 96)),
         ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.Basement1),
+        new(nameof(RoomEnemyPopulationDefinitions.BasementWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Robot, new(77, 176), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
             new(EnemyDefinitionId.Robot, new(880, 176), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
@@ -121,43 +121,43 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Atomic, new(852, 73), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: AtomicProgram.DownLeft, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
             new(EnemyDefinitionId.Spark, new(1145, 106), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 32)),
         ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMap1),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMapWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WSWestSuper0),
+        new(nameof(RoomEnemyPopulationDefinitions.WSWestSuperDefault),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.SpikyDeath0),
+        new(nameof(RoomEnemyPopulationDefinitions.SpikyDeathDefault),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.SpongeBath0),
+        new(nameof(RoomEnemyPopulationDefinitions.SpongeBathDefault),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEntrance1),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEntranceWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.ElectricDeath0),
+        new(nameof(RoomEnemyPopulationDefinitions.ElectricDeathDefault),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BowlingAlley1),
+        new(nameof(RoomEnemyPopulationDefinitions.BowlingAlleyWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Chozo, new(1224, 394), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)),
             new(EnemyDefinitionId.Robot, new(752, 624), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
             new(EnemyDefinitionId.Robot, new(880, 624), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.AssemblyLine0),
+        new(nameof(RoomEnemyPopulationDefinitions.AssemblyLineDefault),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Phantoon1),
+        new(nameof(RoomEnemyPopulationDefinitions.PhantoonWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETank0),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETankDefault),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.GravitySuit0),
+        new(nameof(RoomEnemyPopulationDefinitions.GravitySuitDefault),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMap0),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMapDefault),
         [
             new(EnemyDefinitionId.Coven, new(136, 136), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Sbug, new(88, 184), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(184), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -169,10 +169,10 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sbug, new(139, 39), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(120), ActivationRadius: 160, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(141, 8), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(138), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
         ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.GravitySuit1),
+        new(nameof(RoomEnemyPopulationDefinitions.GravitySuitWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Basement0),
+        new(nameof(RoomEnemyPopulationDefinitions.BasementDefault),
         [
             new(EnemyDefinitionId.Sbug, new(875, 187), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromTableIndex(194), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(880, 184), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 4, InitialAngle: RotationAngle.FromTableIndex(220), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
@@ -197,7 +197,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.RobotNoPower, new(77, 192), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerLeaningLeft)),
             new(EnemyDefinitionId.RobotNoPower, new(880, 192), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEntrance0),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEntranceDefault),
         [
             new(EnemyDefinitionId.Sbug, new(116, 64), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(24), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(124, 189), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(224), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -232,7 +232,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sbug, new(875, 75), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(112), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(791, 176), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(248), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.AssemblyLine1),
+        new(nameof(RoomEnemyPopulationDefinitions.AssemblyLineWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Spark, new(464, 93), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseFunctionTime: 152)),
             new(EnemyDefinitionId.Spark, new(624, 91), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 64)),
@@ -246,10 +246,10 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Robot, new(272, 128), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
             new(EnemyDefinitionId.Robot, new(432, 128), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipSave1),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipSaveWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WSWestSuper1),
+        new(nameof(RoomEnemyPopulationDefinitions.WSWestSuperWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Spark, new(154, 58), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 48)),
             new(EnemyDefinitionId.Spark, new(52, 59), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 32)),
@@ -257,7 +257,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Spark, new(103, 200), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 48)),
             new(EnemyDefinitionId.Spark, new(178, 200), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 24)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Attic0),
+        new(nameof(RoomEnemyPopulationDefinitions.AtticDefault),
         [
             new(EnemyDefinitionId.Coven, new(727, 152), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Sbug, new(1705, 186), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(170), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -289,7 +289,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Atomic, new(1232, 126), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: AtomicProgram.UpRight, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
             new(EnemyDefinitionId.Atomic, new(1072, 126), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: AtomicProgram.UpRight, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
         ], 10),
-        new(nameof(RoomEnemyPopulationDefinitions.WSEastSuper0),
+        new(nameof(RoomEnemyPopulationDefinitions.WSEastSuperDefault),
         [
             new(EnemyDefinitionId.Coven, new(136, 136), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Sbug, new(847, 154), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromTableIndex(194), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
@@ -319,7 +319,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Atomic, new(464, 80), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: AtomicProgram.DownLeft, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
             new(EnemyDefinitionId.Atomic, new(592, 80), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: AtomicProgram.DownRight, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
         ], 7),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipSave0),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipSaveDefault),
         [
             new(EnemyDefinitionId.Coven, new(136, 136), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Sbug, new(131, 186), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(176), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
@@ -334,7 +334,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sbug, new(51, 171), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(136), ActivationRadius: 48, Behavior: SbugActivationBehavior.ZigZag)),
             new(EnemyDefinitionId.Sbug, new(56, 172), EnemyProperties.IgnoreSamusCollision | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromTableIndex(144), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
         ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.ElectricDeath1),
+        new(nameof(RoomEnemyPopulationDefinitions.ElectricDeathWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Spark, new(104, 600), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseFunctionTime: 128)),
             new(EnemyDefinitionId.Spark, new(42, 551), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 128)),
@@ -344,7 +344,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Spark, new(53, 218), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 16)),
             new(EnemyDefinitionId.Spark, new(92, 152), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseFunctionTime: 160)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.SpikyDeath1),
+        new(nameof(RoomEnemyPopulationDefinitions.SpikyDeathWhenAreaBossDead),
         [
             new(EnemyDefinitionId.KzanTop, new(80, 96), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 16, FallDistance: 104)),
             new(EnemyDefinitionId.KzanBottom, new(80, 104), EnemyProperties.Invisible, EnemyExtraProperties.None, EnemySpawnSettings.None),
@@ -357,7 +357,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.KzanTop, new(432, 96), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 20, FallDistance: 104)),
             new(EnemyDefinitionId.KzanBottom, new(432, 104), EnemyProperties.Invisible, EnemyExtraProperties.None, EnemySpawnSettings.None),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WSEastSuper1),
+        new(nameof(RoomEnemyPopulationDefinitions.WSEastSuperWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Robot, new(376, 128), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
             new(EnemyDefinitionId.Robot, new(704, 128), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
@@ -368,14 +368,14 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Spark, new(464, 80), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 160)),
             new(EnemyDefinitionId.Spark, new(592, 80), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 128)),
         ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.Phantoon0),
+        new(nameof(RoomEnemyPopulationDefinitions.PhantoonDefault),
         [
             new(EnemyDefinitionId.PhantoonBody, new(128, 96), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),
             new(EnemyDefinitionId.PhantoonEye, new(128, 96), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),
             new(EnemyDefinitionId.PhantoonTentacles, new(128, 96), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),
             new(EnemyDefinitionId.PhantoonMouth, new(128, 96), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMainShaft1),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMainShaftWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Spark, new(1176, 680), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 48)),
             new(EnemyDefinitionId.Spark, new(1136, 857), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 40)),

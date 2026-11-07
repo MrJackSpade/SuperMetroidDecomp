@@ -41,11 +41,11 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Zero),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ConstructionZone1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ConstructionZoneWhenZebesAwake), [
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarETank1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarETankWhenZebesAwake), [
             new(EnemyDefinitionId.FaceBlock),
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.Skree),
@@ -55,13 +55,13 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Cacatac),
             new(EnemyDefinitionId.Zeela),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MorphBall1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.MorphBallWhenZebesAwake), [
             new(EnemyDefinitionId.SidehopperLarge),
             new(EnemyDefinitionId.FaceBlock),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseSave), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MorphBall0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.MorphBallDefault), [
             new(EnemyDefinitionId.Eye),
             new(EnemyDefinitionId.FaceBlock),
         ]),
@@ -108,7 +108,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedBrinstarSave), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarETank0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarETankDefault), [
             new(EnemyDefinitionId.Eye),
             new(EnemyDefinitionId.FaceBlock),
         ]),
@@ -155,7 +155,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.YappingMaw),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ConstructionZone0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ConstructionZoneDefault), [
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.FaceBlock),
         ]),

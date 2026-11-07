@@ -26,7 +26,7 @@ public static class RoomVisualLayoutFiles
     /// <summary>Stock manifest filename recording provenance and each retail level's name, block dimensions, filename, and JSON byte hash.</summary>
     public const string ManifestFileName = "room-layouts.json";
     /// <summary>Schema revision shared by the manifest and per-level layout documents; version 3 holds block numbers and mirroring instead of level words.</summary>
-    private const int FormatVersion = 3;
+    private const int FormatVersion = 4;
 
     /// <summary>The character a document writes for each mirroring.</summary>
     private static readonly Dictionary<BlockMirroring, char> MirroringCodes = new()

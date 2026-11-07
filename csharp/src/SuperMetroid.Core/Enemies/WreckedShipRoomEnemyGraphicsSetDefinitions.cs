@@ -6,111 +6,111 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SpongeBath1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.SpongeBathWhenAreaBossDead), [
             new(EnemyDefinitionId.Bull),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETank1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETankWhenAreaBossDead), [
             new(EnemyDefinitionId.Kamer2),
             new(EnemyDefinitionId.Skultera),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMainShaft0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMainShaftDefault), [
             new(EnemyDefinitionId.Coven),
             new(EnemyDefinitionId.KzanTop),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlley0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlleyDefault), [
             new(EnemyDefinitionId.Chozo),
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Attic1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.AtticWhenAreaBossDead), [
             new(EnemyDefinitionId.KihunterYellow),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Spark),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Basement1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BasementWhenAreaBossDead), [
             new(EnemyDefinitionId.Robot),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Spark),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMap1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMapWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSWestSuper0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WSWestSuperDefault), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyDeath0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyDeathDefault), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SpongeBath0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.SpongeBathDefault), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEntrance1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEntranceWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ElectricDeath0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ElectricDeathDefault), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlley1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlleyWhenAreaBossDead), [
             new(EnemyDefinitionId.Chozo),
             new(EnemyDefinitionId.Robot),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLine0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLineDefault), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Phantoon1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PhantoonWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETank0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETankDefault), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuit0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuitDefault), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMap0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMapDefault), [
             new(EnemyDefinitionId.Coven),
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.Bull),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuit1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuitWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Basement0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BasementDefault), [
             new(EnemyDefinitionId.RobotNoPower),
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEntrance0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEntranceDefault), [
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLine1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLineWhenAreaBossDead), [
             new(EnemyDefinitionId.Spark),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Robot),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSave1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSaveWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSWestSuper1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WSWestSuperWhenAreaBossDead), [
             new(EnemyDefinitionId.Spark),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Attic0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.AtticDefault), [
             new(EnemyDefinitionId.Coven),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuper0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuperDefault), [
             new(EnemyDefinitionId.Coven),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.RobotNoPower),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSave0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSaveDefault), [
             new(EnemyDefinitionId.Coven),
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ElectricDeath1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ElectricDeathWhenAreaBossDead), [
             new(EnemyDefinitionId.Spark),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyDeath1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyDeathWhenAreaBossDead), [
             new(EnemyDefinitionId.KzanTop),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuper1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuperWhenAreaBossDead), [
             new(EnemyDefinitionId.Robot),
             new(EnemyDefinitionId.Bull),
             new(EnemyDefinitionId.Spark),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Phantoon0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PhantoonDefault), [
             new(EnemyDefinitionId.PhantoonBody),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMainShaft1), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMainShaftWhenAreaBossDead), [
             new(EnemyDefinitionId.Spark),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.KzanTop),

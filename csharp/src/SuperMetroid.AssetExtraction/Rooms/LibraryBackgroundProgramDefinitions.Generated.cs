@@ -53,13 +53,13 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.ClearBg2ForKraid, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null),
     ]);
 
-    /// <summary>The CrocomireState0 library-background program.</summary>
-    public static LibraryBackgroundProgram CrocomireState0 { get; } = new(LibraryBackgroundDefinitions.CrocomireState0, [
+    /// <summary>The CrocomireDefault library-background program.</summary>
+    public static LibraryBackgroundProgram CrocomireDefault { get; } = new(LibraryBackgroundDefinitions.CrocomireDefault, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
-    /// <summary>The CrocomireState1 library-background program.</summary>
-    public static LibraryBackgroundProgram CrocomireState1 { get; } = new(LibraryBackgroundDefinitions.CrocomireState1, [
+    /// <summary>The CrocomireWhenAreaMiniBossDead library-background program.</summary>
+    public static LibraryBackgroundProgram CrocomireWhenAreaMiniBossDead { get; } = new(LibraryBackgroundDefinitions.CrocomireWhenAreaMiniBossDead, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
@@ -342,18 +342,18 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The PhantoonState0 library-background program.</summary>
-    public static LibraryBackgroundProgram PhantoonState0 { get; } = new(LibraryBackgroundDefinitions.PhantoonState0, [
+    /// <summary>The PhantoonDefault library-background program.</summary>
+    public static LibraryBackgroundProgram PhantoonDefault { get; } = new(LibraryBackgroundDefinitions.PhantoonDefault, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
-    /// <summary>The DraygonState0 library-background program.</summary>
-    public static LibraryBackgroundProgram DraygonState0 { get; } = new(LibraryBackgroundDefinitions.DraygonState0, [
+    /// <summary>The DraygonDefault library-background program.</summary>
+    public static LibraryBackgroundProgram DraygonDefault { get; } = new(LibraryBackgroundDefinitions.DraygonDefault, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
-    /// <summary>The PhantoonDraygonState1 library-background program.</summary>
-    public static LibraryBackgroundProgram PhantoonDraygonState1 { get; } = new(LibraryBackgroundDefinitions.PhantoonDraygonState1, [
+    /// <summary>The DraygonOrPhantoonWhenAreaBossDead library-background program.</summary>
+    public static LibraryBackgroundProgram DraygonOrPhantoonWhenAreaBossDead { get; } = new(LibraryBackgroundDefinitions.DraygonOrPhantoonWhenAreaBossDead, [
         new(LibraryBackgroundCommand.ClearBg2, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null),
     ]);
 
@@ -399,8 +399,8 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The CeresElevatorState01 library-background program.</summary>
-    public static LibraryBackgroundProgram CeresElevatorState01 { get; } = new(LibraryBackgroundDefinitions.CeresElevatorState01, [
+    /// <summary>The CeresElev library-background program.</summary>
+    public static LibraryBackgroundProgram CeresElev { get; } = new(LibraryBackgroundDefinitions.CeresElev, [
         new(LibraryBackgroundCommand.ClearBg2, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null),
     ]);
 
@@ -481,8 +481,8 @@ public static partial class LibraryBackgroundProgramDefinitions
         ScrollingSkyTilemapsBowlingAlley,
         Brinstar1AKraidUpperLower,
         KraidDead,
-        CrocomireState0,
-        CrocomireState1,
+        CrocomireDefault,
+        CrocomireWhenAreaMiniBossDead,
         Crateria0VerticalPatternRocks,
         Crateria0HorizontalPatternRocks,
         Crateria0Rocks,
@@ -523,16 +523,16 @@ public static partial class LibraryBackgroundProgramDefinitions
         Norfair9RoomStatues,
         Norfair9PurplePatches,
         Norfair9Bubbles,
-        PhantoonState0,
-        DraygonState0,
-        PhantoonDraygonState1,
+        PhantoonDefault,
+        DraygonDefault,
+        DraygonOrPhantoonWhenAreaBossDead,
         WreckedShip45EntranceHall,
         WreckedShip45ColumnsTubes,
         WreckedShip45ExperimentRoom,
         WreckedShip45PanelsVents,
         WreckedShip45PanelsVentsHorizontal,
         WreckedShip45PanelsVentsVertical,
-        CeresElevatorState01,
+        CeresElev,
         MaridiaBBrownWall,
         MaridiaCGreenWall,
         TourianDMechanicalRoom,

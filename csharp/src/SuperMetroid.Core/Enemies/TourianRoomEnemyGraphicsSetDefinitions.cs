@@ -12,7 +12,7 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MotherBrainSave), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids10), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids1Default), [
             new(EnemyDefinitionId.Metroid),
             new(EnemyDefinitionId.Rinka),
         ]),
@@ -39,27 +39,27 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.TourianFirst), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids20), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids2Default), [
             new(EnemyDefinitionId.Metroid),
             new(EnemyDefinitionId.Rinka),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids40), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids4Default), [
             new(EnemyDefinitionId.Metroid),
             new(EnemyDefinitionId.Rinka),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids11), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids1WhenFirstMetroidHallCleared), [
             new(EnemyDefinitionId.Rinka),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids21), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids2WhenFirstMetroidShaftCleared), [
             new(EnemyDefinitionId.Rinka),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.TourianEscape2), [
             new(EnemyDefinitionId.PirateSilverWall),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids31), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids3WhenSecondMetroidHallCleared), [
             new(EnemyDefinitionId.Rinka),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids41), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids4WhenSecondMetroidShaftCleared), [
             new(EnemyDefinitionId.Rinka),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.TourianEscape3), [
@@ -72,7 +72,7 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.UpperTourianSave), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids30), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.Metroids3Default), [
             new(EnemyDefinitionId.Metroid),
             new(EnemyDefinitionId.Rinka),
         ]),

@@ -20,7 +20,7 @@ internal static class GraphicsSetCharacterLayoutVerification
     internal static void VerifyGraphicsSetCharacterLayout()
     {
         // Ceres Ridley's set: Ridley, then the Ceres door at its header's fixed block.
-        GraphicsSetCharacterLayout ceres = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetDefinitions.CeresRidley0);
+        GraphicsSetCharacterLayout ceres = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault);
         AssertEqual(2, ceres.Members.Count, "Ceres Ridley's set lays out both members");
         GraphicsSetMemberCharacters ridley = ceres.Members[0];
         GraphicsSetMemberCharacters door = ceres.Members[1];

@@ -141,7 +141,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Yard, new(920, 184), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideUpMovingLeft, CrawlSpeed: new SignedEightEight(128))),
             new(EnemyDefinitionId.Yard, new(984, 80), EnemyProperties.RunsAnimationScript | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new YardSpawnSettings(Direction: YardDirection.UpsideLeftMovingUp, CrawlSpeed: new SignedEightEight(128))),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.Draygon0),
+        new(nameof(RoomEnemyPopulationDefinitions.DraygonDefault),
         [
             new(EnemyDefinitionId.DraygonBody, new(65456, 65456), EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),
             new(EnemyDefinitionId.DraygonEye, new(65456, 65456), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),

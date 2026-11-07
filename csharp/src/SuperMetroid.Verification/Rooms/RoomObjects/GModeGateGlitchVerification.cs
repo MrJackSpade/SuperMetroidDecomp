@@ -39,7 +39,7 @@ internal static class GModeGateGlitchVerification
         string[] nativeRows = File.ReadAllLines(
             "csharp/test-fixtures/movement-release/gmode-gate-406.csv");
         AssertEqual(
-            "reactivateFrame,passedGateFrame,activationFrame,finalX,finalY,roomObjectFlag,activeObjects",
+            "reactivateFrame,passedGateFrame,activationFrame,finalX,finalY,plmFlag,activePlms",
             nativeRows[0],
             "G-Mode native fixture schema remains explicit");
         AssertEqual(4, nativeRows.Length,

@@ -45,7 +45,7 @@ internal static class CeresElevatorArrivalVerification
             "Ceres arrival actors draw with tile base zero, the concealer's colour cleared");
         var oam = new OamBuffer();
         oam.BeginFrame();
-        arrival.DrawAsOam(oam, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0),
+        arrival.DrawAsOam(oam, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault),
             camera: Position16<RoomPixels>.Zero);
         var expected = new OamBuffer();
         expected.BeginFrame();
@@ -87,7 +87,7 @@ internal static class CeresElevatorArrivalVerification
         int spriteColour = (cartridge.ReadCartridgeWord(0x828131) - NativeSnapshotMemory.PaletteBuffer) / sizeof(ushort) - SpriteColoursFirst;
         var frame = new SpriteFrameBuffer();
         frame.BeginFrame();
-        arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0),
+        arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault),
             Position16<RoomPixels>.Zero);
         frame.FinalizeFrame();
         VerificationAssertions.AssertTrue(frame.Draws.Length > 0, "the arrival draws while it runs");

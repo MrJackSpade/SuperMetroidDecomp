@@ -34,7 +34,7 @@ internal static class RoomObjectHeaderCatalogVerification
         HashSet<ushort> catalog = cataloguedHeaders.ToHashSet();
         ushort[] populationPointers = File.ReadLines(symbolPath)
             .Where(line => line.StartsWith("0x8f", StringComparison.OrdinalIgnoreCase) &&
-                line.Contains(" kRoomObjects_", StringComparison.Ordinal))
+                line.Contains(" kRoomPlms_", StringComparison.Ordinal))
             .Select(ParseRoomObjectPopulationPointer)
             .Distinct()
             .ToArray();

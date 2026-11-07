@@ -123,7 +123,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Multiviola),
             new(EnemyDefinitionId.Magdollite),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.UnusedState8FB3EEB48899), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.UnusedRoom8FB3EE), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LavaDive), [
             new(EnemyDefinitionId.Namihe),

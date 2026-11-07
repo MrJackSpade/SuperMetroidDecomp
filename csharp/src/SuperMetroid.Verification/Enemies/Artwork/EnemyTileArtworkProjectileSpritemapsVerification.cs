@@ -372,7 +372,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ushort platformPointer = ReadNativeEnemyProjectileProgramWord(bus, 0xa29b);
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, padPointer, new(128, 28), 0, true);
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, platformPointer, new(128, 97), 0, true);
-            installedArrival.DrawAsOam(installedOam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0), Position16<RoomPixels>.Zero);
+            installedArrival.DrawAsOam(installedOam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault), Position16<RoomPixels>.Zero);
             AssertTrue(nativeOam.ImageEquals(installedOam),
                 $"Ceres elevator arrival frame {frame} draws from installed $8D compositions");
         }

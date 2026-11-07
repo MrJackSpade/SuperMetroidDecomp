@@ -47,15 +47,15 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_Terminator</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition Terminator { get; } = Find(nameof(Terminator));
     /// <summary>The <c>EnemySets_FinalMissileBombway1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition FinalMissileBombway1 { get; } = Find(nameof(FinalMissileBombway1));
+    public static RoomEnemyGraphicsSetDefinition FinalMissileBombwayWhenZebesAwake { get; } = Find(nameof(FinalMissileBombwayWhenZebesAwake));
     /// <summary>The <c>EnemySets_FinalMissileBombway0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition FinalMissileBombway0 { get; } = Find(nameof(FinalMissileBombway0));
+    public static RoomEnemyGraphicsSetDefinition FinalMissileBombwayDefault { get; } = Find(nameof(FinalMissileBombwayDefault));
     /// <summary>The <c>EnemySets_Parlor1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Parlor1 { get; } = Find(nameof(Parlor1));
+    public static RoomEnemyGraphicsSetDefinition ParlorWhenZebesAwake { get; } = Find(nameof(ParlorWhenZebesAwake));
     /// <summary>The <c>EnemySets_Flyway01</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition Flyway01 { get; } = Find(nameof(Flyway01));
     /// <summary>The <c>EnemySets_Pit1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Pit1 { get; } = Find(nameof(Pit1));
+    public static RoomEnemyGraphicsSetDefinition PitWithMorphBallAndMissiles { get; } = Find(nameof(PitWithMorphBallAndMissiles));
     /// <summary>The <c>EnemySets_GauntletEntrance</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition GauntletEntrance { get; } = Find(nameof(GauntletEntrance));
     /// <summary>The <c>EnemySets_BombTorizo01</c> list.</summary>
@@ -65,13 +65,13 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_GreenBrinstarElev</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition GreenBrinstarElev { get; } = Find(nameof(GreenBrinstarElev));
     /// <summary>The <c>EnemySets_FinalMissile0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition FinalMissile0 { get; } = Find(nameof(FinalMissile0));
+    public static RoomEnemyGraphicsSetDefinition FinalMissileDefault { get; } = Find(nameof(FinalMissileDefault));
     /// <summary>The <c>EnemySets_CrateriaMap</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition CrateriaMap { get; } = Find(nameof(CrateriaMap));
     /// <summary>The <c>EnemySets_FinalMissile1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition FinalMissile1 { get; } = Find(nameof(FinalMissile1));
+    public static RoomEnemyGraphicsSetDefinition FinalMissileWhenZebesAwake { get; } = Find(nameof(FinalMissileWhenZebesAwake));
     /// <summary>The <c>EnemySets_Climb2</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Climb2 { get; } = Find(nameof(Climb2));
+    public static RoomEnemyGraphicsSetDefinition ClimbWhenZebesTimebombSet { get; } = Find(nameof(ClimbWhenZebesTimebombSet));
     /// <summary>The <c>EnemySets_CrateriaSave</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition CrateriaSave { get; } = Find(nameof(CrateriaSave));
     /// <summary>The <c>EnemySets_ForgottenHighwayElbow</c> list.</summary>
@@ -79,11 +79,11 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_Moat</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition Moat { get; } = Find(nameof(Moat));
     /// <summary>The <c>EnemySets_Climb0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Climb0 { get; } = Find(nameof(Climb0));
+    public static RoomEnemyGraphicsSetDefinition ClimbDefault { get; } = Find(nameof(ClimbDefault));
     /// <summary>The <c>EnemySets_WestOcean</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition WestOcean { get; } = Find(nameof(WestOcean));
     /// <summary>The <c>EnemySets_Parlor0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Parlor0 { get; } = Find(nameof(Parlor0));
+    public static RoomEnemyGraphicsSetDefinition ParlorDefault { get; } = Find(nameof(ParlorDefault));
     /// <summary>The <c>EnemySets_LandingSite012</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition LandingSite012 { get; } = Find(nameof(LandingSite012));
     /// <summary>The <c>EnemySets_CrateriaSuper</c> list.</summary>
@@ -91,7 +91,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_PreBowling</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition PreBowling { get; } = Find(nameof(PreBowling));
     /// <summary>The <c>EnemySets_Climb1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Climb1 { get; } = Find(nameof(Climb1));
+    public static RoomEnemyGraphicsSetDefinition ClimbWhenZebesAwake { get; } = Find(nameof(ClimbWhenZebesAwake));
     /// <summary>The <c>EnemySets_BowlingAlleyPath</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition BowlingAlleyPath { get; } = Find(nameof(BowlingAlleyPath));
     /// <summary>The <c>EnemySets_RedBinstarElev</c> list.</summary>
@@ -99,7 +99,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_GauntletETank</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition GauntletETank { get; } = Find(nameof(GauntletETank));
     /// <summary>The <c>EnemySets_Pit0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Pit0 { get; } = Find(nameof(Pit0));
+    public static RoomEnemyGraphicsSetDefinition PitDefault { get; } = Find(nameof(PitDefault));
     /// <summary>The <c>EnemySets_CrabMaze</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition CrabMaze { get; } = Find(nameof(CrabMaze));
     /// <summary>The <c>EnemySets_CrateriaTube</c> list.</summary>
@@ -115,13 +115,13 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_LowerMushrooms</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition LowerMushrooms { get; } = Find(nameof(LowerMushrooms));
     /// <summary>The <c>EnemySets_LandingSite3</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition LandingSite3 { get; } = Find(nameof(LandingSite3));
+    public static RoomEnemyGraphicsSetDefinition LandingSiteWhenZebesTimebombSet { get; } = Find(nameof(LandingSiteWhenZebesTimebombSet));
     /// <summary>The <c>EnemySets_Parlor2</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Parlor2 { get; } = Find(nameof(Parlor2));
+    public static RoomEnemyGraphicsSetDefinition ParlorWhenZebesTimebombSet { get; } = Find(nameof(ParlorWhenZebesTimebombSet));
     /// <summary>The <c>EnemySets_BombTorizo2</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition BombTorizo2 { get; } = Find(nameof(BombTorizo2));
+    public static RoomEnemyGraphicsSetDefinition BombTorizoWhenZebesTimebombSet { get; } = Find(nameof(BombTorizoWhenZebesTimebombSet));
     /// <summary>The <c>EnemySets_Flyway2</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Flyway2 { get; } = Find(nameof(Flyway2));
+    public static RoomEnemyGraphicsSetDefinition FlywayWhenZebesTimebombSet { get; } = Find(nameof(FlywayWhenZebesTimebombSet));
     /// <summary>The <c>EnemySets_CrateriaKihunter</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
     /// <summary>The <c>EnemySets_BrinstarPreMap</c> list.</summary>
@@ -147,17 +147,17 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_WaterwayETank</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition WaterwayETank { get; } = Find(nameof(WaterwayETank));
     /// <summary>The <c>EnemySets_ConstructionZone1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition ConstructionZone1 { get; } = Find(nameof(ConstructionZone1));
+    public static RoomEnemyGraphicsSetDefinition ConstructionZoneWhenZebesAwake { get; } = Find(nameof(ConstructionZoneWhenZebesAwake));
     /// <summary>The <c>EnemySets_BlueBrinstarETank1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition BlueBrinstarETank1 { get; } = Find(nameof(BlueBrinstarETank1));
+    public static RoomEnemyGraphicsSetDefinition BlueBrinstarETankWhenZebesAwake { get; } = Find(nameof(BlueBrinstarETankWhenZebesAwake));
     /// <summary>The <c>EnemySets_NoobBridge</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition NoobBridge { get; } = Find(nameof(NoobBridge));
     /// <summary>The <c>EnemySets_MorphBall1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition MorphBall1 { get; } = Find(nameof(MorphBall1));
+    public static RoomEnemyGraphicsSetDefinition MorphBallWhenZebesAwake { get; } = Find(nameof(MorphBallWhenZebesAwake));
     /// <summary>The <c>EnemySets_WarehouseSave</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition WarehouseSave { get; } = Find(nameof(WarehouseSave));
     /// <summary>The <c>EnemySets_MorphBall0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition MorphBall0 { get; } = Find(nameof(MorphBall0));
+    public static RoomEnemyGraphicsSetDefinition MorphBallDefault { get; } = Find(nameof(MorphBallDefault));
     /// <summary>The <c>EnemySets_WarehouseZeela</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition WarehouseZeela { get; } = Find(nameof(WarehouseZeela));
     /// <summary>The <c>EnemySets_RedTower</c> list.</summary>
@@ -189,7 +189,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_RedBrinstarSave</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition RedBrinstarSave { get; } = Find(nameof(RedBrinstarSave));
     /// <summary>The <c>EnemySets_BlueBrinstarETank0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition BlueBrinstarETank0 { get; } = Find(nameof(BlueBrinstarETank0));
+    public static RoomEnemyGraphicsSetDefinition BlueBrinstarETankDefault { get; } = Find(nameof(BlueBrinstarETankDefault));
     /// <summary>The <c>EnemySets_GreenBrinstarFirefleas</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition GreenBrinstarFirefleas { get; } = Find(nameof(GreenBrinstarFirefleas));
     /// <summary>The <c>EnemySets_GreenBrinstarBeetoms</c> list.</summary>
@@ -213,7 +213,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_RedBrinstarFirefleas</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition RedBrinstarFirefleas { get; } = Find(nameof(RedBrinstarFirefleas));
     /// <summary>The <c>EnemySets_ConstructionZone0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition ConstructionZone0 { get; } = Find(nameof(ConstructionZone0));
+    public static RoomEnemyGraphicsSetDefinition ConstructionZoneDefault { get; } = Find(nameof(ConstructionZoneDefault));
     /// <summary>The <c>EnemySets_GreenHillZone</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition GreenHillZone { get; } = Find(nameof(GreenHillZone));
     /// <summary>The <c>EnemySets_Dachora</c> list.</summary>
@@ -309,7 +309,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_MagdolliteTunnel</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition MagdolliteTunnel { get; } = Find(nameof(MagdolliteTunnel));
     /// <summary>The <c>EnemySets_UnusedState8FB3EEB48899</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition UnusedState8FB3EEB48899 { get; } = Find(nameof(UnusedState8FB3EEB48899));
+    public static RoomEnemyGraphicsSetDefinition UnusedRoom8FB3EE { get; } = Find(nameof(UnusedRoom8FB3EE));
     /// <summary>The <c>EnemySets_LavaDive</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition LavaDive { get; } = Find(nameof(LavaDive));
     /// <summary>The <c>EnemySets_Pillar</c> list.</summary>
@@ -397,69 +397,69 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_UpperNorfairFarming</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
     /// <summary>The <c>EnemySets_SpongeBath1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition SpongeBath1 { get; } = Find(nameof(SpongeBath1));
+    public static RoomEnemyGraphicsSetDefinition SpongeBathWhenAreaBossDead { get; } = Find(nameof(SpongeBathWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WreckedShipETank1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipETank1 { get; } = Find(nameof(WreckedShipETank1));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipETankWhenAreaBossDead { get; } = Find(nameof(WreckedShipETankWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WreckedShipMainShaft0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipMainShaft0 { get; } = Find(nameof(WreckedShipMainShaft0));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipMainShaftDefault { get; } = Find(nameof(WreckedShipMainShaftDefault));
     /// <summary>The <c>EnemySets_BowlingAlley0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition BowlingAlley0 { get; } = Find(nameof(BowlingAlley0));
+    public static RoomEnemyGraphicsSetDefinition BowlingAlleyDefault { get; } = Find(nameof(BowlingAlleyDefault));
     /// <summary>The <c>EnemySets_Attic1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Attic1 { get; } = Find(nameof(Attic1));
+    public static RoomEnemyGraphicsSetDefinition AtticWhenAreaBossDead { get; } = Find(nameof(AtticWhenAreaBossDead));
     /// <summary>The <c>EnemySets_Basement1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Basement1 { get; } = Find(nameof(Basement1));
+    public static RoomEnemyGraphicsSetDefinition BasementWhenAreaBossDead { get; } = Find(nameof(BasementWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WreckedShipMap1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipMap1 { get; } = Find(nameof(WreckedShipMap1));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipMapWhenAreaBossDead { get; } = Find(nameof(WreckedShipMapWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WSWestSuper0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WSWestSuper0 { get; } = Find(nameof(WSWestSuper0));
+    public static RoomEnemyGraphicsSetDefinition WSWestSuperDefault { get; } = Find(nameof(WSWestSuperDefault));
     /// <summary>The <c>EnemySets_SpikyDeath0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition SpikyDeath0 { get; } = Find(nameof(SpikyDeath0));
+    public static RoomEnemyGraphicsSetDefinition SpikyDeathDefault { get; } = Find(nameof(SpikyDeathDefault));
     /// <summary>The <c>EnemySets_SpongeBath0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition SpongeBath0 { get; } = Find(nameof(SpongeBath0));
+    public static RoomEnemyGraphicsSetDefinition SpongeBathDefault { get; } = Find(nameof(SpongeBathDefault));
     /// <summary>The <c>EnemySets_WreckedShipEntrance1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipEntrance1 { get; } = Find(nameof(WreckedShipEntrance1));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipEntranceWhenAreaBossDead { get; } = Find(nameof(WreckedShipEntranceWhenAreaBossDead));
     /// <summary>The <c>EnemySets_ElectricDeath0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition ElectricDeath0 { get; } = Find(nameof(ElectricDeath0));
+    public static RoomEnemyGraphicsSetDefinition ElectricDeathDefault { get; } = Find(nameof(ElectricDeathDefault));
     /// <summary>The <c>EnemySets_BowlingAlley1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition BowlingAlley1 { get; } = Find(nameof(BowlingAlley1));
+    public static RoomEnemyGraphicsSetDefinition BowlingAlleyWhenAreaBossDead { get; } = Find(nameof(BowlingAlleyWhenAreaBossDead));
     /// <summary>The <c>EnemySets_AssemblyLine0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition AssemblyLine0 { get; } = Find(nameof(AssemblyLine0));
+    public static RoomEnemyGraphicsSetDefinition AssemblyLineDefault { get; } = Find(nameof(AssemblyLineDefault));
     /// <summary>The <c>EnemySets_Phantoon1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Phantoon1 { get; } = Find(nameof(Phantoon1));
+    public static RoomEnemyGraphicsSetDefinition PhantoonWhenAreaBossDead { get; } = Find(nameof(PhantoonWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WreckedShipETank0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipETank0 { get; } = Find(nameof(WreckedShipETank0));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipETankDefault { get; } = Find(nameof(WreckedShipETankDefault));
     /// <summary>The <c>EnemySets_GravitySuit0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition GravitySuit0 { get; } = Find(nameof(GravitySuit0));
+    public static RoomEnemyGraphicsSetDefinition GravitySuitDefault { get; } = Find(nameof(GravitySuitDefault));
     /// <summary>The <c>EnemySets_WreckedShipMap0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipMap0 { get; } = Find(nameof(WreckedShipMap0));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipMapDefault { get; } = Find(nameof(WreckedShipMapDefault));
     /// <summary>The <c>EnemySets_GravitySuit1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition GravitySuit1 { get; } = Find(nameof(GravitySuit1));
+    public static RoomEnemyGraphicsSetDefinition GravitySuitWhenAreaBossDead { get; } = Find(nameof(GravitySuitWhenAreaBossDead));
     /// <summary>The <c>EnemySets_Basement0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Basement0 { get; } = Find(nameof(Basement0));
+    public static RoomEnemyGraphicsSetDefinition BasementDefault { get; } = Find(nameof(BasementDefault));
     /// <summary>The <c>EnemySets_WreckedShipEntrance0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipEntrance0 { get; } = Find(nameof(WreckedShipEntrance0));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipEntranceDefault { get; } = Find(nameof(WreckedShipEntranceDefault));
     /// <summary>The <c>EnemySets_AssemblyLine1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition AssemblyLine1 { get; } = Find(nameof(AssemblyLine1));
+    public static RoomEnemyGraphicsSetDefinition AssemblyLineWhenAreaBossDead { get; } = Find(nameof(AssemblyLineWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WreckedShipSave1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipSave1 { get; } = Find(nameof(WreckedShipSave1));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipSaveWhenAreaBossDead { get; } = Find(nameof(WreckedShipSaveWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WSWestSuper1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WSWestSuper1 { get; } = Find(nameof(WSWestSuper1));
+    public static RoomEnemyGraphicsSetDefinition WSWestSuperWhenAreaBossDead { get; } = Find(nameof(WSWestSuperWhenAreaBossDead));
     /// <summary>The <c>EnemySets_Attic0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Attic0 { get; } = Find(nameof(Attic0));
+    public static RoomEnemyGraphicsSetDefinition AtticDefault { get; } = Find(nameof(AtticDefault));
     /// <summary>The <c>EnemySets_WSEastSuper0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WSEastSuper0 { get; } = Find(nameof(WSEastSuper0));
+    public static RoomEnemyGraphicsSetDefinition WSEastSuperDefault { get; } = Find(nameof(WSEastSuperDefault));
     /// <summary>The <c>EnemySets_WreckedShipSave0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipSave0 { get; } = Find(nameof(WreckedShipSave0));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipSaveDefault { get; } = Find(nameof(WreckedShipSaveDefault));
     /// <summary>The <c>EnemySets_ElectricDeath1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition ElectricDeath1 { get; } = Find(nameof(ElectricDeath1));
+    public static RoomEnemyGraphicsSetDefinition ElectricDeathWhenAreaBossDead { get; } = Find(nameof(ElectricDeathWhenAreaBossDead));
     /// <summary>The <c>EnemySets_SpikyDeath1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition SpikyDeath1 { get; } = Find(nameof(SpikyDeath1));
+    public static RoomEnemyGraphicsSetDefinition SpikyDeathWhenAreaBossDead { get; } = Find(nameof(SpikyDeathWhenAreaBossDead));
     /// <summary>The <c>EnemySets_WSEastSuper1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WSEastSuper1 { get; } = Find(nameof(WSEastSuper1));
+    public static RoomEnemyGraphicsSetDefinition WSEastSuperWhenAreaBossDead { get; } = Find(nameof(WSEastSuperWhenAreaBossDead));
     /// <summary>The <c>EnemySets_Phantoon0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Phantoon0 { get; } = Find(nameof(Phantoon0));
+    public static RoomEnemyGraphicsSetDefinition PhantoonDefault { get; } = Find(nameof(PhantoonDefault));
     /// <summary>The <c>EnemySets_WreckedShipMainShaft1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition WreckedShipMainShaft1 { get; } = Find(nameof(WreckedShipMainShaft1));
+    public static RoomEnemyGraphicsSetDefinition WreckedShipMainShaftWhenAreaBossDead { get; } = Find(nameof(WreckedShipMainShaftWhenAreaBossDead));
     /// <summary>The <c>EnemySets_MtEverest</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition MtEverest { get; } = Find(nameof(MtEverest));
     /// <summary>The <c>EnemySets_HalfieClimb</c> list.</summary>
@@ -489,7 +489,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_Shaktool</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition Shaktool { get; } = Find(nameof(Shaktool));
     /// <summary>The <c>EnemySets_Draygon0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Draygon0 { get; } = Find(nameof(Draygon0));
+    public static RoomEnemyGraphicsSetDefinition DraygonDefault { get; } = Find(nameof(DraygonDefault));
     /// <summary>The <c>EnemySets_Aqueduct</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition Aqueduct { get; } = Find(nameof(Aqueduct));
     /// <summary>The <c>EnemySets_RedFish</c> list.</summary>
@@ -577,7 +577,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_MotherBrainSave</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition MotherBrainSave { get; } = Find(nameof(MotherBrainSave));
     /// <summary>The <c>EnemySets_Metroids10</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids10 { get; } = Find(nameof(Metroids10));
+    public static RoomEnemyGraphicsSetDefinition Metroids1Default { get; } = Find(nameof(Metroids1Default));
     /// <summary>The <c>EnemySets_DustTorizo</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition DustTorizo { get; } = Find(nameof(DustTorizo));
     /// <summary>The <c>EnemySets_BigBoy</c> list.</summary>
@@ -593,19 +593,19 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_TourianFirst</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition TourianFirst { get; } = Find(nameof(TourianFirst));
     /// <summary>The <c>EnemySets_Metroids20</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids20 { get; } = Find(nameof(Metroids20));
+    public static RoomEnemyGraphicsSetDefinition Metroids2Default { get; } = Find(nameof(Metroids2Default));
     /// <summary>The <c>EnemySets_Metroids40</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids40 { get; } = Find(nameof(Metroids40));
+    public static RoomEnemyGraphicsSetDefinition Metroids4Default { get; } = Find(nameof(Metroids4Default));
     /// <summary>The <c>EnemySets_Metroids11</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids11 { get; } = Find(nameof(Metroids11));
+    public static RoomEnemyGraphicsSetDefinition Metroids1WhenFirstMetroidHallCleared { get; } = Find(nameof(Metroids1WhenFirstMetroidHallCleared));
     /// <summary>The <c>EnemySets_Metroids21</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids21 { get; } = Find(nameof(Metroids21));
+    public static RoomEnemyGraphicsSetDefinition Metroids2WhenFirstMetroidShaftCleared { get; } = Find(nameof(Metroids2WhenFirstMetroidShaftCleared));
     /// <summary>The <c>EnemySets_TourianEscape2</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition TourianEscape2 { get; } = Find(nameof(TourianEscape2));
     /// <summary>The <c>EnemySets_Metroids31</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids31 { get; } = Find(nameof(Metroids31));
+    public static RoomEnemyGraphicsSetDefinition Metroids3WhenSecondMetroidHallCleared { get; } = Find(nameof(Metroids3WhenSecondMetroidHallCleared));
     /// <summary>The <c>EnemySets_Metroids41</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids41 { get; } = Find(nameof(Metroids41));
+    public static RoomEnemyGraphicsSetDefinition Metroids4WhenSecondMetroidShaftCleared { get; } = Find(nameof(Metroids4WhenSecondMetroidShaftCleared));
     /// <summary>The <c>EnemySets_TourianEscape3</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition TourianEscape3 { get; } = Find(nameof(TourianEscape3));
     /// <summary>The <c>EnemySets_Seaweed</c> list.</summary>
@@ -615,32 +615,32 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The <c>EnemySets_UpperTourianSave</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition UpperTourianSave { get; } = Find(nameof(UpperTourianSave));
     /// <summary>The <c>EnemySets_Metroids30</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Metroids30 { get; } = Find(nameof(Metroids30));
+    public static RoomEnemyGraphicsSetDefinition Metroids3Default { get; } = Find(nameof(Metroids3Default));
     /// <summary>The <c>EnemySets_RinkaShaft</c> list.</summary>
     public static RoomEnemyGraphicsSetDefinition RinkaShaft { get; } = Find(nameof(RinkaShaft));
     /// <summary>The <c>EnemySets_CeresElev0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition CeresElev0 { get; } = Find(nameof(CeresElev0));
+    public static RoomEnemyGraphicsSetDefinition CeresElevDefault { get; } = Find(nameof(CeresElevDefault));
     /// <summary>The <c>EnemySets_FallingTile0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition FallingTile0 { get; } = Find(nameof(FallingTile0));
+    public static RoomEnemyGraphicsSetDefinition FallingTileDefault { get; } = Find(nameof(FallingTileDefault));
     /// <summary>The <c>EnemySets_MagnetStairs0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition MagnetStairs0 { get; } = Find(nameof(MagnetStairs0));
+    public static RoomEnemyGraphicsSetDefinition MagnetStairsDefault { get; } = Find(nameof(MagnetStairsDefault));
     /// <summary>The <c>EnemySets_DeadScientist0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition DeadScientist0 { get; } = Find(nameof(DeadScientist0));
+    public static RoomEnemyGraphicsSetDefinition DeadScientistDefault { get; } = Find(nameof(DeadScientistDefault));
     /// <summary>The <c>EnemySets_Room58Escape0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Room58Escape0 { get; } = Find(nameof(Room58Escape0));
+    public static RoomEnemyGraphicsSetDefinition Room58EscapeDefault { get; } = Find(nameof(Room58EscapeDefault));
     /// <summary>The <c>EnemySets_CeresRidley0</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition CeresRidley0 { get; } = Find(nameof(CeresRidley0));
+    public static RoomEnemyGraphicsSetDefinition CeresRidleyDefault { get; } = Find(nameof(CeresRidleyDefault));
     /// <summary>The <c>EnemySets_CeresElev1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition CeresElev1 { get; } = Find(nameof(CeresElev1));
+    public static RoomEnemyGraphicsSetDefinition CeresElevWhenAreaBossDead { get; } = Find(nameof(CeresElevWhenAreaBossDead));
     /// <summary>The <c>EnemySets_FallingTile1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition FallingTile1 { get; } = Find(nameof(FallingTile1));
+    public static RoomEnemyGraphicsSetDefinition FallingTileWhenAreaBossDead { get; } = Find(nameof(FallingTileWhenAreaBossDead));
     /// <summary>The <c>EnemySets_MagnetStairs1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition MagnetStairs1 { get; } = Find(nameof(MagnetStairs1));
+    public static RoomEnemyGraphicsSetDefinition MagnetStairsWhenAreaBossDead { get; } = Find(nameof(MagnetStairsWhenAreaBossDead));
     /// <summary>The <c>EnemySets_DeadScientist1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition DeadScientist1 { get; } = Find(nameof(DeadScientist1));
+    public static RoomEnemyGraphicsSetDefinition DeadScientistWhenAreaBossDead { get; } = Find(nameof(DeadScientistWhenAreaBossDead));
     /// <summary>The <c>EnemySets_Room58Escape1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition Room58Escape1 { get; } = Find(nameof(Room58Escape1));
+    public static RoomEnemyGraphicsSetDefinition Room58EscapeWhenAreaBossDead { get; } = Find(nameof(Room58EscapeWhenAreaBossDead));
     /// <summary>The <c>EnemySets_CeresRidley1</c> list.</summary>
-    public static RoomEnemyGraphicsSetDefinition CeresRidley1 { get; } = Find(nameof(CeresRidley1));
+    public static RoomEnemyGraphicsSetDefinition CeresRidleyWhenAreaBossDead { get; } = Find(nameof(CeresRidleyWhenAreaBossDead));
 
 }

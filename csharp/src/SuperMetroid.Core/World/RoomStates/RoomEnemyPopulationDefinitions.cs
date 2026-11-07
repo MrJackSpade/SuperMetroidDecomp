@@ -36,7 +36,7 @@ public static class RoomEnemyPopulationDefinitions
     private static RoomEnemyPopulationDefinition Find(string name) => ByName[name];
 
     /// <summary>The <c>EnemyPopulations_DraygonState1MotherBrainState2</c> list.</summary>
-    public static RoomEnemyPopulationDefinition DraygonState1MotherBrainState2 { get; } = Find(nameof(DraygonState1MotherBrainState2));
+    public static RoomEnemyPopulationDefinition DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead { get; } = Find(nameof(DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead));
     /// <summary>The <c>EnemyPopulations_EastOcean</c> list.</summary>
     public static RoomEnemyPopulationDefinition EastOcean { get; } = Find(nameof(EastOcean));
     /// <summary>The <c>EnemyPopulations_CrateriaPowerBombs</c> list.</summary>
@@ -44,15 +44,15 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_Terminator</c> list.</summary>
     public static RoomEnemyPopulationDefinition Terminator { get; } = Find(nameof(Terminator));
     /// <summary>The <c>EnemyPopulations_FinalMissileBombway1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissileBombway1 { get; } = Find(nameof(FinalMissileBombway1));
+    public static RoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = Find(nameof(FinalMissileBombwayWhenZebesAwake));
     /// <summary>The <c>EnemyPopulations_FinalMissileBombway0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissileBombway0 { get; } = Find(nameof(FinalMissileBombway0));
+    public static RoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = Find(nameof(FinalMissileBombwayDefault));
     /// <summary>The <c>EnemyPopulations_Parlor1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Parlor1 { get; } = Find(nameof(Parlor1));
+    public static RoomEnemyPopulationDefinition ParlorWhenZebesAwake { get; } = Find(nameof(ParlorWhenZebesAwake));
     /// <summary>The <c>EnemyPopulations_Flyway01</c> list.</summary>
     public static RoomEnemyPopulationDefinition Flyway01 { get; } = Find(nameof(Flyway01));
     /// <summary>The <c>EnemyPopulations_Pit1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Pit1 { get; } = Find(nameof(Pit1));
+    public static RoomEnemyPopulationDefinition PitWithMorphBallAndMissiles { get; } = Find(nameof(PitWithMorphBallAndMissiles));
     /// <summary>The <c>EnemyPopulations_GauntletEntrance</c> list.</summary>
     public static RoomEnemyPopulationDefinition GauntletEntrance { get; } = Find(nameof(GauntletEntrance));
     /// <summary>The <c>EnemyPopulations_BombTorizo01</c> list.</summary>
@@ -62,13 +62,13 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_GreenBrinstarElev</c> list.</summary>
     public static RoomEnemyPopulationDefinition GreenBrinstarElev { get; } = Find(nameof(GreenBrinstarElev));
     /// <summary>The <c>EnemyPopulations_FinalMissile0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissile0 { get; } = Find(nameof(FinalMissile0));
+    public static RoomEnemyPopulationDefinition FinalMissileDefault { get; } = Find(nameof(FinalMissileDefault));
     /// <summary>The <c>EnemyPopulations_CrateriaMap</c> list.</summary>
     public static RoomEnemyPopulationDefinition CrateriaMap { get; } = Find(nameof(CrateriaMap));
     /// <summary>The <c>EnemyPopulations_FinalMissile1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissile1 { get; } = Find(nameof(FinalMissile1));
+    public static RoomEnemyPopulationDefinition FinalMissileWhenZebesAwake { get; } = Find(nameof(FinalMissileWhenZebesAwake));
     /// <summary>The <c>EnemyPopulations_Climb2</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Climb2 { get; } = Find(nameof(Climb2));
+    public static RoomEnemyPopulationDefinition ClimbWhenZebesTimebombSet { get; } = Find(nameof(ClimbWhenZebesTimebombSet));
     /// <summary>The <c>EnemyPopulations_CrateriaSave</c> list.</summary>
     public static RoomEnemyPopulationDefinition CrateriaSave { get; } = Find(nameof(CrateriaSave));
     /// <summary>The <c>EnemyPopulations_ForgottenHighwayElbow</c> list.</summary>
@@ -76,11 +76,11 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_Moat</c> list.</summary>
     public static RoomEnemyPopulationDefinition Moat { get; } = Find(nameof(Moat));
     /// <summary>The <c>EnemyPopulations_Climb0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Climb0 { get; } = Find(nameof(Climb0));
+    public static RoomEnemyPopulationDefinition ClimbDefault { get; } = Find(nameof(ClimbDefault));
     /// <summary>The <c>EnemyPopulations_WestOcean</c> list.</summary>
     public static RoomEnemyPopulationDefinition WestOcean { get; } = Find(nameof(WestOcean));
     /// <summary>The <c>EnemyPopulations_Parlor0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Parlor0 { get; } = Find(nameof(Parlor0));
+    public static RoomEnemyPopulationDefinition ParlorDefault { get; } = Find(nameof(ParlorDefault));
     /// <summary>The <c>EnemyPopulations_LandingSite012</c> list.</summary>
     public static RoomEnemyPopulationDefinition LandingSite012 { get; } = Find(nameof(LandingSite012));
     /// <summary>The <c>EnemyPopulations_CrateriaSuper</c> list.</summary>
@@ -88,7 +88,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_PreBowling</c> list.</summary>
     public static RoomEnemyPopulationDefinition PreBowling { get; } = Find(nameof(PreBowling));
     /// <summary>The <c>EnemyPopulations_Climb1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Climb1 { get; } = Find(nameof(Climb1));
+    public static RoomEnemyPopulationDefinition ClimbWhenZebesAwake { get; } = Find(nameof(ClimbWhenZebesAwake));
     /// <summary>The <c>EnemyPopulations_BowlingAlleyPath</c> list.</summary>
     public static RoomEnemyPopulationDefinition BowlingAlleyPath { get; } = Find(nameof(BowlingAlleyPath));
     /// <summary>The <c>EnemyPopulations_RedBinstarElev</c> list.</summary>
@@ -96,7 +96,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_GauntletETank</c> list.</summary>
     public static RoomEnemyPopulationDefinition GauntletETank { get; } = Find(nameof(GauntletETank));
     /// <summary>The <c>EnemyPopulations_Pit0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Pit0 { get; } = Find(nameof(Pit0));
+    public static RoomEnemyPopulationDefinition PitDefault { get; } = Find(nameof(PitDefault));
     /// <summary>The <c>EnemyPopulations_CrabMaze</c> list.</summary>
     public static RoomEnemyPopulationDefinition CrabMaze { get; } = Find(nameof(CrabMaze));
     /// <summary>The <c>EnemyPopulations_CrateriaTube</c> list.</summary>
@@ -112,13 +112,13 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_LowerMushrooms</c> list.</summary>
     public static RoomEnemyPopulationDefinition LowerMushrooms { get; } = Find(nameof(LowerMushrooms));
     /// <summary>The <c>EnemyPopulations_LandingSite3</c> list.</summary>
-    public static RoomEnemyPopulationDefinition LandingSite3 { get; } = Find(nameof(LandingSite3));
+    public static RoomEnemyPopulationDefinition LandingSiteWhenZebesTimebombSet { get; } = Find(nameof(LandingSiteWhenZebesTimebombSet));
     /// <summary>The <c>EnemyPopulations_Parlor2</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Parlor2 { get; } = Find(nameof(Parlor2));
+    public static RoomEnemyPopulationDefinition ParlorWhenZebesTimebombSet { get; } = Find(nameof(ParlorWhenZebesTimebombSet));
     /// <summary>The <c>EnemyPopulations_BombTorizo2</c> list.</summary>
-    public static RoomEnemyPopulationDefinition BombTorizo2 { get; } = Find(nameof(BombTorizo2));
+    public static RoomEnemyPopulationDefinition BombTorizoWhenZebesTimebombSet { get; } = Find(nameof(BombTorizoWhenZebesTimebombSet));
     /// <summary>The <c>EnemyPopulations_Flyway2</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Flyway2 { get; } = Find(nameof(Flyway2));
+    public static RoomEnemyPopulationDefinition FlywayWhenZebesTimebombSet { get; } = Find(nameof(FlywayWhenZebesTimebombSet));
     /// <summary>The <c>EnemyPopulations_CrateriaKihunter</c> list.</summary>
     public static RoomEnemyPopulationDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
     /// <summary>The <c>EnemyPopulations_BrinstarPreMap</c> list.</summary>
@@ -144,17 +144,17 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_WaterwayETank</c> list.</summary>
     public static RoomEnemyPopulationDefinition WaterwayETank { get; } = Find(nameof(WaterwayETank));
     /// <summary>The <c>EnemyPopulations_ConstructionZone1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition ConstructionZone1 { get; } = Find(nameof(ConstructionZone1));
+    public static RoomEnemyPopulationDefinition ConstructionZoneWhenZebesAwake { get; } = Find(nameof(ConstructionZoneWhenZebesAwake));
     /// <summary>The <c>EnemyPopulations_BlueBrinstarETank1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition BlueBrinstarETank1 { get; } = Find(nameof(BlueBrinstarETank1));
+    public static RoomEnemyPopulationDefinition BlueBrinstarETankWhenZebesAwake { get; } = Find(nameof(BlueBrinstarETankWhenZebesAwake));
     /// <summary>The <c>EnemyPopulations_NoobBridge</c> list.</summary>
     public static RoomEnemyPopulationDefinition NoobBridge { get; } = Find(nameof(NoobBridge));
     /// <summary>The <c>EnemyPopulations_MorphBall1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition MorphBall1 { get; } = Find(nameof(MorphBall1));
+    public static RoomEnemyPopulationDefinition MorphBallWhenZebesAwake { get; } = Find(nameof(MorphBallWhenZebesAwake));
     /// <summary>The <c>EnemyPopulations_WarehouseSave</c> list.</summary>
     public static RoomEnemyPopulationDefinition WarehouseSave { get; } = Find(nameof(WarehouseSave));
     /// <summary>The <c>EnemyPopulations_MorphBall0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition MorphBall0 { get; } = Find(nameof(MorphBall0));
+    public static RoomEnemyPopulationDefinition MorphBallDefault { get; } = Find(nameof(MorphBallDefault));
     /// <summary>The <c>EnemyPopulations_WarehouseZeela</c> list.</summary>
     public static RoomEnemyPopulationDefinition WarehouseZeela { get; } = Find(nameof(WarehouseZeela));
     /// <summary>The <c>EnemyPopulations_RedTower</c> list.</summary>
@@ -186,7 +186,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_RedBrinstarSave</c> list.</summary>
     public static RoomEnemyPopulationDefinition RedBrinstarSave { get; } = Find(nameof(RedBrinstarSave));
     /// <summary>The <c>EnemyPopulations_BlueBrinstarETank0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition BlueBrinstarETank0 { get; } = Find(nameof(BlueBrinstarETank0));
+    public static RoomEnemyPopulationDefinition BlueBrinstarETankDefault { get; } = Find(nameof(BlueBrinstarETankDefault));
     /// <summary>The <c>EnemyPopulations_GreenBrinstarFirefleas</c> list.</summary>
     public static RoomEnemyPopulationDefinition GreenBrinstarFirefleas { get; } = Find(nameof(GreenBrinstarFirefleas));
     /// <summary>The <c>EnemyPopulations_GreenBrinstarBeetoms</c> list.</summary>
@@ -210,7 +210,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_RedBrinstarFirefleas</c> list.</summary>
     public static RoomEnemyPopulationDefinition RedBrinstarFirefleas { get; } = Find(nameof(RedBrinstarFirefleas));
     /// <summary>The <c>EnemyPopulations_ConstructionZone0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition ConstructionZone0 { get; } = Find(nameof(ConstructionZone0));
+    public static RoomEnemyPopulationDefinition ConstructionZoneDefault { get; } = Find(nameof(ConstructionZoneDefault));
     /// <summary>The <c>EnemyPopulations_GreenHillZone</c> list.</summary>
     public static RoomEnemyPopulationDefinition GreenHillZone { get; } = Find(nameof(GreenHillZone));
     /// <summary>The <c>EnemyPopulations_Dachora</c> list.</summary>
@@ -394,69 +394,69 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_UpperNorfairFarming</c> list.</summary>
     public static RoomEnemyPopulationDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
     /// <summary>The <c>EnemyPopulations_SpongeBath1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition SpongeBath1 { get; } = Find(nameof(SpongeBath1));
+    public static RoomEnemyPopulationDefinition SpongeBathWhenAreaBossDead { get; } = Find(nameof(SpongeBathWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WreckedShipETank1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipETank1 { get; } = Find(nameof(WreckedShipETank1));
+    public static RoomEnemyPopulationDefinition WreckedShipETankWhenAreaBossDead { get; } = Find(nameof(WreckedShipETankWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WreckedShipMainShaft0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMainShaft0 { get; } = Find(nameof(WreckedShipMainShaft0));
+    public static RoomEnemyPopulationDefinition WreckedShipMainShaftDefault { get; } = Find(nameof(WreckedShipMainShaftDefault));
     /// <summary>The <c>EnemyPopulations_BowlingAlley0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition BowlingAlley0 { get; } = Find(nameof(BowlingAlley0));
+    public static RoomEnemyPopulationDefinition BowlingAlleyDefault { get; } = Find(nameof(BowlingAlleyDefault));
     /// <summary>The <c>EnemyPopulations_Attic1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Attic1 { get; } = Find(nameof(Attic1));
+    public static RoomEnemyPopulationDefinition AtticWhenAreaBossDead { get; } = Find(nameof(AtticWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_Basement1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Basement1 { get; } = Find(nameof(Basement1));
+    public static RoomEnemyPopulationDefinition BasementWhenAreaBossDead { get; } = Find(nameof(BasementWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WreckedShipMap1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMap1 { get; } = Find(nameof(WreckedShipMap1));
+    public static RoomEnemyPopulationDefinition WreckedShipMapWhenAreaBossDead { get; } = Find(nameof(WreckedShipMapWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WSWestSuper0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WSWestSuper0 { get; } = Find(nameof(WSWestSuper0));
+    public static RoomEnemyPopulationDefinition WSWestSuperDefault { get; } = Find(nameof(WSWestSuperDefault));
     /// <summary>The <c>EnemyPopulations_SpikyDeath0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition SpikyDeath0 { get; } = Find(nameof(SpikyDeath0));
+    public static RoomEnemyPopulationDefinition SpikyDeathDefault { get; } = Find(nameof(SpikyDeathDefault));
     /// <summary>The <c>EnemyPopulations_SpongeBath0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition SpongeBath0 { get; } = Find(nameof(SpongeBath0));
+    public static RoomEnemyPopulationDefinition SpongeBathDefault { get; } = Find(nameof(SpongeBathDefault));
     /// <summary>The <c>EnemyPopulations_WreckedShipEntrance1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEntrance1 { get; } = Find(nameof(WreckedShipEntrance1));
+    public static RoomEnemyPopulationDefinition WreckedShipEntranceWhenAreaBossDead { get; } = Find(nameof(WreckedShipEntranceWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_ElectricDeath0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition ElectricDeath0 { get; } = Find(nameof(ElectricDeath0));
+    public static RoomEnemyPopulationDefinition ElectricDeathDefault { get; } = Find(nameof(ElectricDeathDefault));
     /// <summary>The <c>EnemyPopulations_BowlingAlley1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition BowlingAlley1 { get; } = Find(nameof(BowlingAlley1));
+    public static RoomEnemyPopulationDefinition BowlingAlleyWhenAreaBossDead { get; } = Find(nameof(BowlingAlleyWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_AssemblyLine0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition AssemblyLine0 { get; } = Find(nameof(AssemblyLine0));
+    public static RoomEnemyPopulationDefinition AssemblyLineDefault { get; } = Find(nameof(AssemblyLineDefault));
     /// <summary>The <c>EnemyPopulations_Phantoon1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Phantoon1 { get; } = Find(nameof(Phantoon1));
+    public static RoomEnemyPopulationDefinition PhantoonWhenAreaBossDead { get; } = Find(nameof(PhantoonWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WreckedShipETank0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipETank0 { get; } = Find(nameof(WreckedShipETank0));
+    public static RoomEnemyPopulationDefinition WreckedShipETankDefault { get; } = Find(nameof(WreckedShipETankDefault));
     /// <summary>The <c>EnemyPopulations_GravitySuit0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition GravitySuit0 { get; } = Find(nameof(GravitySuit0));
+    public static RoomEnemyPopulationDefinition GravitySuitDefault { get; } = Find(nameof(GravitySuitDefault));
     /// <summary>The <c>EnemyPopulations_WreckedShipMap0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMap0 { get; } = Find(nameof(WreckedShipMap0));
+    public static RoomEnemyPopulationDefinition WreckedShipMapDefault { get; } = Find(nameof(WreckedShipMapDefault));
     /// <summary>The <c>EnemyPopulations_GravitySuit1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition GravitySuit1 { get; } = Find(nameof(GravitySuit1));
+    public static RoomEnemyPopulationDefinition GravitySuitWhenAreaBossDead { get; } = Find(nameof(GravitySuitWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_Basement0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Basement0 { get; } = Find(nameof(Basement0));
+    public static RoomEnemyPopulationDefinition BasementDefault { get; } = Find(nameof(BasementDefault));
     /// <summary>The <c>EnemyPopulations_WreckedShipEntrance0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEntrance0 { get; } = Find(nameof(WreckedShipEntrance0));
+    public static RoomEnemyPopulationDefinition WreckedShipEntranceDefault { get; } = Find(nameof(WreckedShipEntranceDefault));
     /// <summary>The <c>EnemyPopulations_AssemblyLine1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition AssemblyLine1 { get; } = Find(nameof(AssemblyLine1));
+    public static RoomEnemyPopulationDefinition AssemblyLineWhenAreaBossDead { get; } = Find(nameof(AssemblyLineWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WreckedShipSave1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipSave1 { get; } = Find(nameof(WreckedShipSave1));
+    public static RoomEnemyPopulationDefinition WreckedShipSaveWhenAreaBossDead { get; } = Find(nameof(WreckedShipSaveWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WSWestSuper1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WSWestSuper1 { get; } = Find(nameof(WSWestSuper1));
+    public static RoomEnemyPopulationDefinition WSWestSuperWhenAreaBossDead { get; } = Find(nameof(WSWestSuperWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_Attic0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Attic0 { get; } = Find(nameof(Attic0));
+    public static RoomEnemyPopulationDefinition AtticDefault { get; } = Find(nameof(AtticDefault));
     /// <summary>The <c>EnemyPopulations_WSEastSuper0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WSEastSuper0 { get; } = Find(nameof(WSEastSuper0));
+    public static RoomEnemyPopulationDefinition WSEastSuperDefault { get; } = Find(nameof(WSEastSuperDefault));
     /// <summary>The <c>EnemyPopulations_WreckedShipSave0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipSave0 { get; } = Find(nameof(WreckedShipSave0));
+    public static RoomEnemyPopulationDefinition WreckedShipSaveDefault { get; } = Find(nameof(WreckedShipSaveDefault));
     /// <summary>The <c>EnemyPopulations_ElectricDeath1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition ElectricDeath1 { get; } = Find(nameof(ElectricDeath1));
+    public static RoomEnemyPopulationDefinition ElectricDeathWhenAreaBossDead { get; } = Find(nameof(ElectricDeathWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_SpikyDeath1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition SpikyDeath1 { get; } = Find(nameof(SpikyDeath1));
+    public static RoomEnemyPopulationDefinition SpikyDeathWhenAreaBossDead { get; } = Find(nameof(SpikyDeathWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_WSEastSuper1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WSEastSuper1 { get; } = Find(nameof(WSEastSuper1));
+    public static RoomEnemyPopulationDefinition WSEastSuperWhenAreaBossDead { get; } = Find(nameof(WSEastSuperWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_Phantoon0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Phantoon0 { get; } = Find(nameof(Phantoon0));
+    public static RoomEnemyPopulationDefinition PhantoonDefault { get; } = Find(nameof(PhantoonDefault));
     /// <summary>The <c>EnemyPopulations_WreckedShipMainShaft1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMainShaft1 { get; } = Find(nameof(WreckedShipMainShaft1));
+    public static RoomEnemyPopulationDefinition WreckedShipMainShaftWhenAreaBossDead { get; } = Find(nameof(WreckedShipMainShaftWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_MtEverest</c> list.</summary>
     public static RoomEnemyPopulationDefinition MtEverest { get; } = Find(nameof(MtEverest));
     /// <summary>The <c>EnemyPopulations_HalfieClimb</c> list.</summary>
@@ -486,7 +486,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_Shaktool</c> list.</summary>
     public static RoomEnemyPopulationDefinition Shaktool { get; } = Find(nameof(Shaktool));
     /// <summary>The <c>EnemyPopulations_Draygon0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Draygon0 { get; } = Find(nameof(Draygon0));
+    public static RoomEnemyPopulationDefinition DraygonDefault { get; } = Find(nameof(DraygonDefault));
     /// <summary>The <c>EnemyPopulations_Aqueduct</c> list.</summary>
     public static RoomEnemyPopulationDefinition Aqueduct { get; } = Find(nameof(Aqueduct));
     /// <summary>The <c>EnemyPopulations_RedFish</c> list.</summary>
@@ -574,7 +574,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_MotherBrainSave</c> list.</summary>
     public static RoomEnemyPopulationDefinition MotherBrainSave { get; } = Find(nameof(MotherBrainSave));
     /// <summary>The <c>EnemyPopulations_Metroids10</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids10 { get; } = Find(nameof(Metroids10));
+    public static RoomEnemyPopulationDefinition Metroids1Default { get; } = Find(nameof(Metroids1Default));
     /// <summary>The <c>EnemyPopulations_DustTorizo</c> list.</summary>
     public static RoomEnemyPopulationDefinition DustTorizo { get; } = Find(nameof(DustTorizo));
     /// <summary>The <c>EnemyPopulations_BigBoy</c> list.</summary>
@@ -590,19 +590,19 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_TourianFirst</c> list.</summary>
     public static RoomEnemyPopulationDefinition TourianFirst { get; } = Find(nameof(TourianFirst));
     /// <summary>The <c>EnemyPopulations_Metroids20</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids20 { get; } = Find(nameof(Metroids20));
+    public static RoomEnemyPopulationDefinition Metroids2Default { get; } = Find(nameof(Metroids2Default));
     /// <summary>The <c>EnemyPopulations_Metroids40</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids40 { get; } = Find(nameof(Metroids40));
+    public static RoomEnemyPopulationDefinition Metroids4Default { get; } = Find(nameof(Metroids4Default));
     /// <summary>The <c>EnemyPopulations_Metroids11</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids11 { get; } = Find(nameof(Metroids11));
+    public static RoomEnemyPopulationDefinition Metroids1WhenFirstMetroidHallCleared { get; } = Find(nameof(Metroids1WhenFirstMetroidHallCleared));
     /// <summary>The <c>EnemyPopulations_Metroids21</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids21 { get; } = Find(nameof(Metroids21));
+    public static RoomEnemyPopulationDefinition Metroids2WhenFirstMetroidShaftCleared { get; } = Find(nameof(Metroids2WhenFirstMetroidShaftCleared));
     /// <summary>The <c>EnemyPopulations_TourianEscape2</c> list.</summary>
     public static RoomEnemyPopulationDefinition TourianEscape2 { get; } = Find(nameof(TourianEscape2));
     /// <summary>The <c>EnemyPopulations_Metroids31</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids31 { get; } = Find(nameof(Metroids31));
+    public static RoomEnemyPopulationDefinition Metroids3WhenSecondMetroidHallCleared { get; } = Find(nameof(Metroids3WhenSecondMetroidHallCleared));
     /// <summary>The <c>EnemyPopulations_Metroids41</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids41 { get; } = Find(nameof(Metroids41));
+    public static RoomEnemyPopulationDefinition Metroids4WhenSecondMetroidShaftCleared { get; } = Find(nameof(Metroids4WhenSecondMetroidShaftCleared));
     /// <summary>The <c>EnemyPopulations_TourianEscape3</c> list.</summary>
     public static RoomEnemyPopulationDefinition TourianEscape3 { get; } = Find(nameof(TourianEscape3));
     /// <summary>The <c>EnemyPopulations_Seaweed</c> list.</summary>
@@ -612,32 +612,32 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The <c>EnemyPopulations_UpperTourianSave</c> list.</summary>
     public static RoomEnemyPopulationDefinition UpperTourianSave { get; } = Find(nameof(UpperTourianSave));
     /// <summary>The <c>EnemyPopulations_Metroids30</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Metroids30 { get; } = Find(nameof(Metroids30));
+    public static RoomEnemyPopulationDefinition Metroids3Default { get; } = Find(nameof(Metroids3Default));
     /// <summary>The <c>EnemyPopulations_RinkaShaft</c> list.</summary>
     public static RoomEnemyPopulationDefinition RinkaShaft { get; } = Find(nameof(RinkaShaft));
     /// <summary>The <c>EnemyPopulations_CeresElev0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition CeresElev0 { get; } = Find(nameof(CeresElev0));
+    public static RoomEnemyPopulationDefinition CeresElevDefault { get; } = Find(nameof(CeresElevDefault));
     /// <summary>The <c>EnemyPopulations_FallingTile0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition FallingTile0 { get; } = Find(nameof(FallingTile0));
+    public static RoomEnemyPopulationDefinition FallingTileDefault { get; } = Find(nameof(FallingTileDefault));
     /// <summary>The <c>EnemyPopulations_MagnetStairs0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition MagnetStairs0 { get; } = Find(nameof(MagnetStairs0));
+    public static RoomEnemyPopulationDefinition MagnetStairsDefault { get; } = Find(nameof(MagnetStairsDefault));
     /// <summary>The <c>EnemyPopulations_DeadScientist0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition DeadScientist0 { get; } = Find(nameof(DeadScientist0));
+    public static RoomEnemyPopulationDefinition DeadScientistDefault { get; } = Find(nameof(DeadScientistDefault));
     /// <summary>The <c>EnemyPopulations_Room58Escape0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Room58Escape0 { get; } = Find(nameof(Room58Escape0));
+    public static RoomEnemyPopulationDefinition Room58EscapeDefault { get; } = Find(nameof(Room58EscapeDefault));
     /// <summary>The <c>EnemyPopulations_CeresRidley0</c> list.</summary>
-    public static RoomEnemyPopulationDefinition CeresRidley0 { get; } = Find(nameof(CeresRidley0));
+    public static RoomEnemyPopulationDefinition CeresRidleyDefault { get; } = Find(nameof(CeresRidleyDefault));
     /// <summary>The <c>EnemyPopulations_CeresElev1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition CeresElev1 { get; } = Find(nameof(CeresElev1));
+    public static RoomEnemyPopulationDefinition CeresElevWhenAreaBossDead { get; } = Find(nameof(CeresElevWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_FallingTile1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition FallingTile1 { get; } = Find(nameof(FallingTile1));
+    public static RoomEnemyPopulationDefinition FallingTileWhenAreaBossDead { get; } = Find(nameof(FallingTileWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_MagnetStairs1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition MagnetStairs1 { get; } = Find(nameof(MagnetStairs1));
+    public static RoomEnemyPopulationDefinition MagnetStairsWhenAreaBossDead { get; } = Find(nameof(MagnetStairsWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_DeadScientist1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition DeadScientist1 { get; } = Find(nameof(DeadScientist1));
+    public static RoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead { get; } = Find(nameof(DeadScientistWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_Room58Escape1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition Room58Escape1 { get; } = Find(nameof(Room58Escape1));
+    public static RoomEnemyPopulationDefinition Room58EscapeWhenAreaBossDead { get; } = Find(nameof(Room58EscapeWhenAreaBossDead));
     /// <summary>The <c>EnemyPopulations_CeresRidley1</c> list.</summary>
-    public static RoomEnemyPopulationDefinition CeresRidley1 { get; } = Find(nameof(CeresRidley1));
+    public static RoomEnemyPopulationDefinition CeresRidleyWhenAreaBossDead { get; } = Find(nameof(CeresRidleyWhenAreaBossDead));
 
 }

@@ -24,11 +24,11 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The KraidDead library background.</summary>
     public static LibraryBackground KraidDead { get; } = new(nameof(KraidDead), []);
 
-    /// <summary>The CrocomireState0 library background.</summary>
-    public static LibraryBackground CrocomireState0 { get; } = new(nameof(CrocomireState0), []);
+    /// <summary>The CrocomireDefault library background.</summary>
+    public static LibraryBackground CrocomireDefault { get; } = new(nameof(CrocomireDefault), []);
 
-    /// <summary>The CrocomireState1 library background.</summary>
-    public static LibraryBackground CrocomireState1 { get; } = new(nameof(CrocomireState1), []);
+    /// <summary>The CrocomireWhenAreaMiniBossDead library background.</summary>
+    public static LibraryBackground CrocomireWhenAreaMiniBossDead { get; } = new(nameof(CrocomireWhenAreaMiniBossDead), []);
 
     /// <summary>The Crateria0VerticalPatternRocks library background.</summary>
     public static LibraryBackground Crateria0VerticalPatternRocks { get; } = new(nameof(Crateria0VerticalPatternRocks), []);
@@ -150,14 +150,14 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The Norfair9Bubbles library background.</summary>
     public static LibraryBackground Norfair9Bubbles { get; } = new(nameof(Norfair9Bubbles), []);
 
-    /// <summary>The PhantoonState0 library background.</summary>
-    public static LibraryBackground PhantoonState0 { get; } = new(nameof(PhantoonState0), []);
+    /// <summary>The PhantoonDefault library background.</summary>
+    public static LibraryBackground PhantoonDefault { get; } = new(nameof(PhantoonDefault), []);
 
-    /// <summary>The DraygonState0 library background.</summary>
-    public static LibraryBackground DraygonState0 { get; } = new(nameof(DraygonState0), []);
+    /// <summary>The DraygonDefault library background.</summary>
+    public static LibraryBackground DraygonDefault { get; } = new(nameof(DraygonDefault), []);
 
-    /// <summary>The PhantoonDraygonState1 library background.</summary>
-    public static LibraryBackground PhantoonDraygonState1 { get; } = new(nameof(PhantoonDraygonState1), []);
+    /// <summary>The DraygonOrPhantoonWhenAreaBossDead library background.</summary>
+    public static LibraryBackground DraygonOrPhantoonWhenAreaBossDead { get; } = new(nameof(DraygonOrPhantoonWhenAreaBossDead), []);
 
     /// <summary>The WreckedShip45EntranceHall library background.</summary>
     public static LibraryBackground WreckedShip45EntranceHall { get; } = new(nameof(WreckedShip45EntranceHall), []);
@@ -177,8 +177,8 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The WreckedShip45PanelsVentsVertical library background.</summary>
     public static LibraryBackground WreckedShip45PanelsVentsVertical { get; } = new(nameof(WreckedShip45PanelsVentsVertical), []);
 
-    /// <summary>The CeresElevatorState01 library background.</summary>
-    public static LibraryBackground CeresElevatorState01 { get; } = new(nameof(CeresElevatorState01), []);
+    /// <summary>The CeresElev library background.</summary>
+    public static LibraryBackground CeresElev { get; } = new(nameof(CeresElev), []);
 
     /// <summary>The MaridiaBBrownWall library background.</summary>
     public static LibraryBackground MaridiaBBrownWall { get; } = new(nameof(MaridiaBBrownWall), []);

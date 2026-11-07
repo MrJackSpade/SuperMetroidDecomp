@@ -51,7 +51,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Shaktool),
             new(EnemyDefinitionId.Yard),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Draygon0), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.DraygonDefault), [
             new(EnemyDefinitionId.DraygonBody),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Aqueduct), [

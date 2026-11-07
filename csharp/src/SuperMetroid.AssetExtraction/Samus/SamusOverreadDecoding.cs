@@ -122,7 +122,7 @@ internal static class SamusOverreadDecoding
     /// record's animation frame and every word before a projectile list, which a trail spawned at a list's start reads.
     /// </summary>
     private static int[] TrailFramesPastRecords(ProjectileTrailPlacementList list, SamusProjectileListLayout lists) =>
-        [.. SamusProjectileRecordDefinitions.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
+        [.. SamusProjectileRecordOrder.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
             .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)lists.Prefix(program)))
             .Distinct()
             .Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length)
@@ -164,7 +164,7 @@ internal static class SamusOverreadDecoding
             {
                 if (SamusBeamCallbacks.Resolve(charged, beams).Translated != SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
                     continue;
-                foreach (SamusProjectileProgram program in SamusProjectileSelection.BeamShotPrograms(beams, charged))
+                foreach (SamusProjectileProgram program in LoadedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
                 {
                     if (programs.Add(program))
                         pending.Enqueue(program);

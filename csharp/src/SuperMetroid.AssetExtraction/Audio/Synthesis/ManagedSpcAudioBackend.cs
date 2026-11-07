@@ -97,6 +97,13 @@ public sealed class ManagedSpcAudioBackend
     {
         // The emulated driver reads the request number the sound has in its library.
         SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(checked((byte)SoundEffectCommands.Command(soundEffect)), Changed: true);
-        return tick with { Checks = tick.Checks.With(soundEffect.Library, start) };
+        SoundEffectLibrary started = soundEffect.Library;
+        if (!SoundEffectLibraries.InQueueOrder.Contains(started))
+            throw new ArgumentOutOfRangeException(nameof(soundEffect), started, "The tick's checks hold no check for this library.");
+        return tick with
+        {
+            Checks = new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder,
+                library => library == started ? start : tick.Checks[library]),
+        };
     }
 }

@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// rejects.
 /// </summary>
 /// <remarks>
-/// A rule with no state, held by the projectile selection catalog. Consulted when the Murder Beam's shot is fired, when an
-/// enemy reflects it, and when the installation lists the animations a loaded combination's shots can run. Evidence: the
+/// A rule with no state, held by the projectile selection catalog. Consulted when the Murder Beam's shot is fired and when
+/// an enemy reflects it. Evidence: the
 /// fire routines index the selected header by the shot's direction, one word per direction, and the projectile program
 /// check compares each such word after the Power Bomb header with the original's.
 /// </remarks>
@@ -36,7 +36,4 @@ public sealed class MurderBeamDirectionPrograms<TDirection, TProgram>
         _programs.TryGetValue(direction, out TProgram? program)
             ? program
             : throw new InvalidDataException($"The Murder Beam fired {direction} reads a damage word as its animation.");
-
-    /// <summary>Every animation the shot can run, in any direction.</summary>
-    public IEnumerable<TProgram> Programs => _programs.Values.OfType<TProgram>();
 }

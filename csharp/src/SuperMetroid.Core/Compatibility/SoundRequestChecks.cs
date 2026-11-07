@@ -24,16 +24,8 @@ public readonly struct SoundRequestChecks<TLibrary, TSound> : IEquatable<SoundRe
     public SoundRequestChecks(ImmutableArray<TLibrary> libraries, Func<TLibrary, SoundRequestCheck<TSound>> checkOf) =>
         byLibrary = new PerSoundLibrary<TLibrary, SoundRequestCheck<TSound>>(libraries, checkOf);
 
-    /// <summary>Holds <paramref name="byLibrary"/>.</summary>
-    private SoundRequestChecks(PerSoundLibrary<TLibrary, SoundRequestCheck<TSound>> byLibrary) => this.byLibrary = byLibrary;
-
     /// <summary>The check of <paramref name="library"/>; no request and no change for a library left unlisted.</summary>
     public SoundRequestCheck<TSound> this[TLibrary library] => byLibrary[library];
-
-    /// <summary>These checks with <paramref name="library"/>'s check replaced by <paramref name="check"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not listed.</exception>
-    public SoundRequestChecks<TLibrary, TSound> With(TLibrary library, SoundRequestCheck<TSound> check) =>
-        new(byLibrary.With(library, check));
 
     /// <summary>Two check sets are equal when every library's check is the same in both.</summary>
     public bool Equals(SoundRequestChecks<TLibrary, TSound> other) => byLibrary.Equals(other.byLibrary);

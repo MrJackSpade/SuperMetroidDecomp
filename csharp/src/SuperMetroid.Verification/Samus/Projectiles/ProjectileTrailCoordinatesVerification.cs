@@ -55,7 +55,7 @@ internal static class ProjectileTrailCoordinatesVerification
         // Every frame a trail can read past a list's run: each record's animation frame and the word before each list, which a
         // trail spawned at a list's start reads. The installed service must yield what the cartridge holds there.
         var trailStarts = InstalledFixtures.SamusOverreads.Projectiles.TrailStarts;
-        int[] frameDomain = [.. SamusProjectileRecordDefinitions.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
+        int[] frameDomain = [.. SamusProjectileRecordOrder.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
             .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)SamusProjectileProgramAddresses.Prefix(program)))
             .Distinct()
             .Order()];
@@ -105,7 +105,7 @@ internal static class ProjectileTrailCoordinatesVerification
     {
         // For each animation frame, the list position just past the first record that installs it: a trail spawned there
         // reads that frame.
-        var records = SamusProjectileRecordDefinitions.Frames.OrderBy(SamusProjectileProgramAddresses.RecordAddress).ToArray();
+        var records = SamusProjectileRecordOrder.Frames.OrderBy(SamusProjectileProgramAddresses.RecordAddress).ToArray();
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
                 SamusProjectileRecordDefinitions.Get(record).AnimationFrame == frame)) +

@@ -71,7 +71,7 @@ internal static class SamusProjectileSelectionDefinitions
     /// The animation the Murder Beam's shot runs in each direction whose read names one, or none fired left; the four
     /// directions left out read a damage word as their animation.
     /// </summary>
-    internal static readonly MurderBeamDirectionPrograms<SamusProjectileDirection, SamusProjectileProgram> MurderBeamPrograms = new(
+    internal static readonly IReadOnlyDictionary<SamusProjectileDirection, SamusProjectileProgram?> MurderBeamDirectionAnimations =
         new Dictionary<SamusProjectileDirection, SamusProjectileProgram?>
         {
             [SamusProjectileDirection.UpFacingRight] = SamusProjectileProgram.PowerBomb,
@@ -80,7 +80,11 @@ internal static class SamusProjectileSelectionDefinitions
             [SamusProjectileDirection.DownLeft] = SamusProjectileProgram.MissileExplosion,
             [SamusProjectileDirection.Left] = null,
             [SamusProjectileDirection.UpLeft] = SamusProjectileProgram.BombExplosion,
-        });
+        };
+
+    /// <summary>The Murder Beam's shot's animation by direction (<see cref="MurderBeamDirectionAnimations"/>).</summary>
+    internal static readonly MurderBeamDirectionPrograms<SamusProjectileDirection, SamusProjectileProgram> MurderBeamPrograms =
+        new(MurderBeamDirectionAnimations);
 
     /// <summary>The header each fired missile and placed bomb starts from, by its projectile family.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileHeader> NonBeamProjectiles =

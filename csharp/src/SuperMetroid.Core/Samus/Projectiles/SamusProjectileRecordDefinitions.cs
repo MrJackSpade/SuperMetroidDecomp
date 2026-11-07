@@ -1241,11 +1241,6 @@ internal static class SamusProjectileRecordDefinitions
         ],
     };
 
-    /// <summary>Every timed record, program by program in program order.</summary>
-    internal static readonly IReadOnlyList<SamusProjectileFrame> Frames =
-        [.. Enum.GetValues<SamusProjectileProgram>().SelectMany(program =>
-            Enumerable.Range(0, ByProgram[program].Length).Select(show => new SamusProjectileFrame(program, show)))];
-
     /// <summary>The record <paramref name="frame"/> shows.</summary>
     internal static SamusProjectileRecord Get(SamusProjectileFrame frame) => ByProgram[frame.Program][frame.Show];
 }

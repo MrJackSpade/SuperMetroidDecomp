@@ -85,7 +85,9 @@ internal static class RoomFxRecordCatalogSource
                 $"room-FX record $83:{pointer:X4}");
         if (records.TryGetValue(pointer, out RoomFxRecordDefinition? existing))
         {
-            if (!existing.Equals(record))
+            // The effect lists are arrays, so the record's own equality compares them by reference; compare them in order here.
+            if (!(existing with { PaletteEffects = record.PaletteEffects, AnimatedTiles = record.AnimatedTiles }).Equals(record)
+                || !existing.PaletteEffects.SequenceEqual(record.PaletteEffects) || !existing.AnimatedTiles.SequenceEqual(record.AnimatedTiles))
                 throw new InvalidDataException($"Shared room-FX record $83:{pointer:X4} reads differently from another header.");
         }
         else

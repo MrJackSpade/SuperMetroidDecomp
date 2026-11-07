@@ -38,6 +38,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public IGlobalEventFlags Events { get; init; } = Unavailable.Instance;
 
     /// <inheritdoc />
+    public IZebetiteProgress ZebetiteProgress { get; init; } = Unavailable.Instance;
+
+    /// <inheritdoc />
     public IAreaBossFlags Bosses { get; init; } = Unavailable.Instance;
 
     /// <inheritdoc />
@@ -98,8 +101,8 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     }
 
     /// <summary>The services a standalone host does not provide: every call fails at the dependency.</summary>
-    private sealed class Unavailable : IGlobalEventFlags, IAreaBossFlags, IRoomObjectPresence, IRoomScrollZoneAccess,
-        ISamusControlLock, IMotherBrainRoomEffects
+    private sealed class Unavailable : IGlobalEventFlags, IZebetiteProgress, IAreaBossFlags, IRoomObjectPresence,
+        IRoomScrollZoneAccess, ISamusControlLock, IMotherBrainRoomEffects
     {
         /// <summary>Shared failure object for every cartridge-state capability absent from this standalone host.</summary>
         internal static readonly Unavailable Instance = new();
@@ -115,6 +118,12 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public void Set(EventNumber eventNumber) => throw Missing("set a global event bit");
         /// <summary>Fails when an actor tries to clear an event without an installed service.</summary>
         public void Clear(EventNumber eventNumber) => throw Missing("clear a global event bit");
+        /// <summary>Fails when a Zebetite reads or advances the Zebetite count without an installed progress service.</summary>
+        public int ZebetitesDestroyed
+        {
+            get => throw Missing("read the Zebetites destroyed");
+            set => throw Missing("advance the Zebetites destroyed");
+        }
         /// <summary>Fails when boss status is read without an installed area-boss service.</summary>
         public bool IsDefeated(BossBits bits) => throw Missing($"read the area {bits} flag");
         /// <summary>Fails when boss status is written without an installed area-boss service.</summary>

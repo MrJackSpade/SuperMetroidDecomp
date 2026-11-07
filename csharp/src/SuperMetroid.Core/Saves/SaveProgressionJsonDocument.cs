@@ -9,6 +9,9 @@ public sealed record SaveProgressionJsonDocument
     /// <summary>The story events that have happened: a retail event's name, or <c>0xNN</c> for an event the game does not name.</summary>
     public required string[] Events { get; init; }
 
+    /// <summary>How many Zebetites have been destroyed, 0 through 4 (schema five, #1527).</summary>
+    public required int ZebetitesDestroyed { get; init; }
+
     /// <summary>Each area's defeated bosses, one entry per area in area order.</summary>
     public required SaveAreaBossesJsonDocument[] DefeatedBosses { get; init; }
 

@@ -121,12 +121,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             ? ZebetiteAiFunction.WaitForDoorTransition
             : ZebetiteAiFunction.SpawnLinkedHalf;
 
-        int generation = 0;
-        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit2) ? 1 : 0);
-        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit1) ? 1 : 0);
-        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit0) ? 1 : 0);
+        int generation = _room.Services.ZebetiteProgress.ZebetitesDestroyed;
         state.Generation = generation;
-        if (generation >= 4)
+        if (generation == PersistentProgress.ZebetiteCount)
         {
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;
@@ -210,9 +207,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int nextGeneration = state.Generation + 1;
         state.Generation = nextGeneration;
-        PublishZebetiteGenerationEvents(nextGeneration);
+        _room.Services.ZebetiteProgress.ZebetitesDestroyed = nextGeneration;
         FinishZebetiteDeath(slot);
-        if (nextGeneration < 4)
+        if (nextGeneration < PersistentProgress.ZebetiteCount)
             SpawnZebetite(ZebetiteHalf.Primary);
     }
 
@@ -297,26 +294,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Spawn = survivingSpawn;
         _slotTable.Slots[slotIndex].SetSpeciesState<ZebetiteEnemyState>(null);
         _roomStatus.RecordKill();
-    }
-
-    /// <summary>Reads one persistent bit used to reconstruct the current Zebetite generation.</summary>
-    private bool HasZebetiteEvent(EventNumber eventNumber) => _room.Services.Events.Has(eventNumber);
-
-    /// <summary>Stores the next generation as three persistent Zebetite-destroyed event bits.</summary>
-    private void PublishZebetiteGenerationEvents(int generation)
-    {
-        PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit0, (generation & 1) != 0);
-        PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit1, (generation & 2) != 0);
-        PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit2, (generation & 4) != 0);
-    }
-
-    /// <summary>Sets or clears one persistent Zebetite generation event.</summary>
-    private void PublishZebetiteEvent(EventNumber eventNumber, bool set)
-    {
-        if (set)
-            _room.Services.Events.Set(eventNumber);
-        else
-            _room.Services.Events.Clear(eventNumber);
     }
 
     /// <summary>

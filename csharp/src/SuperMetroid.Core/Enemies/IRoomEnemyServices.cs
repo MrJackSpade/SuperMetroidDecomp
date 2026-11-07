@@ -17,6 +17,9 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>Global event bits.</summary>
     IGlobalEventFlags Events { get; }
 
+    /// <summary>How many Zebetites have been destroyed.</summary>
+    IZebetiteProgress ZebetiteProgress { get; }
+
     /// <summary>The current area's boss bits.</summary>
     IAreaBossFlags Bosses { get; }
 

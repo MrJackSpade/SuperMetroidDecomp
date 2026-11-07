@@ -17,12 +17,6 @@ public enum EventNumber
     ShitroidAteSidehopper,
     /// <summary>Mother Brain's glass-breaking PLM has completed destruction; room setup and Mother Brain initialization observe the broken-glass state.</summary>
     MotherBrainGlassDestroyed,
-    /// <summary>Bit 0 of the persistent Zebetite destruction counter, set for counts 1 and 3 and rewritten as the counter advances.</summary>
-    ZebetiteDestroyedBit0,
-    /// <summary>Bit 1 of the persistent Zebetite destruction counter, set for counts 2 and 3 and rewritten as the counter advances.</summary>
-    ZebetiteDestroyedBit1,
-    /// <summary>Bit 2 of the persistent Zebetite destruction counter, set when all four Zebetites have been destroyed.</summary>
-    ZebetiteDestroyedBit2,
     /// <summary>Phantoon's entrance statue has completed its grey transformation; one of four retained prerequisites for Tourian descent.</summary>
     PhantoonStatueGrey,
     /// <summary>Ridley's entrance statue has completed its grey transformation; one of four retained prerequisites for Tourian descent.</summary>
@@ -51,8 +45,14 @@ public enum EventNumber
     SecondMetroidHallCleared,
     /// <summary>The second Tourian Metroid shaft has met its clear condition; the metroids-cleared PLM records it for later room-state selection.</summary>
     SecondMetroidShaftCleared,
-    /// <summary>Unused by any event-setting code, but retained because three Tourian room-state selectors still test this persistent bit.</summary>
-    Unused14,
+    /// <summary>
+    /// The approach to the Shitroid has calmed. Nothing in the game ever sets this event; the game's own event list
+    /// calls it unused. Only the room-state tests of the three rooms leading to the Shitroid read it: when it is set, the
+    /// Blue Hopper room keeps the music already playing and the Dust Torizo room plays Tourian's theme, where both
+    /// otherwise start the Baby Metroid encounter's music, and the Big Boy room selects a state identical to its default.
+    /// It is named for those alternate states.
+    /// </summary>
+    ShitroidApproachCalmed,
     /// <summary>The Speed Booster escape PLM has detected that Samus outran the rising-lava earthquake sequence, suppressing that hazard on later activation.</summary>
     OutranSpeedBoosterLavaquake,
 }

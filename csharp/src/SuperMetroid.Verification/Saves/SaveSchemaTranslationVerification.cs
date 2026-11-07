@@ -40,6 +40,9 @@ internal static class SaveSchemaTranslationVerification
         system.SetCollectedItemBit(23);
         system.SetOpenedDoorBit(31);
         system.SetRoomChozoBit(17);
+        // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
+        system.Progress.ZebetitesDestroyed = 3;
+        system.SetEvent(EventNumber.ShitroidApproachCalmed);
         ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0, JapaneseText = true }));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
@@ -66,6 +69,7 @@ internal static class SaveSchemaTranslationVerification
         // A schema-two save lists bosses by the eight area slots, stations and maps by table bit; it upgrades to the same store.
         JsonObject schemaTwo = RequiredJson.Parse(json).AsObject();
         schemaTwo["schemaVersion"] = 2;
+        ToSchemaFourProgression(schemaTwo);
         ToSchemaTwoProgression(schemaTwo);
         GameSaveJsonDocument upgradedTwo = LegacyGameSaveJson.Deserialize(schemaTwo.ToJsonString(), "game save", out bool migratedTwo);
         AssertTrue(migratedTwo, "a schema-two save is upgraded");
@@ -81,6 +85,7 @@ internal static class SaveSchemaTranslationVerification
         {
             JsonObject schemaThree = RequiredJson.Parse(json).AsObject();
             schemaThree["schemaVersion"] = 3;
+            ToSchemaFourProgression(schemaThree);
             JsonObject threeSlot = schemaThree.Required("slots").Required(0).AsObject();
             threeSlot.Remove("startupRoute");
             threeSlot["loadingGameState"] = word;
@@ -89,9 +94,36 @@ internal static class SaveSchemaTranslationVerification
             AssertEqual(route, (upgradedThree.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).StartupRoute,
                 $"schema three's loading-state word ${word:X4} becomes its startup route");
         }
+
+        // A schema-four save lists the Zebetite count as the three counter events and names the Shitroid-approach event
+        // after its number (#1527); it upgrades to the count, the event's name and the same saves.
+        JsonObject schemaFour = RequiredJson.Parse(json).AsObject();
+        schemaFour["schemaVersion"] = 4;
+        ToSchemaFourProgression(schemaFour);
+        GameSaveJsonDocument upgradedFour = LegacyGameSaveJson.Deserialize(schemaFour.ToJsonString(), "game save", out bool migratedFour);
+        AssertTrue(migratedFour, "a schema-four save is upgraded");
+        SaveSlotStore upgradedFourSaves = GameSaveJsonCodec.ToStore(upgradedFour, RetailPresentationFixture());
+        SuperMetroidSaveSlot upgradedFourSlot = upgradedFourSaves.ReadSlot(0) ??
+            throw new InvalidOperationException("The upgraded schema-four save lost slot 0.");
+        AssertEqual(3, upgradedFourSlot.Progression.ZebetitesDestroyed, "schema four's counter events become the Zebetite count");
+        AssertTrue(upgradedFourSlot.Progression.Events.Members.SequenceEqual([EventNumber.ShitroidApproachCalmed.ToEventNumber()]),
+            "schema four's Unused14 becomes ShitroidApproachCalmed and its counter events leave the story events");
+        AssertSameBytes(SaveRamCodec.Encode(upgradedFourSaves, RetailPresentationFixture()), SaveRamCodec.Encode(ram, RetailPresentationFixture()),
+            "a schema-four save upgrades to the same saves");
+        // SpaceTime can leave the counter past four; the Zebetites treat every such value as all four destroyed.
+        JsonObject overfullFour = RequiredJson.Parse(schemaFour.ToJsonString()).AsObject();
+        overfullFour.Required("slots").Required(0).Required("progression")["events"] =
+            new JsonArray("ZebetiteDestroyedBit0", "ZebetiteDestroyedBit1", "ZebetiteDestroyedBit2");
+        GameSaveJsonDocument upgradedOverfull = LegacyGameSaveJson.Deserialize(overfullFour.ToJsonString(), "game save", out _);
+        AssertEqual(PersistentProgress.ZebetiteCount,
+            (GameSaveJsonCodec.ToStore(upgradedOverfull, RetailPresentationFixture()).ReadSlot(0) ??
+                throw new InvalidOperationException("The upgraded overfull save lost slot 0.")).Progression.ZebetitesDestroyed,
+            "a schema-four counter of seven becomes all four Zebetites destroyed");
+
         // Build a genuine old envelope independently: old named fields override its raw mirror.
         JsonObject legacy = RequiredJson.Parse(json).AsObject();
         legacy["schemaVersion"] = 1;
+        ToSchemaFourProgression(legacy);
         ToSchemaTwoProgression(legacy);
         legacy.Remove("gameCompleted");
         JsonObject slot = legacy.Required("slots").Required(0).AsObject();
@@ -141,6 +173,38 @@ internal static class SaveSchemaTranslationVerification
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
     }
+
+    /// <summary>
+    /// Rewrites each slot's current progression as schema four wrote it: the Zebetite count as the bits of the counter
+    /// events <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c> (the game's events three through five),
+    /// listed in event order, and <see cref="EventNumber.ShitroidApproachCalmed"/> under its schema-four name <c>Unused14</c>.
+    /// </summary>
+    private static void ToSchemaFourProgression(JsonObject root)
+    {
+        foreach (JsonNode? slotNode in root.Required("slots").AsArray())
+        {
+            if (slotNode is null) continue;
+            JsonObject progression = slotNode.Required("progression").AsObject();
+            int count = progression.Required("zebetitesDestroyed").GetValue<int>();
+            progression.Remove("zebetitesDestroyed");
+            var byNumber = new SortedDictionary<int, string>();
+            foreach (JsonNode? entry in progression.Required("events").AsArray())
+            {
+                EventNumber named = Enum.Parse<EventNumber>(entry?.GetValue<string>() ?? "", ignoreCase: true);
+                byNumber.Add(named.ToEventNumber(), named == EventNumber.ShitroidApproachCalmed ? "Unused14" : named.ToString());
+            }
+            for (int bit = 0; bit < 3; bit++)
+            {
+                if ((count & (1 << bit)) != 0)
+                    byNumber.Add(3 + bit, $"ZebetiteDestroyedBit{bit}");
+            }
+            var events = new JsonArray();
+            foreach (string name in byNumber.Values)
+                events.Add(name);
+            progression["events"] = events;
+        }
+    }
+
     /// <summary>
     /// Rewrites each slot's current progression lists as schema two wrote them: bosses for eight area slots, used stations
     /// as bit positions of the sixteen-byte station table, acquired maps as every bit of each area's map-station byte, and

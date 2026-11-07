@@ -193,7 +193,7 @@ internal static class SpacetimeBeamVerification
     private static PersistentProgress DecodeSlice(byte[] slice)
     {
         var progress = new PersistentProgress();
-        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress.Events);
+        ProgressionTableCodec.ReadEvents(slice.AsSpan(ProgressionSliceLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress);
         ProgressionTableCodec.ReadAreaBosses(slice.AsSpan(ProgressionSliceLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount), progress);
         ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.ChozoOrbs);
         ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -25,13 +26,14 @@ public sealed class ZebetiteEnemyState
     public ZebetiteAiFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Barrier generation 0 through 4, formed from persistent events five/four/three; four means every barrier is
-    /// destroyed.
+    /// Barrier generation 0 through <see cref="PersistentProgress.ZebetiteCount"/>: how many Zebetites had been destroyed
+    /// when this one spawned (<see cref="PersistentProgress.ZebetitesDestroyed"/>), advanced as it falls; the count means
+    /// every barrier is destroyed.
     /// </summary>
     public int Generation
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, PersistentProgress.ZebetiteCount, value);
     }
 
     /// <summary>Including the sign bit that requests a linked second half.</summary>
@@ -50,7 +52,7 @@ public sealed class ZebetiteEnemyState
         internal set => field = Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, value);
     }
 
-    /// <summary>Whether this is the linked bottom half (nonzero parameter one); it skips primary palette cycling and dies without publishing the next generation's events or respawn.</summary>
+    /// <summary>Whether this is the linked bottom half (nonzero parameter one); it skips primary palette cycling and dies without advancing the Zebetite count or respawning.</summary>
     public bool IsSecondaryHalf { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record.</summary>

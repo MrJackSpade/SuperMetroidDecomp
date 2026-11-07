@@ -63,7 +63,7 @@ internal static class NativeSnapshotImport
         PersistentProgress progress = runtime.System.Progress;
         ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
         ProgressionTableCodec.ReadAreaBosses(memory.AsSpan(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), progress);
-        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), progress.Events);
+        ProgressionTableCodec.ReadEvents(memory.AsSpan(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), progress);
         ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(W(NativeSnapshotMemory.Room)), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;

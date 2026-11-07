@@ -156,7 +156,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // Progress is compared as the native tables decode: each event, boss, item, door, station and map.
             var nativeProgress = new PersistentProgress();
             ProgressionTableCodec.ReadAreaBosses(memory.Slice(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), nativeProgress);
-            ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), nativeProgress.Events);
+            ProgressionTableCodec.ReadEvents(memory.Slice(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), nativeProgress);
             ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.CollectedItems);
             ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.OpenedDoors);
             ProgressionTableCodec.ReadUsedStations(memory.Slice(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), nativeProgress);
@@ -168,6 +168,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     mismatches.Add($"{name}: native=[{string.Join(",", expected.Members)}] port=[{string.Join(",", actual.Members)}]");
             }
             CheckFlags("Events", portProgress.Events, nativeProgress.Events);
+            CheckValue("Zebetites destroyed", portProgress.ZebetitesDestroyed, nativeProgress.ZebetitesDestroyed);
             CheckFlags("Collected items", portProgress.CollectedItems, nativeProgress.CollectedItems);
             CheckFlags("Opened doors", portProgress.OpenedDoors, nativeProgress.OpenedDoors);
             foreach (AreaId area in Enum.GetValues<AreaId>())

@@ -242,7 +242,7 @@ public static class SaveRamCodec
     private static PersistentProgress DecodeProgression(ReadOnlySpan<byte> payload, IAreaMapSource maps)
     {
         var progress = new PersistentProgress();
-        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress.Events);
+        ProgressionTableCodec.ReadEvents(payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress);
         ProgressionTableCodec.ReadAreaBosses(payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount), progress);
         ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.ChozoOrbs);
         ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
@@ -256,7 +256,7 @@ public static class SaveRamCodec
     /// <summary>Writes <paramref name="progress"/>'s progression tables into a slot payload; the packed map is written separately.</summary>
     private static void EncodeProgression(PersistentProgress progress, Span<byte> payload)
     {
-        ProgressionTableCodec.WriteFlags(progress.Events, payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount));
+        ProgressionTableCodec.WriteEvents(progress, payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount));
         ProgressionTableCodec.WriteAreaBosses(progress, payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount));
         ProgressionTableCodec.WriteFlags(progress.ChozoOrbs, payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
         ProgressionTableCodec.WriteFlags(progress.CollectedItems, payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount));

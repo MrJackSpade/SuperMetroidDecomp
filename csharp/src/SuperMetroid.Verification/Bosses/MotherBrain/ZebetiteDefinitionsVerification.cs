@@ -139,37 +139,13 @@ internal static class ZebetiteDefinitionsVerification
             "Zebetite definitions: 24 generation words, ten health selectors, both embedded populations, eight initializers, 80 health handoffs and both real respawns pass with all fixed source ranges forbidden.");
     }
 
-    /// <summary>Supplies event bits selecting one Zebetite generation in an isolated enemy runtime.</summary>
+    /// <summary>Supplies a Zebetite count selecting one Zebetite generation, and no story event, in an isolated enemy runtime.</summary>
     private static RoomEnemySystem NewZebetiteDefinitionSystem(
         ushort generation)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().HasEvent = eventNumber => eventNumber switch
-            {
-                EventNumber.ZebetiteDestroyedBit2 => (generation & 4) != 0,
-                EventNumber.ZebetiteDestroyedBit1 => (generation & 2) != 0,
-                EventNumber.ZebetiteDestroyedBit0 => (generation & 1) != 0,
-                EventNumber.ZebesAwake or
-                    EventNumber.ShitroidAteSidehopper or
-                    EventNumber.MotherBrainGlassDestroyed or
-                    EventNumber.PhantoonStatueGrey or
-                    EventNumber.RidleyStatueGrey or
-                    EventNumber.DraygonStatueGrey or
-                    EventNumber.KraidStatueGrey or
-                    EventNumber.TourianUnlocked or
-                    EventNumber.MaridiaNoobTubeBroken or
-                    EventNumber.LowerNorfairChozoLoweredAcid or
-                    EventNumber.ShaktoolClearedPath or
-                    EventNumber.ZebesTimebombSet or
-                    EventNumber.CrittersEscaped or
-                    EventNumber.FirstMetroidHallCleared or
-                    EventNumber.FirstMetroidShaftCleared or
-                    EventNumber.SecondMetroidHallCleared or
-                    EventNumber.SecondMetroidShaftCleared or
-                    EventNumber.Unused14 or
-                    EventNumber.OutranSpeedBoosterLavaquake => false,
-                _ => false,
-            };
+        enemies.VerificationServices().ReadZebetitesDestroyed = () => generation;
+        enemies.VerificationServices().HasEvent = _ => false;
         return enemies;
     }
 

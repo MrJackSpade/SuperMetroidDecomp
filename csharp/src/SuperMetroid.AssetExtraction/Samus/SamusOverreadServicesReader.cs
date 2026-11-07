@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Spatial;
 using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -144,7 +145,8 @@ internal static class SamusOverreadServicesReader
     private static ProgressionOverwrite? Overwrite(SamusOverreadDocument.Overwrite? overwrite) => overwrite is null
         ? null
         : new ProgressionOverwrite(
-            Require(overwrite.Events, nameof(overwrite.Events)),
+            ProgressionTableCodec.StoryEventsOf(Require(overwrite.Events, nameof(overwrite.Events))),
+            ProgressionTableCodec.ZebetitesDestroyedOf(Require(overwrite.Events, nameof(overwrite.Events))),
             Require(overwrite.AreaBosses, nameof(overwrite.AreaBosses)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime boss area"),
                 area => area.Value.Aggregate(BossBits.None, (bosses, name) => bosses | Parse<BossBits>(name, "SpaceTime boss"))),
@@ -155,7 +157,7 @@ internal static class SamusOverreadServicesReader
                 area => Parse<AreaId>(area.Key, "SpaceTime station area"), area => area.Value),
             Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime map area"), area => area.Value),
-            overwrite.SavedLoadingGameState is int word ? SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(word) : null);
+            overwrite.SavedLoadingGameState is int word ? SaveLoadingGameStateCodec.Route(word) : null);
 
     /// <summary>Every animation position the Chainsaw fuse lands somewhere.</summary>
     private static ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> ChainsawFuseShift(

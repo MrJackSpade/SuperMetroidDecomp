@@ -33,14 +33,11 @@ internal static class LookupAnimatedFramesVerification
             AssertTrue(RoomFxAnimatedTiles.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
                 "Original animation object resolves");
             int count = (original.End - original.First) / 4;
-            AssertEqual(count, (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count, "Native frame count");
-            var enumerated = definition.Frames.ToArray();
-            AssertEqual(count, enumerated.Length, "Calculated frame enumeration count");
+            AssertEqual(count, (definition ?? throw new InvalidOperationException("Verification requires definition.")).FrameCount, "Native frame count");
             for (int index = 0; index < count; index++)
             {
                 ushort cursor = (ushort)(original.First + 4 * index);
                 AssertEqual(cursor, definition.FrameInstructionPointer(index), "Native frame cursor");
-                AssertEqual(definition.Frames[index], enumerated[index], "Enumeration frame view");
                 AssertEqual((ushort)(cursor + 2), definition.FrameSourceOperandPointer(index), "Native artwork operand identity");
                 total++;
             }
@@ -51,7 +48,7 @@ internal static class LookupAnimatedFramesVerification
                 AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), value, "Original loop opcode/target");
             }
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => { _ = definition.Frames[invalid]; }, "Original read-only frame bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => { _ = definition.FrameInstructionPointer(invalid); }, "Original frame bounds");
         }
         AssertEqual(30, total, "Complete original timed-frame domain");
     }
@@ -62,15 +59,13 @@ internal static class LookupAnimatedFramesVerification
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
             AssertTrue(RoomFxAnimatedTiles.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition), "Animation resolves");
-            int index = 0;
-            foreach (var frame in (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames)
+            ArgumentNullException.ThrowIfNull(definition);
+            for (int index = 0; index < definition.FrameCount; index++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x870000 | (original.First + 4 * index));
-                AssertEqual(expected, frame.Duration, "Native enumerated frame duration");
-                AssertEqual(expected, definition.Frames[index].Duration, "Native indexed frame duration");
+                AssertEqual(expected, definition.FrameDuration, "Native frame duration");
                 AssertTrue(definition.TryReadMechanicsWord(definition.FrameInstructionPointer(index), out ushort value), "Frame duration is compiled");
                 AssertEqual(expected, value, "Mechanics word duration view");
-                index++;
             }
         }
     }

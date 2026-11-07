@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyBodyPaintDefinitions;

@@ -50,9 +50,9 @@ public static class RoomFxAnimatedTileLoops
             {
                 if (!RoomFxAnimatedTilePictureCountDefinitions.PictureCounts.TryGetValue(loop.AnimatedObject, out int count))
                     throw new InvalidDataException($"{loop.AnimatedObject} has no pictures in the room-FX atlas.");
-                if (count <= 0 || count > loop.Frames.Count)
+                if (count <= 0 || count > loop.FrameCount)
                     throw new InvalidDataException(
-                        $"{loop.AnimatedObject} shows {count} pictures over {loop.Frames.Count} frames.");
+                        $"{loop.AnimatedObject} shows {count} pictures over {loop.FrameCount} frames.");
                 return count;
             }
         }
@@ -68,7 +68,7 @@ public static class RoomFxAnimatedTileLoops
         /// <exception cref="InvalidDataException"><paramref name="frameIndex"/> is not one of this object's frames.</exception>
         internal AnimatedTileImage Image(int frameIndex)
         {
-            if ((uint)frameIndex >= (uint)loop.Frames.Count)
+            if ((uint)frameIndex >= (uint)loop.FrameCount)
                 throw new InvalidDataException(
                     $"Room-FX object {loop.AnimatedObject} has no artwork frame {frameIndex}.");
             int count = loop.ImageCount;

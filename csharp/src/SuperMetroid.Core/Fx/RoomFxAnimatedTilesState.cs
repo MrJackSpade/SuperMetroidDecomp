@@ -17,8 +17,8 @@ internal sealed class RoomFxAnimatedTilesState
     /// <summary>The object chosen by the current room FX type, or <see cref="AnimatedTileObject.None"/>.</summary>
     private AnimatedTileObject animatedObject;
     /// <summary>
-    /// The frame shown when the timer next expires, an index into the loaded object's
-    /// <see cref="RoomFxAnimatedTileLoop.Frames"/>. It replaces a script position in
+    /// The frame shown when the timer next expires, an index below the loaded object's
+    /// <see cref="RoomFxAnimatedTileLoop.FrameCount"/>. It replaces a script position in
     /// the object's list: every supported list is its timed frames followed by a goto back to the first frame, so the
     /// cursor only ever moves to the next frame, and from the last frame back to the first in the same handler pass.
     /// </summary>
@@ -93,13 +93,9 @@ internal sealed class RoomFxAnimatedTilesState
 
         RoomFxAnimatedTileLoop mechanics = Mechanics;
         int shown = nextFrame;
-        RoomFxAnimatedTileFrameDefinition frame = mechanics.Frames[shown];
-        if (frame.Duration == 0)
-            throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has a zero-duration frame {shown}.");
-
-        frameHold = frame.Duration;
+        frameHold = mechanics.FrameDuration;
         // The list's goto after the last frame returns to the first frame.
-        nextFrame = shown + 1 < mechanics.Frames.Count ? shown + 1 : 0;
+        nextFrame = shown + 1 < mechanics.FrameCount ? shown + 1 : 0;
         frames.Select(AnimatedTileFrames.Frame(animatedObject, shown));
     }
 }

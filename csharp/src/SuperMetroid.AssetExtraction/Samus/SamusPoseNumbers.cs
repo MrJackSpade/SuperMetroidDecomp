@@ -10,15 +10,15 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusPoseNumbers
 {
     /// <summary>Each pose's number: its position in <see cref="SamusPoseNumberDefinitions.ByNumber"/>.</summary>
-    private static readonly FrozenDictionary<SamusPoseId, byte> Numbers = Enumerable
+    private static readonly FrozenDictionary<SamusPoseId, int> Numbers = Enumerable
         .Range(0, SamusPoseNumberDefinitions.ByNumber.Length)
         .Where(SamusPoseNumbering.NamesPose)
-        .ToFrozenDictionary(SamusPoseNumbering.FromNumber, number => checked((byte)number));
+        .ToFrozenDictionary(SamusPoseNumbering.FromNumber, number => number);
 
-    /// <summary>The pose's number.</summary>
+    /// <summary>The pose's number, as the pose tables store it.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is not a pose.</exception>
-    internal static byte Number(SamusPoseId pose) => Numbers.TryGetValue(pose, out byte number)
-        ? number
+    internal static byte Number(SamusPoseId pose) => Numbers.TryGetValue(pose, out int number)
+        ? checked((byte)number)
         : throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined pose.");
 
     /// <summary>Whether the pose has a record in the pose tables, rather than reading the code past them.</summary>

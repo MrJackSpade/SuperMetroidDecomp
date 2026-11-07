@@ -1,16 +1,17 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>One engine-owned room-FX animated-tile object: its frame size and frame schedule.</summary>
+/// <summary>
+/// One engine-owned room-FX animated-tile object: its frame size and frame schedule. Every frame of a loop is shown for
+/// the same number of passes, and the loop returns to its first frame after its last.
+/// </summary>
 public sealed class RoomFxAnimatedTileLoop
 {
-    /// <summary>Arithmetic view of timed records, retaining no presentation source pointers.</summary>
-    internal readonly CalculatedFrames frames;
-
     /// <summary>Binds an animated-tile object to its frame size and frame schedule.</summary>
     /// <param name="animatedObject">The object.</param>
     /// <param name="frameByteCount">The bytes of characters every frame shows.</param>
     /// <param name="frameCount">The timed frames in the loop.</param>
     /// <param name="frameDuration">The passes each frame is shown for.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The loop has no frame, or a frame is shown for no pass.</exception>
     internal RoomFxAnimatedTileLoop(
         AnimatedTileObject animatedObject,
         int frameByteCount,
@@ -18,49 +19,23 @@ public sealed class RoomFxAnimatedTileLoop
         int frameDuration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameDuration);
 
         AnimatedObject = animatedObject;
         FrameByteCount = frameByteCount;
-        frames = new CalculatedFrames(frameCount, frameDuration);
+        FrameCount = frameCount;
+        FrameDuration = frameDuration;
     }
 
-    /// <summary>Bounded four-byte frame cursors with one duration per object.</summary>
-    /// <remarks>The seven simple loops
-    /// have counts4,4,4,5,5,5,3. Spikes wait8 ticks, lava13, and all others10.
-    /// Timed entries consist of duration then artwork-source operand; goto
-    /// follows the last entry. Both cursor and duration mappings are independently
-    /// verified against NTSC J/U v1.0 and pinned bank_87.asm
-    /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
-    /// never a generated frame table. Index bounds match the former read-only list.</remarks>
-    internal sealed class CalculatedFrames(int count, int duration)
-        : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
-    {
-        /// <summary>Number of timed entries before the terminal goto command.</summary>
-        public int Count => count;
-        /// <summary>The bounded frame at <paramref name="index"/> with the object's shared duration.</summary>
-        public RoomFxAnimatedTileFrameDefinition this[int index]
-        {
-            get
-            {
-                if ((uint)index >= (uint)count) throw new ArgumentOutOfRangeException(nameof(index));
-                return new(duration);
-            }
-        }
-        /// <summary>Yields frame cursors in script order.</summary>
-        public IEnumerator<RoomFxAnimatedTileFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same frame order to non-generic collection callers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
     /// <summary>The animated-tile object this definition schedules.</summary>
     public AnimatedTileObject AnimatedObject { get; }
-
 
     /// <summary>The bytes of characters every frame shows.</summary>
     public int FrameByteCount { get; }
 
-    /// <summary>The timed frame-control records in execution order.</summary>
-    public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => frames;
+    /// <summary>The timed frames in the loop.</summary>
+    public int FrameCount { get; }
+
+    /// <summary>The passes each frame is shown for.</summary>
+    public int FrameDuration { get; }
 }

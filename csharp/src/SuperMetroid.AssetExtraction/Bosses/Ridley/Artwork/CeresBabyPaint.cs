@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using static SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresBabyPaintDefinitions;
 

@@ -29,7 +29,7 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
         public ushort InstructionPointer => FirstCursor(self.AnimatedObject);
         /// <summary>The address of the terminal <c>goto</c> command after the final frame.</summary>
         public ushort GotoInstructionPointer =>
-            unchecked((ushort)(self.InstructionPointer + self.frames.Count * 4));
+            unchecked((ushort)(self.InstructionPointer + self.FrameCount * 4));
         /// <summary>
         /// Reads one immutable mechanics word. Frame source operands are intentionally absent.
         /// </summary>
@@ -47,12 +47,12 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
                 value = self.InstructionPointer;
             else
             {
-                for (int index = 0; index < self.frames.Count; index++)
+                for (int index = 0; index < self.FrameCount; index++)
                 {
                     if (pointer != self.FrameInstructionPointer(index))
                         continue;
 
-                    value = checked((ushort)self.frames[index].Duration);
+                    value = checked((ushort)self.FrameDuration);
                     return true;
                 }
 

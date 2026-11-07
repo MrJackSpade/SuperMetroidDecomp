@@ -280,7 +280,7 @@ internal static class RoomBlockUploads
         if (animatedObject == AnimatedTileObject.None)
             yield break;
         RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
-        for (int frame = 0; frame < mechanics.Frames.Count; frame++)
+        for (int frame = 0; frame < mechanics.FrameCount; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(frame),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
@@ -347,7 +347,7 @@ internal static class RoomBlockUploads
         if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
             yield break;
         RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
-        for (int frame = 0; frame < mechanics.Frames.Count; frame++)
+        for (int frame = 0; frame < mechanics.FrameCount; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(frame),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }

@@ -28,7 +28,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         {
             var state = new RoomFxAnimatedTilesState();
             state.LoadDefinition(definition.AnimatedObject);
-            for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
+            for (int frameIndex = 0; frameIndex < definition.FrameCount; frameIndex++)
             {
                 ushort cursor = definition.FrameInstructionPointer(frameIndex);
                 int source = AnimatedTileImageSources.OfCursor(
@@ -38,7 +38,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
                 AssertTrue(atlas.TryResolve(source, native.Length, out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
                     $"room-FX frame $87:{cursor:X4} preserves every native art byte");
-                int ticksUntilFrame = frameIndex == 0 ? 1 : definition.Frames[frameIndex - 1].Duration;
+                int ticksUntilFrame = frameIndex == 0 ? 1 : definition.FrameDuration;
                 // The frame's pass selects into fresh selections, so the selection read back is the one that pass made.
                 for (int tick = 1; tick < ticksUntilFrame; tick++)
                     state.Step(new ArtworkFrameSelections());

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using static SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaintDefinitions;
-using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 

@@ -65,7 +65,7 @@ internal static class EnemySheetShownRowsVerification
         }
         foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            int[] rows = [.. emptyGroups.Where(frame.ColourGroups.Contains).Select(group => group.Number)];
+            int[] rows = [.. emptyGroups.Where(group => frame.ColourGroups.Contains(group)).Select(group => group.Number)];
             if (rows.Length > 0)
                 failures.Add($"{label} ({image.Name}) frame {name} inks empty rows {string.Join(", ", rows)}");
         }

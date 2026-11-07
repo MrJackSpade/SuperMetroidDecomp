@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;

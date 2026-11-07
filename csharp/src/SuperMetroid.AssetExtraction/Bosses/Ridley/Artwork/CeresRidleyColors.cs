@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 

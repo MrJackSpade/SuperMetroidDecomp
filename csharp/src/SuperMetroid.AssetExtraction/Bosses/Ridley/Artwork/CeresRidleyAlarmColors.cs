@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Assets;
-using SuperMetroid.Core.Bosses.Ridley;
 using static SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyAlarmColorDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;

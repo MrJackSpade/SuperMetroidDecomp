@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

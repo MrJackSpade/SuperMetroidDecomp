@@ -1,7 +1,6 @@
 using static SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.BabyMetroidInitialPaintDefinitions;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

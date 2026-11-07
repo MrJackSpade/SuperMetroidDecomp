@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using static SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork.SporeSpawnDeathColorDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;

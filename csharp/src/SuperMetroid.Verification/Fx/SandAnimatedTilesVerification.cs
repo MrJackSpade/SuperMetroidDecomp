@@ -25,7 +25,7 @@ internal static class SandAnimatedTilesVerification
             AssertTrue(RoomFxAnimatedTiles.TryResolve(
                     definitions[slot], out RoomFxAnimatedTileLoop? definition),
                 $"sand object {slot} resolves compiled mechanics");
-            for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
+            for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).FrameCount; frame++)
             {
                 int source = AnimatedTileImageSources.OfCursor(
                     definition, definition.FrameInstructionPointer(frame));

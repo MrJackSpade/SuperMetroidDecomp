@@ -51,7 +51,7 @@ internal static class AnimatedTileFrameArtwork
     {
         foreach (RoomFxAnimatedTileLoop mechanics in RoomFxAnimatedTileLoops.All)
         {
-            for (int frame = 0; frame < mechanics.Frames.Count; frame++)
+            for (int frame = 0; frame < mechanics.FrameCount; frame++)
             {
                 AnimatedTileImage image = mechanics.Image(frame);
                 yield return new(AnimatedTileFrames.Frame(mechanics.AnimatedObject, frame),

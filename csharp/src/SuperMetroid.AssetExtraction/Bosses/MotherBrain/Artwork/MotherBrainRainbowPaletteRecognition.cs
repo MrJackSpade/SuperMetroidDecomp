@@ -1,10 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using Phases = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPhaseDefinitions;
 using Presentation = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette;
-using RedOrigin = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteGeometry.RedOrigin;
+using RedOriginSlots = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteGeometry.RedOrigin;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
@@ -165,14 +164,14 @@ internal static class MotherBrainRainbowPaletteRecognition
     private static Presentation.RedOriginColors? RedOrigin(Presentation.BodyColors colors)
     {
         if (colors.Length != MotherBrainRainbowPaletteGeometry.ColorCount ||
-            colors[0].Red < (RedOrigin.PlateStart - 1) * MotherBrainRainbowPaletteGeometry.HeadRedStep) return null;
+            colors[0].Red < (RedOriginSlots.PlateStart - 1) * MotherBrainRainbowPaletteGeometry.HeadRedStep) return null;
         var selected = new Presentation.RedOriginColors(
-            new(colors[0], colors[RedOrigin.PlateStart], colors[RedOrigin.PlateEnd],
-                colors[RedOrigin.TissueStart], colors[RedOrigin.TissueEnd]),
-            new(colors[RedOrigin.DarkHead].Green, colors[RedOrigin.DarkHead].Blue),
-            [colors[RedOrigin.TissueStart + 1].Green, colors[RedOrigin.TissueStart + 2].Green,
-                colors[RedOrigin.TissueStart + 3].Green],
-            [colors[RedOrigin.TailStart], colors[RedOrigin.TailStart + 1]]);
+            new(colors[0], colors[RedOriginSlots.PlateStart], colors[RedOriginSlots.PlateEnd],
+                colors[RedOriginSlots.TissueStart], colors[RedOriginSlots.TissueEnd]),
+            new(colors[RedOriginSlots.DarkHead].Green, colors[RedOriginSlots.DarkHead].Blue),
+            [colors[RedOriginSlots.TissueStart + 1].Green, colors[RedOriginSlots.TissueStart + 2].Green,
+                colors[RedOriginSlots.TissueStart + 3].Green],
+            [colors[RedOriginSlots.TailStart], colors[RedOriginSlots.TailStart + 1]]);
         for (int color = 0; color < colors.Length; color++)
             if (selected[color] != colors[color]) return null;
         return selected;
@@ -216,10 +215,10 @@ internal static class MotherBrainRainbowPaletteRecognition
     private static MotherBrainRainbowShadeChannel ShadeChannel(int[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
     {
         int[] inputs = profile == MotherBrainRainbowShadeProfile.RecoveringGreen
-            ? [samples[0], samples[RedOrigin.TissueStart + 2], samples[RedOrigin.TissueStart + 3]]
-            : [samples[0], samples[RedOrigin.PlateStart], samples[RedOrigin.PlateEnd],
-                samples[RedOrigin.TissueStart], samples[RedOrigin.TissueEnd],
-                samples[RedOrigin.TailStart], samples[RedOrigin.TailStart + 1]];
+            ? [samples[0], samples[RedOriginSlots.TissueStart + 2], samples[RedOriginSlots.TissueStart + 3]]
+            : [samples[0], samples[RedOriginSlots.PlateStart], samples[RedOriginSlots.PlateEnd],
+                samples[RedOriginSlots.TissueStart], samples[RedOriginSlots.TissueEnd],
+                samples[RedOriginSlots.TailStart], samples[RedOriginSlots.TailStart + 1]];
         if (MotherBrainRainbowShadeChannel.SharesDarkHeadTail(profile)) inputs = inputs[..^1];
         var calculated = new MotherBrainRainbowShadeChannel(profile, sourceGreen, inputs, calculated: true);
         for (int color = 0; color < samples.Length; color++)

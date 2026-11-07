@@ -1,6 +1,5 @@
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;

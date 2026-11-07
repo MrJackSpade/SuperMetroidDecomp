@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;

@@ -54,7 +54,7 @@ internal static class InstalledSporesTests
             value => value.AnimatedObject == AnimatedTileObject.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.FrameByteCount == 48 &&
             AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
-            mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
+            mechanics.FrameCount == 3 && mechanics.FrameDuration == 10,
             "Compiled spores controls differ from pinned $87:82ED-$8302.");
         int records = 0, comparisons = 0;
         foreach (var definition in CoreAccess.AllRoomFxRecords().Where(record => record.Type == RoomFxType.Spores))

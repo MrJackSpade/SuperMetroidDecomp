@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using static SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainExplodedDoorPaintDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;

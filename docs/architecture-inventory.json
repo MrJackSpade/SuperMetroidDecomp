@@ -172846,6 +172846,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Samus.Projectiles.ReflectedEchoPicturesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ReflectedEchoPicturesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Samus.Projectiles.SamusProjectileProgramsVerification",
       "kind": "static class",
       "scope": "test",

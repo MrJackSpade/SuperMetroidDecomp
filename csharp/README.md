@@ -538,9 +538,10 @@ palette; its name is the block's index among those the room loads (three hex dig
 characters the block reads, by the artwork shown there and how far into it the run begins
 (`0A3|common room element characters+0810|...`). `{blocks}.block-characters.json` records, for every block of a block
 set, the runs of characters it reads. A block whose characters a room rebinds after loading (animated spikes, sand and
-treadmills, the Tourian statues, collectibles' graphics, library background transfers and Kraid's backdrop) has a
-picture for each artwork that can show there, and the room draws the one its bindings show now; a collectible slot's
-blocks are pictured once for each collectible that can be bound over the slot. X-ray's reveal draws its blocks from the same pictures.
+treadmills, the Tourian statues, library background transfers and Kraid's backdrop) has a picture for each artwork that
+can show there, and the room draws the one its bindings show now. Each item a tileset's rooms place that shows its own
+picture (every item but the tanks) has one picture per animation frame (`collectible <item> frame <n>`), which the room
+shows where the item lies whatever was set up before it. X-ray's reveal draws its blocks from the same pictures.
 A room's library background is a full image in the same directory, one for each background, door variant and tileset
 (`{background}[.{door}].{tileset}`): both BG2 pages it loads, the first above the second, with their tilemap words listed
 in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that

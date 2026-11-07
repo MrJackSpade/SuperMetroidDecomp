@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// One named input a room's pictures depend on (#1466): the collectible a collectible slot shows, whether Kraid's backdrop
+/// One named input a room's pictures depend on (#1466): whether Kraid's backdrop
 /// shows, the frame an animation selected, or whether an encounter has brought up a page the Ceres Ridley
 /// arena's blocks show. Extraction records which inputs each block, background cell and written word depends on and
 /// pictures it for every value they can take; the room reads the values gameplay published and names the picture by

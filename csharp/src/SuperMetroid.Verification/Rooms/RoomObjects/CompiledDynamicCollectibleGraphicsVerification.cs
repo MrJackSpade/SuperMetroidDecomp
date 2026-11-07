@@ -17,12 +17,12 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks compiled item graphics and the collectible a retail room population shows over its graphics slot.</summary>
+/// <summary>Checks compiled item graphics and that a retail room population sets its item up from them.</summary>
 internal static class CompiledDynamicCollectibleGraphicsVerification
 {
     /// <summary>
-    /// Checks the compiled item graphics against the cartridge, then that a real room load names the Bombs item over its
-    /// graphics slot, which selects the slot blocks' pictures, while blocking compiled graphics ROM reads (#1466).
+    /// Checks the compiled item graphics against the cartridge, then that a real room load sets the Bombs item up while
+    /// blocking compiled graphics ROM reads (#1466); the item shows its kind's own picture (#1538).
     /// </summary>
     internal static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
@@ -40,11 +40,8 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
         RoomAppearance appearance = BgArtworkFixtures.For(new SnesVram());
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, appearance, new SharedGameState(), AreaId.Crateria), RoomObjectPopulationDefinitions.Get(0x83fe), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        CollectibleObjectSnapshot bombs = roomObjects.CollectibleObjects.Collectibles.Single(item => item.Kind == InWorldCollectibleKind.Bombs);
-        // The slot's blocks name their pictures by the collectible shown in the slot (#1431, #1453, #1466); nothing is
-        // uploaded.
-        AssertEqual<InWorldCollectibleKind?>(InWorldCollectibleKind.Bombs, appearance.CollectibleIn(bombs.GraphicsSlot),
-            "retail Bombs item shows in its graphics slot");
+        AssertEqual(1, roomObjects.CollectibleObjects.Collectibles.Count(item => item.Kind == InWorldCollectibleKind.Bombs),
+            "retail population sets its Bombs item up");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail collectible loader does not reread compiled character or palette bytes");
     }

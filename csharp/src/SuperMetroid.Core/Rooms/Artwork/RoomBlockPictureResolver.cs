@@ -64,13 +64,13 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             artwork = blockArtwork;
             further = also;
             used = [.. Uses(foreground).Concat(background is null ? [] : Uses(background)).Concat(also).Distinct().Order()];
-            values = [.. used.Select(block => new string[Sheet.Inputs.Of(block, blockArtwork).Length])];
+            values = [.. used.Select(block => new string[InputsOf(block, blockArtwork).Length])];
         }
-        SpriteSheetFrame?[]? pictures = fresh ? new SpriteSheetFrame?[Sheet.Inputs.Count] : null;
+        SpriteSheetFrame?[]? pictures = fresh ? new SpriteSheetFrame?[CollectibleCellPictures.End] : null;
         for (int index = 0; index < used.Length; index++)
         {
             int block = used[index];
-            ImmutableArray<AppearanceInput> inputs = Sheet.Inputs.Of(block, blockArtwork);
+            ImmutableArray<AppearanceInput> inputs = InputsOf(block, blockArtwork);
             string[] blockValues = values[index];
             bool changed = fresh;
             for (int input = 0; input < inputs.Length; input++)
@@ -82,7 +82,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             if (!changed)
                 continue;
             pictures ??= Copy(previous ?? throw new InvalidOperationException("A changed block was resolved with no table to change."));
-            pictures[block] = Sheet.Picture(RoomBlockPictureNames.Of(block, blockArtwork, inputs, blockValues));
+            pictures[block] = PictureOf(block, blockArtwork, inputs, blockValues);
         }
         RoomBlockPictureTable resolved = pictures is null
             ? previous ?? throw new InvalidOperationException("An unchanged resolution has no table.")
@@ -91,13 +91,30 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
         return resolved;
     }
 
-    /// <summary>The blocks a plane uses.</summary>
+    /// <summary>The blocks and collectible pictures a plane's cells show.</summary>
     private static HashSet<int> Uses(RoomLevelPlane plane)
     {
         var uses = new HashSet<int>();
-        foreach (RoomBlockAppearance block in plane.Blocks)
-            uses.Add(block.Block);
+        foreach (RoomBlockCell cell in plane.Cells.Cells)
+            uses.Add(cell.Definition);
         return uses;
+    }
+
+    /// <summary>The inputs the picture <paramref name="definition"/> names depends on: none for a collectible's picture.</summary>
+    private ImmutableArray<AppearanceInput> InputsOf(int definition, RoomBlockArtwork blockArtwork) =>
+        CollectibleCellPictures.TryPictureOf(definition, out _) ? [] : Sheet.Inputs.Of(definition, blockArtwork);
+
+    /// <summary>
+    /// The picture <paramref name="definition"/> shows over <paramref name="blockArtwork"/> while its inputs take
+    /// <paramref name="blockValues"/>: a collectible's is its kind's alone, which nothing the room shows changes (#1538).
+    /// </summary>
+    /// <exception cref="InvalidDataException">A collectible shows in a room whose blocks show the sprites' artwork, where none lies.</exception>
+    private SpriteSheetFrame PictureOf(int definition, RoomBlockArtwork blockArtwork, ImmutableArray<AppearanceInput> inputs, string[] blockValues)
+    {
+        if (!CollectibleCellPictures.TryPictureOf(definition, out CollectiblePicture collectible))
+            return Sheet.Picture(RoomBlockPictureNames.Of(definition, blockArtwork, inputs, blockValues));
+        return blockArtwork == RoomBlockArtwork.Tileset ? Sheet.PictureOf(collectible)
+            : throw new InvalidDataException($"A room showing its blocks over {blockArtwork} shows collectible {collectible.Kind}.");
     }
 
     /// <summary>A copy of a table's pictures, for a table that changes in some.</summary>

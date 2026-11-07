@@ -30,8 +30,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// What each tileset's rooms show over their characters after loading (#1392, #1466), each as a value of the appearance
 /// input gameplay names it by, so its block sheet pictures every block for each value the inputs it depends on can take:
 /// the animated tiles their room effects run, the Tourian statues' frames, Kraid's room backdrop and, in the Ceres Ridley
-/// arena, its encounters' looks on the sprites' artwork; and the collectibles its rooms place, each pictured as itself on
-/// the blocks it writes where it lies (#1513), never under the room's other blocks that read the same characters.
+/// arena, its encounters' looks on the sprites' artwork; and the collectibles its rooms place, each pictured as its kind
+/// alone (#1513, #1538), never under the room's other blocks.
 /// </summary>
 internal static class RoomBlockUploads
 {
@@ -150,14 +150,12 @@ internal static class RoomBlockUploads
                 }
             }
         }
-        foreach (TilesetUploads uploads in tilesets.Values)
-            uploads.AddCollectibles(Collectibles(uploads.PlacedCollectibles));
         return tilesets;
     }
 
     /// <summary>
-    /// The collectibles that load their own graphics into a collectible slot which <paramref name="state"/>'s population
-    /// places, each once: the only collectibles a room of its tileset shows on the slots' blocks (#1513).
+    /// The collectibles that show their own picture which <paramref name="state"/>'s population places, each once: the only
+    /// collectibles whose pictures a room of its tileset shows (#1513, #1538).
     /// </summary>
     private static HashSet<InWorldCollectibleKind> CollectiblesPlacedIn(RoomStateSettings state)
     {
@@ -165,7 +163,7 @@ internal static class RoomBlockUploads
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
         {
             if (CollectibleObjects.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
-                && CollectibleObjects.UsesDynamicGraphics(kind))
+                && CollectibleObjects.ShowsOwnPicture(kind))
                 placed.Add(kind);
         }
         return placed;
@@ -401,24 +399,6 @@ internal static class RoomBlockUploads
         inputs.AnimatedTiles.TryResolve(image, byteCount, out ReadOnlyMemory<byte> frame) ? frame
             : throw new InvalidDataException($"Installed animated tiles hold no {byteCount}-byte picture {image}.");
 
-    /// <summary>
-    /// Each of <paramref name="kinds"/>' cartridge graphics in each slot, with the tiles of the blocks it shows there (#1453,
-    /// #1513): the collectible's own pictures, on the blocks it writes where it lies, named for the collectible in the slot,
-    /// which an edit of the installed room block sheet restyles. A collectible can be shown in any slot, since the slot it
-    /// loads into follows the collectibles set up before it.
-    /// </summary>
-    private static IEnumerable<CollectibleSlotCharacters> Collectibles(IEnumerable<InWorldCollectibleKind> kinds)
-    {
-        foreach (InWorldCollectibleKind kind in kinds.Order())
-        {
-            RoomObjectDynamicCollectibleGraphic graphic = DynamicCollectibleGraphics.Get(kind);
-            for (int slot = 0; slot < CollectibleObjects.GraphicsSlots; slot++)
-                yield return new CollectibleSlotCharacters(new AppearanceOption(new CollectibleSlotAppearance(slot), CollectibleSlotAppearance.ValueOf(graphic.Kind),
-                        CollectibleSlotBlocks.SlotUpload(graphic.Kind, slot, graphic.Tiles)),
-                    CollectibleSlotBlocks.FirstBlockOf(slot), CollectibleSlotBlocks.Tiles(slot, graphic.PaletteOffsets.Span));
-        }
-    }
-
     /// <summary>What one tileset's rooms show over their characters.</summary>
     /// <param name="ceres">Whether the tileset's rooms are Ceres rooms, which load no common room elements.</param>
     /// <param name="inputs">The installed artwork the uploads are drawn from.</param>
@@ -427,10 +407,7 @@ internal static class RoomBlockUploads
         /// <summary>What the rooms show over their tile characters after loading, collectibles aside, each once.</summary>
         private readonly List<AppearanceOption> options = [];
 
-        /// <summary>The collectibles in each slot.</summary>
-        private readonly List<CollectibleSlotCharacters> collectibles = [];
-
-        /// <summary>The collectibles loading their own graphics that the rooms place.</summary>
+        /// <summary>The collectibles showing their own picture that the rooms place.</summary>
         private readonly HashSet<InWorldCollectibleKind> placedCollectibles = [];
 
         /// <summary>The library backgrounds the tileset's rooms load, by name.</summary>
@@ -535,20 +512,19 @@ internal static class RoomBlockUploads
         internal IEnumerable<BgCharacterUpload> Uploads => options.Select(option => option.Upload);
 
         /// <summary>
-        /// The collectibles in each slot: each collectible the rooms place, pictured as itself on the blocks it writes where
-        /// it lies, never under the room's other blocks (#1513).
+        /// The graphics of each collectible showing its own picture that the rooms place, in kind order (#1453, #1538): its
+        /// kind's pictures are composed from them alone, never under the room's other blocks (#1513), and an edit of the
+        /// installed room block sheet restyles them.
         /// </summary>
-        internal IReadOnlyList<CollectibleSlotCharacters> Collectibles => collectibles;
-
-        /// <summary>The collectibles loading their own graphics that the rooms place.</summary>
-        internal IReadOnlyCollection<InWorldCollectibleKind> PlacedCollectibles => placedCollectibles;
+        internal IReadOnlyList<RoomObjectDynamicCollectibleGraphic> Collectibles =>
+            [.. placedCollectibles.Order().Select(DynamicCollectibleGraphics.Get)];
 
         /// <summary>Records that a room of the tileset places collectible <paramref name="kind"/>.</summary>
-        /// <exception cref="InvalidDataException">The tileset's rooms are Ceres rooms, which load no collectible slots' blocks.</exception>
+        /// <exception cref="InvalidDataException">The tileset's rooms are Ceres rooms, which place no collectibles.</exception>
         internal void Place(InWorldCollectibleKind kind)
         {
             if (Ceres)
-                throw new InvalidDataException($"A Ceres room places collectible {kind}, but Ceres rooms load no collectible slots' blocks.");
+                throw new InvalidDataException($"A Ceres room places collectible {kind}, but Ceres rooms place no collectibles.");
             placedCollectibles.Add(kind);
         }
 
@@ -563,9 +539,6 @@ internal static class RoomBlockUploads
                 known.Add(option);
         }
 
-        /// <summary>Adds the collectibles the rooms place, in each slot.</summary>
-        internal void AddCollectibles(IEnumerable<CollectibleSlotCharacters> slots) => collectibles.AddRange(slots);
-
         /// <summary>Adds a frame an animation of the tileset's rooms paints over the BG1 and BG2 characters (#1406).</summary>
         internal void AddAnimated(AnimatedCharacterPlacement frame) => Add(Ensure.NotNull(frame).Option);
     }
@@ -575,12 +548,6 @@ internal static class RoomBlockUploads
     /// <param name="Words">The pages' tilemap words.</param>
     /// <param name="Content">The bindings the room's load leaves.</param>
     internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content);
-
-    /// <summary>A collectible shown in one slot and the blocks it shows there.</summary>
-    /// <param name="Option">The collectible in the slot, as the value of the slot's input, and its graphics.</param>
-    /// <param name="FirstBlock">The first of the slot's blocks.</param>
-    /// <param name="Tiles">The tiles of the slot's blocks, four per block.</param>
-    internal sealed record CollectibleSlotCharacters(AppearanceOption Option, int FirstBlock, BackgroundTile[] Tiles);
 
     /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>

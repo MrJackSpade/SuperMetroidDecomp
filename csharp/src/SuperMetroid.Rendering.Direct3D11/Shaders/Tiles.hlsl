@@ -86,7 +86,7 @@ RWTexture2D<uint2> SpriteLayer : register(u1);
 
 // What a room plane shows at a scrolled position; false outside the room: its block's picture (#1392), mirrored by the
 // block's flips, with `within` the picture pixel. Each packed block is its definition with its horizontal and vertical
-// mirroring in bits ten and eleven (#1403).
+// mirroring in bits sixteen and seventeen (#1403, #1538).
 bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, out uint picture)
 {
     uint record = slot * RoomRecordWords;
@@ -99,8 +99,8 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, 
     if (inside)
     {
         uint word = RoomLevels[RoomLevels[record] + (level.y >> 4) * width + (level.x >> 4)];
-        uint h = (word >> 10) & 1, v = (word >> 11) & 1;
-        picture = RoomLevels[RoomLevels[record + 5] + (word & 1023)];
+        uint h = (word >> 16) & 1, v = (word >> 17) & 1;
+        picture = RoomLevels[RoomLevels[record + 5] + (word & 65535)];
         within = uint2(h != 0 ? 15 - (level.x & 15) : level.x & 15, v != 0 ? 15 - (level.y & 15) : level.y & 15);
     }
     return inside;

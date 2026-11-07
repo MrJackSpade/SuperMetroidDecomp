@@ -119,7 +119,7 @@ internal static class GameplayContentIdentityVerification
             entries.Add(new(type, new RoomBlockBehavior(bts), visual));
         }
         AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
-        var items = new RoomBlockAppearance[InstalledXrayOverlays.DynamicGraphicsSlots * 2];
+        var items = new RoomBlockAppearance[InstalledXrayOverlays.TankCount];
         if (edit == "xray-item") items[^1] = RoomBlockAppearance.Of(1);
         XrayRoomOverlayVisual[] tiles =
         [

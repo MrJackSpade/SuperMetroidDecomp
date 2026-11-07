@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -10,7 +11,11 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Ports uncollected-item and room-special reveal writes after the terrain pass.</summary>
 public static class XrayRevealOverlays
 {
-    /// <summary>Applies the item overlays in descending PLM slot order, then room-authored record order.</summary>
+    /// <summary>
+    /// Applies the item overlays in descending room object order, then room-authored record order. A tank shows its
+    /// installed reveal block; every other item shows its kind's own picture's first frame (#1538), whatever was set up
+    /// before it.
+    /// </summary>
     /// <param name="level">The room, whose size places the overlays' blocks.</param>
     /// <param name="blocks">The revealed blocks, as <see cref="XrayRevealMap.Build"/> lays them out.</param>
     /// <param name="items">The room's collectibles.</param>
@@ -33,36 +38,29 @@ public static class XrayRevealOverlays
         {
             CollectibleObjectSnapshot item = items[i];
             if (item.ItemBit is not { } itemBit || system.HasCollectedItemBit(itemBit)) continue;
-            // The four tanks draw from the dynamic slots that follow the loaded item graphics, in tank order.
-            int graphics = item.Kind switch
-            {
-                InWorldCollectibleKind.EnergyTank => InstalledXrayOverlays.DynamicGraphicsSlots,
-                InWorldCollectibleKind.MissileTank => InstalledXrayOverlays.DynamicGraphicsSlots + 1,
-                InWorldCollectibleKind.SuperMissileTank => InstalledXrayOverlays.DynamicGraphicsSlots + 2,
-                InWorldCollectibleKind.PowerBombTank => InstalledXrayOverlays.DynamicGraphicsSlots + 3,
-                InWorldCollectibleKind.Bombs or InWorldCollectibleKind.ChargeBeam or InWorldCollectibleKind.IceBeam or
-                    InWorldCollectibleKind.HiJumpBoots or InWorldCollectibleKind.SpeedBooster or
-                    InWorldCollectibleKind.WaveBeam or InWorldCollectibleKind.SpazerBeam or
-                    InWorldCollectibleKind.SpringBall or InWorldCollectibleKind.VariaSuit or
-                    InWorldCollectibleKind.GravitySuit or InWorldCollectibleKind.XrayScope or
-                    InWorldCollectibleKind.PlasmaBeam or InWorldCollectibleKind.GrappleBeam or
-                    InWorldCollectibleKind.SpaceJump or InWorldCollectibleKind.ScrewAttack or
-                    InWorldCollectibleKind.MorphBall or InWorldCollectibleKind.ReserveTank => item.GraphicsSlot,
-                _ => throw new InvalidDataException($"Item {item.Header} has undefined collectible kind {item.Kind}."),
-            };
-            if ((uint)graphics >= InstalledXrayOverlays.DynamicGraphicsSlots * 2)
-                throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");
-            Write(blocks, overlays.ItemMetatile(graphics), level.Size.CellAtRowMajorIndex(item.BlockIndex), foregroundPosition);
+            RevealedBlock revealed = CollectibleObjects.ShowsOwnPicture(item.Kind)
+                ? new RevealedBlock(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(item.Kind, 0)), RevealedBlockArrangement.AsDefined)
+                : Arranged(overlays.TankMetatile(item.Kind));
+            Write(blocks, revealed, level.Size.CellAtRowMajorIndex(item.BlockIndex), foregroundPosition);
         }
         if (roomOverlay is null) return;
         foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(roomOverlay))
-            Write(blocks, tile.Appearance, tile.Block, foregroundPosition);
+            Write(blocks, Arranged(tile.Appearance), tile.Block, foregroundPosition);
     }
 
     /// <summary>
-    /// Places a visible overlay's whole block, its rows swapped for vertical mirroring without mirroring its picture.
+    /// A visible overlay's whole block, its rows swapped for vertical mirroring without mirroring its picture.
     /// </summary>
-    private static void Write(Span<RevealedBlock?> blocks, RoomBlockAppearance appearance, Position16<RoomBlocks> block,
+    private static RevealedBlock Arranged(RoomBlockAppearance appearance)
+    {
+        // The overlay swaps the two tile rows for vertical mirroring. It neither toggles each tile's mirroring nor
+        // implements horizontal mirroring; preserve that game behaviour.
+        bool flip = (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None;
+        return new RevealedBlock(appearance.Block, flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
+    }
+
+    /// <summary>Places an overlay's block where it lies, when that is inside the revealed area.</summary>
+    private static void Write(Span<RevealedBlock?> blocks, RevealedBlock revealed, Position16<RoomBlocks> block,
         Position16<RoomPixels> foregroundPosition)
     {
         // The overlay's metatile within the visible window, relative to the camera's block.
@@ -70,10 +68,6 @@ public static class XrayRevealOverlays
         int x = visible.X, y = visible.Y;
         // Only an overlay inside the revealed area shows.
         if ((uint)x >= XrayRevealArea.Columns || (uint)y >= XrayRevealArea.Rows) return;
-        // The overlay swaps the two tile rows for vertical mirroring. It neither toggles each tile's mirroring nor
-        // implements horizontal mirroring; preserve that game behaviour.
-        bool flip = (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None;
-        blocks[y * XrayRevealArea.Columns + x] = new RevealedBlock(appearance.Block,
-            flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
+        blocks[y * XrayRevealArea.Columns + x] = revealed;
     }
 }

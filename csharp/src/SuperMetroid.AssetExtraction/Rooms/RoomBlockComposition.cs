@@ -10,36 +10,21 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// The blocks one block set's rooms load, as extraction pictures them (#1431): each block's four tiles, from the installed
 /// stock compositions, and the runs of characters each block reads. A Zebes room loads the common room elements' blocks
-/// before its tileset's, and a collectible slot's blocks read the slot's characters, which the collectible writes them to
-/// read; a Ceres room loads its tileset's blocks alone. Runs are split wherever any binding a room of the set makes may
-/// begin or end, so one artwork shows over each whole run in every room.
+/// before its tileset's; a Ceres room loads its tileset's blocks alone. Runs are split wherever any binding a room of the
+/// set makes may begin or end, so one artwork shows over each whole run in every room. A collectible is pictured as its
+/// kind alone (#1538), over no block's characters.
 /// </summary>
 internal sealed class RoomBlockComposition
 {
-    /// <summary>Keeps the tiles of every block, the characters each reads, and what each collectible slot block's load reads.</summary>
-    private RoomBlockComposition(BackgroundTile[] tiles, bool collectibleSlots, RoomBlockCharacters characters,
-        IReadOnlyDictionary<int, ImmutableArray<RoomBlockCharacterRun>> slotLoadRuns)
+    /// <summary>Keeps the tiles of every block and the characters each reads.</summary>
+    private RoomBlockComposition(BackgroundTile[] tiles, RoomBlockCharacters characters)
     {
         this.tiles = tiles;
-        CollectibleSlots = collectibleSlots;
         Characters = characters;
-        this.slotLoadRuns = slotLoadRuns;
     }
-
-    /// <summary>The runs each collectible slot block's stock tiles read, by block: what the block shows until a collectible writes the slot.</summary>
-    private readonly IReadOnlyDictionary<int, ImmutableArray<RoomBlockCharacterRun>> slotLoadRuns;
-
-    /// <summary>The runs collectible slot block <paramref name="block"/>'s stock tiles read, which the room's load shows while the slot holds no collectible (#1486).</summary>
-    /// <exception cref="InvalidOperationException">The block is not a collectible slot's.</exception>
-    internal ImmutableArray<RoomBlockCharacterRun> LoadRunsOfSlotBlock(int block) =>
-        slotLoadRuns.TryGetValue(block, out ImmutableArray<RoomBlockCharacterRun> runs) ? runs
-            : throw new InvalidOperationException($"Block {block} is not a collectible slot's block.");
 
     /// <summary>Every block's tiles, four per block: top left, top right, bottom left, bottom right.</summary>
     private readonly BackgroundTile[] tiles;
-
-    /// <summary>Whether the set's rooms load the common room elements, whose collectible slot blocks a collectible writes.</summary>
-    private bool CollectibleSlots { get; }
 
     /// <summary>The runs of characters each block reads.</summary>
     internal RoomBlockCharacters Characters { get; }
@@ -47,9 +32,6 @@ internal sealed class RoomBlockComposition
     /// <summary>The four tiles of block <paramref name="block"/> as the room loads them.</summary>
     internal ReadOnlySpan<BackgroundTile> TilesOf(int block) =>
         tiles.AsSpan(block * RoomMetatileFormat.TilesPerBlock, RoomMetatileFormat.TilesPerBlock);
-
-    /// <summary>Whether block <paramref name="block"/> is a collectible slot's, which shows only the collectible bound over the slot.</summary>
-    internal bool IsCollectibleSlotBlock(int block) => CollectibleSlots && CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots) is not null;
 
     /// <summary>The blocks of each block set some tileset of <paramref name="tilesets"/> loads.</summary>
     /// <exception cref="InvalidDataException">One block set is loaded both inside and outside Ceres.</exception>
@@ -85,7 +67,7 @@ internal sealed class RoomBlockComposition
 
     /// <summary>
     /// The stock tiles of every block a room of <paramref name="set"/> loads, four per block, as the cartridge's block
-    /// tables compose them before any collectible writes its slot's.
+    /// tables compose them.
     /// </summary>
     /// <exception cref="InvalidDataException">The compositions are not whole blocks.</exception>
     internal static BackgroundTile[] StockTiles(RoomMetatileCatalog metatiles, RoomBlockSet set, bool ceres)
@@ -102,7 +84,7 @@ internal sealed class RoomBlockComposition
 
     /// <summary>Every binding a room of <paramref name="tileset"/> makes over its characters: its load and everything after.</summary>
     private static IEnumerable<BgCharacterUpload> Bindings(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) =>
-        RoomBlockUploads.LoadUploads(inputs, tileset).Concat(uploads.Uploads).Concat(uploads.Collectibles.Select(slot => slot.Option.Upload))
+        RoomBlockUploads.LoadUploads(inputs, tileset).Concat(uploads.Uploads)
             .Concat(uploads.ObjectPageLoad ?? []).Concat(uploads.ObjectPageLooks.Select(option => option.Upload));
 
     /// <summary>The blocks of <paramref name="set"/>, their runs split at <paramref name="bounds"/>.</summary>
@@ -111,19 +93,9 @@ internal sealed class RoomBlockComposition
     {
         BackgroundTile[] tiles = StockTiles(metatiles, set, ceres);
         var blocks = new RoomBlockCharacterRun[tiles.Length / RoomMetatileFormat.TilesPerBlock][];
-        var slotLoadRuns = new Dictionary<int, ImmutableArray<RoomBlockCharacterRun>>();
         for (int block = 0; block < blocks.Length; block++)
-        {
-            IEnumerable<int> stock = tiles.Skip(block * RoomMetatileFormat.TilesPerBlock).Take(RoomMetatileFormat.TilesPerBlock).Select(tile => tile.Tile);
-            if (!ceres && CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots) is not null)
-            {
-                blocks[block] = Runs(CollectibleSlotBlocks.CharactersOf(block));
-                slotLoadRuns.Add(block, [.. Runs(stock)]);
-            }
-            else
-                blocks[block] = Runs(stock);
-        }
-        return new RoomBlockComposition(tiles, !ceres, new RoomBlockCharacters(set, blocks), slotLoadRuns);
+            blocks[block] = Runs(tiles.Skip(block * RoomMetatileFormat.TilesPerBlock).Take(RoomMetatileFormat.TilesPerBlock).Select(tile => tile.Tile));
+        return new RoomBlockComposition(tiles, new RoomBlockCharacters(set, blocks));
 
         // The characters' runs, split at the upload bounds.
         RoomBlockCharacterRun[] Runs(IEnumerable<int> characters) =>

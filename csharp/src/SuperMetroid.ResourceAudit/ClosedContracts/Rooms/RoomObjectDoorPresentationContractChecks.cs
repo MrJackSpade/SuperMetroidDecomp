@@ -107,7 +107,9 @@ internal static class RoomObjectDoorPresentationContractChecks
             entries => _ = RoomObjectEscapeGateVisualFiles.Create(entries));
         RoomObjectShotBlockDrawDefinitions.DrawList[] itemShapes =
             (RoomObjectVisualDomainDefinitions.Get((typeof(InstalledRoomObjectCollectibleVisuals).FullName ?? throw new InvalidOperationException("Verification requires typeof(InstalledRoomObjectCollectibleVisuals).FullName."))) ?? throw new InvalidOperationException("Verification requires RoomObjectVisualDomainDefinitions.Get((typeof(InstalledRoomObjectCollectibleVisuals).FullName ?? thr...."));
-        ConfirmCoverage((itemShapes), frame => {
+        // The installed file holds every collectible frame but a block pair's, which lies under the item's own picture (#1538).
+        ConfirmCoverage(itemShapes.Where(frame => RoomObjectCollectibleDrawDefinitionsTooling.TryGet(frame.Draw, out var item)
+            && RoomObjectCollectibleVisualFiles.IsEditable(item.Draw)), frame => {
             Require(RoomObjectCollectibleDrawDefinitionsTooling.TryGet(frame.Draw, out var item), "compiled item shape owns its ID");
             return new RoomObjectVisualBlockEntry(item.Id, VisualRuns(frame)[0][0]);
         }, entries => _ = RoomObjectCollectibleVisualFiles.Create(entries));

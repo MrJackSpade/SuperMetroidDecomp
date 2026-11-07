@@ -532,8 +532,9 @@ internal static class RoomBlockPicturesVerification
     /// <summary>
     /// Asserts each picture the displayed BG1 resolves by block identity and appearance (#1431, #1466) paints, pixel for
     /// pixel, the palette index, priority and standard colour the block's tiles paint over the characters the cartridge
-    /// would show: the tiles the cartridge's block tables compose, or for a collectible slot's block, those the collectible
-    /// shown in the slot writes. Returns the pictures checked and those shown for inputs that no longer show the room's load.
+    /// would show: the tiles the cartridge's block tables compose, or for a collectible's picture, its kind's own graphics in
+    /// its palette selectors' colours (#1538). Returns the pictures checked and those shown for inputs that no longer show
+    /// the room's load.
     /// </summary>
     private static (int Pictures, int Uploaded) AssertPicturesPaintLive(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
     {
@@ -559,19 +560,20 @@ internal static class RoomBlockPicturesVerification
                 continue;
             pictures++;
             SpriteImage sheet = picture.Sheet;
-            bool overUpload = scope.Assets.BlockSheet.Inputs.Of(block, rooms.BlockArtwork)
+            // A collectible's picture shows its kind's own graphics, whatever the room loaded or showed before it (#1538).
+            bool collectible = CollectibleCellPictures.TryPictureOf(block, out CollectiblePicture shownCollectible);
+            bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block, rooms.BlockArtwork)
                 .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
-            // A collectible slot's block shows the collectible in the slot as the collectible writes it, or the room's load
-            // while the slot holds none (#1486).
-            ushort[] blockWords = !ceres && CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots) is { } slot
-                && scope.Appearance.CollectibleIn(slot) is not null
-                ? CollectibleSlotWords(scope.Appearance, slot, block)
+            ushort[] blockWords = collectible ? CollectibleWords(shownCollectible)
                 : stock[(block * BlockTiles)..((block + 1) * BlockTiles)];
             for (int tile = 0; tile < BlockTiles; tile++)
             {
                 var word = new SnesBgTilemapWord(blockWords[tile]);
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
-                ReadOnlySpan<byte> bytes = CharacterBytes(options, latched, BgCharacterSet.Tiles, word.CharacterIndex, animatedTiles, tiles, out bool animated);
+                bool animated = false;
+                ReadOnlySpan<byte> bytes = collectible
+                    ? DynamicCollectibleGraphics.Get(shownCollectible.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
+                    : CharacterBytes(options, latched, BgCharacterSet.Tiles, word.CharacterIndex, animatedTiles, tiles, out animated);
                 for (int y = 0; y < CharacterPixels; y++)
                 {
                     int row = word.FlipVertically ? CharacterPixels - 1 - y : y;
@@ -600,17 +602,19 @@ internal static class RoomBlockPicturesVerification
     private const int BlockTiles = 4;
 
     /// <summary>
-    /// The tile words of collectible slot <paramref name="slot"/>'s block <paramref name="block"/>, as the collectible
-    /// <paramref name="appearance"/> shows in the slot writes them (#1431, #1466).
+    /// The tile words of <paramref name="picture"/>'s frame (#1538): its four characters among its kind's own graphics, as
+    /// the cartridge's palette selectors colour them.
     /// </summary>
-    private static ushort[] CollectibleSlotWords(RoomAppearance appearance, int slot, int block)
+    private static ushort[] CollectibleWords(CollectiblePicture picture)
     {
-        InWorldCollectibleKind kind = appearance.CollectibleIn(slot)
-            ?? throw new InvalidOperationException($"BG1 shows collectible slot {slot}'s block with no collectible in the slot.");
-        // The collectible's cartridge palette selectors colour the slot's blocks.
-        BackgroundTile[] tiles = CollectibleSlotBlocks.Tiles(slot, DynamicCollectibleGraphics.Get(kind).PaletteOffsets.Span);
-        int first = (block - CollectibleSlotBlocks.FirstBlockOf(slot)) * BlockTiles;
-        return BackgroundTileWordBytes.Words(tiles.AsSpan(first, BlockTiles));
+        ReadOnlySpan<byte> palettes = DynamicCollectibleGraphics.Get(picture.Kind).PaletteOffsets.Span;
+        var tiles = new BackgroundTile[BlockTiles];
+        for (int tile = 0; tile < BlockTiles; tile++)
+        {
+            int character = picture.Frame * BlockTiles + tile;
+            tiles[tile] = new BackgroundTile(character, palettes[character], highPriority: false);
+        }
+        return BackgroundTileWordBytes.Words(tiles);
     }
 
     /// <summary>Runs the room block picture checks.</summary>

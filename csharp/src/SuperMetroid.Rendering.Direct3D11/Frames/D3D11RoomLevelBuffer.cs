@@ -300,12 +300,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             for (int block = 0; block < table.Blocks; block++)
                 upload[pictureTables[slot] + block] = table.Picture(block) is { } shown ? (uint)pictureWords[new(shown, PlaneColouring(slot))] : 0;
-            // Each block's index, with its horizontal and vertical mirroring in bits ten and eleven, as Tiles.hlsl reads a block.
+            // Each cell's picture definition, a block's or past the blocks a collectible's (#1538), with its horizontal and
+            // vertical mirroring in bits sixteen and seventeen, as Tiles.hlsl reads a block.
             ImmutableArray<RoomBlockCell> cells = blocks.Cells;
             for (int block = 0; block < cells.Length; block++)
                 upload[blockOffsets[slot] + block] = (uint)cells[block].Definition
-                    | ((cells[block].Flips & BlockMirroring.Horizontal) != 0 ? 1u << 10 : 0)
-                    | ((cells[block].Flips & BlockMirroring.Vertical) != 0 ? 1u << 11 : 0);
+                    | ((cells[block].Flips & BlockMirroring.Horizontal) != 0 ? 1u << 16 : 0)
+                    | ((cells[block].Flips & BlockMirroring.Vertical) != 0 ? 1u << 17 : 0);
         }
         colourSlots.Clear();
         colourSlots.AddRange(slots.OrderBy(slot => slot.Value).Select(slot => slot.Key));

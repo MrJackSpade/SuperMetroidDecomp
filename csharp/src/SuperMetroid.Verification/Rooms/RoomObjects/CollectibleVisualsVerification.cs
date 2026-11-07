@@ -87,7 +87,7 @@ internal static class CollectibleVisualsVerification
 
         Suite(nameof(VerifyCollectibleVisualInstallation), () => VerifyCollectibleVisualInstallation(rom));
         Console.WriteLine(
-            "Collectible visuals: 24 native draw lists, eight dynamic selectors, " +
+            "Collectible visuals: 24 native draw lists, eight block-pair selectors, " +
             "all 21 item kinds, orb/reveal paths, " +
             "source-read guards, and installation validation pass.");
     }

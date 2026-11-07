@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Rooms.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -10,17 +12,21 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefini
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Installs named collectible block art while checking all 24 native draw records
-/// and the eight dynamic-slot selectors against compiled physical definitions, and names each frame.
+/// Installs named collectible block art while checking all 24 native draw records and the eight block-pair selectors
+/// against compiled physical definitions, and names each frame. The installed file holds the 16 editable frames: the
+/// eight block-pair frames lie under the item's own picture (#1538), so nothing they show is seen and they are not edited.
 /// </summary>
 public static class RoomObjectCollectibleVisualFiles
 {
-    /// <summary>Editable JSON filename containing the complete twenty-four-frame collectible visual set.</summary>
+    /// <summary>Editable JSON filename containing the sixteen editable collectible frames.</summary>
     public const string VisualFileName = "collectibles.json";
     /// <summary>Stock provenance manifest filename containing the format, source-cartridge identity, and visual-file digest.</summary>
     public const string ManifestFileName = "manifest.json";
-    /// <summary>Schema revision required by stock collectible visuals and their manifest.</summary>
-    private const int FormatVersion = 1;
+    /// <summary>
+    /// Schema revision required by stock collectible visuals and their manifest: revision 2 drops the eight block-pair
+    /// frames, which lie under the item's own picture (#1538).
+    /// </summary>
+    private const int FormatVersion = 2;
 
     /// <summary>Reads and writes collectible documents with stable camel-case JSON names.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -58,7 +64,7 @@ public static class RoomObjectCollectibleVisualFiles
     }
 
     /// <summary>Validates the installed collectible manifest's provenance and loads the installed collectible JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed family directory containing the version-one collectible JSON and its manifest.</param>
+    /// <param name="directory">Installed family directory containing the version-two collectible JSON and its manifest.</param>
     /// <returns>The immutable collectible visual catalog.</returns>
     /// <exception cref="ArgumentException"><paramref name="directory"/> is blank.</exception>
     /// <exception cref="InvalidDataException">The manifest provenance or the installed JSON is invalid.</exception>
@@ -77,10 +83,10 @@ public static class RoomObjectCollectibleVisualFiles
         return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
-    /// <summary>Validates all twenty-four compiled one-cell frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
-    /// <param name="entries">Exactly one appearance for each compiled collectible frame identity.</param>
+    /// <summary>Validates all sixteen editable one-cell frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
+    /// <param name="entries">Exactly one appearance for each editable collectible frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, or leaves compiled frame coverage incomplete.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, names a block-pair frame, repeats an identity, or leaves editable frame coverage incomplete.</exception>
     internal static InstalledRoomObjectCollectibleVisuals Create(IEnumerable<RoomObjectVisualBlockEntry> entries)
     {
         Ensure.NotNull(entries);
@@ -96,19 +102,22 @@ public static class RoomObjectCollectibleVisualFiles
             if (entry.Appearance != frame.Terrain.Appearance)
                 selected.Add(frame.Draw, entry.Appearance);
         }
-        if (seen.Count != All.Count())
-            throw new InvalidDataException("Collectible visuals do not cover all compiled frames.");
+        if (seen.Count != Editable.Count())
+            throw new InvalidDataException("Collectible visuals do not cover all editable frames.");
         return new(selected);
     }
 
-    /// <summary>The editable artwork identifier of a draw.</summary>
+    /// <summary>
+    /// The artwork identifier of a draw: the installed file's name for an editable frame, and for a block-pair frame, which
+    /// the file does not hold, the name its native checks report.
+    /// </summary>
     internal static string VisualId(Draw draw) => draw.Group switch
     {
         DrawGroup.Empty => "empty",
         DrawGroup.Orb => $"chozo-orb-{draw.Index}",
         DrawGroup.OrbBurst => "chozo-orb-burst",
         DrawGroup.Tank => $"{TankKindName(draw.Index / 2)}-tank-{draw.Index % 2}",
-        DrawGroup.Dynamic => $"dynamic-slot-{draw.Index / 2}-frame-{draw.Index % 2}",
+        DrawGroup.OwnPicture => $"block-pair-{draw.Index / 2}-frame-{draw.Index % 2}",
         DrawGroup.ShotReveal => $"shot-reveal-{draw.Index}",
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
     };
@@ -122,10 +131,10 @@ public static class RoomObjectCollectibleVisualFiles
         _ => "power-bomb",
     };
 
-    /// <summary>Resolves an exact artwork identifier to its compiled collectible draw frame.</summary>
+    /// <summary>Resolves an exact editable artwork identifier to its compiled collectible draw frame.</summary>
     internal static bool TryGetById(string id, out RoomObjectCollectibleDrawFrame frame)
     {
-        foreach (var candidate in All)
+        foreach (var candidate in Editable)
         {
             if (!string.Equals(candidate.Id, id, StringComparison.Ordinal)) continue;
             frame = candidate;
@@ -134,6 +143,12 @@ public static class RoomObjectCollectibleVisualFiles
         frame = default;
         return false;
     }
+
+    /// <summary>Whether the installed file holds <paramref name="draw"/>: every frame but a block pair's, which lies under the item's own picture (#1538).</summary>
+    internal static bool IsEditable(Draw draw) => draw.Group != DrawGroup.OwnPicture;
+
+    /// <summary>The sixteen frames the installed file holds, in their published order.</summary>
+    internal static IEnumerable<RoomObjectCollectibleDrawFrame> Editable => All.Where(frame => IsEditable(frame.Draw));
 
     /// <summary>Enumerates all 24 collectible one-cell draws in their published order.</summary>
     internal static IEnumerable<RoomObjectCollectibleDrawFrame> All
@@ -152,21 +167,24 @@ public static class RoomObjectCollectibleVisualFiles
         }
     }
 
-    /// <summary>Checks eight dynamic selectors and all 24 one-cell native draws before extracting appearance.</summary>
+    /// <summary>
+    /// Checks the eight selectors of the frames each block pair's collectible writes (<see cref="CollectibleBlockPairs"/>)
+    /// and all 24 one-cell native draws before extracting appearance.
+    /// </summary>
     private static RoomObjectVisualBlockEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
-        for (int slot = 0; slot < 4; slot++)
-        for (int animation = 0; animation < 2; animation++)
+        for (int pair = 0; pair < CollectibleBlockPairs.Count; pair++)
+        for (int animation = 0; animation < CollectiblePicture.Frames; animation++)
         {
             int table = animation == 0
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + slot * 2)))));
+            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + pair * 2)))));
             int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame(
-                InWorldCollectibleKind.Bombs, animation, slot));
+                InWorldCollectibleKind.Bombs, animation, pair));
             if (native != compiled)
                 throw new InvalidDataException(
-                    $"Dynamic collectible selector $84:{table + slot * 2:X4} differs from the cartridge.");
+                    $"Collectible block pair selector $84:{table + pair * 2:X4} differs from the cartridge.");
         }
 
         var entries = new List<RoomObjectVisualBlockEntry>();
@@ -178,8 +196,8 @@ public static class RoomObjectCollectibleVisualFiles
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
-            entries.Add(new RoomObjectVisualBlockEntry(frame.Id,
-                frame.Terrain.Appearance));
+            if (IsEditable(frame.Draw))
+                entries.Add(new RoomObjectVisualBlockEntry(frame.Id, frame.Terrain.Appearance));
         }
         return entries.ToArray();
     }

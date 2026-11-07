@@ -1032,11 +1032,10 @@ sound, timing, and physical terrain changes remain compiled.
 
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. In the installed file, edit only `visualWord`
-(0..4095), then restart. Keep all 24 semantic IDs: the empty block, Chozo orb
-and burst, the four two-frame tank kinds, four two-frame dynamic graphics slots,
-and the three shot-block reveal frames. The words select visual blocks from the
-active room's combined CRE/area definitions. A dynamic graphics slot's blocks
-show the item through pictures described below.
+(0..4095), then restart. Keep all 16 semantic IDs: the empty block, Chozo orb
+and burst, the four two-frame tank kinds, and the three shot-block reveal
+frames. The words select visual blocks from the active room's combined CRE/area
+definitions. Every other item shows its own pictures, described below.
 Item acquisition, collision, room-item and Chozo persistence, sound, frame
 timing, and physical level words remain compiled. An edited word changes the
 immediate redraw and later camera streaming without changing the item reward.
@@ -1044,10 +1043,10 @@ Invalid data fails loudly.
 
 Permanent items that load their own graphics (every item but the four tanks)
 are drawn as pictures in the room block sheets: each tileset's sheet in
-`game/room-block-sheets` holds, for each such item, the pictures of the two
-graphics-slot blocks (one per animation frame) with that item shown over each of
-the four slots. To restyle an item, repaint those pictures in the installed sheet,
-then restart. Pickup behavior is
+`game/room-block-sheets` holds, for each such item its rooms place, the item's
+two pictures (one per animation frame), named `collectible <item> frame <n>`.
+Every such item shows its own pictures, whatever was set up before it. To
+restyle an item, repaint those pictures in the installed sheet, then restart. Pickup behavior is
 unchanged.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. In the
@@ -1060,8 +1059,9 @@ visual indices may be 0..4095, but each selected metatile must exist in the
 room's combined CRE/area block definitions when X-ray is used. The compiled
 cartridge lookup still determines whether a block is revealed, how many
 blocks are copied, extension traversal, and Brinstar-only behavior.
-The same file contains eight `itemMetatiles` (the four rotating item graphics
-slots followed by four fixed slots) and `rooms` with special reveal tiles.
+The same file contains four `tankMetatiles` (the Energy, Missile, Super Missile
+and Power Bomb tanks' reveal blocks; every other item is revealed as the first
+of its own pictures) and `rooms` with special reveal tiles.
 Each room tile's `x`, `y`, and `word` are visual-only: the first two are block
 coordinates, and the word's low ten bits select a metatile while bit 11 selects
 the cartridge's vertical row swap. Keep room pointers and record counts intact;

@@ -2,14 +2,14 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The background character bindings the cartridge would hold for what a room shows (#1466), for verification that compares
-/// a VRAM image: the room's load, and the collectibles and Kraid's backdrop gameplay showed over it, each where the import
-/// pipeline places it and counted as <see cref="BgArtworkBytes"/> holds its characters.
+/// a VRAM image: the room's load, and Kraid's backdrop gameplay showed over it, each where the import pipeline places it
+/// and counted as <see cref="BgArtworkBytes"/> holds its characters. A collectible shows its kind's own picture (#1538),
+/// over no characters.
 /// </summary>
 internal static class RoomAppearanceBindings
 {
@@ -37,17 +37,12 @@ internal static class RoomAppearanceBindings
     }
 
     /// <summary>
-    /// Binds what <paramref name="appearance"/> shows over a room's load into <paramref name="bindings"/>: each slot's
-    /// collectible, then Kraid's backdrop, which his rise shows after the room's PLMs set their collectibles up.
+    /// Binds what <paramref name="appearance"/> shows over a room's load into <paramref name="bindings"/>: Kraid's backdrop,
+    /// once his rise shows it.
     /// </summary>
     internal static void BindShown(BgArtworkBindings bindings, RoomAppearance appearance, BgArtworkBytes artwork)
     {
         Ensure.NotNull(appearance);
-        for (int slot = 0; slot < CollectibleObjects.GraphicsSlots; slot++)
-        {
-            if (appearance.CollectibleIn(slot) is { } kind)
-                Bind(bindings, RoomBgArtwork.Collectible(kind), RoomTileCharacters.CollectiblesFirst + slot * RoomTileCharacters.CollectibleSlotCharacters, artwork);
-        }
         if (appearance.KraidBackdropShown)
             Bind(bindings, RoomBgArtwork.KraidBackdrop, RoomTileCharacters.KraidBackdropFirst, artwork);
     }

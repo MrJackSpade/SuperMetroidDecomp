@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 
@@ -25,6 +26,12 @@ public sealed class RoomLevelData
 
     /// <summary>What each foreground block shows, row by row: its terrain's appearance unless a layout or draw shows another.</summary>
     internal readonly RoomBlockAppearance[] ShownForeground;
+
+    /// <summary>
+    /// The collectible picture each foreground block where a collectible showing its own picture lies shows over its
+    /// terrain's appearance (#1538), by block; a write that changes what the block shows takes the picture away.
+    /// </summary>
+    private readonly Dictionary<int, CollectiblePicture> shownCollectibles = [];
 
     /// <summary>What each background block shows, row by row; nothing changes it after loading.</summary>
     private readonly RoomBlockAppearance[] background;
@@ -118,7 +125,7 @@ public sealed class RoomLevelData
     /// The foreground as the room shows it (#1346). The same immutable plane is returned until a block write, so frames
     /// that change nothing share it.
     /// </summary>
-    public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, ShownForeground);
+    public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, ShownForeground, shownCollectibles);
 
     /// <summary>The background plane as the room shows it; nothing changes the background after loading, so it is built once.</summary>
     public RoomLevelPlane BackgroundPlane => field ??= new(Size, background);
@@ -210,7 +217,22 @@ public sealed class RoomLevelData
         }
 
         Terrain[blockIndex] = block;
+        if (ShownForeground[blockIndex] != shown)
+            shownCollectibles.Remove(blockIndex);
         ShownForeground[blockIndex] = shown;
+        PublishedForeground = null;
+    }
+
+    /// <summary>
+    /// Shows <paramref name="picture"/> at a foreground block over its terrain's appearance, as a collectible showing its
+    /// own picture does where it lies (#1538), until a write changes what the block shows. Past the grid nothing is shown,
+    /// as for a room object's terrain write there.
+    /// </summary>
+    internal void ShowCollectible(int blockIndex, CollectiblePicture picture)
+    {
+        if (!IsLogicalBlockIndex(blockIndex))
+            return;
+        shownCollectibles[blockIndex] = picture;
         PublishedForeground = null;
     }
 
@@ -326,6 +348,8 @@ public sealed class RoomLevelData
         if (!IsLogicalBlockIndex(blockIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         Terrain[blockIndex] = block;
+        if (ShownForeground[blockIndex] != block.Appearance)
+            shownCollectibles.Remove(blockIndex);
         ShownForeground[blockIndex] = block.Appearance;
         PublishedForeground = null;
     }

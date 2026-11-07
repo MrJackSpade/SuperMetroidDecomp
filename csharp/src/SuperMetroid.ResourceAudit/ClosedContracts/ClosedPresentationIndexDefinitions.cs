@@ -129,7 +129,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)InstalledArtworkId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
         ("AreaMapPresentation" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),
-        ("InstalledXrayOverlays", "ItemMetatile", "graphicsSlot") => new(0, SuperMetroid.Core.Samus.Abilities.Artwork.InstalledXrayOverlays.DynamicGraphicsSlots * 2),
         _ => null,
     };
 }

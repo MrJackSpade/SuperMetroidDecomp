@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 public static class AppearanceInputTokens
 {
-    /// <summary>What a collectible slot's spelling begins with, before the slot.</summary>
-    internal const string CollectibleSlotPrefix = "collectible-slot-";
-
     /// <summary>Kraid's backdrop's spelling.</summary>
     internal const string KraidBackdrop = "kraid-backdrop";
 

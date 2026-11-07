@@ -5,6 +5,7 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -41,11 +42,13 @@ internal static class XrayRevealVisualInstallationVerification
             throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
         var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
-        for (int slot = 0; slot < InstalledXrayOverlays.DynamicGraphicsSlots * 2; slot++)
+        // The tanks' draws follow the four that reveal the item in each block pair (#1538).
+        for (int tank = 0; tank < InstalledXrayOverlays.TankCount; tank++)
         {
-            ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + slot * 2);
+            ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + (SuperMetroid.Core.Compatibility.CollectibleBlockPairs.Count + tank) * 2);
+            InWorldCollectibleKind kind = InWorldCollectibleKind.EnergyTank + tank;
             AssertEqual(RoomLevelWordCodec.DecodeAppearance(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))),
-                overlays.ItemMetatile(slot), $"stock X-ray item graphics slot {slot}");
+                overlays.TankMetatile(kind), $"stock X-ray {kind} reveal");
         }
         int specialRecords = 0;
         foreach (ushort pointer in XrayRoomOverlaySources.Pointers)

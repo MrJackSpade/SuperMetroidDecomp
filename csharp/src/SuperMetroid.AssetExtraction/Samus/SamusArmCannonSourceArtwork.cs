@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

@@ -62,13 +62,6 @@ public readonly record struct RgbColor
     /// <summary>This color with its blue channel replaced.</summary>
     public RgbColor WithBlue(int blue) => new(Red, Green, blue);
 
-    /// <summary>
-    /// Packs three channels, saturating each into 0-<see cref="MaxChannel"/>. For paint
-    /// arithmetic whose authored or native rule clamps; strict packing uses the constructor.
-    /// </summary>
-    public static RgbColor Saturating(int red, int green, int blue) =>
-        new(Math.Clamp(red, 0, MaxChannel), Math.Clamp(green, 0, MaxChannel), Math.Clamp(blue, 0, MaxChannel));
-
     /// <summary>Applies <paramref name="map"/> to each channel; the results must be valid channels.</summary>
     public RgbColor Map(Func<ColorChannel, int, int> map)
     {

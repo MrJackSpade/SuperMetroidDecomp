@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>
 /// The fixed dimensions of an editable row-major document grid, such as an animation's colours

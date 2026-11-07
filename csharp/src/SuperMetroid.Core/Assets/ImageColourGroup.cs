@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -20,15 +18,8 @@ public readonly record struct ImageColourGroup
     public const int Colours = 16;
 
     /// <summary>Names the group at <paramref name="number"/> among the image's standard colours.</summary>
-    private ImageColourGroup(int number) => Number = number;
-
-    /// <summary>Every group, in the order the image keeps their colours.</summary>
-    public static ImmutableArray<ImageColourGroup> Every { get; } =
-        [.. Enumerable.Range(0, Count).Select(number => new ImageColourGroup(number))];
-
-    /// <summary>The group whose colours the image keeps at place <paramref name="number"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The place is not one of the image's groups.</exception>
-    internal static ImageColourGroup Numbered(int number) => Every[Ensure.BetweenInclusive(0, Count - 1, number)];
+    internal ImageColourGroup(int number) => Number = Ensure.BetweenInclusive(0, Count - 1, number);
 
     /// <summary>The group's place among the image's standard colours, which the installed image's inks store.</summary>
     internal int Number { get; }

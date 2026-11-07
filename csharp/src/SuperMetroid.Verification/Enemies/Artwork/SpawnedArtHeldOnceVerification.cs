@@ -83,7 +83,7 @@ internal static class SpawnedArtHeldOnceVerification
         KeyValuePair<PictureShade, ShadeInks>[] shades)
     {
         var rows = new bool[ImageColourGroup.Count];
-        foreach (ImageColourGroup group in ImageColourGroup.Every.Where(frame.ColourGroups.Contains))
+        foreach (ImageColourGroup group in ImageColourGroup.Every.Where(group => frame.ColourGroups.Contains(group)))
             rows[group.Number] = true;
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))

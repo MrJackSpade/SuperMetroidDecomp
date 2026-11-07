@@ -23,7 +23,4 @@ public readonly record struct ImageColourGroups
 
     /// <summary>The number the manifest stores the set as.</summary>
     internal int ManifestMembers => members;
-
-    /// <summary>Whether the set holds <paramref name="group"/>.</summary>
-    public bool Contains(ImageColourGroup group) => (members & (1 << group.Number)) != 0;
 }

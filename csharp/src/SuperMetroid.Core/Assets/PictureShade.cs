@@ -11,16 +11,4 @@ public readonly record struct PictureShade(string Effect, int Step)
 {
     /// <summary>The shade's installed key, which the sheet manifest stores.</summary>
     public string Key => $"{Effect}/{Step}";
-
-    /// <summary>The shade an installed key names.</summary>
-    /// <exception cref="InvalidDataException">The key is not an effect name, a slash and a step.</exception>
-    public static PictureShade FromKey(string key)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(key);
-        int slash = key.LastIndexOf('/');
-        return slash > 0 && int.TryParse(key.AsSpan(slash + 1), System.Globalization.NumberStyles.None,
-            System.Globalization.CultureInfo.InvariantCulture, out int step)
-            ? new PictureShade(key[..slash], step)
-            : throw new InvalidDataException($"Shade key {key} is not an effect name, a slash and a step.");
-    }
 }

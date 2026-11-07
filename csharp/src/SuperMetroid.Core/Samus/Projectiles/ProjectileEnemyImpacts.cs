@@ -146,7 +146,7 @@ internal sealed class ProjectileEnemyImpacts
     /// <remarks>
     /// The cinematic scans the slots from the highest down for the first ordinary missile
     /// and only kills it once its signed X coordinate
-    /// is below $54. This is not terrain collision, so the actor owns the predicate while
+    /// is below 84. This is not terrain collision, so the actor owns the predicate while
     /// the projectile system owns the exact impact conversion.
     /// </remarks>
     public bool TryImpactIntroMotherBrainMissile(
@@ -207,13 +207,13 @@ internal sealed class ProjectileEnemyImpacts
         switch (slot.Type.Family)
         {
             case SamusProjectileFamily.Beam:
-                // Enemy collision marks direction bit $10 only when the
+                // Enemy collision marks the shot as having hit only when the
                 // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
                 // beams, not just special beam-combo particles, retain their lifecycle.
                 if (!blocksPlasmaBeam &&
                     slot.Type.BeamCombination.HasPlasma)
                     return true;
-                // Enemy collision only marks the shot; enemy hits never reach Kill_Projectile's sound.
+                // Enemy collision only marks the shot; enemy hits never reach the projectile kill's sound.
                 ProjectileTerrainCollision.KillBeam(slot);
                 return true;
             case SamusProjectileFamily.Missile:

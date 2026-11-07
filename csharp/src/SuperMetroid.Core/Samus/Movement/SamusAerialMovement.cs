@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusAerialMovement
 {
     /// <summary>
-    /// Ports all environment/equipment paths through <c>Make_Samus_Jump</c>.
+    /// Starts a jump through every environment/equipment path.
     /// Air/water/lava select word offsets zero/two/four in the normal or
     /// Hi-Jump tables; Gravity Suit forces offset zero before that equipment choice.
     /// </summary>
@@ -41,7 +41,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Ports <c>Make_Samus_WallJump</c> without duplicating its three
+    /// Starts a wall jump without duplicating its three
     /// liquid entries in pose code. Extra-run bonus and 16-bit arithmetic match normal jump.
     /// </summary>
     public static void InitializeWallJump(SamusState samus)
@@ -81,7 +81,7 @@ public static class SamusAerialMovement
     private const int SpaceJumpWindowWholeCycle = 256;
 
     /// <summary>
-    /// Ports <c>Determine_Samus_YAcceleration</c>. The three adjacent
+    /// Chooses Samus's vertical acceleration. The three adjacent
     /// words are indexed by the exact bottom-boundary medium.
     /// </summary>
     public static void ConfigureEnvironmentGravity(SamusState samus)
@@ -92,7 +92,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Executes one movement-type-2 frame from <c>Samus_Jumping_Movement</c>.
+    /// Executes one frame of normal-jumping movement.
     /// </summary>
     internal static AerialMovementResult StepNormalJump(
 
@@ -158,7 +158,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Executes one movement-type-3 frame from <c>Samus_SpinJumping_Movement</c>,
+    /// Executes one frame of spin-jumping movement,
     /// including the wall-jump block contact and launch test.
     /// </summary>
     internal static AerialMovementResult StepSpinJump(
@@ -256,7 +256,7 @@ public static class SamusAerialMovement
         {
             // Carry set at the wall-jump check skips gravity, so gravity and vertical displacement
             // do not execute on the trigger frame. Runtime pose handling consumes command
-            // five after movement and installs `$83/$84` with the authored launch speed.
+            // five after movement and installs the wall-jump pose with the authored launch speed.
             return new AerialMovementResult(
                 Landed: false,
                 HitCeiling: false,
@@ -279,7 +279,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Executes movement type `$14`, including its animation-frame/charge-
+    /// Executes wall-jumping movement, including its animation-frame/charge-
     /// selected contact damage before the ordinary jumping routine.
     /// </summary>
     internal static AerialMovementResult StepWallJump(
@@ -293,7 +293,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.WallJumping ||
             !SamusPoseMetadata.IsWallJumpPose(samus.Pose))
-            throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not {samus.Pose}.");
+            throw new InvalidOperationException($"Wall-jump movement requires a wall-jumping pose, not {samus.Pose}.");
 
         // Frames 23+ are the somersault portion and always use Screw-style index three.
         // Frames 3..22 use charge-beam index four only after the projectile flare counter
@@ -321,8 +321,8 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Executes movement type `$19`. The entry is a direct call to
-    /// <c>Samus_Jumping_Movement</c>; damage boost therefore receives ordinary variable-
+    /// Executes damage-boost movement. The entry is a direct call to
+    /// normal-jumping movement; damage boost therefore receives ordinary variable-
     /// height jump cutoff, type-indexed X physics, block collision, gravity, and landing.
     /// </summary>
     internal static AerialMovementResult StepDamageBoost(
@@ -338,7 +338,7 @@ public static class SamusAerialMovement
             samus.Pose is not (SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose))
         {
             throw new InvalidOperationException(
-                $"Damage-boost movement requires type $19 pose, not {samus.Pose}.");
+                $"Damage-boost movement requires a damage-boost pose, not {samus.Pose}.");
         }
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
@@ -359,7 +359,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Executes the jumping and falling turns for movement types `$17/$18`. Unlike ordinary aerial
+    /// Executes the jumping and falling turns. Unlike ordinary aerial
     /// motion this calls the deceleration-ALLOWED X routine and does not apply variable-jump
     /// release; the three-frame turn animation therefore preserves reversal momentum.
     /// </summary>
@@ -372,16 +372,16 @@ public static class SamusAerialMovement
     {
         ValidateCommon(level, samus);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        // Crouched aimed turns use movement type `$17` even though they normally remain on
+        // Crouched aimed turns use the turning-while-jumping movement type even though they normally remain on
         // the floor. If a producer gives one nonzero Y direction, the turn handler immediately
-        // executes the same X/simple-Y path as the ordinary `$2F/$30/$8F-$92/$9E/$9F`
-        // jumping-turn records. The pose name therefore cannot be used as an admission gate.
+        // executes the same X/simple-Y path as the ordinary jumping-turn records
+        // (unaimed, aimed up, down and diagonally up). The pose name therefore cannot be used as an admission gate.
         bool isTranslatedTurnPose = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
             (movementType == SamusMovementType.TurningWhileJumping &&
              SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose));
         if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
             !isTranslatedTurnPose)
-            throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not {samus.Pose}.");
+            throw new InvalidOperationException($"Aerial-turn movement requires a jumping or falling turn pose, not {samus.Pose}.");
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         // The turning wrapper enters the shared X mover, including its
@@ -398,7 +398,7 @@ public static class SamusAerialMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
+        // The simple vertical movement calls this before the shared gravity routine. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
         {
@@ -482,8 +482,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Executes <c>SamusMovementHandler_ReleasedFromGrappleSwing</c>
-    /// for one frame.
+    /// Executes one frame of Samus's flight after release from a grapple swing.
     /// </summary>
     /// <remarks>
     /// This is a movement-handler pointer, not movement type two. It begins on the same
@@ -592,7 +591,7 @@ public static class SamusAerialMovement
         {
             // Clear both the DP displacement and persistent base speed.
             speed.BaseSpeed = default;
-            // Then branches past MoveSamus_Horizontally (and the speed calculation, so the
+            // Then branches past horizontal movement (and the speed calculation, so the
             // previous total-speed pair is retained): no slope alignment runs either.
             return BlockMoveResult.NotMoved;
         }
@@ -620,7 +619,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Ports the shared <c>Samus_Y_Movement_WithSpeedCalculations</c> routine
+    /// Runs the shared vertical movement with its speed calculations
     /// without adding any horizontal movement.
     /// </summary>
     /// <remarks>
@@ -786,9 +785,9 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Ports the air/partially-submerged Space Jump gate inside <c>Samus_Movement_03_SpinJumping</c>.
+    /// The air/partially-submerged Space Jump gate of spin-jumping movement.
     /// Screw Attack can use this physics when both item bits are
-    /// equipped even though its visible pose is `$81/$82`.
+    /// equipped even though its visible pose is the Screw Attack pose.
     /// </summary>
     private static bool TryRestartSpaceJump(
         SamusState samus,
@@ -817,7 +816,7 @@ public static class SamusAerialMovement
             return false;
         }
 
-        // This is the same Samus_InitJump used by a grounded launch: authored initial
+        // This is the same jump start used by a grounded launch: authored initial
         // magnitude, Speed Booster's split-word bonus, dry-air gravity, and upward direction.
         SamusAerialMovement.InitializeJump(samus);
         return true;

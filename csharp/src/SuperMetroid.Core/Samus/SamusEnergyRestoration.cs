@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus;
 public static class SamusEnergyRestoration
 {
     /// <summary>
-    /// Implements Restore_A_Energy_ToSamus. Fill regular energy first, spill
+    /// Restores energy to Samus. Fill regular energy first, spill
     /// only the excess into reserves, and enable auto reserve only from disabled mode.
     /// Gunship and crystal-flash restoration both call this routine.
     /// </summary>

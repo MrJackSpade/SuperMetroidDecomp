@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>A beam pre-instruction callback the fire handlers select by charge state and beams, including the words they read past their tables.</summary>
 internal enum SamusBeamCallback
 {
-    /// <summary>ProjPreInstr_Beam_NoWaveBeam: ordinary terrain-stopping beam motion.</summary>
+    /// <summary>A beam without Wave: ordinary terrain-stopping beam motion.</summary>
     NoWave,
-    /// <summary>ProjPreInstr_BeamOrIceWave: Wave movement with a three-frame trail reload.</summary>
+    /// <summary>Wave or Ice-Wave: Wave movement with a three-frame trail reload.</summary>
     WaveThreeFrameTrail,
-    /// <summary>ProjPreInstr_WavePlasmaEtc: Wave movement with a four-frame trail reload.</summary>
+    /// <summary>Wave-Plasma and the other Wave combinations: Wave movement with a four-frame trail reload.</summary>
     WaveFourFrameTrail,
     /// <summary>
     /// Uncharged combination twelve reads the charged-shot routine's first instruction bytes past the callback table;

@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>Standalone horizontal speed records selected directly rather than by movement type.</summary>
 public enum SamusStandaloneSpeedRecord
 {
-    /// <summary>XAccelSpeeds_DiagonalBombJump, used by diagonal bomb jumps.</summary>
+    /// <summary>The horizontal speeds of a diagonal bomb jump.</summary>
     DiagonalBombJump,
-    /// <summary>XAccelSpeeds_DisconnectGrappleInAir.</summary>
+    /// <summary>The horizontal speeds after a grapple release in air.</summary>
     GrappleReleaseAir,
-    /// <summary>XAccelSpeeds_DisconnectGrappleInWater.</summary>
+    /// <summary>The horizontal speeds after a grapple release in water.</summary>
     GrappleReleaseWater,
-    /// <summary>XAccelSpeeds_DisconnectGrappleInLavaAcid.</summary>
+    /// <summary>The horizontal speeds after a grapple release in lava or acid.</summary>
     GrappleReleaseLavaAcid,
 }

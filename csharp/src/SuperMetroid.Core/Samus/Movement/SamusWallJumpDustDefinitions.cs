@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Atmospheric-slot writes made by SamusFunc_F468_WallJumping.</summary>
+/// <summary>Atmospheric-slot writes made when a wall jump starts.</summary>
 internal static class SamusWallJumpDustDefinitions
 {
     /// <summary>Writes only atmospheric slot three.</summary>

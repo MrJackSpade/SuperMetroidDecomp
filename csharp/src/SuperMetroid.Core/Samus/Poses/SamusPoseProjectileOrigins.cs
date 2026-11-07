@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>The projectile origin height of each pose.</summary>
 internal static class SamusPoseProjectileOrigins
 {
-    /// <summary>PoseDefinitions Y offset, record stride eight. Beam/Grapple calculations zero-extend this byte, including the drained-pose $FC correction.</summary>
+    /// <summary>PoseDefinitions Y offset, record stride eight. Beam/Grapple calculations zero-extend this byte, including the drained pose's correction, which therefore reads as 252 rather than negative four.</summary>
     internal static byte ReadYOffset(SamusPoseId pose) =>
         YOffsets.ContainsKey(pose) ? YOffsets[pose] : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
 }

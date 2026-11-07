@@ -93,7 +93,7 @@ internal sealed class BeamChargeState
         Array.Clear(FlareTimers);
     }
 
-    /// <summary>Projectile_Func7_Shinespark's charge teardown when spark windup begins: the flare counter and every flare component clear.</summary>
+    /// <summary>The shinespark windup's charge teardown: the flare counter and every flare component clear.</summary>
     internal void CancelForShinespark()
     {
         FlareCounter = 0;

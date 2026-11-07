@@ -31,6 +31,6 @@ public enum GrappleAiRoutine
     /// <summary>The enemy hurts Samus through the grapple.</summary>
     HurtSamus,
 
-    /// <summary><c>MainAI_GrappleAI_FrozenAI_Elevator</c>, the elevator's main AI.</summary>
+    /// <summary>The elevator's main AI, which grapple also uses for frozen enemies.</summary>
     ElevatorMainAi,
 }

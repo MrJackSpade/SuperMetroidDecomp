@@ -5,9 +5,9 @@ internal enum SamusHudHandler
 {
     /// <summary>Standard HUD handler.</summary>
     Standard,
-    /// <summary>HUDSelectionHandler_MorphBall: bomb/Power Bomb dispatch for ball movement.</summary>
+    /// <summary>The morph-ball HUD selection handler: bomb/Power Bomb dispatch for ball movement.</summary>
     MorphBall,
-    /// <summary>HUDSelectionHandler_SpinWallJump_Knockback_Shinespark_CF_etc: inactive Grapple preserves charge.</summary>
+    /// <summary>The HUD selection handler of spin and wall jumps, knockback, shinespark, Crystal Flash and similar poses: inactive Grapple preserves charge.</summary>
     Jump,
     /// <summary>Grapple HUD handler.</summary>
     Grapple,

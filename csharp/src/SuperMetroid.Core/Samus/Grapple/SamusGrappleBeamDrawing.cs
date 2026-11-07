@@ -89,7 +89,7 @@ public static class SamusGrappleBeamDrawing
         int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y);
         // The draw tests only Y's high byte. X is allowed to wrap into the screen's ninth X bit, while
-        // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
+        // any Y outside the 256 unsigned screen rows suppresses the whole frame.
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return false;
 
@@ -97,7 +97,7 @@ public static class SamusGrappleBeamDrawing
         // shared main flare only; charge-spark direction offsets do not apply.
         int tableIndex = CoordinateAxis.Wrap(
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset);
-        // Flare compositions name characters $50-$5D of the standard sprite sheet, which no beam or trail upload covers,
+        // Flare compositions name standard sprite-sheet characters that no beam or trail upload covers,
         // so the loaded beams' projectile sheet shows them as the standard page does.
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
             throw new InvalidDataException($"Unknown charge-flare sprite selector {tableIndex:X4}.");
@@ -120,9 +120,9 @@ public static class SamusGrappleBeamDrawing
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
         grapple.PointAnimationTimer = WrappingCountdown.Start(GrapplePointAnimationDefinitions.Delay);
         grapple.PointAnimationFrame = 0;
-        // GrappleFunc_AF87 seeds sixteen independent segment instruction
-        // slots. Slot 15 starts on tile $24, slot 14 on $23, slot 13 on $22, slot 12 on
-        // $21, and that four-phase pattern repeats down to zero. Timer one makes the rope draw
+        // Firing seeds sixteen independent segment instruction
+        // slots. Slot 15 starts on the fourth rope tile, slot 14 on the third, slot 13 on the second, slot 12 on
+        // the first, and that four-phase pattern repeats down to zero. Timer one makes the rope draw
         // consume each initial record on its first draw.
         for (int slot = 0; slot < grapple.SegmentAnimationFrames.Length; slot++)
         {
@@ -206,7 +206,7 @@ public static class SamusGrappleBeamDrawing
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
 
         // The rope draw derives X/Y flip bits from the grapple angle while retaining the packed
-        // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.
+        // palette-five/priority-three instruction word. The rope's end tile marks the connected endpoint.
         int angleHigh = grapple.Angle.TableIndex;
         int flipBits = (angleHigh & 1 << 7) >> 1;
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 1 << 6) ^ 1 << 6));
@@ -222,7 +222,7 @@ public static class SamusGrappleBeamDrawing
         {
             // The rope draw walks animation slots from 15 downward regardless of rope length.
             // The first timer expiry reads the already-selected initial record; later
-            // expiries advance through $21,$22,$23,$24 and the goto back to $21.
+            // expiries advance through the four rope tiles and the goto back to the first.
             // Keeping the one-time first expiry explicit preserves the five-draw
             // interval without pretending that all rope pieces share one animation frame.
             int instructionSlot = GrappleBeamDefinitions.Rendering.FirstSegmentSlot - segment;

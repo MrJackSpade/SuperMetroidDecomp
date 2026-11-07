@@ -152,7 +152,7 @@ public sealed class SamusCrystalFlashState
             : SamusPoseId.CrystalFlashRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Special)
-            throw new InvalidDataException("Crystal Flash pose $D3/$D4 no longer has movement type $1B.");
+            throw new InvalidDataException("The Crystal Flash poses no longer have the special movement type.");
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Successful activation publishes history directly, before
         // installing its movement handler. Rejected activation must not shift it.

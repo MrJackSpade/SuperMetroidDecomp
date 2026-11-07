@@ -65,7 +65,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.Pose = targetPose;
         // Alpha publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
-        // SamusFunc_F433 dispatches the new falling movement type through the falling initializer
+        // The pose refresh dispatches the new falling movement type through the falling initializer
         // before command five initializes the downward state. That initializer derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement routine consumes it.
@@ -78,7 +78,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </summary>
     public static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
     {
-        // PSP_Falling indexes its pair with PoseXDirection, not the muzzle direction.
+        // The falling pose selection indexes its pair with PoseXDirection, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics byte; aim input is reconsidered
         // by the next frame's input handler after this ordinary falling pose is installed.
         return SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
@@ -196,11 +196,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 : SamusPoseId.SpinLandingRightPose;
         }
 
-        // Checks `$FF` before indexing the landing table; hurt/damage-boost art
+        // Checks for no shot direction before indexing the landing table; hurt/damage-boost art
         // deliberately stores that sentinel and lands through the ordinary facing pair.
         // Horizontal directions two/seven take the landing's extra Shot-binding
-        // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
-        // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
+        // test. Held Shot selects the firing landing; released Shot selects the
+        // ordinary normal landing pair. The six admitted aim directions select the aimed landings.
         bool shotHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         return SamusPoseMetadata.ReadShotDirection(samus) switch
         {
@@ -240,7 +240,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies the landing table's directions four/five when radius-ten straight-down Samus lands.
-    /// Both entries select ordinary `$A4/$A5`; the 10 -> 21 expansion still runs the full
+    /// Both entries select the ordinary normal landing; the 10 -> 21 expansion still runs the full
     /// block pose-change collision resolver; command five clears motion only if accepted.
     /// </summary>
     public static bool TryApplyCompactAerialLanding(SamusState samus, 
@@ -252,7 +252,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
         Ensure.NotNull(level);
         if (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose))
-            throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not {samus.Pose}.");
+            throw new InvalidOperationException($"Compact landing requires a compact straight-down jumping or falling pose, not {samus.Pose}.");
 
         SamusPoseId sourcePose = samus.Pose;
         SamusPoseId targetPose = SamusPoseMetadata.ReadShotDirection(samus) switch
@@ -291,7 +291,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Consumes command $FD/$F8's command-three pose operand for every animation route in
+    /// Consumes an animation pose-transition command's command-three pose operand for every animation route in
     /// the current grounded/ordinary-air slice.
     /// </summary>
     public static bool ApplyPendingVerifiedAnimationTransition(SamusState samus)
@@ -365,11 +365,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.LandingAimDiagonalUpLeftPose, SamusPoseId.StandingAimDiagonalUpLeftPose) or
             (SamusPoseId.LandingAimDiagonalDownRightPose, SamusPoseId.StandingAimDiagonalDownRightPose) or
             (SamusPoseId.LandingAimDiagonalDownLeftPose, SamusPoseId.StandingAimDiagonalDownLeftPose) or
-            // Is shared by ordinary and firing landings. `$E6/$E7`
-            // therefore executes the literal same `$F8,$01/$02` terminal operands.
+            // Is shared by ordinary and firing landings. The firing landings
+            // therefore execute the literal same terminal transitions to normal standing.
             (SamusPoseId.FiringLandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.FiringLandingLeftPose, SamusPoseId.FacingLeftNormalPose) or
-            // Every aerial-turn delay list ends in command `$F8 pp`. These pairs are the
+            // Every aerial-turn delay list ends in a pose-transition command. These pairs are the
             // literal operands from the aerial-turn delay lists, not inferred mirror poses.
             (SamusPoseId.TurningRightToLeftJumpPose, SamusPoseId.NormalJumpForwardLeftPose) or
             (SamusPoseId.TurningLeftToRightJumpPose, SamusPoseId.NormalJumpForwardRightPose) or
@@ -387,24 +387,24 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose, SamusPoseId.NormalJumpAimDiagonalUpRightPose) or
             (SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpLeftPose) or
             (SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpRightPose) or
-            // Ends every moonwalk turn/jump delay list with command
-            // `$F8,$1A/$19`. Super-special selection runs F433, but skips F404's
-            // later jump initialization. Its unchanged vertical direction permits Moonfall.
+            // Ends every moonwalk turn/jump delay list with a transition to
+            // the spin jump. Super-special selection refreshes the pose, but skips the pose
+            // initializer's later jump initialization. Its unchanged vertical direction permits Moonfall.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, SamusPoseId.SpinJumpLeftPose) or
             (SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownRightPose, SamusPoseId.SpinJumpRightPose) or
-            // Terminate Crystal Flash finish art in `$FD,$01/$02`.
+            // Terminate Crystal Flash finish art in a transition to normal standing.
             // Its installed movement handler observes type zero on the following frame.
             (SamusPoseId.CrystalFlashRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.CrystalFlashLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // All four drained release streams eventually publish ordinary standing art.
-            // These are literal `$FD` operands from the drained release delay lists.
+            // These are literal transition operands from the drained release delay lists.
             (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingLeftPose, SamusPoseId.FacingLeftNormalPose);
         if (!verified)
         {
-            // The allowlist above is the exhaustive set of `$F8/$FD` operands referenced
+            // The allowlist above is the exhaustive set of pose-transition operands referenced
             // by active retail animation streams. Anything else means the caller supplied
             // a target that was not read from the current pose's animation bytecode.
             throw new InvalidOperationException(
@@ -418,14 +418,14 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
         // Runs movement-type initialization after the animation command has
         // selected the new normal-jump pose but before it initializes that pose's frame.
-        // A live stored shine replaces the target with `$C7/$C8`, so never briefly seed
-        // `$4D/$4E/$15/$16/$69/$6A` animation state in this branch.
+        // A live stored shine replaces the target with the shinespark windup, so never briefly seed
+        // neutral, aimed-up or diagonally-up normal-jump animation state in this branch.
         bool beganShinespark = SamusAerialPoseTransitions.TryBeginShinesparkWindup(samus, 
             targetPose,
             previousMovementType);
         if (!beganShinespark)
         {
-            // Moonwalk turn lists end in literal `$F8,$19/$1A`. That operand is still fed
+            // Moonwalk turn lists end in a literal transition to the spin jump. That operand is still fed
             // through movement-type initialization, so equipment substitution occurs here
             // just as it does for an input-table jump from ordinary running.
             SamusPoseId installedPose = startsMoonwalkJump

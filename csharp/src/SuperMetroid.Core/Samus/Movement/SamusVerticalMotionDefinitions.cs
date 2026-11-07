@@ -9,7 +9,7 @@ internal static class SamusVerticalMotionDefinitions
     /// </summary>
     internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
 
-    /// <summary>InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids,
+    /// <summary>The bomb jump's initial vertical speeds: bomb launch is weakened equally in both liquids,
     /// as unsigned 16.16 speeds by medium.</summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> BombJumpSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
@@ -19,7 +19,7 @@ internal static class SamusVerticalMotionDefinitions
         [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(1),
     };
 
-    /// <summary>InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed,
+    /// <summary>The knockback's initial vertical speeds: hurt launch ignores jump equipment and dash speed,
     /// as unsigned 16.16 speeds by medium.</summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> KnockbackSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>

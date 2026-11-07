@@ -18,6 +18,6 @@ public sealed record HorizontalBlockMove
     /// <summary>Optional block-reaction direction override; the nondirectional probe value suppresses directional station activation.</summary>
     public SamusCollisionDirection? BlockReactionDirection { get; init; } = null;
 
-    /// <summary>The direction stored by the displacement calculator. When supplied, this is a <c>MoveSamus_Right/Left</c> call: the solid-enemy probe always runs in this direction,      even for a zero displacement, while the sign selects the entry (zero enters right).      Null keeps a sign-derived probe that is skipped for a zero displacement.</summary>
+    /// <summary>The direction stored by the displacement calculator. When supplied, this is a directed move right or left: the solid-enemy probe always runs in this direction,      even for a zero displacement, while the sign selects the entry (zero enters right).      Null keeps a sign-derived probe that is skipped for a zero displacement.</summary>
     public SamusCollisionDirection? CollisionMovementDirection { get; init; } = null;
 }

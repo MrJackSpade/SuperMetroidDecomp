@@ -29,7 +29,7 @@ internal static class SamusHorizontalMotionDefinitions
     internal static SignedSixteenSixteen WaterBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(24);
     /// <summary>Maximum speed of a falling morph or spring ball in lava or acid.</summary>
     internal static SignedSixteenSixteen LavaBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(22);
-    /// <summary>Maximum speed of the alternate unused glitch ball and unused movement $0D.</summary>
+    /// <summary>Maximum speed of the alternate unused glitch ball and the third unused movement type.</summary>
     internal static SignedSixteenSixteen GlitchBallMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Maximum speed of knockback, Draygon's hold, special movement and an airborne damage boost.</summary>
     internal static SignedSixteenSixteen KnockbackMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(80);
@@ -75,13 +75,13 @@ internal static class SamusHorizontalMotionDefinitions
     internal static readonly FrozenDictionary<SamusMovementType, int> RecordPosition =
         Enumerable.Range(0, RecordOrder.Length).ToFrozenDictionary(position => RecordOrder[position]);
 
-    /// <summary>XAccelSpeeds_DiagonalBombJump: acceleration, maximum and deceleration whole/fraction pairs.</summary>
+    /// <summary>The diagonal bomb jump's acceleration, maximum and deceleration whole/fraction pairs.</summary>
     internal static readonly SpeedTableEntry DiagonalBombJump = new(
         Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
         MaximumSpeed: SignedSixteenSixteen.FromParts(3, 0),
         Deceleration: SignedSixteenSixteen.FromParts(0, 2048));
 
-    /// <summary>XAccelSpeeds_DisconnectGrappleInAir/InWater/InLavaAcid: three identical authored records.</summary>
+    /// <summary>The grapple release's speeds in air, water and lava or acid: three identical authored records.</summary>
     internal static readonly SpeedTableEntry GrappleRelease = new(
         Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
         MaximumSpeed: SignedSixteenSixteen.FromParts(15, 0),

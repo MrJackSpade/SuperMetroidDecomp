@@ -144,7 +144,7 @@ public sealed class SamusProjectileSystem
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> for the equipped beams: the beams show the
+    /// Executes the palette half of the beam graphics update for the equipped beams: the beams show the
     /// shade of the combination they select (#1512). Its characters are not copied: the installed projectile sheets are
     /// composed over every beam combination's characters, and pre-coloured in every combination's shade.
     /// </summary>
@@ -323,10 +323,10 @@ public sealed class SamusProjectileSystem
         // share the beam producer; index one reaches the missile producer. Ball poses still
         // dispatch to the companion bomb owner, and the debug grapple route disables this
         // producer explicitly while it owns Shoot.
-        // The forward-facing HUD handler branches straight to Handle_Projectiles for either
+        // The forward-facing HUD handler branches straight to projectile handling for either
         // forward-facing pose. In particular an elevator may keep accepting physical
         // controller samples without allowing them to charge or fire a weapon.
-        // Spin, wall-jump, hurt and special entries dispatch HudSelectionHandler_JumpEtc, not
+        // Spin, wall-jump, hurt and special entries dispatch the jumping HUD selection handler, not
         // the normal beam producer. With grapple inactive that handler does
         // nothing: held/released Shoot must leave the charge word untouched.
         // Existing projectiles still advance below. Pose input can leave spin
@@ -501,7 +501,7 @@ public sealed class SamusProjectileSystem
                     "zero-list shot is translated.");
             }
 
-            // Kill_Projectile replaces rather than clears a live beam. Consequently the
+            // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first record is selected in this same handler pass.
             if (slot.Cursor is not null)
                 projectileDeleted |= Animation.RunProjectileInstructionHandler(slot);

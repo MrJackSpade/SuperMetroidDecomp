@@ -380,7 +380,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Executes <c>SamusMovementHandler_Xray</c>: turning does nothing, while
+    /// Executes the X-ray scope's movement: turning does nothing, while
     /// stable X-ray poses force timer fifteen and one of five angle-selected art frames.
     /// </summary>
     public int? StepMovement(SamusState samus)

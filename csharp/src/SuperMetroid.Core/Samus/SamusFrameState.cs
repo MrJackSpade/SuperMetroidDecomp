@@ -56,21 +56,21 @@ internal sealed class SamusFrameState
 
     /// <summary>
     /// Winning pose-transition entry for the most recently latched controller
-    /// chord. The grounded debug scenario applies its verified $01/$02/$09/$0A/$25/$26
+    /// chord. The grounded scenario applies its verified standing, moving and turning
     /// routes; every other winner remains diagnostic until its side effects exist.
     /// </summary>
     public SamusPoseTransition? ProspectiveSamusPose { get; internal set; }
 
     /// <summary>
     /// Block-only result of the wall check after movement. This is separate from the input
-    /// table record because a killed running speed can create `$89/$8A/$CF-$D2` even when
+    /// table record because a killed running speed can create a ran-into-wall pose even when
     /// no controller record matched, and a one-pixel probe can replace a running target.
     /// </summary>
     public SamusPoseId? ProspectiveSamusWallCollisionPose { get; internal set; }
 
 
     /// <summary>
-    /// No-button fallback selected by <c>Samus_Pose_CancelGrapple</c>. This is
+    /// No-button fallback selected when the pose handling cancels the grapple. This is
     /// separate from <see cref="SamusFrameState.ProspectiveSamusPose"/> because no six-byte table entry wins.
     /// </summary>
     public SamusPoseId? ProspectiveSamusFallbackPose { get; internal set; }

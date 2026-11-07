@@ -196,7 +196,7 @@ public enum SamusPoseId
     /// <summary>
     /// This pose is the right-facing Space Jump body. The equipment-aware movement-type
     /// initializer substitutes this for the transition table's ordinary
-    /// `$19` target when Space Jump is equipped and Screw Attack is not.
+    /// spin-jump target when Space Jump is equipped and Screw Attack is not.
     /// </summary>
     SpaceJumpRightPose,
 
@@ -355,7 +355,7 @@ public enum SamusPoseId
     MorphBallFallingLeftPose,
 
     /// <summary>
-    /// This pose is the unused right-facing body selected only by movement type `$07`'s
+    /// This pose is the unused right-facing body selected only by the unused glitch-ball movement type's
     /// otherwise-unused knockback transition. Naming it keeps the exhaustive
     /// pose table executable without pretending the retail game reaches it.
     /// </summary>
@@ -411,7 +411,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-facing falling body with the cannon held horizontally after
-    /// firing. Its delay stream has the same terminal-velocity split as `$29`.
+    /// firing. Its delay stream has the same terminal-velocity split as <see cref="FallingRightPose"/>.
     /// </summary>
     FallingGunExtendedRightPose,
 
@@ -456,7 +456,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is a stationary right-facing normal jump with the cannon extended. Unlike
-    /// `$4D`, its pose table deliberately stores no no-input fallback, so the firing body can
+    /// <see cref="NeutralJumpRightPose"/>, its pose table deliberately stores no no-input fallback, so the firing body can
     /// remain active until another input-table record or landing replaces it.
     /// </summary>
     NormalJumpGunExtendedRightPose,
@@ -617,7 +617,7 @@ public enum SamusPoseId
     /// <summary>
     /// This pose is the right-facing horizontal-fire landing selected by the landing transition only
     /// when the current shot direction is two and the Shot binding is still held at impact.
-    /// Its terminal `$F8,$01` command returns to ordinary standing after the landing frames.
+    /// Its terminal pose-transition command returns to ordinary standing after the landing frames.
     /// </summary>
     FiringLandingRightPose,
 
@@ -737,12 +737,12 @@ public enum SamusPoseId
     /// <summary>A left-facing Draygon-held pose whose program ends grabbed by Draygon facing left.</summary>
     DraygonGrabbingLeftPose,
 
-    /// <summary>Pose byte $FD, past the definition table: its records read the adjacent code bytes.</summary>
+    /// <summary>The first pose number past the definition table: its records read whatever follows the table.</summary>
     AdjacentCodePoseFD,
 
-    /// <summary>Pose byte $FE, past the definition table: its records read the adjacent code bytes.</summary>
+    /// <summary>The second pose number past the definition table: its records read whatever follows the table.</summary>
     AdjacentCodePoseFE,
 
-    /// <summary>Pose byte $FF, past the definition table: its records read the adjacent code bytes.</summary>
+    /// <summary>The last pose number, past the definition table: its records read whatever follows the table.</summary>
     AdjacentCodePoseFF,
 }

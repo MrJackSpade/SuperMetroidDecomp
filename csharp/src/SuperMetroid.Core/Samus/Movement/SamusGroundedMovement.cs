@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
-/// correspond only to movement types zero, one, $0E, $10, and $15. Air/water/lava X
+/// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types. Air/water/lava X
 /// tables and submerged Dash gating are translated; enemy collision, conveyor displacement,
 /// and knockback remain separate. Ordinary Dash and equipped-Speed-Booster accumulation/
 /// staging are translated; palette/echo rendering lives outside movement. Each
@@ -48,7 +48,7 @@ public static class SamusGroundedMovement
         if (!SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Forward-facing movement requires pose $00/$9B, not {samus.Pose}.");
+                $"Forward-facing movement requires a forward-facing pose, not {samus.Pose}.");
         }
 
         BlockMoveResult? vertical = null;
@@ -69,8 +69,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports the movement-relevant portion of <c>Samus_Movement_00_Standing</c> for either facing:
-    /// the right-facing $01/$03/$05/$07 family or the left-facing $02/$04/$06/$08 family.
+    /// Runs the movement-relevant portion of standing movement for either facing:
+    /// the right-facing standing family or the left-facing one, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepStanding(
 
@@ -87,17 +87,17 @@ public static class SamusGroundedMovement
         if (!facingLeft && !SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Standing movement requires pose $01-$08, not {samus.Pose}.");
+                $"Standing movement requires a standing pose, not {samus.Pose}.");
         }
 
         ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Calls Samus_Move_NoBaseSpeed_X, which still passes zero through
-        // Samus_MoveX and the pose direction's displacement calculator. That
+        // Moves Samus with no base speed, which still passes zero through
+        // horizontal movement and the pose direction's displacement calculator. That
         // calculation publishes total-X speed before collision; do not skip it merely because
         // a freshly spawned standing Samus normally has zero base/extra speed. A left-facing
-        // pose's direction byte is $04, so the helper is the LEFT form even though its
+        // pose's direction is left, so the helper is the LEFT form even though its
         // base argument is zero, which matters once extra displacement contributes.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
@@ -128,8 +128,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Movement_01_Running</c> in dry air, including ordinary Dash, for either
-    /// facing: the $09/$0D/$0F/$11 right-moving family or the $0A/$0E/$10/$12 left-moving family.
+    /// Runs running movement in dry air, including ordinary Dash, for either
+    /// facing: the right-moving running family or the left-moving one, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepRunning(
 
@@ -146,7 +146,7 @@ public static class SamusGroundedMovement
         if (!facingLeft && !SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Running movement requires pose $09-$12 of the running families, not {samus.Pose}.");
+                $"Running movement requires a pose of the running families, not {samus.Pose}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -177,7 +177,7 @@ public static class SamusGroundedMovement
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
 
-        // Invokes Samus_ClearXSpeedIfColl immediately after block collision. Total
+        // Clears X speed on a collision immediately after block collision. Total
         // speed deliberately remains published: the following grounding routine reads it
         // even if base speed was just cleared by a wall.
         if (horizontal.Collided)
@@ -193,9 +193,9 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports the grounded branches of <c>SamusMovement_TurningAround_OnGround</c>
-    /// and <c>SamusMovement_TurningAround_Jumping</c>.
-    /// The latter name is misleading for `$97-$9A/$A2/$A3`: crouched entry leaves Y direction
+    /// Runs the grounded branches of turning around on the ground
+    /// and of turning around while jumping.
+    /// The latter is misleading for the aimed crouching turns: crouched entry leaves Y direction
     /// zero, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
     internal static GroundedMovementResult StepTurningOnGround(
@@ -223,18 +223,18 @@ public static class SamusGroundedMovement
             throw new InvalidOperationException(
                 $"Grounded turn pose {samus.Pose} has movement type {movementType}.");
         if (movementType == SamusMovementType.TurningWhileJumping && !SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"Grounded type-$17 admission requires an aimed crouched turn, not {samus.Pose}.");
+            throw new InvalidOperationException($"Grounded turning-while-jumping admission requires an aimed crouched turn, not {samus.Pose}.");
         if (movementType == SamusMovementType.TurningWhileJumping && samus.Kinematics.YDirection != SamusVerticalDirection.None)
         {
             throw new InvalidOperationException(
-                $"Airborne type-$17 turn pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
+                $"Airborne turning-while-jumping pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // The type-$0E/$17 handler calls the complete X routine before
+        // The turning handler calls the complete X routine before
         // cancelling boost. Because this movement type is not running, the Dash acceleration cannot
         // add speed; it either clears an unowned pair or preserves an already established
         // momentum pair for this final movement frame. The unconditional cancellation and
@@ -245,7 +245,7 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // The pose's literal `$0E` or `$17` twelve-byte speed-table record supplies the
+        // The pose's own turning-on-ground or turning-while-jumping twelve-byte speed-table record supplies the
         // deceleration. If subtraction crosses below zero,
         // the calculation clears both speed halves AND mode before the direction selector chooses direction.
         uint baseSpeed = speed.CalculateBaseSpeed(movementType);
@@ -265,7 +265,7 @@ public static class SamusGroundedMovement
             frameCounter,
             roomObjects);
 
-        // Calls `Samus_CancelSpeedBoost` on every turn frame. This matters even
+        // Cancels the speed boost on every turn frame. This matters even
         // without the Speed Booster item: the turn initializer folded the numeric extra component but
         // deliberately left the running-momentum flag set until this movement handler. Then the handler
         // perform the separately observable zero writes to the two extra-speed words.
@@ -275,8 +275,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>SamusMovement_Moonwalking</c> for stable poses
-    /// `$49/$4A/$75-$78`, including the complete shared extra-run-speed prepass.
+    /// Runs moonwalking movement for the stable moonwalk poses, unaimed or aimed,
+    /// including the complete shared extra-run-speed prepass.
     /// </summary>
     internal static GroundedMovementResult StepMoonwalking(
 
@@ -292,15 +292,15 @@ public static class SamusGroundedMovement
             SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Moonwalking)
         {
             throw new InvalidOperationException(
-                $"Moonwalking movement requires pose $49/$4A/$75-$78, not {samus.Pose}.");
+                $"Moonwalking movement requires a stable moonwalk pose, not {samus.Pose}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // Calls `Samus_X_Movement`, whose first operation is the Dash acceleration.
-        // Movement type `$10` can never enter that routine's Dash-acceleration arm, but an
+        // Runs horizontal movement, whose first operation is the Dash acceleration.
+        // Moonwalking can never enter that routine's Dash-acceleration arm, but an
         // existing momentum flag deliberately carries the extra pair through moonwalking;
         // without the flag the pair is cleared before displacement is calculated.
         speed.HandleExtraRunSpeed(
@@ -309,7 +309,7 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // Type `$10` has its own twelve-byte speed record. Its pose-X bytes intentionally
+        // Moonwalking has its own twelve-byte speed record. Its pose-X bytes intentionally
         // produce travel opposite the visible facing; mode one reverses that byte just as it
         // does for every other family. Do not derive either direction from the pose's name.
         uint baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
@@ -330,8 +330,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Movement_15_RanIntoWall</c> for
-    /// `$89/$8A/$CF-$D2` in the block-only dry-room slice.
+    /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed,
+    /// in the block-only dry-room slice.
     /// </summary>
     internal static GroundedMovementResult StepRanIntoWall(
 
@@ -347,14 +347,14 @@ public static class SamusGroundedMovement
             SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.RanIntoWall)
         {
             throw new InvalidOperationException(
-                $"Ran-into-wall movement requires pose $89/$8A/$CF-$D2, not {samus.Pose}.");
+                $"Ran-into-wall movement requires a ran-into-wall pose, not {samus.Pose}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Calls the same no-base-speed X routine as standing. Direction still
-        // comes from the literal pose definition: `$89/$CF/$D1` store eight (right), while
-        // `$8A/$D0/$D2` store four (left). Extra speed is included in the requested move
+        // comes from the literal pose definition: the right-facing poses store eight (right), while
+        // the left-facing poses store four (left). Extra speed is included in the requested move
         // before the handler's unconditional cleanup, matching the call order.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
@@ -379,11 +379,11 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs movement type zero for every translated landing pose: `$A4-$A7` for the ordinary
-    /// and spin families, plus `$E0-$E7` for aimed and horizontally firing landings.
+    /// Runs standing movement for every translated landing pose: the ordinary
+    /// and spin landings, plus the aimed and horizontally firing landings.
     /// Landing animation is cosmetic with respect to movement: every member uses standing's
     /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until animation
-    /// command `$F8` returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
+    /// command's pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
     /// </summary>
     internal static GroundedMovementResult StepLanding(
 
@@ -396,14 +396,14 @@ public static class SamusGroundedMovement
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         // Do not duplicate the pose list here. The predicates are the single audited definition
-        // of movement type zero's landing family and deliberately include firing landings `$E6`
-        // and `$E7`. Keeping dispatch and this defensive guard on the same predicates prevents a
+        // of the standing movement type's landing family and deliberately include the two firing
+        // landings. Keeping dispatch and this defensive guard on the same predicates prevents a
         // newly translated landing from reaching this real movement handler only to be rejected.
         if (!SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) &&
             !SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Landing movement requires pose $A4-$A7/$E0-$E7, not {samus.Pose}.");
+                $"Landing movement requires a landing pose, not {samus.Pose}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -427,9 +427,9 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Executes movement type <c>$0A</c>'s ordinary handler after a
+    /// Executes the knockback movement type's ordinary handler after a
     /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
-    /// normal dispatcher while leaving pose <c>$53/$54</c> current. The game clears the
+    /// normal dispatcher while leaving a knockback pose current. The game clears the
     /// vertical-collision result and performs only the shared no-speed Y probe; it does not
     /// invent another knockback arc or silently reinterpret the hurt body as standing.
     /// </summary>
@@ -446,7 +446,7 @@ public static class SamusGroundedMovement
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Knockback)
         {
             throw new InvalidOperationException(
-                $"Knockback-ending movement requires type $0A, not pose {samus.Pose}.");
+                $"Knockback-ending movement requires the knockback movement type, not pose {samus.Pose}.");
         }
 
         return RunNoSpeedCalculationGroundingProbe(
@@ -458,7 +458,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Move_NoSpeedCalc_Y</c>, including the external-Y
+    /// Moves Samus vertically without a speed calculation, including the external-Y
     /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>
     internal static BlockMoveResult RunNoSpeedCalculationGroundingProbe(

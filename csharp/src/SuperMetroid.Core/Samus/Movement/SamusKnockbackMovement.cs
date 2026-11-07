@@ -57,7 +57,7 @@ public static class SamusKnockbackMovement
 
     /// <summary>
     /// Consumes special prospective command one after the knockback check has admitted either the
-    /// normal `$53/$54` hurt-pose branch or the pose-preserving Morph/Spring Ball branch.
+    /// normal knockback-pose branch or the pose-preserving Morph/Spring Ball branch.
     /// </summary>
     /// <param name="samus">Mutable player owner receiving the hurt pose, timer, movement handler, and cancellation of incompatible movement state.</param>
     /// <param name="controllerInput">Held button word used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
@@ -123,13 +123,13 @@ public static class SamusKnockbackMovement
         }
 
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.
-        // Turning, grapple, current knockback, damage boost, and special type-$1B bodies all
+        // Turning, grapple, current knockback, damage boost, and special-movement bodies all
         // return carry clear: they retain the timer/flicker but do not install the knockback handler.
         samus.KnockbackTimer = launch.KnockbackTimer;
         if (suppressesKnockback)
             return false;
 
-        // Replaces an ordinary body with `$53/$54`. The ball branch, by contrast,
+        // Replaces an ordinary body with a knockback pose. The ball branch, by contrast,
         // republishes the exact Morph/Spring Ball pose. Because UpdateSamusPose sees no
         // pose change in that branch, the rolling animation frame and timer survive.
         bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
@@ -151,7 +151,7 @@ level, targetPose, frameCounter, roomObjects))
         else if (unusedMovementSeven)
         {
             // Is dead in retail play but fully specified: unlike the ball
-            // path it installs `$33/$34`, then continues through the same command-one hurt
+            // path it installs the unused knockback pose, then continues through the same command-one hurt
             // initializer. This preserves the actual table instead of turning an unused
             // arm into an exception.
             samus.Pose = facingLeft
@@ -272,7 +272,7 @@ level, targetPose, frameCounter, roomObjects))
 
     /// <summary>
     /// Applies the only cross-family transition in the knockback input tables: Jump plus the
-    /// direction opposite the knockback pose enters `$50/$4F` and restores normal movement.
+    /// direction opposite the knockback pose enters a damage boost and restores normal movement.
     /// </summary>
     public static void ApplyDamageBoostTransition(
         SamusState samus,
@@ -347,9 +347,9 @@ level, targetPose, frameCounter, roomObjects))
     }
 
     /// <summary>
-    /// Samples the zero-timer arm of <c>Samus_HitInterruption</c>.
+    /// Samples the zero-timer arm of the hit interruption.
     /// The result must be retained until Samus's pose handling applies transitions: an animation
-    /// command can clear <c>knockback_dir</c> after this decision without cancelling it.
+    /// command can clear the knockback direction after this decision without cancelling it.
     /// </summary>
     public static bool IsExpiredHitInterruptionPending(SamusState samus)
     {

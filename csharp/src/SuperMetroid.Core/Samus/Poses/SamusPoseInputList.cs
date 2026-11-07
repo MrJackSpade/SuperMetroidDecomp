@@ -5,160 +5,160 @@ internal enum SamusPoseInputList
 {
     /// <summary>TransitionTable list for <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: diagnostic list identity.</summary>
     EmptyTransitionList,
-    /// <summary>TransitionTable_00_9B_FacingForward: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the forward facing power suit poses.</summary>
     ForwardFacingPowerSuitPoseList,
-    /// <summary>TransitionTable_01_03_05_07_A4_A6_E0_E2_E4_E6_FacingRight: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the facing right normal poses.</summary>
     FacingRightNormalPoseList,
-    /// <summary>TransitionTable_02_04_06_08_A5_A7_E1_E3_E5_E7_FacingLeft: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the facing left normal poses.</summary>
     FacingLeftNormalPoseList,
-    /// <summary>TransitionTable_09_0D_0F_11_MovingRight: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moving right normal poses.</summary>
     MovingRightNormalPoseList,
-    /// <summary>TransitionTable_0A_0E_10_12_MovingLeft: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moving left normal poses.</summary>
     MovingLeftNormalPoseList,
-    /// <summary>TransitionTable_4B_55_57_59_FacingRight_NormalJumpTransition: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the neutral jump transition right poses.</summary>
     NeutralJumpTransitionRightPoseList,
-    /// <summary>TransitionTable_4C_56_58_5A_FacingLeft_NormalJumpTransition: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the neutral jump transition left poses.</summary>
     NeutralJumpTransitionLeftPoseList,
-    /// <summary>TransitionTable_15_4D_51_69_6B_FacingRight_NormalJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the normal jump aim up right poses.</summary>
     NormalJumpAimUpRightPoseList,
-    /// <summary>TransitionTable_16_4E_52_6A_6C_FacingLeft_NormalJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the normal jump aim up left poses.</summary>
     NormalJumpAimUpLeftPoseList,
-    /// <summary>TransitionTable_4F_FacingLeft_DamageBoost: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the damage boost left poses.</summary>
     DamageBoostLeftPoseList,
-    /// <summary>TransitionTable_50_FacingRight_DamageBoost: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the damage boost right poses.</summary>
     DamageBoostRightPoseList,
-    /// <summary>TransitionTable_19_FacingRight_SpinJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spin jump right poses.</summary>
     SpinJumpRightPoseList,
-    /// <summary>TransitionTable_1A_FacingLeft_SpinJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spin jump left poses.</summary>
     SpinJumpLeftPoseList,
-    /// <summary>TransitionTable_1B_FacingRight_SpaceJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the space jump right poses.</summary>
     SpaceJumpRightPoseList,
-    /// <summary>TransitionTable_1C_FacingLeft_SpaceJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the space jump left poses.</summary>
     SpaceJumpLeftPoseList,
-    /// <summary>TransitionTable_81_ScrewAttack: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the screw attack right poses.</summary>
     ScrewAttackRightPoseList,
-    /// <summary>TransitionTable_82_FacingLeft_ScrewAttack: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the screw attack left poses.</summary>
     ScrewAttackLeftPoseList,
-    /// <summary>TransitionTable_1D_FaceRight_MorphBall_NoSpringBall_OnGround: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the morph ball ground right poses.</summary>
     MorphBallGroundRightPoseList,
-    /// <summary>TransitionTable_1E_MoveRight_MorphBall_NoSpringBall_OnGround: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the morph ball moving right poses.</summary>
     MorphBallMovingRightPoseList,
-    /// <summary>TransitionTable_1F_MoveLeft_MorphBall_NoSpringBall_OnGround: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the morph ball moving left poses.</summary>
     MorphBallMovingLeftPoseList,
-    /// <summary>TransitionTable_1D_FaceLeft_MorphBall_NoSpringBall_OnGround: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the morph ball ground left poses.</summary>
     MorphBallGroundLeftPoseList,
     /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallRightPose"/>: diagnostic list identity.</summary>
     GlitchBallRightPoseList,
     /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallLeftPose"/>: diagnostic list identity.</summary>
     GlitchBallLeftPoseList,
-    /// <summary>TransitionTable_27_71_73_85_FacingRight_Crouching: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the crouching right poses.</summary>
     CrouchingRightPoseList,
-    /// <summary>TransitionTable_28_72_74_86_Crouching: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the crouching left poses.</summary>
     CrouchingLeftPoseList,
-    /// <summary>TransitionTable_29_2B_6D_6F_FacingRight_Falling: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the falling right poses.</summary>
     FallingRightPoseList,
-    /// <summary>TransitionTable_2A_2C_6E_70_FacingLeft_Falling: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the falling left poses.</summary>
     FallingLeftPoseList,
-    /// <summary>TransitionTable_31_FacingRight_MorphBall_NoSpringBall_InAir: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the morph ball falling right poses.</summary>
     MorphBallFallingRightPoseList,
-    /// <summary>TransitionTable_32_FacingLeft_MorphBall_NoSpringBall_InAir: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the morph ball falling left poses.</summary>
     MorphBallFallingLeftPoseList,
     /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: diagnostic list identity.</summary>
     UnusedKnockbackRightPoseList,
     /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackLeftPose"/>: diagnostic list identity.</summary>
     UnusedKnockbackLeftPoseList,
-    /// <summary>TransitionTable_49_75_77_FacingLeft_Moonwalk: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk facing left poses.</summary>
     MoonwalkFacingLeftPoseList,
-    /// <summary>TransitionTable_4A_76_78_FacingRight_Moonwalk: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk facing right poses.</summary>
     MoonwalkFacingRightPoseList,
-    /// <summary>TransitionTable_53_FacingRight_Knockback: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the knockback right poses.</summary>
     KnockbackRightPoseList,
-    /// <summary>TransitionTable_54_FacingLeft_Knockback: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the knockback left poses.</summary>
     KnockbackLeftPoseList,
-    /// <summary>TransitionTable_79_7B_FacingRight_MorphBall_Spring_OnGround: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spring ball ground right poses.</summary>
     SpringBallGroundRightPoseList,
-    /// <summary>TransitionTable_7A_7C_FacingLeft_MorphBall_Spring_OnGround: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spring ball ground left poses.</summary>
     SpringBallGroundLeftPoseList,
-    /// <summary>TransitionTable_7D_FacingRight_MorphBall_SpringBall_Falling: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spring ball falling right poses.</summary>
     SpringBallFallingRightPoseList,
-    /// <summary>TransitionTable_7E_FacingLeft_MorphBall_SpringBall_Falling: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spring ball falling left poses.</summary>
     SpringBallFallingLeftPoseList,
-    /// <summary>TransitionTable_7F_FacingRight_MorphBall_SpringBall_InAir: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spring ball jump right poses.</summary>
     SpringBallJumpRightPoseList,
-    /// <summary>TransitionTable_80_FacingLeft_MorphBall_SpringBall_InAir: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the spring ball jump left poses.</summary>
     SpringBallJumpLeftPoseList,
-    /// <summary>UNUSED_TransitionTable_63_91A990: diagnostic list identity.</summary>
+    /// <summary>The unused input-transition list of the compact airborne right poses.</summary>
     CompactAirborneRightPoseList,
-    /// <summary>UNUSED_TransitionTable_64_91A998: diagnostic list identity.</summary>
+    /// <summary>The unused input-transition list of the compact airborne left poses.</summary>
     CompactAirborneLeftPoseList,
-    /// <summary>UNUSED_TransitionTable_65_91A9A0: diagnostic list identity.</summary>
+    /// <summary>The unused input-transition list of the compact airborne falling right poses.</summary>
     CompactAirborneFallingRightPoseList,
-    /// <summary>UNUSED_TransitionTable_66_91A9C6: diagnostic list identity.</summary>
+    /// <summary>The unused input-transition list of the compact airborne falling left poses.</summary>
     CompactAirborneFallingLeftPoseList,
-    /// <summary>TransitionTable_83_FacingRight_WallJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the wall jump right poses.</summary>
     WallJumpRightPoseList,
-    /// <summary>TransitionTable_84_FacingLeft_WallJump: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the wall jump left poses.</summary>
     WallJumpLeftPoseList,
-    /// <summary>TransitionTable_89_CF_D1_FacingRight_RanIntoAWall: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the ran into wall right poses.</summary>
     RanIntoWallRightPoseList,
-    /// <summary>TransitionTable_8A_D0_D2_FacingLeft_RanIntoAWall: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the ran into wall left poses.</summary>
     RanIntoWallLeftPoseList,
-    /// <summary>TransitionTable_13_FaceRight_NormalJump_NotMoving_GunExtend: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the normal jump gun extended right poses.</summary>
     NormalJumpGunExtendedRightPoseList,
-    /// <summary>TransitionTable_14_FacingLeft_NormalJump_NotMoving_GunExtend: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the normal jump gun extended left poses.</summary>
     NormalJumpGunExtendedLeftPoseList,
-    /// <summary>TransitionTable_17_FacingRight_NormalJump_AimingDown: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the normal jump aim down right poses.</summary>
     NormalJumpAimDownRightPoseList,
-    /// <summary>TransitionTable_18_FacingLeft_NormalJump_AimingDown: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the normal jump aim down left poses.</summary>
     NormalJumpAimDownLeftPoseList,
-    /// <summary>TransitionTable_3D_FacingRight_Unmorphing: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the unmorphing transition right poses.</summary>
     UnmorphingTransitionRightPoseList,
-    /// <summary>TransitionTable_3E_FacingLeft_Unmorphing: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the unmorphing transition left poses.</summary>
     UnmorphingTransitionLeftPoseList,
-    /// <summary>TransitionTable_25_FacingRight_Turning_Standing: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the turning right to left poses.</summary>
     TurningRightToLeftPoseList,
-    /// <summary>TransitionTable_26_FacingLeft_Turning_Standing: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the turning left to right poses.</summary>
     TurningLeftToRightPoseList,
-    /// <summary>TransitionTable_8B_FacingRight_Turning_Standing_AimingUp: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the turning right to left aim up poses.</summary>
     TurningRightToLeftAimUpPoseList,
-    /// <summary>TransitionTable_8C_FacingLeft_Turning_Standing_AimingUp: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the turning left to right aim up poses.</summary>
     TurningLeftToRightAimUpPoseList,
-    /// <summary>TransitionTable_8D_FacingRight_Turning_Standing_AimDownRight: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the turning right to left aim diagonal down poses.</summary>
     TurningRightToLeftAimDiagonalDownPoseList,
-    /// <summary>TransitionTable_8E_FacingLeft_Turning_Standing_AimDownLeft: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the turning left to right aim diagonal down poses.</summary>
     TurningLeftToRightAimDiagonalDownPoseList,
-    /// <summary>TransitionTable_C7_FacingRight_VerticalShinesparkWindup: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the shinespark windup right poses.</summary>
     ShinesparkWindupRightPoseList,
-    /// <summary>TransitionTable_C8_FacingLeft_VerticalShinesparkWindup: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the shinespark windup left poses.</summary>
     ShinesparkWindupLeftPoseList,
-    /// <summary>TransitionTable_2D_FacingRight_Falling_AimingDown: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the falling aim down right poses.</summary>
     FallingAimDownRightPoseList,
-    /// <summary>TransitionTable_2E_FacingLeft_Falling_AimingDown: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the falling aim down left poses.</summary>
     FallingAimDownLeftPoseList,
-    /// <summary>UNUSED_TransitionTable_DF_91AE10: diagnostic list identity.</summary>
+    /// <summary>The unused input-transition list of the draygon held ball left poses.</summary>
     DraygonHeldBallLeftPoseList,
-    /// <summary>TransitionTable_BA_BB_BC_BD_BE_FacingLeft_GrabbedByDraygon: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the draygon grabbed neutral left poses.</summary>
     DraygonGrabbedNeutralLeftPoseList,
-    /// <summary>TransitionTable_EC_ED_EE_EF_F0_FacingRight_GrabbedByDraygon: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the draygon grabbed neutral right poses.</summary>
     DraygonGrabbedNeutralRightPoseList,
-    /// <summary>TransitionTable_0B_MovingRight_GunExtended: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moving right gun extended poses.</summary>
     MovingRightGunExtendedPoseList,
-    /// <summary>TransitionTable_0C_MovingLeft_GunExtended: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moving left gun extended poses.</summary>
     MovingLeftGunExtendedPoseList,
-    /// <summary>TransitionTable_67_FacingRight_Falling_GunExtended: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the falling gun extended right poses.</summary>
     FallingGunExtendedRightPoseList,
-    /// <summary>TransitionTable_68_FacingLeft_Falling_GunExtended: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the falling gun extended left poses.</summary>
     FallingGunExtendedLeftPoseList,
-    /// <summary>TransitionTable_BF_FacingRight_Moonwalking_TurnJumpLeft: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk turn jump left poses.</summary>
     MoonwalkTurnJumpLeftPoseList,
-    /// <summary>TransitionTable_C0_FacingLeft_Moonwalking_TurnJumpRight: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk turn jump right poses.</summary>
     MoonwalkTurnJumpRightPoseList,
-    /// <summary>TransitionTable_C1_FaceRight_Moonwalk_TurnJumpLeft_AimUpRight: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk turn jump aim up left poses.</summary>
     MoonwalkTurnJumpAimUpLeftPoseList,
-    /// <summary>TransitionTable_C2_FaceLeft_Moonwalk_TurnJumpRight_AimUpLeft: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk turn jump aim up right poses.</summary>
     MoonwalkTurnJumpAimUpRightPoseList,
-    /// <summary>TransitionTable_C3_FaceRight_Moonwalk_TurnJumpLeft_AimDownRight: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk turn jump aim down left poses.</summary>
     MoonwalkTurnJumpAimDownLeftPoseList,
-    /// <summary>TransitionTable_C4_FaceLeft_Moonwalk_TurnJumpRight_AimDownLeft: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of the moonwalk turn jump aim down right poses.</summary>
     MoonwalkTurnJumpAimDownRightPoseList,
 }

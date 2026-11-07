@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>When Samus can fire a Super Missile, and the quakes its impacts start.</summary>
 public static class SuperMissileDefinitions
 {
-    /// <summary>Samus_CanFireSuperMissile: reject at four live projectiles, reserving the fifth slot for the collision link.</summary>
+    /// <summary>Super Missile admission: reject at four live projectiles, reserving the fifth slot for the collision link.</summary>
     public const int AdmissionLimit = 4;
     /// <summary>KillProjectileInner: one-pixel diagonal quake affecting both BGs and enemies.</summary>
     public const int EarthquakeType = 20;

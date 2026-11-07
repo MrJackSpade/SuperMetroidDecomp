@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The thirty misc-dust and explosion animations, in the index order of
-/// <c>MiscDust_InstListPointers</c>. The spawn parameter of
-/// <c>EprojInit_DustCloudOrExplosion</c> is this index.
+/// The thirty misc-dust and explosion animations, in the game's index order.
+/// The spawn parameter of the dust-cloud-or-explosion enemy projectile is this index.
 /// </summary>
 public enum MiscDustAnimation
 {

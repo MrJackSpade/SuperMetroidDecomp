@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Post-draw spin/charge handoff from Samus_ShootCheck.</summary>
+/// <summary>Post-draw spin/charge sound handoff from the shoot check.</summary>
 public static class SamusPostDrawAudio
 {
     /// <summary>

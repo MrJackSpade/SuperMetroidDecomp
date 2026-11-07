@@ -49,7 +49,7 @@ public static class GrappleBeamDefinitions
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>
     public static class Firing
     {
-        /// <summary>Firing initializes GrappleBeam_PoseChangeAutoFireTimer to ten; the pose-change check decrements before checking the pose.</summary>
+        /// <summary>Firing initializes the grapple's pose-change auto-fire timer to ten; the pose-change check decrements before checking the pose.</summary>
         public const int PoseChangeAutoFireFrames = 10;
         /// <summary>Firing uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
         public const int DraygonMovingGraphicsYOffset = 6;

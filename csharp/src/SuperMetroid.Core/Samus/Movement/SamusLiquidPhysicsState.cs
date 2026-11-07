@@ -131,7 +131,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     /// <remarks>
     /// This is intentionally not a general audio backend. movement owns a handful
-    /// of exact queue calls—most notably underwater Space Jump's library-one sound $2F—and
+    /// of exact queue calls—most notably underwater Space Jump's sound—and
     /// the runtime already begins one shared publication window before movement.
     /// </remarks>
     public void QueueMovementSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
@@ -217,7 +217,7 @@ public sealed class SamusLiquidPhysicsState
         Ensure.NotNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return SamusLiquidMedium.Air;
-        // Samus_GetBottom_R18 samples the current pose definition, even before the next
+        // Samus's bottom boundary samples the current pose definition, even before the next
         // movement pass publishes its radius to the live collision state.
         int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
         return DetermineRawMediumAtBoundary(bottom);
@@ -295,7 +295,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Runs <c>Samus_Animate</c>'s complete FX dispatch before the generic animation
+    /// Runs the animation's complete FX dispatch before the generic animation
     /// timer: liquid delay, medium changes, four particle producers, sound requests, and
     /// lava/acid fixed-point damage accumulation.
     /// </summary>
@@ -319,7 +319,7 @@ public sealed class SamusLiquidPhysicsState
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         TrySpawnRunningFootsteps(samus, movementType, bossPresent);
 
-        // Samus_Animate's FX handlers call the bottom-boundary helper, whose occupied bottom
+        // The animation's FX handlers call the bottom-boundary helper, whose occupied bottom
         // pixel is Y + pose radius - 1. The exclusive collision boundary would
         // enter liquid one frame early and can prematurely cancel lava momentum.
         int bottom = samus.Kinematics.BottomPixel.Y;
@@ -330,7 +330,7 @@ public sealed class SamusLiquidPhysicsState
         if (RoomFxTypes.UsesWater(fxKind) && WaterAffectsBoundary(bottom))
         {
             // Publishes delay three before testing the remembered medium. A
-            // transition into water queues sound $0D and creates either a diving splash or
+            // transition into water queues the splash sound and creates either a diving splash or
             // two grounded splashes; every submerged call then gets the bubble opportunity.
             bool enteredWater = LiquidPhysicsType != SamusLiquidMedium.Water;
             LiquidPhysicsType = SamusLiquidMedium.Water;
@@ -347,8 +347,8 @@ public sealed class SamusLiquidPhysicsState
                 frameCounter,
                 random);
 
-            // Standing forward `$00`, backward `$9B`, and every Gravity-Suit pose clear the
-            // buffer in Spawn_AirBubbles after all particle/audio side effects have run.
+            // Both forward-facing poses and every Gravity-Suit pose clear the
+            // buffer while spawning air bubbles, after all particle/audio side effects have run.
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
                 samus.AnimationFrameBuffer = 0;
@@ -361,7 +361,7 @@ public sealed class SamusLiquidPhysicsState
             if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
             {
                 // Lava alone cancels the speed boost before the Gravity-Suit branch.
-                // Cancel_SpeedBoosting owns the momentum/counter/palette/echo transition;
+                // Cancelling the speed boost owns the momentum/counter/palette/echo transition;
                 // the two extra-run words are then cleared explicitly by the FX handler.
                 // Acid deliberately skips all three writes.
                 samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -430,7 +430,7 @@ public sealed class SamusLiquidPhysicsState
 
         // Ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
-        // Cinematics suppress both the ordinary-spin `$32` and Screw Attack `$34` requests.
+        // Cinematics suppress both the ordinary-spin and Screw Attack end-sound requests.
         if (!CinematicFunctionActive && previousMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
@@ -516,7 +516,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        // Room `$1C` (space-pirate shaft) bypasses the 16-byte classification table and
+        // Crateria's space-pirate shaft bypasses the 16-byte classification table and
         // always chooses the dry-dust handler, still subject to live liquid submersion.
         if (RoomIdentity == RoomIdentities.CrateriaSpacePirateShaft)
         {
@@ -567,7 +567,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Writes landing-owned particle slots two and three when Samus's last occupied pixel is above active liquid.</summary>
     private void SpawnLandingPairUnlessSubmerged(SamusState samus, SamusAtmosphericEffectType type)
     {
-        // GetBottom_R18 uses the current pose definition and includes the last
+        // The bottom boundary uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
         int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole +
             SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
@@ -786,7 +786,7 @@ public sealed class SamusLiquidPhysicsState
             SpawnFootstepPair(samus, SamusAtmosphericEffectType.AlternateDust);
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
-        // a stored shinespark, and boost stage four each suppress library-three sound $06.
+        // a stored shinespark, and boost stage four each suppress the footstep sound.
         // This is the special-palette timer, not the palette cycle timer: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
             !bossPresent &&
@@ -842,7 +842,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Runs the wall jump's pose-entry dust writes, shared by ordinary and grapple wall jumps.</summary>
     internal void SpawnWallJumpDust(SamusState samus)
     {
-        // Get_Samus_Bottom_Boundary uses the last occupied pixel of the current
+        // Samus's bottom boundary uses the last occupied pixel of the current
         // pose's definition radius, not the live collision radius, which keeps the spin body's radius
         // through the wall-jump frame. Liquid suppression leaves all previous slot words
         // intact, even when Gravity Suit makes movement itself behave as though the room

@@ -26,7 +26,7 @@ internal sealed class SamusScrollCap
     /// The offset takes the movement's sign: a downward or rightward move puts the previous
     /// position beyond Samus, not behind her. Only the distance reaches the camera, whose
     /// direction comes from separate words. A magnitude of 32768 stays negative after
-    /// <c>NegateA_A0B067</c> but compares as not below twelve, so it is capped too.
+    /// negation but compares as not below twelve, so it is capped too.
     /// </remarks>
     internal void CapSamusScrollingSpeed(SamusState samus)
     {

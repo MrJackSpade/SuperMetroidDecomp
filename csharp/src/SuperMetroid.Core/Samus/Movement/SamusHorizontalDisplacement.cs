@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// the rightward one writes right (1).
 /// </summary>
 /// <remarks>
-/// The two are independent. The movers choose <c>MoveSamus_Right</c> or
-/// <c>MoveSamus_Left</c> from the displacement's sign (zero is not negative, so it moves
+/// The two are independent. The movers choose a move right or
+/// a move left from the displacement's sign (zero is not negative, so it moves
 /// right), while their unconditional solid-enemy probe reads the stored direction.
 /// </remarks>
 public readonly record struct SamusHorizontalDisplacement(int Displacement, SamusCollisionDirection CollisionDirection)

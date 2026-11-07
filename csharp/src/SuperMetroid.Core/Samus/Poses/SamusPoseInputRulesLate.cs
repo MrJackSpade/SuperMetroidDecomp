@@ -95,7 +95,7 @@ internal static class SamusPoseInputRulesLate
         _ => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
     };
 
-    /// <summary>TransitionTable_79_7B_FacingRight_MorphBall_Spring_OnGround: priority order.</summary>
+    /// <summary>The priority order of the spring ball ground right input list.</summary>
     private static SamusPoseInputMatch MatchSpringBallGroundRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
@@ -109,7 +109,7 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>TransitionTable_7A_7C_FacingLeft_MorphBall_Spring_OnGround: priority order.</summary>
+    /// <summary>The priority order of the spring ball ground left input list.</summary>
     private static SamusPoseInputMatch MatchSpringBallGroundLeftPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
@@ -124,7 +124,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_7D_FacingRight_MorphBall_SpringBall_Falling: priority order; TransitionTable_7E_FacingLeft_MorphBall_SpringBall_Falling is the same list mirrored.</summary>
+    /// <summary>The priority order of the spring ball falling right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchSpringBallFallingRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
@@ -137,7 +137,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_7F_FacingRight_MorphBall_SpringBall_InAir: priority order.</summary>
+    /// <summary>The priority order of the spring ball jump right input list.</summary>
     private static SamusPoseInputMatch MatchSpringBallJumpRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
@@ -149,7 +149,7 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>TransitionTable_80_FacingLeft_MorphBall_SpringBall_InAir: priority order.</summary>
+    /// <summary>The priority order of the spring ball jump left input list.</summary>
     private static SamusPoseInputMatch MatchSpringBallJumpLeftPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
@@ -162,7 +162,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>UNUSED_TransitionTable_63_91A990: priority order.</summary>
+    /// <summary>The priority order of the unused compact airborne right input list.</summary>
     private static SamusPoseInputMatch MatchCompactAirborneRightPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Left))
@@ -171,7 +171,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>UNUSED_TransitionTable_65_91A9A0: priority order.</summary>
+    /// <summary>The priority order of the unused compact airborne falling right input list.</summary>
     private static SamusPoseInputMatch MatchCompactAirborneFallingRightPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Right))
@@ -190,7 +190,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_83_FacingRight_WallJump: priority order; TransitionTable_84_FacingLeft_WallJump is the same list mirrored.</summary>
+    /// <summary>The priority order of the wall jump right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchWallJumpRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
@@ -209,7 +209,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_89_CF_D1_FacingRight_RanIntoAWall: priority order; TransitionTable_8A_D0_D2_FacingLeft_RanIntoAWall is the same list mirrored.</summary>
+    /// <summary>The priority order of the ran into wall right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchRanIntoWallRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Jump))
@@ -238,7 +238,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_13_FaceRight_NormalJump_NotMoving_GunExtend: priority order; TransitionTable_14_FacingLeft_NormalJump_NotMoving_GunExtend is the same list mirrored.</summary>
+    /// <summary>The priority order of the normal jump gun extended right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchNormalJumpGunExtendedRightPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Right | Up))
@@ -285,7 +285,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_17_FacingRight_NormalJump_AimingDown: priority order.</summary>
+    /// <summary>The priority order of the normal jump aim down right input list.</summary>
     private static SamusPoseInputMatch MatchNormalJumpAimDownRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
@@ -337,7 +337,7 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>TransitionTable_18_FacingLeft_NormalJump_AimingDown: priority order.</summary>
+    /// <summary>The priority order of the normal jump aim down left input list.</summary>
     private static SamusPoseInputMatch MatchNormalJumpAimDownLeftPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
@@ -389,7 +389,7 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>TransitionTable_3D_FacingRight_Unmorphing: priority order; TransitionTable_3E_FacingLeft_Unmorphing is the same list mirrored.</summary>
+    /// <summary>The priority order of the unmorphing transition right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchUnmorphingTransitionRightPoseList(ControllerButton held)
     {
         if (Has(held, Shoot | Right))
@@ -402,7 +402,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_25_FacingRight_Turning_Standing: priority order; TransitionTable_26_FacingLeft_Turning_Standing is the same list mirrored.</summary>
+    /// <summary>The priority order of the turning right to left input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchTurningRightToLeftPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(held, Jump | Left))
@@ -415,7 +415,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_8B_FacingRight_Turning_Standing_AimingUp: priority order; TransitionTable_8C_FacingLeft_Turning_Standing_AimingUp is the same list mirrored.</summary>
+    /// <summary>The priority order of the turning right to left aim up input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchTurningRightToLeftAimUpPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
@@ -428,7 +428,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_8D_FacingRight_Turning_Standing_AimDownRight: priority order; TransitionTable_8E_FacingLeft_Turning_Standing_AimDownLeft is the same list mirrored.</summary>
+    /// <summary>The priority order of the turning right to left aim diagonal down input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchTurningRightToLeftAimDiagonalDownPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
@@ -441,7 +441,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_C7_FacingRight_VerticalShinesparkWindup: priority order; TransitionTable_C8_FacingLeft_VerticalShinesparkWindup is the same list mirrored.</summary>
+    /// <summary>The priority order of the shinespark windup right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchShinesparkWindupRightPoseList(ControllerButton held)
     {
         if (Has(held, Jump | Up))
@@ -454,7 +454,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_2D_FacingRight_Falling_AimingDown: priority order; TransitionTable_2E_FacingLeft_Falling_AimingDown is the same list mirrored.</summary>
+    /// <summary>The priority order of the falling aim down right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchFallingAimDownRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
@@ -481,7 +481,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>UNUSED_TransitionTable_DF_91AE10: priority order.</summary>
+    /// <summary>The priority order of the unused draygon held ball left input list.</summary>
     private static SamusPoseInputMatch MatchDraygonHeldBallLeftPoseList(ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
@@ -490,7 +490,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_EC_ED_EE_EF_F0_FacingRight_GrabbedByDraygon: priority order.</summary>
+    /// <summary>The priority order of the draygon grabbed neutral right input list.</summary>
     private static SamusPoseInputMatch MatchDraygonGrabbedNeutralRightPoseList(ControllerButton held)
     {
         if (Has(held, Shoot | Right | Up))
@@ -516,7 +516,7 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>TransitionTable_BA_BB_BC_BD_BE_FacingLeft_GrabbedByDraygon: priority order.</summary>
+    /// <summary>The priority order of the draygon grabbed neutral left input list.</summary>
     private static SamusPoseInputMatch MatchDraygonGrabbedNeutralLeftPoseList(ControllerButton held)
     {
         if (Has(held, Shoot | Left | Up))
@@ -542,7 +542,7 @@ internal static class SamusPoseInputRulesLate
         return new(null, HasConditions: true);
     }
 
-    /// <summary>TransitionTable_0B_MovingRight_GunExtended: priority order; TransitionTable_0C_MovingLeft_GunExtended is the same list mirrored.</summary>
+    /// <summary>The priority order of the moving right gun extended input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchMovingRightGunExtendedPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
@@ -573,7 +573,7 @@ internal static class SamusPoseInputRulesLate
     }
 
 
-    /// <summary>TransitionTable_67_FacingRight_Falling_GunExtended: priority order; TransitionTable_68_FacingLeft_Falling_GunExtended is the same list mirrored.</summary>
+    /// <summary>The priority order of the falling gun extended right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchFallingGunExtendedRightPoseList(ControllerButton held)
     {
         if (Has(held, Right | Up))
@@ -599,7 +599,7 @@ internal static class SamusPoseInputRulesLate
 
 
 
-    /// <summary>TransitionTable_C0_FacingLeft_Moonwalking_TurnJumpRight: priority order; TransitionTable_BF_FacingRight_Moonwalking_TurnJumpLeft is the same list mirrored.</summary>
+    /// <summary>The priority order of the moonwalk turn jump right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpRightPoseList(ControllerButton held, ControllerButton newlyPressed)
     {
         if (Has(held, Jump | Right))
@@ -613,8 +613,8 @@ internal static class SamusPoseInputRulesLate
 
 
     /// <summary>
-    /// TransitionTable_C2_FaceLeft_Moonwalk_TurnJumpRight_AimUpLeft; TransitionTable_C4_FaceLeft_Moonwalk_TurnJumpRight_AimDownLeft; TransitionTable_C1_FaceRight_Moonwalk_TurnJumpLeft_AimUpRight; TransitionTable_C3_FaceRight_Moonwalk_TurnJumpLeft_AimDownRight: one priority order for an aimed moonwalk turn jump to the right, continuing <paramref name="aimedTurnJump"/>;
-    /// the leftward lists are it mirrored.
+    /// The aimed-up and aimed-down moonwalk turn-jump input lists, in both directions: one priority order for an aimed
+    /// moonwalk turn jump to the right, continuing <paramref name="aimedTurnJump"/>; the leftward lists are it mirrored.
     /// </summary>
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimedRightPoseList(SamusPoseId aimedTurnJump, ControllerButton held, ControllerButton newlyPressed)
     {

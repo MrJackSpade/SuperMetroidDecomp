@@ -18,7 +18,7 @@ public static class SamusPoseTransitionTable
 
     /// <summary>
     /// Runs the complete lookup and preserves whether failure enters
-    /// <c>Samus_Pose_Func2</c>'s pose-definition fallback.
+    /// the pose handling's pose-definition fallback.
     /// </summary>
     /// <remarks>
     /// There are two observably different ways to return without a prospective pose.
@@ -26,8 +26,8 @@ public static class SamusPoseTransitionTable
     /// beginning with a terminator returns directly while any input is held;
     /// matching a record whose target is the current pose returns directly. A nullable
     /// transition alone cannot represent that distinction. In particular, running-gun
-    /// pose <c>$0B</c> matches itself while Right+Shoot is held, but Shoot alone reaches
-    /// the terminator and must fall back to standing pose <c>$01</c>.
+    /// pose <see cref="SamusPoseId.MovingRightGunExtendedPose"/> matches itself while Right+Shoot is held, but Shoot alone reaches
+    /// the terminator and must fall back to standing pose <see cref="SamusPoseId.FacingRightNormalPose"/>.
     /// </remarks>
     public static SamusPoseTransitionLookup Lookup(
         SamusPoseId currentPose,

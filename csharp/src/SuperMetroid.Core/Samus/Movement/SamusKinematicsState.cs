@@ -61,8 +61,8 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Current pose byte sampled by collision. Door collision is mostly geometric,
-    /// but the elevator pseudo-door handlers admit only poses below $09 before publishing
-    /// <c>elevator_flags</c>. Keeping that byte beside the geometry lets every shared block
+    /// but the elevator pseudo-door handlers admit only the forward-facing and standing poses
+    /// before publishing the elevator flags. Keeping that byte beside the geometry lets every shared block
     /// mover preserve the test without guessing which higher-level movement caller
     /// happened to reach it.
     /// </summary>
@@ -103,7 +103,7 @@ public sealed class SamusKinematicsState
     public FixedVector<RoomPixels> ExtraDisplacement { get; set; }
 
     /// <summary>
-    /// Collision half-extents: X is always five (<c>Samus_SetRadius</c>); Y is the
+    /// Collision half-extents: X is always five; Y is the
     /// pose-defined radius.
     /// </summary>
     public Extent16<RoomPixels> Radius { get; set; } = new(5, 0);

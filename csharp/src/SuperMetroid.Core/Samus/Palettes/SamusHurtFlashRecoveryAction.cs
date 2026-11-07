@@ -5,14 +5,14 @@ public enum SamusHurtFlashRecoveryAction
 {
     /// <summary>No recovery sound or deferred charging request was selected for the current movement/grapple state.</summary>
     None,
-    /// <summary>Samus command $1C selects the translated ordinary spin/wall-jump sound, library one $31, with queue threshold nine.</summary>
+    /// <summary>The spin-recovery command selects the translated ordinary spin/wall-jump sound, with queue threshold nine.</summary>
     SpinJumpSound,
-    /// <summary>The spin-recovery command selects library-one Space Jump sound $3E from Samus's pose or wall-jump animation frame.</summary>
+    /// <summary>The spin-recovery command selects the Space Jump sound from Samus's pose or wall-jump animation frame.</summary>
     SpaceJumpSound,
-    /// <summary>The spin-recovery command selects library-one Screw Attack sound $33 from Samus's pose or wall-jump animation frame.</summary>
+    /// <summary>The spin-recovery command selects the Screw Attack sound from Samus's pose or wall-jump animation frame.</summary>
     ScrewAttackSound,
-    /// <summary>Queues library-one sound $06 with threshold nine while Grapple is firing, connected, wall-grabbing, or releasing a wall grab.</summary>
+    /// <summary>Queues the grapple sound with threshold nine while Grapple is firing, connected, wall-grabbing, or releasing a wall grab.</summary>
     GrappleSound,
-    /// <summary>Sets the resume-charging latch when the flare count is at least $10 and X is held; the post-draw consumer may later queue sound $41.</summary>
+    /// <summary>Sets the resume-charging latch when the flare count is at least sixteen and X is held; the post-draw consumer may later queue the resume-charging sound.</summary>
     ResumeChargingBeamRequested,
 }

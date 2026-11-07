@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 public enum SamusProspectivePoseChangeCommand
 {
-    /// <summary>Command 0, <c>RTS_91EFC3</c>.</summary>
+    /// <summary>Command 0, which does nothing.</summary>
     None = 0,
 
-    /// <summary>Command 1, <c>ProspectivePoseCmd_1_Decelerate</c>.</summary>
+    /// <summary>Command 1, which decelerates Samus.</summary>
     Decelerate = 1,
 
-    /// <summary>Command 2, <c>ProspectivePoseCmd_2_Stop</c>.</summary>
+    /// <summary>Command 2, which stops Samus.</summary>
     Stop = 2,
 
-    /// <summary>Command 6, <c>ProspectivePoseCmd_6_KillXSpeed</c>.</summary>
+    /// <summary>Command 6, which kills Samus's X speed.</summary>
     KillXSpeed = 6,
 
-    /// <summary>Command 8, <c>ProspectivePoseCmd_8_KillRunSpeed</c>.</summary>
+    /// <summary>Command 8, which kills Samus's run speed.</summary>
     KillRunSpeed = 8,
 }

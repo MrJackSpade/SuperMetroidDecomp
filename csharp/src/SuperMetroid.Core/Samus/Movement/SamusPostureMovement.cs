@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusPostureMovement
 {
     /// <summary>
-    /// Ports movement type five for the complete equal-radius
-    /// `$27/$28/$71-$74/$85/$86` crouch family.
+    /// Runs crouching movement for the complete equal-radius crouch family,
+    /// unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepCrouching(
 
@@ -30,7 +30,7 @@ public static class SamusPostureMovement
             !SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Crouching movement requires pose $27/$28/$71-$74/$85/$86, not {samus.Pose}.");
+                $"Crouching movement requires a crouching pose, not {samus.Pose}.");
         }
 
         GroundedMovementResult result = MoveWithZeroBaseSpeed(
@@ -49,8 +49,8 @@ public static class SamusPostureMovement
     }
 
     /// <summary>
-    /// Ports the `$35/$36/$3B/$3C/$F1-$FC` crouch/stand subset of movement type
-    /// `$0F`.
+    /// Runs the crouch/stand subset of posture-transition movement: the crouching and
+    /// standing transitions, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepCrouchStandTransition(
 
@@ -63,7 +63,7 @@ public static class SamusPostureMovement
         if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Crouch/stand transition movement requires pose $35/$36/$3B/$3C/$F1-$FC, not {samus.Pose}.");
+                $"Crouch/stand transition movement requires a crouching or standing transition pose, not {samus.Pose}.");
         }
 
         // All four corresponding entries in the posture cleanup table do nothing. Unlike movement type five,
@@ -84,10 +84,10 @@ public static class SamusPostureMovement
 
         // Does exactly two stores before tail-calling the ordinary horizontal
         // mover: it zeros the *base* displacement pair. It emphatically does
-        // not require extra run speed to be zero. `MoveSamus_Horizontally` subsequently
+        // not require extra run speed to be zero. Horizontal movement subsequently
         // adds the extra run speed to that zero base. This is the retail
         // behavior that lets a stage-four run continue sliding during crouch transition
-        // `$35/$36`; Samus's pose handling samples and stores the shine before normal crouching clears
+        // into a crouch; Samus's pose handling samples and stores the shine before normal crouching clears
         // that momentum. The old exception at this seam prevented that route.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
@@ -97,7 +97,7 @@ public static class SamusPostureMovement
 
         // Uses the external-Y replacement when present. Otherwise it couples
         // the downward floor probe to the total X speed calculated by the horizontal pass;
-        // this matters for a Speed-Booster slide through `$35/$36`.
+        // this matters for a Speed-Booster slide through the crouching transition.
         int verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (frameCounter & 1) == 0 });

@@ -253,7 +253,7 @@ internal sealed class ProjectileTerrainCollision
             slot.Type.IsFamily(SamusProjectileFamily.SuperMissile))
         {
             // Missiles take the point test in RunMissileFrameBehavior; the missile
-            // branch ($1E set) has no caller in this port.
+            // branch has no caller in this port.
             throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
         }
 
@@ -301,10 +301,10 @@ internal sealed class ProjectileTerrainCollision
     {
         endSpan = false;
         // The extension-block resolution is shared by shot, bomb, grapple, collision, and inside
-        // dispatch. Door caps deliberately put the shootable origin at one end and type-
-        // `$D` extension words across the other three cells. Resolve those signed behaviour
+        // dispatch. Door caps deliberately put the shootable origin at one end and vertical
+        // extension words across the other three cells. Resolve those signed behaviour
         // links before selecting a reaction; otherwise a centered horizontal beam merely
-        // explodes against the middle extension and can never reach behaviour `$40..$43`.
+        // explodes against the middle extension and can never reach the blue-door behaviours.
         RoomCollisionBlock? resolvedBlock = ResolveShotReactionExtension(level, block);
         if (resolvedBlock is null)
             return false;
@@ -330,7 +330,7 @@ internal sealed class ProjectileTerrainCollision
             return hit;
         }
 
-        // Chozo orbs and concealed item blocks are type-$C/behaviour-$45. Their special
+        // Chozo orbs and concealed item blocks are shootable blocks of the item-trigger behaviour. Their special
         // reaction does not use the ordinary behaviour 0..F shot-block table: its header
         // finds and triggers the already-loaded permanent-item PLM at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
@@ -340,7 +340,7 @@ internal sealed class ProjectileTerrainCollision
             return true;
         }
 
-        // Both type-$8 and type-$C behaviour-$44 collision routes allocate the generic shot trigger,
+        // Both the solid and the shootable resident-object trigger collision routes allocate the generic shot trigger,
         // which publishes the live projectile word to the resident PLM at this block.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
@@ -435,7 +435,7 @@ internal sealed class ProjectileTerrainCollision
         if (roomObjects is null)
             return;
 
-        // Downward gate behaviour $46-$4D bypasses the normal 16-entry shot-block table and
+        // The gate-trigger behaviours bypass the normal 16-entry shot-block table and
         // allocates one of eight temporary trigger PLMs. Dispatch it before the table-range
         // validation below; those behaviours are intentionally outside that ordinary domain.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
@@ -446,7 +446,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
-        // actors all share type-$C/behaviour-$44. The resident PLM determines the accepted family
+        // actors all share the shootable resident-object trigger. The resident PLM determines the accepted family
         // after the generic shot trigger publishes the projectile word.
         if (block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
         {
@@ -458,7 +458,7 @@ internal sealed class ProjectileTerrainCollision
         // ordinary breakable blocks: setup changes the cap origin to type $8 and the
         // door's animation opens all four blocks over eighteen frames. Keep this dispatch
         // beside the general table lookup so every beam/missile/bomb collision reaches the
-        // same owner and power bombs retain Setup_BlueDoor's rejection behavior.
+        // same owner and power bombs retain the blue door setup's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))
         {
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
@@ -469,12 +469,12 @@ internal sealed class ProjectileTerrainCollision
             return;
         }
 
-        // Nonnegative behaviour 0..F indexes the ordinary retail shot-block entries, and $10 is
+        // Nonnegative behaviour 0..15 indexes the ordinary retail shot-block entries, and 16 is
         // the table's deliberate collision-probe/no-op PLM. Negative behaviour
         // 0..7 is also admitted so shootable-solid can preserve its area-table no-op
         // slot; shootable-air's method exits without allocating. The RoomObject owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
-        // each setup sees the current projectile type during Spawn_PLM.
+        // each setup sees the current projectile type while the room object spawns.
         bool translatedBehavior = block.Behavior.IsAreaReactionIndex(8) ||
             block.Behavior == EscapeAnimalWallDefinitions.ReactionBehavior ||
             block.Behavior.IsNormalReactionIndex(16) ||
@@ -515,8 +515,8 @@ internal sealed class ProjectileTerrainCollision
         SignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
 
     /// <summary>
-    /// Kill_Projectile for a beam, as block collision calls it: the
-    /// explosion's library-two $0C queues (no cinematic test) before the swap.
+    /// Kills a beam as block collision does: the
+    /// explosion's sound queues (no cinematic test) before the swap.
     /// </summary>
     internal void KillBeamOnBlockCollision(SamusProjectileSlot slot,
         SamusPowerBombExplosionState powerBomb)

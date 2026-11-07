@@ -20,19 +20,19 @@ public enum SamusMovementType
     Crouching,
     /// <summary>Upright descending aerial movement after the vertical-speed apex.</summary>
     Falling,
-    /// <summary>Unused retail dispatcher slot <c>$07</c> associated with a glitch-ball pose family.</summary>
+    /// <summary>Unused retail movement type associated with a glitch-ball pose family.</summary>
     UnusedGlitchBall,
     /// <summary>Descending morph-ball movement with airborne ball collision bounds.</summary>
     MorphBallFalling,
-    /// <summary>Second unused retail glitch-ball dispatcher slot, at index <c>$09</c>.</summary>
+    /// <summary>Second unused retail glitch-ball movement type.</summary>
     UnusedGlitchBallAlternate,
     /// <summary>Damage knockback movement until the hurt trajectory returns control to a normal pose.</summary>
     Knockback,
-    /// <summary>Unused movement-dispatch table entry <c>$0B</c>; preserved for pose identity.</summary>
+    /// <summary>The first unused movement type after knockback; preserved for pose identity.</summary>
     Unused0B,
-    /// <summary>Unused movement-dispatch table entry <c>$0C</c>; preserved for pose identity.</summary>
+    /// <summary>The second unused movement type after knockback; preserved for pose identity.</summary>
     Unused0C,
-    /// <summary>Unused movement-dispatch table entry <c>$0D</c>, referenced only by unused pose records.</summary>
+    /// <summary>The third unused movement type after knockback, referenced only by unused pose records.</summary>
     Unused0D,
     /// <summary>Grounded turn animation that defers the facing reversal until its pose sequence advances.</summary>
     TurningOnGround,

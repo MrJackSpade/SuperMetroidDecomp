@@ -124,7 +124,7 @@ public sealed class SamusBombProjectileSystem
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
         }
-        // The explosion runs Samus command $1E at the end of every cleanup, including the
+        // The explosion resumes Samus's sounds at the end of every cleanup, including the
         // Crystal Flash window's own.
         if (powerBombCleanup)
             ResumeSoundsAfterPowerBombExplosion(samus, gameState);
@@ -239,7 +239,7 @@ public sealed class SamusBombProjectileSystem
             projectileDeleted |= RunProjectileInstructionHandler(slot);
         }
 
-        // GameState_8 runs the bomb overlap check after frame-handler alpha (which placed/updated the
+        // Main gameplay runs the bomb overlap check after frame-handler alpha (which placed/updated the
         // bombs) and before beta moves Samus. Store only the low direction byte here. The
         // same frame's hit-interruption phase can arm the bomb movement handler.
         // Runtime defers this until the humanoid shot producer has also run: a
@@ -325,8 +325,8 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Samus command $1E. In main gameplay a spinning Samus re-queues her spin
-    /// sound through command $1C; otherwise a flare of at least $10 resumes the charge loop.
+    /// The Samus command that resumes her sounds. In main gameplay a spinning Samus re-queues her spin
+    /// sound through the spin-sound command; otherwise a flare of at least sixteen resumes the charge loop.
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
         SamusState samus,
@@ -347,7 +347,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>The flare count from which a charging beam's loop is audible.</summary>
     private const int ChargeSoundFlareThreshold = 16;
 
-    /// <summary>Ticks the shared shot cooldown, or holds it at $20 during X-Ray time freeze.</summary>
+    /// <summary>Ticks the shared shot cooldown, or holds it at 32 during X-Ray time freeze.</summary>
     private void StepCooldown(bool timeIsFrozen)
     {
         // While time is frozen the cooldown is held at 32 instead of counting
@@ -534,7 +534,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         // Helper two increments both values before the caller searches for storage. The
-        // caller immediately replaces cooldown with table entry five ($10) after init.
+        // caller immediately replaces cooldown with table entry five (16) after init.
         CooldownTimer = CooldownTimer.AddFrames(1);
         BombCounter = WrappingCounter.IncrementWord(BombCounter);
 
@@ -851,9 +851,9 @@ public sealed class SamusBombProjectileSystem
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
 
-        // Item collision behaviour $45 routes to the already-loaded item object rather than
-        // indexing the ordinary bomb/special-block tables. Visible type-$B frames need no
-        // additional response; concealed type-$C/orb frames publish the generic trigger.
+        // The item-trigger collision behaviour routes to the already-loaded item object rather than
+        // indexing the ordinary bomb/special-block tables. Visible special-block frames need no
+        // additional response; concealed shootable/orb frames publish the generic trigger.
         if (block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
@@ -862,10 +862,10 @@ public sealed class SamusBombProjectileSystem
         }
 
         // The shot dispatch selects the temporary generic trigger PLM for both type-$8 special collision and
-        // type-$C shootable collision with behaviour $44. Its setup deletes that temporary
+        // shootable collision with the resident-object trigger behaviour. Its setup deletes that temporary
         // slot, finds the resident actor at the same block, and publishes this projectile
-        // word. The n00b tube begins as type $8 but its intact draw changes the live origin
-        // to type $C, so narrowing this seam to colored doors strands the progression PLM.
+        // word. The n00b tube begins as a solid block but its intact draw changes the live origin
+        // to a shootable block, so narrowing this seam to colored doors strands the progression PLM.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
         {
@@ -879,10 +879,10 @@ public sealed class SamusBombProjectileSystem
         }
 
         // The shot-block table's entries 40..43 route the four ordinary blue-door cap orientations to
-        // Setup_BlueDoor regardless of whether the collision came from the shot or bomb
+        // the blue door setup regardless of whether the collision came from the shot or bomb
         // dispatcher. Normal bombs use the bomb projectile family and are accepted; the Power
         // Bomb family is rejected inside the shared setup. Treating these
-        // private door behaviours as ordinary table indices both crashed on `$41` and lost
+        // private door behaviours as ordinary table indices both crashed on a blue door and lost
         // the game behavior that allows a bomb placed beside a blue door to open it.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
@@ -953,7 +953,7 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
-            // Gate shot blocks reuse shootable collision with private behaviour $46-$4D. They
+            // Gate shot blocks reuse shootable collision with the private gate-trigger behaviours. They
             // select temporary trigger PLMs rather than the ordinary 0..F bomb table.
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
@@ -971,9 +971,9 @@ public sealed class SamusBombProjectileSystem
                 return;
             }
 
-            // Type-$4 shootable air treats negative behaviour as a duplicate and returns.
-            // Type-$C instead indexes one of eight area tables; every retail entry is
-            // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.
+            // Shootable air treats negative behaviour as a duplicate and returns.
+            // A shootable block instead indexes one of eight area tables; every retail entry is
+            // the empty room object, but spawning it still consumes a slot for one pass.
             if (block.CollisionType == RoomCollisionType.ShootableAir &&
                 block.Behavior.UsesAreaReactionTable)
                 return;

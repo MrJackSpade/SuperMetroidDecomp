@@ -11,18 +11,18 @@ namespace SuperMetroid.Core.Samus.Death;
 /// <summary>
 /// Owns Samus's fatal-damage pose, tile, palette, flashing, whiteout, and suit-
 /// explosion sequence. This is deliberately not folded into knockback merely because poses
-/// `$D7/$D8` advertise movement type `$0A`: game states `$15-$18` stop the normal Samus frame
+/// the death-sequence poses advertise the knockback movement type: the death game states stop the normal Samus frame
 /// handlers and call this independent state machine instead.
 /// </summary>
 public sealed class SamusDeathSequenceState : IGameplayShadingSource
 {
-    /// <summary>The game-state-owned phase corresponding to states `$16-$18`.</summary>
+    /// <summary>The game-state-owned phase corresponding to the pre-flash, flashing and suit-explosion states.</summary>
     public SamusDeathSequencePhase Phase { get; private set; }
 
     /// <summary>
     /// True from the death sequence's setup through the terminal white frame. A completed sequence
     /// remains an owner until the outer game-state fade replaces the room, preventing normal
-    /// type-`$0A` knockback code from accidentally resuming on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
+    /// knockback movement code from accidentally resuming on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
     /// </summary>
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
@@ -50,7 +50,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// <summary>Screen-space position captured at death-pose setup.</summary>
     public Position16<ScreenPixels> ScreenPosition { get; private set; }
 
-    /// <summary>Set only when the source movement type was spin jumping and SFX `$32` is queued.</summary>
+    /// <summary>Set only when the source movement type was spin jumping and the spin-jump sound's end is queued.</summary>
     public bool SpinJumpSoundRequested { get; private set; }
 
     /// <summary>Consumes death setup's normal-priority sound request.</summary>
@@ -66,12 +66,12 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         Phase == SamusDeathSequencePhase.SuitExplosion && AnimationIndex < SamusDeathExplosionTimingDefinitions.RecordCount
             ? AnimationIndex : null;
 
-    /// <summary>The facing bit captured before pose metadata is replaced by `$D7/$D8`.</summary>
+    /// <summary>The facing bit captured before pose metadata is replaced by the death-sequence pose.</summary>
     public bool FacingLeft { get; private set; }
 
     /// <summary>
-    /// Ports <c>SetSamusDeathSequencePose</c>. The outer caller represents
-    /// game state `$15` having observed an empty music queue; fatal-damage acquisition and
+    /// Sets Samus's death-sequence pose. The outer caller represents
+    /// the death's first game state having observed an empty music queue; fatal-damage acquisition and
     /// the music wait are distinct producers and are not guessed here.
     /// </summary>
     public SamusDeathSequenceStartResult Begin(
@@ -119,7 +119,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Executes one game-state `$16/$17/$18` call. Samus's suit and suitless steps are her shades, and the whiteout is
+    /// Executes one call of the pre-flash, flashing or suit-explosion game state. Samus's suit and suitless steps are her shades, and the whiteout is
     /// the <see cref="Whiteout"/> colour the display shows (#1512), on the same calls the game wrote them. The explosion
     /// is shown by selecting its frame (<see cref="ExplosionFrame"/>) on the call the game drew it; the five
     /// character loads that precede it in the game have no counterpart, because each frame is a pre-coloured picture.
@@ -142,8 +142,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         switch (Phase)
         {
             case SamusDeathSequencePhase.PreFlashing:
-                // The death animation advances the `$D7/$D8` delay stream only during state `$16`.
-                // State `$17` freezes that final body frame while its palettes alternate.
+                // The death animation advances the death pose's delay stream only during the pre-flash state.
+                // The flashing state freezes that final body frame while its palettes alternate.
                 SamusPresentation.AnimateDeathFrame(samus);
                 drawPose = true;
                 PreFlashingTimer--;
@@ -269,7 +269,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     private bool ApplyWhiteout(SamusColours samusColours, SamusDeathSteps? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
-        // frame remains over the original room even though game state `$18` has begun.
+        // frame remains over the original room even though the suit-explosion game state has begun.
         if (AnimationIndex == 0)
             return false;
 

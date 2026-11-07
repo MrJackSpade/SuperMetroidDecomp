@@ -36,7 +36,7 @@ internal static class SamusPoseMetadata
             : SamusPostureTransitionAdmission.BeyondTable;
 
     /// <summary>
-    /// Ports <c>Samus_SetRadius</c>: every pose is five pixels wide and
+    /// Sets Samus's collision radius: every pose is five pixels wide and
     /// reads its vertical radius from pose-definition byte six.
     /// </summary>
     public static void RefreshCollisionRadii(SamusState samus)
@@ -163,7 +163,7 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// Selects the suit's front-view pose as facing forward
     /// and Samus command 9 do. The Gravity and Varia suit bits
-    /// have equal precedence: either selects the shared suited pose <c>$9B</c>.
+    /// have equal precedence: either selects the shared suited pose <see cref="SamusPoseId.ForwardFacingSuitedPose"/>.
     /// </summary>
     private static void SelectForwardFacingPose(SamusState samus)
     {
@@ -244,9 +244,9 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// True for all five live movement-type-one, right-moving pose-table entries. `$0B`
+    /// True for all five live running, right-moving pose-table entries. The gun-extended running pose
     /// belongs here even though its name describes firing: the game dispatches its body
-    /// through exactly the same running physics as `$09/$0D/$0F/$11`.
+    /// through exactly the same running physics as the unaimed and aimed running poses.
     /// </summary>
     public static bool IsRightFacingRunningPose(SamusPoseId pose) => pose is
         SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingRightGunExtendedPose or
@@ -259,7 +259,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the six ordinary-play bodies whose names explicitly say “gun extended.”
-    /// Firing landings `$E6/$E7` are kept separate because they are short transition art,
+    /// The firing landings are kept separate because they are short transition art,
     /// not stable horizontal-fire bodies selected directly by an input table.
     /// </summary>
     public static bool IsGunExtendedPose(SamusPoseId pose) => pose is
@@ -268,7 +268,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose;
 
     /// <summary>
-    /// True for the three poses whose artwork faces left while the type-$10 body travels
+    /// True for the three poses whose artwork faces left while the moonwalking body travels
     /// right. The naming is intentionally visual; <c>ReadPoseXDirection</c> returns eight.
     /// </summary>
     public static bool IsMoonwalkingFacingLeftPose(SamusPoseId pose) => IsMoonwalkingFacingRightPose(SamusPoseMirror.Of(pose));
@@ -277,16 +277,16 @@ internal static class SamusPoseMetadata
     public static bool IsMoonwalkingFacingRightPose(SamusPoseId pose) => pose is
         SamusPoseId.MoonwalkFacingRightPose or SamusPoseId.MoonwalkAimUpRightPose or SamusPoseId.MoonwalkAimDownRightPose;
 
-    /// <summary>True for the six neutral or aimed moonwalk records in movement type $10, whose artwork faces opposite their travel direction.</summary>
+    /// <summary>True for the six neutral or aimed moonwalk records of the moonwalking movement type, whose artwork faces opposite their travel direction.</summary>
     /// <param name="pose">Current or prospective pose byte; no pose metadata or live state is changed.</param>
     /// <returns>Whether the pose belongs to either visual-facing moonwalk family.</returns>
     public static bool IsMoonwalkingPose(SamusPoseId pose) =>
         IsMoonwalkingFacingLeftPose(pose) || IsMoonwalkingFacingRightPose(pose);
 
-    /// <summary>True for all five left-facing movement-type-`$1A` Draygon poses.</summary>
+    /// <summary>True for all five left-facing Draygon-held poses.</summary>
     public static bool IsLeftFacingDraygonGrabbedPose(SamusPoseId pose) => IsRightFacingDraygonGrabbedPose(SamusPoseMirror.Of(pose));
 
-    /// <summary>True for all five right-facing movement-type-`$1A` Draygon poses.</summary>
+    /// <summary>True for all five right-facing Draygon-held poses.</summary>
     public static bool IsRightFacingDraygonGrabbedPose(SamusPoseId pose) => pose is
         SamusPoseId.DraygonGrabbedNeutralRightPose or SamusPoseId.DraygonGrabbedAimUpRightPose or
         SamusPoseId.DraygonGrabbedFiringRightPose or SamusPoseId.DraygonGrabbedAimDownRightPose or
@@ -310,7 +310,7 @@ internal static class SamusPoseMetadata
             IsRightFacingDraygonGrabbedPose(targetPose);
         if (!leftFamily && !rightFamily)
         {
-            // The left-facing table contains only `$BA-$BE`; the right-facing one contains only `$EC-$F0`.
+            // The left-facing table contains only the left-facing grabbed poses; the right-facing one only the right-facing.
             // Neither controller-input table can cross facing families. Draygon's owner AI
             // performs facing changes by re-entering its grabbed controller directly, so a
             // cross-family request to this table-transition API is a caller contract error,
@@ -332,8 +332,8 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// True for `$BF-$C4`, the six grounded turn frames selected only when Jump begins a
-    /// direction reversal from movement type `$10`. Odd/even descriptive names follow the
+    /// True for the moonwalk turn jumps, the six grounded turn frames selected only when Jump begins a
+    /// direction reversal from moonwalking. Odd/even descriptive names follow the
     /// literal pose records, while the predicates below group them by destination facing.
     /// </summary>
     public static bool IsMoonwalkTurnJumpPose(SamusPoseId pose) => pose is
@@ -341,30 +341,30 @@ internal static class SamusPoseMetadata
         SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
         SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
 
-    /// <summary>True for the `$BF/$C1/$C3` family whose transition tables lead to left.</summary>
+    /// <summary>True for the moonwalk turn-jump family whose transition tables lead to left.</summary>
     public static bool IsMoonwalkTurnJumpLeftPose(SamusPoseId pose) => IsMoonwalkTurnJumpRightPose(SamusPoseMirror.Of(pose));
 
-    /// <summary>True for the `$C0/$C2/$C4` family whose transition tables lead to right.</summary>
+    /// <summary>True for the moonwalk turn-jump family whose transition tables lead to right.</summary>
     public static bool IsMoonwalkTurnJumpRightPose(SamusPoseId pose) => pose is
         SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
         SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
 
-    /// <summary>True for `$89/$CF/$D1`, the complete right-facing type-`$15` family.</summary>
+    /// <summary>True for the complete right-facing ran-into-wall family.</summary>
     public static bool IsRightFacingRanIntoWallPose(SamusPoseId pose) => pose is
         SamusPoseId.RanIntoWallRightPose or SamusPoseId.RanIntoWallAimUpRightPose or SamusPoseId.RanIntoWallAimDownRightPose;
 
-    /// <summary>True for `$8A/$D0/$D2`, the complete left-facing type-`$15` family.</summary>
+    /// <summary>True for the complete left-facing ran-into-wall family.</summary>
     public static bool IsLeftFacingRanIntoWallPose(SamusPoseId pose) => IsRightFacingRanIntoWallPose(SamusPoseMirror.Of(pose));
 
-    /// <summary>True for the six movement-type-$15 wall-contact records: neutral and the two aimed variants for each facing.</summary>
+    /// <summary>True for the six ran-into-wall records: neutral and the two aimed variants for each facing.</summary>
     /// <param name="pose">Current or prospective pose byte.</param>
     /// <returns>Whether the pose is a supported standing body pressed against a wall, rather than a wall-jump body.</returns>
     public static bool IsRanIntoWallPose(SamusPoseId pose) =>
         IsRightFacingRanIntoWallPose(pose) || IsLeftFacingRanIntoWallPose(pose);
 
-    /// <summary>True for the four aimed wall-contact records $CF..$D2; neutral wall-contact <see cref="SamusPoseId.RanIntoWallRightPose"/> and <see cref="SamusPoseId.RanIntoWallLeftPose"/> are excluded.</summary>
+    /// <summary>True for the four aimed wall-contact records; neutral wall-contact <see cref="SamusPoseId.RanIntoWallRightPose"/> and <see cref="SamusPoseId.RanIntoWallLeftPose"/> are excluded.</summary>
     /// <param name="pose">Current or prospective pose byte.</param>
-    /// <returns>Whether the movement-type-$15 body uses an aimed wall-contact variant.</returns>
+    /// <returns>Whether the ran-into-wall body uses an aimed wall-contact variant.</returns>
     public static bool IsAimedRanIntoWallPose(SamusPoseId pose) => pose is
         SamusPoseId.RanIntoWallAimUpRightPose or SamusPoseId.RanIntoWallAimUpLeftPose or
         SamusPoseId.RanIntoWallAimDownRightPose or SamusPoseId.RanIntoWallAimDownLeftPose;
@@ -393,7 +393,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the complete right-facing landing set that shares the ordinary standing
-    /// transition table: normal `$A4`, spin `$A6`, aimed `$E0/$E2/$E4`, and firing `$E6`.
+    /// transition table: normal, spin, aimed up, diagonally up and diagonally down, and firing.
     /// Centralizing this prevents a newly translated landing from silently losing crouch,
     /// turn, run, or wall-probe exits in one of the several pose-change seams.
     /// </summary>
@@ -409,14 +409,15 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True when the ordinary grounded input dispatcher may interrupt a landing stream
-    /// with any same-facing normal-jump transition `$4B/$4C/$55-$5A`.
+    /// with any same-facing normal-jump transition, neutral or aimed.
     /// </summary>
     /// <remarks>
     /// Every landing pose above points at the ordinary standing input table. That includes
-    /// the aimed `$E0-$E5` and firing `$E6/$E7` records, not merely the older `$A4-$A7`
+    /// the aimed and firing landing records, not merely the older
     /// normal/spin subset. That standing table can preserve Up, diagonal-up, or
     /// diagonal-down shoulder input on the fresh Jump edge, so restricting the target to
-    /// neutral `$4B/$4C` incorrectly rejects routes such as `$E2 -> $57`. Keeping this
+    /// the neutral jump transition incorrectly rejects routes such as a right diagonal-up
+    /// landing into the right diagonal-up jump transition. Keeping this
     /// relation beside the complete landing classifiers prevents individual runtime switch
     /// sites from accidentally admitting only part of the authored family.
     /// </remarks>
@@ -453,7 +454,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
 
     /// <summary>
-    /// True for admitted grounded `$0E/$17` poses that began facing right and turn left.
+    /// True for admitted grounded turning poses that began facing right and turn left.
     /// Their definition direction is already four (the destination facing), so callers
     /// must use this semantic grouping when preserving old rightward momentum.
     /// </summary>
@@ -464,16 +465,16 @@ internal static class SamusPoseMetadata
         SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or
         SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose;
 
-    /// <summary>True for admitted grounded `$0E/$17` poses that began facing left and turn right.</summary>
+    /// <summary>True for admitted grounded turning poses that began facing left and turn right.</summary>
     public static bool IsLeftToRightGroundTurnPose(SamusPoseId pose) => IsRightToLeftGroundTurnPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
     /// True for a authored standing turn interrupted by an ordinary Jump edge.
     /// </summary>
     /// <remarks>
-    /// All eight movement-type-$0E standing turn records consult the same
+    /// All eight turning-on-ground standing turn records consult the same
     /// transition table while their art is active. Holding the completed facing selects
-    /// `$19/$1A`; releasing it on the Jump edge selects `$4B/$4C`. Crouched turns are
+    /// the spin jump; releasing it on the Jump edge selects the neutral jump transition. Crouched turns are
     /// deliberately excluded because their radius expansion requires the room-aware
     /// crouch-jump collision path rather than the direct ordinary initializer.
     /// </remarks>
@@ -490,30 +491,30 @@ internal static class SamusPoseMetadata
          targetPose is SamusPoseId.SpinJumpLeftPose or SamusPoseId.NeutralJumpTransitionLeftPose);
 
     /// <summary>
-    /// True for the six aimed crouched-turn records dispatched through movement type `$17`.
-    /// `$43/$44` are intentionally absent because the retail pose definitions assign those
-    /// otherwise similar-looking unaimed crouch turns to grounded movement type `$0E`.
+    /// True for the six aimed crouched-turn records dispatched through the turning-while-jumping movement type.
+    /// The unaimed crouching turns are intentionally absent because the retail pose definitions assign those
+    /// otherwise similar-looking turns to the grounded turning movement type.
     /// </summary>
     public static bool IsAimedCrouchingTurnPose(SamusPoseId pose) => pose is
         SamusPoseId.TurningRightToLeftCrouchingAimUpPose or SamusPoseId.TurningLeftToRightCrouchingAimUpPose or
         SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or
         SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose;
 
-    /// <summary>True for every movement-type-$17 normal-jump turn record.</summary>
+    /// <summary>True for every turning-while-jumping normal-jump turn record.</summary>
     public static bool IsJumpingTurnPose(SamusPoseId pose) => pose is
         SamusPoseId.TurningRightToLeftJumpPose or SamusPoseId.TurningLeftToRightJumpPose or
         SamusPoseId.TurningRightToLeftJumpAimUpPose or SamusPoseId.TurningLeftToRightJumpAimUpPose or
         SamusPoseId.TurningRightToLeftJumpAimDownPose or SamusPoseId.TurningLeftToRightJumpAimDownPose or
         SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose;
 
-    /// <summary>True for every movement-type-$18 falling-turn record.</summary>
+    /// <summary>True for every turning-while-falling falling-turn record.</summary>
     public static bool IsFallingTurnPose(SamusPoseId pose) => pose is
         SamusPoseId.TurningRightToLeftFallingPose or SamusPoseId.TurningLeftToRightFallingPose or
         SamusPoseId.TurningRightToLeftFallingAimUpPose or SamusPoseId.TurningLeftToRightFallingAimUpPose or
         SamusPoseId.TurningRightToLeftFallingAimDownPose or SamusPoseId.TurningLeftToRightFallingAimDownPose or
         SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose;
 
-    /// <summary>True for the sixteen normal-jump or falling turn records in movement types $17/$18, excluding grounded and aimed crouching turns.</summary>
+    /// <summary>True for the sixteen normal-jump or falling turn records of the two airborne turning movement types, excluding grounded and aimed crouching turns.</summary>
     /// <param name="pose">Current or prospective pose byte.</param>
     /// <returns>Whether either jumping-turn or falling-turn family contains the pose.</returns>
     public static bool IsAerialTurnPose(SamusPoseId pose) =>
@@ -541,17 +542,17 @@ internal static class SamusPoseMetadata
         [.. Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose)
             .Select(SamusPoseNumbering.FromNumber).Except(SamusUnreachablePoseDefinitions.Poses)];
 
-    /// <summary>True for the four drained bodies $E8-$EB that Mother Brain's controllers install.</summary>
+    /// <summary>True for the four drained crouching and standing bodies that Mother Brain's controllers install.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is
         SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
         SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose;
 
-    /// <summary>True for the two movement-type-$14 wall-jump launch records.</summary>
+    /// <summary>True for the two wall-jumping launch records.</summary>
     public static bool IsWallJumpPose(SamusPoseId pose) => pose is SamusPoseId.WallJumpRightPose or SamusPoseId.WallJumpLeftPose;
 
     /// <summary>
-    /// True for all six stable movement-type-three spin bodies. The transition tables use
-    /// `$19/$1A` as generic outputs; the spin-jump initializer can then substitute Space Jump or Screw
+    /// True for all six stable spin-jumping bodies. The transition tables use
+    /// the ordinary spin jump as generic outputs; the spin-jump initializer can then substitute Space Jump or Screw
     /// Attack without changing the movement dispatcher.
     /// </summary>
     public static bool IsSpinJumpPose(SamusPoseId pose) => pose is
@@ -559,12 +560,12 @@ internal static class SamusPoseMetadata
         SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose or
         SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose;
 
-    /// <summary>True only for the two Screw Attack animation records `$81/$82`.</summary>
+    /// <summary>True only for the two Screw Attack animation records.</summary>
     public static bool IsScrewAttackPose(SamusPoseId pose) => pose is
         SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose;
 
     /// <summary>
-    /// <c>Setup_Collision_RespawningBombBlock</c> breaks the block when the boost
+    /// A respawning bomb block's collision breaks the block when the boost
     /// stage is active or Samus is screw attacking or shinesparking.
     /// </summary>
     public static bool BreaksCollisionBombBlocks(SamusState samus) =>
@@ -572,12 +573,12 @@ internal static class SamusPoseMetadata
         IsScrewAttackPose(samus.Pose) ||
         IsShinesparkPose(samus.Pose);
 
-    /// <summary>True only for the two Space Jump animation records `$1B/$1C`.</summary>
+    /// <summary>True only for the two Space Jump animation records.</summary>
     public static bool IsSpaceJumpPose(SamusPoseId pose) => pose is
         SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose;
 
     /// <summary>
-    /// True only for the admitted movement-type-$0F crouch/stand animation records.
+    /// True only for the admitted posture-transition crouch/stand animation records.
     /// Morph/unmorph records share that dispatcher but are intentionally not hidden here.
     /// </summary>
     public static bool IsCrouchStandTransitionPose(SamusPoseId pose) => pose is
@@ -599,12 +600,12 @@ internal static class SamusPoseMetadata
     public static bool IsAirborneMorphBallPose(SamusPoseId pose) => pose is
         SamusPoseId.MorphBallFallingRightPose or SamusPoseId.MorphBallFallingLeftPose;
 
-    /// <summary>True for movement type $11's four grounded Spring Ball poses.</summary>
+    /// <summary>True for the four grounded Spring Ball poses.</summary>
     public static bool IsGroundedSpringBallPose(SamusPoseId pose) => pose is
         SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose or
         SamusPoseId.SpringBallMovingRightPose or SamusPoseId.SpringBallMovingLeftPose;
 
-    /// <summary>True for Spring Ball jump/fall poses across movement types $12/$13.</summary>
+    /// <summary>True for Spring Ball jump/fall poses across the in-air and falling Spring Ball movement types.</summary>
     public static bool IsAirborneSpringBallPose(SamusPoseId pose) => pose is
         SamusPoseId.SpringBallFallingRightPose or SamusPoseId.SpringBallFallingLeftPose or
         SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose;
@@ -614,7 +615,7 @@ internal static class SamusPoseMetadata
         IsGroundedMorphBallPose(pose) || IsAirborneMorphBallPose(pose) ||
         IsGroundedSpringBallPose(pose) || IsAirborneSpringBallPose(pose);
 
-    /// <summary>True for the four entry/exit poses handled by movement type $0F.</summary>
+    /// <summary>True for the four morph entry/exit poses handled by the posture-transition movement type.</summary>
     public static bool IsMorphTransitionPose(SamusPoseId pose) => pose is
         SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose or
         SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose;
@@ -633,7 +634,7 @@ internal static class SamusPoseMetadata
     /// <remarks>
     /// Standing and crouching reject the request only while time is frozen. Running,
     /// falling, moonwalking, wall-jump, wall-stop, and grapple families first select the
-    /// ordinary forward-jump body `$51/$52`. Ball, unused `$07/$09`, and knockback-family
+    /// ordinary forward-jump body. Ball, unused glitch-ball, and knockback-family
     /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
     /// families clear the published direction exactly like the table's carry-clear routines.
     /// </remarks>
@@ -720,7 +721,7 @@ internal static class SamusPoseMetadata
                     samus.Kinematics.Position.Y.Whole + centerAdjustment);
 
                 // The special target installs through the pose initializer, which dispatches the new
-                // normal-jumping type to the normal-jump initializer ($51/$52 cannot start a spark there). It
+                // normal-jumping type to the normal-jump initializer (the forward jump cannot start a spark there). It
                 // then restores the suit palette after a wall jump with Screw Attack.
                 SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
@@ -760,7 +761,7 @@ internal static class SamusPoseMetadata
                 return false;
 
             default:
-                // The retail pose table never exceeds `$1B`; this is corrupt metadata,
+                // The retail pose table never exceeds the special movement type; this is corrupt metadata,
                 // analogous to indexing beyond the end of a movement-type table into unrelated words.
                 throw new InvalidDataException(
                     $"Bomb-jump setup cannot dispatch invalid movement type {movementType} for pose {samus.Pose}.");
@@ -825,7 +826,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose;
 
     /// <summary>
-    /// True for `$51/$52`, the two movement-type-two normal-jump bodies used while Samus
+    /// True for the forward jumps, the two normal-jumping bodies used while Samus
     /// has a same-facing horizontal direction held. These are ordinary aerial poses, not
     /// aimed or spinning poses; naming the pair prevents their transition semantics from
     /// being hidden inside another aim-specific condition.
@@ -838,10 +839,10 @@ internal static class SamusPoseMetadata
     /// aim, horizontal-fire, or moving-forward transition seam.
     /// </summary>
     /// <remarks>
-    /// Deliberately share one input table among neutral `$4D/$4E`, forward
-    /// `$51/$52`, and the non-compact aimed jump bodies. In particular, holding Jump after
-    /// releasing Right/Left produces `$51->$4D` or `$52->$4E`. Both endpoints must therefore
-    /// participate in this classification. The previous target-only `$51/$52` check admitted
+    /// Deliberately share one input table among the neutral jump, the forward
+    /// jump, and the non-compact aimed jump bodies. In particular, holding Jump after
+    /// releasing Right/Left turns the forward jump into the neutral jump. Both endpoints must therefore
+    /// participate in this classification. The previous target-only forward-jump check admitted
     /// entering the forward body but rejected leaving it, even though both routes execute the
     /// same pose/animation initializer and preserve live velocity.
     /// </remarks>

@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="EnemyFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record EnemyFramePhaseDependencies
 {
+    /// <summary>The runtime artwork, whose beam artwork the enemy pass that enables the Hyper Beam reloads.</summary>
+    public required RuntimeArtwork Artwork { get; init; }
+
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 

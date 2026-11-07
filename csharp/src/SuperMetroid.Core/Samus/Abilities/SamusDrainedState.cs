@@ -370,7 +370,10 @@ public sealed class SamusDrainedState
         samus.CommitPoseHistory();
     }
 
-    /// <summary>Ports controller function three.</summary>
+    /// <summary>
+    /// Equips the Hyper Beam: Charge, Wave and Plasma, the rainbow palette effect, and no charging sound left to resume.
+    /// The enemy pass that runs this loads the equipped beams' artwork, as the game does here (#1561).
+    /// </summary>
     public void EnableHyperBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -380,6 +383,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Plasma;
         samus.HyperBeamEnabled = true;
         HyperBeamPaletteFx.Spawn();
+        samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.Clear;
     }
 
     /// <summary>Ends the Samus-side drain lock after release art reaches its transition to the facing standing pose.</summary>

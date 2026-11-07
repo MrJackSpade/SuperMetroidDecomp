@@ -185,7 +185,7 @@ internal sealed class SuperMetroidRuntime
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
-        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         LiquidWaveAndStatueDescent = new LiquidWaveAndStatueDescent(Freeze, System, EffectPhaseOrder);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);

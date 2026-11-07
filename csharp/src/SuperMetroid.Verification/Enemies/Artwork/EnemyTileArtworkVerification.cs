@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
-using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeOverlayTilemapsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
@@ -41,7 +40,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainSpecialSpri
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePiratePaletteArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
-using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.Artwork.TorizoSwapArtworkVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
@@ -224,6 +222,27 @@ internal static class EnemyTileArtworkVerification
         new(nameof(VerifyEnemyFrameArtwork), () => VerifyEnemyFrameArtwork()),
     ];
 
+    /// <summary>Runs only Phantoon's and Draygon's installed body frames against retail.</summary>
+    [VerificationCommand("--installed-body-bg2-frames")]
+    internal static int InstalledBodyBg2FramesCommand()
+    {
+        var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
+        Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
+        return 0;
+    }
+
+    /// <summary>Runs only the installed extended enemy frames' comparison against retail.</summary>
+    [VerificationCommand("--installed-extended-frames")]
+    internal static int InstalledExtendedFramesCommand()
+    {
+        var fixture = new EnemyTileFixture();
+        var (bus, _, stock) = fixture;
+        Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, stock));
+        return 0;
+    }
+
     /// <summary>Runs only the installed enemy spritemaps' comparison against retail.</summary>
     [VerificationCommand("--installed-enemy-spritemaps")]
     internal static int InstalledEnemySpritemapsCommand()
@@ -264,13 +283,4 @@ internal static class EnemyTileArtworkVerification
         return 0;
     }
 
-    /// <summary>Runs artwork comparisons alongside mapped source routing and room-enemy loading checks.</summary>
-    [VerificationCommand("--enemy-tile-artwork")]
-    internal static int EnemyTileArtworkCommand()
-    {
-        RunSuitesSerially(EnemyTileArtworkSuites());
-        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
-        Suite(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading());
-        return 0;
-    }
 }

@@ -83,12 +83,29 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         const string frameName = "body_invulnerable";
         EnemyBg2WriteDocument first = document.Frames[frameName][0];
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
+        // His bodies clear the eye socket his eye fills whenever his body shows, so the import pictures each with his closed
+        // eye written into it (#1513): the cartridge's body frame, then its closed-eye frame over it.
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank, firstPointer,
             newInstructionFrame: true);
+        byte[] closedEyeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank,
+            PhantoonBg2FrameDefinitions.Frames.Single(candidate => candidate.Frame == EnemyFrameId.PhantoonClosedEye0).Pointer,
+            newInstructionFrame: true);
+        for (int index = 0; index < nativeVram.Length; index += sizeof(ushort))
+        {
+            if (closedEyeVram[index] != 0 || closedEyeVram[index + 1] != 0)
+            {
+                nativeVram[index] = closedEyeVram[index];
+                nativeVram[index + 1] = closedEyeVram[index + 1];
+            }
+        }
         var noCartridge = NewCartridgeReadGuard(rom);
         byte[] stockVram = DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: true);
-        AssertTrue(nativeVram.SequenceEqual(stockVram),
-            "installed Phantoon frame draws native BG2 without cartridge reads");
+        int[] differ = [.. Enumerable.Range(0, nativeVram.Length).Where(index => nativeVram[index] != stockVram[index])];
+        AssertTrue(differ.Length == 0,
+            $"installed Phantoon frame draws native BG2 without cartridge reads; {differ.Length} bytes differ, from " +
+            $"${(differ.Length == 0 ? 0 : differ[0]):X5} to ${(differ.Length == 0 ? 0 : differ[^1]):X5}; first: " +
+            string.Join(" ", differ.Take(24).Select(index => $"${index:X5} native {nativeVram[index]:X2} installed {stockVram[index]:X2}")) +
+            $"; native nonzero bytes {nativeVram.Count(value => value != 0)}, installed nonzero bytes {stockVram.Count(value => value != 0)}");
         AssertTrue(DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: false).All(value => value == 0),
             "Phantoon BG2 drawing keeps the native new-frame producer gate");
         Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock));

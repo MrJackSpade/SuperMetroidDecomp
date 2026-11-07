@@ -27,7 +27,9 @@ internal static class AdapterChainAnalyzerTests
         Expect("class C { int[] M(IEnumerable<int> a) => a.Select(x => x).ToArray().Select(x => x + 1).ToArray(); }", AdapterChainAnalyzer.MaterializationId);
         // A span or memory copied only for LINQ where a span query reads it in place.
         Expect("class C { bool M(ReadOnlySpan<int> s) => s.ToArray().Any(x => x > 1); }", AdapterChainAnalyzer.MaterializationId, "span query 'Any'");
-        Expect("class C { int[] M(Span<int> s) => s.ToArray().Select(x => x + 1).ToArray(); }", AdapterChainAnalyzer.MaterializationId, "'SelectToArray'");
+        Expect("class C { int M(Span<int> s) => s.ToArray().Count(x => x > 1); }", AdapterChainAnalyzer.MaterializationId, "span query 'Count'");
+        // Where no span query takes the operator's place, the copy is the way to reach LINQ and is not reported.
+        Expect("class C { int[] M(Span<int> s) => s.ToArray().Select(x => x + 1).ToArray(); }");
         Expect("class C { int M(ReadOnlyMemory<int> m) => m.ToArray().Sum(x => x); }", AdapterChainAnalyzer.MaterializationId, "'.Span.Sum'");
         // SME6391: AsSpan() only to reach an array comparison.
         Expect("class C { bool M(byte[] a, byte[] b) => a.AsSpan().SequenceEqual(b); }", AdapterChainAnalyzer.SpanAdapterId);

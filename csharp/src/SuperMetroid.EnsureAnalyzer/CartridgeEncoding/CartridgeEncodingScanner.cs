@@ -82,9 +82,12 @@ internal static class CartridgeEncodingScanner
     /// <summary>Reviewed same-line exemption prefixes accepted by the encoding inventory.</summary>
     private static readonly string[] AllowanceMarkers = ["cartridge-encoding: allow(", "magic-number-audit: allow("];
 
-    /// <summary>Definition-owner name fragments used to identify address-valued code constants.</summary>
+    /// <summary>
+    /// Definition-owner name fragments used to identify address-valued code constants. Animation scripts are the
+    /// instruction lists under their domain name, so their catalogs still hold code addresses.
+    /// </summary>
     private static readonly string[] CodeCatalogNameFragments =
-        ["Instruction", "Program", "CodePointer", "Pointer", "Address", "Routine", "Code"];
+        ["Instruction", "AnimationScript", "Program", "CodePointer", "Pointer", "Address", "Routine", "Code"];
 
     /// <summary>Source-context cues for a 16-bit literal that may denote a cartridge pointer.</summary>
     private static readonly string[] PointerContextFragments =

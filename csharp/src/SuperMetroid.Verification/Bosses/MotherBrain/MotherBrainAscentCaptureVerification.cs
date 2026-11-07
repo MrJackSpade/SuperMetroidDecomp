@@ -17,7 +17,7 @@ internal static class MotherBrainAscentCaptureVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(Layer().Bands.IsEmpty, "No ascent bands before the rise starts");
         (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer = 0;
-        runtime.Enemies.MotherBrainBehavior.Ascent.PrepareMotherBrainForRising(state);
+        SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAscent.PrepareMotherBrainForRising(state);
         AssertTrue(state.RisingFloorClipActive, "Production rising setup starts the floor's clip");
         var captured = Layer();
         AssertEqual(3, captured.Bands.Length, "The rise shows three bands below the HUD");

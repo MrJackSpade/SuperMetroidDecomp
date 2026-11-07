@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;

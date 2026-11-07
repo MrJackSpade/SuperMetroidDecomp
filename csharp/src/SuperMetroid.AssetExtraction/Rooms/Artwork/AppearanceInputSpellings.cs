@@ -1,4 +1,3 @@
-using System.Globalization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 

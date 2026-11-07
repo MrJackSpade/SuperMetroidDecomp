@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

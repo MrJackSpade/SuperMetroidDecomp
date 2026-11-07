@@ -20,7 +20,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
-using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
@@ -96,9 +95,16 @@ public static class SpriteSheetFiles
             sheets.Add(sheet, loaded);
         }
         var installed = new InstalledSpriteSheets(sheets);
-        // Every frontend floor picture is the whole floor (#1467).
+        // Every frontend floor picture is the whole floor (#1467), except the title's, which is one whole floor with each
+        // pose of the Baby Metroid drawn over it (#1538).
         foreach (SpriteSheetId sheet in FrontendFloorSheetComposer.Sheets)
         {
+            if (sheet == SpriteSheetId.TitleFloor)
+            {
+                foreach (TitleBabyPose pose in Enum.GetValues<TitleBabyPose>())
+                    _ = TitleFloors.Of(installed, pose);
+                continue;
+            }
             foreach (string frame in FrameNames(sheet, body, maps, intro, ending, projectiles))
                 _ = FloorShots.Of(installed, sheet, frame);
         }

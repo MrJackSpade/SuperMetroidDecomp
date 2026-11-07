@@ -190,8 +190,8 @@ internal static class MotherBrainEncodingDomainsVerification
                 $"leg-transfer record {page} decodes to its page");
         }
         AssertThrows<InvalidDataException>(() => NativeSnapshotMotherBrainImport.DecodeLegTilePage(
-                checked((ushort)(MotherBrainLegLoadListConstants.NativeListPointer +
-                    MotherBrainReadyingDefinitions.StandingBodyDuration * MotherBrainLegLoadListConstants.RecordByteCount))),
+                checked(MotherBrainLegLoadListConstants.NativeListPointer +
+                    MotherBrainReadyingDefinitions.StandingBodyDuration * MotherBrainLegLoadListConstants.RecordByteCount)),
             "the leg-transfer terminator is not a page");
 
         SnesObjAttributeWord rowSeven = SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 7, priority: 0);

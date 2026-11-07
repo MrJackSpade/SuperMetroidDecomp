@@ -25,7 +25,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -68,7 +67,7 @@ internal static class RoomBlockPicturesVerification
     {
         Check(RoomHeaderDefinitions.LandingSite, expectUploads: false);
         Check(RoomHeaderDefinitions.Wasteland, expectUploads: true);
-        Check(RoomHeaderDefinitions.MorphBall, expectUploads: true);
+        Check(RoomHeaderDefinitions.MorphBall, expectUploads: false);
         Check(RoomHeaderDefinitions.EastSandHall, expectUploads: true);
         // The Ceres Ridley arena's blocks read the OBJ character table's enemy tiles: the page its load composes is the
         // pictures' baseline, and only the getaway's looks, which show later in the encounter, change them (#1466).

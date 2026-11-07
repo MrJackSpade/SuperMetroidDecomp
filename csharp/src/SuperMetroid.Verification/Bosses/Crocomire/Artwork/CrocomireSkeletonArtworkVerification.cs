@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;

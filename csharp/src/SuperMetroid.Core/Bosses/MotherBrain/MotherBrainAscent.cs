@@ -75,7 +75,7 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>Holds the phase-two body before its scripted ascent begins.</summary>
-    internal void PauseBeforeMotherBrainRises(
+    internal static void PauseBeforeMotherBrainRises(
         MotherBrainEnemyState state)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
@@ -87,7 +87,7 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>Stages the body and head state used by the rise from the collapsed room.</summary>
-    internal void PrepareMotherBrainForRising(
+    internal static void PrepareMotherBrainForRising(
         MotherBrainEnemyState state)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))

@@ -79,8 +79,11 @@ internal static class GunshipLiftoffPicturesVerification
                 UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the ship's {part.DefinitionId} in {look}");
             }
         }
-        int followed = UploadedPictureChecks.AssertFramesFollowLooks(set, EncounterArtwork.Gunship, "the gunship's takeoff");
-        Console.WriteLine($"Gunship liftoff pictures: the ship paints its frames over the characters each of its looks leaves ({pictured} of its draws follow the looks), and {followed} frames follow the looks they are drawn in.");
+        // The takeoff look changes no frame of the set's sheets: the hull's pictures are the same in both looks and the dust is
+        // drawn only once the engines are ready, in the takeoff look alone (#1538).
+        AssertEqual(0, UploadedPictureChecks.AssertFramesFollowLooks(set, EncounterArtwork.Gunship, "the gunship's takeoff", requireFrames: false),
+            "the gunship's looks change no frame of its set's sheets");
+        Console.WriteLine($"Gunship liftoff pictures: the ship paints its frames over the characters each of its looks leaves ({pictured} of its draws follow the looks).");
     }
 
     /// <summary>Runs the gunship liftoff picture check.</summary>

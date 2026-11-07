@@ -117,7 +117,8 @@ internal sealed class SetCharacters
             parts.Add(new FrameLookPart(encounter, drawn.Looks, shownAs));
         }
         FrameLookPart[] changing = [.. parts.Where(part => part.ShownAs is not null)];
-        FrameLookChange[] changes = [.. changing.Select(part => new FrameLookChange((EncounterArtwork)part.ShownAs,
+        FrameLookChange[] changes = [.. changing.Select(part => new FrameLookChange(
+            part.ShownAs ?? throw new InvalidOperationException($"Frame {name}'s changing part names no shown encounter."),
             [.. part.Looks.Select(look => EncounterLookUploads.Looks(part.Encounter.Encounter)[look])])).OrderBy(change => change.Encounter)];
         var sources = new List<SheetFrameSource>();
         var blank = new List<string>();

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 

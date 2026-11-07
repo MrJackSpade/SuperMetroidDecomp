@@ -1,9 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -64,7 +61,7 @@ internal static class CollectiblePicturesVerification
         RoomLevelData level = CreateRoom(size, foreground, new RoomBlockBehavior[foreground.Length]);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence()) { Health = 99, MaxHealth = 99 };
         var roomObjects = RoomObjectFixtures.Unbound();
-        int loaded = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria),
+        int loaded = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SuperMetroid.AssetExtraction.Video.SnesVram()), new SharedGameState(), AreaId.Crateria),
             RoomObjectPopulationImporter.Read(bus, population),
             new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(Kinds.Length, loaded, "five-item room population load count");

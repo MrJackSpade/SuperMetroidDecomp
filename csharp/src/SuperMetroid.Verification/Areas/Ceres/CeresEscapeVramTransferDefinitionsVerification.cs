@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Escape.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

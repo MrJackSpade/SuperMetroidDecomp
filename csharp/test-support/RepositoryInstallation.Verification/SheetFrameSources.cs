@@ -179,13 +179,14 @@ internal static class SheetFrameSources
     /// </summary>
     private static FrameSource? Find(FrameKey key)
     {
-        if (sources.Value.TryGetValue(key, out FrameSource? found))
-            return found;
-        if (!setsInstalling.Value.TryGetValue(key.Sheet, out HashSet<string>? sets))
-            return null;
-        foreach (SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder.Where(drawn => sets.Contains(drawn.Name)))
-            _ = enemySources.GetOrAdd(set.Name, _ => new Lazy<bool>(() => RegisterSet(set))).Value;
-        return sources.Value.TryGetValue(key, out found) ? found : null;
+        // Every set installing the sheet is registered first, even when a fixture registered the frame already: the
+        // other sets' compositions of a picture the sheet keeps once are its alternates, which a draw may stand for.
+        if (setsInstalling.Value.TryGetValue(key.Sheet, out HashSet<string>? sets))
+        {
+            foreach (SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder.Where(drawn => sets.Contains(drawn.Name)))
+                _ = enemySources.GetOrAdd(set.Name, _ => new Lazy<bool>(() => RegisterSet(set))).Value;
+        }
+        return sources.Value.TryGetValue(key, out FrameSource? found) ? found : null;
     }
 
     /// <summary>The graphics sets that install each enemy and spawned-object sheet, by the sheet's installed name.</summary>

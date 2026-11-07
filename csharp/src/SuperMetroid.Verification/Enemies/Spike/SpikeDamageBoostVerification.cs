@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -128,7 +129,7 @@ internal static class SpikeDamageBoostVerification
         ];
         foreach (var expectedFrame in carriedFrames)
         {
-            runtime.StepFrame(ControllerWordCodec.FromRaw(expectedFrame.Input, "spike fixture frame"));
+            runtime.StepFrame(ControllerWordCodec.FromJoypadWord(expectedFrame.Input, "spike fixture frame"));
             AssertEqual(new VerifyMorphedSpikeReleaseCase(expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
                 new VerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                     samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed.Whole),

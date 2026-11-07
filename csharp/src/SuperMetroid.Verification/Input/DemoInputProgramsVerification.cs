@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Programs;
@@ -57,8 +58,8 @@ internal static class DemoInputProgramsVerification
                 {
                     var show = AssertIs<AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.ShowStep>(step, $"{at}: input record");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(Word(cursor + 2), (ushort)show.Frame.Held, $"{at}: held");
-                    AssertEqual(Word(cursor + 4), (ushort)show.Frame.NewlyPressed, $"{at}: newly pressed");
+                    AssertEqual(Word(cursor + 2), ControllerWordCodec.ToJoypadWord(show.Frame.Held), $"{at}: held");
+                    AssertEqual(Word(cursor + 4), ControllerWordCodec.ToJoypadWord(show.Frame.NewlyPressed), $"{at}: newly pressed");
                     cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
                     records++;
                     continue;

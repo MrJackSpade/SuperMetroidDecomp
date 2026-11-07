@@ -112,7 +112,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
-    /// <param name="controllerInput">Current held-button word in the <see cref="ControllerButton"/> bit layout; only newly pressed buttons affect the interactive menu.</param>
+    /// <param name="controllerInput">Currently held buttons; only newly pressed buttons affect the interactive menu.</param>
     /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame for 180 updates while fading out.</remarks>
     public void Step(ControllerButton controllerInput)
     {

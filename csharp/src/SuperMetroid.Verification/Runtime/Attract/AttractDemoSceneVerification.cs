@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDemoTrajectoryVerification;
 using SuperMetroid.Core.Frontend;
@@ -40,13 +41,13 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 2, (ushort)NativeDemoFrameBehavior.AttractCheckLeave);
         WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 4, 0xc000);
         WriteRomWord(rom, 0x91c000, 5);
-        WriteRomWord(rom, 0x91c002, (ushort)ControllerButton.Left);
+        WriteRomWord(rom, 0x91c002, ControllerWordCodec.ToJoypadWord(ControllerButton.Left));
         WriteRomWord(rom, 0x91c004, 0);
         WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete),
             (ushort)DemoInputInstruction.Delete);
         WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation), 7);
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation)) + 2,
-            (ushort)ControllerButton.Right);
+            ControllerWordCodec.ToJoypadWord(ControllerButton.Right));
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, CrateriaDoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),
             0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), 10, 5, 2, 399, (SamusBeamFlags)0x100f, (SamusBeamFlags)0x100b, DemoInputObjectDefinitions.AttractLandingSite);
@@ -58,7 +59,7 @@ internal static class AttractDemoSceneVerification
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
         var input = new ReferenceAttractInput(bus, expected);
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
-        if (input.Script.Held != (ushort)ControllerButton.Left || input.Script.FrameHold.RawValue != 5)
+        if (input.Script.Held != ControllerWordCodec.ToJoypadWord(ControllerButton.Left) || input.Script.FrameHold.RawValue != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
         input.Step(SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
@@ -66,10 +67,10 @@ internal static class AttractDemoSceneVerification
         input = new ReferenceAttractInput(bus, expected);
         input.Script.Redirect((ushort)NativeDemoFrameBehavior.AttractShinespark, 0xc000);
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
-        if (input.Script.Held != (ushort)ControllerButton.Left)
+        if (input.Script.Held != ControllerWordCodec.ToJoypadWord(ControllerButton.Left))
             throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
-        if (input.Script.Held != (ushort)ControllerButton.Right || input.Script.FrameHold.RawValue != 7 ||
+        if (input.Script.Held != ControllerWordCodec.ToJoypadWord(ControllerButton.Right) || input.Script.FrameHold.RawValue != 7 ||
             input.Script.FrameBehaviorPointer != (ushort)NativeDemoFrameBehavior.AttractCheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");

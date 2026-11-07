@@ -192,8 +192,7 @@ public sealed class MainActivity : ComponentActivity
         dialog.SetItems(labels, (_, selected) =>
             {
                 var key = keys[selected.Which];
-                ControllerButton[] buttons = Enum.GetValues<ControllerButton>()
-                    .Where(button => button == ControllerButton.None || (((ushort)button & ((ushort)button - 1)) == 0)).ToArray();
+                ControllerButton[] buttons = Enum.GetValues<ControllerButton>();
                 var current = controllerPreferences.Resolve(key.ToString(), AndroidControllerMapping.Map(key));
                 var choiceDialog = new AlertDialog.Builder(this);
                 choiceDialog.SetTitle($"Map {key} to SNES");

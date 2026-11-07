@@ -3,6 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Diagnostics.Configuration;
+using SuperMetroid.Diagnostics.Input;
 
 namespace SuperMetroid.Diagnostics.Recording;
 
@@ -132,7 +133,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         lock (gate)
         {
             ObjectDisposedException.ThrowIf(disposed, this);
-            inputs.Add((ushort)controllerInput);
+            inputs.Add(ControllerWordCodec.ToJoypadWord(controllerInput));
             if (flushTask.IsCompleted)
                 completedFlush = flushTask;
             if (inputs.Count - frameCountAtLastScheduledFlush >= FlushIntervalFrames &&

@@ -56,8 +56,8 @@ internal sealed class AndroidControllerPreferences
     /// <summary>Accepts only an individual defined SNES button or the unbound value.</summary>
     private static void Validate(ControllerButton button)
     {
-        int bits = (ushort)button;
-        if (!Enum.IsDefined(button) || (bits != 0 && (bits & (bits - 1)) != 0))
+        // Every defined member is one button or none; a combination of buttons is not a defined member.
+        if (!Enum.IsDefined(button))
             throw new InvalidDataException($"Controller binding must name one SNES button, not {button}.");
     }
 }

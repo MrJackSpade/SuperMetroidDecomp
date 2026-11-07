@@ -55,7 +55,7 @@ internal static void VerifyGameOptionsRomDataCatalog()
 internal static void VerifyControllerBindingsAndOptionsSubmenus()
 {
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
-        action: 0,
+        action: ControllerAction.Shoot,
         physicalButton: ControllerButton.R);
     AssertEqual(ControllerButton.R, swapped.Shoot, "controller swap assigns requested button");
     AssertEqual(ControllerButton.X, swapped.AimUp, "controller swap preserves permutation");

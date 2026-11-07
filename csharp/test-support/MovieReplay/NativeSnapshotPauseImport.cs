@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Progression;
@@ -44,8 +45,8 @@ internal static class NativeSnapshotPauseImport
 
         runtime.System.TimedHeldInputTimer = WrappingCountdown.FromRaw(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
-        runtime.System.TimedHeldInput = (ControllerButton)W(PauseMemory.TimedHeldInput);
-        runtime.System.NewlyTimedHeldInput = (ControllerButton)W(PauseMemory.TimedHeldNew);
-        runtime.System.TimedHeldInputPrevious = (ControllerButton)W(PauseMemory.TimedHeldPrevious);
+        runtime.System.TimedHeldInput = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
+        runtime.System.NewlyTimedHeldInput = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldNew), "native newly timed held input");
+        runtime.System.TimedHeldInputPrevious = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldPrevious), "native previous timed held input");
     }
 }

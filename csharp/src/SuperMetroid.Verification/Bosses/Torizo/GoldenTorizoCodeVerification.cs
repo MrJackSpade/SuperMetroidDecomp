@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -18,7 +19,7 @@ internal static class GoldenTorizoCodeVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => LittleEndianBytes.Word(GoldenTorizoCodeRomByte(rom, address), GoldenTorizoCodeRomByte(rom, address + 1));
-        ControllerButton input = (ControllerButton)Word(0xaac91a);
+        ControllerButton input = ControllerWordCodec.FromJoypadWord(Word(0xaac91a), "native Golden Torizo code chord");
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
         Check(EnemyDefinitionId.GoldenTorizo, input, false, true);

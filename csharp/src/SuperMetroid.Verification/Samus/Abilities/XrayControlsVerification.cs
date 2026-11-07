@@ -30,7 +30,7 @@ internal static class XrayControlsVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
             runtime.Options.ControllerBindings = remapped
-                ? ControllerBindings.Default.AssignAndSwap(0, ControllerBindings.Default.Dash)
+                ? ControllerBindings.Default.AssignAndSwap(ControllerAction.Shoot, ControllerBindings.Default.Dash)
                 : ControllerBindings.Default;
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();

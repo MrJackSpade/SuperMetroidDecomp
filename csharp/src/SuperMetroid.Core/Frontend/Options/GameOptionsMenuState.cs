@@ -342,12 +342,14 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         GameOptionsControllerRowKind kind = GameOptionsPositions.ControllerRowKind(SelectedItem);
         if (kind == GameOptionsControllerRowKind.Action)
         {
-            for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
+            ControllerAction action = GameOptionsPositions.ControllerActionAt(SelectedItem)
+                ?? throw new InvalidOperationException($"Controller row {SelectedItem} binds no action.");
+            for (int button = Input.ControllerBindings.AssignableButtons.Length - 1; button >= 0; button--)
             {
-                ControllerButton physicalButton = Input.ControllerBindings.AssignableButton(button);
+                ControllerButton physicalButton = Input.ControllerBindings.AssignableButtons[button];
                 if ((pressed & physicalButton) == ControllerButton.None)
                     continue;
-                ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, physicalButton);
+                ControllerBindings = ControllerBindings.AssignAndSwap(action, physicalButton);
                 LoadVisiblePage();
                 break;
             }

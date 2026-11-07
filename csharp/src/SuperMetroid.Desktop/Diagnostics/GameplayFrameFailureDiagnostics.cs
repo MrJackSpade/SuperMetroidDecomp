@@ -14,7 +14,7 @@ internal static class GameplayFrameFailureDiagnostics
         $"Build: {typeof(GameplayFrameFailureDiagnostics).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown"}\n" +
         $"Core build ID: {typeof(SuperMetroidGame).Module.ModuleVersionId}\n" +
         $"Host build ID: {typeof(GameplayFrameFailureDiagnostics).Module.ModuleVersionId}\n" +
-        $"Attempted input: ${attemptedInput:X}\n" +
+        $"Attempted input: {attemptedInput}\n" +
         $"Input recording: {recordingPath ?? "unavailable"}\n" +
         $"Recording input index (zero-based): {recordingIndex?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "unavailable"}\n" +
         $"Before frame: {Describe(before)}\n" +
@@ -30,7 +30,7 @@ internal static class GameplayFrameFailureDiagnostics
             return location + "; Samus=not initialized";
         return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFramesRemaining}; " +
             $"animatedPose={samus.AnimatedPose}; position={samus.Position.X},{samus.Position.Y}; " +
-            $"input=${samus.HeldButtons:X}; newlyPressed=${samus.NewlyPressedButtons:X}; inputLocked={samus.InputLocked}; " +
+            $"input={samus.HeldButtons}; newlyPressed={samus.NewlyPressedButtons}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.DrainedPhase}; drainedHandler={samus.DrainedGetUp}; " +
             $"escapeTimer={samus.EscapeTimer}; fx={samus.Fx}; medium={samus.Medium}; " +
             $"waterY=${samus.WaterSurfaceY:X4}; acidY=${samus.LavaAcidSurfaceY:X4}";

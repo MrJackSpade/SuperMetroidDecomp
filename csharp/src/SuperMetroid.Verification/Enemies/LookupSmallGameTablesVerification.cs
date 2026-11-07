@@ -98,15 +98,10 @@ internal static class LookupSmallGameTablesVerification
     {
         const int bank = 0xa90000, workBuffer = 0x2000;
         int? tileSheetBase = null;
-        foreach ((DeadTourianBehavior.DeadTourianCorpseProfile profile, DeadTourianCorpseSpecies species) in new[]
-        {
-            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadZoomerProfile, DeadTourianCorpseSpecies.Zoomer),
-            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadRipperProfile, DeadTourianCorpseSpecies.Ripper),
-            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadSkreeProfile, DeadTourianCorpseSpecies.Skree),
-        })
+        foreach (DeadTourianCorpseSpecies species in new[] { DeadTourianCorpseSpecies.Zoomer, DeadTourianCorpseSpecies.Ripper, DeadTourianCorpseSpecies.Skree })
         {
             IReadOnlyList<DeadTourianCorpseVariant> variants = DeadTourianCorpseStagingDefinitions.Variants(species);
-            AssertEqual(profile.VariantCount, variants.Count, $"Dead {species} stages each of its variants");
+            AssertEqual(DeadTourianCorpseDefinitions.Variants[species].Length, variants.Count, $"Dead {species} stages each of its variants");
             for (int variant = 0; variant < variants.Count; variant++)
             {
                 var layout = variants[variant];

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;

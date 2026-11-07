@@ -29,19 +29,6 @@ internal readonly record struct KraidBackdropFadeSteps
     /// <summary>Whether the only step taken is at counter value zero, which changes no colour.</summary>
     internal bool OnlyAtZero => Taken == 1;
 
-    /// <summary>The counter values taken, in rising order.</summary>
-    internal IEnumerable<int> Values
-    {
-        get
-        {
-            for (int step = 0; step <= KraidBackgroundDefinitions.BackdropFadeLastStep; step++)
-            {
-                if (Took(step))
-                    yield return step;
-            }
-        }
-    }
-
     /// <summary>These steps followed by one at counter value <paramref name="step"/>.</summary>
     /// <exception cref="InvalidOperationException">The step does not follow the latest: the shared counter only rises during a fade.</exception>
     internal KraidBackdropFadeSteps Then(int step)

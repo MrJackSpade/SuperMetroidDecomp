@@ -23,6 +23,9 @@ internal static class PhantoonSheetShades
     /// <summary>The colours of one colour group.</summary>
     private const int GroupColours = 16;
 
+    /// <summary>The lengths his body's fades run over.</summary>
+    private static readonly int[] FadeDenominators = [1, 12];
+
     /// <summary>The shades of his body sheet.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Body(BossSourceArtwork bosses)
@@ -42,7 +45,7 @@ internal static class PhantoonSheetShades
             foreach (PhantoonBodyLook to in targets)
             {
                 RgbColor[] goal = Colours(phantoon, to);
-                foreach (int denominator in PhantoonShades.FadeDenominators)
+                foreach (int denominator in FadeDenominators)
                 {
                     for (int first = 1; first <= denominator + 1; first++)
                     {

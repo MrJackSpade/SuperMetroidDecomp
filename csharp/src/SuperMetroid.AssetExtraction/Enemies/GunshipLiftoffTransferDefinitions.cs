@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The five gunship takeoff pages, in takeoff order: the steps of its artwork sequence (#1513).</summary>
 internal static class GunshipLiftoffTransferDefinitions

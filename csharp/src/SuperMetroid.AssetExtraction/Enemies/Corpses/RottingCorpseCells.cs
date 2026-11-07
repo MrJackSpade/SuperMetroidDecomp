@@ -151,7 +151,7 @@ internal sealed class RottingCorpseCells
             else if (DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
             {
                 DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianBehavior.ProfileForDeadTourianCorpse(enemy);
-                for (int variant = 0; variant < profile.VariantCount; variant++)
+                for (int variant = 0; variant < DeadTourianCorpses.VariantCount(profile.Species); variant++)
                     corpses.Add(DeadMonster(DeadTourianCorpses.For(profile.Species, variant).Kind));
             }
         }

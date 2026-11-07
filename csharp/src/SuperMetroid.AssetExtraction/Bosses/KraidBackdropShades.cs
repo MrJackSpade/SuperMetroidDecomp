@@ -162,11 +162,21 @@ internal static class KraidBackdropShades
         for (int colour = 0; colour < faded.Length; colour++)
         {
             RgbColor current = from[colour];
-            foreach (int step in steps.Values)
+            foreach (int step in Values(steps))
                 current = GradualColourFade.Step(step, current, to[colour], Denominator);
             faded[colour] = current;
         }
         return faded;
+    }
+
+    /// <summary>The shared counter's values <paramref name="steps"/> took, in rising order.</summary>
+    private static IEnumerable<int> Values(KraidBackdropFadeSteps steps)
+    {
+        for (int step = 0; step <= KraidBackgroundDefinitions.BackdropFadeLastStep; step++)
+        {
+            if (steps.Took(step))
+                yield return step;
+        }
     }
 
     /// <summary>The settled colours of the backdrop's ink run.</summary>

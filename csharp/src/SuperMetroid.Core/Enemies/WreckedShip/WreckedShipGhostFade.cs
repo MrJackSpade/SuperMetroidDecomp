@@ -33,8 +33,11 @@ public sealed class WreckedShipGhostFade
     /// <summary>The channels a fade step moves, in the order the game steps them.</summary>
     private static readonly ColorChannel[] Channels = [ColorChannel.Red, ColorChannel.Green, ColorChannel.Blue];
 
-    /// <summary>The colours the ghost shows.</summary>
-    private readonly RgbColor[] shown = new RgbColor[ColourCount];
+    /// <summary>
+    /// The colours the ghost shows, colour zero first: what each step's end condition is decided by. The import runs the
+    /// fade along the ghost's path and pre-colours each step's shade in them.
+    /// </summary>
+    internal readonly RgbColor[] shown = new RgbColor[ColourCount];
 
     /// <summary>The colours the current fade moves toward.</summary>
     internal readonly RgbColor[] target = new RgbColor[ColourCount];
@@ -47,9 +50,6 @@ public sealed class WreckedShipGhostFade
 
     /// <summary>The fade the next step toward the target belongs to.</summary>
     private WreckedShipGhostColourEffect fade = WreckedShipGhostColourEffect.Dark;
-
-    /// <summary>The colours the ghost shows, colour zero first.</summary>
-    public ReadOnlySpan<RgbColor> Shown => shown;
 
     /// <summary>
     /// The shade naming the colours the ghost shows: the effect that last changed them and how many of its steps did.

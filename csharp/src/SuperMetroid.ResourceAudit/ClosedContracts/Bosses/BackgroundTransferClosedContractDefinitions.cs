@@ -22,10 +22,10 @@ internal static class BackgroundTransferClosedContractDefinitions
             [new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingObjectSourceArtwork.cs")]),
         new("SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalog", "gunship-complete-five-takeoff-transfers", ["Resolve"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffArtworkCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffTransferDefinitions.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffTransferDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffCharacterDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffTransferDefinition.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffTransferDefinition.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),
     ];
 }

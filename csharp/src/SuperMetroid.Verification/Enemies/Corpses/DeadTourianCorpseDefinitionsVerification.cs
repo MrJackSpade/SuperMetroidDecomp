@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Programs;

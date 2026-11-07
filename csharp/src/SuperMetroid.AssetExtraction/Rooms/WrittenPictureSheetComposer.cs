@@ -10,7 +10,6 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;

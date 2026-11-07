@@ -9,7 +9,6 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks D3D11 turning-floor rendering against the WARP reference.</summary>

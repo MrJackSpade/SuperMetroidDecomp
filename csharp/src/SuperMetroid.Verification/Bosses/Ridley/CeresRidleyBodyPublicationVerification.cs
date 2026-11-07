@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Gameplay;

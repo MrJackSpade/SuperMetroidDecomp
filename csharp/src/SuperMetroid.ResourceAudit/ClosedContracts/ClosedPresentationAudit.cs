@@ -145,8 +145,8 @@ internal sealed class ClosedPresentationAudit
     /// <summary>The providers whose complete key domain only their reviewed loader's checks establish (#1536).</summary>
     private static readonly HashSet<string> LoaderBuiltProviders =
     [
-        typeof(SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork).FullName ?? throw new InvalidOperationException("The installed room artwork type has no name."),
-        typeof(SpawnedObjectSheet).FullName ?? throw new InvalidOperationException("The spawned-object sheet type has no name."),
+        ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork)),
+        ContractTypeNames.MetadataName(typeof(SpawnedObjectSheet)),
     ];
 
     /// <summary>

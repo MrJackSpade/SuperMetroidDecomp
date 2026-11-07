@@ -87,7 +87,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("MessageBoxSheet", "Picture", "shown.Message") => GameplayMessageArtwork.Forms().Select(form => (int)form.Message).Distinct().ToArray(),
         // Only the effects that show a page are pictured as one (#1536).
         ("FxOverlayPagePictures", "Page", "type") => Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsPage)
-            .SelectToArray(type => (int)type),
+            .Select(type => (int)type).ToArray(),
         // A sky is installed for each variant some retail room state's scrolling-sky room main reads (#1536).
         ("InstalledRoomArtwork", "Sky", "variant") => RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
             .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))

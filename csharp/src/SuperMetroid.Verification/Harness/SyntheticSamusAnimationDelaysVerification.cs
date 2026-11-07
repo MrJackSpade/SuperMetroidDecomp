@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -13,7 +14,7 @@ internal static class SyntheticSamusAnimationDelaysVerification
     /// </summary>
     internal static void SeedSyntheticAnimationDelay(TestAddressSpace bus, SamusPoseId pose, ushort stream, byte firstDelay)
     {
-        WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + SamusPoseNumbering.Number(pose) * sizeof(ushort), stream);
+        WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + SamusPoseNumbers.Number(pose) * sizeof(ushort), stream);
         bus.WriteByte(0x910000 | stream, firstDelay);
     }
 }

@@ -348,7 +348,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, NativeSnapshotMemory.XFraction);
             Check("Samus Y", samus.Position.Y.Whole, NativeSnapshotMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, NativeSnapshotMemory.YFraction);
-            Check("Samus pose", SamusPoseNumbering.Number(samus.Pose), NativeSnapshotMemory.Pose);
+            Check("Samus pose", SamusPoseNumbers.Number(samus.Pose), NativeSnapshotMemory.Pose);
             Check("PreviousDrawHeldInput", ControllerWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawHeldInput), NativeSnapshotMemory.SamusFilteredHeld);
             Check("PreviousDrawNewInput", ControllerWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawNewInput), NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
@@ -359,10 +359,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 ? NativeSnapshotMemory.SamusAutoJumpInputHandler : NativeSnapshotMemory.SamusNormalInputHandler,
                 NativeSnapshotMemory.SamusInputHandler);
 
-            Check("Samus previous pose", SamusPoseNumbering.Number(samus.PoseHistory.PreviousPose), NativeSnapshotMemory.PreviousPose);
+            Check("Samus previous pose", SamusPoseNumbers.Number(samus.PoseHistory.PreviousPose), NativeSnapshotMemory.PreviousPose);
             CheckValue("Samus previous movement", SamusMovementTypeNativeWords.Byte(samus.PoseHistory.PreviousMovement),
                 SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection))));
-            Check("Samus last different pose", SamusPoseNumbering.Number(samus.PoseHistory.LastDifferentPose), NativeSnapshotMemory.LastDifferentPose);
+            Check("Samus last different pose", SamusPoseNumbers.Number(samus.PoseHistory.LastDifferentPose), NativeSnapshotMemory.LastDifferentPose);
             CheckValue("Samus last different movement", SamusMovementTypeNativeWords.Byte(samus.PoseHistory.LastDifferentMovement),
                 SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection))));
             Check("Samus animation", samus.AnimationFrame, NativeSnapshotMemory.Animation);
@@ -985,8 +985,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (mismatches.Count != 0)
             {
                 RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
-                Console.Error.WriteLine($"Pose history: port={(int)SamusPoseNumbering.Number(samus.PoseHistory.PreviousPose):X4}/{samus.PoseHistory.PreviousMovement}/{(int)SamusPoseNumbering.Number(samus.PoseHistory.LastDifferentPose):X4}/{samus.PoseHistory.LastDifferentMovement}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
-                Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)SamusPoseNumbering.Number(samus.Pose):X2}, radius={samus.Kinematics.Radius.Y}");
+                Console.Error.WriteLine($"Pose history: port={(int)SamusPoseNumbers.Number(samus.PoseHistory.PreviousPose):X4}/{samus.PoseHistory.PreviousMovement}/{(int)SamusPoseNumbers.Number(samus.PoseHistory.LastDifferentPose):X4}/{samus.PoseHistory.LastDifferentMovement}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
+                Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)SamusPoseNumbers.Number(samus.Pose):X2}, radius={samus.Kinematics.Radius.Y}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.AlphaLocked}, HUD={samus.SelectedHudItem}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer.RawValue}, held={runtime.Controller1.Current:X}, new={runtime.Controller1.NewlyPressed:X}");
                 Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4}+{samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4}");
                 for (int block = 0; block < level.Size.X * level.Size.Y; block++)

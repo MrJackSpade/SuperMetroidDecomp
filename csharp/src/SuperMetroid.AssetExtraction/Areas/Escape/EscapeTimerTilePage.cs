@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>The two escape-timer character uploads.</summary>
 public enum EscapeTimerTilePage

@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The programs Samus's projectiles can run while one beam combination is loaded (#1513), so that the combination's
@@ -47,9 +49,9 @@ internal static class LoadedBeamProjectilePrograms
     {
         var starts = new List<SamusProjectileProgram>();
         foreach (bool charged in (bool[])[false, true])
-            starts.AddRange(SamusProjectileSelection.BeamShotPrograms(beams, charged));
+            starts.AddRange(BeamShotPrograms(beams, charged));
         if (beams == HyperBeamLoaded)
-            starts.AddRange(SamusProjectileSelection.BeamShotPrograms(HyperBeamFired, charged: true));
+            starts.AddRange(BeamShotPrograms(HyperBeamFired, charged: true));
         // Only a retail combination has a special attack.
         if (beams.IsRetail && SamusProjectileSelection.SpecialAttack(beams) is { } specialAttack)
             AddFirst(starts, specialAttack);
@@ -72,9 +74,19 @@ internal static class LoadedBeamProjectilePrograms
             .Select(show => show.Frame)
             .Distinct();
 
+    /// <summary>
+    /// Every animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, starts in any direction:
+    /// its header's lists, except the Murder Beam's, which reads past the Power Bomb header it takes its damage from
+    /// (<see cref="MurderBeamDirectionPrograms{TDirection, TProgram}"/>).
+    /// </summary>
+    internal static IEnumerable<SamusProjectileProgram> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
+        SamusProjectileSelection.IsMurderBeam(beams, charged)
+            ? SamusProjectileSelectionDefinitions.MurderBeamDirectionAnimations.Values.OfType<SamusProjectileProgram>()
+            : SamusProjectileHeaders.DirectionPrograms(SamusProjectileSelection.BeamShot(beams, charged));
+
     /// <summary>Adds every list <paramref name="header"/> names.</summary>
     private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
-        starts.AddRange(SamusProjectileHeaders.Programs(header));
+        starts.AddRange(SamusProjectileHeaders.DirectionPrograms(header));
 
     /// <summary>Adds the program a shot from <paramref name="header"/> starts in its first direction.</summary>
     private static void AddFirst(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>

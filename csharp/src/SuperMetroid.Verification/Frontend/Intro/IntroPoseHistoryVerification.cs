@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 using SuperMetroid.Verification.Harness;
@@ -95,7 +96,7 @@ internal static class IntroPoseHistoryVerification
             {
                 transitions++;
                 terminal |= ended;
-                context = ended ? "terminal demo command" : $"flashback pose {(oldPose is { } previousPose ? SamusPoseNumbering.Number(previousPose) : (int?)null):X2}->{(int)SamusPoseNumbering.Number(after.Pose):X2}";
+                context = ended ? "terminal demo command" : $"flashback pose {(oldPose is { } previousPose ? SamusPoseNumbers.Number(previousPose) : (int?)null):X2}->{(int)SamusPoseNumbers.Number(after.Pose):X2}";
             }
             else if (after is not null && hurtExpiry)
                 context = "same-pose hurt expiry command";

@@ -58,12 +58,12 @@ internal static class SamusOverreadDecoding
     {
         var starts = new Dictionary<SamusAnimationProgram, int>();
         var namedBy = new Dictionary<SamusAnimationProgram, SamusPoseId>();
-        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbering.HasRecord).OrderBy(SamusPoseNumbering.Number)];
+        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord).OrderBy(SamusPoseNumbers.Number)];
         foreach (SamusPoseId pose in poses)
         {
             SamusAnimationProgram program = SamusAnimationDelays.ProgramForPose(pose);
             int start = cartridge.ReadCartridgeWord(
-                SamusOverreadSourceDefinitions.SamusAnimationProgramTable + SamusPoseNumbering.Number(pose) * sizeof(ushort));
+                SamusOverreadSourceDefinitions.SamusAnimationProgramTable + SamusPoseNumbers.Number(pose) * sizeof(ushort));
             if (starts.TryGetValue(program, out int known))
             {
                 if (known != start)
@@ -122,7 +122,7 @@ internal static class SamusOverreadDecoding
     /// record's animation frame and every word before a projectile list, which a trail spawned at a list's start reads.
     /// </summary>
     private static int[] TrailFramesPastRecords(ProjectileTrailPlacementList list, SamusProjectileListLayout lists) =>
-        [.. SamusProjectileRecordDefinitions.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
+        [.. SamusProjectileRecordOrder.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
             .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)lists.Prefix(program)))
             .Distinct()
             .Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length)
@@ -164,7 +164,7 @@ internal static class SamusOverreadDecoding
             {
                 if (SamusBeamCallbacks.Resolve(charged, beams).Translated != SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
                     continue;
-                foreach (SamusProjectileProgram program in SamusProjectileSelection.BeamShotPrograms(beams, charged))
+                foreach (SamusProjectileProgram program in LoadedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
                 {
                     if (programs.Add(program))
                         pending.Enqueue(program);
@@ -293,9 +293,9 @@ internal static class SamusOverreadDecoding
     private static Dictionary<string, bool> PostureAdmissions(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusPoseId>()
             .Where(pose => SamusPoseMetadata.PostureTransitionAdmission(pose) == SamusPostureTransitionAdmission.BeyondTable)
-            .OrderBy(SamusPoseNumbering.Number)
+            .OrderBy(SamusPoseNumbers.Number)
             .ToDictionary(pose => pose.ToString(), pose =>
-                cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbering.Number(pose)) == 0);
+                cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbers.Number(pose)) == 0);
 
     /// <summary>
     /// The colours Gravity copies on each Speed Booster step past its cycle: the expansion window's open-bus words, then
@@ -303,9 +303,9 @@ internal static class SamusOverreadDecoding
     /// </summary>
     private static Dictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours(IImportCartridgeSource cartridge) => new()
     {
-        [SpeedBoosterPaletteOverrun.FirstStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusPaletteDefinitions.Common.ColoursPerSet)
+        [SpeedBoosterPaletteOverrun.FirstStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusColourSets.ColoursPerSet)
             .Select(_ => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(SamusOverreadSourceDefinitions.ExpansionOpenBusWord)))],
-        [SpeedBoosterPaletteOverrun.SecondStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusPaletteDefinitions.Common.ColoursPerSet)
+        [SpeedBoosterPaletteOverrun.SecondStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusColourSets.ColoursPerSet)
             .Select(index => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(cartridge.ReadCartridgeWord(
                 SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode + index * ColourWordCodec.ByteCount))))],
     };
@@ -347,7 +347,7 @@ internal static class SamusOverreadDecoding
         DrainedCrashPoses.ToDictionary(pose => pose.ToString(), pose =>
         {
             int pair = SamusOverreadSourceDefinitions.CrashDepartureTable +
-                (SamusPoseNumbering.Number(pose) - SamusPoseNumbering.Number(SamusPoseId.ShinesparkHorizontalRightPose)) * 2;
+                (SamusPoseNumbers.Number(pose) - SamusPoseNumbers.Number(SamusPoseId.ShinesparkHorizontalRightPose)) * 2;
             return new SamusOverreadDocument.CrashDepartures(cartridge.ReadCartridgeByte(pair), cartridge.ReadCartridgeByte(pair + 1));
         });
 

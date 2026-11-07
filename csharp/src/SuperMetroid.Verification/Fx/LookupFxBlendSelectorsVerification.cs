@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
@@ -20,11 +21,11 @@ internal static class ProjectileOriginsVerification
         void Check(SamusPoseId pose, SamusProjectileDirection direction, ushort x, ushort y)
         {
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(x, y)); slot.Direction = direction;
-            bool running = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbering.Number(pose) * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
+            bool running = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
             int offset = direction.ToAimIndex() * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
-            byte correction = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbering.Number(pose) * 8 + 4);
+            byte correction = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 4);
             initialize(samus, slot);
             AssertEqual(unchecked((ushort)(x + dx)), slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");

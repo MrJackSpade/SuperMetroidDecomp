@@ -3,6 +3,7 @@ using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -23,7 +24,7 @@ internal static class SyntheticSamusCartridge
     /// pointer table (one bank-$91 word per pose) at <paramref name="list"/>.
     /// </summary>
     internal static void WritePoseTransitionPointer(TestAddressSpace bus, SamusPoseId pose, ushort list) =>
-        WriteTestWord(bus, 0x919ee2 + SamusPoseNumbering.Number(pose) * 2, list);
+        WriteTestWord(bus, 0x919ee2 + SamusPoseNumbers.Number(pose) * 2, list);
 
     /// <summary>
     /// Installs a bank-$91 pose-transition list at <paramref name="list"/>: six-byte

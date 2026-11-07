@@ -24,12 +24,8 @@ internal static class SamusProjectileSelection
             ? MurderBeamPrograms.Program(direction)
             : SamusProjectileHeaders.Program(BeamShot(beams, charged), direction.ToAimIndex());
 
-    /// <summary>Every animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, starts in any direction.</summary>
-    internal static IEnumerable<SamusProjectileProgram> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
-        IsMurderBeam(beams, charged) ? MurderBeamPrograms.Programs : SamusProjectileHeaders.Programs(BeamShot(beams, charged));
-
     /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
-    private static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;
+    internal static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;
 
     /// <summary>The header a fired missile or placed bomb of <paramref name="family"/> starts from.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No missile or bomb is of the family.</exception>

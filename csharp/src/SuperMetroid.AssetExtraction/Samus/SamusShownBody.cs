@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 
-namespace SuperMetroid.Core.Samus.Drawing;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One full body Samus's body can be drawn as (#1513): the halves and chest cover drawn, and the half pictures shown.</summary>
 /// <param name="Frame">The body halves and chest cover the draw shows.</param>

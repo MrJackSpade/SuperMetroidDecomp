@@ -33,22 +33,8 @@ public readonly struct PerSoundLibrary<TLibrary, TValue> : IEquatable<PerSoundLi
         values = [.. libraries.Select(Ensure.NotNull(valueOf))];
     }
 
-    /// <summary>Holds <paramref name="values"/>, already in the order of <paramref name="libraries"/>, which are distinct.</summary>
-    private PerSoundLibrary(ImmutableArray<TLibrary> libraries, ImmutableArray<TValue> values)
-    {
-        this.libraries = libraries;
-        this.values = values;
-    }
-
     /// <summary>The value of <paramref name="library"/>; the default value for a library the set does not hold.</summary>
     public TValue this[TLibrary library] => PositionOf(library) is int position and >= 0 ? values[position] : default;
-
-    /// <summary>This set with <paramref name="library"/>'s value replaced by <paramref name="value"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The set does not hold <paramref name="library"/>.</exception>
-    public PerSoundLibrary<TLibrary, TValue> With(TLibrary library, TValue value) =>
-        PositionOf(library) is int position and >= 0
-            ? new PerSoundLibrary<TLibrary, TValue>(libraries, values.SetItem(position, value))
-            : throw new ArgumentOutOfRangeException(nameof(library), library, "The set holds no value for this library.");
 
     /// <summary>Two sets are equal when every library either holds reads the same in both.</summary>
     public bool Equals(PerSoundLibrary<TLibrary, TValue> other) => ReadsSameIn(other) && other.ReadsSameIn(this);

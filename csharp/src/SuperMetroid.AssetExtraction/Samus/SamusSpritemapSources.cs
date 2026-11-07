@@ -145,8 +145,8 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
         : index;
 
     /// <summary>The pose's place in the base tables.</summary>
-    private static int Number(SamusPoseId pose) => SamusPoseNumbering.HasRecord(pose)
-        ? SamusPoseNumbering.Number(pose)
+    private static int Number(SamusPoseId pose) => SamusPoseNumbers.HasRecord(pose)
+        ? SamusPoseNumbers.Number(pose)
         : throw new ArgumentOutOfRangeException(nameof(pose));
 
     /// <summary>

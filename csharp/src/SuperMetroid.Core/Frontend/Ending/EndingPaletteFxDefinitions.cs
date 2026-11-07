@@ -31,11 +31,4 @@ internal static class EndingPaletteFxDefinitions
     /// shows it as the ending's backdrop.
     /// </summary>
     public const PaletteFxColours SpaceColours = PaletteFxColours.SpaceDuringZebesExplosion;
-
-    /// <summary>Every palette object the ending spawns, whose records the import pre-colours the ending's sheets in (#1512).</summary>
-    public static IReadOnlyList<PaletteFxObject> Objects { get; } =
-    [
-        FadePlanet, Supernova, SupernovaFinale, Explosion, Lava, Crust, GreyClouds, WideExplosion, PlanetAfterglow,
-        GunshipEmergence, EndingLogoDefinitions.LandingPaletteFx,
-    ];
 }

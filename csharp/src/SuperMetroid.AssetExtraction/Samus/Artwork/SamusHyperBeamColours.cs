@@ -21,7 +21,7 @@ public sealed class SamusHyperBeamColours
     {
         Ensure.LengthEqual(frames.AsSpan(), SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount);
         foreach (ImmutableArray<RgbColor> colours in frames)
-            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.SuitColours);
+            Ensure.LengthEqual(colours.AsSpan(), SamusColourSets.ColoursPerSet);
         this.frames = frames;
     }
 

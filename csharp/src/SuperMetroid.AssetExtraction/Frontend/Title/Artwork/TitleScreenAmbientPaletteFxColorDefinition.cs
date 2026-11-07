@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.PaletteFx;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>One complete looping title-screen ambient palette program.</summary>
 public sealed class TitleScreenAmbientPaletteFxColorDefinition

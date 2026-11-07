@@ -8,7 +8,4 @@ public interface IGlobalEventFlags
 
     /// <summary>Sets <paramref name="eventNumber"/>.</summary>
     void Set(EventNumber eventNumber);
-
-    /// <summary>Clears <paramref name="eventNumber"/>.</summary>
-    void Clear(EventNumber eventNumber);
 }

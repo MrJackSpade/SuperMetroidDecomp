@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.DebugRunner.Tools;
 
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -55,7 +56,7 @@ internal static class ShutterNativeArc
         {
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
-                Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)SamusPoseNumbering.Number(scenario.Samus.Pose):X2} " +
+                Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)SamusPoseNumbers.Number(scenario.Samus.Pose):X2} " +
                     $"shutter={(ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")):X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
                     $"rev={shutter.ReactionDirection} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
@@ -86,7 +87,7 @@ internal static class ShutterNativeArc
                     samus.Position.Y.Whole < platform.Position.Y.Whole && gap < worstGap)
                 {
                     worstGap = gap;
-                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)SamusPoseNumbering.Number(samus.Pose):X2} platformY={platform.Position.Y.Whole}");
+                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)SamusPoseNumbers.Number(samus.Pose):X2} platformY={platform.Position.Y.Whole}");
                 }
                 if (samus.Kinematics.Radius.Y != 7)
                     throw new InvalidOperationException(
@@ -118,7 +119,7 @@ internal static class ShutterNativeArc
         Word(0xAF6, k.Position.X.Whole); Word(0xAF8, k.Position.X.Fraction);
         Word(0xAFA, k.Position.Y.Whole); Word(0xAFC, k.Position.Y.Fraction);
         Word(0xAFE, k.Radius.X); Word(0xB00, k.Radius.Y);
-        Word(0xA1C, SamusPoseNumbering.Number(samus.Pose));
+        Word(0xA1C, SamusPoseNumbers.Number(samus.Pose));
         // Native pose record carries direction/movement type in its first two bytes.
         ram[0xA1E] = SamusPoseRecordCodec.FacingByte(samus.Pose);
         ram[0xA1F] = SamusPoseRecordCodecTooling.MovementByte(samus.Pose);

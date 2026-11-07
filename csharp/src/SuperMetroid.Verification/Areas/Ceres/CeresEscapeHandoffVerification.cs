@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -211,7 +212,7 @@ internal static class CeresEscapeHandoffVerification
         // definition and first delay byte are consumed by this focused handler fixture.
         WritePoseDefinition(
             bus,
-            SamusPoseNumbering.Number(SamusPoseId.KnockbackRightPose),
+            SamusPoseNumbers.Number(SamusPoseId.KnockbackRightPose),
             [0x08, 0x0a, 0xff, 0xff, 0x00, 0x00, 0x15, 0x00]);
         SeedSyntheticAnimationDelay(bus, SamusPoseId.KnockbackRightPose, 0xc000, 4);
 
@@ -220,11 +221,11 @@ internal static class CeresEscapeHandoffVerification
         // observable part of the shared knockback-finish path rather than just a pose ID.
         WritePoseDefinition(
             bus,
-            SamusPoseNumbering.Number(SamusPoseId.FallingRightPose),
+            SamusPoseNumbers.Number(SamusPoseId.FallingRightPose),
             [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
         WriteTestWord(
             bus,
-            0x91b010 + SamusPoseNumbering.Number(SamusPoseId.FallingRightPose) * sizeof(ushort),
+            0x91b010 + SamusPoseNumbers.Number(SamusPoseId.FallingRightPose) * sizeof(ushort),
             0xc010);
         bus.WriteBytes(0x91c010, [0x01, 0xff]);
         return bus;

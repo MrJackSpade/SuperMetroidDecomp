@@ -1,5 +1,5 @@
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Presentation geometry for the sixteen colors the beam palette load writes.</summary>
 /// <remarks>

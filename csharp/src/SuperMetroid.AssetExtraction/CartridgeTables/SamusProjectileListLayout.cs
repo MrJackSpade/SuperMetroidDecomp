@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -112,7 +113,7 @@ internal sealed class SamusProjectileListLayout
                 places[record] = place;
             }
         }
-        foreach (SamusProjectileFrame record in SamusProjectileRecordDefinitions.Frames)
+        foreach (SamusProjectileFrame record in SamusProjectileRecordOrder.Frames)
         {
             if (!places.ContainsKey(record))
                 throw new InvalidDataException($"Timed projectile record {record} stands in no list.");

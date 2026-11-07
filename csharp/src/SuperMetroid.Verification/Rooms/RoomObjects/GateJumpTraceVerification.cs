@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
 using SuperMetroid.Verification.Harness;
@@ -55,7 +56,7 @@ internal static class GateJumpTraceVerification
                 runtime.StepFrame(input);
                 var gate = runtime.RoomObjects.PopulationSlots.Single(s => s.HeaderPointer == RoomObjectHeaderId.DownwardGate);
                 activated |= gate.LoopTimer != 0;
-                string actual = $"{frame},{ControllerWordCodec.ToJoypadWord(input):X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbering.Number(samus.Pose):X2},{gate.LoopTimer},{NativeGateInstruction(bus, gate):X4}";
+                string actual = $"{frame},{ControllerWordCodec.ToJoypadWord(input):X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbers.Number(samus.Pose):X2},{gate.LoopTimer},{NativeGateInstruction(bus, gate):X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
             }
             AssertEqual(shootFrame == 8 && aimFrame == 0, samus.Position.X.Whole < 112, "Only native successful timing crosses opened gate");

@@ -71,10 +71,10 @@ public static class SamusBodyPlacementDecoding
         if (movementType == SamusMovementType.Standing &&
             pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose)
             return Pinned(origin, ForwardFacingFirstLaterFrame, ForwardFacingLaterRise);
-        int landingRow = number - SamusPoseNumbering.Number(SamusPoseId.NormalLandingRightPose);
+        int landingRow = number - SamusPoseNumbers.Number(SamusPoseId.NormalLandingRightPose);
         if (movementType == SamusMovementType.Standing && landingRow is >= 0 and < LandingByteCount / LandingPoseByteCount)
             return [.. landingOffsets.Skip(landingRow * LandingPoseByteCount)];
-        int postureRow = number - SamusPoseNumbering.Number(SamusPoseId.CrouchingTransitionRightPose);
+        int postureRow = number - SamusPoseNumbers.Number(SamusPoseId.CrouchingTransitionRightPose);
         if (movementType == SamusMovementType.PostureTransition && postureRow is >= 0 and < PostureByteCount / PosturePoseByteCount)
             return [.. postureOffsets.Skip(postureRow * PosturePoseByteCount).Select(offset => -offset)];
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)

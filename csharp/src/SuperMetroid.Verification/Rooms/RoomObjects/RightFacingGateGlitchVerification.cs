@@ -20,6 +20,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
 using SuperMetroid.Verification.Harness;
@@ -268,7 +269,7 @@ internal static class RightFacingGateGlitchVerification
             openFrame,
             samus.Position.Whole,
             samus.Kinematics.Position.X.Fraction,
-            SamusPoseNumbering.Number(samus.Pose),
+            SamusPoseNumbers.Number(samus.Pose),
             shotPosition);
     }
 

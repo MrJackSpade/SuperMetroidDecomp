@@ -42,9 +42,9 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <exception cref="InvalidDataException">The pose has no record, or the selector is outside the table.</exception>
         internal SamusBodyFrameSelection Selection(SamusPoseId pose, int animationFrame)
         {
-            if (!SamusPoseNumbering.HasRecord(pose))
+            if (!SamusPoseNumbers.HasRecord(pose))
                 throw new InvalidDataException($"Pose {pose} has no authored Samus body frame list.");
-            int index = self.Source.PoseFirstFrames[SamusPoseNumbering.Number(pose)] + animationFrame;
+            int index = self.Source.PoseFirstFrames[SamusPoseNumbers.Number(pose)] + animationFrame;
             return (uint)index < SamusBodySources.FrameCount
                 ? self.Source.Frames[index]
                 : throw new InvalidDataException($"Samus frame {index} is outside extracted visual selectors.");

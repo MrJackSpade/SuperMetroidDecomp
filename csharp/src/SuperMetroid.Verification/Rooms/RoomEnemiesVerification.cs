@@ -40,6 +40,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Verification.Bosses;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Enemies;
@@ -577,7 +578,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     AssertEqual(5, samus.KnockbackTimer, "Ripper contact knockback clock");
 
     if (verifyDeferredContact)
-        Console.WriteLine($"CONTACT health={samus.Health} pose={(int)SamusPoseNumbering.Number(samus.Pose):X2} timer={samus.KnockbackTimer} invincibility={samus.InvincibilityTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+        Console.WriteLine($"CONTACT health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackTimer} invincibility={samus.InvincibilityTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
             "touch callback publishes request without changing the pre-movement pose");
     AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == 0,
@@ -1623,7 +1624,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // through the public producer and explosion owner, rather than mutating HitCounter.
     WritePoseDefinition(
         bus,
-        SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
+        SamusPoseNumbers.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
     WriteTestWord(bus, 0x9383c1, 0x8431);
     WriteTestWord(bus, 0x938431, 20);

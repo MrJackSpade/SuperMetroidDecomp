@@ -70,7 +70,7 @@ internal static class SamusOverreadServicesReader
     private static LaidOutProgramContinuation<SamusPoseId> AnimationContinuation(
         IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> continuations)
     {
-        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbering.HasRecord)];
+        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord)];
         if (continuations.Count != poses.Length)
             throw new InvalidDataException($"Samus overread file holds {continuations.Count} animation continuations, not {poses.Length}.");
         var successors = new Dictionary<SamusPoseId, LaidOutProgramContinuation<SamusPoseId>.Successor?>();
@@ -207,7 +207,7 @@ internal static class SamusOverreadServicesReader
         foreach (SpeedBoosterPaletteOverrun step in Enum.GetValues<SpeedBoosterPaletteOverrun>())
         {
             if (!colours.TryGetValue(step.ToString(), out IReadOnlyList<PaletteRgb5>? row) ||
-                row.Count != SamusPaletteDefinitions.Common.ColoursPerSet)
+                row.Count != SamusColourSets.ColoursPerSet)
                 throw new InvalidDataException($"Samus overread file holds no suit row of colours for Speed Booster {step}.");
             result.Add(step, [.. row.Select(colour => colour.ToRgbColor())]);
         }

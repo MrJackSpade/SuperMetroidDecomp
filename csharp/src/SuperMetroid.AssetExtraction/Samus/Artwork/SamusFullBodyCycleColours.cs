@@ -23,7 +23,7 @@ public sealed class SamusFullBodyCycleColours
     {
         Ensure.NotNull(palettes);
         foreach (ImmutableArray<RgbColor> colours in palettes.Values)
-            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.SuitColours);
+            Ensure.LengthEqual(colours.AsSpan(), SamusColourSets.ColoursPerSet);
         this.palettes = new(palettes);
     }
 

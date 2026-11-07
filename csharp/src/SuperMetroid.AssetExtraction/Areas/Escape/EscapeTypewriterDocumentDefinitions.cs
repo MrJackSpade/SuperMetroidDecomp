@@ -8,4 +8,7 @@ public static class EscapeTypewriterDocumentDefinitions
 
     /// <summary>The embedded editable escape-warning program asset file name.</summary>
     public const string FileName = "escape-typewriter.json";
+
+    /// <summary>Maximum authored warning length, in character cells.</summary>
+    public const int MaximumLineLength = 32;
 }

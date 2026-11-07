@@ -24,6 +24,30 @@ internal static class EndingSceneActors
         [SpriteSheetId.EndingShootingSprites] = Shooting,
     };
 
+    /// <summary>The escapes' clouds: the first escape's four and the second's four (#1513).</summary>
+    private static readonly EndingSpriteDefinition[] EscapeClouds =
+    [
+        EndingActorDefinitions.EscapeACloudRightTop, EndingActorDefinitions.EscapeACloudLeftTop,
+        EndingActorDefinitions.EscapeACloudRightBottom, EndingActorDefinitions.EscapeACloudLeftBottom,
+        EndingActorDefinitions.EscapeBCloudTopA, EndingActorDefinitions.EscapeBCloudTopB,
+        EndingActorDefinitions.EscapeBCloudBottomA, EndingActorDefinitions.EscapeBCloudBottomB,
+    ];
+
+    /// <summary>The planet explosion's actors: the planet, its lava, glow, stars and silhouette, the side stars and the afterglow (#1513).</summary>
+    private static readonly EndingSpriteDefinition[] ExplosionActors =
+    [
+        EndingActorDefinitions.ExplodingZebes, EndingActorDefinitions.ExplosionLava, EndingActorDefinitions.ExplosionGlow,
+        EndingActorDefinitions.ExplosionStars, EndingActorDefinitions.ExplosionSilhouette, EndingActorDefinitions.ExplosionStarsRight,
+        EndingActorDefinitions.ExplosionStarsLeft, EndingActorDefinitions.ExplosionAfterglow,
+    ];
+
+    /// <summary>The result text's actors: the completion message's two lines, the clear-time label and its colon (#1513).</summary>
+    private static readonly EndingSpriteDefinition[] ResultTextActors =
+    [
+        EndingActorDefinitions.OperationWasText, EndingActorDefinitions.CompletedSuccessfullyText,
+        EndingActorDefinitions.ClearTimeText, EndingActorDefinitions.ClearTimeColon,
+    ];
+
     /// <summary>What the scene of ending sheet <paramref name="sheet"/> draws from it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is not an ending sprite sheet.</exception>
     internal static EndingSheetDraws Of(SpriteSheetId sheet)
@@ -38,16 +62,16 @@ internal static class EndingSceneActors
     /// <summary>The escapes' clouds, each in its definition's colouring.</summary>
     private static void Clouds(EndingSheetDraws draws)
     {
-        foreach (EndingSpriteDefinition cloud in EndingActorDefinitions.EscapeClouds)
+        foreach (EndingSpriteDefinition cloud in EscapeClouds)
             draws.AddProgram(CinematicSpriteFamily.EndingCloud, cloud.Program, cloud.Colouring);
     }
 
     /// <summary>The planet explosion's actors, the result text, the clear time's digits and the animals' escape pod.</summary>
     private static void Explosion(EndingSheetDraws draws)
     {
-        foreach (EndingSpriteDefinition actor in EndingActorDefinitions.ExplosionActors)
+        foreach (EndingSpriteDefinition actor in ExplosionActors)
             draws.AddProgram(CinematicSpriteFamily.EndingExplosion, actor.Program, actor.Colouring);
-        foreach (EndingSpriteDefinition text in EndingActorDefinitions.ResultTextActors)
+        foreach (EndingSpriteDefinition text in ResultTextActors)
             draws.AddProgram(CinematicSpriteFamily.EndingCompletionText, text.Program, text.Colouring);
         foreach (CinematicSpriteProgram digit in EndingCreditsState.ClearTimeDigitPrograms)
             draws.AddProgram(CinematicSpriteFamily.EndingCompletionText, digit, EndingActorDefinitions.ClearTimeDigitColouring);

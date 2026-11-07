@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;

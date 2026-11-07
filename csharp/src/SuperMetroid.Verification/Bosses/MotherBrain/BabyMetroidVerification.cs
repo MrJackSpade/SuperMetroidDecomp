@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 
@@ -48,9 +49,9 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
     // animation pointer without refreshing radii. These are the only Samus ROM fields the
     // entrance consumes; the dedicated drained-controller suite proves their animation.
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.DrainedCrouchingLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.DrainedCrouchingLeftPose),
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.DrainedStandingLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.DrainedStandingLeftPose),
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
     SeedSyntheticAnimationDelay(bus, SamusPoseId.DrainedStandingLeftPose, 0xc100, 0x10);
 

@@ -11,15 +11,4 @@ public static class GameOverBabyPalettes
         GameOverBabyFrame.Open => GameOverBabyPalette.OpenCry,
         _ => throw new InvalidOperationException($"Undefined {nameof(GameOverBabyFrame)} {frame}."),
     };
-
-    /// <summary>The palette whose colors a cry palette brightens: the cry before it, or the idle colors for the first cry.</summary>
-    /// <exception cref="InvalidOperationException">The idle palette has no predecessor.</exception>
-    public static GameOverBabyPalette PreviousCry(GameOverBabyPalette palette) => palette switch
-    {
-        GameOverBabyPalette.ClosedCry => GameOverBabyPalette.Idle,
-        GameOverBabyPalette.MiddleCry => GameOverBabyPalette.ClosedCry,
-        GameOverBabyPalette.OpenCry => GameOverBabyPalette.MiddleCry,
-        GameOverBabyPalette.Idle => throw new InvalidOperationException("The idle Baby palette precedes every cry palette."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(GameOverBabyPalette)} {palette}."),
-    };
 }

@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
@@ -7,26 +5,14 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// three numbers past them read adjacent code. Core keeps the numbers only where an installed table is laid out by
 /// them: the installed Samus artwork holding one entry per numbered record. Pose families are named in the pose
 /// metadata (#1517) and the animation programs name their transition poses by identity (#1473). A record no gameplay
-/// path gives Samus has no pose, so its number names none. This is the one place a pose becomes its number or a
-/// number its pose.
+/// path gives Samus has no pose, so its number names none. This is the one place a number becomes its pose; the import
+/// alone turns a pose back into its number.
 /// </summary>
 [EncodingOwner("pose numbers of the installed Samus pose tables")]
 internal static class SamusPoseNumbering
 {
     /// <summary>The number of records in the cartridge's pose tables, including the records of poses no path reaches.</summary>
     internal const int RecordCount = 253;
-
-    /// <summary>Each pose's number: its position in <see cref="SamusPoseNumberDefinitions.ByNumber"/>.</summary>
-    private static readonly FrozenDictionary<SamusPoseId, byte> Numbers = Enumerable
-        .Range(0, SamusPoseNumberDefinitions.ByNumber.Length)
-        .Where(NamesPose)
-        .ToFrozenDictionary(FromNumber, number => checked((byte)number));
-
-    /// <summary>The pose's number.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is not a pose.</exception>
-    internal static byte Number(SamusPoseId pose) => Numbers.TryGetValue(pose, out byte number)
-        ? number
-        : throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined pose.");
 
     /// <summary>Whether <paramref name="number"/> names a pose: a record some gameplay path gives Samus, or a number past the records.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The number is outside a byte.</exception>
@@ -44,7 +30,4 @@ internal static class SamusPoseNumbering
             ? SamusPoseNumberDefinitions.ByNumber[number] ?? throw new ArgumentOutOfRangeException(
                 nameof(number), number, "The record of a pose no gameplay path reaches names no pose.")
             : throw new ArgumentOutOfRangeException(nameof(number), number, "A pose number is one byte.");
-
-    /// <summary>Whether the pose has a record in the pose tables, rather than reading the code past them.</summary>
-    internal static bool HasRecord(SamusPoseId pose) => Number(pose) < RecordCount;
 }

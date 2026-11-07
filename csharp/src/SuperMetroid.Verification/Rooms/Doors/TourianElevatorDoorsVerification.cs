@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 
@@ -69,7 +70,7 @@ internal static class TourianElevatorDoorsVerification
                 ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, state, null, new HorizontalBlockMove { Displacement = 4 << 16 })
                 : SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, state, null, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertEqual(elevator, result.Collided, "native solid elevator / passable physical door");
-            AssertEqual(elevator && SamusPoseNumbering.Number(pose) < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
+            AssertEqual(elevator && SamusPoseNumbers.Number(pose) < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
             if (elevator)
                 AssertTrue(level.PendingDoorTransition is null, "sentinel must not start a room transition");
             else

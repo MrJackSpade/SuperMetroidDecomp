@@ -57,7 +57,7 @@ internal static class SamusAnimationProgramCodec
     /// </summary>
     internal static IReadOnlyList<SamusAnimationSequence> Decode(IImportCartridgeSource cartridge, SamusPoseId pose)
     {
-        int start = ProgramStart(cartridge, SamusPoseNumbering.Number(pose));
+        int start = ProgramStart(cartridge, SamusPoseNumbers.Number(pose));
         int end = ProgramsEnd;
         for (int other = 0; other < PoseCount; other++)
         {

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Transfer records of the escape-timer character pages.</summary>
 public static class EscapeTimerTilePages

@@ -46,7 +46,7 @@ internal static class TitleSheetComposer
         }
         foreach (TitleSequencePhase card in TitleTypedCards.Cards)
         {
-            IReadOnlyList<TitleSprite> reveals = TitleTypedCards.Steps(card);
+            IReadOnlyList<TitleSprite> reveals = TitleTypedCardSteps.Of(card);
             SpriteFramePart[][] glyphs = TypedTextGlyphs.Of(card.ToString(),
                 [.. reveals.Select(sprite => characters.Frame(sprite, TitleSpriteDefinitions.FrameName(sprite)))],
                 Offset16<ScreenPixels>.Of(TitleCardDefinitions.TypedScroll.X, TitleCardDefinitions.TypedScroll.Y));
@@ -85,6 +85,6 @@ internal static class TitleSheetComposer
     /// <summary>The frames the title sheet holds: each card's glyphs, and the logo and copyright whole (#1513).</summary>
     internal static IEnumerable<string> FrameNames() =>
         TitleGraphicsFormat.Sprites.Where(sprite => TitleTypedCards.Find(sprite) is null).Select(TitleSpriteDefinitions.FrameName)
-            .Concat(TitleTypedCards.Cards.SelectMany(card => Enumerable.Range(0, TitleTypedCards.Steps(card).Count)
+            .Concat(TitleTypedCards.Cards.SelectMany(card => Enumerable.Range(0, TitleTypedCardSteps.Of(card).Count)
                 .Select(glyph => TitleSpriteDefinitions.GlyphFrameName(card, glyph))));
 }

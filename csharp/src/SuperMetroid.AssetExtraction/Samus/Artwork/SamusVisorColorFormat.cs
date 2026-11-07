@@ -1,6 +1,4 @@
-
-
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Installed-resource identity, schema revision, and six-word extent for editable Samus visor colors.</summary>
 public static class SamusVisorColorFormat

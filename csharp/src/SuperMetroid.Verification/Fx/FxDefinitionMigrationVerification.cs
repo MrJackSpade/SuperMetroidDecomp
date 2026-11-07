@@ -54,7 +54,7 @@ internal static class FxDefinitionMigrationVerification
             "Draygon released statue picture source");
         AssertEqual(0x40, TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueRidley), "Ridley statue picture size");
         RoomFxAnimatedTileLoop spikes = RoomFxAnimatedTileLoops.Require(AnimatedTileObject.HorizontalSpikes);
-        AssertEqual(new AnimatedTileImage(AnimatedTileObject.HorizontalSpikes, 1), spikes.Image(spikes.Frames[3]), "the fourth spike step repeats the second picture");
+        AssertEqual(new AnimatedTileImage(AnimatedTileObject.HorizontalSpikes, 1), spikes.Image(3), "the fourth spike step repeats the second picture");
         AssertEqual(new AnimatedTileImage(AnimatedTileObject.WreckedShipTreadmillRightwards, 3),
             WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Leftwards).Image(0),
             "the leftward treadmill starts on the rightward loop's last picture");

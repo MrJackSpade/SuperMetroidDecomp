@@ -1,5 +1,5 @@
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// Five stock beam material palettes. The beam palette load copies

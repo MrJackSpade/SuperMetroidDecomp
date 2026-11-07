@@ -137,7 +137,7 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         var palettes = new Dictionary<GameOverBabyPalette, RgbColor[]>();
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         {
-            string name = GameOverPresentationNames.BabyPaletteName(palette);
+            string name = GameOverBabyPaletteNames.BabyPaletteName(palette);
             if (!document.BabyPalettes.TryGetValue(name, out ushort[]? colors) ||
                 colors is null || colors.Length != GameOverPresentationFormat.BabyPaletteColorCount ||
                 colors.Any(color => !RgbColor.IsColorWord(color)))

@@ -50,13 +50,13 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // Pose definitions are literal eight-byte records. Only X direction, movement type,
     // graphics offset, and radii matter to this isolated route. $B2 is right-facing/type
     // $16; $B3 is its left-facing mirror. Release poses $51/$52 return to type two.
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.GrappleSwingRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GrappleSwingRightPose),
         [0x08, 0x16, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.GrappleSwingLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GrappleSwingLeftPose),
         [0x04, 0x16, 0xff, 0x07, 0x00, 0x00, 0x05, 0x15]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalJumpForwardRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.NormalJumpForwardRightPose),
         [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalJumpForwardLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.NormalJumpForwardLeftPose),
         [0x04, 0x02, 0xff, 0x07, 0x00, 0x00, 0x05, 0x15]);
 
     // The close-collision routes use a second family of type-$16 records. These bytes are
@@ -64,21 +64,21 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // crouching-down poses, `$B8/$B9` are the two wall contacts, and `$83/$84` are the
     // ordinary wall-jump launch poses selected one function call later. The dropped route
     // below uses compact diagonal-down `$74`; locked cancellation uses stable crouch `$27`.
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.GrappleCrouchingDownRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GrappleCrouchingDownRightPose),
         [0x08, 0x16, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.GrappleCrouchingDownLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GrappleCrouchingDownLeftPose),
         [0x04, 0x16, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.GrappleWallContactLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GrappleWallContactLeftPose),
         [0x08, 0x16, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.GrappleWallContactRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GrappleWallContactRightPose),
         [0x04, 0x16, 0xff, 0x06, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.WallJumpRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.WallJumpRightPose),
         [0x08, 0x14, 0x19, 0xff, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.WallJumpLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.WallJumpLeftPose),
         [0x04, 0x14, 0x1a, 0xff, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.CrouchingRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.CrouchingRightPose),
         [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.CrouchingAimDiagonalDownLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.CrouchingAimDiagonalDownLeftPose),
         [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]);
 
     // `$9B:B9D9-$BA29` can install every one of these six additional type-$16 poses when
@@ -134,7 +134,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // compiled mechanics supply +11.F4 X velocity, zero Y velocity, angle $C000,
     // and (+2,+2) hand origin minus the native eight-pixel pose correction.
     // Flare presentation is deliberately synthetic.
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FallingRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.FallingRightPose),
         [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
     WriteGrappleFlareOrigin(bus, direction: 2, new Offset16<RoomPixels>(2, 2));
 
@@ -583,7 +583,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     }
 
     // Preserve the original fixture record for the remaining grapple tests in this method.
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FallingRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.FallingRightPose),
         [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
 
     // Native $80 points straight down (X=0,Y=256); $81 is (-6,+255).

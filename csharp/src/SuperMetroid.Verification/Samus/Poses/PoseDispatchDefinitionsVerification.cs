@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Poses;
 using SuperMetroid.Verification.Harness;
 
@@ -34,7 +35,7 @@ internal static class PoseDispatchDefinitionsVerification
             AssertEqual(aim, SamusPoseMetadata.ReadShotDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective aim retains native byte and adjacent indexes");
             AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(samus), "Live pose facing retains native value");
             AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective pose facing retains native value");
-            AssertEqual(fallback, SamusPoseNumbering.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "No-input fallback retains native pose or sentinel");
+            AssertEqual(fallback, SamusPoseNumbers.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "No-input fallback retains native pose or sentinel");
             if (movement < SamusMovementTypeNumbers.Count)
             {
                 AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(samus)), "Live movement discriminator matches native");
@@ -72,7 +73,7 @@ internal static class PoseDispatchDefinitionsVerification
             SamusPoseId pose = SamusPoseNumbering.FromNumber(index % 253);
             checksum += SamusPoseMetadata.ReadPoseXDirection(pose);
             checksum += SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose));
-            checksum += SamusPoseNumbering.Number(SamusPoseDispatch.ReadNoInputPose(pose));
+            checksum += SamusPoseNumbers.Number(SamusPoseDispatch.ReadNoInputPose(pose));
         }
         return GC.GetAllocatedBytesForCurrentThread() - before;
     }

@@ -21,7 +21,7 @@ public sealed class RoomFxAnimatedTileLoop
 
         AnimatedObject = animatedObject;
         FrameByteCount = frameByteCount;
-        frames = new CalculatedFrames(animatedObject, frameCount, frameDuration);
+        frames = new CalculatedFrames(frameCount, frameDuration);
     }
 
     /// <summary>Bounded four-byte frame cursors with one duration per object.</summary>
@@ -32,7 +32,7 @@ public sealed class RoomFxAnimatedTileLoop
     /// verified against NTSC J/U v1.0 and pinned bank_87.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
     /// never a generated frame table. Index bounds match the former read-only list.</remarks>
-    internal sealed class CalculatedFrames(AnimatedTileObject animatedObject, int count, int duration)
+    internal sealed class CalculatedFrames(int count, int duration)
         : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
     {
         /// <summary>Number of timed entries before the terminal goto command.</summary>
@@ -43,7 +43,7 @@ public sealed class RoomFxAnimatedTileLoop
             get
             {
                 if ((uint)index >= (uint)count) throw new ArgumentOutOfRangeException(nameof(index));
-                return new(animatedObject, index, duration);
+                return new(duration);
             }
         }
         /// <summary>Yields frame cursors in script order.</summary>

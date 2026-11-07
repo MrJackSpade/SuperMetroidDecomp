@@ -93,7 +93,7 @@ internal sealed class GameOverBabyPaint
                 : warmCry ? WarmCry(palettes[GameOverBabyPalette.Idle][color])
                 : color == 0
                 ? palettes[GameOverBabyPalette.Idle][0]
-                : CryShade(palettes[GameOverBabyPalettes.PreviousCry(palette)][color],
+                : CryShade(palettes[PreviousCry(palette)][color],
                     palette, color, color == 13 ? palettes[palette][14] : RgbColor.Black);
             if (supplied != expected)
                 differences.Add(key, new(supplied, expected));
@@ -131,7 +131,7 @@ internal sealed class GameOverBabyPaint
             : (idle || closedCry) && color is 2 or 3
             ? GreenShade(Read(palette, 4), color)
             : closedCry && color is >= 5 and <= 12 ? WarmCry(Read(GameOverBabyPalette.Idle, color))
-            : color == 0 ? inputs[new BabyInk(GameOverBabyPalette.Idle, 0)] : CryShade(Read(GameOverBabyPalettes.PreviousCry(palette), color),
+            : color == 0 ? inputs[new BabyInk(GameOverBabyPalette.Idle, 0)] : CryShade(Read(PreviousCry(palette), color),
                 palette, color, color == 13 ? Read(palette, 14) : RgbColor.Black);
         return differences.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
@@ -174,4 +174,15 @@ internal sealed class GameOverBabyPaint
     /// <summary>RGB5 additive brightness, saturating each component at 31 before packing.</summary>
     private static RgbColor Brighten(RgbColor color, int amount) =>
         color.Map((_, channel) => Math.Min(31, channel + amount));
+
+    /// <summary>The palette whose colors a cry palette brightens: the cry before it, or the idle colors for the first cry.</summary>
+    /// <exception cref="InvalidOperationException">The idle palette has no predecessor.</exception>
+    private static GameOverBabyPalette PreviousCry(GameOverBabyPalette palette) => palette switch
+    {
+        GameOverBabyPalette.ClosedCry => GameOverBabyPalette.Idle,
+        GameOverBabyPalette.MiddleCry => GameOverBabyPalette.ClosedCry,
+        GameOverBabyPalette.OpenCry => GameOverBabyPalette.MiddleCry,
+        GameOverBabyPalette.Idle => throw new InvalidOperationException("The idle Baby palette precedes every cry palette."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(GameOverBabyPalette)} {palette}."),
+    };
 }

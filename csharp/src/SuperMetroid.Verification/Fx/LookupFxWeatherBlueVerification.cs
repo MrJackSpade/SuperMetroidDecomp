@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Fx.LookupFxBlendSelectorsVerification;
 using SuperMetroid.Core.Fx.Artwork;
 
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 

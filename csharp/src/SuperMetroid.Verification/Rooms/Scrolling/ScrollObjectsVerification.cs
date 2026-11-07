@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
 
 using SuperMetroid.Verification.Harness;
@@ -117,7 +118,7 @@ internal static class ScrollObjectsVerification
         // movement passed it correctly: type-five resolves to the resident `$B703` owner,
         // and the ball remains controller/collision driven throughout the call.
         scrolls.SetStorage(1, RoomScrollState.RedBoundary);
-        WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MorphBallGroundRightPose),
+        WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.MorphBallGroundRightPose),
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
         var ball = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {

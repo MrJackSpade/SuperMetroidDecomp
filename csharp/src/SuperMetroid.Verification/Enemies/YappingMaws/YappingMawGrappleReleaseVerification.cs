@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 
 using SuperMetroid.Verification.Harness;
@@ -56,7 +57,7 @@ internal static class YappingMawGrappleReleaseVerification
         runtime.StepFrame((ControllerButton.B | ControllerButton.Left | ControllerButton.R));
         SamusPoseId heldPose = samus.Pose;
         var heldMovement = runtime.Player.LastGrappleMovement;
-        Console.WriteLine($"Maw drop frame: pose=${(int)SamusPoseNumbering.Number(heldPose):X2}, grapple={samus.Grapple.Phase}, locked={samus.Control.AlphaLocked}.");
+        Console.WriteLine($"Maw drop frame: pose=${(int)SamusPoseNumbers.Number(heldPose):X2}, grapple={samus.Grapple.Phase}, locked={samus.Control.AlphaLocked}.");
         AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "the next grapple handler completes the queued drop");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, heldPose, "command three drops swing to native standing pose while held");
         // Only the `$9B:C8C5` drop completion publishes a deferred drop pose.
@@ -66,7 +67,7 @@ internal static class YappingMawGrappleReleaseVerification
         runtime.StepFrame((ControllerButton.Left | ControllerButton.X | ControllerButton.R));
         AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
         AssertEqual((ushort)936, samus.Position.X.Whole, "Maw release retains native held X");
-        Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)SamusPoseNumbering.Number(samus.Pose):X2}, position={samus.Position.X.Whole}/{samus.Position.Y.Whole}, input unlocked.");
+        Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)SamusPoseNumbers.Number(samus.Pose):X2}, position={samus.Position.X.Whole}/{samus.Position.Y.Whole}, input unlocked.");
     }
 
     /// <summary>Runs the retail-room Maw grapple release reproduction.</summary>

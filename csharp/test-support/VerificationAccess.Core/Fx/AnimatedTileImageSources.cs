@@ -79,9 +79,9 @@ internal static class AnimatedTileImageSources
     /// </summary>
     internal static bool TryOfCursor(RoomFxAnimatedTileLoop definition, ushort instructionPointer, out int source)
     {
-        foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
+        for (int frame = 0; frame < definition.Frames.Count; frame++)
         {
-            if (frame.InstructionPointer == instructionPointer)
+            if (definition.FrameInstructionPointer(frame) == instructionPointer)
             {
                 source = Of(definition.Image(frame));
                 return true;

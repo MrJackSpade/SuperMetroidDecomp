@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal sealed class RoomFxThirdColor
 {
     /// <summary>Selector used to calculate the weather ink's shared channels.</summary>
-    private readonly RoomFxPaletteBlend selection;
+    internal readonly RoomFxPaletteBlend selection;
     /// <summary>Independent red channel of the third ink.</summary>
-    private readonly int red;
+    internal readonly int red;
     /// <summary>Edited green channel when the weather rule does not match.</summary>
     internal readonly int? greenOverride;
     /// <summary>Edited blue channel when the weather rule does not match.</summary>
@@ -23,11 +23,4 @@ internal sealed class RoomFxThirdColor
         int blue = color.Blue;
         blueOverride = RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, color.Red) == blue ? null : blue;
     }
-
-    /// <summary>Combines the retained red channel with edited or calculated weather channels.</summary>
-    public RgbColor CreateColor() => new(red,
-        greenOverride ?? RoomFxPaletteBlendRules.CalculatedThirdGreen(selection) ??
-            throw new InvalidOperationException("A blend color without a green edit has a calculated green."),
-        blueOverride ?? RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, red) ??
-            throw new InvalidOperationException("A blend color without a blue edit has a calculated blue."));
 }

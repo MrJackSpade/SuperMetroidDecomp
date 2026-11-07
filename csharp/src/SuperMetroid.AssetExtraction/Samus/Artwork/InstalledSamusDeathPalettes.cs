@@ -40,7 +40,7 @@ public sealed class InstalledSamusDeathPalettes
     /// <summary>Three suited families in pointer-table order: Power, Varia, then Gravity.</summary>
     public const int SuitCount = 3;
     /// <summary>Sixteen RGB5 words per death-flash step, one OBJ colour set, including the transparent sprite ink at index zero.</summary>
-    public const int ColorCount = SamusPaletteDefinitions.Common.ColoursPerSet;
+    public const int ColorCount = SamusColourSets.ColoursPerSet;
 
     /// <summary>The yellow flash step: full red and green, zero blue.</summary>
     private static readonly RgbColor YellowFlashColor = new(31, 31, 0);

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Frontend;
 
 namespace SuperMetroid.Verification.Frontend;
 
@@ -60,7 +61,7 @@ internal static class TypedTextGlyphsVerification
         var glyphs = new List<TypedStepFrame>();
         foreach (TitleSequencePhase card in TitleTypedCards.Cards)
         {
-            for (int glyph = 0; glyph < TitleTypedCards.Steps(card).Count; glyph++)
+            for (int glyph = 0; glyph < TitleTypedCardSteps.Of(card).Count; glyph++)
                 glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.GlyphFrameName(card, glyph)));
         }
         foreach (CinematicSpriteProgram text in EndingTypedTexts.Texts.Texts)

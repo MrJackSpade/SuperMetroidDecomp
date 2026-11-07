@@ -49,7 +49,7 @@ public static class EscapeTypewriterPresentationFile
             {
                 EscapeTypewriterLineDocument line = program.Lines[index]
                     ?? throw new InvalidDataException($"Escape typewriter program {id} line {index} is null.");
-                if (string.IsNullOrEmpty(line.Text) || line.Text.Length > EscapeTypewriterDefinitions.MaximumLineLength ||
+                if (string.IsNullOrEmpty(line.Text) || line.Text.Length > EscapeTypewriterDocumentDefinitions.MaximumLineLength ||
                     line.Text.Any(static character => character is not (' ' or '!' or >= 'A' and <= 'Z')) ||
                     !LineFitsOverlay(line.Cell, line.Text.Length))
                 {

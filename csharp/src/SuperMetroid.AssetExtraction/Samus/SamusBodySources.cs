@@ -167,7 +167,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
             if ((uint)firstFrame >= FrameCount)
                 throw new InvalidDataException($"Samus pose selects invalid frame list {firstFrame}.");
         Ensure.NotNull(parts.Placements);
-        if (parts.Placements.Count != Enumerable.Range(0, PoseCount).Count(SamusPoseNumbering.NamesPose) || parts.Placements.Keys.Any(pose => !SamusPoseNumbering.HasRecord(pose)) ||
+        if (parts.Placements.Count != Enumerable.Range(0, PoseCount).Count(SamusPoseNumbering.NamesPose) || parts.Placements.Keys.Any(pose => !SamusPoseNumbers.HasRecord(pose)) ||
             parts.Placements.Values.Any(placement => placement is null))
             throw new InvalidDataException("Samus body placements do not cover exactly the poses with records.");
         int first = GroupLengths(parts.TopSetStarts, parts.BottomSetStarts).Keys.Min();

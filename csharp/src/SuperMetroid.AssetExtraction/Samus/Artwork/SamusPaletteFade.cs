@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Shared RGB5 whitening used by Samus charge and death palettes.</summary>
 internal static class SamusPaletteFade

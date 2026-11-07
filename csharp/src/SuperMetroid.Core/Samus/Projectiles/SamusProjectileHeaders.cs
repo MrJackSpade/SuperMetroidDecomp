@@ -6,16 +6,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileHeaders
 {
     /// <summary>
-    /// The programs <paramref name="header"/>'s list fields name, in direction order: every list a projectile started
-    /// from the header can begin with, whichever direction it is fired in.
-    /// </summary>
-    internal static IEnumerable<SamusProjectileProgram> Programs(SamusProjectileHeader header) => DirectionPrograms(header);
-
-    /// <summary>
     /// The program a shot from <paramref name="header"/> starts in each firing direction, by aim index; a header whose shots
-    /// start one program whatever their direction holds only that one.
+    /// start one program whatever their direction holds only that one. Each call returns a new array.
     /// </summary>
-    private static SamusProjectileProgram[] DirectionPrograms(SamusProjectileHeader header) => header switch
+    internal static SamusProjectileProgram[] DirectionPrograms(SamusProjectileHeader header) => header switch
         {
         // Power
         SamusProjectileHeader.UnchargedPower => [P.PowerUpFacingRight, P.PowerUpRight, P.PowerRight, P.PowerDownRight, P.PowerDownFacingRight, P.PowerDownFacingRight, P.PowerDownLeft, P.PowerLeft, P.PowerUpLeft, P.PowerUpFacingRight],

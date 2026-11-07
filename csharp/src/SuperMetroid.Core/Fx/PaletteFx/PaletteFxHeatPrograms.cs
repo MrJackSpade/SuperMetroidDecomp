@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PaletteFxHeatPrograms
 {
     /// <summary>The power suit's sixteen phase programs.</summary>
-    private static readonly PaletteFxProgram[] PowerPrograms =
+    internal static readonly PaletteFxProgram[] PowerPrograms =
     [
         PaletteFxProgram.SamusInHeatPowerSuit1,
         PaletteFxProgram.SamusInHeatPowerSuit2,
@@ -30,7 +30,7 @@ public static class PaletteFxHeatPrograms
     ];
 
     /// <summary>The varia suit's sixteen phase programs.</summary>
-    private static readonly PaletteFxProgram[] VariaPrograms =
+    internal static readonly PaletteFxProgram[] VariaPrograms =
     [
         PaletteFxProgram.SamusInHeatVariaSuit2,
         PaletteFxProgram.SamusInHeatVariaSuit3,
@@ -51,7 +51,7 @@ public static class PaletteFxHeatPrograms
     ];
 
     /// <summary>The gravity suit's sixteen phase programs.</summary>
-    private static readonly PaletteFxProgram[] GravityPrograms =
+    internal static readonly PaletteFxProgram[] GravityPrograms =
     [
         PaletteFxProgram.SamusInHeatGravitySuit2,
         PaletteFxProgram.SamusInHeatGravitySuit3,
@@ -79,13 +79,6 @@ public static class PaletteFxHeatPrograms
         PaletteFxHeatSuit.Gravity => PaletteFxProgram.SamusInHeatGravitySuit0,
         _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
     };
-
-    /// <summary>Every heat program of every suit, its starting program and each phase's (#1512).</summary>
-    internal static IReadOnlyList<PaletteFxProgram> Every { get; } =
-    [
-        PaletteFxProgram.SamusInHeatPowerSuit0, PaletteFxProgram.SamusInHeatVariaSuit0, PaletteFxProgram.SamusInHeatGravitySuit0,
-        .. PowerPrograms, .. VariaPrograms, .. GravityPrograms,
-    ];
 
     /// <summary>The program of heat <paramref name="phase"/> for <paramref name="suit"/>.</summary>
     public static PaletteFxProgram Phase(PaletteFxHeatSuit suit, int phase)

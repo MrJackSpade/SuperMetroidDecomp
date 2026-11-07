@@ -39,9 +39,9 @@ internal static class LookupAnimatedFramesVerification
             for (int index = 0; index < count; index++)
             {
                 ushort cursor = (ushort)(original.First + 4 * index);
-                AssertEqual(cursor, definition.Frames[index].InstructionPointer, "Native frame cursor");
-                AssertEqual(cursor, enumerated[index].InstructionPointer, "Enumeration cursor view");
-                AssertEqual((ushort)(cursor + 2), definition.Frames[index].SourceOperandPointer, "Native artwork operand identity");
+                AssertEqual(cursor, definition.FrameInstructionPointer(index), "Native frame cursor");
+                AssertEqual(definition.Frames[index], enumerated[index], "Enumeration frame view");
+                AssertEqual((ushort)(cursor + 2), definition.FrameSourceOperandPointer(index), "Native artwork operand identity");
                 total++;
             }
             AssertEqual(original.End, definition.GotoInstructionPointer, "Native terminal goto address");
@@ -68,7 +68,7 @@ internal static class LookupAnimatedFramesVerification
                 ushort expected = ReadVerificationWord(rom, 0x870000 | (original.First + 4 * index));
                 AssertEqual(expected, frame.Duration, "Native enumerated frame duration");
                 AssertEqual(expected, definition.Frames[index].Duration, "Native indexed frame duration");
-                AssertTrue(definition.TryReadMechanicsWord(frame.InstructionPointer, out ushort value), "Frame duration is compiled");
+                AssertTrue(definition.TryReadMechanicsWord(definition.FrameInstructionPointer(index), out ushort value), "Frame duration is compiled");
                 AssertEqual(expected, value, "Mechanics word duration view");
                 index++;
             }

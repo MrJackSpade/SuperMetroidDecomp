@@ -47,12 +47,12 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
                 value = self.InstructionPointer;
             else
             {
-                foreach (RoomFxAnimatedTileFrameDefinition frame in self.frames)
+                for (int index = 0; index < self.frames.Count; index++)
                 {
-                    if (pointer != frame.InstructionPointer)
+                    if (pointer != self.FrameInstructionPointer(index))
                         continue;
 
-                    value = checked((ushort)frame.Duration);
+                    value = checked((ushort)self.frames[index].Duration);
                     return true;
                 }
 

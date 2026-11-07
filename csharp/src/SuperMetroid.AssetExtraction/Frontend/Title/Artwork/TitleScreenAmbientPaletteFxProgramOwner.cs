@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>The mutually exclusive title-screen ambient palette owner.</summary>
 public enum TitleScreenAmbientPaletteFxProgramOwner

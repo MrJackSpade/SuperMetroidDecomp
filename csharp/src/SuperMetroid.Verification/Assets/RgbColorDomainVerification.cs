@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Checks the SNES color value type across word encoding, channel operations, CGRAM, and a production fade.</summary>

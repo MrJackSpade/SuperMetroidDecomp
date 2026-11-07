@@ -19,9 +19,9 @@ public sealed class HyperBeamFxColours
     /// <exception cref="ArgumentException">The cycle does not hold every frame, or a frame not every beam colour it shows.</exception>
     internal HyperBeamFxColours(ImmutableArray<ImmutableArray<RgbColor>> frames)
     {
-        Ensure.LengthEqual(frames.AsSpan(), SamusPaletteDefinitions.HyperBeamFx.CycleFrameCount);
+        Ensure.LengthEqual(frames.AsSpan(), SamusColourSets.HyperBeamCycleFrames);
         foreach (ImmutableArray<RgbColor> colours in frames)
-            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.HyperBeamColours);
+            Ensure.LengthEqual(colours.AsSpan(), SamusColourSets.HyperBeamColours);
         this.frames = frames;
     }
 

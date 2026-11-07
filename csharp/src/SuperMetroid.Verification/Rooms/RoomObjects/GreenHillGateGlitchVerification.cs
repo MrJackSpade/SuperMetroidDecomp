@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
 using SuperMetroid.Verification.Harness;
@@ -132,7 +133,7 @@ internal static class GreenHillGateGlitchVerification
             openFrame,
             samus.Position.Whole,
             samus.Kinematics.Position.X.Fraction,
-            SamusPoseNumbering.Number(samus.Pose),
+            SamusPoseNumbers.Number(samus.Pose),
             samus.Grapple.Anchor,
             samus.Grapple.Phase == GrapplePhase.Firing ? (ushort)0xc703 : (ushort)0xc4f0);
 

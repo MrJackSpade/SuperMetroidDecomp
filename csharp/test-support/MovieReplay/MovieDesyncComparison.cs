@@ -35,7 +35,7 @@ internal static class MovieDesyncComparison
         if (game.Session.ScreenAs<GameOptionsMenuState>() is { } options)
             Console.WriteLine($"  options port phase={options.Phase} item={options.SelectedItem}");
         if (samus is null) return;
-        Console.WriteLine($"  port   pose={(int)SamusPoseNumbering.Number(samus.Pose):X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
+        Console.WriteLine($"  port   pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
             $"vs={samus.Kinematics.YSpeed.Whole:X4}.{samus.Kinematics.YSpeed.Fraction:X4} total={samus.HorizontalSpeed.TotalSpeed.Whole:X4}.{samus.HorizontalSpeed.TotalSpeed.Fraction:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4} accel={SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode):X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
@@ -160,7 +160,7 @@ internal static class MovieDesyncComparison
         Check("Reserve energy", SamusQuantity.Encode(samus.ReserveEnergy), MovieDesyncMemory.Reserve);
         if (game.GameState != SuperMetroidGameState.MainGameplay) return mismatches;
 
-        Check("Samus pose", SamusPoseNumbering.Number(samus.Pose), MovieDesyncMemory.SamusPose);
+        Check("Samus pose", SamusPoseNumbers.Number(samus.Pose), MovieDesyncMemory.SamusPose);
         Check("Room", runtime.Room.LoadedRoom.Pointer, MovieDesyncMemory.Room);
         Check("Camera X", runtime.Room.LoadedCamera.PixelPosition.X, MovieDesyncMemory.CameraX);
         Check("Camera Y", runtime.Room.LoadedCamera.PixelPosition.Y, MovieDesyncMemory.CameraY);

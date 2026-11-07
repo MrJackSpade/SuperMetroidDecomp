@@ -76,7 +76,7 @@ public static class GameOverPresentationExtractor
             int pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = ReadBank82Word(unchecked((ushort)(pointer + color * 2)));
-            palettes.Add(GameOverPresentationNames.BabyPaletteName(palette), colors);
+            palettes.Add(GameOverBabyPaletteNames.BabyPaletteName(palette), colors);
         }
 
         using var output = new MemoryStream();

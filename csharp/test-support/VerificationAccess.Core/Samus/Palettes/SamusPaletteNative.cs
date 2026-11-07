@@ -94,18 +94,17 @@ internal static class SamusPaletteNative
         return valid;
     }
 
-    /// <summary>The normal suit palette the native suit table selects, by its bank-$9B address.</summary>
-    extension(SamusPaletteDefinitions.Common)
+    /// <summary>
+    /// The normal suit palette the native suit table selects, by its bank-$9B address: $91:D727's Power, Varia or Gravity
+    /// palette pointer at an even suit-table byte offset.
+    /// </summary>
+    internal static ushort NormalSuitPalettePointer(ushort byteOffset) => byteOffset switch
     {
-        /// <summary>$91:D727: the Power, Varia or Gravity palette pointer at an even suit-table byte offset.</summary>
-        internal static ushort NormalSuitPalettePointer(ushort byteOffset) => byteOffset switch
-        {
-            0 => 0x9400,
-            2 => 0x9520,
-            4 => 0x9800,
-            _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
-        };
-    }
+        0 => 0x9400,
+        2 => 0x9520,
+        4 => 0x9800,
+        _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
+    };
 
     /// <summary>The cycle lists by bank-$9B palette address.</summary>
     extension(SamusPaletteDefinitions.FullBodyCycles)
@@ -223,7 +222,7 @@ internal static class SamusPaletteNative
             }
             pointer = phaseOffset / sizeof(ushort) < 3
                 ? Address(new(SamusFullBodyCycleFamily.ActiveShinespark, SuitAtTableByteOffset(suitOffset), 3))
-                : SamusPaletteDefinitions.Common.NormalSuitPalettePointer(suitOffset);
+                : SamusPaletteNative.NormalSuitPalettePointer(suitOffset);
             return true;
         }
 

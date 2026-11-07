@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -22,7 +23,7 @@ internal static class SpinChargeVerification
         {
             SamusMovementType movement = pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
                 ? SamusMovementType.SpinJumping : SamusMovementType.WallJumping;
-            WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), [8, SamusMovementTypeNativeWords.Byte(movement), 0, 2, 0, 0, 0, 0]);
+            WritePoseDefinition(bus, SamusPoseNumbers.Number(pose), [8, SamusMovementTypeNativeWords.Byte(movement), 0, 2, 0, 0, 0, 0]);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
                 EquippedBeams = SamusBeamFlags.Charge };
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = frames } };
@@ -34,8 +35,8 @@ internal static class SpinChargeVerification
             foreach (ControllerButton input in new ControllerButton[] { ControllerButton.X, 0, 0 })
             {
                 projectiles.StepFrame(new SamusTerrain { Level = air }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = 0 }, new(0, 0), bombs);
-                AssertEqual(60, projectiles.Charge.FlareCounter, $"pose {(int)SamusPoseNumbering.Number(pose):X2} preserves charge on hold/release");
-                AssertEqual(0, projectiles.SlotTable.ProjectileCounter, $"pose {(int)SamusPoseNumbering.Number(pose):X2} keeps empty projectile slots");
+                AssertEqual(60, projectiles.Charge.FlareCounter, $"pose {(int)SamusPoseNumbers.Number(pose):X2} preserves charge on hold/release");
+                AssertEqual(0, projectiles.SlotTable.ProjectileCounter, $"pose {(int)SamusPoseNumbers.Number(pose):X2} keeps empty projectile slots");
             }
             // Leaving spin must restore normal release semantics, not lock charge forever.
             samus.Pose = SamusPoseId.FacingRightNormalPose;

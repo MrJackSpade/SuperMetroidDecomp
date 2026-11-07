@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 

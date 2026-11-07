@@ -15,7 +15,7 @@ public static class SamusHyperBeamColorFormat
     /// <summary>Ten authored palette phases selected by $91:D99E; this count does not specify the number of gameplay updates between phases.</summary>
     public const int FrameCount = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
     /// <summary>Sixteen colors in each complete OBJ palette, including transparent index zero and fifteen opaque ink slots.</summary>
-    public const int ColorsPerFrame = SamusPaletteDefinitions.Common.ColoursPerSet;
+    public const int ColorsPerFrame = SamusColourSets.ColoursPerSet;
     /// <summary>Required frame-by-color dimensions of the editable document.</summary>
     internal static FixedGridShape Shape => new(FrameCount, ColorsPerFrame);
 

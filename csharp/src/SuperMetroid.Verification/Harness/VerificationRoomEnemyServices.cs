@@ -80,9 +80,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Forwards event writes to loaded room services.</summary>
     public void Set(EventNumber eventNumber) => Loaded("set a global event bit").Events.Set(eventNumber);
 
-    /// <summary>Forwards event clearing to loaded room services.</summary>
-    public void Clear(EventNumber eventNumber) => Loaded("clear a global event bit").Events.Clear(eventNumber);
-
     /// <summary>Reads the Zebetite count through the case override or loaded services; writes go to loaded services.</summary>
     int IZebetiteProgress.ZebetitesDestroyed
     {

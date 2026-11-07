@@ -66,9 +66,6 @@ public static class SamusBeamCombinations
         /// <summary>Whether Ice is a component.</summary>
         public bool HasIce => (combination.Components & SamusBeamFlags.Ice) != SamusBeamFlags.None;
 
-        /// <summary>Whether Spazer is a component.</summary>
-        public bool HasSpazer => (combination.Components & SamusBeamFlags.Spazer) != SamusBeamFlags.None;
-
         /// <summary>Whether Plasma is a component.</summary>
         public bool HasPlasma => (combination.Components & SamusBeamFlags.Plasma) != SamusBeamFlags.None;
 

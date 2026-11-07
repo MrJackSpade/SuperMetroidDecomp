@@ -102681,6 +102681,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Input.ControllerAction",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/ControllerAction.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Input.ControllerBindings",
       "kind": "record struct",
       "scope": "product",
@@ -102792,19 +102805,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.ControllerWordCodec",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/ControllerWordCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Input.DemoInputAnimations",
@@ -132099,6 +132099,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Tooling/Diagnostics/DebuggerSaveStateStoreTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Input.ControllerWordCodec",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Input/ControllerWordCodec.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

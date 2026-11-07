@@ -149,7 +149,7 @@ internal static class TorizoPaletteShakeVerification
     private static void VerifyTorizoSheetRows()
     {
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
-            candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.BombTorizo));
+            RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.BombTorizo));
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.BombTorizo).Image;
         int[] rows = [.. image.Inks.ToArray().Select(ink => ink.PaletteIndex).Where(ink => ink != 0).Select(ink => ink / 16).Distinct().Order()];
         AssertTrue(rows.Length > 0 && rows.All(row => row is 1 or 2 or 5), "Bomb Torizo's sheet is coloured in the rows his parts name");

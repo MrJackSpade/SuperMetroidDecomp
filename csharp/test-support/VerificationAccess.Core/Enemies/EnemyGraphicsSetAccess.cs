@@ -11,7 +11,7 @@ internal static class EnemyGraphicsSetAccess
     extension(EnemyGraphicsSet self)
     {
         /// <summary>The import's layout of the loaded set's members, in record order.</summary>
-        internal IReadOnlyList<GraphicsSetMemberCharacters> Entries => GraphicsSetCharacterLayout.Of(self.LoadedSet).Members;
+        internal IReadOnlyList<GraphicsSetMemberCharacters> Entries => GraphicsSetCharacterLayout.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(self.LoadedSet)).Members;
 
         /// <summary>The loaded set's member <paramref name="enemy"/>, where the import lays it out.</summary>
         /// <exception cref="InvalidDataException">The room's graphics set does not load that enemy.</exception>
@@ -20,7 +20,7 @@ internal static class EnemyGraphicsSetAccess
                 ?? throw new InvalidDataException($"Enemy graphics set {self.LoadedSet.Name} does not load {enemy}.");
 
         /// <summary>The character index the cartridge draws <paramref name="enemy"/> from under the loaded set.</summary>
-        internal int TileBaseOf(EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(self.LoadedSet).TileBaseOf(enemy);
+        internal int TileBaseOf(EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(self.LoadedSet)).TileBaseOf(enemy);
 
         /// <summary>
         /// The owner whose spawned-object sheet an object the cartridge draws from character index
@@ -32,7 +32,7 @@ internal static class EnemyGraphicsSetAccess
         {
             if (tileBase == 0)
                 return SpawnedObjectOwner.Shared;
-            GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(self.LoadedSet);
+            GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(self.LoadedSet));
             foreach (GraphicsSetMemberCharacters member in layout.Members)
             {
                 if (layout.TileBaseOf(member.DefinitionId) == tileBase)

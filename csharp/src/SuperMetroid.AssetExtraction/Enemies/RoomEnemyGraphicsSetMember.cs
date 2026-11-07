@@ -1,4 +1,5 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>One member of a room's enemy graphics set, in the set's order: the enemy whose artwork the set loads.</summary>
 /// <remarks>
@@ -6,4 +7,4 @@ namespace SuperMetroid.Core.Enemies;
 /// import composes and pre-colours each member's sheet as its graphics set loads it, so a member names nothing else.
 /// </remarks>
 /// <param name="DefinitionId">The member enemy, which selects its installed sheets and its spawned objects' sheet.</param>
-public readonly record struct RoomEnemyGraphicsSetMember(EnemyDefinitionId DefinitionId);
+internal readonly record struct RoomEnemyGraphicsSetMember(EnemyDefinitionId DefinitionId);

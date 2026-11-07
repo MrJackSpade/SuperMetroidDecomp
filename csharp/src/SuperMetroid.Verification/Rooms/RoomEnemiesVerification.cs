@@ -164,8 +164,8 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual<AreaBoss?>(AreaBoss.Kraid, enemies.RoomStatus.Boss, "a boss definition publishes the room's boss");
     // The room draws under the set it loaded, its members in record order; where their tiles land is the import's
     // (#1513), which VerifyGraphicsSetCharacterLayout checks. The members' colours are their pre-coloured sheets' (#1512).
-    AssertEqual(2, enemies.GraphicsSet.LoadedSet.Records.Length, "terminated enemy graphics-set count");
-    AssertEqual(specialDefinitionPointer, enemies.GraphicsSet.LoadedSet.Records.Span[1].DefinitionId, "the set's members stay in record order");
+    AssertEqual(2, SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(enemies.GraphicsSet.LoadedSet).Records.Length, "terminated enemy graphics-set count");
+    AssertEqual(specialDefinitionPointer, SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(enemies.GraphicsSet.LoadedSet).Records.Span[1].DefinitionId, "the set's members stay in record order");
 
     RoomEnemySlot slot = enemies.SlotTable.Slots[0];
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
@@ -1477,7 +1477,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // import catalogues for it (#1512), so its members' sheets compose in the rows the cartridge loads their colours into.
     RoomEnemyGraphicsSetDefinition ceresRidleySet = RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault;
     int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet.Name];
-    ReadOnlySpan<RoomEnemyGraphicsSetMember> ceresRidleyRecords = ceresRidleySet.Records.Span;
+    ReadOnlySpan<RoomEnemyGraphicsSetMember> ceresRidleyRecords = RoomEnemyGraphicsSetLists.MembersOf(ceresRidleySet).Records.Span;
     for (int record = 0; record < ceresRidleyRecords.Length; record++)
     {
         int recordAddress = (0xb40000 | tilesetPointer) + record * 4;

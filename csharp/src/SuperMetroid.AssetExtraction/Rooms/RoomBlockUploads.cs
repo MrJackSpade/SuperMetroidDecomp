@@ -243,7 +243,7 @@ internal static class RoomBlockUploads
     /// <exception cref="InvalidDataException">An enemy's tiles are not installed.</exception>
     private static IEnumerable<BgCharacterUpload> ObjectPageUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
-        IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(state.EnemyGraphicsSet).Members;
+        IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(state.EnemyGraphicsSet)).Members;
         for (int member = 0; member < members.Count; member++)
         {
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(members[member].DefinitionId);
@@ -258,7 +258,7 @@ internal static class RoomBlockUploads
     /// its escape timer and its warning.
     /// </summary>
     private static IEnumerable<AppearanceOption> EncounterLookOptions(RoomBlockSheetInputs inputs, RoomStateSettings state) =>
-        EncounterArtworkUploads.Of(state.EnemyGraphicsSet).SelectMany(sequence => EncounterArtworkUploads.Steps(sequence, inputs.Objects)
+        EncounterArtworkUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(state.EnemyGraphicsSet)).SelectMany(sequence => EncounterArtworkUploads.Steps(sequence, inputs.Objects)
             .SelectMany((copies, step) => copies.Select(upload => new AppearanceOption(
                 new EncounterLookAppearance(sequence, step), RoomAppearanceValues.Shown,
                 new BgCharacterUpload(new BgArtworkIdentity($"{sequence} step {step}"), BgCharacterSet.Tiles, upload.FirstCharacter,

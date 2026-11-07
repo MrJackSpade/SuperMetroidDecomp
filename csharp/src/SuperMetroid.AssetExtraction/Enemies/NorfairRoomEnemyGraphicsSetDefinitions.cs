@@ -1,10 +1,11 @@
-﻿namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Norfair room-header region, in table order.</summary>
 internal static class NorfairRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The region's lists, in table order.</summary>
-    internal static RoomEnemyGraphicsSetDefinition[] Build() =>
+    internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.GrappleTutorial3), [
             new(EnemyDefinitionId.Gamet),

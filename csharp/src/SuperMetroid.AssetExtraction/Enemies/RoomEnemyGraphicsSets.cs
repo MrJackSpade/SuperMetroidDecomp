@@ -1,12 +1,12 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Checks the compiled retail enemy graphics sets.</summary>
 internal static class RoomEnemyGraphicsSets
 {
     /// <summary>Returns <paramref name="sets"/> after rejecting missing, duplicate or misordered retail records.</summary>
     /// <exception cref="InvalidDataException">The counts changed, a name repeats, or a set takes the session start's name.</exception>
-    internal static RoomEnemyGraphicsSetDefinition[] Complete(
-        RoomEnemyGraphicsSetDefinition[] sets, int listCount, int recordCount, string sessionStartName)
+    internal static RoomEnemyGraphicsSetMembers[] Complete(
+        RoomEnemyGraphicsSetMembers[] sets, int listCount, int recordCount, string sessionStartName)
     {
         if (sets.Length != listCount || sets.Sum(list => list.Records.Length) != recordCount)
             throw new InvalidDataException("Compiled enemy graphics-set counts changed.");

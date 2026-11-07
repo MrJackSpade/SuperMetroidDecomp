@@ -1,10 +1,11 @@
-﻿namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Tourian room-header region, in table order.</summary>
 internal static class TourianRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The region's lists, in table order.</summary>
-    internal static RoomEnemyGraphicsSetDefinition[] Build() =>
+    internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.TourianEscape4), [
             new(EnemyDefinitionId.PirateSilverWall),

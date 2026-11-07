@@ -23,7 +23,7 @@ internal static class EnemyRoomListsVerification
             .Select(state => RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet)).Distinct().Order().ToArray();
         AssertEqual(RoomEnemyPopulationDefinitions.ListCount, populationPointers.Length,
             "all retail population identities are compiled");
-        AssertEqual(RoomEnemyGraphicsSetDefinitions.ListCount, graphicsPointers.Length,
+        AssertEqual(RoomEnemyGraphicsSetLists.ListCount, graphicsPointers.Length,
             "all retail graphics-set identities are compiled");
         AssertTrue(populationPointers.SequenceEqual(RoomEnemyPopulationDefinitions.Pointers),
             "compiled population identities exactly match room states");
@@ -65,9 +65,10 @@ internal static class EnemyRoomListsVerification
         foreach (ushort pointer in graphicsPointers)
         {
             RoomEnemyGraphicsSetDefinition compiled = RoomEnemyGraphicsSetDefinitions.Get(pointer);
-            var importRows = new GraphicsSetRows(compiled, EnemyGraphicsSetPaletteRowDefinitions.Rows);
+            RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(compiled);
+            var importRows = new GraphicsSetRows(members, EnemyGraphicsSetPaletteRowDefinitions.Rows);
             int address = RoomEnemyRomLayout.TilesetBank | pointer;
-            ReadOnlySpan<RoomEnemyGraphicsSetMember> records = compiled.Records.Span;
+            ReadOnlySpan<RoomEnemyGraphicsSetMember> records = members.Records.Span;
             for (int index = 0; index < records.Length; index++, address += 4)
             {
                 ushort definitionWord = ReadVerificationWord(bus, address);
@@ -89,7 +90,7 @@ internal static class EnemyRoomListsVerification
                 $"graphics set $B4:{pointer:X4} length reaches its native terminator");
             graphicsRecords += records.Length;
         }
-        AssertEqual(RoomEnemyGraphicsSetDefinitions.RecordCount, graphicsRecords,
+        AssertEqual(RoomEnemyGraphicsSetLists.RecordCount, graphicsRecords,
             "every ordered retail enemy graphics member is compiled");
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomEnemyPopulationDefinitions.Get(0),

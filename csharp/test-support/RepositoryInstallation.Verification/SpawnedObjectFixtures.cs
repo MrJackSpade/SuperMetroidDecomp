@@ -17,21 +17,21 @@ internal static class SpawnedObjectFixtures
 {
     /// <summary>The first retail graphics set loading <paramref name="enemy"/>.</summary>
     internal static RoomEnemyGraphicsSetDefinition SetLoading(EnemyDefinitionId enemy) =>
-        RoomEnemyGraphicsSetLists.All.First(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy));
+        RoomEnemyGraphicsSetLists.All.First(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
     /// The first retail graphics set drawing <paramref name="enemy"/>: one loading it, or else one whose rooms place it
     /// without loading it, where it draws from the standard characters.
     /// </summary>
     internal static RoomEnemyGraphicsSetDefinition SetDrawing(EnemyDefinitionId enemy) =>
-        RoomEnemyGraphicsSetLists.All.FirstOrDefault(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy))
+        RoomEnemyGraphicsSetLists.All.FirstOrDefault(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray().Any(record => record.DefinitionId == enemy))
         ?? RoomStateDefinitions.All.FirstOrDefault(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy))
             ?.EnemyGraphicsSet
         ?? throw new InvalidDataException($"No retail room draws {enemy}.");
 
     /// <summary>Whether a retail room draws <paramref name="enemy"/>: a graphics set loads it or a room places it.</summary>
     internal static bool Drawn(EnemyDefinitionId enemy) =>
-        RoomEnemyGraphicsSetLists.All.Any(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy))
+        RoomEnemyGraphicsSetLists.All.Any(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray().Any(record => record.DefinitionId == enemy))
         || RoomStateDefinitions.All.Any(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
@@ -47,7 +47,7 @@ internal static class SpawnedObjectFixtures
         if (SpawnedObjectFrameDefinitions.Common.Any(common => common.Objects.Projectiles.Contains(frame)))
         {
             // An object a common spawner spawns is held by the shared sheet of the sets whose rooms run that spawner (#1513).
-            enemies.GraphicsSet.LoadGraphicsSet(RoomEnemyGraphicsSetLists.DrawnUnder.FirstOrDefault(set => EnemySheetComposer.CommonSpawnersOf(set)
+            enemies.GraphicsSet.LoadGraphicsSet(RoomEnemyGraphicsSetLists.DrawnUnder.FirstOrDefault(set => EnemySheetComposer.CommonSpawnersOf(set, RoomEnemyGraphicsSetLists.Members)
                     .Any(common => common.Objects.Projectiles.Contains(frame)))
                 ?? throw new InvalidOperationException($"No graphics set's rooms run a common spawner of projectile frame {frame}."));
             return shared;
@@ -71,7 +71,7 @@ internal static class SpawnedObjectFixtures
     {
         foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.All)
         {
-            foreach (var record in set.Records.ToArray())
+            foreach (var record in RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray())
             {
                 if (spawns.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame))
                     return (set, record.DefinitionId);

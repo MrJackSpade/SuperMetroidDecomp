@@ -305,7 +305,7 @@ internal static class CorpseRotDrawingVerification
     }
 
     /// <summary>The character a frame of <paramref name="enemy"/> under <paramref name="set"/> counts its parts' characters from.</summary>
-    private static int TileBase(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(set).TileBaseOf(enemy);
+    private static int TileBase(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(set)).TileBaseOf(enemy);
 
     /// <summary>The sprite characters <paramref name="set"/>'s load and <paramref name="reached"/> steps leave.</summary>
     private static byte[] Loaded(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterArtworkStep> reached) =>

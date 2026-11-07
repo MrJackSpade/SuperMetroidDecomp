@@ -39,7 +39,7 @@ internal static class EncounterArtworkUploads
     };
 
     /// <summary>The artwork sequences the encounters of graphics set <paramref name="set"/>'s members play, in sequence order.</summary>
-    internal static IReadOnlyList<EncounterArtworkSequence> Of(RoomEnemyGraphicsSetDefinition set) =>
+    internal static IReadOnlyList<EncounterArtworkSequence> Of(RoomEnemyGraphicsSetMembers set) =>
         [.. Ensure.NotNull(set).Records.ToArray().Select(record => record.DefinitionId).Where(ByEncounter.ContainsKey)
             .Select(enemy => ByEncounter[enemy]).Distinct().Order()];
 

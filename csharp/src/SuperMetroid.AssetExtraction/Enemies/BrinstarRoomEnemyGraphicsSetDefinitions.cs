@@ -1,10 +1,11 @@
-﻿namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Brinstar room-header region, in table order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
 internal static class BrinstarRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The region's lists, in table order.</summary>
-    internal static RoomEnemyGraphicsSetDefinition[] Build() =>
+    internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.BrinstarPreMap), [
             new(EnemyDefinitionId.Sidehopper),

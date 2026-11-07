@@ -20,8 +20,9 @@ internal static class FixtureGraphicsSetRows
     {
         ArgumentNullException.ThrowIfNull(set);
         ArgumentNullException.ThrowIfNull(recordRows);
-        if (recordRows.Length != set.Records.Length)
-            throw new InvalidDataException($"Fixture graphics set {set.Name} names {recordRows.Length} palette rows for {set.Records.Length} records.");
+        int records = FixtureGraphicsSetMembers.MembersOf(set).Records.Length;
+        if (recordRows.Length != records)
+            throw new InvalidDataException($"Fixture graphics set {set.Name} names {recordRows.Length} palette rows for {records} records.");
         if (!rows.TryAdd(set, [.. recordRows]))
             throw new InvalidDataException($"Fixture graphics set {set.Name}'s palette rows are already recorded.");
     }

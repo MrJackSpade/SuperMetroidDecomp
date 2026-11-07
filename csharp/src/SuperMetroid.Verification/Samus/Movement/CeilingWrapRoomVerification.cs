@@ -37,6 +37,8 @@ internal static class CeilingWrapRoomVerification
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.Position = samus.Position.WithWhole(new(1237, 139));
         samus.EquippedBeams = (SamusBeamFlags)beams; samus.EquippedItems = 0;
+        // The room loaded the entering beam's graphics; the trace starts with these beams, so load theirs as a beam change does.
+        runtime.Artwork.UpdateBeamTilesAndPalette(runtime.Player.Colours, samus.EquippedBeams);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(1109, 0));

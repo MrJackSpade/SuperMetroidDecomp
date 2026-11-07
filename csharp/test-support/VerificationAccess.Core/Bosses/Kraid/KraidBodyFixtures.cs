@@ -17,9 +17,9 @@ internal static class KraidBodyFixtures
         BackgroundTileWordBytes.Words(KraidWorkingMap.Compose(Art(artwork)));
 
     /// <summary>
-    /// The tilemap entries <paramref name="state"/>'s body shows with <paramref name="artwork"/> (#1515): his whole body as it
-    /// appears and, while it shows, his head's current pose over it, as the import's frames of Kraid's body sheet write them,
-    /// over his blank.
+    /// The tilemap entries <paramref name="state"/>'s body shows with <paramref name="artwork"/> (#1515, #1540): his body as it
+    /// appears and, while it shows, his head's current pose above it or, before his head shows one, the head his body rises
+    /// with, as the import's frames of Kraid's body sheet write them, over his blank.
     /// </summary>
     internal static ushort[] Shown(BossArtworkCatalog artwork, KraidEnemyState state)
     {
@@ -27,11 +27,12 @@ internal static class KraidBodyFixtures
             .ToDictionary(frame => frame.Name, StringComparer.Ordinal);
         var words = new ushort[Enemies.BossBodies.BossBodyWords.KraidLayerRows * BossBodySourceDefinitions.LayerColumns];
         words.AsSpan().Fill(KraidWorkingMapDefinitions.BlankTile.PackedWord);
-        string? body = state.BodyShown ? KraidBodyFrameNames.Of(state.BodyAppearance) : null;
+        KraidBodyAppearance appearance = state.BodyShown ? state.BodyAppearance : KraidBodyAppearance.Hidden;
         foreach (string? name in new[]
         {
-            body,
-            body is not null && state.DisplayedHeadFrame is { } head ? KraidBodyFrameNames.Head(head.MouthStage) : null,
+            KraidBodyFrameNames.Of(appearance),
+            state.DisplayedHeadFrame is { } head && appearance != KraidBodyAppearance.Hidden ? KraidBodyFrameNames.Head(head.MouthStage)
+                : KraidBodyFrameNames.RestingHead(appearance),
         })
         {
             if (name is null)

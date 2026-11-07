@@ -41,15 +41,15 @@ internal static class KraidBodyPublicationVerification
         ReadOnlySpan<ushort> lower = working.AsSpan(KraidWorkingMapDefinitions.LowerPageFirstCell, KraidWorkingMapDefinitions.PageCells);
         AssertTrue(state.ShowsBodyLayer, "Kraid's body layer shows when his room loads");
 
-        // Risen: his whole body shown as it now appears, before his head shows a pose, at the placement his body position
-        // computed (#1515).
+        // Risen: his body shown as it now appears, with the head it rises with before his head shows a pose, at the
+        // placement his body position computed (#1515, #1540).
         state.BodyAppearance = KraidBodyAppearance.BehindSprites;
         state.ShowBody();
         state.DisplayedHeadFrame = null;
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(320, 88);
         GameplayLatchedBossBackgrounds risen = Published(runtime);
-        AssertTrue((risen.Body?.Frames.Select(frame => frame.Name) ?? []).SequenceEqual(["Body"]),
-            "the risen body shows his whole body as one frame");
+        AssertTrue((risen.Body?.Frames.Select(frame => frame.Name) ?? []).SequenceEqual(["Body", "RestingHead"]),
+            "the risen body shows his body and the head it rises with");
         AssertTrue(Words(risen, art).AsSpan().SequenceEqual(KraidBodyFixtures.Tilemap(upper, [], lower)),
             "the risen body publishes both working pages, blank elsewhere");
         AssertTrue(risen.KraidBodyPlacement == state.BodyLayerPlacement, "the body publishes at Kraid's body layer placement");

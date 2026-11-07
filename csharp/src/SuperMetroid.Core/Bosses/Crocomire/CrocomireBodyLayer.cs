@@ -41,13 +41,16 @@ internal sealed class CrocomireBodyLayer
 
     /// <summary>His body shows <paramref name="frame"/> from now on in place of whatever it showed (#1355, #1515), as a melt image replaces it.</summary>
     internal void ShowCrocomireBodyFrame(CrocomireEnemyState state, BossBodyFrame frame) =>
-        _presentation.RequireBossBody().Show(state.Body.SlotIndex, frame);
+        _presentation.RequireBossBody().Show(state.Body.DefinitionId, frame);
 
     /// <summary>His body shows nothing from now on, until a frame is shown on it again (#1515).</summary>
     internal void ClearCrocomireBody() => _presentation.RequireBossBody().Clear();
 
-    /// <summary>Hides his body from body row <paramref name="top"/> down, until a frame is shown on it again (#1515).</summary>
-    internal void HideCrocomireBodyFrom(int top) => _presentation.RequireBossBody().HideFrom(top);
+    /// <summary>
+    /// Hides his body from body row <paramref name="top"/> down, until a frame is shown on it again (#1515): his body's
+    /// picture shows only above that row (#1540).
+    /// </summary>
+    internal void HideCrocomireBodyFrom(int top) => _presentation.RequireBossBody().ShowAbove(top);
 
     /// <summary>Levels the melt's stretch: every line of his body layer shows <paramref name="verticalScroll"/> (#1468).</summary>
     /// <param name="verticalScroll">The vertical scroll every line shows, 0 through 65535.</param>

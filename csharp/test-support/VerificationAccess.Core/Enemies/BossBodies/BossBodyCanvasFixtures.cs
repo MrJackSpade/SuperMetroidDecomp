@@ -10,11 +10,14 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// </summary>
 internal static class BossBodyCanvasFixtures
 {
-    /// <summary>Binds <paramref name="sheets"/> to <paramref name="enemies"/> and attaches a body no part shows anything on yet.</summary>
-    internal static BossBodyParts AttachBlank(RoomEnemySystem enemies, BossBodySheets sheets)
+    /// <summary>
+    /// Binds <paramref name="sheets"/> to <paramref name="enemies"/> and attaches a body of <paramref name="owner"/>'s no part
+    /// shows anything on yet.
+    /// </summary>
+    internal static BossBodyParts AttachBlank(RoomEnemySystem enemies, BossBodySheets sheets, BossBodyOwner owner)
     {
         enemies.BossArtworkBinding.BodySheets = sheets;
-        var body = new BossBodyParts();
+        var body = new BossBodyParts(owner);
         enemies.Presentation.AttachBossBody(body);
         return body;
     }
@@ -28,16 +31,16 @@ internal static class BossBodyCanvasFixtures
         enemies.BossArtworkBinding.BodySheets = sheets;
         var death = new CrocomireDeathState();
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
-        enemies.Presentation.AttachBossBody(new BossBodyParts());
+        enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire));
         return death;
     }
 
-    /// <summary>Whether <paramref name="first"/> and <paramref name="second"/> show the same frames, hidden from the same row.</summary>
+    /// <summary>Whether <paramref name="first"/> and <paramref name="second"/> show the same frames, shown above the same row.</summary>
     internal static bool ShowSame(BossBodyParts first, BossBodyParts second) => Describe(first.Publish()) == Describe(second.Publish());
 
-    /// <summary>Each frame <paramref name="layer"/> shows, beneath first, and the row it is hidden from.</summary>
+    /// <summary>Each frame <paramref name="layer"/> shows, beneath first, and the row above which alone it shows.</summary>
     private static string Describe(BossBodyLayer layer) =>
-        string.Join(";", layer.Frames.Select(frame => frame.Name)) + " hidden from " + (layer.HiddenFrom?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "nowhere");
+        string.Join(";", layer.Frames.Select(frame => frame.Name)) + " shown above " + (layer.ShownAbove?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "every row");
 
     /// <summary>
     /// A VRAM-sized image of the words <paramref name="body"/> of <paramref name="owner"/> shows, laid out from entry

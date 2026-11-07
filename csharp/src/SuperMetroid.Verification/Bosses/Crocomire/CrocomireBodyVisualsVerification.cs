@@ -178,7 +178,7 @@ internal static class CrocomireBodyVisualsVerification
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
             // His fight binds the installed body sheets and attaches the body his body frames show on.
-            BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets);
+            BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Crocomire);
             enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);

@@ -115,8 +115,8 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>Attaches a body showing nothing before a presentation check.</summary>
         internal void ClearBg2()
         {
-            if (bodyOwner is not null)
-                Enemies.Presentation.AttachBossBody(new BossBodyParts());
+            if (bodyOwner is { } owner)
+                Enemies.Presentation.AttachBossBody(new BossBodyParts(owner));
         }
     }
 }

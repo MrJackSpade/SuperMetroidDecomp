@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
@@ -10,10 +9,9 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
-/// Paints one boss's body frames over the characters its room shows (#1466, #1515): each frame as one whole picture over
-/// the characters its room shows while the frame is shown, placed where its cells lie on the body's area, with the
-/// rectangles it covers. No piece of a frame is pictured apart from it (#1513). The cartridge's layer cells are read here,
-/// once, and nowhere else.
+/// Paints one boss's body frames over the characters its room shows (#1466, #1515, #1540): each frame as one whole picture
+/// over the characters its room shows while the frame is shown, placed where its cells lie on the body's area. No piece of
+/// a frame is pictured apart from it (#1513). The cartridge's layer cells are read here, once, and nowhere else.
 /// </summary>
 /// <param name="owner">The boss.</param>
 /// <param name="room">What the boss's room shows at its characters.</param>
@@ -56,10 +54,10 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
             if (!room.Animated.Any(placement => placement.Frame == selected))
                 throw new InvalidDataException($"{owner}'s body frame {frame.Name} is pictured under {selected.Animation.Name} {selected.Name}, which its room does not paint.");
         }
-        // A frame whose every cell's character inks only colour zero shows nothing: it has no picture and covers what lies
-        // beneath it (#1513), as Crocomire's second melt image covers the rows below his first.
+        // A frame whose every cell's character inks only colour zero shows nothing: it has no picture, and the part showing
+        // it is not drawn (#1513, #1540).
         string? picture = ShowsAnything(frame) ? AddPicture(frame) : null;
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells), CoversOf(frame.Cells))))
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells))))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
     }
 
@@ -154,57 +152,6 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
     {
         Position16<BackgroundPixels>[] corners = [.. cells.Keys.Select(PixelOf)];
         return new Position16<BackgroundPixels>(corners.Min(corner => corner.X), corners.Min(corner => corner.Y));
-    }
-
-    /// <summary>
-    /// The rectangles <paramref name="cells"/> cover on the body: each run of cells across a row of pixels, joined with the
-    /// same run of the rows below it.
-    /// </summary>
-    private static ImmutableArray<BossBodyRectangle> CoversOf(SortedDictionary<int, BackgroundTile> cells)
-    {
-        const int cell = RoomTileCanvas.CharacterPixels;
-        var rows = cells.Keys.Select(PixelOf).GroupBy(corner => corner.Y).OrderBy(group => group.Key);
-        var covers = ImmutableArray.CreateBuilder<BossBodyRectangle>();
-        var open = new List<BossBodyRectangle>();
-        int previousTop = -1;
-        foreach (IGrouping<ushort, Position16<BackgroundPixels>> row in rows)
-        {
-            // A row not directly below the last ends every rectangle still open.
-            if (row.Key != previousTop + cell)
-            {
-                covers.AddRange(open);
-                open.Clear();
-            }
-            var continuing = new List<BossBodyRectangle>();
-            int[] lefts = [.. row.Select(corner => (int)corner.X).Order()];
-            int index = 0;
-            while (index < lefts.Length)
-            {
-                int left = lefts[index], right = left + cell;
-                index++;
-                while (index < lefts.Length && lefts[index] == right)
-                {
-                    right += cell;
-                    index++;
-                }
-                int match = open.FindIndex(rectangle => rectangle.Left == left && rectangle.Right == right);
-                if (match >= 0)
-                {
-                    BossBodyRectangle grown = open[match];
-                    open.RemoveAt(match);
-                    continuing.Add(grown with { Size = grown.Size.WithY(grown.Size.Y + cell) });
-                }
-                else
-                {
-                    continuing.Add(BossBodyRectangle.Between(left, row.Key, right, row.Key + cell));
-                }
-            }
-            covers.AddRange(open);
-            open = continuing;
-            previousTop = row.Key;
-        }
-        covers.AddRange(open);
-        return covers.ToImmutable();
     }
 
     /// <summary>

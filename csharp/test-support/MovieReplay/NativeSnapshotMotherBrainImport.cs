@@ -274,11 +274,11 @@ internal static class NativeSnapshotMotherBrainImport
         BossBodySheets sheets = runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("The runtime installs no boss body sheets.");
         BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The runtime installs no boss artwork.");
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
-        var image = new BossBodyParts();
+        var image = new BossBodyParts(BossBodyOwner.MotherBrain);
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses.Sources, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
-            image.Show(state.Body.SlotIndex, sheet.Frame(staged.Name));
+            image.Show(state.Body.DefinitionId, sheet.Frame(staged.Name));
         if (!BossBodyWords.Of(image.Publish(), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
             throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
         runtime.Enemies.Presentation.AttachBossBody(image);

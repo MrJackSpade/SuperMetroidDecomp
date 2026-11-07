@@ -82,6 +82,6 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
         /// <summary>Attaches a fresh body showing nothing, as her phase-two transition reveals it, before checking fresh publication.</summary>
-        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts());
+        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.MotherBrain));
     }
 }

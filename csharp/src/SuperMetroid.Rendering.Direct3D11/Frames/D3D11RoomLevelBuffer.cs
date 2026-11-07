@@ -62,13 +62,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// </summary>
     private const int FloorSheetsWord = WrittenOverBackgroundWord + 1;
     /// <summary>
-    /// Header word of a boss body's pieces (#1352, #1466, #1514), or zero without one: the count of pieces, the area the
-    /// body covers, x below y, then four words each: its picture's offset, the body pixel its rectangle's top-left corner
-    /// lies on, the rectangle's size, and the picture pixel that corner shows, each x below y.
+    /// Header word of a boss body's parts (#1352, #1466, #1514, #1540), or zero without one: the count of parts, the area the
+    /// body covers, x below y, then three words for each part in draw order, the first beneath the others: its picture's
+    /// offset, the body pixel the picture's top-left corner lies on, and how much of the picture shows from that corner,
+    /// each x below y.
     /// </summary>
     private const int BossBodyWord = FloorSheetsWord + 1;
-    /// <summary>Words of a boss body piece's record.</summary>
-    private const int BossBodyPieceWords = 4;
+    /// <summary>Words of a boss body part's record.</summary>
+    private const int BossBodyPartWords = 3;
     /// <summary>
     /// Header word of the X-ray reveal, or zero without one (#1392, #1514): the foreground pixel its first block lies on, x
     /// below y, then each block row by row, its picture's offset with its arrangement in the top four bits.
@@ -237,7 +238,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += 1 + hud.Pictures.Length * HudPictureWords;
         int bossBodyOffset = bossBody is null ? 0 : words;
         if (bossBody is not null)
-            words += 2 + bossBody.Pieces.Length * BossBodyPieceWords;
+            words += 2 + bossBody.Parts.Length * BossBodyPartWords;
         int backgroundWrittenOffset = ReserveWritten(writtenOverBackground);
         int foregroundWrittenOffset = ReserveWritten(writtenOverForeground);
         // Reserves the count and two words for each written picture; zero without any.
@@ -385,22 +386,21 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     }
 
     /// <summary>
-    /// Packs <paramref name="body"/>'s pieces from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes: the
-    /// count, the area, then each piece's record.
+    /// Packs <paramref name="body"/>'s parts from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes: the
+    /// count, the area, then each part's record in draw order.
     /// </summary>
     private static void PackBossBody(Span<uint> upload, ShownBossBody body, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
-        ImmutableArray<ShownBossBodyPiece> pieces = body.Pieces;
-        upload[offset] = (uint)pieces.Length;
+        ImmutableArray<ShownBossBodyPart> parts = body.Parts;
+        upload[offset] = (uint)parts.Length;
         upload[offset + 1] = D3D11ConstantPacking.Halves(body.Area.X, body.Area.Y);
-        for (int index = 0; index < pieces.Length; index++)
+        for (int index = 0; index < parts.Length; index++)
         {
-            ShownBossBodyPiece piece = pieces[index];
-            int record = offset + 2 + index * BossBodyPieceWords;
-            upload[record] = (uint)pictureWords[new(piece.Picture, D3D11PictureColouring.BossBody)];
-            upload[record + 1] = D3D11ConstantPacking.Halves(piece.Corner.X, piece.Corner.Y);
-            upload[record + 2] = D3D11ConstantPacking.Halves(piece.Size.X, piece.Size.Y);
-            upload[record + 3] = D3D11ConstantPacking.Halves(piece.PictureCorner.X, piece.PictureCorner.Y);
+            ShownBossBodyPart part = parts[index];
+            int record = offset + 2 + index * BossBodyPartWords;
+            upload[record] = (uint)pictureWords[new(part.Picture, D3D11PictureColouring.BossBody)];
+            upload[record + 1] = D3D11ConstantPacking.Halves(part.Corner.X, part.Corner.Y);
+            upload[record + 2] = D3D11ConstantPacking.Halves(part.Size.X, part.Size.Y);
         }
     }
 
@@ -528,8 +528,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         if (frame.MessagePicture is { } message)
             yield return new(message, D3D11PictureColouring.MessageBox);
-        foreach (ShownBossBodyPiece piece in frame.BossBody?.Pieces ?? [])
-            yield return new(piece.Picture, D3D11PictureColouring.BossBody);
+        foreach (ShownBossBodyPart part in frame.BossBody?.Parts ?? [])
+            yield return new(part.Picture, D3D11PictureColouring.BossBody);
         foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
             yield return new(placed.Picture, frame.HudColouring, placed.Shading);
         foreach (PicturedPlane plane in frame.Planes?.Planes ?? [])

@@ -69,21 +69,19 @@ internal static class RoomFxRecordDefinitionsVerification
         var compiledPaletteSession = new PaletteFxSessionState();
         RoomPaletteFxSystem compiledPalette;
         nativePalette = RoomPaletteFxSystem.ForRoom(nativePaletteSession, room.State.Fx, station.Door,
-            room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
+            equippedItems: 0, areaMiniBossDefeated: false);
         compiledPalette = RoomPaletteFxSystem.ForRoom(compiledPaletteSession, room.State.Fx, station.Door,
-            room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
+            equippedItems: 0, areaMiniBossDefeated: false);
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
-        var nativeSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door, room.AreaIndex);
-        var compiledSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door,
-            room.AreaIndex);
+        var nativeSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door);
+        var compiledSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door);
         AssertEqual(nativeSand.Count, compiledSand.Count,
             "Ceres compiled sand animation count");
 
-        var nativeTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door, room.AreaIndex);
-        var compiledTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door,
-            room.AreaIndex);
+        var nativeTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door);
+        var compiledTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door);
         AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
             "Ceres compiled treadmill animation count");
     }

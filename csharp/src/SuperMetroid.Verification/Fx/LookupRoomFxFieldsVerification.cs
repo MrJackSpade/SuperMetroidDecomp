@@ -105,10 +105,12 @@ internal static class LookupRoomFxFieldsVerification
     private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => RoomFxRecordEncoding.LayerBlendByte(record.EffectLayerBlend));
     /// <summary>Checks liquid rendering flags at offset twelve.</summary>
     private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordEncoding.LiquidOptionsByte(record.LiquidOptions));
-    /// <summary>Checks selected palette effect bits at offset thirteen.</summary>
-    private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1, record => RoomFxRecordEncoding.SlotsByte(record.PaletteFxSlots));
-    /// <summary>Checks selected animated-tile bits at offset fourteen.</summary>
-    private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1, record => RoomFxRecordEncoding.SlotsByte(record.AnimatedTileSlots));
+    /// <summary>Checks the palette effects, encoded through the header's area's list, against the bits at offset thirteen.</summary>
+    private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1,
+        record => RoomFxRecordEncoding.PaletteEffectsByte(record.PaletteEffects, record.HeaderArea));
+    /// <summary>Checks the animated tiles, encoded through the header's area's list, against the bits at offset fourteen.</summary>
+    private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1,
+        record => RoomFxRecordEncoding.AnimatedTilesByte(record.AnimatedTiles, record.HeaderArea));
     /// <summary>Checks the palette blend selector at offset fifteen.</summary>
     private static void VerifyRoomFxPaletteBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordEncoding.PaletteBlendByte(record.PaletteBlend));
     /// <summary>

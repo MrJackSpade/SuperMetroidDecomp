@@ -70,15 +70,8 @@ internal static class PaletteFxRoomShades
         var objects = new HashSet<PaletteFxObject>();
         foreach (SelectedRoom room in rooms)
         {
-            int area = AreaIds.ToIndex(room.AreaIndex);
             foreach (RoomFxRecordDefinition record in room.State.Fx?.Records ?? [])
-            {
-                for (int bit = 0; bit < RoomFxEffectSlotSet.Count; bit++)
-                {
-                    if (record.PaletteFxSlots.Includes(bit))
-                        objects.Add(RoomPaletteFxSelection.GetAreaDefinition(area, bit));
-                }
-            }
+                objects.UnionWith(record.PaletteEffects);
             if (room.AreaIndex == AreaId.Tourian)
                 objects.UnionWith(StatueGreyOuts);
         }

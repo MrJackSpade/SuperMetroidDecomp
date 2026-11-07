@@ -17,6 +17,7 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks typed room-FX records, blend dispatch and renderable BG3 effects against native definitions.</summary>
 internal static class RoomFxRomDataVerification
@@ -330,8 +331,11 @@ internal static class RoomFxRomDataVerification
         if (door == ushort.MaxValue)
             return RoomFxRecordCodec.Terminator;
         byte[] native = [.. Enumerable.Range(0, RoomFxToolingRomData.Record.ByteCount).Select(Byte)];
-        // The record codec decodes the fixture's bytes as the catalog generator decodes the cartridge's (#1415).
-        return RoomFxRecordCodec.Decode(door == 0 ? null : DoorDefinitions.Get(door), native, $"synthetic record ${pointer:X4}");
+        // The record codec decodes the fixture's bytes as the catalog generator decodes the cartridge's (#1415). The fixtures
+        // seed no effect bits and belong to no room, so the area their bits would select from is never consulted (#1526).
+        if (native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset] != 0 || native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset] != 0)
+            throw new InvalidOperationException($"Synthetic record ${pointer:X4} seeds effect bits, which select from no room's area.");
+        return RoomFxRecordCodec.Decode(door == 0 ? null : DoorDefinitions.Get(door), AreaId.Crateria, native, $"synthetic record ${pointer:X4}");
     }
 
     /// <summary>Writes one byte field of the synthetic bank-$83 room FX record at <paramref name="record"/>.</summary>

@@ -893,24 +893,20 @@ internal sealed class RoomLoader
         scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.CeresHazeSetups.Contains(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        scope.SandTiles = new RoomSandAnimatedTilesState(room.State.Fx, door,
-            room.AreaIndex);
-        scope.SpikeTiles = new RoomSpikeAnimatedTilesState(room.State.Fx, door,
-            room.AreaIndex);
-        scope.TreadmillTiles = new RoomTreadmillAnimatedTilesState(room.State.Fx, door,
-            room.AreaIndex);
+        scope.SandTiles = new RoomSandAnimatedTilesState(room.State.Fx, door);
+        scope.SpikeTiles = new RoomSpikeAnimatedTilesState(room.State.Fx, door);
+        scope.TreadmillTiles = new RoomTreadmillAnimatedTilesState(room.State.Fx, door);
         if (_player.Samus is not null)
             _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
         // Loading calls LoadFXHeader after room setup and before enemies. Its selected
-        // sixteen-byte record owns two independent object bitsets. The half must
-        // be created on every shared room-load path; Landing Site bit zero replaces the
+        // record names two independent effect lists. The palette half must
+        // be created on every shared room-load path; Landing Site's lightning replaces the
         // colors used by the scrolling-sky horizon on the first gameplay handler call.
         var roomPaletteFx = RoomPaletteFxSystem.ForRoom(
             _paletteFxSession,
             room.State.Fx,
             door,
-            room.AreaIndex,
             _player.Samus?.EquippedItems ?? 0,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
         scope.PaletteFx = roomPaletteFx;

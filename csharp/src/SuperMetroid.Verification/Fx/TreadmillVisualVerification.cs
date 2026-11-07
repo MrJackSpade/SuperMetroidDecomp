@@ -38,19 +38,19 @@ internal static class TreadmillVisualVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
             ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
-            RoomFxEffectSlots slots = record == 0 ? RoomFxEffectSlots.None : RoomFxDefinitions.RecordAt(record).AnimatedTileSlots;
-            Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation slots={slots} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
-            // The Wrecked Ship's third and fourth slots are the rightward and leftward treadmills.
-            if (!slots.Includes(2) && !slots.Includes(3)) continue;
+            AnimatedTileObject[] tiles = record == 0 ? [] : [.. RoomFxDefinitions.RecordAt(record).AnimatedTiles];
+            Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animated tiles={string.Join(", ", tiles)} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
+            bool rightwards = tiles.Contains(AnimatedTileObject.WreckedShipTreadmillRightwards);
+            if (!rightwards && !tiles.Contains(AnimatedTileObject.WreckedShipTreadmillLeftwards)) continue;
             var images = new HashSet<string>();
-            int[] sources = slots.Includes(2)
+            int[] sources = rightwards
                 ? [AnimatedTileImageSources.Treadmill(0), AnimatedTileImageSources.Treadmill(1),
                     AnimatedTileImageSources.Treadmill(2), AnimatedTileImageSources.Treadmill(3)]
                 : [AnimatedTileImageSources.Treadmill(3), AnimatedTileImageSources.Treadmill(2),
                     AnimatedTileImageSources.Treadmill(1), AnimatedTileImageSources.Treadmill(0)];
             // The floor's frames are selected (#1406): the frame boundary shows the frame the previous update selected, which the
             // render places over the room's characters where the cartridge copies it.
-            ArtworkAnimation treadmill = AnimatedTileFrames.Of(slots.Includes(2)
+            ArtworkAnimation treadmill = AnimatedTileFrames.Of(rightwards
                 ? AnimatedTileObject.WreckedShipTreadmillRightwards : AnimatedTileObject.WreckedShipTreadmillLeftwards);
             RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
                 ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");

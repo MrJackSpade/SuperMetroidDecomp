@@ -88,16 +88,17 @@ internal static class RoomPaletteFxDefinitionsVerification
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
+            PaletteFxObject effect = AreaPaletteFxObjects.GetAreaDefinition(area, bit);
             var definition = RoomFxRecordCodec.Terminator with
             {
                 Terminates = false,
-                PaletteFxSlots = RoomFxEffectSlotSet.Slot(bit),
+                PaletteEffects = [effect],
             };
             var systemSession = new PaletteFxSessionState();
-            var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition, (AreaId)area,
+            var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition,
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
-                PaletteFxObjectAccess.NativeAddress(RoomPaletteFxSelection.GetAreaDefinition(area, bit)),
+                PaletteFxObjectAccess.NativeAddress(effect),
                 ActivePaletteFxSlot(system).Id,
                 $"area {area} bit {bit} production room load");
         }
@@ -116,10 +117,10 @@ internal static class RoomPaletteFxDefinitionsVerification
                 unchecked((ushort)(RoomPaletteFxDefinitions.RoomDefinitionsBegin + 1))),
             "unaligned palette-FX definition is outside the authored domain");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomPaletteFxSelection.GetAreaDefinition(-1, 0),
+            () => AreaPaletteFxObjects.GetAreaDefinition(-1, 0),
             "negative palette-FX area index");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomPaletteFxSelection.GetAreaDefinition(0, 8),
+            () => AreaPaletteFxObjects.GetAreaDefinition(0, 8),
             "out-of-range palette-FX bit index");
 
         Console.WriteLine(

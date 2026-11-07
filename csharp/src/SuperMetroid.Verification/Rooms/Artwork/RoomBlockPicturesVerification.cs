@@ -74,7 +74,7 @@ internal static class RoomBlockPicturesVerification
         // The treadmills run once Phantoon, the Wrecked Ship's boss, is defeated.
         Check(RoomHeaderDefinitions.WreckedShipMainShaft, expectUploads: true,
             RoomStateLists.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)
-                .Single(state => state.Fx?.Records.Any(record => record.AnimatedTileSlots != RoomFxEffectSlots.None) == true),
+                .Single(state => state.Fx?.Records.Any(record => !record.AnimatedTiles.IsEmpty) == true),
             runtime => runtime.System.SetBossBits((int)AreaId.WreckedShip, BossBits.AreaBoss));
     }
 

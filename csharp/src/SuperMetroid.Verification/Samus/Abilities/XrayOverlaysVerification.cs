@@ -47,7 +47,7 @@ internal static class XrayOverlaysVerification
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.
-        var map = new RevealedBlock?[XrayRevealLayout.Cells];
+        var map = new RevealedBlock?[XrayRevealArea.BlockCount];
         RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
         AssertEqual(Defined(2), map[0], "descending item slot order leaves the lower physical slot's reveal last");

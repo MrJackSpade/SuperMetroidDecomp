@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// What the X-ray reveals over the screen (#1431, #1514): the room's blocks the reveal shows, row by row,
-/// <see cref="XrayRevealLayout.Columns"/> to a row, from the block the screen's top-left corner lies in, and where that
+/// <see cref="XrayRevealArea.Columns"/> to a row, from the block the screen's top-left corner lies in, and where that
 /// first block lies in the foreground, so each block shows where the room's own block lies.
 /// </summary>
 /// <param name="Origin">The foreground pixel the first block's top-left corner lies on.</param>

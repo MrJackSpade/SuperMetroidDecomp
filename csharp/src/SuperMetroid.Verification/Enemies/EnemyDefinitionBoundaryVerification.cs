@@ -83,13 +83,12 @@ internal static class EnemyDefinitionBoundaryVerification
                 int component = 0xaa0000 | (frame + 2 + index * 8);
                 ushort cx = unchecked((ushort)(x + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(component)));
                 ushort cy = unchecked((ushort)(y + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 2))));
-                if (((cx + 128) & 0xfe00) != 0 || ((cy + 128) & 0xfe00) != 0)
-                    continue;
-                // The cartridge's extended clip parks wrapped parts at Y=$F0; #1308 drops that presentation quirk, so the
-                // reference keeps the parts at their wrapped coordinates as the whole-frame draws do.
+                // The cartridge's extended clip drops parts beyond its range and parks wrapped parts at Y=$F0; the port draws
+                // the whole frame at its true position (#1308, #1513), so neither presentation quirk is kept and the reference
+                // places every part at its wrapped coordinates, as the whole-frame draw's sprite entries do.
                 DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawnRow), BaseTileIndex = drawnBase });
             }
-            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
+            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, $"Torizo composed OAM count, frame ${frame:X4} at ({x}, {y}): {OamDifference(expected, actual)}");
             AssertTrue(expected.ImageEquals(actual),
                 $"Torizo composed OAM bytes and origin arithmetic, frame ${frame:X4} at ({x}, {y}): {OamDifference(expected, actual)}");
             drawCases++;

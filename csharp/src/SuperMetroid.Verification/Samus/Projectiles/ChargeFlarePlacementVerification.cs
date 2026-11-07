@@ -75,7 +75,8 @@ internal static class ChargeFlarePlacementVerification
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
                 new ChargeFlareArtwork { Placement = stock, Objects = objects },
                 new ChargeFlarePose { Direction = direction, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
-            AssertTrue(native.ImageEquals(actual), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
+            // The draw depth replaces each part's priority tier (#1514); everything else must match the cartridge.
+            AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7: {pose} direction {direction} at {coordinate}, floor {transform is not null}, component {component} ({native.FirstDifference(actual)})");
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
             cases++;
         }
@@ -103,7 +104,7 @@ internal static class ChargeFlarePlacementVerification
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, component, null,
                 new ChargeFlareArtwork { Placement = stock, Objects = objects }));
             AssertTrue(actual.LastFinalizedSpriteCount > 0, $"charged {pose} draws flare component {component}");
-            AssertTrue(native.ImageEquals(actual), $"charged {pose} draws flare component {component} at its turn row's cartridge placement");
+            AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"charged {pose} draws flare component {component} at its turn row's cartridge placement apart from the priority tier the draw depth replaces (#1514) ({native.FirstDifference(actual)})");
         }
         // The flare draw places by the low four bits of the pose's shot direction, except for no-firing poses. Every pose
         // selects a named direction or, turning, a turning placement, so a selection past the turning placements standing,

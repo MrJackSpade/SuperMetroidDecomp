@@ -125,28 +125,12 @@ internal static class EnemyExtendedFrameArtworkVerification
                 // Mother Brain's initial body frame, drawn only while her body is hidden, reads only the head artwork her
                 // room loads, so it shows nothing (#1513), though the cartridge writes its records.
                 bool shownBlank = frame.Name == "mother_brain_body_oam_initial_dummy" && installed.NextByteOffset == 0;
-                if (!shownBlank && !SameApartFromPriority(native, installed))
+                if (!shownBlank && !SuperMetroid.Verification.Harness.OamPriorityComparison.SameApartFromPriority(native, installed))
                     differing.Add($"{frame.Name} at {x:X4},{y:X4}: native {Records(native)}, installed {Records(installed)}");
             }
         }
         AssertTrue(differing.Count == 0,
             $"every installed extended frame matches native OAM; {differing.Count} differ (x, y, tile, attributes):\n{string.Join("\n", differing)}");
-        // Whether two OAM images hold the same records apart from each record's priority tier, which the draw depth replaces
-        // (#1514): positions, characters, flips, palette rows and sizes all equal.
-        static bool SameApartFromPriority(OamBuffer native, OamBuffer installed)
-        {
-            const byte PriorityBits = 0x30;
-            if (native.NextByteOffset != installed.NextByteOffset || !native.HighTableBytes.AsSpan().SequenceEqual(installed.HighTableBytes))
-                return false;
-            for (int offset = 0; offset < native.NextByteOffset; offset++)
-            {
-                byte mask = offset % 4 == 3 ? unchecked((byte)~PriorityBits) : byte.MaxValue;
-                if ((native.LowTableBytes[offset] & mask) != (installed.LowTableBytes[offset] & mask))
-                    return false;
-            }
-            return true;
-        }
-
         // The used records of an OAM low table, for a failure message.
         static string Records(OamBuffer oam) => string.Join(" ",
             Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>

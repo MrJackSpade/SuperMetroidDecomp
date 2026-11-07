@@ -41,13 +41,13 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     BodyFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain body death-fade selector {frame}");
-            for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
+            for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
             {
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.BodyColor(frame, color),
                     $"installed Mother Brain body death frame {frame} color {color}");
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                        source + (MotherBrainDeathDefinitions.BodyColorCount + color) * 2),
+                        source + (MotherBrainDeathColorFormat.BodyColorCount + color) * 2),
                     native.LegColor(frame, color),
                     $"installed Mother Brain leg death frame {frame} color {color}");
             }
@@ -59,12 +59,12 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     CorpseFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain corpse death-fade selector {frame}");
-            for (int color = 0; color < MotherBrainDeathDefinitions.CorpseColorCount; color++)
+            for (int color = 0; color < MotherBrainDeathColorFormat.CorpseColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.CorpseColor(frame, color),
                     $"installed Mother Brain corpse death frame {frame} color {color}");
         }
-        for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
+        for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     MotherBrainSourceDefinitions.Death.ExplodedDoorColors + color * 2),
                 native.ExplodedDoorColor(color),
@@ -82,14 +82,14 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             address => address >= BodyFadeTable &&
                     address < MotherBrainSourceDefinitions.Death.BodyFadeColors(
                         MotherBrainDeathColorFile.BodyFadeFrameCount - 1) +
-                        MotherBrainDeathDefinitions.BodyColorCount * 2 * sizeof(ushort) ||
+                        MotherBrainDeathColorFormat.BodyColorCount * 2 * sizeof(ushort) ||
                 address >= CorpseFadeTable &&
                     address < MotherBrainSourceDefinitions.Death.CorpseFadeColors(
                         MotherBrainDeathColorFile.CorpseFadeFrameCount - 1) +
-                        MotherBrainDeathDefinitions.CorpseColorCount * sizeof(ushort) ||
+                        MotherBrainDeathColorFormat.CorpseColorCount * sizeof(ushort) ||
                 address is >= MotherBrainSourceDefinitions.Death.ExplodedDoorColors and
                     < (MotherBrainSourceDefinitions.Death.ExplodedDoorColors +
-                        MotherBrainDeathDefinitions.BodyColorCount * sizeof(ushort)),
+                        MotherBrainDeathColorFormat.BodyColorCount * sizeof(ushort)),
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
         // The import pre-colours her body layer and her sprites in each death fade step, her detached brain in each step of
         // the corpse's fade, and her brain in the exploded door's colours, from the installed colours (#1512).
@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         for (int frame = 0; frame < MotherBrainDeathColorFile.BodyFadeFrameCount; frame++)
         {
             ushort[] cgram = Shown(MotherBrainShades.DeathBody(frame));
-            for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
+            for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
             {
                 ushort shared = colors.BodyColor(frame, color).ToWord();
                 AssertEqual(shared, cgram[MotherBrainDeathColorDestinations.BodyColors + color],
@@ -124,13 +124,13 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         for (int frame = 0; frame < MotherBrainDeathColorFile.CorpseFadeFrameCount; frame++)
         {
             ushort[] cgram = Shown(MotherBrainShades.CorpseFade(frame));
-            for (int color = 0; color < MotherBrainDeathDefinitions.CorpseColorCount; color++)
+            for (int color = 0; color < MotherBrainDeathColorFormat.CorpseColorCount; color++)
                 AssertEqual(colors.CorpseColor(frame, color).ToWord(),
                     cgram[MotherBrainDeathColorDestinations.BrainColors + color],
                     $"live Mother Brain corpse death frame {frame} color {color}, shown over her brain's pictures");
         }
         ushort[] door = Shown(MotherBrainShades.ExplodedDoor);
-        for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
+        for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
             AssertEqual(colors.ExplodedDoorColor(color).ToWord(),
                 door[MotherBrainDeathColorDestinations.BrainColors + color],
                 $"live Mother Brain exploded-door color {color}");

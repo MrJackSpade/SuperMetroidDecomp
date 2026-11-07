@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Where a Mother Brain palette phase's rear legs take their colours from.</summary>
 internal enum MotherBrainRearPaintKind

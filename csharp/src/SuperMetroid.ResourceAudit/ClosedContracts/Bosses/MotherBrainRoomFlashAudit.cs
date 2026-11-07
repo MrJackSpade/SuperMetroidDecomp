@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 
@@ -59,16 +60,16 @@ internal static class MotherBrainRoomFlashAudit
                 MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(index), syntheticPalettePointer);
         void AddColors(int start, int count) => source.DeclareZero(start, count * sizeof(ushort));
         AddColors(MotherBrainSourceDefinitions.RoomColors.FlashBank | syntheticPalettePointer,
-            MotherBrainRoomColorDefinitions.SliceColors * 2);
+            MotherBrainRoomColorGeometry.SliceColors * 2);
         AddColors(MotherBrainSourceDefinitions.RoomColors.FlashBank | MotherBrainRoomFlashSourceDefinitions.FinalPalette,
-            MotherBrainRoomColorDefinitions.SliceColors * 2);
-        AddColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoAttackColors, MotherBrainRoomColorDefinitions.PhaseTwoColors);
-        AddColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoRearLegColors, MotherBrainRoomColorDefinitions.PhaseTwoColors);
-        AddColors(MotherBrainSourceDefinitions.RoomColors.InitialGlassShardColors, MotherBrainRoomColorDefinitions.InitialColors);
-        AddColors(MotherBrainSourceDefinitions.RoomColors.InitialTubeProjectileColors, MotherBrainRoomColorDefinitions.InitialColors);
+            MotherBrainRoomColorGeometry.SliceColors * 2);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoAttackColors, MotherBrainRoomColorGeometry.PhaseTwoColors);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoRearLegColors, MotherBrainRoomColorGeometry.PhaseTwoColors);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.InitialGlassShardColors, MotherBrainRoomColorGeometry.InitialColors);
+        AddColors(MotherBrainSourceDefinitions.RoomColors.InitialTubeProjectileColors, MotherBrainRoomColorGeometry.InitialColors);
         for (int index = 0; index < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; index++)
             AddColors(MotherBrainSourceDefinitions.RoomColors.RecoveryLightsColors(index),
-                MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * 2);
+                MotherBrainRoomColorGeometry.RecoveryLightsSliceColors * 2);
         return source;
     }
 }

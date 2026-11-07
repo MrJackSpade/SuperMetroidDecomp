@@ -1,20 +1,20 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>The four sheets whose pages Mother Brain's encounter shows its sprites, and where each shows.</summary>
+/// <summary>
+/// How many pages each of the four sheets Mother Brain's encounter shows its sprites from holds. Which file each sheet is
+/// and where its pages show are the import's (#1502, #1527).
+/// </summary>
 public static class MotherBrainSpecialSpriteArtworkDefinitions
 {
     /// <summary>Eight phase-two leg pages.</summary>
-    public static readonly MotherBrainSpecialSpriteSheetDefinition Legs = new("mother-brain-leg-tiles.png", 8);
+    public const int LegPageCount = 8;
 
     /// <summary>Four Baby Metroid pages.</summary>
-    public static readonly MotherBrainSpecialSpriteSheetDefinition BabyMetroid = new("mother-brain-baby-tiles.png", 4);
+    public const int BabyMetroidPageCount = 4;
 
     /// <summary>Four Mother Brain attack pages.</summary>
-    public static readonly MotherBrainSpecialSpriteSheetDefinition Attack = new("mother-brain-attack-tiles.png", 4);
+    public const int AttackPageCount = 4;
 
     /// <summary>The two exploded escape-door pages.</summary>
-    public static readonly MotherBrainSpecialSpriteSheetDefinition ExplodedDoor = new("mother-brain-exploded-door-tiles.png", 2);
-
-    /// <summary>All four separate editable source sheets, in the order the encounter first shows them: legs, Baby Metroid, attack, escape door.</summary>
-    public static IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition> All { get; } = [Legs, BabyMetroid, Attack, ExplodedDoor];
+    public const int ExplodedDoorPageCount = 2;
 }

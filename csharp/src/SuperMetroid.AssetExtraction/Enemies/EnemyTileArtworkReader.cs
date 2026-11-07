@@ -95,7 +95,7 @@ internal sealed class EnemyTileArtworkReader
             string.IsNullOrWhiteSpace(manifest.MotherBrainEscapeTextSha256) ||
             manifest.MotherBrainSpecialSpritesSha256 is null ||
             manifest.MotherBrainSpecialSpritesSha256.Count !=
-                MotherBrainSpecialSpriteArtworkDefinitions.All.Count ||
+                MotherBrainSpecialSpriteSheetDefinitions.All.Count ||
             string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
             manifest.KraidHeadsSha256 is null ||
@@ -565,7 +565,7 @@ internal sealed class EnemyTileArtworkReader
     {
         var motherBrainSpecialSheets = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>();
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
-                 MotherBrainSpecialSpriteArtworkDefinitions.All)
+                 MotherBrainSpecialSpriteSheetDefinitions.All)
         {
             if (!manifest.MotherBrainSpecialSpritesSha256.TryGetValue(
                     MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet], out string? expectedHash) ||

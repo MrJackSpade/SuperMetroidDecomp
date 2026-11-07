@@ -55,9 +55,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         TitleBackdrop = parts.TitleBackdrop;
         TitleGradient = parts.TitleGradient;
         RoomPaletteFx = parts.RoomPaletteFx;
-        MotherBrainHealthPalette = parts.MotherBrainHealthPalette;
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
-        MotherBrainRoomColors = parts.MotherBrainRoomColors;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
         PowerBombFixedColors = parts.PowerBombFixedColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
@@ -116,12 +114,8 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public TitleGradientPresentation TitleGradient { get; }
     /// <summary>Room and cinematic palette-animation colors; step timing, colour destinations, and side effects remain compiled.</summary>
     public RoomPaletteFxPresentation RoomPaletteFx { get; }
-    /// <summary>Mother Brain health-selected palette artwork, separate from rainbow and room-color families.</summary>
-    public MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; }
-    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors.</summary>
+    /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
-    /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes.</summary>
-    public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; }
     /// <summary>Selected room-FX effect overlay pages, separate from animated characters and palette-blend colors.</summary>
     /// <summary>Selected room-FX palette-blend presentation, separate from effect overlay page geometry and animated character bytes.</summary>
     public RoomFxBlendInks RoomFxPaletteBlends { get; }

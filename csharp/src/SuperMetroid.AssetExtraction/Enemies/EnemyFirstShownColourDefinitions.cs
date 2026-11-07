@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -38,8 +39,8 @@ internal static class EnemyFirstShownColourDefinitions
     internal static IReadOnlyDictionary<EnemyDefinitionId, PictureShade[]> Shades { get; } = new Dictionary<EnemyDefinitionId, PictureShade[]>
     {
         [EnemyDefinitionId.BabyMetroidCutscene] = [MotherBrainShades.BabyArrives],
-        [EnemyDefinitionId.BabyMetroid] = [ShitroidShades.Targets],
-        [EnemyDefinitionId.CorpseSidehopper] = [ShitroidShades.Targets],
+        [EnemyDefinitionId.BabyMetroid] = [TourianCorpseShades.ShitroidTargets],
+        [EnemyDefinitionId.CorpseSidehopper] = [TourianCorpseShades.ShitroidTargets],
         [EnemyDefinitionId.RidleyCeres] =
         [
             RidleyShades.CeresStart,

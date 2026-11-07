@@ -1,6 +1,6 @@
-using Layout = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteFormat.RedOriginLayout;
+using RedOrigin = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteGeometry.RedOrigin;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// Exact supplied-match material ramps. Retained endpoints, independent samples and
@@ -41,24 +41,24 @@ internal sealed class MotherBrainRainbowShadeChannel
     /// <summary>Applies the phase's head ramp, plate and tissue rounding, and shared tail rule.</summary>
     internal int Calculate(int color)
     {
-        if (color < Layout.PlateStart)
+        if (color < RedOrigin.PlateStart)
             return profile switch
             {
                 MotherBrainRainbowShadeProfile.MixedBlue => inputs[0],
-                MotherBrainRainbowShadeProfile.MaximumBlue => inputs[0] - color / Layout.DarkHead * MotherBrainRainbowShadeDefinitions.BlueHeadStep,
+                MotherBrainRainbowShadeProfile.MaximumBlue => inputs[0] - color / RedOrigin.DarkHead * MotherBrainRainbowShadeDefinitions.BlueHeadStep,
                 MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.SecondGreenRise or
                     MotherBrainRainbowShadeProfile.RecoveringGreen => inputs[0] - color * MotherBrainRainbowShadeDefinitions.GreenHeadStep,
                 _ => throw new InvalidOperationException($"Undefined rainbow shade profile {profile}."),
             };
         if (profile == MotherBrainRainbowShadeProfile.RecoveringGreen)
-            return color is Layout.TissueStart + 2 or Layout.TissueStart + 3
-                ? inputs[color - Layout.TissueStart - 1] : sourceGreen(color);
-        if (color < Layout.TissueStart)
+            return color is RedOrigin.TissueStart + 2 or RedOrigin.TissueStart + 3
+                ? inputs[color - RedOrigin.TissueStart - 1] : sourceGreen(color);
+        if (color < RedOrigin.TissueStart)
         {
             Rounding rounding = profile == MotherBrainRainbowShadeProfile.MixedBlue ? Rounding.NearestUp : Rounding.Ceiling;
-            return Interpolate(inputs[1], inputs[2], color - Layout.PlateStart, Layout.PlateIntervals, rounding);
+            return Interpolate(inputs[1], inputs[2], color - RedOrigin.PlateStart, RedOrigin.PlateIntervals, rounding);
         }
-        if (color < Layout.TailStart)
+        if (color < RedOrigin.TailStart)
         {
             Rounding rounding = profile switch
             {
@@ -69,11 +69,11 @@ internal sealed class MotherBrainRainbowShadeChannel
                     throw new InvalidOperationException("Recovering green tissue samples are selected above."),
                 _ => throw new InvalidOperationException($"Undefined rainbow shade profile {profile}."),
             };
-            return Interpolate(inputs[3], inputs[4], color - Layout.TissueStart, Layout.TissueIntervals, rounding);
+            return Interpolate(inputs[3], inputs[4], color - RedOrigin.TissueStart, RedOrigin.TissueIntervals, rounding);
         }
-        if (color == Layout.TailStart + 1 && SharesDarkHeadTail(profile))
-            return Calculate(Layout.PlateStart - 1);
-        return inputs[5 + color - Layout.TailStart];
+        if (color == RedOrigin.TailStart + 1 && SharesDarkHeadTail(profile))
+            return Calculate(RedOrigin.PlateStart - 1);
+        return inputs[5 + color - RedOrigin.TailStart];
     }
 
     /// <summary>Identifies phases where the exposed-head outline shares the darkest cortex channel.</summary>

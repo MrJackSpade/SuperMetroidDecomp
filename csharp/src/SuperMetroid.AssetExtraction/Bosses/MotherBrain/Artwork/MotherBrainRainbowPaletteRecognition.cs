@@ -2,10 +2,9 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using Phases = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPhaseDefinitions;
-using Presentation = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation;
-using RedOriginLayout = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteFormat.RedOriginLayout;
+using Presentation = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette;
+using RedOrigin = SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteGeometry.RedOrigin;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
@@ -46,7 +45,7 @@ internal static class MotherBrainRainbowPaletteRecognition
         var stock = new Presentation.DrainedBodyColors(light, dark, MotherBrainDrainedPaintDefinitions.Outline, supplied: null);
         if (Reproduces(colors, color => stock[color]))
             return stock;
-        if (colors.Length == MotherBrainFakeDeathPaletteDefinitions.ColorCount)
+        if (colors.Length == MotherBrainRainbowPaletteGeometry.FakeDeathColors)
             return new(light, dark, MotherBrainDrainedPaintDefinitions.Outline, colors);
         RgbColor outline = colors[3];
         if (!TryChannel(colors, ColorChannel.Red, out int lr, out int dr) ||
@@ -95,7 +94,7 @@ internal static class MotherBrainRainbowPaletteRecognition
     private static Presentation.PaletteFrame Frame(RgbColor[] body, RgbColor[] legs, RgbColor? trailingColor)
     {
         Presentation.BodyColors bodyColors = Body(body);
-        bool matchesRear = legs.Length == MotherBrainRainbowPaletteDefinitions.ColorCount;
+        bool matchesRear = legs.Length == MotherBrainRainbowPaletteGeometry.ColorCount;
         for (int color = 0; matchesRear && color < legs.Length; color++)
             matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color);
         if (matchesRear)
@@ -113,8 +112,8 @@ internal static class MotherBrainRainbowPaletteRecognition
     private static Presentation.BodyColors Body(RgbColor[] colors)
     {
         int length = colors.Length;
-        bool normal = length is MotherBrainFakeDeathPaletteDefinitions.ColorCount or MotherBrainRainbowPaletteGeometry.RevivalColors
-            or MotherBrainRainbowPaletteDefinitions.ColorCount;
+        bool normal = length is MotherBrainRainbowPaletteGeometry.FakeDeathColors or MotherBrainRainbowPaletteGeometry.RevivalColors
+            or MotherBrainRainbowPaletteGeometry.ColorCount;
         for (int color = 0; normal && color < length; color++)
             normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
         if (normal)
@@ -165,15 +164,15 @@ internal static class MotherBrainRainbowPaletteRecognition
     /// <summary>Accepts the red-origin model only when its red ramp and both gradients reproduce all fifteen inks.</summary>
     private static Presentation.RedOriginColors? RedOrigin(Presentation.BodyColors colors)
     {
-        if (colors.Length != MotherBrainRainbowPaletteDefinitions.ColorCount ||
-            colors[0].Red < (RedOriginLayout.PlateStart - 1) * MotherBrainRainbowPaletteFormat.HeadRedStep) return null;
+        if (colors.Length != MotherBrainRainbowPaletteGeometry.ColorCount ||
+            colors[0].Red < (RedOrigin.PlateStart - 1) * MotherBrainRainbowPaletteGeometry.HeadRedStep) return null;
         var selected = new Presentation.RedOriginColors(
-            new(colors[0], colors[RedOriginLayout.PlateStart], colors[RedOriginLayout.PlateEnd],
-                colors[RedOriginLayout.TissueStart], colors[RedOriginLayout.TissueEnd]),
-            new(colors[RedOriginLayout.DarkHead].Green, colors[RedOriginLayout.DarkHead].Blue),
-            [colors[RedOriginLayout.TissueStart + 1].Green, colors[RedOriginLayout.TissueStart + 2].Green,
-                colors[RedOriginLayout.TissueStart + 3].Green],
-            [colors[RedOriginLayout.TailStart], colors[RedOriginLayout.TailStart + 1]]);
+            new(colors[0], colors[RedOrigin.PlateStart], colors[RedOrigin.PlateEnd],
+                colors[RedOrigin.TissueStart], colors[RedOrigin.TissueEnd]),
+            new(colors[RedOrigin.DarkHead].Green, colors[RedOrigin.DarkHead].Blue),
+            [colors[RedOrigin.TissueStart + 1].Green, colors[RedOrigin.TissueStart + 2].Green,
+                colors[RedOrigin.TissueStart + 3].Green],
+            [colors[RedOrigin.TailStart], colors[RedOrigin.TailStart + 1]]);
         for (int color = 0; color < colors.Length; color++)
             if (selected[color] != colors[color]) return null;
         return selected;
@@ -217,10 +216,10 @@ internal static class MotherBrainRainbowPaletteRecognition
     private static MotherBrainRainbowShadeChannel ShadeChannel(int[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
     {
         int[] inputs = profile == MotherBrainRainbowShadeProfile.RecoveringGreen
-            ? [samples[0], samples[RedOriginLayout.TissueStart + 2], samples[RedOriginLayout.TissueStart + 3]]
-            : [samples[0], samples[RedOriginLayout.PlateStart], samples[RedOriginLayout.PlateEnd],
-                samples[RedOriginLayout.TissueStart], samples[RedOriginLayout.TissueEnd],
-                samples[RedOriginLayout.TailStart], samples[RedOriginLayout.TailStart + 1]];
+            ? [samples[0], samples[RedOrigin.TissueStart + 2], samples[RedOrigin.TissueStart + 3]]
+            : [samples[0], samples[RedOrigin.PlateStart], samples[RedOrigin.PlateEnd],
+                samples[RedOrigin.TissueStart], samples[RedOrigin.TissueEnd],
+                samples[RedOrigin.TailStart], samples[RedOrigin.TailStart + 1]];
         if (MotherBrainRainbowShadeChannel.SharesDarkHeadTail(profile)) inputs = inputs[..^1];
         var calculated = new MotherBrainRainbowShadeChannel(profile, sourceGreen, inputs, calculated: true);
         for (int color = 0; color < samples.Length; color++)

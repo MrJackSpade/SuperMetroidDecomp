@@ -23,14 +23,14 @@ public static class MotherBrainDeathColorExtractor
         for (int frame = 0; frame < body.Length; frame++)
         {
             int source = MotherBrainSourceDefinitions.Death.BodyFadeColors(frame);
-            body[frame] = Read(source, MotherBrainDeathDefinitions.BodyColorCount);
-            leg[frame] = Read(source + MotherBrainDeathDefinitions.BodyColorCount *
-                sizeof(ushort), MotherBrainDeathDefinitions.BodyColorCount);
+            body[frame] = Read(source, MotherBrainDeathColorFormat.BodyColorCount);
+            leg[frame] = Read(source + MotherBrainDeathColorFormat.BodyColorCount *
+                sizeof(ushort), MotherBrainDeathColorFormat.BodyColorCount);
         }
         var corpse = new PaletteRgb5[MotherBrainDeathColorFile.CorpseFadeFrameCount][];
         for (int frame = 0; frame < corpse.Length; frame++)
             corpse[frame] = Read(MotherBrainSourceDefinitions.Death.CorpseFadeColors(frame),
-                MotherBrainDeathDefinitions.CorpseColorCount);
+                MotherBrainDeathColorFormat.CorpseColorCount);
         return MotherBrainDeathColorFile.Write(new MotherBrainDeathColorDocument
         {
             Version = MotherBrainDeathColorFormat.Version,
@@ -38,7 +38,7 @@ public static class MotherBrainDeathColorExtractor
             LegFade = leg,
             CorpseFade = corpse,
             ExplodedDoor = Read(MotherBrainSourceDefinitions.Death.ExplodedDoorColors,
-                MotherBrainDeathDefinitions.BodyColorCount),
+                MotherBrainDeathColorFormat.BodyColorCount),
         });
 
         PaletteRgb5[] Read(int source, int count)

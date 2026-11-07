@@ -25,20 +25,20 @@ public static class MotherBrainRoomColorFile
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
         var flash = new RgbColor[document.Flash.Length][];
         for (int index = 0; index < flash.Length; index++)
-            flash[index] = Compile(document.Flash[index], MotherBrainRoomColorDefinitions.SliceColors * 2,
+            flash[index] = Compile(document.Flash[index], MotherBrainRoomColorGeometry.SliceColors * 2,
                 $"flash row {index}");
-        RgbColor[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorDefinitions.SliceColors * 2, "final room");
+        RgbColor[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorGeometry.SliceColors * 2, "final room");
         return MotherBrainRoomColorRecognition.Create(new MotherBrainRoomColours
         {
             Flash = flash,
             FinalRoom = finalRoom,
-            PhaseTwoAttack = Compile(document.PhaseTwoAttack, MotherBrainRoomColorDefinitions.PhaseTwoColors,
+            PhaseTwoAttack = Compile(document.PhaseTwoAttack, MotherBrainRoomColorGeometry.PhaseTwoColors,
                 "phase-two attack"),
-            PhaseTwoRearLeg = Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorDefinitions.PhaseTwoColors,
+            PhaseTwoRearLeg = Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorGeometry.PhaseTwoColors,
                 "phase-two rear leg"),
-            InitialGlassShard = Compile(document.InitialGlassShard, MotherBrainRoomColorDefinitions.InitialColors,
+            InitialGlassShard = Compile(document.InitialGlassShard, MotherBrainRoomColorGeometry.InitialColors,
                 "room-entry glass shard"),
-            InitialTubeProjectile = Compile(document.InitialTubeProjectile, MotherBrainRoomColorDefinitions.InitialColors,
+            InitialTubeProjectile = Compile(document.InitialTubeProjectile, MotherBrainRoomColorGeometry.InitialColors,
                 "room-entry tube projectile"),
             RecoveryLights = CompileRecoveryLights(document.RecoveryLights),
         });
@@ -52,7 +52,7 @@ public static class MotherBrainRoomColorFile
         var compiled = new RgbColor[frames.Length][];
         for (int frame = 0; frame < frames.Length; frame++)
             compiled[frame] = Compile(frames[frame],
-                MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * 2,
+                MotherBrainRoomColorGeometry.RecoveryLightsSliceColors * 2,
                 $"room-light recovery frame {frame}");
         return compiled;
     }

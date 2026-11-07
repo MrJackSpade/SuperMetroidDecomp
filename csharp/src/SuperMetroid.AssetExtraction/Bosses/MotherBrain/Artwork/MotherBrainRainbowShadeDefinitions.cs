@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Chosen shade increments for the reviewed Mother Brain material-paint animation.</summary>
 internal static class MotherBrainRainbowShadeDefinitions

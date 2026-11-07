@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Which of Mother Brain's health-tinted sprite palettes a colour belongs to.</summary>
 internal enum MotherBrainPalettePart

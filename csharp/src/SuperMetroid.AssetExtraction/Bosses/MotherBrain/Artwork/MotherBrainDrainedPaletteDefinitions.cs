@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The shape of Mother Brain's drained-to-grey and revival colour fades.</summary>
 public static class MotherBrainDrainedPaletteDefinitions

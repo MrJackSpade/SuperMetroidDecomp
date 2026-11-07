@@ -98,9 +98,7 @@ internal static class PauseMenuFixtureVerification
             TitleBackdrop = stock.TitleBackdrop,
             TitleGradient = stock.TitleGradient,
             RoomPaletteFx = stock.RoomPaletteFx,
-            MotherBrainHealthPalette = stock.MotherBrainHealthPalette,
             MotherBrainRainbowPalette = stock.MotherBrainRainbowPalette,
-            MotherBrainRoomColors = stock.MotherBrainRoomColors,
             RoomFxPaletteBlends = stock.RoomFxPaletteBlends,
             PowerBombFixedColors = stock.PowerBombFixedColors,
             CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
@@ -117,6 +115,7 @@ internal static class PauseMenuFixtureVerification
             InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.TitlePaletteOf(stock),
             InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes, InstalledAreaMapPresentation.CeresRidleyColorsOf(stock),
             InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(stock), InstalledAreaMapPresentation.EscapeTimerTilesOf(stock),
-            InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock)));
+            InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock),
+            InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(stock), InstalledAreaMapPresentation.MotherBrainRoomColorsOf(stock)));
     }
 }

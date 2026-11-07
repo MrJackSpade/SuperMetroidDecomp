@@ -26,9 +26,9 @@ public static class BabyMetroidCutsceneColorFile
             document.Fade.Length != BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new InvalidDataException("Cutscene Baby fade requires six displayed frames.");
         return new(BabyAndShitroidColorRecognition.Cutscene(Compile(document.Initial,
-                BabyMetroidCutsceneColorDefinitions.InitialColorCount, "initial"),
+                BabyMetroidCutsceneColorFormat.InitialColorCount, "initial"),
             document.Fade.Select((frame, index) => Compile(frame,
-                BabyMetroidCutsceneColorDefinitions.FadeColorCount,
+                BabyMetroidCutsceneColorFormat.FadeColorCount,
                 $"fade frame {index + 1}")).ToArray()));
     }
 

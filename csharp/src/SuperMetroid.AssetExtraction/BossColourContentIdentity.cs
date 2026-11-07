@@ -245,7 +245,7 @@ internal static class BossColourContentIdentity
         internal void AppendIdentity(SelectedPresentationHash content)
         {
             content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
-            Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
+            Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.FadeColorCount];
             for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
             {
                 for (int color = 0; color < frameColors.Length; color++) frameColors[color] = fade.Resolve(frame, color);
@@ -260,7 +260,7 @@ internal static class BossColourContentIdentity
         /// <summary>Hashes all resolved initial colors so supplied edits affect presentation identity.</summary>
         internal void AppendIdentity(SelectedPresentationHash content)
         {
-            Span<RgbColor> colors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.InitialColorCount];
+            Span<RgbColor> colors = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.InitialColorCount];
             for (int color = 0; color < colors.Length; color++) colors[color] = palette.Resolve(color);
             content.AppendColors("initial", colors);
         }

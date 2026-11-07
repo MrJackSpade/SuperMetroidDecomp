@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The dark head's own green and blue, kept under the shared head red ramp.</summary>
 /// <param name="Green">The green channel.</param>

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Reviewed room-flash paint composition: warm background flood
 /// against a dim foreground silhouette. Geometry, AI and independent gameplay clocks are excluded.</summary>
@@ -14,4 +14,6 @@ internal static class MotherBrainRoomFlashPaintDefinitions
     internal const int BrightenIntervals = 3;
     /// <summary>Foreground intensity ends at one quarter; the four strengths select full, three-quarter, half and quarter intensity.</summary>
     internal const int DimIntervals = 4;
+    /// <summary>Reviewed visual strength sequence in thirds for the fourteen flash images; each selects a paint image without gameplay callbacks.</summary>
+    internal static readonly int[] FlashStrengths = [0, 1, 2, 3, 0, 1, 0, 3, 1, 0, 3, 2, 0, 2];
 }

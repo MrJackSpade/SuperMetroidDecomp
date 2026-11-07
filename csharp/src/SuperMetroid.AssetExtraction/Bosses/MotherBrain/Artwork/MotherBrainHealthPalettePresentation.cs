@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Editable damage-state colors for Mother Brain's final-phase body and rear legs.</summary>
 public sealed class MotherBrainHealthPalettePresentation

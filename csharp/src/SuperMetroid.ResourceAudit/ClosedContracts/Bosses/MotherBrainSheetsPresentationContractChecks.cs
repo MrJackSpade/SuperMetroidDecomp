@@ -30,9 +30,9 @@ internal static class MotherBrainSheetsPresentationContractChecks
             png.Position = 0;
             return RoomCharacterAtlasPng.Read(png, count);
         }
-        var sheets = MotherBrainSpecialSpriteArtworkDefinitions.All.ToDictionary(sheet => sheet.Sheet,
+        var sheets = MotherBrainSpecialSpriteSheetDefinitions.All.ToDictionary(sheet => sheet.Sheet,
             sheet => Sheet(sheet.ByteCount));
-        MotherBrainSpritePageSheet first = MotherBrainSpecialSpriteArtworkDefinitions.Legs.Sheet;
+        MotherBrainSpritePageSheet first = MotherBrainSpecialSpriteSheetDefinitions.Legs.Sheet;
         var malformed = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>(sheets);
         malformed[first] = Sheet(RoomCharacterAtlasFormat.BytesPerTile);
         bool rejected = false;
@@ -42,7 +42,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
         var catalog = new MotherBrainSpecialSpriteArtworkCatalog(sheets);
         sheets.Remove(first);
         Require(catalog.Get(first).Characters.Length ==
-            MotherBrainSpecialSpriteArtworkDefinitions.Legs.ByteCount, "catalog keys must be independent of the input dictionary");
+            MotherBrainSpecialSpriteSheetDefinitions.Legs.ByteCount, "catalog keys must be independent of the input dictionary");
 
         var trees = MotherBrainSheetsClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(

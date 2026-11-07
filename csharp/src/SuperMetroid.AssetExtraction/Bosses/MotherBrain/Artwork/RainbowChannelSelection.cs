@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Which colour channels a shared rainbow body palette varies, and the red and green additions (#633).</summary>
 internal sealed record RainbowChannelSelection

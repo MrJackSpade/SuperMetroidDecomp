@@ -31,7 +31,7 @@ internal static class MotherBrainRoomColorExtractor
             if (pointer == 0)
                 throw new InvalidDataException($"Mother Brain room-flash row {index} has no palette pointer.");
             flash[index] = ReadColors(MotherBrainSourceDefinitions.RoomColors.FlashBank | pointer,
-                MotherBrainRoomColorDefinitions.SliceColors * 2);
+                MotherBrainRoomColorGeometry.SliceColors * 2);
         }
         using var json = new MemoryStream();
         MotherBrainRoomColorFile.Write(json, new MotherBrainRoomColorDocument
@@ -40,18 +40,18 @@ internal static class MotherBrainRoomColorExtractor
             Flash = flash,
             FinalRoom = ReadColors(MotherBrainSourceDefinitions.RoomColors.FlashBank |
                 MotherBrainRoomFlashSourceDefinitions.FinalPalette,
-                MotherBrainRoomColorDefinitions.SliceColors * 2),
+                MotherBrainRoomColorGeometry.SliceColors * 2),
             PhaseTwoAttack = ReadColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoAttackColors,
-                MotherBrainRoomColorDefinitions.PhaseTwoColors),
+                MotherBrainRoomColorGeometry.PhaseTwoColors),
             PhaseTwoRearLeg = ReadColors(MotherBrainSourceDefinitions.RoomColors.PhaseTwoRearLegColors,
-                MotherBrainRoomColorDefinitions.PhaseTwoColors),
+                MotherBrainRoomColorGeometry.PhaseTwoColors),
             InitialGlassShard = ReadColors(MotherBrainSourceDefinitions.RoomColors.InitialGlassShardColors,
-                MotherBrainRoomColorDefinitions.InitialColors),
+                MotherBrainRoomColorGeometry.InitialColors),
             InitialTubeProjectile = ReadColors(MotherBrainSourceDefinitions.RoomColors.InitialTubeProjectileColors,
-                MotherBrainRoomColorDefinitions.InitialColors),
+                MotherBrainRoomColorGeometry.InitialColors),
             RecoveryLights = Enumerable.Range(0, MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
                 .Select(frame => ReadColors(MotherBrainSourceDefinitions.RoomColors.RecoveryLightsColors(frame),
-                    MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * 2))
+                    MotherBrainRoomColorGeometry.RecoveryLightsSliceColors * 2))
                 .ToArray(),
         });
         return json.ToArray();

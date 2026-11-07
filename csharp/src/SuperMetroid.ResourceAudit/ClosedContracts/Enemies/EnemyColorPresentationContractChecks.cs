@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -49,11 +50,11 @@ internal static class EnemyColorPresentationContractChecks
                     kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPalettes.BandColors);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount - 1, BotwoonHealthPaletteDefinitions.ColorsPerPalette - 1);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount, 0);
-                    baby.InitialColor(BabyMetroidCutsceneColorDefinitions.InitialColorCount - 1);
-                    baby.InitialColor(BabyMetroidCutsceneColorDefinitions.InitialColorCount);
-                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount - 1);
+                    baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount - 1);
+                    baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount - 1);
                     baby.FadeColor(0, 0);
-                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount);
                     shitroid.NormalColor(ShitroidColorDefinitions.NormalFrameCount - 1, ShitroidColorDefinitions.NormalColorsPerFrame - 1);
                     shitroid.NormalColor(0, ShitroidColorDefinitions.NormalColorsPerFrame);
                     shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount - 1);

@@ -31,14 +31,14 @@ public static class MotherBrainDeathColorFile
                 "Mother Brain death colors require the supported version.");
         return new(MotherBrainDeathColorEdits.Select(CompileFrames(document.BodyFade,
                 BodyFadeFrameCount,
-                MotherBrainDeathDefinitions.BodyColorCount, "body fade"),
+                MotherBrainDeathColorFormat.BodyColorCount, "body fade"),
             CompileFrames(document.LegFade,
                 BodyFadeFrameCount,
-                MotherBrainDeathDefinitions.BodyColorCount, "leg fade"),
+                MotherBrainDeathColorFormat.BodyColorCount, "leg fade"),
             CompileFrames(document.CorpseFade,
                 CorpseFadeFrameCount,
-                MotherBrainDeathDefinitions.CorpseColorCount, "corpse fade"),
-            Compile(document.ExplodedDoor, MotherBrainDeathDefinitions.BodyColorCount,
+                MotherBrainDeathColorFormat.CorpseColorCount, "corpse fade"),
+            Compile(document.ExplodedDoor, MotherBrainDeathColorFormat.BodyColorCount,
                 "exploded door")));
     }
 

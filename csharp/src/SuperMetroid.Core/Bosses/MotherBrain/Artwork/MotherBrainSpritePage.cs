@@ -32,10 +32,10 @@ public readonly record struct MotherBrainSpritePage
     /// <exception cref="InvalidOperationException">The sheet is not one of Mother Brain's.</exception>
     public static int PageCount(MotherBrainSpritePageSheet sheet) => sheet switch
     {
-        MotherBrainSpritePageSheet.Legs => MotherBrainSpecialSpriteArtworkDefinitions.Legs.PageCount,
-        MotherBrainSpritePageSheet.BabyMetroid => MotherBrainSpecialSpriteArtworkDefinitions.BabyMetroid.PageCount,
-        MotherBrainSpritePageSheet.Attack => MotherBrainSpecialSpriteArtworkDefinitions.Attack.PageCount,
-        MotherBrainSpritePageSheet.ExplodedDoor => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount,
+        MotherBrainSpritePageSheet.Legs => MotherBrainSpecialSpriteArtworkDefinitions.LegPageCount,
+        MotherBrainSpritePageSheet.BabyMetroid => MotherBrainSpecialSpriteArtworkDefinitions.BabyMetroidPageCount,
+        MotherBrainSpritePageSheet.Attack => MotherBrainSpecialSpriteArtworkDefinitions.AttackPageCount,
+        MotherBrainSpritePageSheet.ExplodedDoor => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoorPageCount,
         MotherBrainSpritePageSheet.Corpse => MotherBrainCorpseArtworkDefinitions.RowCount,
         MotherBrainSpritePageSheet.EscapeTimer => EscapeTextArtworkDefinitions.TimerPageCount,
         MotherBrainSpritePageSheet.EscapeText => EscapeTextArtworkDefinitions.PageCount,

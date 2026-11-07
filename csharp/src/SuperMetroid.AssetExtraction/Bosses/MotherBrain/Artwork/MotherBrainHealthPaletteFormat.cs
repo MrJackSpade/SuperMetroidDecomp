@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installed JSON identity and dimensions for the four final-phase health-dependent palettes selected by <c>MotherBrainHealthBasedPaletteHandling</c>.</summary>
 public static class MotherBrainHealthPaletteFormat

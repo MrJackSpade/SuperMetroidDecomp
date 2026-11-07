@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -30,6 +31,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="CeresRidleyFloorColors">Ceres Ridley's Mode 7 floor colours for each getaway zoom step, which the floor's shades are pre-coloured from (#1512).</param>
 /// <param name="EscapeTimerTiles">The escape timer's characters, which the escape encounters' sheets are composed from (#1513).</param>
 /// <param name="RoomFxAnimatedTiles">The animated tiles' installed characters, which room sheets and the Tourian statues' pictures are composed from (#1527).</param>
+/// <param name="MotherBrainHealthPalette">Mother Brain's health-band colours, which her sheets and body layer are pre-coloured from (#1527).</param>
+/// <param name="MotherBrainRoomColors">Mother Brain's room colours, which her room's pictures and sheets are pre-coloured from (#1527).</param>
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
     GameplayMessageArtwork Messages,
@@ -46,4 +49,6 @@ internal sealed record InstalledPresentationSources(
     CeresRidleyColorCatalog CeresRidleyColors,
     CeresRidleyFloorColorCatalog CeresRidleyFloorColors,
     EscapeTimerCharacters EscapeTimerTiles,
-    RoomFxAnimatedTileAtlas RoomFxAnimatedTiles);
+    RoomFxAnimatedTileAtlas RoomFxAnimatedTiles,
+    MotherBrainHealthPalettePresentation MotherBrainHealthPalette,
+    MotherBrainRoomColorPresentation MotherBrainRoomColors);

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Six independently chosen Mother Brain body paint anchors shared by calculated palette effects.</summary>
 internal static class MotherBrainHealthPaintDefinitions

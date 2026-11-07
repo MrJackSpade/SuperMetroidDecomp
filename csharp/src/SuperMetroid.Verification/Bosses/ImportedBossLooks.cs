@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Verification.Bosses;
 

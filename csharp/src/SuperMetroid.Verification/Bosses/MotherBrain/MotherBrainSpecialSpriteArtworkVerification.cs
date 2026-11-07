@@ -47,7 +47,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 "Extracted Mother Brain special sprite PNGs were not bound.");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
-                 MotherBrainSpecialSpriteArtworkDefinitions.All)
+                 MotherBrainSpecialSpriteSheetDefinitions.All)
         {
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet], sheet.ByteCount);
@@ -74,7 +74,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         // Unlike the other two lists, Baby loading reads its four native records
         // from $A9:8FE5. Check every compiled sheet coordinate against that list.
         MotherBrainSpecialSpriteSheetDefinition baby =
-            MotherBrainSpecialSpriteArtworkDefinitions.BabyMetroid;
+            MotherBrainSpecialSpriteSheetDefinitions.BabyMetroid;
         for (int page = 0; page < baby.PageCount; page++)
         {
             int record = MotherBrainBabyPageListConstants.BabyTileList +

@@ -1032,11 +1032,10 @@ sound, timing, and physical terrain changes remain compiled.
 
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. In the installed file, edit only `visualWord`
-(0..4095), then restart. Keep all 24 semantic IDs: the empty block, Chozo orb
-and burst, the four two-frame tank kinds, four two-frame item block pairs, and
-the three shot-block reveal frames. The words select visual blocks from the
-active room's combined CRE/area definitions. An item block pair's blocks lie
-under the item's own picture, described below, and do not show while it does.
+(0..4095), then restart. Keep all 16 semantic IDs: the empty block, Chozo orb
+and burst, the four two-frame tank kinds, and the three shot-block reveal
+frames. The words select visual blocks from the active room's combined CRE/area
+definitions. Every other item shows its own pictures, described below.
 Item acquisition, collision, room-item and Chozo persistence, sound, frame
 timing, and physical level words remain compiled. An edited word changes the
 immediate redraw and later camera streaming without changing the item reward.

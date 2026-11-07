@@ -8,7 +8,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
-/// <summary>Checks the 24 exported collectible PLM draw records against native geometry, bits, and names.</summary>
+/// <summary>
+/// Checks the 24 exported collectible PLM draw records against native geometry, bits, and names, and that the installed
+/// file names only the 16 editable frames, not the block-pair frames under an item's own picture (#1538).
+/// </summary>
 internal static class LookupCollectibleDrawsVerification
 {
     /// <summary>Checks each draw record's one-cell geometry and complete pointer domain.</summary>
@@ -24,7 +27,7 @@ internal static class LookupCollectibleDrawsVerification
     private static void VerifyCollectibleDrawField(SuperMetroidAddressSpace rom, int field)
     {
         // Original exported pointer/name contract; physical values come from the ROM.
-        LookupEscapeGateStockFrame[] expected = [new LookupEscapeGateStockFrame(0xa2b5,"empty"),new LookupEscapeGateStockFrame(0xa2c7,"chozo-orb-0"),new LookupEscapeGateStockFrame(0xa2cd,"chozo-orb-1"),new LookupEscapeGateStockFrame(0xa2d3,"chozo-orb-2"),new LookupEscapeGateStockFrame(0xa2d9,"chozo-orb-burst"),new LookupEscapeGateStockFrame(0xa2df,"energy-tank-0"),new LookupEscapeGateStockFrame(0xa2e5,"energy-tank-1"),new LookupEscapeGateStockFrame(0xa2eb,"missile-tank-0"),new LookupEscapeGateStockFrame(0xa2f1,"missile-tank-1"),new LookupEscapeGateStockFrame(0xa2f7,"super-missile-tank-0"),new LookupEscapeGateStockFrame(0xa2fd,"super-missile-tank-1"),new LookupEscapeGateStockFrame(0xa303,"power-bomb-tank-0"),new LookupEscapeGateStockFrame(0xa309,"power-bomb-tank-1"),new LookupEscapeGateStockFrame(0xa30f,"dynamic-slot-0-frame-0"),new LookupEscapeGateStockFrame(0xa315,"dynamic-slot-0-frame-1"),new LookupEscapeGateStockFrame(0xa31b,"dynamic-slot-1-frame-0"),new LookupEscapeGateStockFrame(0xa321,"dynamic-slot-1-frame-1"),new LookupEscapeGateStockFrame(0xa327,"dynamic-slot-2-frame-0"),new LookupEscapeGateStockFrame(0xa32d,"dynamic-slot-2-frame-1"),new LookupEscapeGateStockFrame(0xa333,"dynamic-slot-3-frame-0"),new LookupEscapeGateStockFrame(0xa339,"dynamic-slot-3-frame-1"),new LookupEscapeGateStockFrame(0xa3dd,"shot-reveal-0"),new LookupEscapeGateStockFrame(0xa3e3,"shot-reveal-1"),new LookupEscapeGateStockFrame(0xa3e9,"shot-reveal-2")];
+        LookupEscapeGateStockFrame[] expected = [new LookupEscapeGateStockFrame(0xa2b5,"empty"),new LookupEscapeGateStockFrame(0xa2c7,"chozo-orb-0"),new LookupEscapeGateStockFrame(0xa2cd,"chozo-orb-1"),new LookupEscapeGateStockFrame(0xa2d3,"chozo-orb-2"),new LookupEscapeGateStockFrame(0xa2d9,"chozo-orb-burst"),new LookupEscapeGateStockFrame(0xa2df,"energy-tank-0"),new LookupEscapeGateStockFrame(0xa2e5,"energy-tank-1"),new LookupEscapeGateStockFrame(0xa2eb,"missile-tank-0"),new LookupEscapeGateStockFrame(0xa2f1,"missile-tank-1"),new LookupEscapeGateStockFrame(0xa2f7,"super-missile-tank-0"),new LookupEscapeGateStockFrame(0xa2fd,"super-missile-tank-1"),new LookupEscapeGateStockFrame(0xa303,"power-bomb-tank-0"),new LookupEscapeGateStockFrame(0xa309,"power-bomb-tank-1"),new LookupEscapeGateStockFrame(0xa30f,"block-pair-0-frame-0"),new LookupEscapeGateStockFrame(0xa315,"block-pair-0-frame-1"),new LookupEscapeGateStockFrame(0xa31b,"block-pair-1-frame-0"),new LookupEscapeGateStockFrame(0xa321,"block-pair-1-frame-1"),new LookupEscapeGateStockFrame(0xa327,"block-pair-2-frame-0"),new LookupEscapeGateStockFrame(0xa32d,"block-pair-2-frame-1"),new LookupEscapeGateStockFrame(0xa333,"block-pair-3-frame-0"),new LookupEscapeGateStockFrame(0xa339,"block-pair-3-frame-1"),new LookupEscapeGateStockFrame(0xa3dd,"shot-reveal-0"),new LookupEscapeGateStockFrame(0xa3e3,"shot-reveal-1"),new LookupEscapeGateStockFrame(0xa3e9,"shot-reveal-2")];
         var exported = RoomObjectCollectibleVisualFiles.All.ToArray();
         AssertEqual(24, exported.Length, "Collectible original export count");
         if (field == 0)
@@ -43,8 +46,18 @@ internal static class LookupCollectibleDrawsVerification
         {
             var entry = expected[index];
             AssertTrue(RoomObjectCollectibleDrawDefinitionsTooling.TryGet(NativeObjectDraws.At<RoomObjectCollectibleDrawDefinitions.Draw>(entry.Pointer), out var direct), "Collectible direct identity");
-            AssertTrue(RoomObjectCollectibleVisualFiles.TryGetById(entry.Id, out var named), "Collectible reverse identity");
-            foreach (var value in new[] {direct,named,exported[index]})
+            RoomObjectCollectibleDrawFrame[] values;
+            if (RoomObjectCollectibleVisualFiles.IsEditable(direct.Draw))
+            {
+                AssertTrue(RoomObjectCollectibleVisualFiles.TryGetById(entry.Id, out var named), "Collectible reverse identity");
+                values = [direct, named, exported[index]];
+            }
+            else
+            {
+                AssertTrue(!RoomObjectCollectibleVisualFiles.TryGetById(entry.Id, out _), "Collectible block-pair frame is not an installed identity");
+                values = [direct, exported[index]];
+            }
+            foreach (var value in values)
             {
                 AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(value.Draw)), "Collectible original pointer and export order");
                 if (field == 0)
@@ -69,7 +82,7 @@ internal static class LookupCollectibleDrawsVerification
                 }
         }
         if (field == 3)
-            foreach (string bad in new[] {"","energy-tank-2","dynamic-slot-4-frame-0","chozo-orb-3","shot-reveal-3"})
+            foreach (string bad in new[] {"","energy-tank-2","dynamic-slot-0-frame-0","block-pair-0-frame-0","chozo-orb-3","shot-reveal-3"})
                 AssertTrue(!RoomObjectCollectibleVisualFiles.TryGetById(bad, out _), "Collectible unsupported ID");
     }
 }

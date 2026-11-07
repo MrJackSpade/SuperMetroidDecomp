@@ -338,7 +338,7 @@ internal static class CollectiblesVerification
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ]);
 
-        // Permanent-item draw words and dynamic-slot selections are now compiled.
+        // Permanent-item draw words and block-pair selections are now compiled.
         // Do not seed their old ROM ranges: the ordinary pickup suite should fail if
         // production ever accidentally returns to those presentation reads.
         for (int frame = 0; frame < 3; frame++)

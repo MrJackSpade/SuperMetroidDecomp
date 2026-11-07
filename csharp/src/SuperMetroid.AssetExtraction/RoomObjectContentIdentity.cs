@@ -73,7 +73,7 @@ internal static class RoomObjectContentIdentity
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectCollectibleVisuals), content =>
         {
             Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[1];
-            foreach (var frame in RoomObjectCollectibleVisualFiles.All.OrderBy(frame => frame.Id, StringComparer.Ordinal))
+            foreach (var frame in RoomObjectCollectibleVisualFiles.Editable.OrderBy(frame => frame.Id, StringComparer.Ordinal))
             {
                 content.AppendName("frame", frame.Id);
                 content.Append("runs", 1);

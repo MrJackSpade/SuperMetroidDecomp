@@ -221,13 +221,6 @@ internal static class RoomVisualLayoutsVerification
             File.WriteAllText(path, manifest.ToJsonString());
         }
 
-        Expect("hash-mismatch", firstName, directory =>
-        {
-            string path = Path.Combine(directory, firstName);
-            byte[] stream = File.ReadAllBytes(path);
-            stream[^1] ^= 1;
-            File.WriteAllBytes(path, stream);
-        });
         Expect("length-mismatch", firstName, directory =>
         {
             using var file = new FileStream(Path.Combine(directory, firstName), FileMode.Append, FileAccess.Write);

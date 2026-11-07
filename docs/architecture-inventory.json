@@ -147925,6 +147925,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBombAfterburnPicturesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainBombAfterburnPicturesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainContactHitboxesVerification",
       "kind": "static class",
       "scope": "test",

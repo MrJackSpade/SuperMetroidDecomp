@@ -19,8 +19,20 @@ internal static class AudioClipExportVerification
     /// <summary>A Green Brinstar track whose tempo phase recurs every pass, so its loop repeats sample-exactly.</summary>
     private const int GreenBrinstarPhaseExactTrack = 3;
 
-    /// <summary>Exports the fixture's clips into a scratch directory and checks them.</summary>
-    internal static void VerifyAudioClipExport(string audioDirectory)
+    /// <summary>The track's clip length in stereo frames: its intro and one pass of its loop.</summary>
+    private const long GreenBrinstarPhaseExactFrames = 1_340_928;
+
+    /// <summary>The stereo frame its loop starts at.</summary>
+    private const long GreenBrinstarPhaseExactLoopStart = 677_376;
+
+    /// <summary>Exports the fixture's music clip into a scratch directory and checks it.</summary>
+    internal static void VerifyMusicClipExport(string audioDirectory) => VerifyAudioClipExport(audioDirectory, music: true);
+
+    /// <summary>Exports the fixture's effect clips into a scratch directory and checks them and the loader.</summary>
+    internal static void VerifyEffectClipExport(string audioDirectory) => VerifyAudioClipExport(audioDirectory, music: false);
+
+    /// <summary>Exports the fixture's music clip or its effect clips into a scratch directory and checks them.</summary>
+    private static void VerifyAudioClipExport(string audioDirectory, bool music)
     {
         ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(audioDirectory);
         DirectoryInfo scratch = Directory.CreateTempSubdirectory("sm-audio-clips-");
@@ -35,27 +47,31 @@ internal static class AudioClipExportVerification
             AudioClipExporter.Export(
                 catalog,
                 scratch.FullName,
-                [
-                    new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack),
-                ],
-                [
+                music ? [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack)] : [],
+                music ? [] : [
                     .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, SoundEffectCommands.Command(effect))),
                     new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, SoundEffectCommands.Command(Library2Sound.EtecoonTheme)),
                 ]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
+            if (music)
+            {
+                VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack);
+                MusicClipEntry exported = clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(GreenBrinstarPhaseExactTrack));
+                AssertEqual(GreenBrinstarPhaseExactFrames, exported.Clip.Frames, "the loop check renders the exported clip's length");
+                AssertEqual(GreenBrinstarPhaseExactLoopStart, exported.LoopStart, "the loop check starts at the exported loop");
+                VerifyLoaderRejections(scratch.FullName, clips);
+                Console.WriteLine("  Music clip export: Green Brinstar track 3 equals an independent render; the loader rejects an escaping path and another format.");
+                return;
+            }
             VerifyStoredSoundEffectFields(Path.Combine(scratch.FullName, InstalledAudioClips.ManifestFileName));
-
-            VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack);
             foreach (SoundEffectId effect in effects)
                 VerifySoundEffect(clips, effect);
             AssertThrows<InvalidDataException>(
                 () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, Library2Sound.EtecoonTheme),
                 "an effect whose sample the bank context lacks fails loudly");
-            VerifyLoaderRejections(scratch.FullName, clips);
             Console.WriteLine(
-                "  Audio clip export: Green Brinstar track 3 and three effects equal an independent render; " +
-                "its phase-exact loop equals the next pass; the loader rejects hash, path, format and unrenderable requests.");
+                "  Effect clip export: three effects equal an independent render; an effect its bank context cannot render fails loudly.");
         }
         finally
         {
@@ -70,20 +86,38 @@ internal static class AudioClipExportVerification
     private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track)
     {
         MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(track));
-        long loopStart = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
+        _ = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
         short[] clip = clips.ReadClip(entry.Clip);
         long frames = entry.Clip.Frames;
-        short[] independent = RenderIndependently(
+        short[] independent = RenderTrack(catalog, track, frames);
+        AssertSequenceEqual(clip, independent, $"track {track} clip equals the independent render");
+        AssertEqual(0L, entry.TempoSegments[0].Frame, "the tempo timeline starts at the clip's first frame");
+    }
+
+    /// <summary>
+    /// A track whose tempo phase recurs every pass loops sample-exactly: an independent render of it carries on past its
+    /// clip's end with its loop's first pass again. The clip's length and loop start are the export's, which the music
+    /// export check confirms equal the same render.
+    /// </summary>
+    internal static void VerifyMusicLoopRepeatsExactly(string audioDirectory)
+    {
+        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(audioDirectory);
+        (long frames, long loopStart) = (GreenBrinstarPhaseExactFrames, GreenBrinstarPhaseExactLoopStart);
+        short[] independent = RenderTrack(catalog, GreenBrinstarPhaseExactTrack, frames + (frames - loopStart));
+        AssertSequenceEqual(independent[(int)(loopStart * 2)..(int)(frames * 2)], independent[(int)(frames * 2)..],
+            $"track {GreenBrinstarPhaseExactTrack} loop equals the next pass");
+        Console.WriteLine($"  Music loop: Green Brinstar track {GreenBrinstarPhaseExactTrack}'s phase-exact loop equals the next pass.");
+    }
+
+    /// <summary>An independent render of Green Brinstar track <paramref name="track"/>'s first <paramref name="frames"/> stereo frames.</summary>
+    private static short[] RenderTrack(ExtractedAudioAssetCatalog catalog, int track, long frames) =>
+        RenderIndependently(
             catalog,
             MusicDataSet.GreenBrinstar,
             AudioRequest.ForTrack(new MusicTrack(unchecked((byte)track))),
             player => player.Music.musicPortToSnes == track,
             byte.MaxValue,
-            frames + (frames - loopStart));
-        AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"track {track} clip equals the independent render");
-        AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"track {track} loop equals the next pass");
-        AssertEqual(0L, entry.TempoSegments[0].Frame, "the tempo timeline starts at the clip's first frame");
-    }
+            frames);
 
     /// <summary>An effect's clip entry ends exactly when it stops sounding, unless it repeats forever.</summary>
     private static void VerifySoundEffect(InstalledClipAudioLibrary clips, SoundEffectId effect)
@@ -205,11 +239,29 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>Runs the clip-export confirmation over the repository installation's audio.</summary>
-    [VerificationCommand("--audio-clip-export")]
-    internal static int AudioClipExportCommand()
+    [VerificationCommand("--music-clip-export")]
+    internal static int MusicClipExportCommand()
     {
         string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        Suite(nameof(VerifyAudioClipExport), () => VerifyAudioClipExport(audioDirectory));
+        Suite(nameof(VerifyMusicClipExport), () => VerifyMusicClipExport(audioDirectory));
+        return 0;
+    }
+
+    /// <summary>Runs the music loop confirmation over the repository installation's audio.</summary>
+    [VerificationCommand("--music-loop-repeats-exactly")]
+    internal static int MusicLoopRepeatsExactlyCommand()
+    {
+        string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
+        Suite(nameof(VerifyMusicLoopRepeatsExactly), () => VerifyMusicLoopRepeatsExactly(audioDirectory));
+        return 0;
+    }
+
+    /// <summary>Runs the effect clip-export confirmation over the repository installation's audio.</summary>
+    [VerificationCommand("--effect-clip-export")]
+    internal static int EffectClipExportCommand()
+    {
+        string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
+        Suite(nameof(VerifyEffectClipExport), () => VerifyEffectClipExport(audioDirectory));
         return 0;
     }
 }

@@ -138,19 +138,42 @@ internal static class EnemyTileArtworkVerification
         Suite(nameof(VerifyInstalledCeresDoorVisuals), () => VerifyInstalledCeresDoorVisuals(bus, stock));
     }
 
-    /// <summary>Checks installed enemy spritemaps, extended frames, Kraid, BG2 frame and gunship artwork against retail.</summary>
-    private static void VerifyEnemyFrameArtwork()
+    /// <summary>Checks installed enemy projectile spritemaps against retail.</summary>
+    private static void VerifyEnemyProjectileFrameArtwork()
     {
-        var fixture = new EnemyTileFixture();
-        var (bus, directory, stock) = fixture;
+        var (bus, directory, stock) = new EnemyTileFixture();
         Suite(nameof(VerifyInstalledEnemyProjectileSpritemaps), () => VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock));
+    }
+
+    /// <summary>Checks Kraid's installed background and colours against retail.</summary>
+    private static void VerifyKraidFrameArtwork()
+    {
+        var (bus, directory, stock) = new EnemyTileFixture();
         Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(bus, stock));
         Suite(nameof(VerifyInstalledKraidColors), () => VerifyInstalledKraidColors(bus, directory, stock));
+    }
+
+    /// <summary>Checks installed enemy spritemaps and extended frames against retail.</summary>
+    private static void VerifyEnemySpritemapFrameArtwork()
+    {
+        var (bus, _, stock) = new EnemyTileFixture();
         Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, stock));
         Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, stock));
+    }
+
+    /// <summary>Checks Crocomire's, Phantoon's and Draygon's installed bodies against retail.</summary>
+    private static void VerifyBossBodyFrameArtwork()
+    {
+        var (bus, directory, stock) = new EnemyTileFixture();
         Suite(nameof(VerifyInstalledCrocomireBodyVisuals), () => VerifyInstalledCrocomireBodyVisuals(bus, stock));
         Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
         Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
+    }
+
+    /// <summary>Checks the gunship's installed liftoff artwork against retail.</summary>
+    private static void VerifyGunshipFrameArtwork()
+    {
+        var (bus, _, stock) = new EnemyTileFixture();
         Suite(nameof(VerifyInstalledGunshipLiftoffArtwork), () => VerifyInstalledGunshipLiftoffArtwork(bus, stock));
     }
 
@@ -219,39 +242,12 @@ internal static class EnemyTileArtworkVerification
         new(nameof(VerifyEnemyTileArtwork), () => VerifyEnemyTileArtwork()),
         new(nameof(VerifyBossEnemyArtwork), () => VerifyBossEnemyArtwork()),
         new(nameof(VerifyEnemyColorArtwork), () => VerifyEnemyColorArtwork()),
-        new(nameof(VerifyEnemyFrameArtwork), () => VerifyEnemyFrameArtwork()),
+        new(nameof(VerifyEnemyProjectileFrameArtwork), () => VerifyEnemyProjectileFrameArtwork()),
+        new(nameof(VerifyKraidFrameArtwork), () => VerifyKraidFrameArtwork()),
+        new(nameof(VerifyEnemySpritemapFrameArtwork), () => VerifyEnemySpritemapFrameArtwork()),
+        new(nameof(VerifyBossBodyFrameArtwork), () => VerifyBossBodyFrameArtwork()),
+        new(nameof(VerifyGunshipFrameArtwork), () => VerifyGunshipFrameArtwork()),
     ];
-
-    /// <summary>Runs only Phantoon's and Draygon's installed body frames against retail.</summary>
-    [VerificationCommand("--installed-body-bg2-frames")]
-    internal static int InstalledBodyBg2FramesCommand()
-    {
-        var fixture = new EnemyTileFixture();
-        var (bus, directory, stock) = fixture;
-        Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
-        Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
-        return 0;
-    }
-
-    /// <summary>Runs only the installed extended enemy frames' comparison against retail.</summary>
-    [VerificationCommand("--installed-extended-frames")]
-    internal static int InstalledExtendedFramesCommand()
-    {
-        var fixture = new EnemyTileFixture();
-        var (bus, _, stock) = fixture;
-        Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, stock));
-        return 0;
-    }
-
-    /// <summary>Runs only the installed enemy spritemaps' comparison against retail.</summary>
-    [VerificationCommand("--installed-enemy-spritemaps")]
-    internal static int InstalledEnemySpritemapsCommand()
-    {
-        var fixture = new EnemyTileFixture();
-        var (bus, _, stock) = fixture;
-        Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, stock));
-        return 0;
-    }
 
     /// <summary>Runs only the installed Zebetite pulse-colour comparison against retail.</summary>
     [VerificationCommand("--zebetite-colors")]

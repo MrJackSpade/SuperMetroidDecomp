@@ -85,7 +85,13 @@ internal static class ScreenTilePicturesVerification
     /// Each phase of the opening cinematic and of the Ceres destruction that shows a turning floor draws it from its
     /// pictures exactly as its characters draw it, and the Ceres flight's caption draws its installed pictures.
     /// </summary>
-    internal static void VerifyCinematicScreenTilePictures()
+    internal static void VerifyIntroScreenTilePictures() => VerifyCinematicScreenTilePictures(intro: true);
+
+    /// <summary>The Ceres destruction's turning floor draws from its pictures as its characters do.</summary>
+    internal static void VerifyCeresDestructionScreenTilePictures() => VerifyCinematicScreenTilePictures(intro: false);
+
+    /// <summary>Checks the opening cinematic's floors and caption, or the Ceres destruction's floor.</summary>
+    private static void VerifyCinematicScreenTilePictures(bool intro)
     {
         var sampled = new HashSet<string>();
         int layers = 0;
@@ -94,28 +100,47 @@ internal static class ScreenTilePicturesVerification
             sampled.Add(name);
             layers += AssertFloorsDrawnFromCharacters(scene, vram, name);
         }
+        if (!intro)
+        {
+            VerifyDestructionFloors(Check);
+            Console.WriteLine($"Screen tile pictures: {sampled.Count} Ceres destruction phases draw all {layers} of their floor layers from their pictures, as their characters do.");
+            return;
+        }
         var audio = new AudioQueues();
-        IntroCinematicState intro = CreateRetailIntroFixture(audio);
+        IntroCinematicState introState = CreateRetailIntroFixture(audio);
         // The caption is installed pictures placed by scene state (#1467), not tiles, so its phase is checked for drawing them.
         bool captionPictured = false;
-        for (int tick = 0; !intro.CeresFlightFinished; tick++)
+        for (int tick = 0; !introState.CeresFlightFinished; tick++)
         {
-            string introName = intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
-                ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}";
+            string introName = introState.CurrentCeresFlight is { } flight && introState.Phase == IntroCinematicPhase.CeresFlight
+                ? $"Ceres flight {flight.Phase}" : $"intro {introState.Phase}";
             // A phase is checked once, so its scene is only captured until then, and its memory image only for that check.
             if (!sampled.Contains(introName))
             {
-                LayeredScene introScene = intro.CaptureTranslatedRenderSnapshot();
+                LayeredScene introScene = introState.CaptureTranslatedRenderSnapshot();
                 if (ShowsFloor(introScene))
                 {
-                    byte[] shownIntro = intro.ShownVram();
+                    byte[] shownIntro = introState.ShownVram();
                     Check(introScene, shownIntro, introName);
                 }
             }
-            if (!captionPictured && intro.Phase == IntroCinematicPhase.CeresFlight && intro.CurrentCeresFlight?.Phase == IntroCeresFlightPhase.SpaceColonyTitle)
-                captionPictured = intro.CaptureTranslatedRenderSnapshot().Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
-            intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
+            if (!captionPictured && introState.Phase == IntroCinematicPhase.CeresFlight && introState.CurrentCeresFlight?.Phase == IntroCeresFlightPhase.SpaceColonyTitle)
+                captionPictured = introState.CaptureTranslatedRenderSnapshot().Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
+            introState.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
+        }
+        AssertTrue(captionPictured, "the Ceres flight's caption draws its pictures");
+        Console.WriteLine($"Screen tile pictures: {sampled.Count} opening cinematic phases draw all {layers} of their floor layers from their pictures, as their characters do.");
+    }
+
+    /// <summary>Walks the Ceres destruction, handing each phase's scene and memory image to <paramref name="check"/> once.</summary>
+    private static void VerifyDestructionFloors(Action<LayeredScene, byte[], string> check)
+    {
+        var sampled = new HashSet<string>();
+        void Check(LayeredScene scene, byte[] vram, string name)
+        {
+            sampled.Add(name);
+            check(scene, vram, name);
         }
         CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();
         for (int frame = 0; frame < 5000 && !destruction.Finished; frame++)
@@ -133,9 +158,7 @@ internal static class ScreenTilePicturesVerification
             destruction.Step();
         }
         AssertTrue(destruction.Finished, $"the Ceres destruction finishes within 5000 updates (stopped in {destruction.Phase})");
-        AssertTrue(captionPictured, "the Ceres flight's caption draws its pictures");
-        AssertTrue(sampled.Any(name => name.StartsWith("Ceres destruction", StringComparison.Ordinal)), "the Ceres destruction's floor is checked");
-        Console.WriteLine($"Screen tile pictures: {sampled.Count} cinematic phases draw all {layers} of their floor layers from their pictures, as their characters do.");
+        AssertTrue(sampled.Any(), "the Ceres destruction's floor is checked");
     }
 
     /// <summary>
@@ -143,17 +166,28 @@ internal static class ScreenTilePicturesVerification
     /// suited ending stands for the suitless one, which shows the same floors, as the game time changes only the sprites.
     /// The ending's other backgrounds are pre-assembled pictures (#1467).
     /// </summary>
-    internal static void VerifyEndingScreenTilePictures()
+    internal static void VerifyEndingScreenTilePicturesBeforeCredits() => VerifyEndingScreenTilePictures(afterCredits: false);
+
+    /// <summary>The ending's one floor after the credits, the post-credits shot, draws from its tiles as its characters do.</summary>
+    internal static void VerifyEndingScreenTilePicturesAfterCredits() => VerifyEndingScreenTilePictures(afterCredits: true);
+
+    /// <summary>
+    /// Checks the ending's floor phases before the credits, stopping at them, or walks through them to check the floor
+    /// phases after them.
+    /// </summary>
+    private static void VerifyEndingScreenTilePictures(bool afterCredits)
     {
         var sampled = new HashSet<string>();
         int layers = 0;
         // The ending waits on its music queue, which the game drains after every dispatch.
         var audio = new AudioQueues();
         EndingCreditsState ending = CreateRetailEndingFixture(audio, 10, 59);
-        for (int tick = 0; ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission; tick++)
+        for (int tick = 0; ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission
+            && (afterCredits || ending.Stage.Phase < EndingCreditsPhase.Credits); tick++)
         {
             // A phase is checked once, so its scene is only built until then, every few updates.
-            if (tick % PhaseSampleUpdates == 0 && !sampled.Contains($"{ending.Stage.Phase}"))
+            if (tick % PhaseSampleUpdates == 0 && (ending.Stage.Phase > EndingCreditsPhase.Credits) == afterCredits
+                && !sampled.Contains($"{ending.Stage.Phase}"))
             {
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 if (ShowsFloor(scene))
@@ -166,7 +200,8 @@ internal static class ScreenTilePicturesVerification
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases draw all {layers} of their floor layers from their tiles, as their characters do.");
+        Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases {(afterCredits ? "after" : "before")} the credits draw all {layers} of their floor layers from their tiles, as their characters do.");
+        AssertTrue(sampled.Count > 0, $"the ending shows its floor {(afterCredits ? "after" : "before")} the credits");
     }
 
     /// <summary>
@@ -361,19 +396,35 @@ internal static class ScreenTilePicturesVerification
         return 0;
     }
 
-    /// <summary>Runs the cinematics' picture checks.</summary>
-    [VerificationCommand("--cinematic-screen-tile-pictures")]
-    internal static int CinematicScreenTilePicturesCommand()
+    /// <summary>Runs the opening cinematic's picture checks.</summary>
+    [VerificationCommand("--intro-screen-tile-pictures")]
+    internal static int IntroScreenTilePicturesCommand()
     {
-        Suite(nameof(VerifyCinematicScreenTilePictures), VerifyCinematicScreenTilePictures);
+        Suite(nameof(VerifyIntroScreenTilePictures), VerifyIntroScreenTilePictures);
         return 0;
     }
 
-    /// <summary>Runs the ending's picture checks.</summary>
-    [VerificationCommand("--ending-screen-tile-pictures")]
-    internal static int EndingScreenTilePicturesCommand()
+    /// <summary>Runs the Ceres destruction's picture checks.</summary>
+    [VerificationCommand("--ceres-destruction-screen-tile-pictures")]
+    internal static int CeresDestructionScreenTilePicturesCommand()
     {
-        Suite(nameof(VerifyEndingScreenTilePictures), VerifyEndingScreenTilePictures);
+        Suite(nameof(VerifyCeresDestructionScreenTilePictures), VerifyCeresDestructionScreenTilePictures);
+        return 0;
+    }
+
+    /// <summary>Runs the ending's picture checks before the credits.</summary>
+    [VerificationCommand("--ending-screen-tile-pictures-before-credits")]
+    internal static int EndingScreenTilePicturesBeforeCreditsCommand()
+    {
+        Suite(nameof(VerifyEndingScreenTilePicturesBeforeCredits), VerifyEndingScreenTilePicturesBeforeCredits);
+        return 0;
+    }
+
+    /// <summary>Runs the ending's picture checks after the credits.</summary>
+    [VerificationCommand("--ending-screen-tile-pictures-after-credits")]
+    internal static int EndingScreenTilePicturesAfterCreditsCommand()
+    {
+        Suite(nameof(VerifyEndingScreenTilePicturesAfterCredits), VerifyEndingScreenTilePicturesAfterCredits);
         return 0;
     }
 

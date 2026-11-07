@@ -48,11 +48,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex HardwareTerms = new(@"\b(SRAM|RAM|OBJ|BG[1-4])s?\b", RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// A routine label of the original program in a comment, an identifier joined by underscores
-    /// (<c>Handle_MapScrollArrows</c>, <c>kRoomPlms_</c>) (#1528). String literals are not read for labels: the installed
-    /// artwork's frame names are underscore-joined presentation keys.
+    /// A routine label of the original program in a comment: an identifier joined by underscores that has a capital letter
+    /// (<c>Handle_MapScrollArrows</c>, <c>kRoomPlms_</c>) (#1528). The installed artwork's frame names are lower-case
+    /// underscore-joined presentation keys (<c>draygon_frame_12</c>), so they are not labels; string literals are not read
+    /// for labels at all.
     /// </summary>
-    private static readonly Regex RoutineLabel = new(@"\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]*", RegexOptions.CultureInvariant);
+    private static readonly Regex RoutineLabel = new(@"\b(?=[A-Za-z0-9_]*[A-Z])[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]*", RegexOptions.CultureInvariant);
 
     /// <summary>The analyzers' same-line allowance markers: enforcement syntax, not prose, so their words are not read.</summary>
     private static readonly Regex AllowanceMarker = new(@"(cartridge-encoding|magic-number-audit): allow\(", RegexOptions.CultureInvariant);

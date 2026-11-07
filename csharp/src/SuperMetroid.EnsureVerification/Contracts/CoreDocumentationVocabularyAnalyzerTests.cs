@@ -43,6 +43,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /* the game natively wraps it */ }", "('natively')");
         // Routine labels are read only in comments: a string literal's underscore-joined frame name is a presentation key.
         Expect("class P { string Frame => \"mother_brain_body_initial\"; }");
+        // A lower-case frame name is a presentation key, not a routine label, even in a comment.
+        Expect("class P { /// <summary>The draygon_frame_12 picture.</summary>\nint F => 0; }");
         // Identifiers are not prose, and a word that only begins the same is not the term.
         Expect("class P { /// <summary>The ramp, the object and the background fade up; time is 12:30.</summary>\nint Ram => 0; }");
         Expect("class P { bool Debugger => false; int DirectPage => 0; }");

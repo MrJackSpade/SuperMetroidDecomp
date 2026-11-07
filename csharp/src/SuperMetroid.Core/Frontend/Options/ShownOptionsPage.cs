@@ -23,7 +23,7 @@ internal sealed record ShownOptionsPage(GameOptionsScreen Page, bool JapaneseTex
         GameOptionsScreen.Primary => [GameOptionsNames.PageFrame(Page),
             .. Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).Select(region => GameOptionsNames.LanguageFrame(region, JapaneseText))],
         GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese => [GameOptionsNames.PageFrame(Page),
-            .. Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount).Select(action => GameOptionsNames.ControllerLabelFrame(action,
+            .. GameOptionsLayout.ControllerActionRows.Select((action, row) => GameOptionsNames.ControllerLabelFrame(row,
                 GameOptionsNames.ControllerLabelButton(ControllerBindings.AssignableButtonIndex(Bindings[action]) ?? 0)))],
         GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => [GameOptionsNames.PageFrame(Page),
             GameOptionsNames.ToggleFrame(Page, GameOptionsToggle.IconCancel, IconCancelEnabled),

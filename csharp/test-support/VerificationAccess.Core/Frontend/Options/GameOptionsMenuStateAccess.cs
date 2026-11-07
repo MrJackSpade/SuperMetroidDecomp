@@ -28,8 +28,9 @@ internal static class GameOptionsMenuStateAccess
                     break;
                 case GameOptionsScreen.ControllerEnglish:
                 case GameOptionsScreen.ControllerJapanese:
-                    for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
-                        presentation.ApplyControllerLabel(tiles, action, Input.ControllerBindings.AssignableButtonIndex(shown.Bindings[action]) ?? 0);
+                    for (int row = 0; row < GameOptionsLayout.ControllerActionRows.Length; row++)
+                        presentation.ApplyControllerLabel(tiles, row,
+                            Input.ControllerBindings.AssignableButtonIndex(shown.Bindings[GameOptionsLayout.ControllerActionRows[row]]) ?? 0);
                     break;
                 case GameOptionsScreen.SpecialEnglish:
                 case GameOptionsScreen.SpecialJapanese:

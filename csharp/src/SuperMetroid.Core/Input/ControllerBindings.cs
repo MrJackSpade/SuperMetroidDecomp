@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
@@ -8,7 +10,7 @@ namespace SuperMetroid.Core.Input;
 /// <remarks>
 /// Most movement routines already compare their input against the default
 /// action bits. <see cref="Normalize"/> is the single equivalent of the game loading
-/// those configurable words before each comparison: it converts physical buttons into the
+/// those configurable bindings before each comparison: it converts physical buttons into the
 /// canonical action bits without making every movement routine own a second binding table.
 /// </remarks>
 public readonly record struct ControllerBindings(
@@ -20,15 +22,16 @@ public readonly record struct ControllerBindings(
     ControllerButton AimUp,
     ControllerButton AimDown)
 {
+    /// <summary>Every configurable action, in declaration order.</summary>
+    private static readonly ControllerAction[] Actions = Enum.GetValues<ControllerAction>();
+
     /// <summary>The literal bindings a new save file installs.</summary>
     /// <remarks>
     /// Independently reviewed for #1165: the new-save bindings are
     /// Shoot=X, Jump=A, Dash=B,
     /// ItemSelect=Select, ItemCancel=Y, AimUp=R, and
-    /// AimDown=L. The constructor and action indexer use menu row order
-    /// 0..6, which differs from the bindings' storage order for the final four fields.
-    /// These are named action-to-button cases. The existing constructor and bounded
-    /// action indexer already express that mapping without a stored lookup table.
+    /// AimDown=L. These are named action-to-button cases; the constructor and the
+    /// <see cref="ControllerAction"/> indexer already express that mapping without a stored lookup table.
     /// </remarks>
     public static ControllerBindings Default => new(
         Shoot: ControllerButton.X,
@@ -40,93 +43,71 @@ public readonly record struct ControllerBindings(
         AimDown: ControllerButton.L);
 
     /// <summary>
-    /// Number of physical buttons the options menu admits when it sets a binding.
-    /// </summary>
-    public const int AssignableButtonCount = 7;
-
-    /// <summary>
-    /// Physical button the options menu admits when it sets a binding, in the same order
-    /// as the options menu's button list. Its final Left/Right entries are not examined by that
-    /// step; only these first seven can be assigned in an ordinary retail options menu.
+    /// The physical buttons the options menu admits when it sets a binding, in the order of the options menu's button
+    /// list. Only these seven can be assigned in an ordinary retail options menu.
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165: the options menu's button list holds nine
     /// buttons: X, A, B, Select, Y, L, R, Left, Right. The managed seven-button prefix
     /// matches exactly; the final two follow the list, not assignable actions. Setting a
     /// binding starts at the seventh choice and scans backward to the first; saving the
-    /// controller settings uses the same seven choices. The managed menu scans these cases backward and
-    /// AssignAndSwap validates membership through the inverse mapping. Each case selects
-    /// a named controller button, so no numerical curve or stored span is needed.
-    /// Only indices 0..6 are supported; throw ArgumentOutOfRangeException.
+    /// controller settings uses the same seven choices. The managed menu scans this list backward and
+    /// AssignAndSwap validates membership through it.
     /// </remarks>
-    public static ControllerButton AssignableButton(int index) => index switch
-    {
-        0 => ControllerButton.X,
-        1 => ControllerButton.A,
-        2 => ControllerButton.B,
-        3 => ControllerButton.Select,
-        4 => ControllerButton.Y,
-        5 => ControllerButton.L,
-        6 => ControllerButton.R,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    public static ImmutableArray<ControllerButton> AssignableButtons { get; } =
+    [
+        ControllerButton.X,
+        ControllerButton.A,
+        ControllerButton.B,
+        ControllerButton.Select,
+        ControllerButton.Y,
+        ControllerButton.L,
+        ControllerButton.R,
+    ];
 
     /// <summary>
-    /// Inverse of <see cref="AssignableButton"/>; null for every other button set,
-    /// including combinations of valid buttons, directions, Start, and zero.
+    /// The position of <paramref name="button"/> in <see cref="AssignableButtons"/>; null for every other button set,
+    /// including combinations of valid buttons, directions, Start, and none.
     /// </summary>
-    public static int? AssignableButtonIndex(ControllerButton button) => button switch
+    public static int? AssignableButtonIndex(ControllerButton button)
     {
-        ControllerButton.X => 0,
-        ControllerButton.A => 1,
-        ControllerButton.B => 2,
-        ControllerButton.Select => 3,
-        ControllerButton.Y => 4,
-        ControllerButton.L => 5,
-        ControllerButton.R => 6,
-        ControllerButton.None or
-            ControllerButton.Right or
-            ControllerButton.Left or
-            ControllerButton.Down or
-            ControllerButton.Up or
-            ControllerButton.Start => null,
-        _ => null,
-    };
-
-    /// <summary>Returns one action's button using the controller-menu row order.</summary>
-    public ControllerButton this[int action]
-    {
-        get => action switch
-        {
-            0 => Shoot,
-            1 => Jump,
-            2 => Dash,
-            3 => ItemSelect,
-            4 => ItemCancel,
-            5 => AimUp,
-            6 => AimDown,
-            _ => throw new ArgumentOutOfRangeException(nameof(action)),
-        };
+        int index = AssignableButtons.IndexOf(button);
+        return index < 0 ? null : index;
     }
+
+    /// <summary>Returns the button bound to one action.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
+    public ControllerButton this[ControllerAction action] => action switch
+    {
+        ControllerAction.Shoot => Shoot,
+        ControllerAction.Jump => Jump,
+        ControllerAction.Dash => Dash,
+        ControllerAction.ItemSelect => ItemSelect,
+        ControllerAction.ItemCancel => ItemCancel,
+        ControllerAction.AimUp => AimUp,
+        ControllerAction.AimDown => AimDown,
+        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
+    };
 
     /// <summary>
     /// Reproduces the options screen's permutation swap. Assigning a physical button to one
     /// action moves that action's old button to whichever other action previously owned the
     /// requested button; the seven bindings therefore remain unique.
     /// </summary>
-    public ControllerBindings AssignAndSwap(int action, ControllerButton physicalButton)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="action"/> is not a defined action, or <paramref name="physicalButton"/> is not assignable.
+    /// </exception>
+    public ControllerBindings AssignAndSwap(ControllerAction action, ControllerButton physicalButton)
     {
-        if ((uint)action >= 7)
-            throw new ArgumentOutOfRangeException(nameof(action));
+        ControllerButton displaced = this[action];
         if (AssignableButtonIndex(physicalButton) is null)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(physicalButton), physicalButton, "Button is not retail-assignable.");
         }
 
-        ControllerButton displaced = this[action];
         ControllerBindings result = WithAction(action, physicalButton);
-        for (int other = 0; other < 7; other++)
+        foreach (ControllerAction other in Actions)
         {
             if (other != action && this[other] == physicalButton)
                 return result.WithAction(other, displaced);
@@ -158,18 +139,18 @@ public readonly record struct ControllerBindings(
         return normalized;
     }
 
-    /// <summary>True when all seven words are single, distinct retail-assignable buttons.</summary>
+    /// <summary>True when all seven bindings are single, distinct retail-assignable buttons.</summary>
     public bool IsRetailPermutation
     {
         get
         {
-            Span<ControllerButton> seen = stackalloc ControllerButton[7];
-            for (int action = 0; action < 7; action++)
+            Span<ControllerButton> seen = stackalloc ControllerButton[Actions.Length];
+            for (int index = 0; index < Actions.Length; index++)
             {
-                ControllerButton button = this[action];
-                if (AssignableButtonIndex(button) is null || seen[..action].Contains(button))
+                ControllerButton button = this[Actions[index]];
+                if (AssignableButtonIndex(button) is null || seen[..index].Contains(button))
                     return false;
-                seen[action] = button;
+                seen[index] = button;
             }
             return true;
         }
@@ -198,17 +179,18 @@ public readonly record struct ControllerBindings(
         return this;
     }
 
-    /// <summary>Replaces one menu-row action word while retaining the other six bindings.</summary>
-    private ControllerBindings WithAction(int action, ControllerButton value) => action switch
+    /// <summary>Replaces one action's button while retaining the other six bindings.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
+    private ControllerBindings WithAction(ControllerAction action, ControllerButton value) => action switch
     {
-        0 => this with { Shoot = value },
-        1 => this with { Jump = value },
-        2 => this with { Dash = value },
-        3 => this with { ItemSelect = value },
-        4 => this with { ItemCancel = value },
-        5 => this with { AimUp = value },
-        6 => this with { AimDown = value },
-        _ => throw new ArgumentOutOfRangeException(nameof(action)),
+        ControllerAction.Shoot => this with { Shoot = value },
+        ControllerAction.Jump => this with { Jump = value },
+        ControllerAction.Dash => this with { Dash = value },
+        ControllerAction.ItemSelect => this with { ItemSelect = value },
+        ControllerAction.ItemCancel => this with { ItemCancel = value },
+        ControllerAction.AimUp => this with { AimUp = value },
+        ControllerAction.AimDown => this with { AimDown = value },
+        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
     };
 
     /// <summary>Sets a canonical action bit when its configured physical button is pressed in the sampled input.</summary>

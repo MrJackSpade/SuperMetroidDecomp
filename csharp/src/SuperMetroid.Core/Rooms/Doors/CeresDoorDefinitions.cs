@@ -4,33 +4,33 @@
 [NumberedIdentities("Each numbered door is one door of its room, named by its place in that room's door list; every door has its own destination and is used by name, never iterated or indexed.")]
 public static class CeresDoorDefinitions
 {
-    /// <summary>The <c>Door_CeresElev_0</c> door.</summary>
+    /// <summary>The Ceres Elevator room's door 0.</summary>
     public static DoorDefinition CeresElev0 { get; } = DoorDefinitions.Find(nameof(CeresElev0));
 
-    /// <summary>The <c>Door_FallingTile_0</c> door.</summary>
+    /// <summary>The Falling Tile room's door 0.</summary>
     public static DoorDefinition FallingTile0 { get; } = DoorDefinitions.Find(nameof(FallingTile0));
 
-    /// <summary>The <c>Door_FallingTile_1</c> door.</summary>
+    /// <summary>The Falling Tile room's door 1.</summary>
     public static DoorDefinition FallingTile1 { get; } = DoorDefinitions.Find(nameof(FallingTile1));
 
-    /// <summary>The <c>Door_MagnetStairs_0</c> door.</summary>
+    /// <summary>The Magnet Stairs room's door 0.</summary>
     public static DoorDefinition MagnetStairs0 { get; } = DoorDefinitions.Find(nameof(MagnetStairs0));
 
-    /// <summary>The <c>Door_MagnetStairs_1</c> door.</summary>
+    /// <summary>The Magnet Stairs room's door 1.</summary>
     public static DoorDefinition MagnetStairs1 { get; } = DoorDefinitions.Find(nameof(MagnetStairs1));
 
-    /// <summary>The <c>Door_DeadScientist_0</c> door.</summary>
+    /// <summary>The Dead Scientist room's door 0.</summary>
     public static DoorDefinition DeadScientist0 { get; } = DoorDefinitions.Find(nameof(DeadScientist0));
 
-    /// <summary>The <c>Door_DeadScientist_1</c> door.</summary>
+    /// <summary>The Dead Scientist room's door 1.</summary>
     public static DoorDefinition DeadScientist1 { get; } = DoorDefinitions.Find(nameof(DeadScientist1));
 
-    /// <summary>The <c>Door_58Escape_0</c> door.</summary>
+    /// <summary>The Room 58 Escape's door 0.</summary>
     public static DoorDefinition Room58Escape0 { get; } = DoorDefinitions.Find(nameof(Room58Escape0));
 
-    /// <summary>The <c>Door_58Escape_1</c> door.</summary>
+    /// <summary>The Room 58 Escape's door 1.</summary>
     public static DoorDefinition Room58Escape1 { get; } = DoorDefinitions.Find(nameof(Room58Escape1));
 
-    /// <summary>The <c>Door_CeresRidley</c> door.</summary>
+    /// <summary>The Ceres Ridley room's door.</summary>
     public static DoorDefinition CeresRidley { get; } = DoorDefinitions.Find(nameof(CeresRidley));
 }

@@ -180,322 +180,322 @@ public static class RoomScrollDefinitions
     /// <summary>The implicit layout whose every row is green.</summary>
     public static RoomScrollDefinition AllGreen { get; } = RoomScrollDefinition.Implicit(nameof(AllGreen), RoomScrollState.Green);
 
-    /// <summary>The <c>RoomScrolls_LandingSite</c> allocation.</summary>
+    /// <summary>The Landing Site room's screen scroll layout.</summary>
     public static RoomScrollDefinition LandingSite { get; } = Find(nameof(LandingSite));
-    /// <summary>The <c>RoomScrolls_Parlor</c> allocation.</summary>
+    /// <summary>The Parlor room's screen scroll layout.</summary>
     public static RoomScrollDefinition Parlor { get; } = Find(nameof(Parlor));
-    /// <summary>The <c>RoomScrolls_CrateriaPowerBomb</c> allocation.</summary>
+    /// <summary>The Crateria Power Bomb room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrateriaPowerBomb { get; } = Find(nameof(CrateriaPowerBomb));
-    /// <summary>The <c>RoomScrolls_WestOcean</c> allocation.</summary>
+    /// <summary>The West Ocean room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestOcean { get; } = Find(nameof(WestOcean));
-    /// <summary>The <c>RoomScrolls_CrateriaKihunter</c> allocation.</summary>
+    /// <summary>The Crateria Kihunter room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
-    /// <summary>The <c>RoomScrolls_ForgottenHighwayElev</c> allocation.</summary>
+    /// <summary>The Forgotten Highway Elevator room's screen scroll layout.</summary>
     public static RoomScrollDefinition ForgottenHighwayElev { get; } = Find(nameof(ForgottenHighwayElev));
-    /// <summary>The <c>RoomScrolls_EastOcean</c> allocation.</summary>
+    /// <summary>The East Ocean room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastOcean { get; } = Find(nameof(EastOcean));
-    /// <summary>The <c>RoomScrolls_ForgottenHighwayElbow</c> allocation.</summary>
+    /// <summary>The Forgotten Highway Elbow room's screen scroll layout.</summary>
     public static RoomScrollDefinition ForgottenHighwayElbow { get; } = Find(nameof(ForgottenHighwayElbow));
-    /// <summary>The <c>RoomScrolls_RedBinstarElev</c> allocation.</summary>
+    /// <summary>The Red Brinstar Elevator room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedBinstarElev { get; } = Find(nameof(RedBinstarElev));
-    /// <summary>The <c>RoomScrolls_GauntletETank</c> allocation.</summary>
+    /// <summary>The Gauntlet Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition GauntletETank { get; } = Find(nameof(GauntletETank));
-    /// <summary>The <c>RoomScrolls_Climb</c> allocation.</summary>
+    /// <summary>The Climb room's screen scroll layout.</summary>
     public static RoomScrollDefinition Climb { get; } = Find(nameof(Climb));
-    /// <summary>The <c>RoomScrolls_Pit</c> allocation.</summary>
+    /// <summary>The Pit room's screen scroll layout.</summary>
     public static RoomScrollDefinition Pit { get; } = Find(nameof(Pit));
-    /// <summary>The <c>RoomScrolls_ElevToBlueBrinstar</c> allocation.</summary>
+    /// <summary>The Elevator to Blue Brinstar room's screen scroll layout.</summary>
     public static RoomScrollDefinition ElevToBlueBrinstar { get; } = Find(nameof(ElevToBlueBrinstar));
-    /// <summary>The <c>RoomScrolls_GreenBrinstarElev</c> allocation.</summary>
+    /// <summary>The Green Brinstar Elevator room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenBrinstarElev { get; } = Find(nameof(GreenBrinstarElev));
-    /// <summary>The <c>RoomScrolls_GreenPiratesShaft</c> allocation.</summary>
+    /// <summary>The Green Pirates Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenPiratesShaft { get; } = Find(nameof(GreenPiratesShaft));
-    /// <summary>The <c>RoomScrolls_CrateriaSuper</c> allocation.</summary>
+    /// <summary>The Crateria Super room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrateriaSuper { get; } = Find(nameof(CrateriaSuper));
-    /// <summary>The <c>RoomScrolls_FinalMissileBombway</c> allocation.</summary>
+    /// <summary>The Final Missile Bombway room's screen scroll layout.</summary>
     public static RoomScrollDefinition FinalMissileBombway { get; } = Find(nameof(FinalMissileBombway));
-    /// <summary>The <c>RoomScrolls_FinalMissile</c> allocation.</summary>
+    /// <summary>The Final Missile room's screen scroll layout.</summary>
     public static RoomScrollDefinition FinalMissile { get; } = Find(nameof(FinalMissile));
-    /// <summary>The <c>RoomScrolls_GreenBrinstarMainShaft</c> allocation.</summary>
+    /// <summary>The Green Brinstar Main Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenBrinstarMainShaft { get; } = Find(nameof(GreenBrinstarMainShaft));
-    /// <summary>The <c>RoomScrolls_SporeSpawnSuper</c> allocation.</summary>
+    /// <summary>The Spore Spawn Super room's screen scroll layout.</summary>
     public static RoomScrollDefinition SporeSpawnSuper { get; } = Find(nameof(SporeSpawnSuper));
-    /// <summary>The <c>RoomScrolls_EarlySupers</c> allocation.</summary>
+    /// <summary>The Early Supers room's screen scroll layout.</summary>
     public static RoomScrollDefinition EarlySupers { get; } = Find(nameof(EarlySupers));
-    /// <summary>The <c>RoomScrolls_BrinstarReserveTank</c> allocation.</summary>
+    /// <summary>The Brinstar Reserve Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition BrinstarReserveTank { get; } = Find(nameof(BrinstarReserveTank));
-    /// <summary>The <c>RoomScrolls_GreenBrinstarMissileRefill</c> allocation.</summary>
+    /// <summary>The Green Brinstar Missile Refill room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenBrinstarMissileRefill { get; } = Find(nameof(GreenBrinstarMissileRefill));
-    /// <summary>The <c>RoomScrolls_Dachora</c> allocation.</summary>
+    /// <summary>The Dachora room's screen scroll layout.</summary>
     public static RoomScrollDefinition Dachora { get; } = Find(nameof(Dachora));
-    /// <summary>The <c>RoomScrolls_BigPink</c> allocation.</summary>
+    /// <summary>The Big Pink room's screen scroll layout.</summary>
     public static RoomScrollDefinition BigPink { get; } = Find(nameof(BigPink));
-    /// <summary>The <c>RoomScrolls_PinkBrinstarPowerBombs</c> allocation.</summary>
+    /// <summary>The Pink Brinstar Power Bombs room's screen scroll layout.</summary>
     public static RoomScrollDefinition PinkBrinstarPowerBombs { get; } = Find(nameof(PinkBrinstarPowerBombs));
-    /// <summary>The <c>RoomScrolls_GreenHillZone</c> allocation.</summary>
+    /// <summary>The Green Hill Zone room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenHillZone { get; } = Find(nameof(GreenHillZone));
-    /// <summary>The <c>RoomScrolls_MorphBall</c> allocation.</summary>
+    /// <summary>The Morph Ball room's screen scroll layout.</summary>
     public static RoomScrollDefinition MorphBall { get; } = Find(nameof(MorphBall));
-    /// <summary>The <c>RoomScrolls_ConstructionZone</c> allocation.</summary>
+    /// <summary>The Construction Zone room's screen scroll layout.</summary>
     public static RoomScrollDefinition ConstructionZone { get; } = Find(nameof(ConstructionZone));
-    /// <summary>The <c>RoomScrolls_BlueBrinstarETank</c> allocation.</summary>
+    /// <summary>The Blue Brinstar Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition BlueBrinstarETank { get; } = Find(nameof(BlueBrinstarETank));
-    /// <summary>The <c>RoomScrolls_GreenBrinstarBeetoms</c> allocation.</summary>
+    /// <summary>The Green Brinstar Beetoms room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenBrinstarBeetoms { get; } = Find(nameof(GreenBrinstarBeetoms));
-    /// <summary>The <c>RoomScrolls_EtecoonETank</c> allocation.</summary>
+    /// <summary>The Etecoon Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition EtecoonETank { get; } = Find(nameof(EtecoonETank));
-    /// <summary>The <c>RoomScrolls_EtecoonSuper</c> allocation.</summary>
+    /// <summary>The Etecoon Super room's screen scroll layout.</summary>
     public static RoomScrollDefinition EtecoonSuper { get; } = Find(nameof(EtecoonSuper));
-    /// <summary>The <c>RoomScrolls_SporeSpawnFarming</c> allocation.</summary>
+    /// <summary>The Spore Spawn Farming room's screen scroll layout.</summary>
     public static RoomScrollDefinition SporeSpawnFarming { get; } = Find(nameof(SporeSpawnFarming));
-    /// <summary>The <c>RoomScrolls_WaterwayETank</c> allocation.</summary>
+    /// <summary>The Waterway Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition WaterwayETank { get; } = Find(nameof(WaterwayETank));
-    /// <summary>The <c>RoomScrolls_RedTower</c> allocation.</summary>
+    /// <summary>The Red Tower room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedTower { get; } = Find(nameof(RedTower));
-    /// <summary>The <c>RoomScrolls_RedBrinstarFirefleas</c> allocation.</summary>
+    /// <summary>The Red Brinstar Firefleas room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedBrinstarFirefleas { get; } = Find(nameof(RedBrinstarFirefleas));
-    /// <summary>The <c>RoomScrolls_Caterpillar</c> allocation.</summary>
+    /// <summary>The Caterpillar room's screen scroll layout.</summary>
     public static RoomScrollDefinition Caterpillar { get; } = Find(nameof(Caterpillar));
-    /// <summary>The <c>RoomScrolls_BetaPowerBomb</c> allocation.</summary>
+    /// <summary>The Beta Power Bomb room's screen scroll layout.</summary>
     public static RoomScrollDefinition BetaPowerBomb { get; } = Find(nameof(BetaPowerBomb));
-    /// <summary>The <c>RoomScrolls_AlphaPowerBomb</c> allocation.</summary>
+    /// <summary>The Alpha Power Bomb room's screen scroll layout.</summary>
     public static RoomScrollDefinition AlphaPowerBomb { get; } = Find(nameof(AlphaPowerBomb));
-    /// <summary>The <c>RoomScrolls_BelowSpazer</c> allocation.</summary>
+    /// <summary>The Below Spazer room's screen scroll layout.</summary>
     public static RoomScrollDefinition BelowSpazer { get; } = Find(nameof(BelowSpazer));
-    /// <summary>The <c>RoomScrolls_Spazer</c> allocation.</summary>
+    /// <summary>The Spazer room's screen scroll layout.</summary>
     public static RoomScrollDefinition Spazer { get; } = Find(nameof(Spazer));
-    /// <summary>The <c>RoomScrolls_WarehouseZeela</c> allocation.</summary>
+    /// <summary>The Warehouse Zeela room's screen scroll layout.</summary>
     public static RoomScrollDefinition WarehouseZeela { get; } = Find(nameof(WarehouseZeela));
-    /// <summary>The <c>RoomScrolls_WarehouseKihunter</c> allocation.</summary>
+    /// <summary>The Warehouse Kihunter room's screen scroll layout.</summary>
     public static RoomScrollDefinition WarehouseKihunter { get; } = Find(nameof(WarehouseKihunter));
-    /// <summary>The <c>RoomScrolls_KraidEyeDoor</c> allocation.</summary>
+    /// <summary>The Kraid Eye Door room's screen scroll layout.</summary>
     public static RoomScrollDefinition KraidEyeDoor { get; } = Find(nameof(KraidEyeDoor));
-    /// <summary>The <c>RoomScrolls_Kraid</c> allocation.</summary>
+    /// <summary>The Kraid room's screen scroll layout.</summary>
     public static RoomScrollDefinition Kraid { get; } = Find(nameof(Kraid));
-    /// <summary>The <c>RoomScrolls_Statues</c> allocation.</summary>
+    /// <summary>The Statues room's screen scroll layout.</summary>
     public static RoomScrollDefinition Statues { get; } = Find(nameof(Statues));
-    /// <summary>The <c>RoomScrolls_WarehouseEntrance</c> allocation.</summary>
+    /// <summary>The Warehouse Entrance room's screen scroll layout.</summary>
     public static RoomScrollDefinition WarehouseEntrance { get; } = Find(nameof(WarehouseEntrance));
-    /// <summary>The <c>RoomScrolls_IceBeamGate</c> allocation.</summary>
+    /// <summary>The Ice Beam Gate room's screen scroll layout.</summary>
     public static RoomScrollDefinition IceBeamGate { get; } = Find(nameof(IceBeamGate));
-    /// <summary>The <c>RoomScrolls_IceBeamSnake</c> allocation.</summary>
+    /// <summary>The Ice Beam Snake room's screen scroll layout.</summary>
     public static RoomScrollDefinition IceBeamSnake { get; } = Find(nameof(IceBeamSnake));
-    /// <summary>The <c>RoomScrolls_CrocomireSpeedway</c> allocation.</summary>
+    /// <summary>The Crocomire Speedway room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrocomireSpeedway { get; } = Find(nameof(CrocomireSpeedway));
-    /// <summary>The <c>RoomScrolls_Crocomire</c> allocation.</summary>
+    /// <summary>The Crocomire room's screen scroll layout.</summary>
     public static RoomScrollDefinition Crocomire { get; } = Find(nameof(Crocomire));
-    /// <summary>The <c>RoomScrolls_CrocomireEscape</c> allocation.</summary>
+    /// <summary>The Crocomire Escape room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrocomireEscape { get; } = Find(nameof(CrocomireEscape));
-    /// <summary>The <c>RoomScrolls_HiJumpETank</c> allocation.</summary>
+    /// <summary>The Hi-Jump Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition HiJumpETank { get; } = Find(nameof(HiJumpETank));
-    /// <summary>The <c>RoomScrolls_PostCrocFarming</c> allocation.</summary>
+    /// <summary>The Post-Crocomire Farming room's screen scroll layout.</summary>
     public static RoomScrollDefinition PostCrocFarming { get; } = Find(nameof(PostCrocFarming));
-    /// <summary>The <c>RoomScrolls_PostCrocShaft</c> allocation.</summary>
+    /// <summary>The Post-Crocomire Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition PostCrocShaft { get; } = Find(nameof(PostCrocShaft));
-    /// <summary>The <c>RoomScrolls_PostCrocJump</c> allocation.</summary>
+    /// <summary>The Post-Crocomire Jump room's screen scroll layout.</summary>
     public static RoomScrollDefinition PostCrocJump { get; } = Find(nameof(PostCrocJump));
-    /// <summary>The <c>RoomScrolls_GrappleTutorial2</c> allocation.</summary>
+    /// <summary>The Grapple Tutorial 2 room's screen scroll layout.</summary>
     public static RoomScrollDefinition GrappleTutorial2 { get; } = Find(nameof(GrappleTutorial2));
-    /// <summary>The <c>RoomScrolls_GrappleBeam</c> allocation.</summary>
+    /// <summary>The Grapple Beam room's screen scroll layout.</summary>
     public static RoomScrollDefinition GrappleBeam { get; } = Find(nameof(GrappleBeam));
-    /// <summary>The <c>RoomScrolls_GreenBubblesMissiles</c> allocation.</summary>
+    /// <summary>The Green Bubbles Missiles room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenBubblesMissiles { get; } = Find(nameof(GreenBubblesMissiles));
-    /// <summary>The <c>RoomScrolls_BubbleMountain</c> allocation.</summary>
+    /// <summary>The Bubble Mountain room's screen scroll layout.</summary>
     public static RoomScrollDefinition BubbleMountain { get; } = Find(nameof(BubbleMountain));
-    /// <summary>The <c>RoomScrolls_SingleChamber</c> allocation.</summary>
+    /// <summary>The Single Chamber room's screen scroll layout.</summary>
     public static RoomScrollDefinition SingleChamber { get; } = Find(nameof(SingleChamber));
-    /// <summary>The <c>RoomScrolls_DoubleChamber</c> allocation.</summary>
+    /// <summary>The Double Chamber room's screen scroll layout.</summary>
     public static RoomScrollDefinition DoubleChamber { get; } = Find(nameof(DoubleChamber));
-    /// <summary>The <c>RoomScrolls_Volcano</c> allocation.</summary>
+    /// <summary>The Volcano room's screen scroll layout.</summary>
     public static RoomScrollDefinition Volcano { get; } = Find(nameof(Volcano));
-    /// <summary>The <c>RoomScrolls_KronicBoost</c> allocation.</summary>
+    /// <summary>The Kronic Boost room's screen scroll layout.</summary>
     public static RoomScrollDefinition KronicBoost { get; } = Find(nameof(KronicBoost));
-    /// <summary>The <c>RoomScrolls_PurpleShaft</c> allocation.</summary>
+    /// <summary>The Purple Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition PurpleShaft { get; } = Find(nameof(PurpleShaft));
-    /// <summary>The <c>RoomScrolls_LowerNorfairElev</c> allocation.</summary>
+    /// <summary>The Lower Norfair Elevator room's screen scroll layout.</summary>
     public static RoomScrollDefinition LowerNorfairElev { get; } = Find(nameof(LowerNorfairElev));
-    /// <summary>The <c>RoomScrolls_UpperNorfairFarming</c> allocation.</summary>
+    /// <summary>The Upper Norfair Farming room's screen scroll layout.</summary>
     public static RoomScrollDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
-    /// <summary>The <c>RoomScrolls_BatCave</c> allocation.</summary>
+    /// <summary>The Bat Cave room's screen scroll layout.</summary>
     public static RoomScrollDefinition BatCave { get; } = Find(nameof(BatCave));
-    /// <summary>The <c>RoomScrolls_FrogSpeedway</c> allocation.</summary>
+    /// <summary>The Frog Speedway room's screen scroll layout.</summary>
     public static RoomScrollDefinition FrogSpeedway { get; } = Find(nameof(FrogSpeedway));
-    /// <summary>The <c>RoomScrolls_RedPirateShaft</c> allocation.</summary>
+    /// <summary>The Red Pirate Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedPirateShaft { get; } = Find(nameof(RedPirateShaft));
-    /// <summary>The <c>RoomScrolls_LNElevSave</c> allocation.</summary>
+    /// <summary>The Lower Norfair Elevator Save room's screen scroll layout.</summary>
     public static RoomScrollDefinition LNElevSave { get; } = Find(nameof(LNElevSave));
-    /// <summary>The <c>RoomScrolls_AcidStatue</c> allocation.</summary>
+    /// <summary>The Acid Statue room's screen scroll layout.</summary>
     public static RoomScrollDefinition AcidStatue { get; } = Find(nameof(AcidStatue));
-    /// <summary>The <c>RoomScrolls_MainHall</c> allocation.</summary>
+    /// <summary>The Main Hall room's screen scroll layout.</summary>
     public static RoomScrollDefinition MainHall { get; } = Find(nameof(MainHall));
-    /// <summary>The <c>RoomScrolls_GoldenTorizo</c> allocation.</summary>
+    /// <summary>The Golden Torizo room's screen scroll layout.</summary>
     public static RoomScrollDefinition GoldenTorizo { get; } = Find(nameof(GoldenTorizo));
-    /// <summary>The <c>RoomScrolls_Ridley</c> allocation.</summary>
+    /// <summary>The Ridley room's screen scroll layout.</summary>
     public static RoomScrollDefinition Ridley { get; } = Find(nameof(Ridley));
-    /// <summary>The <c>RoomScrolls_FastPillarsSetup</c> allocation.</summary>
+    /// <summary>The Fast Pillars Setup room's screen scroll layout.</summary>
     public static RoomScrollDefinition FastPillarsSetup { get; } = Find(nameof(FastPillarsSetup));
-    /// <summary>The <c>RoomScrolls_MickeyMouse</c> allocation.</summary>
+    /// <summary>The Mickey Mouse room's screen scroll layout.</summary>
     public static RoomScrollDefinition MickeyMouse { get; } = Find(nameof(MickeyMouse));
-    /// <summary>The <c>RoomScrolls_WorstRoomInTheGame</c> allocation.</summary>
+    /// <summary>The Worst Room in the Game's screen scroll layout.</summary>
     public static RoomScrollDefinition WorstRoomInTheGame { get; } = Find(nameof(WorstRoomInTheGame));
-    /// <summary>The <c>RoomScrolls_LNSpringBallMaze</c> allocation.</summary>
+    /// <summary>The Lower Norfair Spring Ball Maze room's screen scroll layout.</summary>
     public static RoomScrollDefinition LNSpringBallMaze { get; } = Find(nameof(LNSpringBallMaze));
-    /// <summary>The <c>RoomScrolls_RedKihunterShaft</c> allocation.</summary>
+    /// <summary>The Red Kihunter Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedKihunterShaft { get; } = Find(nameof(RedKihunterShaft));
-    /// <summary>The <c>RoomScrolls_Wasteland</c> allocation.</summary>
+    /// <summary>The Wasteland room's screen scroll layout.</summary>
     public static RoomScrollDefinition Wasteland { get; } = Find(nameof(Wasteland));
-    /// <summary>The <c>RoomScrolls_ThreeMusketeers</c> allocation.</summary>
+    /// <summary>The Three Musketeers room's screen scroll layout.</summary>
     public static RoomScrollDefinition ThreeMusketeers { get; } = Find(nameof(ThreeMusketeers));
-    /// <summary>The <c>RoomScrolls_LNFireflea</c> allocation.</summary>
+    /// <summary>The Lower Norfair Fireflea room's screen scroll layout.</summary>
     public static RoomScrollDefinition LNFireflea { get; } = Find(nameof(LNFireflea));
-    /// <summary>The <c>RoomScrolls_BowlingAlley</c> allocation.</summary>
+    /// <summary>The Bowling Alley room's screen scroll layout.</summary>
     public static RoomScrollDefinition BowlingAlley { get; } = Find(nameof(BowlingAlley));
-    /// <summary>The <c>RoomScrolls_Attic</c> allocation.</summary>
+    /// <summary>The Attic room's screen scroll layout.</summary>
     public static RoomScrollDefinition Attic { get; } = Find(nameof(Attic));
-    /// <summary>The <c>RoomScrolls_WreckedShipMainShaft</c> allocation.</summary>
+    /// <summary>The Wrecked Ship Main Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition WreckedShipMainShaft { get; } = Find(nameof(WreckedShipMainShaft));
-    /// <summary>The <c>RoomScrolls_ElectricDeath</c> allocation.</summary>
+    /// <summary>The Electric Death room's screen scroll layout.</summary>
     public static RoomScrollDefinition ElectricDeath { get; } = Find(nameof(ElectricDeath));
-    /// <summary>The <c>RoomScrolls_Basement</c> allocation.</summary>
+    /// <summary>The Basement room's screen scroll layout.</summary>
     public static RoomScrollDefinition Basement { get; } = Find(nameof(Basement));
-    /// <summary>The <c>RoomScrolls_Phantoon</c> allocation.</summary>
+    /// <summary>The Phantoon room's screen scroll layout.</summary>
     public static RoomScrollDefinition Phantoon { get; } = Find(nameof(Phantoon));
-    /// <summary>The <c>RoomScrolls_SpongeBath</c> allocation.</summary>
+    /// <summary>The Sponge Bath room's screen scroll layout.</summary>
     public static RoomScrollDefinition SpongeBath { get; } = Find(nameof(SpongeBath));
-    /// <summary>The <c>RoomScrolls_WSWestSuper</c> allocation.</summary>
+    /// <summary>The Wrecked Ship West Super room's screen scroll layout.</summary>
     public static RoomScrollDefinition WSWestSuper { get; } = Find(nameof(WSWestSuper));
-    /// <summary>The <c>RoomScrolls_WSEastSuper</c> allocation.</summary>
+    /// <summary>The Wrecked Ship East Super room's screen scroll layout.</summary>
     public static RoomScrollDefinition WSEastSuper { get; } = Find(nameof(WSEastSuper));
-    /// <summary>The <c>RoomScrolls_GlassTunnel</c> allocation.</summary>
+    /// <summary>The Glass Tunnel room's screen scroll layout.</summary>
     public static RoomScrollDefinition GlassTunnel { get; } = Find(nameof(GlassTunnel));
-    /// <summary>The <c>RoomScrolls_WestTunnel</c> allocation.</summary>
+    /// <summary>The West Tunnel room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestTunnel { get; } = Find(nameof(WestTunnel));
-    /// <summary>The <c>RoomScrolls_EastTunnel</c> allocation.</summary>
+    /// <summary>The East Tunnel room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastTunnel { get; } = Find(nameof(EastTunnel));
-    /// <summary>The <c>RoomScrolls_MainStreet</c> allocation.</summary>
+    /// <summary>The Main Street room's screen scroll layout.</summary>
     public static RoomScrollDefinition MainStreet { get; } = Find(nameof(MainStreet));
-    /// <summary>The <c>RoomScrolls_FishTank</c> allocation.</summary>
+    /// <summary>The Fish Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition FishTank { get; } = Find(nameof(FishTank));
-    /// <summary>The <c>RoomScrolls_MamaTurtle</c> allocation.</summary>
+    /// <summary>The Mama Turtle room's screen scroll layout.</summary>
     public static RoomScrollDefinition MamaTurtle { get; } = Find(nameof(MamaTurtle));
-    /// <summary>The <c>RoomScrolls_CrabTunnel</c> allocation.</summary>
+    /// <summary>The Crab Tunnel room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrabTunnel { get; } = Find(nameof(CrabTunnel));
-    /// <summary>The <c>RoomScrolls_MtEverest</c> allocation.</summary>
+    /// <summary>The Mt. Everest room's screen scroll layout.</summary>
     public static RoomScrollDefinition MtEverest { get; } = Find(nameof(MtEverest));
-    /// <summary>The <c>RoomScrolls_RedFish</c> allocation.</summary>
+    /// <summary>The Red Fish room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedFish { get; } = Find(nameof(RedFish));
-    /// <summary>The <c>RoomScrolls_WateringHole</c> allocation.</summary>
+    /// <summary>The Watering Hole room's screen scroll layout.</summary>
     public static RoomScrollDefinition WateringHole { get; } = Find(nameof(WateringHole));
-    /// <summary>The <c>RoomScrolls_NWestMaridiaBug</c> allocation.</summary>
+    /// <summary>The Northwest Maridia Bug room's screen scroll layout.</summary>
     public static RoomScrollDefinition NWestMaridiaBug { get; } = Find(nameof(NWestMaridiaBug));
-    /// <summary>The <c>RoomScrolls_CrabShaft</c> allocation.</summary>
+    /// <summary>The Crab Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrabShaft { get; } = Find(nameof(CrabShaft));
-    /// <summary>The <c>RoomScrolls_PseudoPlasmaSpark</c> allocation.</summary>
+    /// <summary>The Pseudo Plasma Spark room's screen scroll layout.</summary>
     public static RoomScrollDefinition PseudoPlasmaSpark { get; } = Find(nameof(PseudoPlasmaSpark));
-    /// <summary>The <c>RoomScrolls_CrabHole</c> allocation.</summary>
+    /// <summary>The Crab Hole room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrabHole { get; } = Find(nameof(CrabHole));
-    /// <summary>The <c>RoomScrolls_WestSandHallTunnel</c> allocation.</summary>
+    /// <summary>The West Sand Hall Tunnel room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestSandHallTunnel { get; } = Find(nameof(WestSandHallTunnel));
-    /// <summary>The <c>RoomScrolls_PlasmaTutorial</c> allocation.</summary>
+    /// <summary>The Plasma Tutorial room's screen scroll layout.</summary>
     public static RoomScrollDefinition PlasmaTutorial { get; } = Find(nameof(PlasmaTutorial));
-    /// <summary>The <c>RoomScrolls_Plasma</c> allocation.</summary>
+    /// <summary>The Plasma room's screen scroll layout.</summary>
     public static RoomScrollDefinition Plasma { get; } = Find(nameof(Plasma));
-    /// <summary>The <c>RoomScrolls_ThreadTheNeedle</c> allocation.</summary>
+    /// <summary>The Thread the Needle room's screen scroll layout.</summary>
     public static RoomScrollDefinition ThreadTheNeedle { get; } = Find(nameof(ThreadTheNeedle));
-    /// <summary>The <c>RoomScrolls_MaridiaElev</c> allocation.</summary>
+    /// <summary>The Maridia Elevator room's screen scroll layout.</summary>
     public static RoomScrollDefinition MaridiaElev { get; } = Find(nameof(MaridiaElev));
-    /// <summary>The <c>RoomScrolls_PlasmaSpark</c> allocation.</summary>
+    /// <summary>The Plasma Spark room's screen scroll layout.</summary>
     public static RoomScrollDefinition PlasmaSpark { get; } = Find(nameof(PlasmaSpark));
-    /// <summary>The <c>RoomScrolls_Kassiuz</c> allocation.</summary>
+    /// <summary>The Kassiuz room's screen scroll layout.</summary>
     public static RoomScrollDefinition Kassiuz { get; } = Find(nameof(Kassiuz));
-    /// <summary>The <c>RoomScrolls_BugSandHole</c> allocation.</summary>
+    /// <summary>The Bug Sand Hole room's screen scroll layout.</summary>
     public static RoomScrollDefinition BugSandHole { get; } = Find(nameof(BugSandHole));
-    /// <summary>The <c>RoomScrolls_Oasis</c> allocation.</summary>
+    /// <summary>The Oasis room's screen scroll layout.</summary>
     public static RoomScrollDefinition Oasis { get; } = Find(nameof(Oasis));
-    /// <summary>The <c>RoomScrolls_WestSandHole</c> allocation.</summary>
+    /// <summary>The West Sand Hole room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestSandHole { get; } = Find(nameof(WestSandHole));
-    /// <summary>The <c>RoomScrolls_EastSandHole</c> allocation.</summary>
+    /// <summary>The East Sand Hole room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastSandHole { get; } = Find(nameof(EastSandHole));
-    /// <summary>The <c>RoomScrolls_WestAqueductQuicksand</c> allocation.</summary>
+    /// <summary>The West Aqueduct Quicksand room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestAqueductQuicksand { get; } = Find(nameof(WestAqueductQuicksand));
-    /// <summary>The <c>RoomScrolls_EastAqueductQuicksand</c> allocation.</summary>
+    /// <summary>The East Aqueduct Quicksand room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastAqueductQuicksand { get; } = Find(nameof(EastAqueductQuicksand));
-    /// <summary>The <c>RoomScrolls_Aqueduct</c> allocation.</summary>
+    /// <summary>The Aqueduct room's screen scroll layout.</summary>
     public static RoomScrollDefinition Aqueduct { get; } = Find(nameof(Aqueduct));
-    /// <summary>The <c>RoomScrolls_BotwoonHallway</c> allocation.</summary>
+    /// <summary>The Botwoon Hallway room's screen scroll layout.</summary>
     public static RoomScrollDefinition BotwoonHallway { get; } = Find(nameof(BotwoonHallway));
-    /// <summary>The <c>RoomScrolls_Pants</c> allocation.</summary>
+    /// <summary>The Pants room's screen scroll layout.</summary>
     public static RoomScrollDefinition Pants { get; } = Find(nameof(Pants));
-    /// <summary>The <c>RoomScrolls_EastPants</c> allocation.</summary>
+    /// <summary>The East Pants room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastPants { get; } = Find(nameof(EastPants));
-    /// <summary>The <c>RoomScrolls_Springball</c> allocation.</summary>
+    /// <summary>The Springball room's screen scroll layout.</summary>
     public static RoomScrollDefinition Springball { get; } = Find(nameof(Springball));
-    /// <summary>The <c>RoomScrolls_BelowBotwoonETank</c> allocation.</summary>
+    /// <summary>The Below Botwoon Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition BelowBotwoonETank { get; } = Find(nameof(BelowBotwoonETank));
-    /// <summary>The <c>RoomScrolls_Colosseum</c> allocation.</summary>
+    /// <summary>The Colosseum room's screen scroll layout.</summary>
     public static RoomScrollDefinition Colosseum { get; } = Find(nameof(Colosseum));
-    /// <summary>The <c>RoomScrolls_AqueductSave</c> allocation.</summary>
+    /// <summary>The Aqueduct Save room's screen scroll layout.</summary>
     public static RoomScrollDefinition AqueductSave { get; } = Find(nameof(AqueductSave));
-    /// <summary>The <c>RoomScrolls_ThePrecious</c> allocation.</summary>
+    /// <summary>The Precious room's screen scroll layout.</summary>
     public static RoomScrollDefinition ThePrecious { get; } = Find(nameof(ThePrecious));
-    /// <summary>The <c>RoomScrolls_BotwoonETank</c> allocation.</summary>
+    /// <summary>The Botwoon Energy Tank room's screen scroll layout.</summary>
     public static RoomScrollDefinition BotwoonETank { get; } = Find(nameof(BotwoonETank));
-    /// <summary>The <c>RoomScrolls_PlasmaBeachQuicksand</c> allocation.</summary>
+    /// <summary>The Plasma Beach Quicksand room's screen scroll layout.</summary>
     public static RoomScrollDefinition PlasmaBeachQuicksand { get; } = Find(nameof(PlasmaBeachQuicksand));
-    /// <summary>The <c>RoomScrolls_BotwoonQuicksand</c> allocation.</summary>
+    /// <summary>The Botwoon Quicksand room's screen scroll layout.</summary>
     public static RoomScrollDefinition BotwoonQuicksand { get; } = Find(nameof(BotwoonQuicksand));
-    /// <summary>The <c>RoomScrolls_Shaktool</c> allocation.</summary>
+    /// <summary>The Shaktool room's screen scroll layout.</summary>
     public static RoomScrollDefinition Shaktool { get; } = Find(nameof(Shaktool));
-    /// <summary>The <c>RoomScrolls_HalfieClimb</c> allocation.</summary>
+    /// <summary>The Halfie Climb room's screen scroll layout.</summary>
     public static RoomScrollDefinition HalfieClimb { get; } = Find(nameof(HalfieClimb));
-    /// <summary>The <c>RoomScrolls_Botwoon</c> allocation.</summary>
+    /// <summary>The Botwoon room's screen scroll layout.</summary>
     public static RoomScrollDefinition Botwoon { get; } = Find(nameof(Botwoon));
-    /// <summary>The <c>RoomScrolls_SpaceJump</c> allocation.</summary>
+    /// <summary>The Space Jump room's screen scroll layout.</summary>
     public static RoomScrollDefinition SpaceJump { get; } = Find(nameof(SpaceJump));
-    /// <summary>The <c>RoomScrolls_MaridiaEnergyRefill</c> allocation.</summary>
+    /// <summary>The Maridia Energy Refill room's screen scroll layout.</summary>
     public static RoomScrollDefinition MaridiaEnergyRefill { get; } = Find(nameof(MaridiaEnergyRefill));
-    /// <summary>The <c>RoomScrolls_WestCactusAlley</c> allocation.</summary>
+    /// <summary>The West Cactus Alley room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestCactusAlley { get; } = Find(nameof(WestCactusAlley));
-    /// <summary>The <c>RoomScrolls_EastCactusAlley</c> allocation.</summary>
+    /// <summary>The East Cactus Alley room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastCactusAlley { get; } = Find(nameof(EastCactusAlley));
-    /// <summary>The <c>RoomScrolls_Draygon</c> allocation.</summary>
+    /// <summary>The Draygon room's screen scroll layout.</summary>
     public static RoomScrollDefinition Draygon { get; } = Find(nameof(Draygon));
-    /// <summary>The <c>RoomScrolls_TourianFirst</c> allocation.</summary>
+    /// <summary>The Tourian First room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianFirst { get; } = Find(nameof(TourianFirst));
-    /// <summary>The <c>RoomScrolls_Metroids1</c> allocation.</summary>
+    /// <summary>The Metroids 1 room's screen scroll layout.</summary>
     public static RoomScrollDefinition Metroids1 { get; } = Find(nameof(Metroids1));
-    /// <summary>The <c>RoomScrolls_Metroids2</c> allocation.</summary>
+    /// <summary>The Metroids 2 room's screen scroll layout.</summary>
     public static RoomScrollDefinition Metroids2 { get; } = Find(nameof(Metroids2));
-    /// <summary>The <c>RoomScrolls_Metroids3</c> allocation.</summary>
+    /// <summary>The Metroids 3 room's screen scroll layout.</summary>
     public static RoomScrollDefinition Metroids3 { get; } = Find(nameof(Metroids3));
-    /// <summary>The <c>RoomScrolls_Metroids4</c> allocation.</summary>
+    /// <summary>The Metroids 4 room's screen scroll layout.</summary>
     public static RoomScrollDefinition Metroids4 { get; } = Find(nameof(Metroids4));
-    /// <summary>The <c>RoomScrolls_BlueHopper</c> allocation.</summary>
+    /// <summary>The Blue Hopper room's screen scroll layout.</summary>
     public static RoomScrollDefinition BlueHopper { get; } = Find(nameof(BlueHopper));
-    /// <summary>The <c>RoomScrolls_DustTorizo</c> allocation.</summary>
+    /// <summary>The Dust Torizo room's screen scroll layout.</summary>
     public static RoomScrollDefinition DustTorizo { get; } = Find(nameof(DustTorizo));
-    /// <summary>The <c>RoomScrolls_BigBoy</c> allocation.</summary>
+    /// <summary>The Big Boy room's screen scroll layout.</summary>
     public static RoomScrollDefinition BigBoy { get; } = Find(nameof(BigBoy));
-    /// <summary>The <c>RoomScrolls_Seaweed</c> allocation.</summary>
+    /// <summary>The Seaweed room's screen scroll layout.</summary>
     public static RoomScrollDefinition Seaweed { get; } = Find(nameof(Seaweed));
-    /// <summary>The <c>RoomScrolls_TourianRecharge</c> allocation.</summary>
+    /// <summary>The Tourian Recharge room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianRecharge { get; } = Find(nameof(TourianRecharge));
-    /// <summary>The <c>RoomScrolls_MotherBrain</c> allocation.</summary>
+    /// <summary>The Mother Brain room's screen scroll layout.</summary>
     public static RoomScrollDefinition MotherBrain { get; } = Find(nameof(MotherBrain));
-    /// <summary>The <c>RoomScrolls_TourianEyeDoor</c> allocation.</summary>
+    /// <summary>The Tourian Eye Door room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianEyeDoor { get; } = Find(nameof(TourianEyeDoor));
-    /// <summary>The <c>RoomScrolls_RinkaShaft</c> allocation.</summary>
+    /// <summary>The Rinka Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition RinkaShaft { get; } = Find(nameof(RinkaShaft));
-    /// <summary>The <c>RoomScrolls_MotherBrainSave</c> allocation.</summary>
+    /// <summary>The Mother Brain Save room's screen scroll layout.</summary>
     public static RoomScrollDefinition MotherBrainSave { get; } = Find(nameof(MotherBrainSave));
-    /// <summary>The <c>RoomScrolls_TourianEscape1</c> allocation.</summary>
+    /// <summary>The Tourian Escape 1 room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianEscape1 { get; } = Find(nameof(TourianEscape1));
-    /// <summary>The <c>RoomScrolls_TourianEscape2</c> allocation.</summary>
+    /// <summary>The Tourian Escape 2 room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianEscape2 { get; } = Find(nameof(TourianEscape2));
-    /// <summary>The <c>RoomScrolls_TourianEscape3</c> allocation.</summary>
+    /// <summary>The Tourian Escape 3 room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianEscape3 { get; } = Find(nameof(TourianEscape3));
-    /// <summary>The <c>RoomScrolls_TourianEscape4</c> allocation.</summary>
+    /// <summary>The Tourian Escape 4 room's screen scroll layout.</summary>
     public static RoomScrollDefinition TourianEscape4 { get; } = Find(nameof(TourianEscape4));
-    /// <summary>The <c>RoomScrolls_UpperTourianSave</c> allocation.</summary>
+    /// <summary>The Upper Tourian Save room's screen scroll layout.</summary>
     public static RoomScrollDefinition UpperTourianSave { get; } = Find(nameof(UpperTourianSave));
 }

@@ -91,24 +91,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns.</summary>
     private static readonly RoomSpriteObjectKind[] FakeKraidSpriteObjects = [];
 
-    /// <summary>The projectile frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns.</summary>
-    private static readonly EnemyProjectileFrameId[] MotherBrainProjectiles =
-    [
-        EnemyProjectileFrameId.CeresRidleyFrame11,
-        EnemyProjectileFrameId.CeresRidleyFrame12,
-        EnemyProjectileFrameId.CeresRidleyFrame13,
-        EnemyProjectileFrameId.CeresRidleyFrame14,
-        EnemyProjectileFrameId.CeresRidleyFrame15,
-        EnemyProjectileFrameId.CeresRidleyFrame21,
-        EnemyProjectileFrameId.CeresRidleyFrame22,
-        EnemyProjectileFrameId.CeresRidleyFrame23,
-        EnemyProjectileFrameId.CeresRidleyFrame24,
-        EnemyProjectileFrameId.CeresRidleyFrame25,
-    ];
-
-    /// <summary>The room sprite objects <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] MotherBrainSpriteObjects = [];
-
     /// <summary>The projectile frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] PhantoonProjectiles =
     [
@@ -554,6 +536,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.FallingSparkFrame00,
         EnemyProjectileFrameId.FallingSparkFrame01,
         EnemyProjectileFrameId.FallingSparkFrame02,
+        EnemyProjectileFrameId.FallingSparkFrame03,
+        EnemyProjectileFrameId.FallingSparkFrame05,
+        EnemyProjectileFrameId.FallingSparkFrame07,
+        EnemyProjectileFrameId.FallingSparkFrame09,
+        EnemyProjectileFrameId.FallingSparkFrame11,
+        EnemyProjectileFrameId.FallingSparkFrame13,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/Sparks/SparkBehavior.cs</c> spawns.</summary>
@@ -850,6 +838,10 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.ChozoTourianDustFrame11,
         EnemyProjectileFrameId.ChozoTourianDustFrame12,
         EnemyProjectileFrameId.ChozoTourianDustFrame13,
+        EnemyProjectileFrameId.TourianStatueFrame00,
+        EnemyProjectileFrameId.TourianStatueFrame01,
+        EnemyProjectileFrameId.TourianStatueFrame02,
+        EnemyProjectileFrameId.TourianStatueFrame03,
         EnemyProjectileFrameId.TourianStatueFrame14,
         EnemyProjectileFrameId.TourianStatueFrame15,
         EnemyProjectileFrameId.TourianStatueFrame16,
@@ -2226,6 +2218,26 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainSharedProjectiles =
     [
+        EnemyProjectileFrameId.CeresRidleyFrame06,
+        EnemyProjectileFrameId.CeresRidleyFrame07,
+        EnemyProjectileFrameId.CeresRidleyFrame08,
+        EnemyProjectileFrameId.CeresRidleyFrame09,
+        EnemyProjectileFrameId.CeresRidleyFrame10,
+        EnemyProjectileFrameId.CeresRidleyFrame11,
+        EnemyProjectileFrameId.CeresRidleyFrame12,
+        EnemyProjectileFrameId.CeresRidleyFrame13,
+        EnemyProjectileFrameId.CeresRidleyFrame14,
+        EnemyProjectileFrameId.CeresRidleyFrame15,
+        EnemyProjectileFrameId.CeresRidleyFrame16,
+        EnemyProjectileFrameId.CeresRidleyFrame17,
+        EnemyProjectileFrameId.CeresRidleyFrame18,
+        EnemyProjectileFrameId.CeresRidleyFrame19,
+        EnemyProjectileFrameId.CeresRidleyFrame20,
+        EnemyProjectileFrameId.CeresRidleyFrame21,
+        EnemyProjectileFrameId.CeresRidleyFrame22,
+        EnemyProjectileFrameId.CeresRidleyFrame23,
+        EnemyProjectileFrameId.CeresRidleyFrame24,
+        EnemyProjectileFrameId.CeresRidleyFrame25,
         EnemyProjectileFrameId.SpacePirateFrame00,
         EnemyProjectileFrameId.SpacePirateFrame01,
         EnemyProjectileFrameId.SpacePirateFrame02,
@@ -3239,6 +3251,21 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CeresRidleyFrame03,
         EnemyProjectileFrameId.CeresRidleyFrame04,
         EnemyProjectileFrameId.CeresRidleyFrame05,
+        EnemyProjectileFrameId.CeresRidleyFrame06,
+        EnemyProjectileFrameId.CeresRidleyFrame07,
+        EnemyProjectileFrameId.CeresRidleyFrame08,
+        EnemyProjectileFrameId.CeresRidleyFrame09,
+        EnemyProjectileFrameId.CeresRidleyFrame10,
+        EnemyProjectileFrameId.CeresRidleyFrame11,
+        EnemyProjectileFrameId.CeresRidleyFrame12,
+        EnemyProjectileFrameId.CeresRidleyFrame13,
+        EnemyProjectileFrameId.CeresRidleyFrame14,
+        EnemyProjectileFrameId.CeresRidleyFrame15,
+        EnemyProjectileFrameId.CeresRidleyFrame16,
+        EnemyProjectileFrameId.CeresRidleyFrame17,
+        EnemyProjectileFrameId.CeresRidleyFrame18,
+        EnemyProjectileFrameId.CeresRidleyFrame19,
+        EnemyProjectileFrameId.CeresRidleyFrame20,
         EnemyProjectileFrameId.CeresRidleyFrame21,
         EnemyProjectileFrameId.CeresRidleyFrame22,
         EnemyProjectileFrameId.CeresRidleyFrame23,
@@ -6845,9 +6872,6 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.Crocomire] = new(CrocomireProjectiles, CrocomireSpriteObjects),
             [EnemyDefinitionId.CrocomireTongue] = new(CrocomireProjectiles, CrocomireSpriteObjects),
             [EnemyDefinitionId.MiniKraid] = new(FakeKraidProjectiles, FakeKraidSpriteObjects),
-            [EnemyDefinitionId.MotherBrainBody] = new(MotherBrainProjectiles, MotherBrainSpriteObjects),
-            [EnemyDefinitionId.MotherBrainHead] = new(MotherBrainProjectiles, MotherBrainSpriteObjects),
-            [EnemyDefinitionId.MotherBrainTubes] = new(MotherBrainProjectiles, MotherBrainSpriteObjects),
             [EnemyDefinitionId.PhantoonBody] = new(PhantoonProjectiles, PhantoonSpriteObjects),
             [EnemyDefinitionId.PhantoonEye] = new(PhantoonProjectiles, PhantoonSpriteObjects),
             [EnemyDefinitionId.PhantoonMouth] = new(PhantoonProjectiles, PhantoonSpriteObjects),

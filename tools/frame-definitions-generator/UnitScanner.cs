@@ -48,6 +48,12 @@ internal sealed class UnitScan
     public Dictionary<IFieldSymbol, HashSet<Unit>> HandedTo { get; } = new(SymbolEqualityComparer.Default);
 
     /// <summary>
+    /// The Core methods this code passes one of its own parameters to unchanged: what a forwarding method was handed, such as
+    /// Mother Brain's room actors passing her bomb's afterburn kind on to Ridley's projectile code, reaches them (#1537).
+    /// </summary>
+    public HashSet<Unit> ForwardsTo { get; } = [];
+
+    /// <summary>
     /// The projectile program families the code refers to, each with the programs its constructions start it in (#1513);
     /// null for a family the code reaches otherwise, or constructs naming a program no constant decides, which may then be
     /// started in any of its programs.
@@ -451,6 +457,9 @@ internal sealed class UnitScanner(CoreModel model)
     {
         foreach (ArgumentSyntax argument in arguments.Arguments)
         {
+            // A parameter of the calling method passed on unchanged: the caller forwards what it was handed (#1537).
+            if (semantic.GetSymbolInfo(argument.Expression).Symbol is IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: not MethodKind.AnonymousFunction } })
+                scan.ForwardsTo.Add(Unit.Member(callee.OriginalDefinition));
             foreach (SyntaxNode part in argument.Expression.DescendantNodesAndSelf())
             {
                 if (part is not ExpressionSyntax value

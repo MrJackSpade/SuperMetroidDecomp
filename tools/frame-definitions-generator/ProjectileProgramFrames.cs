@@ -35,6 +35,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     private HashSet<IFieldSymbol>? _roomCues;
     private HashSet<SwitchSectionSyntax>? _roomCueSections;
     private readonly Dictionary<INamedTypeSymbol, Dictionary<INamedTypeSymbol, HashSet<string>?>> _cueStarts = new(SymbolEqualityComparer.Default);
+    private Dictionary<INamedTypeSymbol, HashSet<string>?>? _frameBehaviourStarts;
 
     /// <summary>The frames <paramref name="family"/>'s table holds, which its programs choose among.</summary>
     public IReadOnlySet<string> TableFrames(INamedTypeSymbol family) => Of(family).TableFrames;
@@ -164,6 +165,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         HashSet<string> entered = NamedOutside(family, programType, initializer,
             InitializerOf(table ?? throw new InvalidOperationException($"{family.ToDisplayString()} is read precisely without a frame table.")));
         entered.UnionWith(CueStarted(family, (INamedTypeSymbol)animation.TypeArguments[2]) ?? programs.Keys.ToHashSet(StringComparer.Ordinal));
+        // So can the frame behaviours its kinds run (an afterburn hitting a wall switching to its final puff, #1537).
+        entered.UnionWith(FrameBehaviourStarted(family) ?? programs.Keys.ToHashSet(StringComparer.Ordinal));
         var set = new FamilyProgramSet(entries, tableFrames, programs, entered, Precise: true);
         // The self-check: every frame the table holds is shown by some program, so no step the reader missed leaves a frame
         // the family draws off its sheets.
@@ -485,22 +488,15 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     {
         if (!_cueStarts.TryGetValue(cueType, out Dictionary<INamedTypeSymbol, HashSet<string>?>? started))
         {
-            started = HandlerStarts(cueType);
+            started = HandlerStarts(CueHandlers(cueType));
             _cueStarts.Add(cueType, started);
         }
         return started.TryGetValue(family, out HashSet<string>? programs) ? programs : new HashSet<string>(StringComparer.Ordinal);
     }
 
-    /// <summary>
-    /// Every projectile program family the handlers of the cues <paramref name="cueType"/> names start, through every Core
-    /// method and construction they reach, with the programs they start it in; null for a family started in a program no
-    /// constant decides.
-    /// </summary>
-    private Dictionary<INamedTypeSymbol, HashSet<string>?> HandlerStarts(INamedTypeSymbol cueType)
+    /// <summary>The handlers registered with <c>AddCue</c> for the cues <paramref name="cueType"/> names.</summary>
+    private IEnumerable<SyntaxNode> CueHandlers(INamedTypeSymbol cueType)
     {
-        var started = new Dictionary<INamedTypeSymbol, HashSet<string>?>(SymbolEqualityComparer.Default);
-        var visited = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
-        var pending = new Stack<SyntaxNode>();
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
         {
             SemanticModel? semantic = null;
@@ -514,9 +510,53 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     || !SymbolEqualityComparer.Default.Equals(registered.OriginalDefinition, cueType))
                     continue;
                 foreach (ArgumentSyntax argument in invocation.ArgumentList.Arguments)
-                    pending.Push(argument.Expression);
+                    yield return argument.Expression;
             }
         }
+    }
+
+    /// <summary>
+    /// The programs of <paramref name="family"/> any frame-behaviour handler (registered with <c>AddFrameBehavior</c>)
+    /// starts, through every Core method and construction it reaches: a handler restarting a projectile restarts one of
+    /// its own family's, as a Ridley afterburn's flight switches it to its final puff when it hits a wall (#1537), so,
+    /// like its cues' starts, these are among the programs every start of the family runs. Null when one of them names a
+    /// program no constant decides.
+    /// </summary>
+    private HashSet<string>? FrameBehaviourStarted(INamedTypeSymbol family)
+    {
+        _frameBehaviourStarts ??= HandlerStarts(FrameBehaviourHandlers());
+        return _frameBehaviourStarts.TryGetValue(family, out HashSet<string>? programs) ? programs : new HashSet<string>(StringComparer.Ordinal);
+    }
+
+    /// <summary>Every handler registered with <c>AddFrameBehavior</c>.</summary>
+    private IEnumerable<SyntaxNode> FrameBehaviourHandlers()
+    {
+        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        {
+            SemanticModel? semantic = null;
+            foreach (InvocationExpressionSyntax invocation in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                // Only a call spelled with AddFrameBehavior can register a frame-behaviour handler.
+                if (!invocation.Expression.ToString().Contains("AddFrameBehavior", StringComparison.Ordinal)
+                    || invocation.ArgumentList.Arguments.Count < 2)
+                    continue;
+                semantic ??= model.ModelOf(tree);
+                if (semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Name: "AddFrameBehavior" })
+                    yield return invocation.ArgumentList.Arguments[0].Expression;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Every projectile program family the handlers <paramref name="handlers"/> start, through every Core method and
+    /// construction they reach, with the programs they start it in; null for a family started in a program no constant
+    /// decides.
+    /// </summary>
+    private Dictionary<INamedTypeSymbol, HashSet<string>?> HandlerStarts(IEnumerable<SyntaxNode> handlers)
+    {
+        var started = new Dictionary<INamedTypeSymbol, HashSet<string>?>(SymbolEqualityComparer.Default);
+        var visited = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+        var pending = new Stack<SyntaxNode>(handlers);
         while (pending.TryPop(out SyntaxNode? root))
         {
             SemanticModel semantic = model.ModelOf(root.SyntaxTree);

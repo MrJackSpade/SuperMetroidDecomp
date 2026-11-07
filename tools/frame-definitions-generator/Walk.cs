@@ -313,18 +313,31 @@ internal sealed class Walk
 
     /// <summary>
     /// The collections the calls <paramref name="unit"/> hands <paramref name="member"/> to spawn into: each called method
-    /// whose own code spawns, by every sheet its spawn calls name.
+    /// whose own code spawns, by every sheet its spawn calls name. A called method that spawns nothing itself but passes
+    /// what it was handed on, directly or through an interface's implementations, is followed to the methods it forwards
+    /// to: Mother Brain's bomb hands its afterburn kind to her room actors, which pass it to Ridley's projectile code, whose
+    /// spawn names the room's shared sheet (#1537).
     /// </summary>
     private List<Collected> HandedSpawns(Unit unit, IFieldSymbol member)
     {
         var collections = new List<Collected>();
         if (!ScanOf(unit).HandedTo.TryGetValue(member, out HashSet<Unit>? callees))
             return collections;
-        foreach (Unit callee in callees)
+        var visited = new HashSet<Unit>();
+        var pending = new Queue<Unit>(callees);
+        while (pending.TryDequeue(out Unit callee))
         {
+            if (!visited.Add(callee))
+                continue;
+            foreach (ISymbol implementation in _model.Implementations(callee.Symbol))
+                pending.Enqueue(Unit.Member(implementation));
             UnitScan scan = ScanOf(callee);
             if (scan.SpawnCalls.Count == 0)
+            {
+                foreach (Unit forwarded in scan.ForwardsTo)
+                    pending.Enqueue(forwarded);
                 continue;
+            }
             foreach (SpawnTarget target in scan.UnitTargets)
             {
                 if (Collect(callee, target) is { } collected && !collections.Contains(collected))

@@ -55,20 +55,18 @@ internal static class SamusArmCannonDefinitionsVerification
                 $"arm-cannon HUD item {selectedHudItem} opens the cover as the cartridge table says");
         }
 
-        // An imported toggle word at its top wraps to zero on a stable sample, as the native 16-bit INC does, and the
-        // closed Beam selection starts no transition while it counts back up.
-        var wrapping = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
-        PrepareRetailSamusFixture(wrapping);
-        wrapping.ArmCannon.Artwork = artwork;
-        wrapping.ArmCannon.StableSelectionUpdates = ushort.MaxValue;
-        wrapping.ArmCannon.Update(wrapping);
-        AssertEqual(0, wrapping.ArmCannon.StableSelectionUpdates, "a stable sample wraps the toggle word from 65535 to zero");
-        wrapping.ArmCannon.Update(wrapping);
-        AssertEqual(1, wrapping.ArmCannon.StableSelectionUpdates, "the wrapped toggle word counts up again");
-        AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, 0), new VerifySamusArmCannonDefinitionsCase(wrapping.ArmCannon.IsOpen ? 1 : 0, wrapping.ArmCannon.IsTransitioning ? 1 : 0, wrapping.ArmCannon.Frame),
+        // The cartridge stores at most two (INC, then 2 once it reaches 3), so a stable selection holds the count there and
+        // the closed Beam selection starts no transition.
+        var holding = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
+        PrepareRetailSamusFixture(holding);
+        holding.ArmCannon.Artwork = artwork;
+        holding.ArmCannon.StableSelectionUpdates = 2;
+        holding.ArmCannon.Update(holding);
+        AssertEqual(2, holding.ArmCannon.StableSelectionUpdates, "a stable selection holds the count at two");
+        AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, 0), new VerifySamusArmCannonDefinitionsCase(holding.ArmCannon.IsOpen ? 1 : 0, holding.ArmCannon.IsTransitioning ? 1 : 0, holding.ArmCannon.Frame),
             "the closed Beam selection starts no transition");
-        AssertThrows<ArgumentOutOfRangeException>(() => wrapping.ArmCannon.StableSelectionUpdates = ushort.MaxValue + 1,
-            "the stable-selection count rejects a value above sixteen bits");
+        AssertThrows<ArgumentOutOfRangeException>(() => holding.ArmCannon.StableSelectionUpdates = 3,
+            "the stable-selection count rejects a value the cartridge never stores");
 
         AssertThrows<ArgumentOutOfRangeException>(
             () => SamusArmCannonOpening.Opens(

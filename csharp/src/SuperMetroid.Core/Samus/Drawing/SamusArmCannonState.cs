@@ -35,13 +35,13 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>
-    /// The updates the HUD selection has held still, 0 through 65535; a change restarts it at one and it saturates at
-    /// two, when a transition may begin.
+    /// The updates the HUD selection has held still, 0 through 2: a change restarts it at one and it saturates at two,
+    /// when a transition may begin.
     /// </summary>
     public int StableSelectionUpdates
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, 2, value);
     }
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>

@@ -463,7 +463,7 @@ internal static class LookupStream4Verification
                     int source = 0x848034 + color * 2;
                     ushort golden = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
                     AssertEqual(golden, Native(15, color), "Exact native shared armor source identity");
-                    AssertEqual(golden, GoldenTorizoHealthPaint.Color(0, color + 1, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front), "Shared immutable stock endpoint and clipped armor ramp");
+                    AssertEqual(golden, GoldenTorizoHealthPaint.Color(0, color + 1, GoldenTorizoHealthFacing.Front), "Shared immutable stock endpoint and clipped armor ramp");
                 }
             var definition = eyes ? stock.selection.EyeFade : stock.selection.BodyFade;
             AssertEqual(0, definition.overrides.Count, "stock fade never hides residual samples as edit overrides");
@@ -2699,7 +2699,7 @@ internal static class LookupStream4Verification
         var zoomEdits = zoomDefinition.edits;
         AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x848050), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), "Native neutral contour identity shared with Golden Torizo");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), GoldenTorizoHealthPaint.Color(0, 15, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front), "Existing immutable neutral source owner");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), GoldenTorizoHealthPaint.Color(0, 15, GoldenTorizoHealthFacing.Front), "Existing immutable neutral source owner");
         {
             var selected = zoomStock;
             var ridley = new RidleyEnemyState();

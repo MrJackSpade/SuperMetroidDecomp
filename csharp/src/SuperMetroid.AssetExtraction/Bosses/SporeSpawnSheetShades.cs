@@ -37,7 +37,7 @@ internal static class SporeSpawnSheetShades
             int shown = frame;
             shades.Add(SheetShade.Run(SporeSpawnShades.Health(shown), BodyRow * LoadedSetColours.RowColours, Frame(colour => colours.ResolveHealth(shown, colour))));
         }
-        for (int step = 0; step < SporeSpawnColorDefinitions.DeathSpriteFrameCount; step++)
+        for (int step = 0; step < SporeSpawnColorFormat.DeathSpriteFrameCount; step++)
         {
             int shown = step;
             shades.Add(SheetShade.Run(SporeSpawnShades.DeathSprite(shown), BodyRow * LoadedSetColours.RowColours, Frame(colour => colours.ResolveDeathSprite(shown, colour))));
@@ -51,7 +51,7 @@ internal static class SporeSpawnSheetShades
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
         var shades = new List<SheetShade>();
-        for (int step = 0; step < SporeSpawnColorDefinitions.DeathSceneFrameCount; step++)
+        for (int step = 0; step < SporeSpawnColorFormat.DeathSceneFrameCount; step++)
         {
             int shown = step;
             shades.Add(SheetShade.Run(SporeSpawnShades.DeathLevel(shown), LevelFirstInk, Frame(colour => colours.ResolveDeathLevel(shown, colour))));
@@ -67,5 +67,5 @@ internal static class SporeSpawnSheetShades
 
     /// <summary>One frame's sixteen colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Frame(Func<int, RgbColor> colour) =>
-        [.. Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame).Select(colour)];
+        [.. Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame).Select(colour)];
 }

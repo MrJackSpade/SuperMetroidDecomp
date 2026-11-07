@@ -30,7 +30,7 @@ internal sealed class LoadedSetColours
 
     /// <summary>The colours set <paramref name="set"/>'s load leaves, from the installed palettes in <paramref name="inputs"/>.</summary>
     /// <exception cref="InvalidDataException">The set's rows are not catalogued for each of its records, or a member has no palette.</exception>
-    internal static LoadedSetColours Of(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
+    internal static LoadedSetColours Of(EnemySheetInputs inputs, RoomEnemyGraphicsSetMembers set)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);

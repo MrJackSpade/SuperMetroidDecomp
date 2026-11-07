@@ -36,13 +36,13 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
             SporeSpawnColorDefinitions.HealthFrameCount, native.ResolveHealth, "health"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
-            SporeSpawnColorDefinitions.DeathSpriteFrameCount, native.ResolveDeathSprite,
+            SporeSpawnColorFormat.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathLevelColors,
-            SporeSpawnColorDefinitions.DeathSceneFrameCount, native.ResolveDeathLevel,
+            SporeSpawnColorFormat.DeathSceneFrameCount, native.ResolveDeathLevel,
             "death level"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathBackgroundColors,
-            SporeSpawnColorDefinitions.DeathSceneFrameCount, native.ResolveDeathBackground,
+            SporeSpawnColorFormat.DeathSceneFrameCount, native.ResolveDeathBackground,
             "death background"));
 
         string file = Path.Combine(stockDirectory, SporeSpawnColorFormat.FileName);
@@ -56,7 +56,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
             address => address is >= SporeSpawnSourceDefinitions.SporeColors and
                 < (SporeSpawnSourceDefinitions.DeathBackgroundColors +
-                    SporeSpawnColorDefinitions.DeathSceneFrameCount *
+                    SporeSpawnColorFormat.DeathSceneFrameCount *
                     SporeSpawnSourceDefinitions.ImageBytes),
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
@@ -87,7 +87,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             AssertShade(sprites, SporeSpawnShades.Health(frame), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health frame {frame}");
         }
 
-        for (int frame = 0; frame < SporeSpawnColorDefinitions.DeathSceneFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorFormat.DeathSceneFrameCount; frame++)
         {
             int shown = frame;
             enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(frame);
@@ -110,7 +110,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
 
         void VerifyFrame(int source, Func<int, RgbColor> resolve, string name)
         {
-            for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
+            for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * SporeSpawnSourceDefinitions.ColorWordBytes), resolve(color),
                     $"installed {name} color {color} matches cartridge");

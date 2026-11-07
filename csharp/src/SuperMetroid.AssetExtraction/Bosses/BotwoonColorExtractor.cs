@@ -21,11 +21,11 @@ public static class BotwoonColorExtractor
         var bands = new PaletteRgb5[BotwoonHealthPaletteDefinitions.PaletteCount][];
         for (int band = 0; band < bands.Length; band++)
         {
-            bands[band] = new PaletteRgb5[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
+            bands[band] = new PaletteRgb5[BotwoonColorFormat.ColorsPerPalette];
             for (int color = 0; color < bands[band].Length; color++)
             {
                 int address = BotwoonSourceDefinitions.HealthColors +
-                    (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) *
+                    (band * BotwoonColorFormat.ColorsPerPalette + color) *
                     sizeof(ushort);
                 int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))

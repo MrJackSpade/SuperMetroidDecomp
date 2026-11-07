@@ -735,7 +735,7 @@ internal static class LookupStream5Verification
         PhantoonColorCatalog stock = Check(document);
         var edits = stock.selection.FadeOutEdits;
         AssertEqual(0, edits.Count, "Stock fade stores no target table");
-        for (int color = 0; color < PhantoonColorDefinitions.FadeOutCount; color++)
+        for (int color = 0; color < PhantoonColorFormat.FadeOutCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.FadeOutColors + color * 2), stock.ResolveFadeOut(color), "Native black fade endpoint");
         }
@@ -746,7 +746,7 @@ internal static class LookupStream5Verification
         AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "healthyPaint", BindingFlags.Instance | BindingFlags.NonPublic),
             "No stock healthy palette remains stored");
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
-        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
+        for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
         {
             AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
         }

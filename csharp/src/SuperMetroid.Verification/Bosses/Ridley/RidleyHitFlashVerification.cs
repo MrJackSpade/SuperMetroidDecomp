@@ -39,7 +39,7 @@ internal static class RidleyHitFlashVerification
 
         EnemySheetInputs inputs = EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
-            candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Ridley));
+            RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Ridley));
         EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.Single(sheet => sheet.Enemy == EnemyDefinitionId.Ridley);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
         int[] painted = [.. sheet.PaletteIndices.Where(ink => ink != 0).Select(ink => (int)ink).Distinct().Order()];

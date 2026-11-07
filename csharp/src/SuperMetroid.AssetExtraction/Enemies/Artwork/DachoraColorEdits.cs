@@ -19,7 +19,7 @@ internal static class DachoraColorEdits
     {
         var edits = new Dictionary<ColourStep, RgbColor>();
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
-        for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
+        for (int color = 0; color < DachoraColorFormat.ColorsPerFrame; color++)
             if (speed[frame][color] != DachoraColors.SpeedColor(normal, frame, color)) edits.Add(new ColourStep(frame, color), speed[frame][color]);
         return edits;
     }
@@ -29,7 +29,7 @@ internal static class DachoraColorEdits
     {
         var edits = new Dictionary<ColourStep, RgbColor>();
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
-        for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
+        for (int color = 0; color < DachoraColorFormat.ColorsPerFrame; color++)
             if (shine[frame][color] != DachoraColors.ShineColor(normal, frame, color)) edits.Add(new ColourStep(frame, color), shine[frame][color]);
         return edits;
     }

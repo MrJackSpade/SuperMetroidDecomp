@@ -22,9 +22,6 @@ internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IG
     /// <summary>Publishes an event bit through the system owner.</summary>
     public void Set(EventNumber eventNumber) => system.SetEvent(eventNumber);
 
-    /// <summary>Clears an event bit through the system owner.</summary>
-    public void Clear(EventNumber eventNumber) => system.ClearEvent(eventNumber);
-
     /// <summary>Checks whether any requested boss bit is set for this room's area.</summary>
     public bool IsDefeated(BossBits bits) => system.HasAnyBossBits(area, bits);
 

@@ -4,13 +4,22 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// One of the fifty-two pieces of artwork a Torizo's body programs swap in under its poses (the glowing eyes, the
 /// crumbling statue, the awakening sheets), named by its place in the order the programs were authored.
 /// </summary>
-/// <param name="Ordinal">The swap's place among the fifty-two, from zero.</param>
-internal readonly record struct TorizoArtworkSwap(int Ordinal)
+internal readonly record struct TorizoArtworkSwap
 {
     /// <summary>The artwork swaps the body programs make.</summary>
     internal const int Count = 52;
 
-    /// <summary>The swap's place among the fifty-two.</summary>
-    internal int Ordinal { get; } = (uint)Ordinal < Count ? Ordinal
-        : throw new ArgumentOutOfRangeException(nameof(Ordinal), Ordinal, "Torizo's body programs make no such artwork swap.");
+    /// <summary>
+    /// The swap's place among the fifty-two, from zero: the identity two swaps compare by. The import names each swap's
+    /// pictures by it.
+    /// </summary>
+    internal readonly int ordinal;
+
+    /// <summary>Names the swap at <paramref name="ordinal"/> among the fifty-two.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The body programs make no swap at that place.</exception>
+    internal TorizoArtworkSwap(int ordinal) => this.ordinal = (uint)ordinal < Count ? ordinal
+        : throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "Torizo's body programs make no such artwork swap.");
+
+    /// <summary>Names the swap by its place, as a sequence that does not show it reports it.</summary>
+    public override string ToString() => $"Torizo artwork swap {ordinal}";
 }

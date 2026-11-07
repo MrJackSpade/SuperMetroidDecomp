@@ -271,7 +271,7 @@ internal static class EnemySheetComposer
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
         // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
-        IReadOnlyList<CommonSpawnedObjects> common = CommonSpawnersOf(set);
+        IReadOnlyList<CommonSpawnedObjects> common = CommonSpawnersOf(set, inputs.SetMembers);
         // A spawned-object sheet with no picture to show is not installed (#1513): nothing draws from it.
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
             [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf, common).Select(plan =>
@@ -345,19 +345,25 @@ internal static class EnemySheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
-        GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(set);
-        LoadedSetColours colours = LoadedSetColours.Of(inputs, set);
+        RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(set, inputs.SetMembers);
+        GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(members);
+        LoadedSetColours colours = LoadedSetColours.Of(inputs, members);
         EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
-        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, set), RottingCorpseCells.Of(drawn)),
+        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, members), RottingCorpseCells.Of(drawn)),
             colours, new EnemySheetShades(inputs, colours), drawn);
     }
 
-    /// <summary>The common spawners whose objects graphics set <paramref name="set"/>'s shared sheet holds: those its rooms run (#1513).</summary>
-    /// <exception cref="InvalidDataException">A common spawner has no presence.</exception>
-    internal static IReadOnlyList<CommonSpawnedObjects> CommonSpawnersOf(RoomEnemyGraphicsSetDefinition set)
+    /// <summary>
+    /// The common spawners whose objects graphics set <paramref name="set"/>'s shared sheet holds: those its rooms run
+    /// (#1513), its members as <paramref name="members"/> names them by set name.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A common spawner has no presence, or the set's members are not catalogued.</exception>
+    internal static IReadOnlyList<CommonSpawnedObjects> CommonSpawnersOf(RoomEnemyGraphicsSetDefinition set,
+        IReadOnlyDictionary<string, RoomEnemyGraphicsSetMembers> members)
     {
         Ensure.NotNull(set);
-        return CommonSpawners.RunningIn(StatesOf(set), DrawnUnder(set, GraphicsSetCharacterLayout.Of(set)));
+        return CommonSpawners.RunningIn(StatesOf(set),
+            DrawnUnder(set, GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(set, members))));
     }
 
     /// <summary>
@@ -386,7 +392,7 @@ internal static class EnemySheetComposer
     /// The artwork sequences played under graphics set <paramref name="set"/> (#1513): each its members' encounters play,
     /// resolved against <paramref name="inputs"/>.
     /// </summary>
-    private static IReadOnlyList<EncounterArtworkSteps> Sequences(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set) =>
+    private static IReadOnlyList<EncounterArtworkSteps> Sequences(EnemySheetInputs inputs, RoomEnemyGraphicsSetMembers set) =>
         [.. EncounterArtworkUploads.Of(set).Select(sequence => new EncounterArtworkSteps(sequence, EncounterArtworkUploads.Steps(sequence, inputs)))];
 
     /// <summary>A room graphics set as a room load leaves it.</summary>

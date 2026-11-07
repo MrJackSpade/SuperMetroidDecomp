@@ -26,14 +26,14 @@ internal sealed class GraphicsSetCharacterLayout
     private const int OrdinaryTilesStart = 64 * TileByteCount;
 
     /// <summary>The layout of <paramref name="set"/>.</summary>
-    private GraphicsSetCharacterLayout(RoomEnemyGraphicsSetDefinition set) => Members = LayOut(set);
+    private GraphicsSetCharacterLayout(RoomEnemyGraphicsSetMembers set) => Members = LayOut(set);
 
     /// <summary>The set's members in record order, each where the set lays its tiles out.</summary>
     internal IReadOnlyList<GraphicsSetMemberCharacters> Members { get; }
 
     /// <summary>The layout of graphics set <paramref name="set"/>.</summary>
     /// <exception cref="InvalidDataException">The set cannot be laid out (see <see cref="LayOut"/>).</exception>
-    internal static GraphicsSetCharacterLayout Of(RoomEnemyGraphicsSetDefinition set) => new(Ensure.NotNull(set));
+    internal static GraphicsSetCharacterLayout Of(RoomEnemyGraphicsSetMembers set) => new(Ensure.NotNull(set));
 
     /// <summary>
     /// The character index <paramref name="enemy"/>'s pictures count from under this set: its record's, or character zero
@@ -75,7 +75,7 @@ internal sealed class GraphicsSetCharacterLayout
     /// The set has more than four members, places a member after one shown at a fixed block, names an enemy whose tile set
     /// the import does not catalogue, or a member's tiles leave the enemy tile area.
     /// </exception>
-    private static List<GraphicsSetMemberCharacters> LayOut(RoomEnemyGraphicsSetDefinition set)
+    private static List<GraphicsSetMemberCharacters> LayOut(RoomEnemyGraphicsSetMembers set)
     {
         var members = new List<GraphicsSetMemberCharacters>();
         int nextEnemyTileIndex = 0;

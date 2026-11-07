@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -35,7 +36,7 @@ internal sealed class CeresRidleyFloorPaint
     }
 
     /// <summary>The neutral floor colour (also in the header palette) equals the canonical Golden low contour; no duplicate grey input.</summary>
-    private static RgbColor Neutral => GoldenTorizoHealthPaint.Color(0, 15, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front);
+    private static RgbColor Neutral => GoldenTorizoHealthPaint.Color(0, 15, GoldenTorizoHealthFacing.Front);
     /// <summary>The same neutral endpoint at retreat exposure1/15.</summary>
     internal static RgbColor RetreatNeutral => CeresRidleyFade.Scale(Neutral, 1);
 
@@ -43,7 +44,7 @@ internal sealed class CeresRidleyFloorPaint
     internal RgbColor Resolve(int step, int color)
     {
         if ((uint)step >= CeresRidleyPaletteDefinitions.GetawayZoomStepCount) throw new ArgumentOutOfRangeException(nameof(step));
-        if ((uint)color >= CeresRidleyPaletteDefinitions.GetawayZoomColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+        if ((uint)color >= CeresRidleyColorFormat.GetawayZoomColorCount) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(new PaintColour(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 

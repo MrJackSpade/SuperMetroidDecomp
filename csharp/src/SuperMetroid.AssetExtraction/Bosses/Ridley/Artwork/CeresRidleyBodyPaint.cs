@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
 using SuperMetroid.Core.Assets;
@@ -39,7 +40,7 @@ internal sealed class CeresRidleyBodyPaint
     internal RgbColor Color(int color)
     {
         if ((uint)color >= 11) throw new ArgumentOutOfRangeException(nameof(color));
-        if (color < 8) return GoldenTorizoHealthPaint.Color(0, color + 1, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front);
+        if (color < 8) return GoldenTorizoHealthPaint.Color(0, color + 1, GoldenTorizoHealthFacing.Front);
         if (color == 10) return new(darkRed, 0, darkBlue);
         int green = color == 8 ? highlightGreen : middleGreen;
         int blue = Math.Clamp(green + blueTint, 0, MaximumChannel);

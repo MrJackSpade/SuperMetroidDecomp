@@ -72,7 +72,7 @@ internal static class GunshipEscapeTimerVerification
         }
         AssertTrue(sawDustUpload, "Confirmation reaches the actual liftoff dust upload");
         // The final dust page shows on the update that reached it (#1406, #1513).
-        AssertEqual<int?>(GunshipLiftoffTransferDefinitions.Frames.Length - 1, runtime.EnemySession.ArtworkProgress.StepOf(EncounterArtworkSequence.GunshipLiftoff),
+        AssertEqual<int?>(GunshipLiftoffDefinitions.PageCount - 1, runtime.EnemySession.ArtworkProgress.StepOf(EncounterArtworkSequence.GunshipLiftoff),
             "Liftoff reaches its last dust page");
         AssertTrue(!TimerSpritesPresent(), "No stale timer draw remains once the dust page shows");
         AssertEqual(timeBeforeBoarding, Time(), "Liftoff keeps the timer suspended");

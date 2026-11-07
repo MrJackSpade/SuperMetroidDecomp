@@ -39,7 +39,7 @@ public static class DachoraColorExtractor
 
         PaletteRgb5[] Read(int source)
         {
-            var colors = new PaletteRgb5[DachoraColorDefinitions.ColorsPerFrame];
+            var colors = new PaletteRgb5[DachoraColorFormat.ColorsPerFrame];
             for (int color = 0; color < colors.Length; color++)
             {
                 int address = source + color * EnemySpeciesSourceDefinitions.ColorWordBytes;

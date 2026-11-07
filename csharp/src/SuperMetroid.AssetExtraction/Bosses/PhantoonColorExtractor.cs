@@ -21,14 +21,14 @@ public static class PhantoonColorExtractor
         var bands = new PaletteRgb5[PhantoonColorDefinitions.HealthBandCount][];
         for (int band = 0; band < bands.Length; band++)
             bands[band] = Read(PhantoonSourceDefinitions.HealthBandColors +
-                band * PhantoonColorDefinitions.HealthBandColorCount * sizeof(ushort),
-                PhantoonColorDefinitions.HealthBandColorCount);
+                band * PhantoonColorFormat.HealthBandColorCount * sizeof(ushort),
+                PhantoonColorFormat.HealthBandColorCount);
         return PhantoonColorFile.Write(new PhantoonColorDocument
         {
             Version = PhantoonColorFormat.Version,
             HealthBands = bands,
             FadeOut = Read(PhantoonSourceDefinitions.FadeOutColors,
-                PhantoonColorDefinitions.FadeOutCount),
+                PhantoonColorFormat.FadeOutCount),
             PowerOn = Read(PhantoonSourceDefinitions.PowerOnColors,
                 PhantoonSourceDefinitions.PowerOnColourCount),
         });

@@ -32,8 +32,8 @@ internal sealed class CeresRidleyHealthPaint
     /// <summary>Uses an authored override where present, otherwise calculates the selected damage-band shade.</summary>
     internal RgbColor Resolve(int band, int color)
     {
-        if ((uint)band >= CeresRidleyPaletteDefinitions.HealthBandCount) throw new ArgumentOutOfRangeException(nameof(band));
-        if ((uint)color >= CeresRidleyPaletteDefinitions.HealthColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+        if ((uint)band >= CeresRidleyColorFormat.HealthBandCount) throw new ArgumentOutOfRangeException(nameof(band));
+        if ((uint)color >= CeresRidleyColorFormat.HealthColorCount) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(new PaintColour(band, color), out RgbColor edited) ? edited : Calculate(band, color);
     }
 

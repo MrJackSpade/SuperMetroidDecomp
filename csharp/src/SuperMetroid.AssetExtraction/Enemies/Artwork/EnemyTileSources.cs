@@ -7,7 +7,7 @@ internal static class EnemyTileSources
     /// <summary>Deduplicates graphics-set enemy definitions with their tile set sizes; the installation checks them against its pinned identity set.</summary>
     internal static System.Collections.ObjectModel.ReadOnlyCollection<EnemyTileSourceDefinition> Build()
     {
-        EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetLists.All
+        EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetLists.Retail
             .SelectMany(set => set.Records.ToArray())
             .Select(record => record.DefinitionId).Distinct().Order()
             .Select(definition => new EnemyTileSourceDefinition(definition, EnemyTileSetDefinitions.ByteCounts[definition])).ToArray();

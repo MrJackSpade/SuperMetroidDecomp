@@ -20,7 +20,7 @@ internal static class GraphicsSetCharacterLayoutVerification
     internal static void VerifyGraphicsSetCharacterLayout()
     {
         // Ceres Ridley's set: Ridley, then the Ceres door at its header's fixed block.
-        GraphicsSetCharacterLayout ceres = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault);
+        GraphicsSetCharacterLayout ceres = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault));
         AssertEqual(2, ceres.Members.Count, "Ceres Ridley's set lays out both members");
         GraphicsSetMemberCharacters ridley = ceres.Members[0];
         GraphicsSetMemberCharacters door = ceres.Members[1];
@@ -36,15 +36,15 @@ internal static class GraphicsSetCharacterLayoutVerification
 
         // An enemy copying its owner's index draws where its owner's set member does.
         RoomEnemyGraphicsSetDefinition turtles = RoomEnemyGraphicsSetLists.DrawnUnder
-            .First(set => set.Records.ToArray().Any(member => member.DefinitionId == EnemyDefinitionId.MamaTurtle));
-        GraphicsSetCharacterLayout turtleLayout = GraphicsSetCharacterLayout.Of(turtles);
+            .First(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray().Any(member => member.DefinitionId == EnemyDefinitionId.MamaTurtle));
+        GraphicsSetCharacterLayout turtleLayout = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(turtles));
         AssertEqual(turtleLayout.TileBaseOf(EnemyDefinitionId.MamaTurtle), turtleLayout.TileBaseOf(EnemyDefinitionId.BabyTurtle),
             $"a Baby Turtle in {turtles.Name} draws from its Mama's characters");
 
-        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetDefinition("five members",
+        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("five members",
             [.. Enumerable.Repeat(new RoomEnemyGraphicsSetMember(EnemyDefinitionId.Beetom), 5)])),
             "a set of more than four members is rejected");
-        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetDefinition("after a fixed block",
+        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("after a fixed block",
             [new(EnemyDefinitionId.CeresDoor), new(EnemyDefinitionId.Beetom)])),
             "a member after one staged at a fixed block is rejected");
         Console.WriteLine("  Graphics-set layout: ordinary and fixed-block members land where the cartridge stages them.");

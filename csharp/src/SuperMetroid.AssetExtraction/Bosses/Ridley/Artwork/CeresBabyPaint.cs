@@ -55,7 +55,7 @@ internal sealed class CeresBabyPaint
         _ = BrighteningSteps(shade);
         if (shades == CeresBabyPaintShades.RestingOnly && shade != CeresBabyShade.Resting)
             throw new ArgumentOutOfRangeException(nameof(shade), shade, "This Baby paint holds only the resting colours.");
-        if ((uint)color >= CeresRidleyPaletteDefinitions.BabyColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+        if ((uint)color >= CeresRidleyColorFormat.BabyColorCount) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(new CeresBabyColourCell(shade, color), out RgbColor edited) ? edited : Calculate(shade, color);
     }
 

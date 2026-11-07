@@ -23,11 +23,11 @@ public static class SporeSpawnColorFile
         return new(SporeSpawnColorEdits.Select(
             Compile(document.Spores, "spores"),
             CompileFrames(document.Health, SporeSpawnColorDefinitions.HealthFrameCount, "health"),
-            CompileFrames(document.DeathSprite, SporeSpawnColorDefinitions.DeathSpriteFrameCount,
+            CompileFrames(document.DeathSprite, SporeSpawnColorFormat.DeathSpriteFrameCount,
                 "death sprite"),
-            CompileFrames(document.DeathLevel, SporeSpawnColorDefinitions.DeathSceneFrameCount,
+            CompileFrames(document.DeathLevel, SporeSpawnColorFormat.DeathSceneFrameCount,
                 "death level"),
-            CompileFrames(document.DeathBackground, SporeSpawnColorDefinitions.DeathSceneFrameCount,
+            CompileFrames(document.DeathBackground, SporeSpawnColorFormat.DeathSceneFrameCount,
                 "death background")));
     }
 
@@ -47,9 +47,9 @@ public static class SporeSpawnColorFile
     /// <summary>Validates one complete sixteen-ink row and packs each bounded RGB5 color.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
-        if (source is null || source.Length != SporeSpawnColorDefinitions.ColorsPerFrame)
+        if (source is null || source.Length != SporeSpawnColorFormat.ColorsPerFrame)
             throw new InvalidDataException(
-                $"Spore Spawn {name} requires {SporeSpawnColorDefinitions.ColorsPerFrame} RGB5 colors.");
+                $"Spore Spawn {name} requires {SporeSpawnColorFormat.ColorsPerFrame} RGB5 colors.");
         var compiled = new RgbColor[source.Length];
         for (int color = 0; color < source.Length; color++)
         {

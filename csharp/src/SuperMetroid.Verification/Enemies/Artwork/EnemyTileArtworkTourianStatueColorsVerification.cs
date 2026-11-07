@@ -57,7 +57,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // published shading shows are that sheet's inks under it, at the places of the native image the import coloured
         // them from.
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
-            candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.TourianStatue));
+            RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.TourianStatue));
         SpawnedObjectSheet scenePictures = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
         SpriteImage statueSheet = scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueFrame24)).Sheet;
         foreach (EnemyProjectileFrameId scene in new[]

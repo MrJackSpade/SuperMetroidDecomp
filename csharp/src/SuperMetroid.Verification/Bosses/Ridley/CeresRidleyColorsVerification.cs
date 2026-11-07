@@ -34,35 +34,35 @@ internal static class CeresRidleyColorsVerification
             new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
         Check(RidleySourceDefinitions.Ceres.StartColors,
-            CeresRidleyPaletteDefinitions.StartColorCount, native.ResolveStart);
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.EyeFadeShadeCount; row++)
+            CeresRidleyColorFormat.StartColorCount, native.ResolveStart);
+        for (int row = 0; row < CeresRidleyColorFormat.EyeFadeShadeCount; row++)
             Check(EnemySourceDefinitions.CeresRidleyEyeFadeRows + row *
-                CeresRidleyPaletteDefinitions.EyeFadeColorCount * sizeof(ushort),
-                CeresRidleyPaletteDefinitions.EyeFadeColorCount,
+                CeresRidleyColorFormat.EyeFadeColorCount * sizeof(ushort),
+                CeresRidleyColorFormat.EyeFadeColorCount,
                 color => native.ResolveEyeFade(row, color));
         for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; row++)
             Check(RidleySourceDefinitions.Ceres.BodyFadeColors + row *
-                CeresRidleyPaletteDefinitions.BodyFadeColorCount * sizeof(ushort),
-                CeresRidleyPaletteDefinitions.BodyFadeColorCount,
+                CeresRidleyColorFormat.BodyFadeColorCount * sizeof(ushort),
+                CeresRidleyColorFormat.BodyFadeColorCount,
                 color => native.ResolveBodyFade(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.HealthBandCount; row++)
+        for (int row = 0; row < CeresRidleyColorFormat.HealthBandCount; row++)
             Check(RidleySourceDefinitions.Ceres.HealthColors + row *
-                CeresRidleyPaletteDefinitions.HealthColorCount * sizeof(ushort),
-                CeresRidleyPaletteDefinitions.HealthColorCount,
+                CeresRidleyColorFormat.HealthColorCount * sizeof(ushort),
+                CeresRidleyColorFormat.HealthColorCount,
                 color => native.ResolveHealth(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmStepCount; row++)
+        for (int row = 0; row < CeresRidleyColorFormat.AlarmStepCount; row++)
             Check(RidleySourceDefinitions.Ceres.AlarmColors + row *
-                CeresRidleyPaletteDefinitions.AlarmColorCount * sizeof(ushort),
-                CeresRidleyPaletteDefinitions.AlarmColorCount,
+                CeresRidleyColorFormat.AlarmColorCount * sizeof(ushort),
+                CeresRidleyColorFormat.AlarmColorCount,
                 color => native.ResolveAlarm(row, color));
         Check(RidleySourceDefinitions.Ceres.RetreatBgColors,
-            CeresRidleyPaletteDefinitions.RetreatBgColorCount, native.ResolveRetreatBg);
+            CeresRidleyColorFormat.RetreatBgColorCount, native.ResolveRetreatBg);
         Check(RidleySourceDefinitions.Ceres.RetreatSharedColors,
-            CeresRidleyPaletteDefinitions.RetreatSharedColorCount, native.ResolveRetreatShared);
+            CeresRidleyColorFormat.RetreatSharedColorCount, native.ResolveRetreatShared);
         // Each Baby shade is read where the native draw list's palette operand for that shade points.
         foreach (CeresBabyNativeListAddressesShadeOperand shadeOperand in CeresBabyNativeListAddresses.ShadeOperands)
             Check(CeresBabyNativeListAddresses.Bank << 16 | shadeOperand.Operand,
-                CeresRidleyPaletteDefinitions.BabyColorCount,
+                CeresRidleyColorFormat.BabyColorCount,
                 color => native.ResolveBaby(shadeOperand.Shade, color));
 
         CeresRidleyColorDocument document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(
@@ -97,7 +97,7 @@ internal static class CeresRidleyColorsVerification
             int row = CeresRidleyEyeFade.Get(step).Shade;
             AssertEqual(unchecked((ushort)(step + 1)), state.FadeStep,
                 $"installed eye fade step {step} advances");
-            CheckCgram(state, CeresRidleyPaletteDefinitions.EyeFadeColorCount,
+            CheckCgram(state, CeresRidleyColorFormat.EyeFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.EyeFadeCgramIndex,
                 color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
@@ -110,11 +110,11 @@ internal static class CeresRidleyColorsVerification
             bodyTick(slot, state);
             AssertEqual(row == CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
                 state.FadeStep, $"installed body fade row {row} advances to the next row, or resets after the last");
-            CheckCgram(state, CeresRidleyPaletteDefinitions.BodyFadeColorCount,
+            CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeBgCgramIndex,
                 color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
                 $"Ceres Ridley body BG fade row {row}");
-            CheckCgram(state, CeresRidleyPaletteDefinitions.BodyFadeColorCount,
+            CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeObjCgramIndex,
                 color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
                 $"Ceres Ridley body OBJ fade row {row}");
@@ -126,7 +126,7 @@ internal static class CeresRidleyColorsVerification
             healthTick(state);
             int row = count < 70 ? CeresRidleyPaletteDefinitions.HealthMidBand :
                 CeresRidleyPaletteDefinitions.HealthLateBand;
-            CheckCgram(state, CeresRidleyPaletteDefinitions.HealthColorCount,
+            CheckCgram(state, CeresRidleyColorFormat.HealthColorCount,
                 CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex,
                 color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
@@ -142,13 +142,13 @@ internal static class CeresRidleyColorsVerification
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null);
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
-        CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatBgColorCount,
+        CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatBgCgramIndex,
             InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatBg, "Ceres Ridley retreat BG");
-        CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
+        CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedBgCgramIndex,
             InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared BG");
-        CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
+        CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedObjCgramIndex,
             InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared OBJ");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -167,7 +167,7 @@ internal static class CeresRidleyColorsVerification
             var stockTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
-            for (ushort frame = 0; frame < CeresRidleyPaletteDefinitions.AlarmStepCount * 4; frame++)
+            for (ushort frame = 0; frame < CeresRidleyColorFormat.AlarmStepCount * 4; frame++)
             {
                 nativeTick(nativeState, frame);
                 stockTick(stockState, frame);

@@ -60,7 +60,7 @@ internal static class EnemyFormatDrawEntriesVerification
 
         // Enemy projectile in front of Samus, drawn from the set's spawned-object sheet: one whose picture there shows something
         // (#1513), as a picture showing nothing draws nothing.
-        EnemyProjectileFrameId projectileFrame = EnemySheetComposer.CommonSpawnersOf(set).SelectMany(common => common.Objects.Projectiles).Order()
+        EnemyProjectileFrameId projectileFrame = EnemySheetComposer.CommonSpawnersOf(set, RoomEnemyGraphicsSetLists.Members).SelectMany(common => common.Objects.Projectiles).Order()
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0
                 && !InstalledFixtures.EnemySheets.SpawnedShowsNothing(set, SpawnedObjectOwner.Shared, EnemySheetDefinitions.ProjectileFrameName(frame)));
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17];

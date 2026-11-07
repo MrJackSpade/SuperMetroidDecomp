@@ -215,24 +215,6 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// The dissolve step at which band <paramref name="band"/> of <paramref name="pass"/>'s melt image was last shown once
-    /// the dissolve has erased <paramref name="erased"/> columns (#1513): each erase shows the next band in turn, the first
-    /// erase the first band, so a band shows the image at the last erase that showed it, and before any erase showed it the
-    /// unerased image its pass showed it with first. The import pictures each state of the melt image whole from these.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The band is not one of the pass's, or the count is not one of the dissolve's.</exception>
-    internal static int BandStepAfter(CrocomireMeltingIllustration pass, int band, int erased)
-    {
-        int bands = BandCount(pass);
-        if ((uint)band >= (uint)bands)
-            throw new ArgumentOutOfRangeException(nameof(band), band, $"Crocomire's {pass} melt image has no such band.");
-        if ((uint)erased > CrocomireMeltingDefinitions.ColumnCount)
-            throw new ArgumentOutOfRangeException(nameof(erased), erased, "Crocomire's dissolve has no such step.");
-        // Erase k shows band (k - 1) modulo the bands, so band b was last shown at erase b + 1 plus a whole number of rounds.
-        return erased <= band ? 0 : band + 1 + (erased - band - 1) / bands * bands;
-    }
-
-    /// <summary>
     /// Stretches his body layer through the melt's band (#1468): from the line below the tongue, each line falls a further
     /// <see cref="CrocomireDeathState.DistortionStep"/> of a row behind his body layer's placement, while the band's source
     /// row climbs one row a line less that fraction, until it reaches

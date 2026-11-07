@@ -28,10 +28,10 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         BotwoonColorCatalog native = stock.Bosses.BotwoonColors ??
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
-        for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
+        for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     BotwoonSourceDefinitions.HealthColors +
-                    (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) * 2),
+                    (band * BotwoonColorFormat.ColorsPerPalette + color) * 2),
                 native.HealthColor(band, color),
                 $"installed Botwoon health band {band} color {color}");
 
@@ -62,7 +62,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             AssertEqual(PictureShading.Shaded(BotwoonShades.Health(band)), state.BodyShading,
                 $"live Botwoon draws in health band {band}");
             ushort[] cgram = BossShadeColours.Laid([BotwoonShades.Health(band)], shades, BossShadeColours.Sprites, 0x1234);
-            for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
+            for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
                 AssertEqual(colors.HealthColor(band, color).ToWord(),
                     cgram[BotwoonHealthPaletteDefinitions.FirstColour + color],
                     $"live Botwoon health band {band} color {color}");
@@ -83,6 +83,6 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
     internal static CartridgeReadGuard NewBotwoonColorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BotwoonSourceDefinitions.HealthColors,
             BotwoonHealthPaletteDefinitions.PaletteCount *
-                BotwoonHealthPaletteDefinitions.ColorsPerPalette * sizeof(ushort),
+                BotwoonColorFormat.ColorsPerPalette * sizeof(ushort),
             address => $"Live Botwoon read migrated color ROM ${address:X6}.");
 }

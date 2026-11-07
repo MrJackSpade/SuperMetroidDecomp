@@ -18,7 +18,7 @@ public static class CeresRidleyMode7ColorFile
     public static CeresRidleyFloorColorCatalog Read(Stream json)
     {
         FixedGridShape zoomShape = new(CeresRidleyPaletteDefinitions.GetawayZoomStepCount,
-            CeresRidleyPaletteDefinitions.GetawayZoomColorCount);
+            CeresRidleyColorFormat.GetawayZoomColorCount);
         Ensure.NotNull(json);
         CeresRidleyMode7ColorDocument document;
         document = JsonAssetDocument.Read<CeresRidleyMode7ColorDocument>(json, ArtworkJson.Options, "Ceres Ridley Mode-7 color");

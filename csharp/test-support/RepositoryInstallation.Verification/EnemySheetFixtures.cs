@@ -35,7 +35,7 @@ internal static class EnemySheetFixtures
     private static readonly Lazy<string> stockContent = new(() => inputs.Value.Enemies.ContentIdentity);
 
     /// <summary>Each graphics set's characters as the import composes its pictures from them, by set, composed once.</summary>
-    private static readonly Dictionary<RoomEnemyGraphicsSetDefinition, SetCharacters> characters = [];
+    private static readonly Dictionary<RoomEnemyGraphicsSetDefinition, SetCharacters> characters = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
     /// The OBJ characters graphics set <paramref name="set"/> leaves once its encounters have played each sequence
@@ -49,7 +49,8 @@ internal static class EnemySheetFixtures
         lock (characters)
         {
             if (!characters.TryGetValue(set, out composedCharacters))
-                characters.Add(set, composedCharacters = EnemySheetComposer.Load(inputs.Value, set).Characters);
+                characters.Add(set, composedCharacters = EnemySheetComposer.Load(
+                    inputs.Value with { SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }, set).Characters);
         }
         return composedCharacters.Page(reached);
     }
@@ -86,7 +87,7 @@ internal static class EnemySheetFixtures
     private sealed class ComposedOnDemand(EnemySheetInputs inputs, InstalledEnemySheets? installed) : IEnemySheetSource
     {
         /// <summary>Each composed set's sheets, keyed by the set's definition, which lives as long as the process.</summary>
-        private readonly Dictionary<RoomEnemyGraphicsSetDefinition, ComposedSet> sets = [];
+        private readonly Dictionary<RoomEnemyGraphicsSetDefinition, ComposedSet> sets = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>The sheets of <paramref name="set"/>, composed the first time a room loads it.</summary>
         private ComposedSet Set(RoomEnemyGraphicsSetDefinition set)
@@ -176,7 +177,7 @@ internal static class EnemySheetFixtures
         private ComposedSet Compose(RoomEnemyGraphicsSetDefinition set)
         {
             // A fixture's own set is coloured in the rows its records name, which the fixture recorded.
-            GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(inputs with { SetPaletteRows = FixtureGraphicsSetRows.CatalogueFor(set) }, set);
+            GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(inputs with { SetPaletteRows = FixtureGraphicsSetRows.CatalogueFor(set), SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }, set);
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, Lazy<SpriteSheet>>();

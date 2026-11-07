@@ -7,4 +7,7 @@ public static class DachoraColorFormat
     public const string FileName = "dachora-colors.json";
     /// <summary>Supported Dachora color JSON schema revision one.</summary>
     public const int Version = 1;
+
+    /// <summary>The colours in each Dachora colour set, including the transparent first colour.</summary>
+    public const int ColorsPerFrame = 16;
 }

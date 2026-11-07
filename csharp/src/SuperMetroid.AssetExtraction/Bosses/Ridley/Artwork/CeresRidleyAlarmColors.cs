@@ -26,16 +26,16 @@ internal sealed class CeresRidleyAlarmColors
     /// <summary>The reflected phase of alarm step <paramref name="step"/>: sixteen steps ascend through phase eight, then revisit phases seven to one.</summary>
     internal static int Phase(int step)
     {
-        if ((uint)step >= CeresRidleyPaletteDefinitions.AlarmStepCount)
+        if ((uint)step >= CeresRidleyColorFormat.AlarmStepCount)
             throw new ArgumentOutOfRangeException(nameof(step));
-        return Math.Min(step, CeresRidleyPaletteDefinitions.AlarmStepCount - step);
+        return Math.Min(step, CeresRidleyColorFormat.AlarmStepCount - step);
     }
 
     /// <summary>Uses an edited cell when supplied; otherwise computes its bright, middle, or dark warning shade.</summary>
     internal RgbColor Resolve(int step, int color)
     {
         _ = Phase(step);
-        if ((uint)color >= CeresRidleyPaletteDefinitions.AlarmColorCount)
+        if ((uint)color >= CeresRidleyColorFormat.AlarmColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         var key = new PaintColour(step, color);
         return edits.TryGetValue(key, out RgbColor value) ? value : Calculate(step, color);

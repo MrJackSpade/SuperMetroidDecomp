@@ -68,7 +68,7 @@ internal static class CompletedFramesOwnArtworkVerification
 
     /// <summary>Whether the graphics set named <paramref name="set"/> plays <paramref name="sequence"/>.</summary>
     private static bool Plays(string set, EncounterArtworkSequence sequence) =>
-        EncounterArtworkUploads.Of(RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate => candidate.Name == set)).Contains(sequence);
+        EncounterArtworkUploads.Of(RoomEnemyGraphicsSetLists.Members[set]).Contains(sequence);
 
     /// <summary>Runs the completed frames' own-artwork rule.</summary>
     [VerificationCommand("--completed-frames-own-artwork")]

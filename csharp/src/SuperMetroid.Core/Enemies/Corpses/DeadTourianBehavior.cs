@@ -182,16 +182,14 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Groups one corpse species' header rot-trigger callbacks with the number of its corpse variants.</summary>
+    /// <summary>Groups one corpse species with its header rot-trigger callbacks.</summary>
     /// <param name="Species">The corpse species.</param>
     /// <param name="TouchAndShot">The callback its header names for touch and shot, which starts its rot.</param>
     /// <param name="PowerBomb">The callback its header names for a power bomb, which starts its rot.</param>
-    /// <param name="VariantCount">How many corpse variants the species has.</param>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         EnemyReaction TouchAndShot,
-        EnemyReaction PowerBomb,
-        int VariantCount);
+        EnemyReaction PowerBomb);
 
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>
     internal static void AddDeadTourianBombReactions(EnemySharedReactions table)

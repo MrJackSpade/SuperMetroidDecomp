@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 /// </summary>
 public static class PhantoonShades
 {
-    /// <summary>The lengths his body's fades run over.</summary>
-    public static IReadOnlyList<int> FadeDenominators { get; } = [1, 12];
-
     /// <summary>The length of the power coming on.</summary>
     public const int PowerOnDenominator = 12;
 

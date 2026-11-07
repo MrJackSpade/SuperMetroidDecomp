@@ -30,7 +30,7 @@ internal static class BossColourContentIdentity
             SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
             {
                 content.Append("health", BotwoonHealthPaletteDefinitions.PaletteCount);
-                Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
+                Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonColorFormat.ColorsPerPalette];
                 for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
                 {
                     for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(band, color);
@@ -161,17 +161,17 @@ internal static class BossColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
             {
-                Span<RgbColor> target = stackalloc RgbColor[PhantoonColorDefinitions.FadeOutCount];
+                Span<RgbColor> target = stackalloc RgbColor[PhantoonColorFormat.FadeOutCount];
                 for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
                 content.AppendColors("fadeOut", target);
-                var power = new List<RgbColor>(PhantoonColorDefinitions.PoweredParts.Length * SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount);
-                foreach (WreckedShipPoweredPart part in PhantoonColorDefinitions.PoweredParts)
+                var power = new List<RgbColor>(PhantoonColorFormat.PoweredParts.Length * SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount);
+                foreach (WreckedShipPoweredPart part in PhantoonColorFormat.PoweredParts)
                     for (int color = 0; color < SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount; color++) power.Add(colors.ResolvePowerOn(part, color));
                 content.AppendColors("powerOn", power.ToArray());
                 var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
                 for (int band = 0; band < frames.Length; band++)
                 {
-                    frames[band] = new RgbColor[PhantoonColorDefinitions.HealthBandColorCount];
+                    frames[band] = new RgbColor[PhantoonColorFormat.HealthBandColorCount];
                     for (int color = 0; color < frames[band].Length; color++) frames[band][color] = colors.ResolveHealth(band, color);
                 }
                 content.AppendColorFrames("healthBands", frames);
@@ -185,13 +185,13 @@ internal static class BossColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
             {
-                Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyPaletteDefinitions.InitialColorCount];
+                Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyColorFormat.InitialColorCount];
                 for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.selection.Initial.ColorAt(color);
                 content.AppendColors("initial", initialWords);
                 RgbColor[][] revealWords = new RgbColor[NorfairRidleyPaletteDefinitions.RevealStepCount][];
                 for (int step = 0; step < revealWords.Length; step++)
                 {
-                    revealWords[step] = new RgbColor[NorfairRidleyPaletteDefinitions.RevealColorCount];
+                    revealWords[step] = new RgbColor[NorfairRidleyColorFormat.RevealColorCount];
                     for (int color = 0; color < revealWords[step].Length; color++) revealWords[step][color] = colors.selection.Reveal.ColorAt(step, color);
                 }
                 content.AppendColorFrames("reveal", revealWords);
@@ -205,18 +205,18 @@ internal static class BossColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
             {
-                content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
+                content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
                 content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorDefinitions.HealthFrameCount)
-                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.selection.Health.Resolve(frame, color)).ToArray()).ToArray());
-                content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount)
-                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorFormat.DeathSpriteFrameCount)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveDeathSprite(frame, color)).ToArray()).ToArray());
-                content.AppendColorFrames("deathLevel", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSceneFrameCount)
-                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                content.AppendColorFrames("deathLevel", Enumerable.Range(0, SporeSpawnColorFormat.DeathSceneFrameCount)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveDeathLevel(frame, color)).ToArray()).ToArray());
-                content.AppendColorFrames("deathBackground", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSceneFrameCount)
-                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                content.AppendColorFrames("deathBackground", Enumerable.Range(0, SporeSpawnColorFormat.DeathSceneFrameCount)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveDeathBackground(frame, color)).ToArray()).ToArray());
             });
     }

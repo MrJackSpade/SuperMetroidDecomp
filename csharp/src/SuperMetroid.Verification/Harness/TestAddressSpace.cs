@@ -116,7 +116,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     }
 
     /// <summary>An empty graphics set for a fixture whose empty population never loads one.</summary>
-    public static RoomEnemyGraphicsSetDefinition UnusedGraphicsSet { get; } = new("unused fixture graphics set", []);
+    public static RoomEnemyGraphicsSetDefinition UnusedGraphicsSet { get; } = new("unused fixture graphics set");
 
     /// <summary>Reads up to four enemy graphics headers through the native terminator.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
@@ -132,7 +132,8 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
                 if (RetailSetOf(records) is { } retail)
                     return retail;
                 // A set no retail set holds is coloured in the rows its records' placement words name (#1512).
-                var fixture = new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
+                var fixture = new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}");
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.Record(fixture, [.. records]);
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetRows.Record(fixture, [.. rows]);
                 return fixture;
             }
@@ -155,8 +156,8 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     private static RoomEnemyGraphicsSetDefinition? RetailSetOf(List<RoomEnemyGraphicsSetMember> records)
     {
         // Only the cartridge's own sets: the session's start-up set is no retail set and catalogues no palette rows.
-        RoomEnemyGraphicsSetDefinition[] matches = [.. RoomEnemyGraphicsSetDefinitions.Retail
-            .Where(set => set.Records.Span.SequenceEqual(records.ToArray()))];
+        RoomEnemyGraphicsSetDefinition[] matches = [.. RoomEnemyGraphicsSetLists.All
+            .Where(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.Span.SequenceEqual(records.ToArray()))];
         if (matches.Length == 0)
             return null;
         IReadOnlyDictionary<string, int[]> rows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows;

@@ -23,6 +23,9 @@ internal static class PhantoonSheetShades
     /// <summary>The colours of one colour group.</summary>
     private const int GroupColours = 16;
 
+    /// <summary>The lengths his body's fades run over.</summary>
+    private static readonly int[] FadeDenominators = [1, 12];
+
     /// <summary>The shades of his body sheet.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Body(BossSourceArtwork bosses)
@@ -42,7 +45,7 @@ internal static class PhantoonSheetShades
             foreach (PhantoonBodyLook to in targets)
             {
                 RgbColor[] goal = Colours(phantoon, to);
-                foreach (int denominator in PhantoonShades.FadeDenominators)
+                foreach (int denominator in FadeDenominators)
                 {
                     for (int first = 1; first <= denominator + 1; first++)
                     {
@@ -62,10 +65,10 @@ internal static class PhantoonSheetShades
     {
         PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon's room is shaded from the installed Phantoon colours.");
         // The parts the power fades are the room's first colour groups, in order.
-        int inks = PhantoonColorDefinitions.PoweredParts.Length * GroupColours;
+        int inks = PhantoonColorFormat.PoweredParts.Length * GroupColours;
         RgbColor[] start = standard[..inks].ToArray();
         RgbColor[] goal = [.. Enumerable.Range(0, inks).Select(ink =>
-            phantoon.ResolvePowerOn(PhantoonColorDefinitions.PoweredParts[ink / GroupColours], ink % GroupColours))];
+            phantoon.ResolvePowerOn(PhantoonColorFormat.PoweredParts[ink / GroupColours], ink % GroupColours))];
         return [.. Enumerable.Range(0, PhantoonShades.PowerOnDenominator + 2).Select(numerator =>
             SheetShade.Run(PhantoonShades.PowerOn(numerator), 0, Faded(start, goal, PhantoonShades.PowerOnDenominator, 0, numerator)))];
     }
@@ -75,8 +78,8 @@ internal static class PhantoonSheetShades
     {
         PhantoonBodyLookKind.Black => new RgbColor[GroupColours],
         PhantoonBodyLookKind.White => [.. Enumerable.Repeat(RgbColor.White, GroupColours)],
-        PhantoonBodyLookKind.FadedOut => [.. Enumerable.Range(0, PhantoonColorDefinitions.FadeOutCount).Select(phantoon.ResolveFadeOut)],
-        PhantoonBodyLookKind.Health => [.. Enumerable.Range(0, PhantoonColorDefinitions.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(look.Band, colour))],
+        PhantoonBodyLookKind.FadedOut => [.. Enumerable.Range(0, PhantoonColorFormat.FadeOutCount).Select(phantoon.ResolveFadeOut)],
+        PhantoonBodyLookKind.Health => [.. Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(look.Band, colour))],
         _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
     };
 

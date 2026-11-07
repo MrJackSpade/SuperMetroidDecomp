@@ -36,8 +36,8 @@ internal static class WreckedShipGhostShadeContentVerification
         AssertEqual(new RgbColor(31, 0, 0), fade.Shown[10], "a colour whose red is full is not brightened");
 
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
-            candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));
-        int first = new GraphicsSetRows(set, EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
+            RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));
+        int first = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Coven).Image;
         IReadOnlyList<ShadeColours> steps = EnemySheetShades.GhostFadeSteps();
         AssertTrue(steps.Count > 3 * 31, "the ghost's path passes through its brightening and both fades");

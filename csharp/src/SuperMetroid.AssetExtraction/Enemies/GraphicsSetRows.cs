@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal sealed class GraphicsSetRows
 {
     /// <summary>The set whose rows these are.</summary>
-    private readonly RoomEnemyGraphicsSetDefinition set;
+    private readonly RoomEnemyGraphicsSetMembers set;
 
     /// <summary>Each set's record rows by set name, among them the set's.</summary>
     private readonly IReadOnlyDictionary<string, int[]> catalogue;
@@ -24,7 +24,7 @@ internal sealed class GraphicsSetRows
     /// catalogue for an installation's sets, or a fixture's own for the set it seeds, as its records' placement words
     /// name them. They are resolved when a lookup needs them.
     /// </summary>
-    internal GraphicsSetRows(RoomEnemyGraphicsSetDefinition set, IReadOnlyDictionary<string, int[]> catalogue)
+    internal GraphicsSetRows(RoomEnemyGraphicsSetMembers set, IReadOnlyDictionary<string, int[]> catalogue)
     {
         this.set = Ensure.NotNull(set);
         this.catalogue = Ensure.NotNull(catalogue);

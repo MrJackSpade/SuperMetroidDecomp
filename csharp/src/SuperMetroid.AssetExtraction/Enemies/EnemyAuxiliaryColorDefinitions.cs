@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
@@ -47,7 +48,7 @@ internal static class CorpseRotDrawingVerification
         foreach (EnemyDefinitionId enemy in new[] { EnemyDefinitionId.CorpseZoomer, EnemyDefinitionId.CorpseRipper, EnemyDefinitionId.CorpseSkree })
         {
             DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianBehavior.ProfileForDeadTourianCorpse(enemy);
-            for (int variant = 0; variant < profile.VariantCount; variant++)
+            for (int variant = 0; variant < DeadTourianCorpses.VariantCount(profile.Species); variant++)
             {
                 compared += VerifyDeadMonster(sheets, enemy, DeadTourianCorpses.For(profile.Species, variant).RowCount,
                     CorpseCharacterRot.Tourian(enemies, profile.Species, variant));
@@ -304,7 +305,7 @@ internal static class CorpseRotDrawingVerification
     }
 
     /// <summary>The character a frame of <paramref name="enemy"/> under <paramref name="set"/> counts its parts' characters from.</summary>
-    private static int TileBase(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(set).TileBaseOf(enemy);
+    private static int TileBase(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(set)).TileBaseOf(enemy);
 
     /// <summary>The sprite characters <paramref name="set"/>'s load and <paramref name="reached"/> steps leave.</summary>
     private static byte[] Loaded(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterArtworkStep> reached) =>

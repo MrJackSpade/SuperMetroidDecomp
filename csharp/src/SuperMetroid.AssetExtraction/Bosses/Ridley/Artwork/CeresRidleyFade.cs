@@ -33,10 +33,10 @@ internal sealed class CeresRidleyFade
     internal readonly Dictionary<PaintColour, RgbColor> overrides;
     /// <summary>Number of colors in a shade of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
-        ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
+        ? CeresRidleyColorFormat.EyeFadeColorCount : CeresRidleyColorFormat.BodyFadeColorCount;
     /// <summary>Number of fade steps for the selected table.</summary>
     private int Shades => kind == CeresRidleyFadeKind.Eyes
-        ? CeresRidleyPaletteDefinitions.EyeFadeShadeCount : CeresRidleyPaletteDefinitions.BodyFadeShadeCount;
+        ? CeresRidleyColorFormat.EyeFadeShadeCount : CeresRidleyPaletteDefinitions.BodyFadeShadeCount;
 
     /// <summary>Retains the selected endpoint paint and the exceptions to the shared fade formula.</summary>
     /// <param name="kind">Whether this is the eye or the body fade.</param>

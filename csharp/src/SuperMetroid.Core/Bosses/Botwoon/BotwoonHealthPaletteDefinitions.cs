@@ -8,8 +8,6 @@ internal static class BotwoonHealthPaletteDefinitions
 {
     /// <summary>Eight complete sixteen-color palette images, one per health band.</summary>
     public const int PaletteCount = 8;
-    /// <summary>Each Botwoon health-band image occupies one sixteen-color sprite palette.</summary>
-    public const int ColorsPerPalette = 16;
 
     /// <summary>The palette phase once Botwoon has passed all eight health thresholds.</summary>
     public const int CompletePhase = 8;

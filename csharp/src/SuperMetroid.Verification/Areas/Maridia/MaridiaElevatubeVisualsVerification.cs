@@ -18,20 +18,20 @@ internal static class MaridiaElevatubeVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube stock oracle revision");
         // A private installation copy, whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMaridiaElevatubeVisualDirectory))
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectMaridiaElevatubeVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmMaridiaElevatubeVisualFilesConstants.ValidateStock(
-                installation.RoomPlmMaridiaElevatubeVisualDirectory);
-            VerifyElevatubeStockMapping(rom, installation.LoadRoomPlmMaridiaElevatubeVisuals());
+            RoomObjectMaridiaElevatubeVisualFilesConstants.ValidateStock(
+                installation.RoomObjectMaridiaElevatubeVisualDirectory);
+            VerifyElevatubeStockMapping(rom, installation.LoadRoomObjectMaridiaElevatubeVisuals());
 
             string stockPath = Path.Combine(
-                installation.RoomPlmMaridiaElevatubeVisualDirectory,
-                RoomPlmMaridiaElevatubeVisualFiles.VisualFileName);
+                installation.RoomObjectMaridiaElevatubeVisualDirectory,
+                RoomObjectMaridiaElevatubeVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmMaridiaElevatubeVisualFilesConstants.ValidateStock(
-                    installation.RoomPlmMaridiaElevatubeVisualDirectory),
+                () => RoomObjectMaridiaElevatubeVisualFilesConstants.ValidateStock(
+                    installation.RoomObjectMaridiaElevatubeVisualDirectory),
                 "tampered elevatube stock fails loudly where it is read");
         }
         Console.WriteLine(

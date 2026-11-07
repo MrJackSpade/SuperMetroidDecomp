@@ -79,7 +79,7 @@ internal sealed class BeamFiring
         ControllerButton controllerInput,
         ControllerButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         const ControllerButton shoot = ControllerButton.X;
         _charge.PreviousBeamChargeCounter = _charge.FlareCounter;
@@ -90,7 +90,7 @@ internal sealed class BeamFiring
         if (samus.HyperBeamEnabled)
         {
             (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != ControllerButton.None
-                ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)
+                ? TryFireHyperBeam(level, samus, sharedProjectiles, roomObjects)
                 : new BeamShot(null, null);
             return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
         }
@@ -107,7 +107,7 @@ internal sealed class BeamFiring
                     samus,
                     controllerNewInput,
                     sharedProjectiles,
-                    roomPlms,
+                    roomObjects,
                     charged: false)
                 : new BeamShot(null, null);
             return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
@@ -128,7 +128,7 @@ internal sealed class BeamFiring
                 samus,
                 controllerNewInput,
                 sharedProjectiles,
-                roomPlms,
+                roomObjects,
                 charged: forcedChargedRelease));
         }
 
@@ -148,7 +148,7 @@ internal sealed class BeamFiring
                         samus,
                         controllerNewInput,
                         sharedProjectiles,
-                        roomPlms,
+                        roomObjects,
                         charged: false);
                     return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
                 }
@@ -187,7 +187,7 @@ internal sealed class BeamFiring
             samus,
             controllerNewInput,
             sharedProjectiles,
-            roomPlms,
+            roomObjects,
             charged: releaseCharged));
     }
 
@@ -221,7 +221,7 @@ internal sealed class BeamFiring
         SamusState samus,
         ControllerButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         bool charged)
     {
         const ControllerButton shoot = ControllerButton.X;
@@ -315,7 +315,7 @@ internal sealed class BeamFiring
         bool initialImpact = _terrainCollision.RunInitialBeamCollision(
             level,
             slot,
-            roomPlms,
+            roomObjects,
             waveBeam: beamType.HasWave,
             sharedProjectiles.PowerBombExplosion);
         if (!initialImpact)
@@ -341,7 +341,7 @@ internal sealed class BeamFiring
         RoomLevelData level,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         // Allocation is shared with normal beams: five counted ordinary slots and a nonzero
         // low cooldown byte reject firing before any slot fields are touched.
@@ -394,7 +394,7 @@ internal sealed class BeamFiring
         _ = _terrainCollision.RunInitialBeamCollision(
             level,
             slot,
-            roomPlms,
+            roomObjects,
             waveBeam: true,
             sharedProjectiles.PowerBombExplosion);
         slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;

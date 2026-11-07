@@ -16,7 +16,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -75,7 +75,7 @@ internal sealed class RoomLoader
     /// <summary>The session's room scroll allocation; it outlives each room so implicit tables keep the previous room's tail.</summary>
     private readonly RoomScrollStorage _scrollStorage;
     /// <summary>Constructs room PLMs after persistent state has been restored.</summary>
-    private readonly PlmShotBlockVisuals _shotBlockVisuals;
+    private readonly RoomObjectVisuals _shotBlockVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
     private readonly BeamChargeState _beamCharge;
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system built here.</summary>
@@ -231,7 +231,7 @@ internal sealed class RoomLoader
         // LoadFromLoadStation sets the save-station lockout. Without this room-entry lockout, the
         // first standing floor probe after loading directly on a save pod immediately
         // reopens its confirmation message.
-        _room.LoadedScope.Plms.Stations.LockSaveStationForCurrentRoomEntry();
+        _room.LoadedScope.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
 
         // Command nine does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, a suit-specific palette object, and the 360-call
@@ -756,7 +756,7 @@ internal sealed class RoomLoader
             room,
             placement.CameraPosition,
             viewportLoadMode,
-            new RoomEntry { RunDoorClosingPlm = true, PreloadedAssets = assets });
+            new RoomEntry { RunDoorClosingObject = true, PreloadedAssets = assets });
 
         // The door transition calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
         // loaded and before the door fade captures the destination fade target. The source fade
@@ -942,52 +942,52 @@ internal sealed class RoomLoader
         // The room's PLM system is built with its bindings, then one set of runtime services
         // serves the room's PLMs and enemies.
         var progress = new RoomAreaProgress(_system, room.AreaIndex);
-        var plmServices = new RoomPlmRuntimeServices(scope, _player, _room, _system);
-        var plmRoom = new PlmRoom(assets.LevelData, scope.Appearance, _system, room.AreaIndex);
-        var plmBindings = new RoomPlmServices
+        var roomObjectServices = new RoomObjectRuntimeServices(scope, _player, _room, _system);
+        var roomObjectRoom = new RoomObjectRoom(assets.LevelData, scope.Appearance, _system, room.AreaIndex);
+        var roomObjectBindings = new RoomObjectServices
         {
-            Samus = plmServices,
+            Samus = roomObjectServices,
             Bosses = progress,
             Events = progress,
-            TourianStatue = plmServices,
-            RoomFx = roomFxOverlay is { } fx ? new RoomPlmFx(fx, () => _player.Samus) : null,
-            Earthquake = plmServices,
-            Enemies = plmServices,
+            TourianStatue = roomObjectServices,
+            RoomFx = roomFxOverlay is { } fx ? new RoomObjectFx(fx, () => _player.Samus) : null,
+            Earthquake = roomObjectServices,
+            Enemies = roomObjectServices,
         };
-        var plms = new RoomPlmSystem(plmRoom, plmBindings, _shotBlockVisuals);
-        scope.Plms = plms;
-        plms.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion.Activity);
-        var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, plms, _display, progress);
+        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals);
+        scope.RoomObjects = roomObjects;
+        roomObjects.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion.Activity);
+        var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
         scope.Services = areaServices;
-        plms.PopulationLoader.LoadRoomPopulation(plmRoom, room.State.PlmPopulation, plmBindings);
+        roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
         // The door transition runs the door program only after destination PLMs
         // exist and before enemy initialization/initial viewport construction. Several of
         // those programs rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetupCode(door, plms, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
-        if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomPlm)
-            plms.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
+        _doorTransition.RunDoorSetupCode(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
+        if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomObject)
+            roomObjects.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
-            plms.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
+            roomObjects.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
                 assets.LevelData.GetBlockIndex(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
         // The Climb's escape setup spawns the fake-wall PLM; SpawnHardcodedPLM silently drops it when all
         // forty slots are occupied.
         if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
-            plms.Tourian.TrySpawnOldTourianEscapeShaftWall(assets.LevelData);
+            roomObjects.Tourian.TrySpawnOldTourianEscapeShaftWall(assets.LevelData);
         // The mainstreet's escape setup also spawns this PLM before writing the quake SetupEscapeRoomEffects owns.
         if (room.State.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen)
-            plms.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
+            roomObjects.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
 
-        if (entry.RunDoorClosingPlm)
+        if (entry.RunDoorClosingObject)
         {
             // The door transition performs this handoff after destination PLMs, door/room setup,
             // and FX construction but before enemy initialization. The C# room constructor
             // groups those owners differently, yet this point preserves the observable
             // PLM-pool order: every room-authored actor exists before the closer requests
             // the next highest free slot, and no enemy-authored PLM has run yet.
-            plms.DoorPlms.TrySpawnDoorClosingPlm(assets.LevelData, door, _system);
+            roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door, _system);
         }
 
         // Loading updates the entering beam before it initializes enemies. Golden Torizo's code mutates
@@ -1037,12 +1037,12 @@ internal sealed class RoomLoader
         // subsequently clears the shared projectile pool. Consume those setup
         // requests here—the first point matching the game's completed room teardown—
         // so the closed actor survives into the initial viewport.
-        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms, enemies);
+        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, enemies);
         // The Tourian escape setup spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomFxOverlay, roomPaletteFx, enemies);
-        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomPaletteFx, plms, enemies);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomPaletteFx, enemies);
+        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomPaletteFx, roomObjects, enemies);
         // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
         enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 

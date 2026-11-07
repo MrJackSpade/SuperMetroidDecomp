@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles.Artwork;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

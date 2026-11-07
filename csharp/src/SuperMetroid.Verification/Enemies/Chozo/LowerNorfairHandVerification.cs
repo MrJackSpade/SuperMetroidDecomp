@@ -33,7 +33,7 @@ internal static class LowerNorfairHandVerification
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
-        AssertTrue(runtime.Plms.BlockReactions.TrySpawnProjectileShotBlock(level, hand.Index,
+        AssertTrue(runtime.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(level, hand.Index,
             hand.Behavior, SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), true), "power bomb breaks the retail hand cover");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
@@ -46,7 +46,7 @@ internal static class LowerNorfairHandVerification
             samus.PoseId = hasSpaceJump ? SamusPoseId.FacingRightNormalPose : SamusPoseId.MorphBallGroundRightPose;
             SamusPresentation.InitializeAnimation(samus);
             samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
-            var rejected = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
+            var rejected = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
             AssertTrue(rejected.Collided, "hand remains solid for ineligible contact");
             AssertTrue(!runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid),
                 "standing or missing Space Jump must not activate statue");
@@ -55,7 +55,7 @@ internal static class LowerNorfairHandVerification
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
-        var collision = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
+        var collision = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
         // Samus's whole width lies in the hand's block column, so the downward probe's
         // only candidate is the hand block at (4, 8).
         int leftColumn = (samus.Kinematics.Position.X.Whole - samus.Kinematics.Radius.X) >> 4;

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -68,82 +68,82 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledRoomLevelStreams? RoomLevelStreams { get; init; }
 
     /// <summary>Room PLM shot block visuals.</summary>
-    public InstalledRoomPlmShotBlockVisuals? RoomPlmShotBlockVisuals { get; init; }
+    public InstalledRoomObjectShotBlockVisuals? RoomObjectShotBlockVisuals { get; init; }
 
     /// <summary>Room PLM grapple block visuals.</summary>
-    public InstalledRoomPlmGrappleBlockVisuals? RoomPlmGrappleBlockVisuals { get; init; }
+    public InstalledRoomObjectGrappleBlockVisuals? RoomObjectGrappleBlockVisuals { get; init; }
 
     /// <summary>Room PLM station visuals.</summary>
-    public InstalledRoomPlmStationVisuals? RoomPlmStationVisuals { get; init; }
+    public InstalledRoomObjectStationVisuals? RoomObjectStationVisuals { get; init; }
 
     /// <summary>Room PLM blue door visuals.</summary>
-    public InstalledRoomPlmBlueDoorVisuals? RoomPlmBlueDoorVisuals { get; init; }
+    public InstalledRoomObjectBlueDoorVisuals? RoomObjectBlueDoorVisuals { get; init; }
 
     /// <summary>Room PLM colored door visuals.</summary>
-    public InstalledRoomPlmColoredDoorVisuals? RoomPlmColoredDoorVisuals { get; init; }
+    public InstalledRoomObjectColoredDoorVisuals? RoomObjectColoredDoorVisuals { get; init; }
 
     /// <summary>Room PLM grey door visuals.</summary>
-    public InstalledRoomPlmGreyDoorVisuals? RoomPlmGreyDoorVisuals { get; init; }
+    public InstalledRoomObjectGreyDoorVisuals? RoomObjectGreyDoorVisuals { get; init; }
 
     /// <summary>Room PLM eye door visuals.</summary>
-    public InstalledRoomPlmEyeDoorVisuals? RoomPlmEyeDoorVisuals { get; init; }
+    public InstalledRoomObjectEyeDoorVisuals? RoomObjectEyeDoorVisuals { get; init; }
 
     /// <summary>Room PLM mother brain glass visuals.</summary>
-    public RoomPlmMotherBrainGlassVisualCatalog? RoomPlmMotherBrainGlassVisuals { get; init; }
+    public RoomObjectMotherBrainGlassVisualCatalog? RoomObjectMotherBrainGlassVisuals { get; init; }
 
     /// <summary>Room PLM noob tube visuals.</summary>
-    public InstalledRoomPlmNoobTubeVisuals? RoomPlmNoobTubeVisuals { get; init; }
+    public InstalledRoomObjectNoobTubeVisuals? RoomObjectNoobTubeVisuals { get; init; }
 
     /// <summary>Room PLM downward gate visuals.</summary>
-    public InstalledRoomPlmDownwardGateVisuals? RoomPlmDownwardGateVisuals { get; init; }
+    public InstalledRoomObjectDownwardGateVisuals? RoomObjectDownwardGateVisuals { get; init; }
 
     /// <summary>Room PLM elevator platform visuals.</summary>
-    public RoomPlmElevatorPlatformVisualCatalog? RoomPlmElevatorPlatformVisuals { get; init; }
+    public RoomObjectElevatorPlatformVisualCatalog? RoomObjectElevatorPlatformVisuals { get; init; }
 
     /// <summary>Room PLM escape gate visuals.</summary>
-    public RoomPlmEscapeGateVisualCatalog? RoomPlmEscapeGateVisuals { get; init; }
+    public RoomObjectEscapeGateVisualCatalog? RoomObjectEscapeGateVisuals { get; init; }
 
     /// <summary>Room PLM bomb torizo hand visuals.</summary>
-    public RoomPlmBombTorizoHandVisualCatalog? RoomPlmBombTorizoHandVisuals { get; init; }
+    public RoomObjectBombTorizoHandVisualCatalog? RoomObjectBombTorizoHandVisuals { get; init; }
 
     /// <summary>Room PLM draygon cannon visuals.</summary>
-    public RoomPlmDraygonCannonVisualCatalog? RoomPlmDraygonCannonVisuals { get; init; }
+    public RoomObjectDraygonCannonVisualCatalog? RoomObjectDraygonCannonVisuals { get; init; }
 
     /// <summary>Room PLM chozo statue visuals.</summary>
-    public RoomPlmChozoStatueVisualCatalog? RoomPlmChozoStatueVisuals { get; init; }
+    public RoomObjectChozoStatueVisualCatalog? RoomObjectChozoStatueVisuals { get; init; }
 
     /// <summary>Room PLM linked restore visuals.</summary>
-    public InstalledRoomPlmLinkedRestoreVisuals? RoomPlmLinkedRestoreVisuals { get; init; }
+    public InstalledRoomObjectLinkedRestoreVisuals? RoomObjectLinkedRestoreVisuals { get; init; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
-    public RoomPlmTourianAccessVisuals? RoomPlmTourianAccessVisuals { get; init; }
+    public RoomObjectTourianAccessVisuals? RoomObjectTourianAccessVisuals { get; init; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
-    public InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; init; }
+    public InstalledRoomObjectSpeedBoosterVisuals? RoomObjectSpeedBoosterVisuals { get; init; }
 
     /// <summary>Room PLM maridia elevatube visuals.</summary>
-    public InstalledRoomPlmMaridiaElevatubeVisuals? RoomPlmMaridiaElevatubeVisuals { get; init; }
+    public InstalledRoomObjectMaridiaElevatubeVisuals? RoomObjectMaridiaElevatubeVisuals { get; init; }
 
     /// <summary>Room PLM spore spawn ceiling visuals.</summary>
-    public RoomPlmSporeSpawnCeilingVisualCatalog? RoomPlmSporeSpawnCeilingVisuals { get; init; }
+    public RoomObjectSporeSpawnCeilingVisualCatalog? RoomObjectSporeSpawnCeilingVisuals { get; init; }
 
     /// <summary>Room PLM samus eater visuals.</summary>
-    public InstalledRoomPlmSamusEaterVisuals? RoomPlmSamusEaterVisuals { get; init; }
+    public InstalledRoomObjectSamusEaterVisuals? RoomObjectSamusEaterVisuals { get; init; }
 
     /// <summary>Room PLM botwoon wall visuals.</summary>
-    public InstalledRoomPlmBotwoonWallVisuals? RoomPlmBotwoonWallVisuals { get; init; }
+    public InstalledRoomObjectBotwoonWallVisuals? RoomObjectBotwoonWallVisuals { get; init; }
 
     /// <summary>Room PLM kraid visuals.</summary>
-    public InstalledRoomPlmKraidVisuals? RoomPlmKraidVisuals { get; init; }
+    public InstalledRoomObjectKraidVisuals? RoomObjectKraidVisuals { get; init; }
 
     /// <summary>Room PLM crocomire visuals.</summary>
-    public RoomPlmCrocomireVisualCatalog? RoomPlmCrocomireVisuals { get; init; }
+    public RoomObjectCrocomireVisualCatalog? RoomObjectCrocomireVisuals { get; init; }
 
     /// <summary>Room PLM mother brain fake death visuals.</summary>
-    public RoomPlmMotherBrainFakeDeathVisualCatalog? RoomPlmMotherBrainFakeDeathVisuals { get; init; }
+    public RoomObjectMotherBrainFakeDeathVisualCatalog? RoomObjectMotherBrainFakeDeathVisuals { get; init; }
 
     /// <summary>Room PLM collectible visuals.</summary>
-    public InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; init; }
+    public InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; init; }
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     public InstalledXrayReveals? XrayRevealVisuals { get; init; }

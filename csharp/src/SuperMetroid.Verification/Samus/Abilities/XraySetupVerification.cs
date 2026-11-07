@@ -52,7 +52,7 @@ internal static class XraySetupVerification
         void ShowEverywhere(int stage)
         {
             for (int block = 0; block < level.Size.Area; block++)
-                level.SetPlmTerrain(block, level.GetPlmCollisionBlockByIndex(block).Terrain, RoomBlockAppearance.Of(Markers[stage]));
+                level.SetObjectTerrain(block, level.GetObjectCollisionBlockByIndex(block).Terrain, RoomBlockAppearance.Of(Markers[stage]));
         }
         // Stage four builds the reveal from the BG1 plane the room shows then (#1351); nothing is captured earlier.
         ShowEverywhere(0);
@@ -68,7 +68,7 @@ internal static class XraySetupVerification
         {
             RevealedBlock?[] built = XrayRevealMap.Build(level, scroll.ForegroundPosition, scroll.ForegroundOffset, room.AreaIndex,
                 runtime.Xray.XrayRevealVisuals);
-            XrayRevealOverlays.Apply(level, built, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
+            XrayRevealOverlays.Apply(level, built, runtime.RoomObjects.CollectibleObjects.Collectibles, runtime.System,
                 room.State.XrayOverlay, scroll.ForegroundPosition, runtime.Xray.XrayRevealVisuals);
             return built;
         }

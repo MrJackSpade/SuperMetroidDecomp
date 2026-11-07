@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireArenaMutationDefinitions
 {
     /// <summary>The room PLM each mutation occupies its slot as.</summary>
-    internal static readonly IReadOnlyDictionary<CrocomireArenaMutation, PlmHeaderId> Plms =
-        new Dictionary<CrocomireArenaMutation, PlmHeaderId>
+    internal static readonly IReadOnlyDictionary<CrocomireArenaMutation, RoomObjectHeaderId> RoomObjects =
+        new Dictionary<CrocomireArenaMutation, RoomObjectHeaderId>
         {
-            [CrocomireArenaMutation.ClearBridge] = PlmHeaderId.ClearCrocomireBridge,
-            [CrocomireArenaMutation.CrumbleBridgeBlock] = PlmHeaderId.CrumbleCrocomireBridgeBlock,
-            [CrocomireArenaMutation.ClearBridgeBlock] = PlmHeaderId.ClearCrocomireBridgeBlock,
-            [CrocomireArenaMutation.ClearInvisibleWall] = PlmHeaderId.ClearCrocomireInvisibleWall,
-            [CrocomireArenaMutation.CreateInvisibleWall] = PlmHeaderId.CreateCrocomireInvisibleWall,
+            [CrocomireArenaMutation.ClearBridge] = RoomObjectHeaderId.ClearCrocomireBridge,
+            [CrocomireArenaMutation.CrumbleBridgeBlock] = RoomObjectHeaderId.CrumbleCrocomireBridgeBlock,
+            [CrocomireArenaMutation.ClearBridgeBlock] = RoomObjectHeaderId.ClearCrocomireBridgeBlock,
+            [CrocomireArenaMutation.ClearInvisibleWall] = RoomObjectHeaderId.ClearCrocomireInvisibleWall,
+            [CrocomireArenaMutation.CreateInvisibleWall] = RoomObjectHeaderId.CreateCrocomireInvisibleWall,
         };
 
     /// <summary>The arena program each mutation runs after its empty setup.</summary>

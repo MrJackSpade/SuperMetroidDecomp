@@ -49,11 +49,11 @@ internal sealed class LiquidWaveAndStatueDescent
     /// door transition has stopped them: the room liquid's shared state, then the Tourian statues' delay and descent, whose rumble reads
     /// the random number.
     /// </summary>
-    internal void Advance(RoomPlmSystem plms, RoomScope room)
+    internal void Advance(RoomObjectSystem roomObjects, RoomScope room)
     {
         if (!RunsThisUpdate)
             return;
         room.FxOverlay.AdvanceLiquidMotion(_system, _freeze.TimeIsFrozen);
-        room.TourianStatues.StepDescent(plms);
+        room.TourianStatues.StepDescent(roomObjects);
     }
 }

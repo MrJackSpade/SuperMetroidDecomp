@@ -1,4 +1,4 @@
-using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;

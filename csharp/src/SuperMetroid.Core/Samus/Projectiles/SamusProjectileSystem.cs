@@ -361,7 +361,7 @@ public sealed class SamusProjectileSystem
                     // FireUnchargedBeam tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
                     sharedProjectiles,
-                    terrain.Plms);
+                    terrain.RoomObjects);
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
@@ -424,18 +424,18 @@ public sealed class SamusProjectileSystem
                     terrain.Level,
                     slot,
                     cameraPosition,
-                    terrain.Plms,
+                    terrain.RoomObjects,
                     sharedProjectiles.PowerBombExplosion);
             }
             else if (slot.FrameBehavior is
                 SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail or
                 SamusProjectileFrameBehavior.WaveBeamFourFrameTrail)
             {
-                Motion.RunWaveBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.Plms);
+                Motion.RunWaveBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.RoomObjects);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.HyperBeam)
             {
-                Motion.RunHyperBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.Plms);
+                Motion.RunHyperBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.RoomObjects);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.Missile)
             {
@@ -445,7 +445,7 @@ public sealed class SamusProjectileSystem
                     slot,
                     cameraPosition,
                     sharedProjectiles,
-                    terrain.Plms);
+                    terrain.RoomObjects);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SuperMissile)
             {
@@ -455,7 +455,7 @@ public sealed class SamusProjectileSystem
                     slot,
                     cameraPosition,
                     sharedProjectiles,
-                    terrain.Plms);
+                    terrain.RoomObjects);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SuperMissileLink)
             {
@@ -472,7 +472,7 @@ public sealed class SamusProjectileSystem
                     samus,
                     slot,
                     sharedProjectiles,
-                    terrain.Plms);
+                    terrain.RoomObjects);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.FrameBehavior ==

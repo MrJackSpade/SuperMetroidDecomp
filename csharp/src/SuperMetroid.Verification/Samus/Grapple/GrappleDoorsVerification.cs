@@ -4,7 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
@@ -45,17 +45,17 @@ internal static class GrappleDoorsVerification
             // Seed an extending beam exactly at each cap tile. Collision still traverses
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.
             SeedStationaryGrappleCollisionProbe(samus);
-            var plms = PlmFixtures.Unbound();
-            var result = SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X, plms);
+            var roomObjects = RoomObjectFixtures.Unbound();
+            var result = SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X, roomObjects);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
-            AssertEqual(1, plms.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");
+            AssertEqual(1, roomObjects.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,
                 "blue-door setup changes origin before animation");
             bool heardOpening = false;
             for (int frame = 0; frame < 19; frame++)
             {
-                plms.Step(level);
-                heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new SoundRequest(
+                roomObjects.Step(level);
+                heardOpening |= roomObjects.Sounds.SoundRequests.Any(r => r == new SoundRequest(
                     Library3Sound.DoorOpened, SoundRequestPriority.Normal));
             }
             AssertTrue(heardOpening, "grapple-opened blue door emits its native opening sound");

@@ -1,0 +1,30 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
+namespace SuperMetroid.Core.Rooms.RoomObjects;
+
+/// <summary>
+/// Complete collectible appearance; compiled draws retain their collision and pickup effects independently of the
+/// visual override.
+/// </summary>
+public sealed class InstalledRoomObjectCollectibleVisuals
+{
+    /// <summary>Only collectible frame appearances that differ from compiled stock appearance.</summary>
+    private readonly IReadOnlyDictionary<RoomObjectCollectibleDrawDefinitions.Draw, RoomBlockAppearance> customBlocks;
+
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customBlocks">The changed frames' appearances, keyed by frame.</param>
+    internal InstalledRoomObjectCollectibleVisuals(IReadOnlyDictionary<RoomObjectCollectibleDrawDefinitions.Draw, RoomBlockAppearance> customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
+
+    /// <summary>Resolves the selected appearance of one collectible draw while leaving its terrain compiled.</summary>
+    /// <param name="draw">The collectible draw whose appearance is resolved.</param>
+    /// <returns>The authored appearance, or the compiled stock frame's when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The draw is not a supported collectible frame.</exception>
+    internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw)
+    {
+        if (!CollectibleObjectDraws.TryGetBlock(draw, out RoomTerrainBlock physical))
+            throw new InvalidDataException($"Collectible visuals lack frame {draw}.");
+        return customBlocks.TryGetValue(RoomObjectDraw.FrameOf<RoomObjectCollectibleDrawDefinitions.Draw>(draw, "collectible"), out RoomBlockAppearance selected)
+            ? selected : physical.Appearance;
+    }
+}

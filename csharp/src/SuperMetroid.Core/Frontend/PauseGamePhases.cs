@@ -107,7 +107,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // Samus's unpause command also reloads her suit palette.
         // Equipment bits are live, but the restored gameplay palette is cached.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(session.GameplayRuntime.Player.Colours, resumedSamus.EquippedItems);
-        session.GameplayRuntime.Room.LoadedScope.Plms.Stations.ResumeMapStationsAfterUnpause();
+        session.GameplayRuntime.Room.LoadedScope.RoomObjects.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.Control.ReleaseRefillStationOnUnpause();
         session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);

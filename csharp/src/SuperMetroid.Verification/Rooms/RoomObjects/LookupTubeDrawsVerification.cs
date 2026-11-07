@@ -1,0 +1,109 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Cartridge;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
+using SuperMetroid.Core.Rooms.RoomObjects;
+
+namespace SuperMetroid.Verification.Rooms.RoomObjects;
+
+/// <summary>Compares every compiled Noob Tube PLM draw against native geometry, collision, and visual words.</summary>
+internal static class LookupTubeDrawsVerification
+{
+    /// <summary>Checks the seven draw identities, run shapes, and native ordering.</summary>
+    internal static void VerifyTubeGeometry(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 0);
+    /// <summary>Checks each tube cell's collision nibble against the cartridge draw list.</summary>
+    internal static void VerifyTubeCollision(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 1);
+    /// <summary>Checks each tube cell's visual tile bits against the cartridge draw list.</summary>
+    internal static void VerifyTubeVisuals(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 2);
+
+    /// <summary>Walks all seven native draw lists, selecting geometry, collision, or visual assertions by field.</summary>
+    private static void VerifyTubeDrawField(SuperMetroidAddressSpace rom, int field)
+    {
+        ushort[] pointers = [0x98d1,0x98d7,0x98dd,0x98e3,0x9953,0x9991,0x99e5];
+        string[] ids = ["intact","damaged","opened","cleared","broken-late","opened-rows","broken-full"];
+        var exported = RoomObjectNoobTubeVisualFiles.All.ToArray();
+        AssertEqual(7, exported.Length, "Tube export count");
+        if (field == 0)
+        {
+            for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            {
+                ushort pointer = (ushort)raw;
+                bool owned = pointers.Contains(pointer);
+                AssertEqual(owned, NoobTubeObjectDraws.TryDescribe(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var shape), "Tube shape domain");
+                AssertEqual(owned, RoomObjectNoobTubeVisualFiles.TryGet(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var dto), "Tube DTO domain");
+                if (!owned)
+                {
+                    AssertEqual(default(NoobTubeObjectDraws.Draw), shape, "Tube missing shape");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Tube missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectNoobTubeVisualFiles.VisualId(NativeObjectDraws.At<NoobTubeDraw>(pointer)), "Tube missing ID");
+                }
+            }
+            foreach (string id in new[] { "INTACT", "broken", "", "unknown" })
+            {
+                AssertTrue(!RoomObjectNoobTubeVisualFiles.TryGetByVisualId(id, out var missing), "Tube ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Tube rejected ID output");
+            }
+        }
+        int cells = 0;
+        for (int index = 0; index < pointers.Length; index++)
+        {
+            ushort pointer = pointers[index];
+            NoobTubeObjectDraws.TryDescribe(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var shape);
+            RoomObjectNoobTubeVisualFiles.TryGet(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var dto);
+            RoomObjectNoobTubeVisualFiles.TryGetByVisualId(ids[index], out var byId);
+            if (field == 0)
+            {
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Tube original export order");
+                AssertEqual(ids[index], RoomObjectNoobTubeVisualFiles.VisualId(NativeObjectDraws.At<NoobTubeDraw>(pointer)), "Tube published ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Tube reverse ID");
+                foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
+                {
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Tube run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Tube offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Tube word run bounds");
+                }
+            }
+            int cursor = 0x840000 | pointer;
+            int run = 0;
+            while (true)
+            {
+                ushort header = ReadSamusEaterObjectWord(rom, cursor);
+                int count = header & 0x7fff;
+                ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
+                if (field == 0)
+                {
+                    AssertEqual((ushort)count, header, "Tube native horizontal run");
+                    AssertEqual(count, shape.BlockCount(run), "Tube native calculated count");
+                    AssertEqual(LittleEndianBytes.Word(0, unchecked((byte)shape.NextY(run))), offset, "Tube native calculated continuation");
+                    foreach (var frame in new[] {dto,exported[index],byId})
+                    {
+                        var part = frame.Runs.Span[run];
+                        AssertRunHeader(header, part, "Tube native DTO geometry");
+                        AssertEqual(count, part.Count, "Tube native DTO count");
+                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Tube native DTO offset");
+                    }
+                    int selectedRun = run;
+                    foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Tube cell bounds");
+                }
+                else for (int cell = 0; cell < count; cell++)
+                {
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
+                    AssertEqual(expected, shape.BlockAt(run, cell), "Tube original calculated field");
+                    foreach (var frame in new[] {dto,exported[index],byId})
+                        AssertEqual(expected, frame.Runs.Span[run].Blocks.Span[cell], "Tube original DTO field");
+                }
+                cells += count;
+                run++;
+                cursor += 4 + count * 2;
+                if (offset == 0) break;
+                AssertTrue(run < 5, "Tube native run termination");
+            }
+            AssertEqual(run, shape.RunCount, "Tube native run count");
+            AssertEqual(run, dto.Runs.Length, "Tube native DTO run count");
+        }
+        AssertEqual(149, cells, "Tube independent physical cell count");
+    }
+}

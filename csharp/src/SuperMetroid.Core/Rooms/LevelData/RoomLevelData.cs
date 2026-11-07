@@ -143,7 +143,7 @@ public sealed class RoomLevelData
     /// this one, as the two shipped off-room coloured doors do.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">A coordinate is negative, or the block lies past the terrain beyond the room.</exception>
-    internal int GetPlmBlockIndex(Position16<RoomBlocks> block)
+    internal int GetObjectBlockIndex(Position16<RoomBlocks> block)
     {
         if (block.X < 0 || block.Y < 0)
             throw new ArgumentOutOfRangeException(nameof(block), $"PLM block {block} has a negative coordinate.");
@@ -182,7 +182,7 @@ public sealed class RoomLevelData
 
     /// <summary>Reads a room object's block, inside the grid or in the terrain beyond the room.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
-    internal RoomCollisionBlock GetPlmCollisionBlockByIndex(int blockIndex)
+    internal RoomCollisionBlock GetObjectCollisionBlockByIndex(int blockIndex)
     {
         if (IsLogicalBlockIndex(blockIndex))
             return GetCollisionBlockByIndex(blockIndex);
@@ -194,14 +194,14 @@ public sealed class RoomLevelData
     /// A room object's terrain write, showing the terrain's own picture. Writes inside the grid reach collision and the
     /// display; writes past it persist in the terrain beyond the room.
     /// </summary>
-    internal void SetPlmTerrain(int blockIndex, RoomTerrainBlock block) =>
-        SetPlmTerrain(blockIndex, block, block.Appearance);
+    internal void SetObjectTerrain(int blockIndex, RoomTerrainBlock block) =>
+        SetObjectTerrain(blockIndex, block, block.Appearance);
 
     /// <summary>
     /// A room object's terrain write that shows <paramref name="shown"/> over the terrain instead of the terrain's own
     /// picture. Past the grid nothing is shown, so only the terrain persists.
     /// </summary>
-    internal void SetPlmTerrain(int blockIndex, RoomTerrainBlock block, RoomBlockAppearance shown)
+    internal void SetObjectTerrain(int blockIndex, RoomTerrainBlock block, RoomBlockAppearance shown)
     {
         if (!IsLogicalBlockIndex(blockIndex))
         {
@@ -215,7 +215,7 @@ public sealed class RoomLevelData
     }
 
     /// <summary>A room object's behaviour write, inside the grid or in the terrain beyond the room.</summary>
-    internal void SetPlmBehavior(int blockIndex, RoomBlockBehavior behavior)
+    internal void SetObjectBehavior(int blockIndex, RoomBlockBehavior behavior)
     {
         if (!IsLogicalBlockIndex(blockIndex))
         {

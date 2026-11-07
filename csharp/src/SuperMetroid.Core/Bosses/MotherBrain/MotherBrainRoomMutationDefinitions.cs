@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -6,29 +6,29 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainRoomMutationDefinitions
 {
     /// <summary>The room PLM each mutation occupies its slot as.</summary>
-    internal static readonly IReadOnlyDictionary<MotherBrainRoomMutation, PlmHeaderId> Plms =
-        new Dictionary<MotherBrainRoomMutation, PlmHeaderId>
+    internal static readonly IReadOnlyDictionary<MotherBrainRoomMutation, RoomObjectHeaderId> RoomObjects =
+        new Dictionary<MotherBrainRoomMutation, RoomObjectHeaderId>
         {
-            [MotherBrainRoomMutation.FillWall] = PlmHeaderId.FillMotherBrainsWall,
-            [MotherBrainRoomMutation.EscapeDoor] = PlmHeaderId.MotherBrainsRoomEscapeDoor,
-            [MotherBrainRoomMutation.BackgroundRow2] = PlmHeaderId.MotherBrainsBackgroundRow2,
-            [MotherBrainRoomMutation.BackgroundRow3] = PlmHeaderId.MotherBrainsBackgroundRow3,
-            [MotherBrainRoomMutation.BackgroundRow4] = PlmHeaderId.MotherBrainsBackgroundRow4,
-            [MotherBrainRoomMutation.BackgroundRow5] = PlmHeaderId.MotherBrainsBackgroundRow5,
-            [MotherBrainRoomMutation.BackgroundRow6] = PlmHeaderId.MotherBrainsBackgroundRow6,
-            [MotherBrainRoomMutation.BackgroundRow7] = PlmHeaderId.MotherBrainsBackgroundRow7,
-            [MotherBrainRoomMutation.BackgroundRow8] = PlmHeaderId.MotherBrainsBackgroundRow8,
-            [MotherBrainRoomMutation.BackgroundRow9] = PlmHeaderId.MotherBrainsBackgroundRow9,
-            [MotherBrainRoomMutation.BackgroundRowA] = PlmHeaderId.MotherBrainsBackgroundRowA,
-            [MotherBrainRoomMutation.BackgroundRowB] = PlmHeaderId.MotherBrainsBackgroundRowB,
-            [MotherBrainRoomMutation.BackgroundRowC] = PlmHeaderId.MotherBrainsBackgroundRowC,
-            [MotherBrainRoomMutation.BackgroundRowD] = PlmHeaderId.MotherBrainsBackgroundRowD,
-            [MotherBrainRoomMutation.ClearCeilingBlock] = PlmHeaderId.ClearMotherBrainCeilingBlock,
-            [MotherBrainRoomMutation.ClearCeilingTube] = PlmHeaderId.ClearMotherBrainCeilingTube,
-            [MotherBrainRoomMutation.ClearBottomMiddleSideTube] = PlmHeaderId.ClearMotherBrainBottomMiddleSideTube,
-            [MotherBrainRoomMutation.ClearBottomMiddleTubes] = PlmHeaderId.ClearMotherBrainBottomMiddleTubes,
-            [MotherBrainRoomMutation.ClearBottomLeftTube] = PlmHeaderId.ClearMotherBrainBottomLeftTube,
-            [MotherBrainRoomMutation.ClearBottomRightTube] = PlmHeaderId.ClearMotherBrainBottomRightTube,
+            [MotherBrainRoomMutation.FillWall] = RoomObjectHeaderId.FillMotherBrainsWall,
+            [MotherBrainRoomMutation.EscapeDoor] = RoomObjectHeaderId.MotherBrainsRoomEscapeDoor,
+            [MotherBrainRoomMutation.BackgroundRow2] = RoomObjectHeaderId.MotherBrainsBackgroundRow2,
+            [MotherBrainRoomMutation.BackgroundRow3] = RoomObjectHeaderId.MotherBrainsBackgroundRow3,
+            [MotherBrainRoomMutation.BackgroundRow4] = RoomObjectHeaderId.MotherBrainsBackgroundRow4,
+            [MotherBrainRoomMutation.BackgroundRow5] = RoomObjectHeaderId.MotherBrainsBackgroundRow5,
+            [MotherBrainRoomMutation.BackgroundRow6] = RoomObjectHeaderId.MotherBrainsBackgroundRow6,
+            [MotherBrainRoomMutation.BackgroundRow7] = RoomObjectHeaderId.MotherBrainsBackgroundRow7,
+            [MotherBrainRoomMutation.BackgroundRow8] = RoomObjectHeaderId.MotherBrainsBackgroundRow8,
+            [MotherBrainRoomMutation.BackgroundRow9] = RoomObjectHeaderId.MotherBrainsBackgroundRow9,
+            [MotherBrainRoomMutation.BackgroundRowA] = RoomObjectHeaderId.MotherBrainsBackgroundRowA,
+            [MotherBrainRoomMutation.BackgroundRowB] = RoomObjectHeaderId.MotherBrainsBackgroundRowB,
+            [MotherBrainRoomMutation.BackgroundRowC] = RoomObjectHeaderId.MotherBrainsBackgroundRowC,
+            [MotherBrainRoomMutation.BackgroundRowD] = RoomObjectHeaderId.MotherBrainsBackgroundRowD,
+            [MotherBrainRoomMutation.ClearCeilingBlock] = RoomObjectHeaderId.ClearMotherBrainCeilingBlock,
+            [MotherBrainRoomMutation.ClearCeilingTube] = RoomObjectHeaderId.ClearMotherBrainCeilingTube,
+            [MotherBrainRoomMutation.ClearBottomMiddleSideTube] = RoomObjectHeaderId.ClearMotherBrainBottomMiddleSideTube,
+            [MotherBrainRoomMutation.ClearBottomMiddleTubes] = RoomObjectHeaderId.ClearMotherBrainBottomMiddleTubes,
+            [MotherBrainRoomMutation.ClearBottomLeftTube] = RoomObjectHeaderId.ClearMotherBrainBottomLeftTube,
+            [MotherBrainRoomMutation.ClearBottomRightTube] = RoomObjectHeaderId.ClearMotherBrainBottomRightTube,
         };
 
     /// <summary>The room program each mutation runs: one draw, then deletion.</summary>

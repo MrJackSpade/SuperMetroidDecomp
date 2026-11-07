@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
@@ -20,11 +20,11 @@ internal sealed class RoomEnemyRuntimeServices(
     SharedGameState system,
     ActiveRoomState room,
     SamusFrameState player,
-    RoomPlmSystem plms,
+    RoomObjectSystem roomObjects,
     GameplayDisplayState display,
     RoomAreaProgress progress) : IRoomEnemyServices,
     IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,
-    IMotherBrainRoomEffects, IRoomPlmPresence
+    IMotherBrainRoomEffects, IRoomObjectPresence
 {
     /// <summary>Exposes the system-owned RNG to enemy AI without a raw system-state dependency.</summary>
     public IEnemyRandomNumbers Random => this;
@@ -33,7 +33,7 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Exposes boss bits for the active room's area.</summary>
     public IAreaBossFlags Bosses => progress;
     /// <summary>Exposes active PLM-header presence to enemy AI.</summary>
-    public IRoomPlmPresence Plms => this;
+    public IRoomObjectPresence RoomObjects => this;
     /// <summary>Exposes the room camera's scroll-zone storage.</summary>
     public IRoomScrollZoneAccess RoomScroll => this;
     /// <summary>Exposes Samus's script control lock to enemy commands.</summary>
@@ -75,7 +75,7 @@ internal sealed class RoomEnemyRuntimeServices(
         "Chozo control command requires an active Samus actor.");
 
     /// <summary>Advances the Mother Brain glass PLM argument after an enemy-driven phase event.</summary>
-    public void IncrementGlassRoomArgument() => plms.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
+    public void IncrementGlassRoomArgument() => roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
 
     /// <summary>Installs Mother Brain's requested default layer-blending configuration.</summary>
     public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
@@ -93,5 +93,5 @@ internal sealed class RoomEnemyRuntimeServices(
             .Draw(picture);
 
     /// <summary>Checks whether a requested Bomb Torizo hand PLM header remains active.</summary>
-    public bool HasActiveHeader(PlmHeaderId header) => plms.BombTorizoHand.HasActiveHeader(header);
+    public bool HasActiveHeader(RoomObjectHeaderId header) => roomObjects.BombTorizoHand.HasActiveHeader(header);
 }

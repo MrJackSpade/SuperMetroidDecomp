@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Verification access to <see cref="ResidentDoorClosingDefinitions"/> members production does not use.</summary>
 internal static class ResidentDoorClosingDefinitionsAccess
@@ -12,9 +12,9 @@ internal static class ResidentDoorClosingDefinitionsAccess
         {
             get
             {
-                yield return new(PlmHeaderId.MotherBrainEscapeRoomGate, ResidentDoorClosings.Resolve(PlmHeaderId.MotherBrainEscapeRoomGate));
-                yield return new(PlmHeaderId.EyeDoorFacingRight, ResidentDoorClosings.Resolve(PlmHeaderId.EyeDoorFacingRight));
-                yield return new(PlmHeaderId.EyeDoorFacingLeft, ResidentDoorClosings.Resolve(PlmHeaderId.EyeDoorFacingLeft));
+                yield return new(RoomObjectHeaderId.MotherBrainEscapeRoomGate, ResidentDoorClosings.Resolve(RoomObjectHeaderId.MotherBrainEscapeRoomGate));
+                yield return new(RoomObjectHeaderId.EyeDoorFacingRight, ResidentDoorClosings.Resolve(RoomObjectHeaderId.EyeDoorFacingRight));
+                yield return new(RoomObjectHeaderId.EyeDoorFacingLeft, ResidentDoorClosings.Resolve(RoomObjectHeaderId.EyeDoorFacingLeft));
             }
         }
     }

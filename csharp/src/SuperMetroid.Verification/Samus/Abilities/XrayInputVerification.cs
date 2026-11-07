@@ -67,7 +67,7 @@ internal static class XrayInputVerification
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
         var horizontal = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var horizontalPixels = DisplayRendering.Render(horizontal);
-        var probe = runtime.Room.LoadedLevelData.GetPlmCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
+        var probe = runtime.Room.LoadedLevelData.GetObjectCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
         AssertEqual(255, (XrayRevealTable.Find(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Behavior).")).TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = DisplayRendering.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));

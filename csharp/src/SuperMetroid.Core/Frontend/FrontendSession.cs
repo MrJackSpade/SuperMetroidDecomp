@@ -270,7 +270,7 @@ internal sealed class FrontendSession
         if (runtime?.MessageBoxes.ConsumeGunshipExitSoundRequest() == true)
             audio.QueueSound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         // An accepted save station resumes from the message close boundary too.
-        if (runtime?.Room.Scope?.Plms.Stations.ConsumeSavingSoundRequest() is { } saving)
+        if (runtime?.Room.Scope?.RoomObjects.Stations.ConsumeSavingSoundRequest() is { } saving)
             audio.QueueSound(saving);
         // Suit setup resumes from the message close boundary, outside normal gameplay
         // publication generations. Consume once so updates without gameplay cannot repeat it.
@@ -352,11 +352,11 @@ internal sealed class FrontendSession
             audio.QueueSound(request);
         }
 
-        foreach (SoundRequest request in runtime.Room.LoadedScope.Plms.Sounds.SoundRequests)
+        foreach (SoundRequest request in runtime.Room.LoadedScope.RoomObjects.Sounds.SoundRequests)
             audio.QueueSound(request);
-        foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Plms.BombTorizoHand.MusicRequests)
+        foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.RoomObjects.BombTorizoHand.MusicRequests)
             audio.ScheduleMusic(request.Request, request.Delay);
-        if (runtime.Room.LoadedScope.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
+        if (runtime.Room.LoadedScope.RoomObjects.CollectibleObjects.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
         foreach (SoundRequest request in runtime.Room.LoadedScope.Enemies.Audio.SoundRequests)

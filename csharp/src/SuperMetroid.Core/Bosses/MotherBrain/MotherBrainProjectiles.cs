@@ -397,7 +397,7 @@ internal sealed class MotherBrainProjectiles
     /// <summary>
     /// Consumes one request emitted by the glass PLM's shard step. The request retains the
     /// executing PLM's block origin because the shard initializer calls
-    /// <c>CalculatePlmBlockCoords(plm_id)</c> after the shared projectile allocator runs.
+    /// <c>CalculateObjectBlockCoords(roomObject_id)</c> after the shared projectile allocator runs.
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
@@ -436,7 +436,7 @@ internal sealed class MotherBrainProjectiles
 
         MotherBrainGlassShardPlacement placement =
             MotherBrainGlassShards.Placement(request.Shard);
-        shard.Position = shard.Position.WithWhole(request.PlmBlock.ToRoomPixels() + placement.Offset);
+        shard.Position = shard.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + placement.Offset);
 
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.

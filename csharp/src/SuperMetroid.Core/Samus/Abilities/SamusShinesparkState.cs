@@ -669,13 +669,13 @@ false);
         // Samus. Only a camera reads that word; fixtures without one pass no checkpoint.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
         {
-            horizontal = MoveX(terrain.Level, samus, terrain.Plms);
+            horizontal = MoveX(terrain.Level, samus, terrain.RoomObjects);
             if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousX(samus, checkpoint);
         }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
         {
-            vertical = MoveY(terrain.Level, samus, frame.FrameCounter, terrain.Plms);
+            vertical = MoveY(terrain.Level, samus, frame.FrameCounter, terrain.RoomObjects);
             if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousY(samus, checkpoint);
         }
@@ -1035,7 +1035,7 @@ false,             CrashSequenceFinished: true);
 
         RoomLevelData level,
         SamusState samus,
-        ISamusRoomPlms? plms)
+        ISamusRoomObjects? roomObjects)
     {
         ShineTimer = 15;
         uint accelerated = unchecked(SixteenSixteen.Compose(
@@ -1050,7 +1050,7 @@ false,             CrashSequenceFinished: true);
         }
 
         var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: 0);
-        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
+        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
     /// <summary>Accumulates upward spark acceleration while capping only the temporary collision displacement and probing solid enemies first.</summary>
@@ -1059,7 +1059,7 @@ false,             CrashSequenceFinished: true);
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms)
+        ISamusRoomObjects? roomObjects)
     {
         ShineTimer = 15;
         VerticalAcceleration += SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteen.Compose(
@@ -1103,7 +1103,7 @@ false,             CrashSequenceFinished: true);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (frameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (frameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
     /// <summary>

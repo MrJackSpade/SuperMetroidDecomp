@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -47,15 +47,15 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Pending hardcoded and footstep PLM requests consumed by the shared allocator.</summary>
-    internal readonly List<ChozoStatuePlmRequest> ChozoStatuePlmRequests = new();
+    internal readonly List<ChozoStatueObjectRequest> ChozoStatueObjectRequests = new();
 
     /// <summary>Consumes each published request once through the shared slot allocator.</summary>
-    internal void ApplyPendingChozoStatuePlms(RoomLevelData level, ChozoStatuePlms chozoStatuePlms)
+    internal void ApplyPendingChozoStatueObjects(RoomLevelData level, ChozoStatueObjects chozoStatueObjects)
     {
-        while (ChozoStatuePlmRequests.Count != 0)
+        while (ChozoStatueObjectRequests.Count != 0)
         {
-            chozoStatuePlms.TrySpawnChozoStatuePlm(level, ChozoStatuePlmRequests[0]);
-            ChozoStatuePlmRequests.RemoveAt(0);
+            chozoStatueObjects.TrySpawnChozoStatueObject(level, ChozoStatueObjectRequests[0]);
+            ChozoStatueObjectRequests.RemoveAt(0);
         }
     }
 
@@ -124,13 +124,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsWreckedShip)
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
-            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
-            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
+            PublishHardcodedChozoObject(RoomObjectHeaderId.WreckedShipChozoHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
+            PublishHardcodedChozoObject(RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
-            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
+            PublishHardcodedChozoObject(RoomObjectHeaderId.LowerNorfairChozoHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
     }
 
@@ -164,8 +164,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
             _room.Services.Events.Set(EventNumber.LowerNorfairChozoLoweredAcid);
-            PublishHardcodedChozoPlm(
-                PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+            PublishHardcodedChozoObject(
+                RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
                 ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
         else
@@ -177,8 +177,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.RoomScroll.Write(8, RoomScrollState.Green);
             _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
             _room.Services.RoomScroll.Write(14, RoomScrollState.Blue);
-            PublishHardcodedChozoPlm(
-                PlmHeaderId.ClearSlopeAccessForWreckedShipChozo,
+            PublishHardcodedChozoObject(
+                RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo,
                 ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
     }
@@ -330,8 +330,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ChozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
-            PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+        ChozoStatueObjectRequests.Add(new ChozoStatueObjectRequest(
+            RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
             probe.ToRoomBlock(),
             IsHardcoded: false));
         SpawnWreckedShipChozoFootstep(statue, footstepOffset);
@@ -363,8 +363,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
         _room.Services.RoomScroll.Write(14, RoomScrollState.RedBoundary);
 
-        PublishHardcodedChozoPlm(
-            PlmHeaderId.BlockSlopeAccessForWreckedShipChozo,
+        PublishHardcodedChozoObject(
+            RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo,
             ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
     }
 
@@ -383,8 +383,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Queues an authored PLM spawn at its fixed room block.</summary>
-    private void PublishHardcodedChozoPlm(PlmHeaderId header, Position16<RoomBlocks> block) =>
-        ChozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
+    private void PublishHardcodedChozoObject(RoomObjectHeaderId header, Position16<RoomBlocks> block) =>
+        ChozoStatueObjectRequests.Add(new ChozoStatueObjectRequest(
             header,
             block,
             IsHardcoded: true));

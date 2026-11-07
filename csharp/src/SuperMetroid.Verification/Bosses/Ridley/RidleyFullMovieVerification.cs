@@ -876,7 +876,7 @@ internal static class RidleyFullMovieVerification
     }
 
     /// <summary>A native little-endian PLM program word at a bank-$84 CPU address.</summary>
-    internal static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
+    internal static ushort ReadRetailObjectProgramWord(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     /// <summary>

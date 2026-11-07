@@ -168,7 +168,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseId? prospectivePose,
         bool currentXSpeedKilledByBlock,
         out BlockMoveResult? onePixelProbe,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -199,7 +199,7 @@ internal static class SamusGroundedPoseTransitions
         int onePixelForward = facingLeft
             ? -(1 << 16)
             : 1 << 16;
-        onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
+        onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(target)
             : null;
@@ -604,11 +604,11 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     internal static bool TryResolveKnockbackPoseCollision(SamusState samus, 
 RoomLevelData level, SamusPoseId targetPose,
-        int frameCounter, ISamusRoomPlms? plms)
+        int frameCounter, ISamusRoomObjects? roomObjects)
     {
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome outcome = samus.ResolveLargerPoseCollision(
-level, targetPose, frameCounter, plms, out int adjustment);
+level, targetPose, frameCounter, roomObjects, out int adjustment);
         if (outcome != LargerPoseCollisionOutcome.Allowed)
         {
             if (outcome == LargerPoseCollisionOutcome.CrouchFallback)

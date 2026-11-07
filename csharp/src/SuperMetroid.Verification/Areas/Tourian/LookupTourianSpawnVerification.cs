@@ -4,7 +4,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Areas.Tourian;
@@ -33,7 +33,7 @@ internal static class LookupTourianSpawnVerification
 
         // Outside the statue room the sequence starts disabled with no objects; the spawn routine is then called alone.
         var sequence = new TourianStatueSequence(RepositoryInstallation.CreateRuntime().TourianStatueDependencies,
-            new RoomFxOverlayState(new RoomFxSession()), new RoomPaletteFxSystem(new PaletteFxSessionState()), PlmFixtures.Unbound(),
+            new RoomFxOverlayState(new RoomFxSession()), new RoomPaletteFxSystem(new PaletteFxSessionState()), RoomObjectFixtures.Unbound(),
             new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()));
         sequence.SpawnAnimatedObjects();
         var objects = sequence.objects;

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -10,17 +10,17 @@ public static class QuicksandDefinitions
     /// (<see cref="QuicksandReactions"/>); no other header, including the unused surface clones between the named
     /// headers, is a sand reaction.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<PlmHeaderId, SpecialAirReactionSetup> Reactions =
-        new Dictionary<PlmHeaderId, SpecialAirReactionSetup>
+    internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, SpecialAirReactionSetup> Reactions =
+        new Dictionary<RoomObjectHeaderId, SpecialAirReactionSetup>
         {
-            [PlmHeaderId.InsideReactionQuicksandSurface] = SpecialAirReactionSetup.QuicksandSurface,
-            [PlmHeaderId.InsideReactionSubmergingQuicksand] = SpecialAirReactionSetup.SubmergingQuicksand,
-            [PlmHeaderId.InsideReactionSandFallsSlow] = SpecialAirReactionSetup.SandFallsSlow,
-            [PlmHeaderId.InsideReactionSandFallsFast] = SpecialAirReactionSetup.SandFallsFast,
-            [PlmHeaderId.CollisionReactionQuicksandSurface] = SpecialAirReactionSetup.QuicksandSurfaceCollision,
-            [PlmHeaderId.CollisionReactionSubmergingQuicksand] = SpecialAirReactionSetup.SubmergingQuicksandCollision,
-            [PlmHeaderId.CollisionReactionSandFallsSlow] = SpecialAirReactionSetup.SandFallsCollision,
-            [PlmHeaderId.CollisionReactionSandFallsFast] = SpecialAirReactionSetup.SandFallsCollision,
+            [RoomObjectHeaderId.InsideReactionQuicksandSurface] = SpecialAirReactionSetup.QuicksandSurface,
+            [RoomObjectHeaderId.InsideReactionSubmergingQuicksand] = SpecialAirReactionSetup.SubmergingQuicksand,
+            [RoomObjectHeaderId.InsideReactionSandFallsSlow] = SpecialAirReactionSetup.SandFallsSlow,
+            [RoomObjectHeaderId.InsideReactionSandFallsFast] = SpecialAirReactionSetup.SandFallsFast,
+            [RoomObjectHeaderId.CollisionReactionQuicksandSurface] = SpecialAirReactionSetup.QuicksandSurfaceCollision,
+            [RoomObjectHeaderId.CollisionReactionSubmergingQuicksand] = SpecialAirReactionSetup.SubmergingQuicksandCollision,
+            [RoomObjectHeaderId.CollisionReactionSandFallsSlow] = SpecialAirReactionSetup.SandFallsCollision,
+            [RoomObjectHeaderId.CollisionReactionSandFallsFast] = SpecialAirReactionSetup.SandFallsCollision,
         };
 
     /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap.</summary>

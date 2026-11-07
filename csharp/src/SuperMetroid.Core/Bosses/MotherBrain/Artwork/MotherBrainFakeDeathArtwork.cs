@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -12,7 +12,7 @@ internal static class MotherBrainFakeDeathArtwork
     /// <summary>Resolves a fake-death room block's selected appearance, projecting run-local indices into its flattened authored layout.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported fake-death layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
-    internal static RoomBlockAppearance Appearance(PlmVisualOverrides customAppearances, PlmDraw draw, int runIndex, int blockIndex)
+    internal static RoomBlockAppearance Appearance(RoomObjectVisualOverrides customAppearances, RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var background))
         {

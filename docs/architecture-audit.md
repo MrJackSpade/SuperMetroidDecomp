@@ -78,7 +78,7 @@ A Core module cycle is broken by moving each dependency to the side it belongs o
 recording the cycle (#1395). Code that assembles a room from every domain (the enemy system that constructs each
 species, room loading, door transitions, the room scope and the per-frame phases that step enemies, PLMs and effects
 together) lives in the `World` module, above the domains it composes. A domain below it never names the composition:
-it states what it needs as a capability interface in its own module (`IEnemyPlmRequests`, `IRoomPlmFx`,
+it states what it needs as a capability interface in its own module (`IEnemyObjectRequests`, `IRoomObjectFx`,
 `IRoomWaterPhysics`), and `World` implements it over the species and owners. A contract only the composition
 consumes, such as the display sources the frame boundary reads, belongs to `World` itself. Shared facts a lower domain
 needs move to the lowest type that owns them: the enemy slot limits are `EnemySlotTable`'s, and a solid enemy body
@@ -92,7 +92,7 @@ The seams that broke the cycle follow a few shapes, and a new dependency should 
 - A pass's results are written by each producer to its own builder: enemies write the elevator and gunship events,
   bosses write their room effects through `BossFrameResultBuilder`, and `World` composes the frame result.
 - A family that owns a behaviour starts it itself: the Tourian statue and Mother Brain spawners start their typed
-  projectile programs, and a PLM a shot triggers records it through `IShotTriggeredPlm`, rather than a lower table or
+  projectile programs, and a PLM a shot triggers records it through `IShotTriggeredObject`, rather than a lower table or
   caller naming every family.
 - A schema that enumerates every family (the enemy-bank frame definitions, the room-state catalogs) is composition
   and lives in `World`; a lower domain reads it through a lookup the binding carries (`IEnemyFrameWords`).
@@ -249,7 +249,7 @@ than the method needs, so the shape is narrowed and the real method is registere
 AI takes only its slot; the few species that read the room, Samus, the controller or the camera implement
 `IEnemySurroundingsInitialization` and receive the spawn's `EnemySpawnSurroundings`. A main AI or typed animation that
 needs only the slot is bound with a lambda at its entity, literal-RTL routines share `EnemyNoOpAi`, and cueless PLM
-programs derive from `PlmCuelessProgramAnimation`. A method fulfilling a contract outside the repository, such as a
+programs derive from `RoomObjectCuelessProgramAnimation`. A method fulfilling a contract outside the repository, such as a
 `System.Text.Json` converter, says so with `[ExternalContract(reason)]`.
 
 ## Concepts are defined once
@@ -311,7 +311,7 @@ namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kra
 | `Samus` | Samus state, with `Movement`, `Poses`, `Projectiles`, `Grapple`, `Abilities` (X-ray, Crystal Flash, Shinespark, Speed Booster, morph), `Palettes`, `Drawing`, `Death` and `Hud` |
 | `Enemies` | the shared enemy engine, one directory per enemy family, `Projectiles` (the enemy-projectile engine), `Drawing` and `Artwork` |
 | `Bosses/<Boss>` | one boss encounter: its AI, room objects, projectiles and `Artwork` |
-| `Rooms` | room headers, states and loading, with `LevelData`, `Backgrounds`, `Scrolling`, `Plms`, `Doors`, `SpriteObjects`, `Xray` and `Artwork` |
+| `Rooms` | room headers, states and loading, with `LevelData`, `Backgrounds`, `Scrolling`, `RoomObjects`, `Doors`, `SpriteObjects`, `Xray` and `Artwork` |
 | `Fx` | room FX, animated tiles and HDMA, with `PaletteFx` |
 | `Areas/<Area>` | scripted gameplay sequences that belong to one place (Ceres, the escapes, Tourian, Maridia) |
 | `Gameplay` | the services every gameplay domain shares within a frame: the NMI clock and handler, time freeze, display state, host options and tester tools, runtime artwork, actor drawing, the game-state word, and the narrow contracts gameplay reads from the frontend (`IGameplayPresentationContent`, `IAttractDemoState`) |
@@ -349,7 +349,7 @@ through the frontend's types; documentation crefs are not dependencies.
 
 **SME6407** keeps species behind the enemy system. Outside the `Enemies` and `Bosses` modules, Core reads and
 commands species only through `RoomEnemySystem`'s capability interfaces (`Elevator`, `Gunship`, `Ceres`,
-`RoomMainHooks`, `LoaderHooks`, `GrappleTargets`, `PlmSpawns`, `TourianStatue`, `DisplaySources`), never through a
+`RoomMainHooks`, `LoaderHooks`, `GrappleTargets`, `RoomObjectSpawns`, `TourianStatue`, `DisplaySources`), never through a
 `*Behavior` or `*Encounter` property.
 
 **SME6351**, **SME6352** and **SME6353** keep Core's numeric vocabulary in its named types (#1326). Outside

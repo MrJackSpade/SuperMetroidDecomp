@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
@@ -88,7 +88,7 @@ public sealed class PhantoonEnemyState
     /// The room PLM at block (0,6) closes/opens the boss door. The PLM system is an outer
     /// owner, so the enemy publishes the exact authored request rather than editing terrain.
     /// </summary>
-    public PlmHeaderId? BossDoorPlmRequest { get; internal set; }
+    public RoomObjectHeaderId? BossDoorObjectRequest { get; internal set; }
 
     /// <summary>Gets the encounter's lazily created wave effect, which advances the per-line ripple separately from display latching.</summary>
     public PhantoonWaveEffect Wave => field ??= new();

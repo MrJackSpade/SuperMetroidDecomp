@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Draygon;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 
@@ -56,18 +56,18 @@ internal static class LookupRetailPopulationsVerification
     {
         var original = OriginalRetailPopulationPointers.ToHashSet();
         AssertEqual(284, original.Count, "original population identities are unique");
-        AssertTrue(RoomPlmPopulationDefinitions.Pointers.SequenceEqual(OriginalRetailPopulationPointers),
+        AssertTrue(RoomObjectPopulationDefinitions.Pointers.SequenceEqual(OriginalRetailPopulationPointers),
             "population enumeration retains original sorted identities");
-        AssertTrue(RoomStateDefinitions.All.Select(state => state.PlmPointer).ToHashSet().SetEquals(original),
+        AssertTrue(RoomStateDefinitions.All.Select(state => state.RoomObjectPointer).ToHashSet().SetEquals(original),
             "room state consumers select exactly the independently captured population identities");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
             bool expected = original.Contains(pointer);
-            AssertEqual(expected, RoomPlmPopulationDefinitions.Contains(pointer),
+            AssertEqual(expected, RoomObjectPopulationDefinitions.Contains(pointer),
                 $"population identity {pointer:X4}");
             if (expected)
-                AssertEqual(pointer, RoomPlmPopulationDefinitions.Get(pointer).Pointer,
+                AssertEqual(pointer, RoomObjectPopulationDefinitions.Get(pointer).Pointer,
                     "named population keeps its source identity");
         }
     }
@@ -89,24 +89,24 @@ internal static class LookupRetailPopulationsVerification
         int total = 0;
         foreach (ushort pointer in OriginalRetailPopulationPointers)
         {
-            ReadOnlySpan<RoomPlmPlacement> actual = RoomPlmPopulationDefinitions.Get(pointer).Placements.Span;
+            ReadOnlySpan<RoomObjectPlacement> actual = RoomObjectPopulationDefinitions.Get(pointer).Placements.Span;
             int count = 0;
             int address = 0x8f0000 | pointer;
-            while (ReadSamusEaterPlmWord(rom, address) != 0)
+            while (ReadSamusEaterObjectWord(rom, address) != 0)
             {
                 AssertTrue(count < 256 && count < actual.Length, "native placement has a corresponding bounded operation");
-                RoomPlmPlacement placement = actual[count];
+                RoomObjectPlacement placement = actual[count];
                 int expected = field switch
                 {
-                    0 => ReadSamusEaterPlmWord(rom, address),
+                    0 => ReadSamusEaterObjectWord(rom, address),
                     1 => RetailPopulationFieldRomByte(rom, address + 2),
                     2 => RetailPopulationFieldRomByte(rom, address + 3),
-                    3 => ReadSamusEaterPlmWord(rom, address + 4),
+                    3 => ReadSamusEaterObjectWord(rom, address + 4),
                     _ => 0,
                 };
                 int result = field switch
                 {
-                    0 => PlmNativeWords.Word(placement.Header.Header),
+                    0 => RoomObjectNativeWords.Word(placement.Header.Header),
                     1 => placement.Block.X,
                     2 => placement.Block.Y,
                     3 => placement.NativeRoomArgument,

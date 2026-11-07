@@ -13,7 +13,7 @@ public readonly record struct SamusTerrain
     public required RoomLevelData Level { get; init; }
 
     /// <summary>Optional current-room PLM owner receiving block reactions during spark movement.</summary>
-    internal ISamusRoomPlms? Plms { get; init; }
+    internal ISamusRoomObjects? RoomObjects { get; init; }
 
     /// <summary>
     /// The session's progression, which SpaceTime's malformed palette copy overwrites as raw bytes (#1318, #1330). Only

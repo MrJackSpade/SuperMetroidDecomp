@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -97,7 +97,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
-    internal void ResolveClosedMessageBox(bool frameSuspended, IRoomPlms plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal void ResolveClosedMessageBox(bool frameSuspended, IRoomObjects roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (room.Enemies.Gunship.SavePromptPending)
         {
@@ -126,7 +126,7 @@ internal sealed class MessageBoxFlow
                 "A save-station message returned without active room level data.");
             if (_room.Camera is null)
                 throw new InvalidOperationException("A save-station message returned without an active room.");
-            bool saving = plms.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level);
+            bool saving = roomObjects.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level);
             if (saving)
             {
                 room.Enemies.Projectiles.SpawnSaveStationElectricity(
@@ -144,13 +144,13 @@ internal sealed class MessageBoxFlow
 
         if (_pendingSaveStationCompletion is { } completedStation)
         {
-            plms.Stations.CompleteSaveStation(completedStation);
+            roomObjects.Stations.CompleteSaveStation(completedStation);
             _pendingSaveStationCompletion = null;
         }
 
         if (_room.LevelData is null || _room.Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
-        plms.CollectiblePlms.CompleteCollectibleMessage(_room.LevelData);
+        roomObjects.CollectibleObjects.CompleteCollectibleMessage(_room.LevelData);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
         if (_player.Samus is not null && !frameSuspended)

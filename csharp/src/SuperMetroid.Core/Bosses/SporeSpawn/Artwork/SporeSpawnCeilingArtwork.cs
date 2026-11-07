@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
@@ -12,7 +12,7 @@ internal static class SporeSpawnCeilingArtwork
     /// <summary>Resolves one visual-only cell from an edited or compiled Spore Spawn ceiling frame.</summary>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not one of the four compiled frames.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Either cell selector is outside zero through one.</exception>
-    internal static RoomBlockAppearance Appearance(PlmVisualOverrides customAppearances, PlmDraw draw, int runIndex, int blockIndex)
+    internal static RoomBlockAppearance Appearance(RoomObjectVisualOverrides customAppearances, RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (!SporeSpawnCeilingDraws.TryGetBlock(draw, out RoomTerrainBlock stock))
             throw new InvalidDataException(

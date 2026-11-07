@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Areas.Escape.LookupEscapeGateStockVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -16,21 +16,21 @@ internal static class EscapeGateVisualsVerification
     /// <summary>Checks the stock frames, catalog rejection and the installed stock.</summary>
     internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
-        RoomPlmVisualEntry[] entries =
-            RoomPlmEscapeGateVisualFiles.All
-                .OrderBy(draw => PlmDrawAddressCodec.Of(draw.Draw))
-                .Select(draw => new RoomPlmVisualEntry(
-                    RoomPlmEscapeGateVisualFiles.VisualId(draw.Draw),
+        RoomObjectVisualEntry[] entries =
+            RoomObjectEscapeGateVisualFiles.All
+                .OrderBy(draw => RoomObjectDrawAddressCodec.Of(draw.Draw))
+                .Select(draw => new RoomObjectVisualEntry(
+                    RoomObjectEscapeGateVisualFiles.VisualId(draw.Draw),
                     draw.Runs.Span[0].Blocks.Span
                         .SelectToArray(block => block.Appearance)))
                 .ToArray();
         AssertEqual(entries.Single(entry => entry.Id == "closed").Blocks[0],
-            RoomPlmEscapeGateVisualCatalog.Stock().GetAppearance(
-                PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
+            RoomObjectEscapeGateVisualCatalog.Stock().GetAppearance(
+                RoomObjectDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
             "stock escape-gate catalog retains cartridge appearance");
 
         AssertThrows<InvalidDataException>(
-            () => RoomPlmEscapeGateVisualFiles.Create(entries.Skip(1)),
+            () => RoomObjectEscapeGateVisualFiles.Create(entries.Skip(1)),
             "escape-gate catalog rejects a missing frame");
         Suite(nameof(VerifyEscapeGateVisualInstallation), () => VerifyEscapeGateVisualInstallation(rom));
         Console.WriteLine(
@@ -41,18 +41,18 @@ internal static class EscapeGateVisualsVerification
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
         // A private installation copy, whose stock file is tampered below.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmEscapeGateVisualDirectory);
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectEscapeGateVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmEscapeGateVisualFilesConstants.ValidateStock(
-            installation.RoomPlmEscapeGateVisualDirectory);
-        VerifyEscapeGateStockMapping(rom, installation.LoadRoomPlmEscapeGateVisuals());
+        RoomObjectEscapeGateVisualFilesConstants.ValidateStock(
+            installation.RoomObjectEscapeGateVisualDirectory);
+        VerifyEscapeGateStockMapping(rom, installation.LoadRoomObjectEscapeGateVisuals());
         string stockPath = Path.Combine(
-            installation.RoomPlmEscapeGateVisualDirectory,
-            RoomPlmEscapeGateVisualFiles.VisualFileName);
+            installation.RoomObjectEscapeGateVisualDirectory,
+            RoomObjectEscapeGateVisualFiles.VisualFileName);
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmEscapeGateVisualFilesConstants.ValidateStock(
-                installation.RoomPlmEscapeGateVisualDirectory),
+            () => RoomObjectEscapeGateVisualFilesConstants.ValidateStock(
+                installation.RoomObjectEscapeGateVisualDirectory),
             "tampered escape-gate stock fails loudly where it is read");
     }
 

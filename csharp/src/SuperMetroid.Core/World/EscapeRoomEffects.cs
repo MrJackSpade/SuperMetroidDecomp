@@ -33,14 +33,14 @@ internal sealed class EscapeRoomEffects
         // The two rooms whose mains switch quake types clear the diagonal countdown in their setup; the other
         // setups leave the countdown the previous room's main left.
         if (setup is RoomSetupCallback.SetLightHorizontalRoomShaking or
-            RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking)
+            RoomSetupCallback.SetupEscapeRoom4ObjectAndMediumHorizontalShaking)
             diagonalQuake.Countdown = WrappingCountdown.Start(0);
         int? type = setup switch
         {
             RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking or
             RoomSetupCallback.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
             RoomSetupCallback.SetMediumHorizontalRoomShaking or
-            RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking => ZebesEscapeDefinitions.MediumHorizontal,
+            RoomSetupCallback.SetupEscapeRoom4ObjectAndMediumHorizontalShaking => ZebesEscapeDefinitions.MediumHorizontal,
             RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeDefinitions.MainstreetQuake,
             RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape => ZebesEscapeDefinitions.LandingQuake,
             RoomSetupCallback.None or RoomSetupCallback.AutoDestroyWallDuringEscape or
@@ -54,7 +54,7 @@ internal sealed class EscapeRoomEffects
                 RoomSetupCallback.SharedReturnD or RoomSetupCallback.OrdinaryReturn or
                 RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile or RoomSetupCallback.BossRoomReturn or
                 RoomSetupCallback.BossRoomReturnB or RoomSetupCallback.BossRoomReturnC or
-                RoomSetupCallback.SetupShaktoolRoomPlm or RoomSetupCallback.ReturnBeforeDraygonSetup or
+                RoomSetupCallback.SetupShaktoolRoomObject or RoomSetupCallback.ReturnBeforeDraygonSetup or
                 RoomSetupCallback.SetPausingCodeForDraygon or RoomSetupCallback.SetCollectedMap or
                 RoomSetupCallback.ReturnBeforeZebesTimebombSetup or
                 RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupCallback.SpawnCeresHaze or
@@ -104,8 +104,8 @@ internal sealed class EscapeRoomEffects
                 CoordinateAxis.Wrap(_room.Camera.PixelPosition.X + SharedRandomState.LowerByte(random)),
                 CoordinateAxis.Wrap(_room.Camera.PixelPosition.Y + SharedRandomState.UpperByte(random)));
             int blockIndex = _room.LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
-            if (!nonblank || _room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).Terrain.Appearance.Block != ZebesEscapeDefinitions.BlankTile)
-                enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? CoordinateAxis.Wrap(blockIndex * 2) : 0);
+            if (!nonblank || _room.LevelData.GetObjectCollisionBlockByIndex(blockIndex).Terrain.Appearance.Block != ZebesEscapeDefinitions.BlankTile)
+                enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? CoordinateAxis.Wrap(blockIndex * 2) : 0);
         }
         if (nonblank) enemies.Earthquake.KeepShaking();
     }

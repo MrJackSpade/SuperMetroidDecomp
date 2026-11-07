@@ -36,7 +36,7 @@ public static class SamusKnockbackMovement
         bool timeIsFrozen,
         RoomLevelData? level = null,
         int frameCounter = 0,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(samus);
@@ -52,7 +52,7 @@ public static class SamusKnockbackMovement
             return false;
         }
 
-        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), level, frameCounter, plms);
+        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), level, frameCounter, roomObjects);
     }
 
     /// <summary>
@@ -64,12 +64,12 @@ public static class SamusKnockbackMovement
     /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
     /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
     /// <param name="frameCounter">The frame counter passed to pose-expansion block reactions when room geometry is supplied.</param>
-    /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
+    /// <param name="roomObjects">Optional live PLM owner receiving those collision reactions.</param>
     /// <returns>
     /// True when the movement-type table installs the special knockback handler. False for
     /// interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    internal static bool Start(SamusState samus, ControllerButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int frameCounter = 0, ISamusRoomPlms? plms = null)
+    internal static bool Start(SamusState samus, ControllerButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int frameCounter = 0, ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(samus);
@@ -142,7 +142,7 @@ public static class SamusKnockbackMovement
             // input poses before command one initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
             if (level is not null && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus, 
-level, targetPose, frameCounter, plms))
+level, targetPose, frameCounter, roomObjects))
                 return false;
             samus.Pose = targetPose;
             // The interrupted pose commits after movement. Alpha publishes its radius
@@ -220,7 +220,7 @@ level, targetPose, frameCounter, plms))
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -239,7 +239,7 @@ level, targetPose, frameCounter, plms))
         // Morphed bodies retain their own movement type throughout hurt movement.
         uint baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == KnockbackHorizontalDirection.Left, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback uses the ordinary left/right wrapper, whose collision branch
         // cancels X momentum before the vertical pass. Retaining the clipped move's
         // base speed incorrectly accelerates the next frame away from the obstacle.
@@ -247,8 +247,8 @@ level, targetPose, frameCounter, plms))
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = samus.KnockbackDirection is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
-            ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, plms)
-            : MoveDownWithoutSpeedCalculation(level, samus, frameCounter, plms);
+            ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, roomObjects)
+            : MoveDownWithoutSpeedCalculation(level, samus, frameCounter, roomObjects);
 
         // Observes these words inside downward collision, before the landing
         // clears them. Preserve the impact snapshot in the typed result so the runtime can
@@ -418,7 +418,7 @@ level, targetPose, frameCounter, plms))
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms)
+        ISamusRoomObjects? roomObjects)
     {
         // Calls the exact same vertical routine as ordinary aerial
         // movement, so reuse that translated owner instead of maintaining a subtly narrower
@@ -426,7 +426,7 @@ level, targetPose, frameCounter, plms))
         // midair hang came from failing to dispatch ordinary falling after that expiry, not
         // from this calculation. Sharing the routine still preserves the real direction-
         // reversal behavior for any longer knockback stimulus without inventing a new path.
-        return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, frameCounter, out _, out _);
+        return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out _);
     }
 
     /// <summary>Applies externally supplied downward displacement through the shared vertical collision path without accelerating it.</summary>
@@ -435,14 +435,14 @@ level, targetPose, frameCounter, plms))
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms)
+        ISamusRoomObjects? roomObjects)
     {
         // Gives nonzero external Y priority over its normal total-X-plus-one
         // slope-following probe. This down-knockback path consumes the exact same helper.
         int requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (frameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (frameCounter & 1) == 0 });
     }
 
 }

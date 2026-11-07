@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
 /// The elevator platform's block draws: which PLM draws are the platform's, the strips each frame lays from
-/// <see cref="ElevatorPlatformPlmDefinitions"/>.
+/// <see cref="ElevatorPlatformObjectDefinitions"/>.
 /// </summary>
 internal static class ElevatorPlatformDraws
 {
@@ -13,7 +13,7 @@ internal static class ElevatorPlatformDraws
     internal readonly record struct Draw(ElevatorPlatformDraw Frame)
     {
         /// <summary>The frame's strips in order.</summary>
-        private PlmBlockStrip[] Strips => ElevatorPlatformPlmDefinitions.Strips[Frame];
+        private RoomObjectBlockStrip[] Strips => ElevatorPlatformObjectDefinitions.Strips[Frame];
         /// <summary>Gets the three strips.</summary>
         internal int RunCount => Strips.Length;
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
@@ -25,24 +25,24 @@ internal static class ElevatorPlatformDraws
         /// <summary>Gets a solid platform block.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)
         {
-            PlmBlockStrip strip = Strip(run);
+            RoomObjectBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
             return strip.Cells[cell];
         }
         /// <summary>Selects a strip, rejecting a strip index outside this platform draw.</summary>
-        private PlmBlockStrip Strip(int run) =>
+        private RoomObjectBlockStrip Strip(int run) =>
             (uint)run < (uint)RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
     }
 
     /// <summary>Recognizes one of the three platform frames.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
         // Draws of other families are not the platform's.
-        draw = request is PlmFrameDraw<ElevatorPlatformDraw> { Frame: var platform }
-            ? new(ElevatorPlatformPlmDefinitions.Strips.ContainsKey(platform)
+        draw = request is RoomObjectFrameDraw<ElevatorPlatformDraw> { Frame: var platform }
+            ? new(ElevatorPlatformObjectDefinitions.Strips.ContainsKey(platform)
                 ? platform
                 : throw new InvalidOperationException($"Undefined {nameof(ElevatorPlatformDraw)} {platform}."))
             : default;
-        return request is PlmFrameDraw<ElevatorPlatformDraw>;
+        return request is RoomObjectFrameDraw<ElevatorPlatformDraw>;
     }
 }

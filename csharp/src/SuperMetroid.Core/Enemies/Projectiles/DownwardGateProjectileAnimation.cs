@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;

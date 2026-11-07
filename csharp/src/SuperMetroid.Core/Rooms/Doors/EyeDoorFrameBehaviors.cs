@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class EyeDoorFrameBehaviors
 {
     /// <summary>The eye wakes once its door's opened bit is set.</summary>
-    internal static PlmFrameBehavior WakeWhenDoorBitSet { get; } = Of(EyeDoorFrameBehavior.WakeWhenDoorBitSet);
+    internal static RoomObjectFrameBehavior WakeWhenDoorBitSet { get; } = Of(EyeDoorFrameBehavior.WakeWhenDoorBitSet);
 
     /// <summary>The missile-hit frame behaviour on an eye component: a missile hit wakes it, a Super Missile seeds its counter.</summary>
-    internal static PlmFrameBehavior MissileHit { get; } = Of(EyeDoorFrameBehavior.MissileHit);
+    internal static RoomObjectFrameBehavior MissileHit { get; } = Of(EyeDoorFrameBehavior.MissileHit);
 
     /// <summary>The behavior object for <paramref name="routine"/>.</summary>
-    private static PlmFrameBehavior Of(EyeDoorFrameBehavior routine) =>
-        new($"eye door {routine}", (slot, context) => context.Plms.EyeDoors.RunEyeDoorFrameBehavior(slot, routine));
+    private static RoomObjectFrameBehavior Of(EyeDoorFrameBehavior routine) =>
+        new($"eye door {routine}", (slot, context) => context.RoomObjects.EyeDoors.RunEyeDoorFrameBehavior(slot, routine));
 }

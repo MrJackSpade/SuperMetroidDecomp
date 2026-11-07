@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -226,7 +226,7 @@ internal sealed class PhantoonDeath
             _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
             state.BossDefeatPersisted = true;
         }
-        state.BossDoorPlmRequest = PlmHeaderId.RestorePhantoonDoorAfterBossFight;
+        state.BossDoorObjectRequest = RoomObjectHeaderId.RestorePhantoonDoorAfterBossFight;
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(3));
         state.WreckedShipPowerPaletteComplete = true;
     }

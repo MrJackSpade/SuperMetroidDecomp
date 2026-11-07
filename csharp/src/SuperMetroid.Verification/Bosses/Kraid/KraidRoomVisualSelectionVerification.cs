@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 
@@ -21,7 +21,7 @@ internal static class KraidRoomVisualSelectionVerification
             new KraidRoomVisualSelectionDefinition(0x939d, "clear-ceiling", 15), new KraidRoomVisualSelectionDefinition(0x93bf, "clear-spikes", 22),
         ];
         var expected = new Dictionary<ushort, RoomBlockAppearance[]>();
-        var entries = new List<RoomPlmVisualEntry>();
+        var entries = new List<RoomObjectVisualEntry>();
         for (int frame = 0; frame < definitions.Length; frame++)
         {
             var definition = definitions[frame];
@@ -30,35 +30,35 @@ internal static class KraidRoomVisualSelectionVerification
             expected.Add(definition.Pointer, words);
             entries.Add(new(definition.Id, words.ToArray()));
         }
-        var catalog = RoomPlmKraidVisualFiles.Create(entries.AsEnumerable().Reverse());
+        var catalog = RoomObjectKraidVisualFiles.Create(entries.AsEnumerable().Reverse());
         foreach (var definition in definitions)
         {
             foreach (int block in new[] { int.MinValue, -1, definition.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
                     "Kraid visual block bounds");
             foreach (int run in new[] { int.MinValue, -1, 1, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), run, 0),
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<KraidRoomDraw>(definition.Pointer), run, 0),
                     "Kraid visual run bounds");
         }
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)
             if (!expected.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>((ushort)pointer), 0, 0),
+                AssertThrows<InvalidDataException>(() => catalog.GetAppearance(NativeObjectDraws.At<KraidRoomDraw>((ushort)pointer), 0, 0),
                     "Kraid visual selector rejects holes and neighboring draws");
         foreach (ushort pointer in new ushort[] { 0, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>(pointer), 0, 0),
+            AssertThrows<InvalidDataException>(() => catalog.GetAppearance(NativeObjectDraws.At<KraidRoomDraw>(pointer), 0, 0),
                 "Kraid visual selector rejects distant pointers");
         for (int index = 0; index < entries.Count; index++)
         {
             AssertThrows<InvalidDataException>(
-                () => RoomPlmKraidVisualFiles.Create(entries.Where((_, ordinal) => ordinal != index)),
+                () => RoomObjectKraidVisualFiles.Create(entries.Where((_, ordinal) => ordinal != index)),
                 "Kraid visual selection rejects each missing role");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmKraidVisualFiles.Create(entries.Append(entries[index])),
+                () => RoomObjectKraidVisualFiles.Create(entries.Append(entries[index])),
                 "Kraid visual selection rejects each duplicate role");
         }
-        AssertThrows<InvalidDataException>(() => RoomPlmKraidVisualFiles.Create(
+        AssertThrows<InvalidDataException>(() => RoomObjectKraidVisualFiles.Create(
             entries.Append(new("unknown", [RoomBlockAppearance.Of(0)]))), "Kraid visual selection rejects unknown ID");
-        AssertThrows<InvalidDataException>(() => RoomPlmKraidVisualFiles.Create(
+        AssertThrows<InvalidDataException>(() => RoomObjectKraidVisualFiles.Create(
             entries.Skip(1).Append(new("crumble-first", []))), "Kraid visual selection rejects empty frame");
         Console.WriteLine("Kraid room visual selection: ten roles, coordinate and pointer bounds, and validation pass.");
     }

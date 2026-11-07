@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="Reach">The most blocks Samus may stand to either side (X) and above or below (Y).</param>
 /// <param name="Target">The program Samus's nearness continues at.</param>
-internal readonly record struct EyeDoorProximity(Extent16<RoomBlocks> Reach, EyeDoorPlmProgram Target);
+internal readonly record struct EyeDoorProximity(Extent16<RoomBlocks> Reach, EyeDoorObjectProgram Target);

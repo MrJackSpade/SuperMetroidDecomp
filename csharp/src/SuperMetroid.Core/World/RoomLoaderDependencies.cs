@@ -70,7 +70,7 @@ internal sealed record RoomLoaderDependencies
     public required SamusFrameState Player { get; init; }
 
     /// <summary>The host's installed PLM artwork each room's PLM system draws with.</summary>
-    public required PlmShotBlockVisuals ShotBlockVisuals { get; init; }
+    public required RoomObjectVisuals ShotBlockVisuals { get; init; }
 
     /// <summary>The held beam charge, flare and charge palette, which each room's projectile system shares.</summary>
     public required BeamChargeState BeamCharge { get; init; }

@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;

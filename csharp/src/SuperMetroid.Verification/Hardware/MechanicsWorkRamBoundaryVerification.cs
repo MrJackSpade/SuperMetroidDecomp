@@ -13,8 +13,8 @@ internal static class MechanicsWorkRamBoundaryVerification
     internal static void VerifyMechanicsWorkRamBoundary()
     {
         const BindingFlags privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomPlmSystem), "ReadNativeBankByte", privateStatic) &&
-            !MetadataShape.DeclaresMethod(typeof(RoomPlmSystem), "ReadBank84Word", privateStatic),
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomObjectSystem), "ReadNativeBankByte", privateStatic) &&
+            !MetadataShape.DeclaresMethod(typeof(RoomObjectSystem), "ReadBank84Word", privateStatic),
             "PLMs must not retain generic bank-data readers");
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(SamusHorizontalSpeedState), "ReadMappedByte", privateStatic),
             "horizontal speed must not retain a mapped CPU-byte reader");

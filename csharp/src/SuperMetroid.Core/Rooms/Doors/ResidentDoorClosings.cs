@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -10,8 +10,8 @@ internal static class ResidentDoorClosings
     /// <see cref="ResidentDoorClosingDefinitions.Closings"/> is rejected, including blue collision PLMs.
     /// </summary>
     /// <exception cref="InvalidDataException">The header has no compiled closing definition.</exception>
-    internal static PlmProgramStart Resolve(PlmHeaderId header) =>
-        ResidentDoorClosingDefinitions.Closings.TryGetValue(header, out PlmProgramStart start)
+    internal static RoomObjectProgramStart Resolve(RoomObjectHeaderId header) =>
+        ResidentDoorClosingDefinitions.Closings.TryGetValue(header, out RoomObjectProgramStart start)
             ? start
             : throw new InvalidDataException($"Resident door header {header} has no compiled closing definition.");
 }

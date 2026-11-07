@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's fake-death room block draws: the wall fill and escape door, the twelve mural rows and the fill rows
-/// and tube clears, and their run geometry and cells from <see cref="MotherBrainFakeDeathPlmDrawDefinitions"/>.
+/// and tube clears, and their run geometry and cells from <see cref="MotherBrainFakeDeathObjectDrawDefinitions"/>.
 /// </summary>
 internal static class MotherBrainFakeDeathDraws
 {
@@ -40,18 +40,18 @@ internal static class MotherBrainFakeDeathDraws
         {
             int count = Count(run);
             if ((uint)block >= count) throw new ArgumentOutOfRangeException(nameof(block));
-            return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run][block];
+            return MotherBrainFakeDeathObjectDrawDefinitions.Cells[Frame][run][block];
         }
     }
 
     /// <summary>Recognizes only the two unused fill rows and six tube-clear lists in the shared draw-pointer space.</summary>
-    internal static bool TryDescribeRegular(PlmDraw request, out RegularDraw draw)
+    internal static bool TryDescribeRegular(RoomObjectDraw request, out RegularDraw draw)
     {
         draw = default;
         // Shared draw-pointer space: draws outside this family belong to other owners.
-        if (request is not PlmFrameDraw<MotherBrainFakeDeathDraw>) return false;
-        var list = PlmDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
-        if (MotherBrainFakeDeathPlmDrawDefinitions.RegularShapes.TryGetValue(list, out draw))
+        if (request is not RoomObjectFrameDraw<MotherBrainFakeDeathDraw>) return false;
+        var list = RoomObjectDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
+        if (MotherBrainFakeDeathObjectDrawDefinitions.RegularShapes.TryGetValue(list, out draw))
             return true;
         // The boundary and background families own the other lists.
         if (Enum.IsDefined(list))
@@ -70,16 +70,16 @@ internal static class MotherBrainFakeDeathDraws
         internal RoomTerrainBlock BlockAt(int column)
         {
             if ((uint)column >= 13) throw new ArgumentOutOfRangeException(nameof(column));
-            RoomTerrainBlock visual = MotherBrainFakeDeathPlmDrawDefinitions.BackgroundVisuals[Row][column];
+            RoomTerrainBlock visual = MotherBrainFakeDeathObjectDrawDefinitions.BackgroundVisuals[Row][column];
             return Row is 0 or 11 ? visual.WithCollision(RoomCollisionType.Slope) : visual;
         }
     }
 
     /// <summary>Recognizes the twelve mural row draws.</summary>
-    internal static bool TryDescribeBackground(PlmDraw request, out BackgroundDraw draw)
+    internal static bool TryDescribeBackground(RoomObjectDraw request, out BackgroundDraw draw)
     {
-        int row = request is PlmFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame }
-            ? Array.IndexOf(MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRows, frame)
+        int row = request is RoomObjectFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame }
+            ? Array.IndexOf(MotherBrainFakeDeathObjectDrawDefinitions.BackgroundRows, frame)
             : -1;
         draw = row >= 0 ? new(row) : default;
         return row >= 0;
@@ -95,7 +95,7 @@ internal static class MotherBrainFakeDeathDraws
         internal int Count(int run)
         {
             if ((uint)run >= 2) throw new ArgumentOutOfRangeException(nameof(run));
-            return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run].Length;
+            return MotherBrainFakeDeathObjectDrawDefinitions.Cells[Frame][run].Length;
         }
         /// <summary>Steps from the escape door's left column to its right air column.</summary>
         internal int NextX(int run)
@@ -113,17 +113,17 @@ internal static class MotherBrainFakeDeathDraws
         internal RoomTerrainBlock BlockAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new ArgumentOutOfRangeException(nameof(block));
-            return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run][block];
+            return MotherBrainFakeDeathObjectDrawDefinitions.Cells[Frame][run][block];
         }
     }
 
     /// <summary>Recognizes only the wall-fill and escape-door pointers among the shared fake-death draws.</summary>
-    internal static bool TryDescribeBoundary(PlmDraw request, out BoundaryDraw draw)
+    internal static bool TryDescribeBoundary(RoomObjectDraw request, out BoundaryDraw draw)
     {
         draw = default;
         // Shared draw-pointer space: draws outside this family belong to other owners.
-        if (request is not PlmFrameDraw<MotherBrainFakeDeathDraw>) return false;
-        var list = PlmDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
+        if (request is not RoomObjectFrameDraw<MotherBrainFakeDeathDraw>) return false;
+        var list = RoomObjectDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
         bool owned = list is MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor;
         if (owned) draw = new(list);
         return owned;

@@ -45,8 +45,8 @@ internal static class XrayTilemapVerification
         // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy.
         void Set(int index, RoomCollisionType type, int behavior)
         {
-            level.SetPlmTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type), foreground[index].Appearance);
-            level.SetPlmBehavior(index, new RoomBlockBehavior(behavior));
+            level.SetObjectTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type), foreground[index].Appearance);
+            level.SetObjectBehavior(index, new RoomBlockBehavior(behavior));
         }
         RevealedBlock?[] basis = Build();
         AssertEqual(Copied(1, 1), Cell(basis, 0, 0), "base copy starts at the block holding the screen's top-left corner, mirrored as the level mirrors it");

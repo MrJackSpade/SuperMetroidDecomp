@@ -5,12 +5,12 @@ using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerif
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombChargeRejectionVerification;
 using static SuperMetroid.Verification.Samus.Movement.CeilingWrapRoomVerification;
-using static SuperMetroid.Verification.Rooms.Plms.GateBeamCollisionVerification;
-using static SuperMetroid.Verification.Rooms.Plms.GModeGateGlitchVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.GateBeamCollisionVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.GModeGateGlitchVerification;
 using static SuperMetroid.Verification.Samus.Movement.GroundedBombSpreadVerification;
 using static SuperMetroid.Verification.Runtime.HeroShotsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MissileEdgeVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RightFacingGateGlitchVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RightFacingGateGlitchVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusMorphBallVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.WrapShotEnemiesVerification;
@@ -18,7 +18,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.WrapShotWidthsVerificat
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -67,13 +67,13 @@ internal static class WrapShotsVerification
             };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var plms = PlmFixtures.Unbound();
+            var roomObjects = RoomObjectFixtures.Unbound();
             int firstRemoteHit = -1;
             for (int frame = 0; frame < 40; frame++)
             {
                 ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 shared.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
-                projectiles.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
+                projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
                 var shot = projectiles.Slots[0];
                 string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)

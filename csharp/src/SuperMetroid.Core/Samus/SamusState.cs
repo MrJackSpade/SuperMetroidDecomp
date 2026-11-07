@@ -566,7 +566,7 @@ public sealed class SamusState
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomPlms? plms,
+        ISamusRoomObjects? roomObjects,
         out int centerAdjustment)
     {
         int targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
@@ -606,13 +606,13 @@ public sealed class SamusState
             level,
             displacement: unchecked(SixteenSixteen.FromWhole(-radiusDifference)),
             scanLeftToRight: (frameCounter & 1) == 0,
-            targetPose, plms);
+            targetPose, roomObjects);
         BlockMoveResult downward = ProbeChangedPoseVertical(
 
             level,
             displacement: SixteenSixteen.FromWhole(radiusDifference),
             scanLeftToRight: (frameCounter & 1) == 0,
-            targetPose, plms);
+            targetPose, roomObjects);
 
         if (upward.Collided && downward.Collided)
         {
@@ -640,7 +640,7 @@ public sealed class SamusState
 level,
                 displacement: SixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (frameCounter & 1) == 0,
-                targetPose, plms: plms);
+                targetPose, roomObjects: roomObjects);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyUp.Collided)
@@ -659,7 +659,7 @@ level,
 level,
                 displacement: SixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (frameCounter & 1) == 0,
-                targetPose, plms: plms);
+                targetPose, roomObjects: roomObjects);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyDown.Collided)
@@ -716,7 +716,7 @@ level,
         int displacement,
         bool scanLeftToRight,
         SamusPoseId targetPose,
-        ISamusRoomPlms? plms)
+        ISamusRoomObjects? roomObjects)
     {
         int wholePixels = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement));
         if ((Math.Abs(wholePixels) & ~7) != 0)
@@ -737,7 +737,7 @@ level,
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.CollisionPose = targetPose;
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-level, probe, this, amount, scanLeftToRight, plms);
+level, probe, this, amount, scanLeftToRight, roomObjects);
             // Submerging sand clears speed/gravity even during an observation.
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomAppearance
 {
     /// <summary>The collectible each slot shows, by slot; null while the slot shows the room's load.</summary>
-    private readonly InWorldCollectibleKind?[] collectibles = new InWorldCollectibleKind?[CollectiblePlms.GraphicsSlots];
+    private readonly InWorldCollectibleKind?[] collectibles = new InWorldCollectibleKind?[CollectibleObjects.GraphicsSlots];
 
     /// <summary>Whether Kraid's rise has shown his backdrop over the room's tiles.</summary>
     public bool KraidBackdropShown { get; private set; }

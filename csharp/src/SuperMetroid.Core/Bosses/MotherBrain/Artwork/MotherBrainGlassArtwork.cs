@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -12,7 +12,7 @@ internal static class MotherBrainGlassArtwork
     /// <summary>Resolves one glass-layout visual block by translating run-local indices into the flattened authored frame.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported glass layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
-    internal static RoomBlockAppearance Appearance(PlmVisualOverrides customBlocks, PlmDraw draw, int runIndex, int blockIndex)
+    internal static RoomBlockAppearance Appearance(RoomObjectVisualOverrides customBlocks, RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (!MotherBrainGlassDraws.TryDescribe(draw, out var shape))
             throw new InvalidDataException(

@@ -28,7 +28,7 @@ internal sealed class ChainsawPowerBombCallback
         SamusState samus,
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         // The misaligned callback runs the Power Bomb fuse over the shot, from a zero fuse.
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.ChainsawPowerBombFuse, sharedProjectiles.PowerBombExplosion.IsArmed);
@@ -53,7 +53,7 @@ internal sealed class ChainsawPowerBombCallback
             sharedProjectiles.PowerBombExplosion.Position,
             sharedProjectiles.PowerBombExplosion.ExplosionRadius,
             reactions,
-            roomPlms,
+            roomObjects,
             samus.LiquidPhysics.AreaIndex,
             slot.Type);
     }

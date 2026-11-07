@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.SaveStation;
 using SuperMetroid.Core.Enemies.SaveStation.Artwork;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

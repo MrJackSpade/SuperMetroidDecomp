@@ -3,11 +3,11 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleEnemyDeathVerificati
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.DownwardGateObjectsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDoorsVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -28,13 +28,13 @@ internal static class GrappleGatesVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var trigger in new[] { DownwardGateTriggerBehavior.GreenLeft, DownwardGateTriggerBehavior.GreenRight })
         {
-            var (bus, level, plms, gateIndex) = CreateDownwardGateFixture(trigger);
+            var (bus, level, roomObjects, gateIndex) = CreateDownwardGateFixture(trigger);
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
             SeedRetailGateSpriteMaps(bus, retail);
             SeedEmptyRoomEnemyPopulation(bus, 0x9600);
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
             enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) });
-            enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(plms.Gates.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
+            enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(roomObjects.Gates.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);
             var oam = new OamBuffer();
@@ -54,17 +54,17 @@ internal static class GrappleGatesVerification
                 if (frame == 2)
                 {
                     SeedStationaryGrappleCollisionProbe(samus);
-                    var result = SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X, plms);
+                    var result = SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X, roomObjects);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
-                StepDownwardGatePlm(plms, level);
-                AssertEqual(0, plms.Gates.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
+                StepDownwardGateObject(roomObjects, level);
+                AssertEqual(0, roomObjects.Gates.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
                 enemies.StepEnemyProjectiles(level, null);
                 enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
                 AssertTrue(oam.LowTable[..oam.NextByteOffset].SequenceEqual(expected),
                     $"green gate OAM remains visible and identical on {trigger} frame {frame}");
                 if (frame == 2)
-                    AssertTrue(plms.Sounds.SoundRequests.Any(r => r.SoundEffect == DownwardGateDefinitions.RejectedShotSound), "rejected grapple emits gate dud sound");
+                    AssertTrue(roomObjects.Sounds.SoundRequests.Any(r => r.SoundEffect == DownwardGateDefinitions.RejectedShotSound), "rejected grapple emits gate dud sound");
             }
         }
         Console.WriteLine("  Grapple green gates: both sides retain exact gate OAM before, during and after impact.");

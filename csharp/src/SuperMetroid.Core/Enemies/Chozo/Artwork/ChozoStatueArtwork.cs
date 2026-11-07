@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 
@@ -12,7 +12,7 @@ internal static class ChozoStatueArtwork
     /// <summary>Resolves one selected appearance in a draw run, using compiled stock art when no independent edit was supplied.</summary>
     /// <exception cref="InvalidDataException">The draw identity is not a supported frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled shape.</exception>
-    internal static RoomBlockAppearance Appearance(PlmVisualOverrides customBlocks, PlmDraw draw, int runIndex, int blockIndex)
+    internal static RoomBlockAppearance Appearance(RoomObjectVisualOverrides customBlocks, RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (!ChozoStatueDraws.TryDescribe(draw, out var shape))
             throw new InvalidDataException(

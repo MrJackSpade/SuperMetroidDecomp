@@ -1,0 +1,444 @@
+using SuperMetroid.AssetExtraction;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
+using SuperMetroid.Core;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+namespace SuperMetroid.Verification.Rooms.RoomObjects;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
+
+/// <summary>Checks shot-block PLM programs, editable draw frames, and ROM-free runtime execution against cartridge data.</summary>
+internal static class ShotBlockObjectProgramsVerification
+{
+    /// <summary>Reproduces the permanent-shot-block first-frame regression and checks all eight timed BTS programs on RAM-only memory.</summary>
+    internal static void VerifyShotBlockProgramOperands()
+    {
+        // #1157: the first draw operand of a permanent 1x1 shot block ($84:CBBC)
+        // was absent from the compiled program. Exercise the actual interpreter
+        // against RAM-only memory, not the old import-capable reference guard.
+        ShotBlockFixture reported = NewShotBlockFixture(4);
+        reported.RoomObjects.Step(reported.Level);
+        AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+            reported.Level.GetCollisionBlockByIndex(27).Terrain,
+            "reported permanent shot block draws its first break frame without a cartridge read");
+
+        // The same timed-record contract owns all eight ordinary shot-block lists.
+        // Confirm their break/restore pointer sequence, including the multi-block
+        // parent restoration, rather than merely asserting that execution survived.
+        for (byte behavior = 0; behavior < 8; behavior++)
+        {
+            ShotBlockFixture fixture = NewShotBlockFixture(behavior);
+            fixture.RoomObjects.Step(fixture.Level);
+            AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+                fixture.Level.GetCollisionBlockByIndex(27).Terrain,
+                $"shot-block BTS {behavior} first physical break frame");
+            for (int frame = 1; frame < 420; frame++)
+                fixture.RoomObjects.Step(fixture.Level);
+            RoomTerrainBlock expected = behavior switch
+            {
+                0 => RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                1 => RoomTerrainBlock.Of(0x096, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                2 => RoomTerrainBlock.Of(0x098, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                3 => RoomTerrainBlock.Of(0x099, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                _ => RoomTerrainBlocks.BlankAir,
+            };
+            AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).Terrain,
+                $"shot-block BTS {behavior} restores or permanently clears the native parent");
+            AssertEqual(0, fixture.RoomObjects.SlotTable.ActiveCount,
+                $"shot-block BTS {behavior} finishes its compiled program");
+        }
+        Console.WriteLine("#1157: permanent-shot-block failure and all eight shared timed-record operand contracts confirmed on RAM-only memory.");
+    }
+
+    /// <summary>Checks compiled shot-block control, sound, and drawing data against retail ROM and executes the programs with source reads forbidden.</summary>
+    internal static void VerifyShotBlockObjectPrograms()
+    {
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyShotBlockStockVisualMapping), () => VerifyShotBlockStockVisualMapping(rom));
+        Suite(nameof(VerifyShotBlockProgramControlMapping), () => VerifyShotBlockProgramControlMapping(rom));
+        Suite(nameof(VerifyShotBlockProgramDrawMapping), () => VerifyShotBlockProgramDrawMapping(rom));
+        Suite(nameof(VerifyShotBlockProgramSoundMapping), () => VerifyShotBlockProgramSoundMapping(rom));
+        Suite(nameof(VerifyRespawningShotSizeSelection), () => VerifyRespawningShotSizeSelection(rom));
+        Suite(nameof(VerifyPermanentShotSizeSelection), () => VerifyPermanentShotSizeSelection(rom));
+        Suite(nameof(RoomObjectProgramsVerification.VerifyBlockReactionPrograms), () => RoomObjectProgramsVerification.VerifyBlockReactionPrograms(rom));
+        Suite(nameof(RoomObjectProgramsVerification.VerifyScriptedRoomPrograms), () => RoomObjectProgramsVerification.VerifyScriptedRoomPrograms(rom));
+        var forbidden = new HashSet<int>();
+        ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
+            0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
+        AssertTrue(nativeDraws.SequenceEqual(RoomObjectShotBlockVisualFiles.All.Select(draw => RoomObjectDrawAddressCodec.Of(draw.Draw))),
+            "shot-block independent native draw order");
+        var knownDraws = nativeDraws.ToHashSet();
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            AssertEqual(knownDraws.Contains((ushort)pointer), NativeObjectDraws.IsDrawAt<ShotBlockObjectDraws.Draw>(pointer),
+                "shot-block full draw-pointer domain");
+        }
+        int wordCount = 0;
+        foreach (ushort address in RoomObjectShotBlockProgramDefinitions.MechanicsWordAddresses())
+        {
+            AssertTrue(RoomObjectShotBlockProgramDefinitions.TryReadMechanicsWord(address, out ushort value),
+                $"shot-block control word ${address:X4} is compiled");
+            ushort sourceWord = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
+            AssertEqual(sourceWord, value,
+                $"shot-block control word ${address:X4} matches pinned cartridge");
+            forbidden.Add(0x840000 | address);
+            forbidden.Add(0x840000 | (address + 1));
+            wordCount++;
+        }
+
+        int byteCount = 0;
+        foreach (ushort address in RoomObjectShotBlockProgramDefinitions.MechanicsByteAddresses())
+        {
+            AssertTrue(RoomObjectShotBlockProgramDefinitions.TryReadMechanicsByte(address, out byte value),
+                $"shot-block sound byte ${address:X4} is compiled");
+            AssertEqual(rom.ReadCartridgeByte(0x840000 | address), value,
+                $"shot-block sound byte ${address:X4} matches pinned cartridge");
+            forbidden.Add(0x840000 | address);
+            byteCount++;
+        }
+
+        AssertEqual(102, wordCount, "thirteen ordinary/gated/enemy-breakable shot programs have control words");
+        AssertEqual(13, byteCount, "thirteen shot programs have sound operands");
+        AssertTrue(!RoomObjectShotBlockProgramDefinitions.TryReadMechanicsWord(0xa345, out _),
+            "interleaved draw-list pointers are not misclassified as control words");
+
+        int drawListCount = 0;
+        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in
+                 RoomObjectShotBlockVisualFiles.All)
+        {
+            AssertTrue(list.Draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw>, "shot-block calculated draw exists");
+            var calculated = RoomObjectDraw.FrameOf<ShotBlockObjectDraws.Draw>(list.Draw, "shot-block");
+            AssertEqual(list.Runs.Length, calculated.RunCount, "shot-block calculated run count");
+            int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
+            int runIndex = 0;
+            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                AssertEqual(run.Count, calculated.BlocksPerRun, "shot-block calculated run width");
+                AssertEqual(run.Direction == RoomObjectRunDirection.Vertical, calculated.Vertical, "shot-block calculated direction");
+                int blockIndex = 0;
+                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                    $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} direction/count");
+                forbidden.Add(0x840000 | cursor++);
+                forbidden.Add(0x840000 | cursor++);
+                foreach (RoomTerrainBlock terrain in run.Blocks.Span)
+                {
+                    AssertEqual(terrain, calculated.BlockAt(runIndex, blockIndex++), "shot-block direct and exported block agree");
+                    AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
+                        terrain,
+                        $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} block decoded from the level word at ${cursor:X4}");
+                    forbidden.Add(0x840000 | cursor++);
+                    forbidden.Add(0x840000 | cursor++);
+                }
+
+                AssertEqual(unchecked((byte)run.Next.X), rom.ReadCartridgeByte(0x840000 | cursor),
+                    $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} next X");
+                forbidden.Add(0x840000 | cursor++);
+                AssertEqual(unchecked((byte)run.Next.Y), rom.ReadCartridgeByte(0x840000 | cursor),
+                    $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} next Y");
+                forbidden.Add(0x840000 | cursor++);
+                runIndex++;
+            }
+
+            foreach (int invalid in new[] {int.MinValue,-1,int.MaxValue})
+            {
+                AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(invalid, 0), "shot-block invalid run");
+                AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(0, invalid), "shot-block invalid block");
+            }
+            AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(calculated.RunCount, 0), "shot-block run upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(0, calculated.BlocksPerRun), "shot-block word upper bound");
+
+            drawListCount++;
+        }
+
+        AssertEqual(19, drawListCount, "all shot-block animation and restoration lists are compiled");
+        AssertTrue(!NativeObjectDraws.IsDrawAt<ShotBlockObjectDraws.Draw>(0xa344),
+            "uncatalogued draw pointers do not alias a nearby list");
+
+        // Compare the real PLM handler frame by frame with and without precisely the
+        // compiled control bytes forbidden. ROM equality above supplies source parity;
+        // this production-path check covers the sound handoff,
+        // timed frames, 384-tick respawn hold, word restoration, and permanent deletion.
+        for (byte behavior = 0; behavior < 8; behavior++)
+        {
+            ShotBlockFixture stock = NewShotBlockFixture(behavior);
+            ShotBlockFixture compiled = NewShotBlockFixture(behavior);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
+            for (int frame = 0; frame < 420; frame++)
+            {
+                stock.RoomObjects.Step(stock.Level);
+                compiled.RoomObjects.Step(compiled.Level);
+                AssertEqual(stock.RoomObjects.SlotTable.ActiveCount, compiled.RoomObjects.SlotTable.ActiveCount,
+                    $"shot-block BTS {behavior} active slots at frame {frame}");
+                AssertEqual(stock.RoomObjects.Sounds.SoundRequests.Count, compiled.RoomObjects.Sounds.SoundRequests.Count,
+                    $"shot-block BTS {behavior} sound count at frame {frame}");
+                for (int index = 0; index < 64; index++)
+                    AssertEqual(stock.Level.GetCollisionBlockByIndex(index).Terrain,
+                        compiled.Level.GetCollisionBlockByIndex(index).Terrain,
+                        $"shot-block BTS {behavior} block {index} at frame {frame}");
+            }
+
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"shot-block BTS {behavior} executes without control-byte ROM reads");
+            AssertEqual(0, compiled.RoomObjects.SlotTable.ActiveCount,
+                $"shot-block BTS {behavior} completes within the retail timer window");
+        }
+
+        Suite(nameof(VerifyShotBlockVisualSeparation), () => VerifyShotBlockVisualSeparation());
+        Suite(nameof(VerifyShotBlockVisualInstallation), () => VerifyShotBlockVisualInstallation());
+
+        Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
+    }
+
+    /// <summary>Checks the four respawning shapes against native selector words and rejects out-of-range BTS sizes.</summary>
+    private static void VerifyRespawningShotSizeSelection(SuperMetroidAddressSpace rom)
+    {
+        ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
+        for (int size = 0; size < fields.Length; size++)
+            AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
+                RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.RespawningShot(size)), "respawning shot native shape selection");
+        for (int size = 4; size <= byte.MaxValue; size++)
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionObjectPrograms.RespawningShot(size), "respawning shot rejects other BTS values without masking");
+        foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionObjectPrograms.RespawningShot(size), "respawning shot size domain");
+    }
+
+    /// <summary>Checks the four permanent shapes after the caller's BTS offset and rejects invalid selector inputs.</summary>
+    private static void VerifyPermanentShotSizeSelection(SuperMetroidAddressSpace rom)
+    {
+        ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
+        for (int size = 0; size < fields.Length; size++)
+            AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
+                RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.PermanentShot(size)), "permanent shot native shape selection after caller subtracts four");
+        for (int size = 4; size <= byte.MaxValue; size++)
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionObjectPrograms.PermanentShot(size), "permanent shot rejects out-of-range size without masking");
+        foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionObjectPrograms.PermanentShot(size), "permanent shot size domain");
+    }
+
+    /// <summary>Lists the thirteen native timed-list layouts used to derive control and draw operand addresses.</summary>
+    private static ShotBlockNativeProgramLayoutsResult[] ShotBlockNativeProgramLayouts() =>
+        [new ShotBlockNativeProgramLayoutsResult(0xcadf,7,true),new ShotBlockNativeProgramLayoutsResult(0xcb02,8,false),new ShotBlockNativeProgramLayoutsResult(0xcb27,8,false),new ShotBlockNativeProgramLayoutsResult(0xcb4c,8,false),
+         new ShotBlockNativeProgramLayoutsResult(0xcbb7,4,false),new ShotBlockNativeProgramLayoutsResult(0xcbcc,4,false),new ShotBlockNativeProgramLayoutsResult(0xcbe1,4,false),new ShotBlockNativeProgramLayoutsResult(0xcbf6,4,false),
+         new ShotBlockNativeProgramLayoutsResult(0xcb71,7,true),new ShotBlockNativeProgramLayoutsResult(0xcb94,7,true),new ShotBlockNativeProgramLayoutsResult(0xcc0b,4,false),new ShotBlockNativeProgramLayoutsResult(0xcc20,4,false),new ShotBlockNativeProgramLayoutsResult(0xcd53,4,false)];
+
+    /// <summary>Checks the full address domain of compiled timers and control words against bank $84.</summary>
+    private static void VerifyShotBlockProgramControlMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new List<ushort>();
+        foreach (var layout in ShotBlockNativeProgramLayouts())
+        {
+            addresses.Add(layout.Start);
+            for (int frame = 0; frame <= layout.Frames; frame++)
+                addresses.Add((ushort)(layout.Start + 3 + 4 * frame));
+            if (layout.RestoreWord) addresses.Add((ushort)(layout.Start + 5 + 4 * layout.Frames));
+        }
+        AssertTrue(addresses.SequenceEqual(RoomObjectShotBlockProgramDefinitions.MechanicsWordAddresses()), "shot-block native control enumeration order");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomObjectShotBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
+            AssertEqual(known.Contains((ushort)address), found, "shot-block full control-word domain");
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
+                "shot-block native control value including respawn hold and Power Bomb cadence");
+        }
+    }
+
+    /// <summary>Checks that draw operands occur only at timed-frame offsets and retain native shape choices.</summary>
+    private static void VerifyShotBlockProgramDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new HashSet<ushort>();
+        foreach (var layout in ShotBlockNativeProgramLayouts())
+        for (int frame = 0; frame < layout.Frames; frame++)
+            addresses.Add((ushort)(layout.Start + 5 + 4 * frame));
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomObjectShotBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
+            AssertEqual(addresses.Contains((ushort)address), found, "shot-block full draw-operand domain");
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
+                "shot-block native shape, reverse breakup and restoration draw selection");
+        }
+    }
+
+    /// <summary>Checks the thirteen packed sound operands and rejects every unrelated bank-$84 address.</summary>
+    private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xcae1,0xcb04,0xcb29,0xcb4e,0xcbb9,0xcbce,0xcbe3,0xcbf8,
+            0xcb73,0xcb96,0xcc0d,0xcc22,0xcd55];
+        AssertTrue(addresses.SequenceEqual(RoomObjectShotBlockProgramDefinitions.MechanicsByteAddresses()), "shot-block native sound operand order");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomObjectShotBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
+            AssertEqual(known.Contains((ushort)address), found, "shot-block full packed sound domain");
+            AssertEqual(found ? rom.ReadCartridgeByte(0x840000 | address) : (byte)0, value, "shot-block native packed sound IDs");
+        }
+    }
+
+    /// <summary>Compares stock draw runs to ROM and checks visual identity and bounds.</summary>
+    private static void VerifyShotBlockStockVisualMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] pointers = [0xa345,0xa34b,0xa351,0xa357,0xa35d,0xa365,0xa36d,0xa375,
+            0xa37d,0xa385,0xa38d,0xa395,0xa39d,0xa3ad,0xa3bd,0xa3cd,0xa47b,0xa483,0xa48b];
+        var native = new Dictionary<ushort, RoomBlockAppearance[][]>();
+        foreach (ushort pointer in pointers)
+        {
+            int cursor = pointer;
+            var runs = new List<RoomBlockAppearance[]>();
+            do
+            {
+                int count = ReadRomWord(rom, 0x840000 | cursor) & 0x7fff;
+                cursor += 2;
+                var row = new RoomBlockAppearance[count];
+                for (int i = 0; i < count; i++, cursor += 2)
+                    row[i] = RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom, 0x840000 | cursor));
+                runs.Add(row);
+                ushort next = ReadRomWord(rom, 0x840000 | cursor);
+                cursor += 2;
+                if (next == 0) break;
+                AssertTrue(runs.Count < 2, "shot-block native oracle has at most two runs");
+            } while (true);
+            native.Add(pointer, runs.ToArray());
+        }
+        var stock = InstalledRoomObjectShotBlockVisuals.Stock();
+        var loaded = RoomObjectShotBlockVisualFiles.Create(native.Select(pair => new RoomObjectVisualRunEntry(ShotId(pair.Key), pair.Value)));
+        string identity = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomObjectShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value));
+        AssertEqual(identity, stock.ContentIdentity, "shot-block stock preserves original native content identity");
+        AssertEqual(identity, loaded.ContentIdentity, "shot-block imported stock preserves identity");
+        foreach (var pair in native)
+        for (int run = 0; run < pair.Value.Length; run++)
+        for (int word = 0; word < pair.Value[run].Length; word++)
+        {
+            AssertEqual(pair.Value[run][word], stock.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), run, word), "shot-block calculated native stock word");
+            AssertEqual(pair.Value[run][word], loaded.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), run, word), "shot-block imported native stock word");
+        }
+        foreach (var catalog in new[] {stock, loaded})
+        foreach (var pair in native)
+        {
+            foreach (int invalid in new[] {int.MinValue,-1,pair.Value.Length,int.MaxValue})
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), invalid, 0), "shot-block visual run bounds");
+            foreach (int invalid in new[] {int.MinValue,-1,pair.Value[0].Length,int.MaxValue})
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), 0, invalid), "shot-block visual word bounds");
+        }
+        AssertThrows<InvalidDataException>(() => RoomObjectShotBlockVisualFiles.Create(native.Skip(1).Select(pair => new RoomObjectVisualRunEntry(ShotId(pair.Key), pair.Value))), "shot-block imported stock still requires complete coverage");
+    }
+
+    /// <summary>The artwork identity of the shot-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
+    private static string ShotId(ushort pointer) =>
+        RoomObjectShotBlockVisualFiles.VisualId(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pointer));
+
+    /// <summary>Checks the stock first break frame's physical word and immediate tile, and catalog rejection of missing draws.</summary>
+    private static void VerifyShotBlockVisualSeparation(
+)
+    {
+        InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
+        RoomObjectVisualRunEntry[] entries = RoomObjectShotBlockVisualFiles.All
+            .Select(list => new RoomObjectVisualRunEntry(RoomObjectShotBlockVisualFiles.VisualId(list.Draw),
+                list.Runs.Span
+                    .SelectToArray(run => run.Blocks.Span
+                        .SelectToArray(terrain => terrain.Appearance))
+                    ))
+            .ToArray();
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            stock.GetAppearance(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
+            "stock visual catalog retains the native first break frame");
+
+        const int width = 8;
+        const int block = 3 + 3 * width;
+        var words = new RoomTerrainBlock[width * width];
+        words[block] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+
+        ShotBlockObjectProgramsRenderResult Render(
+            InstalledRoomObjectShotBlockVisuals visuals)
+        {
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
+            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals });
+            AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, block, 0, SamusProjectileType.None, true),
+                "visual-only test allocates the production shot-block PLM");
+            roomObjects.Step(level);
+            return new ShotBlockObjectProgramsRenderResult(level.GetCollisionBlockByIndex(block).Terrain,
+                level.DisplayedAppearance(block),
+                level.DisplayedAppearance(block));
+        }
+
+        var native = Render(stock);
+        AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), native.Physical,
+            "stock first break frame has its native physical level word");
+        AssertEqual(RoomBlockAppearance.Of(0x053), native.Immediate,
+            "stock draw reaches the immediate tilemap upload");
+
+        AssertThrows<InvalidDataException>(
+            () => RoomObjectShotBlockVisualFiles.Create(entries.Skip(1)),
+            "visual catalog rejects missing compiled draw lists");
+    }
+
+    /// <summary>Checks the installed stock art and that a corrupt installed visual file fails loudly where it is read.</summary>
+    private static void VerifyShotBlockVisualInstallation()
+    {
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectShotBlockVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomObjectShotBlockVisualFilesConstants.ValidateStock(
+            installation.RoomObjectShotBlockVisualDirectory);
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            installation.LoadRoomObjectShotBlockVisuals().GetAppearance(
+                ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
+            "installed stock shot-block frame matches native visual block");
+
+        string stockPath = Path.Combine(installation.RoomObjectShotBlockVisualDirectory,
+            RoomObjectShotBlockVisualFiles.VisualFileName);
+        File.WriteAllText(stockPath, "corrupt stock");
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomObjectShotBlockVisuals(),
+            "corrupt installed shot-block visuals fail loudly where they are read");
+    }
+
+    /// <summary>Minimal room, and PLM owners for stepping a shot-block program.</summary>
+    internal sealed record ShotBlockFixture(
+        RoomLevelData Level,
+        RoomObjectSystem RoomObjects);
+
+    /// <summary>Spawns the chosen BTS behavior at a fixed 8-by-8 room block for deterministic frame checks.</summary>
+    private static ShotBlockFixture NewShotBlockFixture(byte behavior)
+    {
+        const int width = 8;
+        const int height = 8;
+        const int blockIndex = 3 + 3 * width;
+        var words = new RoomTerrainBlock[width * height];
+        words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
+        var roomObjects = RoomObjectFixtures.Unbound();
+        AssertTrue(roomObjects.TrySpawnProjectileShotBlock(
+                level, blockIndex, behavior, SamusProjectileType.None, solidBlock: true),
+            $"shot-block BTS {behavior} allocates its native PLM program");
+        return new ShotBlockFixture(level, roomObjects);
+    }
+
+    /// <summary>Rejects runtime reads of the compiled control and sound bytes recorded from bank $84.</summary>
+    internal static CartridgeReadGuard NewShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Production PLM handler read compiled control byte ${address:X6}.");
+
+    /// <summary>Runs the RAM-only regression for the permanent first draw frame and all shot-block timers.</summary>
+    [VerificationCommand("--shot-block-program-operands")]
+    internal static int ShotBlockProgramOperandsCommand()
+    {
+        Suite(nameof(VerifyShotBlockProgramOperands), () => VerifyShotBlockProgramOperands());
+        return 0;
+    }
+
+    /// <summary>Runs the cartridge oracle and editable-art checks for shot-block programs.</summary>
+    [VerificationCommand("--shot-block-plm-programs")]
+    internal static int ShotBlockObjectProgramsCommand()
+    {
+        Suite(nameof(VerifyShotBlockObjectPrograms), () => VerifyShotBlockObjectPrograms());
+        return 0;
+    }
+}

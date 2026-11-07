@@ -1,6 +1,6 @@
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
@@ -22,7 +22,7 @@ internal static class WaveDoorBandsVerification
             words[target] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
             behaviors[target] = (left ? RoomBlockBehaviorValues.BlueDoorFacingRight : RoomBlockBehaviorValues.BlueDoorFacingLeft);
             var level = CreateRoom(new(16, 32), words, behaviors);
-            var plms = PlmFixtures.Unbound();
+            var roomObjects = RoomObjectFixtures.Unbound();
             var shot = new SamusProjectileSlot(0)
             {
                 Position = new(new(72, 0), new(y, 0)), Radius = new(1, 0),
@@ -36,8 +36,8 @@ internal static class WaveDoorBandsVerification
                 behaviors[target - 16] = behaviors[target];
                 level = CreateRoom(new(16, 32), words, behaviors);
             }
-            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, plms);
-            AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, plms.SlotTable.ActiveCount,
+            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects);
+            AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, roomObjects.SlotTable.ActiveCount,
                 $"Wave door reaction at Y={y}, left={left}: XBA tests the original high byte");
         }
         Console.WriteLine("PASS horizontal Wave door reactions across pixel/screen/sign boundaries (24 cases).");

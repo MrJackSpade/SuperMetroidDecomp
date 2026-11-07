@@ -1,7 +1,7 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -16,30 +16,30 @@ internal static class LookupMotherBrainRegularDrawsVerification
     {
         ushort[] pointers = [0x966d, 0x968b, 0x96a9, 0x96b1, 0x96bf, 0x96cb, 0x96ef, 0x9703];
         ushort[] otherPointers = [0x94a3,0x94b1,0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
-        var exported = RoomPlmMotherBrainFakeDeathVisualFiles.All.Where(draw => pointers.Contains(PlmDrawAddressCodec.Of(draw.Draw))).ToArray();
+        var exported = RoomObjectMotherBrainFakeDeathVisualFiles.All.Where(draw => pointers.Contains(RoomObjectDrawAddressCodec.Of(draw.Draw))).ToArray();
         AssertEqual(pointers.Length, exported.Length, "Mother Brain regular physical export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
             bool owned = Array.IndexOf(pointers, pointer) >= 0;
-            AssertEqual(owned, MotherBrainFakeDeathDraws.TryDescribeRegular(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape),
+            AssertEqual(owned, MotherBrainFakeDeathDraws.TryDescribeRegular(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape),
                 $"Mother Brain regular descriptor ownership {value:X4}");
-            AssertEqual(owned || otherPointers.Contains(pointer), MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto),
+            AssertEqual(owned || otherPointers.Contains(pointer), MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto),
                 $"Mother Brain regular DTO ownership {value:X4}");
             if (!owned)
             {
                 AssertEqual(default(MotherBrainFakeDeathDraws.RegularDraw), shape, "Mother Brain regular missing descriptor");
                 if (!otherPointers.Contains(pointer))
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Mother Brain regular missing DTO");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Mother Brain regular missing DTO");
             }
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Mother Brain regular export order");
-            MotherBrainFakeDeathDraws.TryDescribeRegular(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
-            MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
+            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Mother Brain regular export order");
+            MotherBrainFakeDeathDraws.TryDescribeRegular(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
+            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
             int cursor = pointer, run = 0;
             while (true)
             {

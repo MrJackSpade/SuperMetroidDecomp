@@ -23,7 +23,7 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
@@ -38,7 +38,7 @@ public static class SamusPostureMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
 
         // Performs this cleanup after both collision passes. It is not
         // inferred from being stationary; these are literal observable writes.
@@ -57,7 +57,7 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
@@ -69,7 +69,7 @@ public static class SamusPostureMovement
         // All four corresponding entries in the posture cleanup table do nothing. Unlike movement type five,
         // the wrapper does not clear stored base momentum after moving. That distinction is
         // retained even though ordinary stand/crouch input reaches this code at zero speed.
-        return MoveWithZeroBaseSpeed(level, samus, frameCounter, plms);
+        return MoveWithZeroBaseSpeed(level, samus, frameCounter, roomObjects);
     }
 
     /// <summary>Runs horizontal collision with zero base displacement, then the coupled downward grounding probe.</summary>
@@ -78,7 +78,7 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms)
+        ISamusRoomObjects? roomObjects)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
@@ -91,7 +91,7 @@ public static class SamusPostureMovement
         // that momentum. The old exception at this seam prevented that route.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -100,7 +100,7 @@ public static class SamusPostureMovement
         // this matters for a Speed-Booster slide through `$35/$36`.
         int verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (frameCounter & 1) == 0 });
         return new GroundedMovementResult(horizontal, vertical);
     }
 

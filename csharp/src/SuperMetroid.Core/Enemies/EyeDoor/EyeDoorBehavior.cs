@@ -60,8 +60,8 @@ internal sealed class EyeDoorBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
 
         var block = new Position16<RoomBlocks>(
-            request.PlmBlockIndex % roomWidthInBlocks,
-            request.PlmBlockIndex / roomWidthInBlocks);
+            request.RoomObjectBlockIndex % roomWidthInBlocks,
+            request.RoomObjectBlockIndex / roomWidthInBlocks);
         switch (kind)
         {
             case RoomEnemyProjectileKind.EyeDoorProjectile:
@@ -221,7 +221,7 @@ internal sealed class EyeDoorBehavior
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
         projectile.State = new EyeDoorShotState(request.DoorBit ?? throw new InvalidOperationException(
-            $"The eye-door attack at block {request.PlmBlockIndex} was spawned without its door bit."));
+            $"The eye-door attack at block {request.RoomObjectBlockIndex} was spawned without its door bit."));
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
     }
 

@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -13,7 +13,7 @@ internal static class LookupEscapeGateStockVerification
 {
     /// <summary>Compares open, half-closed, and closed rows with stock and installed art, then checks bounds, and invalid imports.</summary>
     internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
-        RoomPlmEscapeGateVisualCatalog installed)
+        RoomObjectEscapeGateVisualCatalog installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9473,"open"),new LookupEscapeGateStockFrame(0x947f,"half-closed"),new LookupEscapeGateStockFrame(0x948b,"closed")];
         var native = new Dictionary<ushort, RoomBlockAppearance[]>();
@@ -21,34 +21,34 @@ internal static class LookupEscapeGateStockVerification
         {
             var appearances = new RoomBlockAppearance[4];
             for (int row = 0; row < appearances.Length; row++)
-                appearances[row] = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (frame.Pointer + 2 + row * 2))).Appearance;
+                appearances[row] = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (frame.Pointer + 2 + row * 2))).Appearance;
             native.Add(frame.Pointer, appearances);
         }
-        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = RoomPlmEscapeGateVisualCatalog.Stock();
-        var imported = RoomPlmEscapeGateVisualFiles.Create(entries.Reverse());
+        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var stock = RoomObjectEscapeGateVisualCatalog.Stock();
+        var imported = RoomObjectEscapeGateVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmEscapeGateVisualCatalog), appearances.ToDictionary(pair => RoomPlmEscapeGateVisualFiles.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomObjectEscapeGateVisualCatalog), appearances.ToDictionary(pair => RoomObjectEscapeGateVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Escape gate original stock identity");
             foreach (var frame in frames)
             {
                 for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetAppearance(NativePlmDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),row), "Escape gate native stock visual");
+                    AssertEqual(native[frame.Pointer][row], catalog.GetAppearance(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),row), "Escape gate native stock visual");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),bad), "Escape gate stock row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),bad), "Escape gate stock row bounds");
             }
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MotherBrainEscapeGateDraw>((ushort)raw),0), "Escape gate unknown stock pointer");
-        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(entries[..2]), "Escape gate missing frame");
-        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(entries.Append(entries[0])), "Escape gate duplicate frame");
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<MotherBrainEscapeGateDraw>((ushort)raw),0), "Escape gate unknown stock pointer");
+        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(entries[..2]), "Escape gate missing frame");
+        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(entries.Append(entries[0])), "Escape gate duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("OPEN", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(invalid), "Escape gate ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(invalid), "Escape gate ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(invalid), "Escape gate exact shape");
+        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(invalid), "Escape gate exact shape");
     }
 }

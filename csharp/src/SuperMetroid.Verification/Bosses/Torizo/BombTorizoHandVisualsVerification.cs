@@ -15,22 +15,22 @@ internal static class BombTorizoHandVisualsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         // A private installation copy, whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBombTorizoHandVisualDirectory))
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectBombTorizoHandVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmBombTorizoHandVisualFilesConstants.ValidateStock(
-                installation.RoomPlmBombTorizoHandVisualDirectory);
+            RoomObjectBombTorizoHandVisualFilesConstants.ValidateStock(
+                installation.RoomObjectBombTorizoHandVisualDirectory);
             AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
                 Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand stock oracle revision");
-            VerifyBombTorizoHandStockMapping(rom, installation.LoadRoomPlmBombTorizoHandVisuals());
+            VerifyBombTorizoHandStockMapping(rom, installation.LoadRoomObjectBombTorizoHandVisuals());
 
             string stockPath = Path.Combine(
-                installation.RoomPlmBombTorizoHandVisualDirectory,
-                RoomPlmBombTorizoHandVisualFiles.VisualFileName);
+                installation.RoomObjectBombTorizoHandVisualDirectory,
+                RoomObjectBombTorizoHandVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmBombTorizoHandVisualFilesConstants.ValidateStock(
-                    installation.RoomPlmBombTorizoHandVisualDirectory),
+                () => RoomObjectBombTorizoHandVisualFilesConstants.ValidateStock(
+                    installation.RoomObjectBombTorizoHandVisualDirectory),
                 "tampered hand stock fails loudly where it is read");
         }
     }

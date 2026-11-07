@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -10,11 +10,11 @@ internal static class ShitroidWallMutationDefinitions
     internal const int WallHeight = 10;
 
     /// <summary>The room PLM each mutation occupies its slot as.</summary>
-    internal static readonly IReadOnlyDictionary<ShitroidWallMutation, PlmHeaderId> Plms =
-        new Dictionary<ShitroidWallMutation, PlmHeaderId>
+    internal static readonly IReadOnlyDictionary<ShitroidWallMutation, RoomObjectHeaderId> RoomObjects =
+        new Dictionary<ShitroidWallMutation, RoomObjectHeaderId>
         {
-            [ShitroidWallMutation.Clear] = PlmHeaderId.ClearBabyMetroidInvisibleWall,
-            [ShitroidWallMutation.Create] = PlmHeaderId.CreateBabyMetroidInvisibleWall,
+            [ShitroidWallMutation.Clear] = RoomObjectHeaderId.ClearBabyMetroidInvisibleWall,
+            [ShitroidWallMutation.Create] = RoomObjectHeaderId.CreateBabyMetroidInvisibleWall,
         };
 
     /// <summary>The collision each mutation gives every block of the wall column, keeping its appearance.</summary>

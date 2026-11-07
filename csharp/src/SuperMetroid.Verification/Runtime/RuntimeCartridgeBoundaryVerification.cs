@@ -37,8 +37,8 @@ internal static class RuntimeCartridgeBoundaryVerification
         AssertTrue(typeof(SuperMetroid.Core.Rooms.Backgrounds.LibraryBackground).Assembly.GetTypes()
                 .All(type => !type.Name.StartsWith("LibraryBackgroundProgram", StringComparison.Ordinal)),
             "Core must not contain a library background's command list; only the import pipeline runs it (#1466)");
-        AssertEqual(typeof(SuperMetroid.Core.Rooms.Plms.RoomPlmPopulation),
-            MetadataShape.ParameterTypes(typeof(SuperMetroid.Core.World.PlmPopulationLoader), "LoadRoomPopulation")[1],
+        AssertEqual(typeof(SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation),
+            MetadataShape.ParameterTypes(typeof(SuperMetroid.Core.World.RoomObjectPopulationLoader), "LoadRoomPopulation")[1],
             "the sequential PLM allocator requires typed decoded placements, not a native pointer/read flag");
         foreach (string importOnlyType in new[]
                  { "SuperMetroid.AssetExtraction.Compression.SmCompression", "SuperMetroid.AssetExtraction.ReferenceRendering.RoomRenderer" })

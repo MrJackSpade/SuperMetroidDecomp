@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's escape-gate block draws: which PLM draws are the gate's, their cells from
-/// <see cref="MotherBrainEscapeGatePlmDrawDefinitions"/>.
+/// <see cref="MotherBrainEscapeGateObjectDrawDefinitions"/>.
 /// </summary>
 internal static class MotherBrainEscapeGateDraws
 {
@@ -16,16 +16,16 @@ internal static class MotherBrainEscapeGateDraws
         internal RoomTerrainBlock BlockAt(int row)
         {
             if ((uint)row >= 4) throw new ArgumentOutOfRangeException(nameof(row));
-            return MotherBrainEscapeGatePlmDrawDefinitions.Cells[Frame][row];
+            return MotherBrainEscapeGateObjectDrawDefinitions.Cells[Frame][row];
         }
     }
 
     /// <summary>Recognizes one of the three gate draw pointers; other PLM draw families are left unclaimed.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
         // Pointers outside the three gate images belong to other draw families.
-        bool owned = request is PlmFrameDraw<MotherBrainEscapeGateDraw>;
-        draw = owned ? new(PlmDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "MotherBrainEscapeGateDraw")) : default;
+        bool owned = request is RoomObjectFrameDraw<MotherBrainEscapeGateDraw>;
+        draw = owned ? new(RoomObjectDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "MotherBrainEscapeGateDraw")) : default;
         return owned;
     }
 }

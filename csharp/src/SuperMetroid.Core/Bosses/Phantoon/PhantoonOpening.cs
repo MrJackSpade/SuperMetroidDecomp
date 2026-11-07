@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
@@ -45,7 +45,7 @@ internal sealed class PhantoonOpening
         state.Parts[state.Tentacles.SlotIndex].RoundDamage = 0;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
         state.Parts[body.SlotIndex].FunctionTimer = 30;
-        state.BossDoorPlmRequest = PlmHeaderId.DrawPhantoonDoorDuringBossFight;
+        state.BossDoorObjectRequest = RoomObjectHeaderId.DrawPhantoonDoorDuringBossFight;
     }
 
     /// <summary>Holds the body between intro flame spawns.</summary>

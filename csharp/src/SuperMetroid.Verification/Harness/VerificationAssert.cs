@@ -18,7 +18,7 @@ using static SuperMetroid.Verification.Audio.AudioUploadCatalogVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
 using static SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BlockReactionSelectorsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.BlueDoorPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.BlueDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BombBlockProgramsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoAttackDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoStatueFragmentDefinitionsVerification;
@@ -27,7 +27,7 @@ using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonAnimationsVerificat
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonNavigationDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification;
-using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallPlmsVerification;
+using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallVisualsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionFrameCatalogVerification;
@@ -50,11 +50,11 @@ using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresSta
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresVortexPartsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresZebesActorMetadataVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatuePlmDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.ColoredDoorPlmDrawDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.CompiledDynamicCollectibleGraphicsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.CompiledScrollPlmProgramsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.ContactCrumbleProgramsVerification;
+using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueObjectDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.ColoredDoorObjectDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CompiledDynamicCollectibleGraphicsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CompiledScrollObjectProgramsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.ContactCrumbleProgramsVerification;
 using static SuperMetroid.Verification.Frontend.ControllerButtonLookupsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.CrawlerAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBg2ScrollVerification;
@@ -66,7 +66,7 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireSkeletonFrameGe
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireSpikeMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.DownwardGateObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
@@ -90,7 +90,7 @@ using static SuperMetroid.Verification.Enemies.EnemyTrigonometryVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorsVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification;
-using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.EyeDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileProgramMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidSpitVelocitiesVerification;
@@ -108,7 +108,7 @@ using static SuperMetroid.Verification.Frontend.GameOver.GameOverTextLookupsVeri
 using static SuperMetroid.Verification.Bosses.GeneratedBossBg2CatalogsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleBlockProgramsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.GreyDoorPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.GreyDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.HalfWaveAlgorithmsVerification;
@@ -138,11 +138,11 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidArmPhysicalFrameMapping
 using static SuperMetroid.Verification.Bosses.Kraid.KraidCameraMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidCeilingRockPositionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidDefeatedPlmMappingsVerification;
+using static SuperMetroid.Verification.Bosses.Kraid.KraidDefeatedObjectMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidDrawMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidFootCoordinateMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidFootFrameGeometryVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidGrowthPlmMappingsVerification;
+using static SuperMetroid.Verification.Bosses.Kraid.KraidGrowthObjectMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadCommandMappingVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHealthThresholdsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidMouthMappingsVerification;
@@ -151,7 +151,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidNailContourMappingsVeri
 using static SuperMetroid.Verification.Bosses.Kraid.KraidNailSiblingVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRockLaunchDefinitionsVerification;
-using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualSelectionVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidSinkScheduleVerification;
 using static SuperMetroid.Verification.Areas.Ceres.LookupCeresHazeRampVerification;
@@ -164,7 +164,7 @@ using static SuperMetroid.Verification.Fx.LookupQuakeSoundSelectionVerification;
 using static SuperMetroid.Verification.Fx.LookupQuakeSoundSuppressionVerification;
 using static SuperMetroid.Verification.Fx.LookupRainVelocityVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupRetailDoorListsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LookupRetailPlmHeadersVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.LookupRetailObjectHeadersVerification;
 using static SuperMetroid.Verification.Rooms.LookupRetailPopulationsVerification;
 using static SuperMetroid.Verification.Harness.LookupRomOraclesVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LookupSkyChunkPointersVerification;
@@ -203,9 +203,9 @@ using static SuperMetroid.Verification.Frontend.Menus.MenuThinBorderPixelsVerifi
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MiscDustProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGeneratedVisualCatalogsVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassShardDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.NoobTubeObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Menus.OptionsGeometryLookupsVerification;
 using static SuperMetroid.Verification.Enemies.Owtch.OwtchMovementDefinitionsVerification;
@@ -222,7 +222,7 @@ using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonTimersVerificatio
 using static SuperMetroid.Verification.Enemies.PipeBugs.PipeBugAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Title.Artwork.PlanetZebesTitlePartsVerification;
 using static SuperMetroid.Verification.Enemies.Platforms.PlatformInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.PlmPopulationInputBoundaryVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationInputBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseDispatchDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification;
@@ -243,26 +243,26 @@ using static SuperMetroid.Verification.Bosses.Ridley.RidleyCollisionDefinitionsV
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyExplosionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyMovementTargetsVerification;
 using static SuperMetroid.Verification.Fx.Artwork.RoomPaletteFxPresentationVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Fx.RoomShakeDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Samus.Poses.SamusAnimationDelayDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusArmCannonDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericEffectDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusChargeColorsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusFullBodyCycleColorsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusHurtColorsVerification;
 using static SuperMetroid.Verification.Samus.SamusIndexedSpeedsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusShinesparkVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
-using static SuperMetroid.Verification.Rooms.Scrolling.ScrollPlmsVerification;
+using static SuperMetroid.Verification.Rooms.Scrolling.ScrollObjectsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitAlgorithmVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SlopeSpeedDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.SpaceColonyCaptionVerification;
 using static SuperMetroid.Verification.Audio.SpcDspPublicationVerification;
@@ -271,9 +271,9 @@ using static SuperMetroid.Verification.Audio.SpcPanSamplesVerification;
 using static SuperMetroid.Verification.Audio.SpcPitchBasisAlgorithmVerification;
 using static SuperMetroid.Verification.Audio.SpcSoundLibrary2PointersVerification;
 using static SuperMetroid.Verification.Audio.SpcSoundPoliciesVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterPlmProgramsVerification;
+using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterObjectProgramsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SquareSlopeDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.StationAccessPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.StationAccessObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SuitPickupBeamCurveDefinitionsVerification;
@@ -1460,7 +1460,7 @@ internal static class VerificationAssert
         Suite(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior());
         Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
         Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
-        Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(new TestAddressSpace()));
+        Suite(nameof(VerifyMetroidsClearedStateObject), () => VerifyMetroidsClearedStateObject(new TestAddressSpace()));
         Suite(nameof(MetroidBehaviorVerification.VerifyMetroidBehavior), () => MetroidBehaviorVerification.VerifyMetroidBehavior());
         Suite(nameof(VerifySamusAtmosphericEffectDefinitions), () => VerifySamusAtmosphericEffectDefinitions(rom));
         Suite(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark());
@@ -1469,7 +1469,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyPoseCollisionDefinitions), () => VerifyPoseCollisionDefinitions(rom));
         Suite(nameof(VerifyPoseProjectileOrigin), () => VerifyPoseProjectileOrigin(rom));
         Suite(nameof(VerifyProjectileOrigins), () => VerifyProjectileOrigins(rom));
-        Suite(nameof(VerifyCompiledSpeedBoosterPlmPrograms), () => VerifyCompiledSpeedBoosterPlmPrograms());
+        Suite(nameof(VerifyCompiledSpeedBoosterObjectPrograms), () => VerifyCompiledSpeedBoosterObjectPrograms());
         Suite(nameof(VerifyLookupStream1), () => VerifyLookupStream1(rom));
         Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior());
         Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
@@ -2584,7 +2584,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Fallback closing oracle revision");
-        Suite(nameof(VerifyDoorClosingPlmDefinitions), () => VerifyDoorClosingPlmDefinitions(rom, fallbackOnly: true));
+        Suite(nameof(VerifyDoorClosingObjectDefinitions), () => VerifyDoorClosingObjectDefinitions(rom, fallbackOnly: true));
         Console.WriteLine("Fallback closing: all twelve original header/list selections, complete byte domain and production spawning pass.");
         return 0;
     }
@@ -2884,14 +2884,14 @@ internal static class VerificationAssert
 
     /// <summary>Checks room PLM population parsing and native record boundaries.</summary>
     [VerificationCommand("--room-plm-populations")]
-    internal static int RoomPlmPopulationsCommand()
+    internal static int RoomObjectPopulationsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Retail population oracle revision");
         Suite(nameof(VerifyRetailPopulationMappings), () => VerifyRetailPopulationMappings(rom));
-        Suite(nameof(VerifyCompiledRoomPlmHeaderLoad), () => VerifyCompiledRoomPlmHeaderLoad(rom));
-        Suite(nameof(VerifyPlmPopulationInputBoundary), () => VerifyPlmPopulationInputBoundary());
+        Suite(nameof(VerifyCompiledRoomObjectHeaderLoad), () => VerifyCompiledRoomObjectHeaderLoad(rom));
+        Suite(nameof(VerifyObjectPopulationInputBoundary), () => VerifyObjectPopulationInputBoundary());
         Console.WriteLine("Retail populations: all 284 identities, 941 ordered placements and native terminators, sequential setup and historical state schemas pass.");
         return 0;
     }
@@ -2904,30 +2904,30 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Scroll program oracle revision");
         Suite(nameof(VerifyCompiledRoomScrollPrograms), () => VerifyCompiledRoomScrollPrograms(rom));
-        Suite(nameof(VerifyRoomScrollPlms), () => VerifyRoomScrollPlms());
+        Suite(nameof(VerifyRoomScrollObjects), () => VerifyRoomScrollObjects());
         Console.WriteLine("Scroll programs: all 173 identities, 285 ordered writes and terminators, guarded retail execution and constructed-room behavior pass.");
         return 0;
     }
 
     /// <summary>Checks eye-door PLM tile draw programs.</summary>
     [VerificationCommand("--eye-door-plm-draws")]
-    internal static int EyeDoorPlmDrawsCommand()
+    internal static int EyeDoorObjectDrawsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Eye door oracle revision");
-        Suite(nameof(VerifyEyeDoorPlmDrawDefinitions), () => VerifyEyeDoorPlmDrawDefinitions(rom));
+        Suite(nameof(VerifyEyeDoorObjectDrawDefinitions), () => VerifyEyeDoorObjectDrawDefinitions(rom));
         return 0;
     }
 
     /// <summary>Checks station access PLM headers and instruction selection.</summary>
     [VerificationCommand("--station-access-plm-definitions")]
-    internal static int StationAccessPlmDefinitionsCommand()
+    internal static int StationAccessObjectDefinitionsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Station access oracle revision");
-        Suite(nameof(VerifyStationAccessPlmDefinitions), () => VerifyStationAccessPlmDefinitions(rom));
+        Suite(nameof(VerifyStationAccessObjectDefinitions), () => VerifyStationAccessObjectDefinitions(rom));
         return 0;
     }
 
@@ -2938,19 +2938,19 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevator platform oracle revision");
-        Suite(nameof(VerifyElevatorPlatformPlmDefinitions), () => VerifyElevatorPlatformPlmDefinitions(rom));
+        Suite(nameof(VerifyElevatorPlatformObjectDefinitions), () => VerifyElevatorPlatformObjectDefinitions(rom));
         Suite(nameof(VerifyElevatorPlatformVisuals), () => VerifyElevatorPlatformVisuals());
         return 0;
     }
 
     /// <summary>Checks Chozo statue PLM headers and activation programs.</summary>
     [VerificationCommand("--chozo-plm-definitions")]
-    internal static int ChozoPlmDefinitionsCommand()
+    internal static int ChozoObjectDefinitionsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Chozo program oracle revision");
-        Suite(nameof(VerifyChozoStatuePlmDefinitions), () => VerifyChozoStatuePlmDefinitions(rom));
+        Suite(nameof(VerifyChozoStatueObjectDefinitions), () => VerifyChozoStatueObjectDefinitions(rom));
         return 0;
     }
 
@@ -2967,56 +2967,56 @@ internal static class VerificationAssert
 
     /// <summary>Checks Mother Brain room glass PLM draw words.</summary>
     [VerificationCommand("--mother-brain-glass-plm-draws")]
-    internal static int MotherBrainGlassPlmDrawsCommand()
+    internal static int MotherBrainGlassObjectDrawsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Glass oracle revision");
-        Suite(nameof(VerifyMotherBrainGlassPlmDrawDefinitions), () => VerifyMotherBrainGlassPlmDrawDefinitions(rom));
+        Suite(nameof(VerifyMotherBrainGlassObjectDrawDefinitions), () => VerifyMotherBrainGlassObjectDrawDefinitions(rom));
         return 0;
     }
 
     /// <summary>Checks Glass Tunnel tube PLM draw lists and tile words.</summary>
     [VerificationCommand("--noob-tube-plm-draws")]
-    internal static int NoobTubePlmDrawsCommand()
+    internal static int NoobTubeObjectDrawsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube draw oracle revision");
-        Suite(nameof(VerifyNoobTubePlmDrawDefinitions), () => VerifyNoobTubePlmDrawDefinitions(rom));
+        Suite(nameof(VerifyNoobTubeObjectDrawDefinitions), () => VerifyNoobTubeObjectDrawDefinitions(rom));
         return 0;
     }
 
     /// <summary>Checks colored door PLM tile variants.</summary>
     [VerificationCommand("--colored-door-plm-draws")]
-    internal static int ColoredDoorPlmDrawsCommand()
+    internal static int ColoredDoorObjectDrawsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Colored door oracle revision");
-        Suite(nameof(VerifyColoredDoorPlmDrawDefinitions), () => VerifyColoredDoorPlmDrawDefinitions(rom));
+        Suite(nameof(VerifyColoredDoorObjectDrawDefinitions), () => VerifyColoredDoorObjectDrawDefinitions(rom));
         return 0;
     }
 
     /// <summary>Checks blue door PLM open and close tile lists.</summary>
     [VerificationCommand("--blue-door-plm-draws")]
-    internal static int BlueDoorPlmDrawsCommand()
+    internal static int BlueDoorObjectDrawsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Blue door oracle revision");
-        Suite(nameof(VerifyBlueDoorPlmDrawDefinitions), () => VerifyBlueDoorPlmDrawDefinitions(rom));
+        Suite(nameof(VerifyBlueDoorObjectDrawDefinitions), () => VerifyBlueDoorObjectDrawDefinitions(rom));
         return 0;
     }
 
     /// <summary>Checks gray door PLM draw lists and lock graphics.</summary>
     [VerificationCommand("--grey-door-plm-draws")]
-    internal static int GreyDoorPlmDrawsCommand()
+    internal static int GreyDoorObjectDrawsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Grey door oracle revision");
-        Suite(nameof(VerifyGreyDoorPlmDrawDefinitions), () => VerifyGreyDoorPlmDrawDefinitions(rom));
+        Suite(nameof(VerifyGreyDoorObjectDrawDefinitions), () => VerifyGreyDoorObjectDrawDefinitions(rom));
         Console.WriteLine("Grey door definitions and guarded lifecycle pass, including all Bomb Torizo program fields.");
         return 0;
     }
@@ -3037,13 +3037,13 @@ internal static class VerificationAssert
 
     /// <summary>Checks native PLM headers and their bank-$84 pointers.</summary>
     [VerificationCommand("--lookup-retail-plm-headers")]
-    internal static int LookupRetailPlmHeadersCommand()
+    internal static int LookupRetailObjectHeadersCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Retail header oracle revision");
-        Suite(nameof(VerifyRetailPlmHeaders), () => VerifyRetailPlmHeaders(rom));
-        Suite(nameof(VerifyCompiledRoomPlmHeaderLoad), () => VerifyCompiledRoomPlmHeaderLoad(rom));
+        Suite(nameof(VerifyRetailObjectHeaders), () => VerifyRetailObjectHeaders(rom));
+        Suite(nameof(VerifyCompiledRoomObjectHeaderLoad), () => VerifyCompiledRoomObjectHeaderLoad(rom));
         Console.WriteLine("Retail PLM headers: all seventy compiled headers and the full word domain match ROM; guarded population load passes.");
         return 0;
     }
@@ -3077,20 +3077,20 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Speed escape oracle revision");
-        Suite(nameof(RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms), () => RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms(rom));
-        Suite(nameof(VerifySpeedBoosterEscapePlm), () => VerifySpeedBoosterEscapePlm(new TestAddressSpace()));
+        Suite(nameof(RoomObjectProgramsVerification.VerifySpeedBoosterEscapePrograms), () => RoomObjectProgramsVerification.VerifySpeedBoosterEscapePrograms(rom));
+        Suite(nameof(VerifySpeedBoosterEscapeObject), () => VerifySpeedBoosterEscapeObject(new TestAddressSpace()));
         Console.WriteLine("Speed escape program: all native fields and complete address domain pass; production handoffs and lava completion pass.");
         return 0;
     }
 
     /// <summary>Checks Samus-eater PLM headers and capture program words.</summary>
     [VerificationCommand("--samus-eater-plm-definitions")]
-    internal static int SamusEaterPlmDefinitionsCommand()
+    internal static int SamusEaterObjectDefinitionsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "plant program NTSC J/U oracle");
-        Suite(nameof(VerifySamusEaterPlmDefinitions), () => VerifySamusEaterPlmDefinitions(rom));
+        Suite(nameof(VerifySamusEaterObjectDefinitions), () => VerifySamusEaterObjectDefinitions(rom));
         return 0;
     }
 
@@ -3113,7 +3113,7 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Speed blocks NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyCompiledSpeedBoosterPlmPrograms), () => VerifyCompiledSpeedBoosterPlmPrograms());
+        Suite(nameof(VerifyCompiledSpeedBoosterObjectPrograms), () => VerifyCompiledSpeedBoosterObjectPrograms());
         return 0;
     }
 
@@ -3250,8 +3250,8 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shot-block NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyShotBlockPlmPrograms), () => VerifyShotBlockPlmPrograms());
-        Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
+        Suite(nameof(VerifyShotBlockObjectPrograms), () => VerifyShotBlockObjectPrograms());
+        Suite(nameof(VerifyCompiledBotwoonWallObjects), () => VerifyCompiledBotwoonWallObjects());
         return 0;
     }
 
@@ -3262,7 +3262,7 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon wall NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
+        Suite(nameof(VerifyCompiledBotwoonWallObjects), () => VerifyCompiledBotwoonWallObjects());
         Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(oracle));
         Suite(nameof(VerifyBotwoonWallVisualIdMapping), () => VerifyBotwoonWallVisualIdMapping());
         return 0;
@@ -3569,7 +3569,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(roomProgramOracle.Rom)),
             "Kraid room program oracle is NTSC J/U v1.0");
-        Suite(nameof(BossRoomPlmProgramsVerification.VerifyKraidRoomPrograms), () => BossRoomPlmProgramsVerification.VerifyKraidRoomPrograms(roomProgramOracle));
+        Suite(nameof(BossRoomObjectProgramsVerification.VerifyKraidRoomPrograms), () => BossRoomObjectProgramsVerification.VerifyKraidRoomPrograms(roomProgramOracle));
         return 0;
     }
 
@@ -3675,9 +3675,9 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(ceilingOracle.Rom)),
             "Kraid ceiling oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(ceilingOracle));
-        Suite(nameof(VerifyKraidGrowthPlmColumns), () => VerifyKraidGrowthPlmColumns(ceilingOracle));
-        Suite(nameof(VerifyKraidGrowthPlmRows), () => VerifyKraidGrowthPlmRows(ceilingOracle));
-        Suite(nameof(VerifyKraidGrowthPlmHeaders), () => VerifyKraidGrowthPlmHeaders(ceilingOracle));
+        Suite(nameof(VerifyKraidGrowthObjectColumns), () => VerifyKraidGrowthObjectColumns(ceilingOracle));
+        Suite(nameof(VerifyKraidGrowthObjectRows), () => VerifyKraidGrowthObjectRows(ceilingOracle));
+        Suite(nameof(VerifyKraidGrowthObjectHeaders), () => VerifyKraidGrowthObjectHeaders(ceilingOracle));
         Console.WriteLine("Kraid ceiling order: every native byte window and all derived PLM fields match; bounds pass.");
         return 0;
     }
@@ -3696,30 +3696,30 @@ internal static class VerificationAssert
 
     /// <summary>Checks Kraid defeated-room PLM requests and tile repairs.</summary>
     [VerificationCommand("--lookup-kraid-defeated-plms")]
-    internal static int LookupKraidDefeatedPlmsCommand()
+    internal static int LookupKraidDefeatedObjectsCommand()
     {
-        var defeatedPlmOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var defeatedObjectOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(defeatedPlmOracle.Rom)),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(defeatedObjectOracle.Rom)),
             "Kraid defeated PLM oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidDefeatedPlmColumns), () => VerifyKraidDefeatedPlmColumns(defeatedPlmOracle));
-        Suite(nameof(VerifyKraidDefeatedPlmRows), () => VerifyKraidDefeatedPlmRows(defeatedPlmOracle));
-        Suite(nameof(VerifyKraidDefeatedPlmHeaders), () => VerifyKraidDefeatedPlmHeaders(defeatedPlmOracle));
+        Suite(nameof(VerifyKraidDefeatedObjectColumns), () => VerifyKraidDefeatedObjectColumns(defeatedObjectOracle));
+        Suite(nameof(VerifyKraidDefeatedObjectRows), () => VerifyKraidDefeatedObjectRows(defeatedObjectOracle));
+        Suite(nameof(VerifyKraidDefeatedObjectHeaders), () => VerifyKraidDefeatedObjectHeaders(defeatedObjectOracle));
         Console.WriteLine("Kraid defeated-room PLMs: both native requests, three fields, order and bounds pass.");
         return 0;
     }
 
     /// <summary>Checks PLM tile changes during the growth transition.</summary>
     [VerificationCommand("--lookup-kraid-growth-plms")]
-    internal static int LookupKraidGrowthPlmsCommand()
+    internal static int LookupKraidGrowthObjectsCommand()
     {
-        var growthPlmOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var growthObjectOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(growthPlmOracle.Rom)),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(growthObjectOracle.Rom)),
             "Kraid growth PLM oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidGrowthPlmColumns), () => VerifyKraidGrowthPlmColumns(growthPlmOracle));
-        Suite(nameof(VerifyKraidGrowthPlmRows), () => VerifyKraidGrowthPlmRows(growthPlmOracle));
-        Suite(nameof(VerifyKraidGrowthPlmHeaders), () => VerifyKraidGrowthPlmHeaders(growthPlmOracle));
+        Suite(nameof(VerifyKraidGrowthObjectColumns), () => VerifyKraidGrowthObjectColumns(growthObjectOracle));
+        Suite(nameof(VerifyKraidGrowthObjectRows), () => VerifyKraidGrowthObjectRows(growthObjectOracle));
+        Suite(nameof(VerifyKraidGrowthObjectHeaders), () => VerifyKraidGrowthObjectHeaders(growthObjectOracle));
         Console.WriteLine("Kraid growth PLMs: all nine native columns, rows and headers, enumeration and bounds pass.");
         return 0;
     }

@@ -5,7 +5,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -57,13 +57,13 @@ internal static class WrapShotWidthsVerification
                 EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9)) };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
-            var plms = PlmFixtures.Unbound();
+            var roomObjects = RoomObjectFixtures.Unbound();
             int hit = -1;
             for (int frame = 0; frame < 40; frame++)
             {
                 ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
+                shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
                 var shot = shots.Slots[0];
                 RoomTerrainBlock targetWord = level.GetCollisionBlockByIndex(target).Terrain;
                 if (hit < 0 && targetWord == OpenedDoorCap) hit = frame;

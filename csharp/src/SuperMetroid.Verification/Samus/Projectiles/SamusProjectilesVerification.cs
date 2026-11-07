@@ -24,7 +24,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
@@ -942,18 +942,18 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var solidShotBombs = CreateSyntheticBombs();
     var solidShotProjectiles = CreateSyntheticProjectiles();
-    var solidShotPlms = PlmFixtures.Unbound();
+    var solidShotObjects = RoomObjectFixtures.Unbound();
     bool solidShotExploded = false;
     for (int frame = 0; frame < 16 && !solidShotExploded; frame++)
     {
         solidShotBombs.StepFrame(new SamusTerrain { Level = solidShotWall }, solidShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeSolidShotFrame = solidShotProjectiles.ObserveSlots();
-        solidShotProjectiles.StepFrame(new SamusTerrain { Level = solidShotWall, Plms = solidShotPlms }, solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), solidShotBombs);
+        solidShotProjectiles.StepFrame(new SamusTerrain { Level = solidShotWall, RoomObjects = solidShotObjects }, solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), solidShotBombs);
         solidShotExploded = beforeSolidShotFrame.CollisionStartedExplosion(solidShotProjectiles);
     }
     AssertTrue(solidShotExploded,
         "type-C shootable block retains solid shot collision");
-    AssertTrue(solidShotPlms.SlotTable.ActiveCount > 0,
+    AssertTrue(solidShotObjects.SlotTable.ActiveCount > 0,
         "ordinary beam collision allocates bank-$84 shot-block PLM");
     int synthesizedSolidShotBlocks = 0;
     for (int y = 0; y < height; y++)
@@ -981,20 +981,20 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var waveShotBombs = CreateSyntheticBombs();
     var waveShotProjectiles = CreateSyntheticProjectiles();
-    var waveShotPlms = PlmFixtures.Unbound();
+    var waveShotObjects = RoomObjectFixtures.Unbound();
     bool waveShotReportedExplosion = false;
     for (int frame = 0; frame < 12; frame++)
     {
         waveShotBombs.StepFrame(new SamusTerrain { Level = waveShotWall }, waveShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeWaveShotFrame = waveShotProjectiles.ObserveSlots();
-        waveShotProjectiles.StepFrame(new SamusTerrain { Level = waveShotWall, Plms = waveShotPlms }, waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), waveShotBombs);
+        waveShotProjectiles.StepFrame(new SamusTerrain { Level = waveShotWall, RoomObjects = waveShotObjects }, waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), waveShotBombs);
         waveShotReportedExplosion |= beforeWaveShotFrame.CollisionStartedExplosion(waveShotProjectiles);
     }
     AssertTrue(!waveShotReportedExplosion,
         "Wave remains alive after publishing type-four shot-block reaction");
     AssertTrue(waveShotProjectiles.Slots[0].Position.X.Whole > 112,
         "Wave crosses the complete shootable-air column");
-    AssertTrue(waveShotPlms.SlotTable.ActiveCount > 0,
+    AssertTrue(waveShotObjects.SlotTable.ActiveCount > 0,
         "Wave scan allocates bank-$84 shot-block PLM");
     int synthesizedAirShotBlocks = 0;
     for (int y = 0; y < height; y++)
@@ -1221,7 +1221,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // origin. Seed the exact retail right-facing blue-door program and draw lists, then
     // prove the live radius scanner creates the PLM and its timed bank-$84 program clears
     // the complete four-block cap without a test-owned terrain mutation.
-    InstallLandingSiteBlueDoorPlmFixture(bus);
+    InstallLandingSiteBlueDoorObjectFixture(bus);
 
     // Room loading runs the shared `$84:C7B1` setup for every colored-door header before
     // gameplay projectiles can inspect the decompressed collision map. Exercise all three
@@ -1247,12 +1247,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         coloredDoorRecords[index] = new ColoredDoorRecord(coloredDoorHeaders[index],
             unchecked((byte)blockX), unchecked((byte)blockY), unchecked((ushort)index));
     }
-    WriteRoomPlmPopulationFixture(bus, coloredDoorPopulation, coloredDoorRecords);
+    WriteRoomObjectPopulationFixture(bus, coloredDoorPopulation, coloredDoorRecords);
     RoomLevelData coloredDoors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(coloredDoorWords, coloredDoorBehaviors, new RoomBlockAppearance[coloredDoorWords.Length]), RoomLevelData.NothingBeyondGrid());
-    var coloredDoorPlms = PlmFixtures.Unbound();
+    var coloredDoorObjects = RoomObjectFixtures.Unbound();
     AssertEqual(
         coloredDoorHeaders.Length,
-        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        RoomObjectFixtures.LoadPopulation(ref coloredDoorObjects, new RoomObjectRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomObjectPopulationImporter.Read(bus, coloredDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
@@ -1272,57 +1272,57 @@ internal static void VerifySamusPowerBeamProjectiles()
     const ushort residentDoorPopulation = 0x9100;
     const ushort residentDoorArgument = 37;
     const int residentDoorBlock = 3 * 16 + 5;
-    InstallResidentDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, [new ColoredDoorRecord(0xc88a, 5, 3, residentDoorArgument)]);
+    InstallResidentDoorObjectGraphFixture(bus);
+    WriteRoomObjectPopulationFixture(bus, residentDoorPopulation, [new ColoredDoorRecord(0xc88a, 5, 3, residentDoorArgument)]);
 
     var residentWords = new RoomTerrainBlock[16 * 16];
     residentWords[residentDoorBlock] = RoomTerrainBlock.Of(288, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData residentDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(residentWords, new RoomBlockBehavior[residentWords.Length], new RoomBlockAppearance[residentWords.Length]), RoomLevelData.NothingBeyondGrid());
     var residentDoorSystem = new SharedGameState();
-    var residentDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    var residentDoorObjects = RoomObjectFixtures.Unbound();
+    AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref residentDoorObjects, new RoomObjectRoom(residentDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomObjectPopulationImporter.Read(bus, residentDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "resident colored-door loader allocates red door actor");
-    residentDoorPlms.Step(residentDoorLevel);
+    residentDoorObjects.Step(residentDoorLevel);
 
-    AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.None),
+    AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.None),
         "resident red door receives power-beam family for native rejection");
-    residentDoorPlms.Step(residentDoorLevel);
-    AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
+    residentDoorObjects.Step(residentDoorLevel);
+    AssertTrue(residentDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
         "wrong colored-door weapon queues native dud sound");
-    AssertEqual(0, residentDoorPlms.ColoredDoors.Single().HitCounter,
+    AssertEqual(0, residentDoorObjects.ColoredDoors.Single().HitCounter,
         "wrong colored-door weapon does not advance threshold counter");
 
     for (int hit = 1; hit <= 5; hit++)
     {
-        AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+        AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
             $"red door accepts missile collision {hit}");
-        residentDoorPlms.Step(residentDoorLevel);
+        residentDoorObjects.Step(residentDoorLevel);
     }
-    ColoredDoorPlmSnapshot openingDoor = residentDoorPlms.ColoredDoors.Single();
+    ColoredDoorObjectSnapshot openingDoor = residentDoorObjects.ColoredDoors.Single();
     AssertEqual(ColoredDoorPhase.Opening, openingDoor.Phase,
         "fifth missile selects cartridge opening list");
     AssertEqual(5, openingDoor.HitCounter,
         "red door retains exact five-missile threshold");
     AssertTrue(residentDoorSystem.HasOpenedDoorBit(residentDoorArgument),
         "opening instruction persists room-argument door bit");
-    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+    AssertTrue(!residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
         "opening door no longer runs projectile pre-instruction");
 
-    residentDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(0, residentDoorPlms.ColoredDoors.Count,
+    residentDoorObjects = RoomObjectFixtures.Unbound();
+    AssertEqual(0, residentDoorObjects.ColoredDoors.Count,
         "room reset discards resident colored-door actors");
-    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+    AssertTrue(!residentDoorObjects.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
         "room reset cannot leak a hit into the discarded population");
 
     var reopenedWords = new RoomTerrainBlock[16 * 16];
     reopenedWords[residentDoorBlock] = RoomTerrainBlock.Of(288, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData reopenedDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reopenedWords, new RoomBlockBehavior[reopenedWords.Length], new RoomBlockAppearance[reopenedWords.Length]), RoomLevelData.NothingBeyondGrid());
-    var reopenedDoorPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reopenedDoorPlms, new PlmRoom(reopenedDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-    reopenedDoorPlms.Step(reopenedDoorLevel);
+    var reopenedDoorObjects = RoomObjectFixtures.Unbound();
+    RoomObjectFixtures.LoadPopulation(ref reopenedDoorObjects, new RoomObjectRoom(reopenedDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomObjectPopulationImporter.Read(bus, residentDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    reopenedDoorObjects.Step(reopenedDoorLevel);
     AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Behavior.Value,
         "persisted left-facing red door reloads as ordinary left blue cap");
-    AssertEqual(0, reopenedDoorPlms.ColoredDoors.Count,
+    AssertEqual(0, reopenedDoorObjects.ColoredDoors.Count,
         "persisted colored-door conversion deletes resident actor after draw");
 
     // Reproduce the generic grey-door graph with relocatable fixture pointers. This is
@@ -1336,67 +1336,67 @@ internal static void VerifySamusPowerBeamProjectiles()
     const ushort greyDoorPersistedArgument = 0x002a;
     const int greyDoorBlock = 6 * 16 + 2;
 
-    InstallGreyDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, [new ColoredDoorRecord(0xc842, 2, 6, greyDoorRawArgument)]);
+    InstallGreyDoorObjectGraphFixture(bus);
+    WriteRoomObjectPopulationFixture(bus, greyDoorPopulation, [new ColoredDoorRecord(0xc842, 2, 6, greyDoorRawArgument)]);
 
     var greyDoorWords = new RoomTerrainBlock[16 * 16];
     greyDoorWords[greyDoorBlock] = RoomTerrainBlock.Of(544, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData greyDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(greyDoorWords, new RoomBlockBehavior[greyDoorWords.Length], new RoomBlockAppearance[greyDoorWords.Length]), RoomLevelData.NothingBeyondGrid());
     var greyDoorSystem = new SharedGameState();
-    var greyDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    var greyDoorObjects = RoomObjectFixtures.Unbound();
+    AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref greyDoorObjects, new RoomObjectRoom(greyDoorLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, greyDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "grey-door loader allocates enemy-quota actor from population");
     AssertEqual(RoomCollisionType.ShootableBlock,
         greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
         "grey-door setup installs shootable-solid collision");
     AssertEqual(0x44, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior.Value,
         "grey-door setup installs generic resident-PLM BTS");
-    GreyDoorPlmSnapshot lockedGreyDoor = greyDoorPlms.GreyDoorSnapshots.Single();
+    GreyDoorObjectSnapshot lockedGreyDoor = greyDoorObjects.GreyDoorSnapshots.Single();
     AssertEqual(GreyDoorCondition.EnemyDeathQuota, lockedGreyDoor.Condition,
         "room argument high bits select cartridge enemy-quota condition");
     AssertEqual(greyDoorPersistedArgument, lockedGreyDoor.RoomArgument,
         "grey-door setup removes condition selector before persistence checks");
 
-    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
+    greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "shared BTS $44 collision publishes power-beam hit to grey door");
-    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
+    greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
+    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
         "locked enemy-quota grey door consumes shot with native dud sound");
     AssertTrue(!greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "below-quota grey door does not publish Zebes-awake event");
 
     // Publish a second hit on the exact quota-completion frame. BE01 clears the PLM shot
     // timer while selecting its activation link, so this impact must not persist/open it.
-    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "quota-completion frame can observe a colliding shot");
-    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
+    greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertTrue(greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "enemy-quota grey door is native producer of Zebes-awake event");
-    AssertEqual(GreyDoorPhase.Flashing, greyDoorPlms.GreyDoorSnapshots.Single().Phase,
+    AssertEqual(GreyDoorPhase.Flashing, greyDoorObjects.GreyDoorSnapshots.Single().Phase,
         "quota completion enters cartridge flash loop");
     AssertTrue(!greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "quota-completion hit is cleared rather than opening grey door");
 
-    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
+    AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "later shot reaches flashing grey door's installed shot pre-instruction");
-    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
-    AssertEqual(GreyDoorPhase.Opening, greyDoorPlms.GreyDoorSnapshots.Single().Phase,
+    greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
+    AssertEqual(GreyDoorPhase.Opening, greyDoorObjects.GreyDoorSnapshots.Single().Phase,
         "post-unlock shot selects cartridge opening list");
     AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "grey-door one-hit instruction persists sanitized room argument");
-    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal)),
+    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal)),
         "grey-door opening stream queues native library-three sound seven");
 
     var reloadedGreyWords = new RoomTerrainBlock[16 * 16];
     reloadedGreyWords[greyDoorBlock] = RoomTerrainBlock.Of(544, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData reloadedGreyLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reloadedGreyWords, new RoomBlockBehavior[reloadedGreyWords.Length], new RoomBlockAppearance[reloadedGreyWords.Length]), RoomLevelData.NothingBeyondGrid());
-    var reloadedGreyPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reloadedGreyPlms, new PlmRoom(reloadedGreyLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-    reloadedGreyPlms.Step(reloadedGreyLevel);
+    var reloadedGreyObjects = RoomObjectFixtures.Unbound();
+    RoomObjectFixtures.LoadPopulation(ref reloadedGreyObjects, new RoomObjectRoom(reloadedGreyLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, greyDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    reloadedGreyObjects.Step(reloadedGreyLevel);
     AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior.Value,
         "persisted left grey door reloads as ordinary left blue cap");
-    AssertEqual(0, reloadedGreyPlms.GreyDoorSnapshots.Count,
+    AssertEqual(0, reloadedGreyObjects.GreyDoorSnapshots.Count,
         "persisted grey-door conversion releases resident actor");
 
     var blueDoorWords = new RoomTerrainBlock[width * height];
@@ -1427,13 +1427,13 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var contactDoorBombs = CreateSyntheticBombs();
     var contactDoorProjectiles = CreateSyntheticProjectiles();
-    var contactDoorPlms = PlmFixtures.Unbound();
+    var contactDoorObjects = RoomObjectFixtures.Unbound();
     contactDoorBombs.StepFrame(new SamusTerrain { Level = contactDoor }, contactDoorSamus, 0, 0);
     SamusProjectileSlotObservation beforeContactDoor = contactDoorProjectiles.ObserveSlots();
-    contactDoorProjectiles.StepFrame(new SamusTerrain { Level = contactDoor, Plms = contactDoorPlms }, contactDoorSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), contactDoorBombs);
+    contactDoorProjectiles.StepFrame(new SamusTerrain { Level = contactDoor, RoomObjects = contactDoorObjects }, contactDoorSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), contactDoorBombs);
     AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
         "beam born inside a blue cap collides before first-frame movement");
-    AssertEqual(1, contactDoorPlms.SlotTable.ActiveCount,
+    AssertEqual(1, contactDoorObjects.SlotTable.ActiveCount,
         "contact-distance shot allocates the blue-door opening PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
@@ -1448,29 +1448,29 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var blueDoorBombs = CreateSyntheticBombs();
     var blueDoorProjectiles = CreateSyntheticProjectiles();
-    var blueDoorPlms = PlmFixtures.Unbound();
+    var blueDoorObjects = RoomObjectFixtures.Unbound();
     bool blueDoorExploded = false;
     for (int frame = 0; frame < 16 && !blueDoorExploded; frame++)
     {
         blueDoorBombs.StepFrame(new SamusTerrain { Level = blueDoor }, blueDoorSamus, 0, 0);
         SamusProjectileSlotObservation beforeBlueDoorFrame = blueDoorProjectiles.ObserveSlots();
-        blueDoorProjectiles.StepFrame(new SamusTerrain { Level = blueDoor, Plms = blueDoorPlms }, blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), blueDoorBombs);
+        blueDoorProjectiles.StepFrame(new SamusTerrain { Level = blueDoor, RoomObjects = blueDoorObjects }, blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), blueDoorBombs);
         blueDoorExploded = beforeBlueDoorFrame.CollisionStartedExplosion(blueDoorProjectiles);
     }
     AssertTrue(blueDoorExploded,
         "power beam collides through negative vertical door extension");
-    AssertEqual(1, blueDoorPlms.SlotTable.ActiveCount,
+    AssertEqual(1, blueDoorObjects.SlotTable.ActiveCount,
         "BTS $41 collision allocates one right-facing blue-door PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
         "Setup_BlueDoor synchronously changes cap origin to type eight");
 
-    blueDoorPlms.Step(blueDoor);
-    AssertTrue(blueDoorPlms.Sounds.SoundRequests.Any(request =>
+    blueDoorObjects.Step(blueDoor);
+    AssertTrue(blueDoorObjects.Sounds.SoundRequests.Any(request =>
             request == new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal)),
         "blue-door list queues library-three opening sound seven");
     for (int frame = 1; frame < 19; frame++)
-        blueDoorPlms.Step(blueDoor);
+        blueDoorObjects.Step(blueDoor);
     for (int rowOffset = 0; rowOffset < 4; rowOffset++)
     {
         AssertEqual(RoomCollisionType.Air,
@@ -1629,18 +1629,18 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var integratedSuperBombs = CreateSyntheticBombs();
     var integratedSuperProjectiles = CreateSyntheticProjectiles();
-    var integratedSuperPlms = PlmFixtures.Unbound();
+    var integratedSuperObjects = RoomObjectFixtures.Unbound();
     bool integratedSuperExploded = false;
     for (int frame = 0; frame < 32 && !integratedSuperExploded; frame++)
     {
         integratedSuperBombs.StepFrame(new SamusTerrain { Level = integratedSuperWall }, integratedSuperSamus, 0, 0);
         SamusProjectileSlotObservation beforeIntegratedSuperFrame =
             integratedSuperProjectiles.ObserveSlots();
-        integratedSuperProjectiles.StepFrame(new SamusTerrain { Level = integratedSuperWall, Plms = integratedSuperPlms }, integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), integratedSuperBombs);
+        integratedSuperProjectiles.StepFrame(new SamusTerrain { Level = integratedSuperWall, RoomObjects = integratedSuperObjects }, integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), integratedSuperBombs);
         integratedSuperExploded =
             beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
     }
-    AssertTrue(integratedSuperPlms.SlotTable.ActiveCount > 0,
+    AssertTrue(integratedSuperObjects.SlotTable.ActiveCount > 0,
         "live Super Missile publishes weapon-gated block PLM");
     int integratedSuperMutations = 0;
     for (int y = 0; y < height; y++)
@@ -1670,11 +1670,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var skippedBombs = CreateSyntheticBombs();
     var skippedProjectiles = CreateSyntheticProjectiles();
-    var skippedPlms = PlmFixtures.Unbound();
+    var skippedObjects = RoomObjectFixtures.Unbound();
     for (int frame = 0; frame < 3; frame++)
     {
         skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
-        skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), skippedBombs);
+        skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? ControllerButton.X : 0, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), skippedBombs);
     }
     SamusProjectileSlot skippedOwner = skippedProjectiles.Slots[0];
     SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];
@@ -1684,10 +1684,10 @@ internal static void VerifySamusPowerBeamProjectiles()
     skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
     skippedOwner.Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromSignedRaw(0x1400));
     skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
-    skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
+    skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.Type.Family,
         "the owner explodes on the column-seven wall");
-    AssertTrue(skippedPlms.SlotTable.ActiveCount > 0,
+    AssertTrue(skippedObjects.SlotTable.ActiveCount > 0,
         "the link still strikes the column-six Super Missile block before it is cleared");
     AssertTrue(!skippedLink.IsActive, "the link is cleared after its collision");
 
@@ -1909,7 +1909,7 @@ static void InstallChargeFlareFixture(TestAddressSpace bus)
 /// list, the activation/flash/open-trigger/opening lists, the closed-blue draw pointer, and
 /// the four door draw lists.
 /// </summary>
-static void InstallGreyDoorPlmGraphFixture(TestAddressSpace bus)
+static void InstallGreyDoorObjectGraphFixture(TestAddressSpace bus)
 {
     const ushort greyDoorInitialList = 0x0900;
     const ushort greyDoorClosedBlueList = 0x0a00;
@@ -1957,7 +1957,7 @@ static void InstallGreyDoorPlmGraphFixture(TestAddressSpace bus)
 /// Seeds the resident colored-door PLM graph in bank $84 reached from header <c>$C88A</c>:
 /// initial, closed-blue, hit, and colored-closed lists and their draw lists.
 /// </summary>
-static void InstallResidentDoorPlmGraphFixture(TestAddressSpace bus)
+static void InstallResidentDoorObjectGraphFixture(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x84c88c, 0x0400);
     WriteTestWord(bus, 0x840402, 0x0500);
@@ -1980,7 +1980,7 @@ static void InstallResidentDoorPlmGraphFixture(TestAddressSpace bus)
 /// Seeds the retail right-facing blue-door PLM program at <c>$84:C4BA</c> and its four
 /// bank-$84 draw lists.
 /// </summary>
-static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
+static void InstallLandingSiteBlueDoorObjectFixture(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x84c4ba, 0x8c19);
     WriteTestByte(bus, 0x84c4bc, 0x07);
@@ -2004,7 +2004,7 @@ static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
 /// Installs a bank-$8F room PLM population at <paramref name="population"/>: six-byte
 /// records of header word, block X, block Y, and argument word, terminated by a zero word.
 /// </summary>
-static void WriteRoomPlmPopulationFixture(
+static void WriteRoomObjectPopulationFixture(
     TestAddressSpace bus,
     ushort population,
     params ReadOnlySpan<ColoredDoorRecord> records)

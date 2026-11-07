@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.NoobTube.Artwork;
 
 namespace SuperMetroid.Core.Enemies.NoobTube;

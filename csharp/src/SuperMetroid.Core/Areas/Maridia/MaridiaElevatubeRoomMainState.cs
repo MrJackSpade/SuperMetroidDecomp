@@ -89,7 +89,7 @@ public sealed class MaridiaElevatubeRoomMainState
         RoomLevelData level,
         SamusState? samus,
         int frameCounter,
-        ISamusRoomPlms plms,
+        ISamusRoomObjects roomObjects,
         RoomMainCarryover carryover)
     {
         if (!IsActive)
@@ -97,7 +97,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
         Ensure.NotNull(carryover);
         Ensure.NotNull(level);
-        Ensure.NotNull(plms);
+        Ensure.NotNull(roomObjects);
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Maridia elevatube room main requires an active Samus state.");
 
@@ -111,7 +111,7 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedFraction = tracked.Fraction;
         carryover.LeaveFraction(TrackedFraction);
 
-        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false });
+        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false });
 
         // The game's biased unsigned range test is exactly the inclusive signed range of the maximum speed either
         // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum

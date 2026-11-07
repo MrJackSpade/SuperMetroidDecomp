@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -29,8 +29,8 @@ internal static class LookupEscapeGateVerification
             ushort address = (ushort)raw;
             bool byteOwned = raw is >= 0xbb34 and <= 0xbb51;
             bool wordOwned = raw is >= 0xbb34 and < 0xbb51;
-            AssertEqual(byteOwned, MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(address, out byte b), "Escape gate complete byte domain");
-            AssertEqual(wordOwned, MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out ushort w), "Escape gate complete overlapping word domain");
+            AssertEqual(byteOwned, MotherBrainEscapeGateObjectProgramDefinitions.TryReadMechanicsByte(address, out byte b), "Escape gate complete byte domain");
+            AssertEqual(wordOwned, MotherBrainEscapeGateObjectProgramDefinitions.TryReadMechanicsWord(address, out ushort w), "Escape gate complete overlapping word domain");
             if (!byteOwned) AssertEqual((byte)0, b, "Escape gate missing byte output");
             else if (OwnsByte(raw))
             {
@@ -42,7 +42,7 @@ internal static class LookupEscapeGateVerification
             {
                 int mask = (OwnsByte(raw) ? 0xff : 0) | (OwnsByte(raw + 1) ? 0xff00 : 0);
                 if (mask == 0) continue;
-                int expected = ReadSamusEaterPlmWord(rom, 0x840000 | raw) & mask;
+                int expected = ReadSamusEaterObjectWord(rom, 0x840000 | raw) & mask;
                 AssertEqual(expected, w & mask, "Escape gate original field in overlapping word");
             }
         }
@@ -63,7 +63,7 @@ internal static class LookupEscapeGateVerification
     {
         ushort[] pointers = [0x9473,0x947f,0x948b];
         string[] ids = ["open","half-closed","closed"];
-        var exported = RoomPlmEscapeGateVisualFiles.All.ToArray();
+        var exported = RoomObjectEscapeGateVisualFiles.All.ToArray();
         AssertEqual(3, exported.Length, "Escape gate export count");
         if (field == 0)
         {
@@ -71,38 +71,38 @@ internal static class LookupEscapeGateVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, MotherBrainEscapeGateDraws.TryDescribe(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape), "Escape gate descriptor domain");
-                AssertEqual(owned, RoomPlmEscapeGateVisualFiles.TryGet(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto), "Escape gate DTO domain");
+                AssertEqual(owned, MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape), "Escape gate descriptor domain");
+                AssertEqual(owned, RoomObjectEscapeGateVisualFiles.TryGet(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto), "Escape gate DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(MotherBrainEscapeGateDraws.Draw), shape, "Escape gate missing descriptor");
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Escape gate missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate missing ID");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Escape gate missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate missing ID");
                 }
             }
             foreach (string id in new[] { "OPEN", "half", "", "unknown" })
             {
-                AssertTrue(!RoomPlmEscapeGateVisualFiles.TryGetByVisualId(id, out var missing), "Escape gate ordinal ID domain");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Escape gate missing ID output");
+                AssertTrue(!RoomObjectEscapeGateVisualFiles.TryGetByVisualId(id, out var missing), "Escape gate ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Escape gate missing ID output");
             }
         }
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            MotherBrainEscapeGateDraws.TryDescribe(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape);
-            RoomPlmEscapeGateVisualFiles.TryGet(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto);
+            MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape);
+            RoomObjectEscapeGateVisualFiles.TryGet(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto);
             if (field == 0)
             {
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Escape gate original order");
-                AssertEqual(ids[index], RoomPlmEscapeGateVisualFiles.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate published ID");
-                AssertTrue(RoomPlmEscapeGateVisualFiles.TryGetByVisualId(ids[index], out var byId), "Escape gate reverse ID");
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Escape gate ID identity");
-                AssertEqual((ushort)0x8004, ReadSamusEaterPlmWord(rom, 0x840000 | pointer), "Escape gate native vertical geometry");
-                AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Escape gate native final offset");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Escape gate original order");
+                AssertEqual(ids[index], RoomObjectEscapeGateVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate published ID");
+                AssertTrue(RoomObjectEscapeGateVisualFiles.TryGetByVisualId(ids[index], out var byId), "Escape gate reverse ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Escape gate ID identity");
+                AssertEqual((ushort)0x8004, ReadSamusEaterObjectWord(rom, 0x840000 | pointer), "Escape gate native vertical geometry");
+                AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 10)), "Escape gate native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})
                 {
                     AssertEqual(1, frame.Runs.Length, "Escape gate one run");
-                    AssertEqual(PlmRunDirection.Vertical, frame.Runs.Span[0].Direction, "Escape gate DTO runs down its column");
+                    AssertEqual(RoomObjectRunDirection.Vertical, frame.Runs.Span[0].Direction, "Escape gate DTO runs down its column");
                     AssertEqual(4, frame.Runs.Span[0].Count, "Escape gate DTO block count");
                     AssertEqual(4, frame.Runs.Span[0].Blocks.Length, "Escape gate DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Escape gate DTO final X");
@@ -113,7 +113,7 @@ internal static class LookupEscapeGateVerification
             }
             else for (int row = 0; row < 4; row++)
             {
-                RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + row * 2)));
+                RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + row * 2)));
                 AssertTerrainField(field, expected, shape.BlockAt(row), "Escape gate original calculated field");
                 AssertTerrainField(field, expected, dto.Runs.Span[0].Blocks.Span[row], "Escape gate original DTO field");
                 AssertTerrainField(field, expected, exported[index].Runs.Span[0].Blocks.Span[row], "Escape gate original export field");

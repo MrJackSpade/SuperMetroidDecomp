@@ -179,7 +179,7 @@ internal static class MapPresentationVerification
 
 
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
-        private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
+        private readonly RoomObjectElevatorPlatformVisualCatalog elevatorPlatform;
 
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public InstalledEnemyArtwork EnemyTiles { get; }
@@ -206,7 +206,7 @@ internal static class MapPresentationVerification
             EnemyTiles = InstalledFixtures.EnemyArtwork;
 
             SamusBody = InstalledFixtures.SamusBody;
-            elevatorPlatform = RepositoryInstallation.Installation.LoadRoomPlmElevatorPlatformVisuals();
+            elevatorPlatform = RepositoryInstallation.Installation.LoadRoomObjectElevatorPlatformVisuals();
         }
 
         /// <summary>Installs all fixture artwork owners before Ceres room setup can request graphics.</summary>
@@ -222,7 +222,7 @@ internal static class MapPresentationVerification
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
 
             runtime.Artwork.SamusBodyArt = SamusBody;
-            runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
+            runtime.ShotBlockVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;
         }
     }
 

@@ -88,13 +88,13 @@ internal static class RoomBackgroundsVerification
     }
 
     /// <summary>A PLM's block change reaches the next published plane, and an earlier plane keeps its blocks.</summary>
-    internal static void VerifyPlmBlockChangeReachesPlane()
+    internal static void VerifyObjectBlockChangeReachesPlane()
     {
         RoomLevelData level = CreateRoom(new(Side, Side), new RoomTerrainBlock[Side * Side], new RoomBlockBehavior[Side * Side]);
         RoomLevelPlane before = level.ForegroundPlane;
         AssertTrue(ReferenceEquals(before, level.ForegroundPlane), "an unchanged room publishes one plane");
         const int block = 2 * Side + 1;
-        level.SetPlmTerrain(block, RoomTerrainBlock.Of(7, BlockMirroring.None, RoomCollisionType.SolidBlock));
+        level.SetObjectTerrain(block, RoomTerrainBlock.Of(7, BlockMirroring.None, RoomCollisionType.SolidBlock));
         RoomLevelPlane after = level.ForegroundPlane;
         AssertEqual(new RoomBlockCell(0x007, BlockMirroring.None), after.Cells.Cells[block],
             "the next plane shows the PLM's block");
@@ -152,7 +152,7 @@ internal static class RoomBackgroundsVerification
     internal static int RoomBackgroundsCommand()
     {
         Suite(nameof(VerifyRoomBackgroundSources), () => VerifyRoomBackgroundSources());
-        Suite(nameof(VerifyPlmBlockChangeReachesPlane), () => VerifyPlmBlockChangeReachesPlane());
+        Suite(nameof(VerifyObjectBlockChangeReachesPlane), () => VerifyObjectBlockChangeReachesPlane());
         Suite(nameof(VerifyPublishedRoomBackgrounds), () => VerifyPublishedRoomBackgrounds());
         return 0;
     }

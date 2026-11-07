@@ -4,7 +4,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses;
 
@@ -36,10 +36,10 @@ internal sealed class BossFrameResultBuilder
     internal PaletteFxObject? TorizoBellyGlow { get; set; }
 
     /// <summary>Crocomire's arena mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest<CrocomireArenaMutation>> CrocomirePlms { get; } = [];
+    internal List<RoomObjectSpawnRequest<CrocomireArenaMutation>> CrocomireObjects { get; } = [];
 
     /// <summary>Kraid's ceiling and platform mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest<KraidRoomMutation>> KraidPlms { get; } = [];
+    internal List<RoomObjectSpawnRequest<KraidRoomMutation>> KraidObjects { get; } = [];
 
     /// <summary>Mother Brain's death-sequence step.</summary>
     internal MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep { get; set; }
@@ -51,10 +51,10 @@ internal sealed class BossFrameResultBuilder
     internal int MotherBrainFxEntry { get; set; }
 
     /// <summary>Mother Brain's room mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest<MotherBrainRoomMutation>> MotherBrainPlms { get; } = [];
+    internal List<RoomObjectSpawnRequest<MotherBrainRoomMutation>> MotherBrainObjects { get; } = [];
 
     /// <summary>The Shitroid's wall mutations, in publication order.</summary>
-    internal List<PlmSpawnRequest<ShitroidWallMutation>> ShitroidPlms { get; } = [];
+    internal List<RoomObjectSpawnRequest<ShitroidWallMutation>> ShitroidObjects { get; } = [];
 
     /// <summary>Clears every result before a pass or a room load.</summary>
     internal void Begin()
@@ -66,16 +66,16 @@ internal sealed class BossFrameResultBuilder
         BotwoonWall = null;
         SporeSpawnCeiling = null;
         TorizoBellyGlow = null;
-        CrocomirePlms.Clear();
-        KraidPlms.Clear();
+        CrocomireObjects.Clear();
+        KraidObjects.Clear();
         MotherBrainDeathStep = null;
         MotherBrainFxEntry = 0;
-        MotherBrainPlms.Clear();
-        ShitroidPlms.Clear();
+        MotherBrainObjects.Clear();
+        ShitroidObjects.Clear();
     }
 
     /// <summary>The room effects the bosses requested so far.</summary>
     internal EnemyRoomEffectRequests RoomEffects() =>
-        new(BotwoonWall, SporeSpawnCeiling, [.. CrocomirePlms], [.. KraidPlms], MotherBrainDeathStep,
-            MotherBrainFxEntry, [.. MotherBrainPlms], [.. ShitroidPlms], TorizoBellyGlow);
+        new(BotwoonWall, SporeSpawnCeiling, [.. CrocomireObjects], [.. KraidObjects], MotherBrainDeathStep,
+            MotherBrainFxEntry, [.. MotherBrainObjects], [.. ShitroidObjects], TorizoBellyGlow);
 }

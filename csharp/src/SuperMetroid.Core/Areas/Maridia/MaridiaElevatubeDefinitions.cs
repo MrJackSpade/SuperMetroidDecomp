@@ -34,5 +34,5 @@ internal static class MaridiaElevatubeDefinitions
     internal static readonly SignedEightEight MaximumSpeed = SignedEightEight.FromSignedRaw(3616);
 
     /// <summary>The block the room spawns the otherwise invisible elevatube PLM at: column one of the top row.</summary>
-    internal static readonly Position16<RoomBlocks> PlmBlock = new(1, 0);
+    internal static readonly Position16<RoomBlocks> RoomObjectBlock = new(1, 0);
 }

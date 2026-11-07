@@ -1,5 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Rooms.Plms.PlmsAndPostureVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectsAndPostureVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusAerialAndLiquidsVerification;
 using static SuperMetroid.Verification.Samus.SamusAimVerification;
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;

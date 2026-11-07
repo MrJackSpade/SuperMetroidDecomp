@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -21,7 +21,7 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     IAreaBossFlags Bosses { get; }
 
     /// <summary>The active PLM population.</summary>
-    IRoomPlmPresence Plms { get; }
+    IRoomObjectPresence RoomObjects { get; }
 
     /// <summary>Writes <paramref name="picture"/> over the room's foreground at its tilemap cell (#1346, #1466).</summary>
     void WriteForegroundPicture(WrittenPicture picture);

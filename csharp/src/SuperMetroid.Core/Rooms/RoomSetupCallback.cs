@@ -50,7 +50,7 @@ public enum RoomSetupCallback
     /// <summary>A distinct boss-room no-op setup callback.</summary>
     BossRoomReturnC,
     /// <summary>Creates Shaktool's room-setup PLM.</summary>
-    SetupShaktoolRoomPlm,
+    SetupShaktoolRoomObject,
     /// <summary>The no-op setup entry preceding Draygon setup.</summary>
     ReturnBeforeDraygonSetup,
     /// <summary>Installs Draygon's pause-related room callbacks.</summary>
@@ -66,7 +66,7 @@ public enum RoomSetupCallback
     /// <summary>Starts medium horizontal escape-room shaking.</summary>
     SetMediumHorizontalRoomShaking,
     /// <summary>Initializes escape room four's PLM and medium horizontal shaking.</summary>
-    SetupEscapeRoom4PlmAndMediumHorizontalShaking,
+    SetupEscapeRoom4ObjectAndMediumHorizontalShaking,
     /// <summary>Seals the Ceres door and spawns haze.</summary>
     TurnCeresDoorToSolidBlocksAndSpawnHaze,
     /// <summary>Spawns the Ceres room haze during setup.</summary>

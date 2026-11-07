@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -119,7 +119,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 // authoritative; standalone enemy audits omit it and therefore model the
                 // already-collected item/removed hand trigger.
                 torizo.Properties = torizo.Properties.With(EnemyProperties.SolidToSamus);
-                if (_room.Services.Plms.HasActiveHeader(PlmHeaderId.BombTorizoHand))
+                if (_room.Services.RoomObjects.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand))
                     return;
 
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(6));

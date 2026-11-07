@@ -52,7 +52,7 @@ public sealed record RoomEnemyFrame
     public bool ResolveSamusContactBeforeAi { get; init; } = false;
 
     /// <summary>Optional room PLMs participating in the scoped enemy terrain-collision probes.</summary>
-    internal EnemyBreakableTerrainPlms? CollisionPlms { get; init; } = null;
+    internal EnemyBreakableTerrainObjects? CollisionObjects { get; init; } = null;
 
     /// <summary>The game's frame counter; null uses the standalone enemy-pass clock.</summary>
     public int? FrameCounter { get; init; } = null;

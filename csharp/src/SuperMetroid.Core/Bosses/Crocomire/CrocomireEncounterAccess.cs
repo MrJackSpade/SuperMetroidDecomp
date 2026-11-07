@@ -1,7 +1,7 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 
@@ -67,8 +67,8 @@ internal sealed class CrocomireEncounterAccess
             "Crocomire death extension is not initialized for the current room.");
 
     /// <summary>Queues a PLM block change for later room processing.</summary>
-    internal void PublishCrocomirePlm(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>
-        _frameResults.CrocomirePlms.Add(new PlmSpawnRequest<CrocomireArenaMutation>(block, mutation));
+    internal void PublishCrocomireObject(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>
+        _frameResults.CrocomireObjects.Add(new RoomObjectSpawnRequest<CrocomireArenaMutation>(block, mutation));
 
     /// <summary>Consumes the room's next RNG word for Crocomire effects and choices.</summary>
     internal int ReadCrocomireRandom() => _room.Random.Read();

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolRoomFrameBehaviors
 {
     /// <summary>The Shaktool room controller's frame behaviour, which the room's animation installs.</summary>
-    internal static PlmFrameBehavior Controller { get; } = new(
+    internal static RoomObjectFrameBehavior Controller { get; } = new(
         "Shaktool room controller", static (slot, context) =>
-            context.Plms.Enemies().Shaktool.RunShaktoolRoomFrameBehavior(slot, context.Frame.Scrolls, context.Frame.PowerBombExplosionActive));
+            context.RoomObjects.Enemies().Shaktool.RunShaktoolRoomFrameBehavior(slot, context.Frame.Scrolls, context.Frame.PowerBombExplosionActive));
 }

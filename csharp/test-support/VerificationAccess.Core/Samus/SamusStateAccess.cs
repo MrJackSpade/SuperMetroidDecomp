@@ -28,7 +28,7 @@ internal static class SamusStateAccess
             SamusPoseId targetPose,
             int frameCounter,
             ControllerButton controllerNewInput,
-            RoomPlmSystem? plms = null)
+            RoomObjectSystem? roomObjects = null)
         {
             if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))
             {
@@ -41,7 +41,7 @@ internal static class SamusStateAccess
                 targetPose,
                 frameCounter,
                 controllerNewInput,
-                plms);
+                roomObjects);
         }
 
         /// <summary>

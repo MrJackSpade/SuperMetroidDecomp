@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -28,11 +28,11 @@ internal static class DraygonCannonDefinitions
     /// The cannon each of the room's cannon PLMs sets up: the live right-facing cannon, the right-facing cannon that starts
     /// destroyed, and the live left-facing cannon. No other PLM is a cannon.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<PlmHeaderId, DraygonCannonSetup> Setups =
-        new Dictionary<PlmHeaderId, DraygonCannonSetup>
+    internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, DraygonCannonSetup> Setups =
+        new Dictionary<RoomObjectHeaderId, DraygonCannonSetup>
         {
-            [PlmHeaderId.DraygonCannonFacingRight] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Whole),
-            [PlmHeaderId.DraygonCannonFacingRightDestroyed] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed),
-            [PlmHeaderId.DraygonCannonFacingLeft] = new(DraygonCannonOrientation.Left, DraygonCannonStart.Whole),
+            [RoomObjectHeaderId.DraygonCannonFacingRight] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Whole),
+            [RoomObjectHeaderId.DraygonCannonFacingRightDestroyed] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed),
+            [RoomObjectHeaderId.DraygonCannonFacingLeft] = new(DraygonCannonOrientation.Left, DraygonCannonStart.Whole),
         };
 }

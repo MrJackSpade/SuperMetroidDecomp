@@ -107,7 +107,7 @@ internal static class ReplayTraceMemoryCatalog
     public const int EnemyProjectileArraysEnd = 0x1c1f;
 
     /// <summary>$1C37-$1E66: PLM header through family-variable arrays.</summary>
-    public const int PlmArraysEnd = 0x1e67;
+    public const int RoomObjectArraysEnd = 0x1e67;
 
     /// <summary>$2000-$20AB: Ridley tail controller words and the seven tail records.</summary>
     public const int RidleyTailControllerEnd = 0x20ac;
@@ -125,7 +125,7 @@ internal static class ReplayTraceMemoryCatalog
     public const int ProgressBitsEnd = 0xd914;
 
     /// <summary>$DE1C-$DF5B: PLM instruction timer, link instruction and extra variable arrays.</summary>
-    public const int PlmTimersEnd = 0xdf5c;
+    public const int RoomObjectTimersEnd = 0xdf5c;
 
     /// <summary>$F380-$F433: enemy-projectile collision option, source enemy header and killed-enemy arrays.</summary>
     public const int EnemyProjectileDropArraysEnd = 0xf434;
@@ -218,7 +218,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Words(NativeSnapshotMemory.AcidSurface),
         WorkRamRange.Words(NativeSnapshotMemory.TidePhase),
         WorkRamRange.Between(NativeSnapshotMemory.EnemyProjectileId, EnemyProjectileArraysEnd),
-        WorkRamRange.Between(NativeSnapshotMemory.PlmHeaders, PlmArraysEnd),
+        WorkRamRange.Between(NativeSnapshotMemory.RoomObjectHeaders, RoomObjectArraysEnd),
         WorkRamRange.Between(NativeSnapshotMemory.RidleyTailFunctionIndex, RidleyTailControllerEnd),
         WorkRamRange.Between(NativeSnapshotMemory.RidleySwoopTimer, RidleyExtraEnd),
         WorkRamRange.Between(NativeSnapshotMemory.PaletteBuffer, PaletteBufferEnd),
@@ -227,7 +227,7 @@ internal static class ReplayTraceMemoryCatalog
             NativeSnapshotMemory.SavedExploredMaps + AreaIds.RetailCount * ProgressionTableCodec.ExploredPlaneByteCount),
         WorkRamRange.Between(NativeSnapshotMemory.TrailLeftFrameHold, TrailArraysEnd),
         WorkRamRange.Between(NativeSnapshotMemory.Events, ProgressBitsEnd),
-        WorkRamRange.Between(NativeSnapshotMemory.PlmFrameHold, PlmTimersEnd),
+        WorkRamRange.Between(NativeSnapshotMemory.RoomObjectFrameHold, RoomObjectTimersEnd),
         WorkRamRange.Between(NativeSnapshotMemory.EnemyProjectileCollisionOption, EnemyProjectileDropArraysEnd),
         new(NativeSnapshotMemory.Level, LevelWordBytes + BtsBytes),
     ]);

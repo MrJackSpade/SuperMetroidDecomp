@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -43,7 +43,7 @@ internal static class CeilingWrapRoomVerification
         for (int frame = 0; frame < native.Length; frame++)
         {
             runtime.StepFrame((ControllerButton.X | ControllerButton.Left | ControllerButton.R | (dash ? ControllerButton.B : 0)));
-            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbering.Number(samus.Pose):X2},{runtime.Plms.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
+            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbering.Number(samus.Pose):X2},{runtime.RoomObjects.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
         }
@@ -64,11 +64,11 @@ internal static class CeilingWrapRoomVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
             PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = (SamusBeamFlags)5 };
         samus.Kinematics.Radius = new(5, 21);
-        var plms = runtime.Plms;
+        var roomObjects = runtime.RoomObjects;
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         RoomTerrainBlock blocker = level.GetCollisionBlock(new(76, 9)).Terrain;
-        var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = -65536 });
+        var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(before.Collided, "Ordinary speedless contact blocks before ceiling overload");
         int firstFull = -1;
         for (int frame = 0; frame < 344; frame++)
@@ -76,16 +76,16 @@ internal static class CeilingWrapRoomVerification
             ControllerButton held = ControllerButton.X;
             ControllerButton pressed = frame == 0 ? held : ControllerButton.None;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, held, pressed);
-            shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
-            plms.Step(level);
-            if (firstFull < 0 && plms.SlotTable.ActiveCount == 40) firstFull = frame;
+            shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
+            roomObjects.Step(level);
+            if (firstFull < 0 && roomObjects.SlotTable.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");
-        var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = -65536 });
+        var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(!after.Collided, "Native full-pool collision remains carry clear without Speed Booster");
         AssertEqual((ushort)1236, samus.Position.X.Whole, "Samus enters first speed block without a clip or teleport");
         AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).Terrain, "Exhaustion bypass does not break the block");
-        AssertEqual(40, plms.SlotTable.ActiveCount, "Contact cannot allocate a forty-first slot");
+        AssertEqual(40, roomObjects.SlotTable.ActiveCount, "Contact cannot allocate a forty-first slot");
         Console.WriteLine("PASS Frog Speedway: live ceiling-shot overload permits unchanged speed-block entry at frame 343.");
     }
 

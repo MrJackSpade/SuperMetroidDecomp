@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class BombTorizoHandFrameBehaviors
 {
     /// <summary>The sleeping hand wakes once Samus has bombs.</summary>
-    internal static PlmFrameBehavior WakeIfSamusHasBombs { get; } = new(
+    internal static RoomObjectFrameBehavior WakeIfSamusHasBombs { get; } = new(
         "Bomb Torizo hand wake",
-        static (slot, context) => context.Plms.Bosses().BombTorizoHand.RunBombTorizoHandFrameBehavior(slot));
+        static (slot, context) => context.RoomObjects.Bosses().BombTorizoHand.RunBombTorizoHandFrameBehavior(slot));
 }

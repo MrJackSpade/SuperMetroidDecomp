@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
@@ -46,7 +46,7 @@ internal sealed class NoobTubeBehavior
     {
         _room.EnsureLoaded();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        if (request.PlmBlockIndex < 0)
+        if (request.RoomObjectBlockIndex < 0)
             throw new ArgumentOutOfRangeException(nameof(request));
 
         RoomEnemyProjectileKind kind = request.Definition switch
@@ -65,8 +65,8 @@ internal sealed class NoobTubeBehavior
         // The tube's pieces draw from the shared sheet in the crack colours the room's crack initializer installs (#1512).
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: TubePieceGraphics);
 
-        int blockX = request.PlmBlockIndex % roomWidthInBlocks;
-        int blockY = request.PlmBlockIndex / roomWidthInBlocks;
+        int blockX = request.RoomObjectBlockIndex % roomWidthInBlocks;
+        int blockY = request.RoomObjectBlockIndex / roomWidthInBlocks;
         switch (kind)
         {
             case RoomEnemyProjectileKind.NoobTubeCrack:

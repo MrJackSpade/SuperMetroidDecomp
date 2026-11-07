@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -13,7 +13,7 @@ public sealed record CollectibleSlotAppearance(int Slot) : AppearanceInput
 {
     /// <summary>The slot.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The slot is not one collectibles rotate through.</exception>
-    public int Slot { get; } = Ensure.BetweenInclusive(0, CollectiblePlms.GraphicsSlots - 1, Slot);
+    public int Slot { get; } = Ensure.BetweenInclusive(0, CollectibleObjects.GraphicsSlots - 1, Slot);
 
     /// <inheritdoc />
     public override string Token { get; } = $"{AppearanceInputTokens.CollectibleSlotPrefix}{Slot}";

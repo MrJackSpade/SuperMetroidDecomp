@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -18,10 +18,10 @@ public static class ResidentDoorClosingDefinitions
     /// animation. The eye doors' closing script deletes a resident eye
     /// door on entry instead of animating a closing cap.
     /// </summary>
-    internal static IReadOnlyDictionary<PlmHeaderId, PlmProgramStart> Closings { get; } = new Dictionary<PlmHeaderId, PlmProgramStart>
+    internal static IReadOnlyDictionary<RoomObjectHeaderId, RoomObjectProgramStart> Closings { get; } = new Dictionary<RoomObjectHeaderId, RoomObjectProgramStart>
     {
-        [PlmHeaderId.MotherBrainEscapeRoomGate] = PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing),
-        [PlmHeaderId.EyeDoorFacingRight] = PlmProgramStart.Delete,
-        [PlmHeaderId.EyeDoorFacingLeft] = PlmProgramStart.Delete,
+        [RoomObjectHeaderId.MotherBrainEscapeRoomGate] = RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.MotherBrainEscapeGateClosing),
+        [RoomObjectHeaderId.EyeDoorFacingRight] = RoomObjectProgramStart.Delete,
+        [RoomObjectHeaderId.EyeDoorFacingLeft] = RoomObjectProgramStart.Delete,
     };
 }

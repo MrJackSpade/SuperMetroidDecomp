@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
 /// Draygon's wall-cannon block draws: which PLM draws are the cannon's, their run geometry and cells from
-/// <see cref="DraygonCannonPlmDrawDefinitions"/>.
+/// <see cref="DraygonCannonObjectDrawDefinitions"/>.
 /// </summary>
 internal static class DraygonCannonDraws
 {
@@ -47,16 +47,16 @@ internal static class DraygonCannonDraws
         internal RoomTerrainBlock BlockAt(int run, int cell)
         {
             if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            return DraygonCannonPlmDrawDefinitions.Cells[this][run][cell];
+            return DraygonCannonObjectDrawDefinitions.Cells[this][run][cell];
         }
     }
 
     /// <summary>Decodes one of the twelve reachable cannon draw pointers into facing, shield state, and frame.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
-        if (request is not PlmFrameDraw<DraygonCannonDraw>) { draw = default; return false; }
-        DraygonCannonDraw frame = PlmDraw.FrameOf<DraygonCannonDraw>(request, "DraygonCannonDraw");
-        draw = DraygonCannonPlmDrawDefinitions.Draws.TryGetValue(frame, out Draw described)
+        if (request is not RoomObjectFrameDraw<DraygonCannonDraw>) { draw = default; return false; }
+        DraygonCannonDraw frame = RoomObjectDraw.FrameOf<DraygonCannonDraw>(request, "DraygonCannonDraw");
+        draw = DraygonCannonObjectDrawDefinitions.Draws.TryGetValue(frame, out Draw described)
             ? described
             : throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {request}.");
         return true;

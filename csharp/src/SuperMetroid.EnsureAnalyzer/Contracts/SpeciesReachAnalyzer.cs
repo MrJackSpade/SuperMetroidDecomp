@@ -9,7 +9,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// Keeps species behind the enemy system's capability interfaces (#1315). Outside the enemy-owning Core modules, code
 /// reaches the room's enemies through <c>RoomEnemySystem</c>'s capabilities (<c>Elevator</c>, <c>Ceres</c>,
-/// <c>PlmSpawns</c>, <c>DisplaySources</c> and the rest), never through a <c>*Behavior</c> or <c>*Encounter</c> property.
+/// <c>RoomObjectSpawns</c>, <c>DisplaySources</c> and the rest), never through a <c>*Behavior</c> or <c>*Encounter</c> property.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SpeciesReachAnalyzer : DiagnosticAnalyzer

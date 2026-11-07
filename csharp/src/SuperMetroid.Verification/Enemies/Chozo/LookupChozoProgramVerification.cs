@@ -1,4 +1,4 @@
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -30,8 +30,8 @@ internal static class LookupChozoProgramVerification
             ushort address = (ushort)raw;
             bool ownsByte = raw is >= 0xd0f6 and <= 0xd107 or >= 0xd13f and <= 0xd154 or >= 0xd3cf and <= 0xd3d6 or >= 0xd3ec and <= 0xd3f3;
             bool ownsWord = ownsByte && raw is not (0xd107 or 0xd154 or 0xd3d6 or 0xd3f3);
-            AssertEqual(ownsByte, ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(address, out byte b), "ChozoProgram byte domain");
-            AssertEqual(ownsWord, ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(address, out ushort w), "ChozoProgram word domain");
+            AssertEqual(ownsByte, ChozoStatueObjectProgramDefinitions.TryReadMechanicsByte(address, out byte b), "ChozoProgram byte domain");
+            AssertEqual(ownsWord, ChozoStatueObjectProgramDefinitions.TryReadMechanicsWord(address, out ushort w), "ChozoProgram word domain");
             if (!ownsByte) AssertEqual((byte)0, b, "ChozoProgram rejected byte output");
             else if (FieldAt(raw) == field)
             {
@@ -44,7 +44,7 @@ internal static class LookupChozoProgramVerification
             {
                 int mask = (FieldAt(raw) == field ? 0xff : 0) | (FieldAt(raw + 1) == field ? 0xff00 : 0);
                 if (mask == 0) continue;
-                int expected = ReadSamusEaterPlmWord(rom, 0x840000 | raw) & mask;
+                int expected = ReadSamusEaterObjectWord(rom, 0x840000 | raw) & mask;
                 AssertEqual(expected, w & mask, "ChozoProgram native overlapping field");
             }
         }

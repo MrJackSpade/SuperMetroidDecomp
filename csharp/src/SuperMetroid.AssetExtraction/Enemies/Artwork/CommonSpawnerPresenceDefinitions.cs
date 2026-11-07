@@ -13,7 +13,7 @@ using SuperMetroid.Core.Enemies.OldTourianWall;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
@@ -26,17 +26,17 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class CommonSpawnerPresenceDefinitions
 {
     /// <summary>The eye doors, whose eyes fire, sweat and smoke.</summary>
-    private static readonly PlmHeaderId[] EyeDoors =
+    private static readonly RoomObjectHeaderId[] EyeDoors =
     [
-        PlmHeaderId.EyeDoorEyeFacingRight, PlmHeaderId.EyeDoorFacingRight, PlmHeaderId.EyeDoorBottomFacingRight,
-        PlmHeaderId.EyeDoorEyeFacingLeft, PlmHeaderId.EyeDoorFacingLeft, PlmHeaderId.EyeDoorBottomFacingLeft,
+        RoomObjectHeaderId.EyeDoorEyeFacingRight, RoomObjectHeaderId.EyeDoorFacingRight, RoomObjectHeaderId.EyeDoorBottomFacingRight,
+        RoomObjectHeaderId.EyeDoorEyeFacingLeft, RoomObjectHeaderId.EyeDoorFacingLeft, RoomObjectHeaderId.EyeDoorBottomFacingLeft,
     ];
 
     /// <summary>The gates whose sliding bars are enemy projectiles.</summary>
-    private static readonly PlmHeaderId[] Gates =
+    private static readonly RoomObjectHeaderId[] Gates =
     [
-        PlmHeaderId.DownwardsOpenGate, PlmHeaderId.DownwardGate, PlmHeaderId.UpwardsOpenGate, PlmHeaderId.UpwardsClosedGate,
-        PlmHeaderId.DownwardGateShotBlock, PlmHeaderId.UpwardsGateShotblock,
+        RoomObjectHeaderId.DownwardsOpenGate, RoomObjectHeaderId.DownwardGate, RoomObjectHeaderId.UpwardsOpenGate, RoomObjectHeaderId.UpwardsClosedGate,
+        RoomObjectHeaderId.DownwardGateShotBlock, RoomObjectHeaderId.UpwardsGateShotblock,
     ];
 
     /// <summary>The corpses whose rot and crumble raise dust.</summary>
@@ -105,13 +105,13 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(TourianStatueActors)] = StatueUnlocking,
         [nameof(EnemyDeathsAndDrops)] = EveryEnemy,
         [nameof(EnemyCollision)] = EveryEnemy,
-        [nameof(EyeDoorBehavior)] = new() { Plms = EyeDoors },
+        [nameof(EyeDoorBehavior)] = new() { RoomObjects = EyeDoors },
         [nameof(FallingSparksBehavior)] = new() { Enemies = [EnemyDefinitionId.Spark] },
-        [nameof(NoobTubeBehavior)] = new() { Plms = [PlmHeaderId.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
-        [nameof(OldTourianEscapeShaftWallBehavior)] = new() { Plms = [PlmHeaderId.OldTourianEscapeShaftFakeWall] },
-        [nameof(DownwardGateBehavior)] = new() { Plms = Gates },
+        [nameof(NoobTubeBehavior)] = new() { RoomObjects = [RoomObjectHeaderId.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
+        [nameof(OldTourianEscapeShaftWallBehavior)] = new() { RoomObjects = [RoomObjectHeaderId.OldTourianEscapeShaftFakeWall] },
+        [nameof(DownwardGateBehavior)] = new() { RoomObjects = Gates },
         [Engine(nameof(EnemyProjectileEngine.SpawnSaveStationElectricity))] =
-            new() { Plms = [PlmHeaderId.SaveStation, PlmHeaderId.SaveStationTrigger] },
+            new() { RoomObjects = [RoomObjectHeaderId.SaveStation, RoomObjectHeaderId.SaveStationTrigger] },
         [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRandomEnemyDeathSprite))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion))] = new()

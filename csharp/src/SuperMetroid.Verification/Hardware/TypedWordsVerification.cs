@@ -10,7 +10,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -144,34 +144,34 @@ internal static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x5000, GameplayVramLayout.Bg1TilemapWord,
         "engine gameplay BG1 tilemap placement");
 
-    ushort[] translatedPlmInstructionCodes =
+    ushort[] translatedObjectInstructionCodes =
     [
-        (ushort)RoomPlmInstruction.Sleep,
-        (ushort)RoomPlmInstruction.Delete,
-        (ushort)RoomPlmInstruction.InstallFrameBehavior,
-        (ushort)RoomPlmInstruction.Goto,
-        (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
-        (ushort)RoomPlmInstruction.SetEightBitTimer,
-        (ushort)RoomPlmInstruction.CopyFromRamToVram,
-        (ushort)RoomPlmInstruction.GotoIfAreaBossBitSet,
-        (ushort)RoomPlmInstruction.GotoIfEventSet,
-        (ushort)RoomPlmInstruction.SetEvent,
-        (ushort)RoomPlmInstruction.DrawPlmBlock,
-        (ushort)RoomPlmInstruction.DrawPlmBlockClone,
-        (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
-        (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
-        (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum3,
-        (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum1,
-        (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct,
+        (ushort)RoomObjectInstruction.Sleep,
+        (ushort)RoomObjectInstruction.Delete,
+        (ushort)RoomObjectInstruction.InstallFrameBehavior,
+        (ushort)RoomObjectInstruction.Goto,
+        (ushort)RoomObjectInstruction.DecrementTimerAndGoto,
+        (ushort)RoomObjectInstruction.SetEightBitTimer,
+        (ushort)RoomObjectInstruction.CopyFromRamToVram,
+        (ushort)RoomObjectInstruction.GotoIfAreaBossBitSet,
+        (ushort)RoomObjectInstruction.GotoIfEventSet,
+        (ushort)RoomObjectInstruction.SetEvent,
+        (ushort)RoomObjectInstruction.DrawObjectBlock,
+        (ushort)RoomObjectInstruction.DrawObjectBlockClone,
+        (ushort)RoomObjectInstruction.QueueSoundLibrary2Maximum6,
+        (ushort)RoomObjectInstruction.QueueSoundLibrary3Maximum6,
+        (ushort)RoomObjectInstruction.QueueSoundLibrary2Maximum3,
+        (ushort)RoomObjectInstruction.QueueSoundLibrary2Maximum1,
+        (ushort)RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct,
 
-        (ushort)RoomPlmInstruction.SetPlmBtsToOne,
-        (ushort)RoomPlmInstruction.GotoIfRoomArgumentLess,
-        (ushort)RoomPlmInstruction.SpawnFourMotherBrainGlassShards,
-        (ushort)RoomPlmInstruction.SpawnTorizoStatueBreaking,
-        (ushort)RoomPlmInstruction.QueueSongOneMusicTrack,
+        (ushort)RoomObjectInstruction.SetObjectBtsToOne,
+        (ushort)RoomObjectInstruction.GotoIfRoomArgumentLess,
+        (ushort)RoomObjectInstruction.SpawnFourMotherBrainGlassShards,
+        (ushort)RoomObjectInstruction.SpawnTorizoStatueBreaking,
+        (ushort)RoomObjectInstruction.QueueSongOneMusicTrack,
     ];
-    AssertEqual(translatedPlmInstructionCodes.Length,
-        translatedPlmInstructionCodes.Distinct().Count(),
+    AssertEqual(translatedObjectInstructionCodes.Length,
+        translatedObjectInstructionCodes.Distinct().Count(),
         "translated PLM instruction catalog has unique native pointers");
 
     // A cartridge turn is a 16-bit wrapping domain whose high byte indexes the shared
@@ -461,7 +461,7 @@ internal static void VerifyTypedNativeWords()
 
     foreach (StationAccessBehavior expectedAccess in Enum.GetValues<StationAccessBehavior>())
     {
-        ushort stationValue = PlmBlockBehaviorNativeWords.StationAccesses.Word(expectedAccess);
+        ushort stationValue = RoomObjectBlockBehaviorNativeWords.StationAccesses.Word(expectedAccess);
         var stationBehavior = new RoomBlockBehavior(stationValue);
         AssertTrue(stationBehavior.TryGetStationAccess(out StationAccessBehavior access),
             $"station BTS ${stationValue:X2} decodes");

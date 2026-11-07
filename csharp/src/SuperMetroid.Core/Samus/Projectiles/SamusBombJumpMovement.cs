@@ -40,12 +40,12 @@ public static class SamusBombJumpMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms plms)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        Ensure.NotNull(plms);
+        Ensure.NotNull(roomObjects);
         if (!samus.BombJumpActive)
             throw new InvalidOperationException("Bomb-jump main handler requires an active jump.");
 
@@ -62,7 +62,7 @@ public static class SamusBombJumpMovement
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
                 SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == SamusBombJumpDirection.Left, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
             // not end the bomb ascent, but it must stop horizontal acceleration.
@@ -99,7 +99,7 @@ public static class SamusBombJumpMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
         // The handler tests samus_collision_flag after moving Y. That move
         // replaces the horizontal result, so a shaft wall alone must not cancel the
         // upward bomb arc or return control to ordinary Morph Ball movement early.
@@ -117,7 +117,7 @@ public static class SamusBombJumpMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms plms)
+        ISamusRoomObjects roomObjects)
     {
         SamusKinematicsState state = samus.Kinematics;
         uint oldSpeed = state.VerticalSpeedFixed;
@@ -127,7 +127,7 @@ public static class SamusBombJumpMovement
         int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             unchecked(-(int)oldSpeed));
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
         if (result.Collided)
         {
             state.YSpeed = default;

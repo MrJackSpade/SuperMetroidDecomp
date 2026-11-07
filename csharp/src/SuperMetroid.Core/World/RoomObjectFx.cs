@@ -1,0 +1,31 @@
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Samus;
+
+namespace SuperMetroid.Core.World;
+
+/// <summary>
+/// The room FX as room PLMs use it (#1395). PLMs write the shared liquid values Samus reads; the port keeps Samus's
+/// copy of the liquid options, so enabling water physics writes both in the same operation.
+/// </summary>
+internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samus) : IRoomObjectFx
+{
+    /// <inheritdoc/>
+    public FixedCoordinate BaseY => fx.BaseY;
+
+    /// <inheritdoc/>
+    public Position16<RoomPixels> TargetSurface => fx.TargetSurface;
+
+    /// <inheritdoc/>
+    public void SetLiquidMotion(int? baseYPosition = null, int? targetYPosition = null,
+        int? packedYVelocity = null, int? timer = null) =>
+        fx.SetLiquidMotion(baseYPosition, targetYPosition, packedYVelocity, timer);
+
+    /// <inheritdoc/>
+    public void EnableWaterPhysics()
+    {
+        fx.EnableWaterPhysics();
+        (samus() ?? throw new InvalidOperationException("Room water physics has no live Samus owner."))
+            .LiquidPhysics.ConfigureFor(fx);
+    }
+}

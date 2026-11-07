@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Bomb Torizo's hand block draws: which PLM draws are the hand's, the strips each lays from
-/// <see cref="BombTorizoHandPlmDrawDefinitions"/>.
+/// <see cref="BombTorizoHandObjectDrawDefinitions"/>.
 /// </summary>
 internal static class BombTorizoHandDraws
 {
@@ -15,7 +15,7 @@ internal static class BombTorizoHandDraws
     internal readonly record struct Draw(BombTorizoHandDraw Frame)
     {
         /// <summary>The draw's strips in authored run order.</summary>
-        private BombTorizoHandStrip[] Strips => BombTorizoHandPlmDrawDefinitions.Strips[Frame];
+        private BombTorizoHandStrip[] Strips => BombTorizoHandObjectDrawDefinitions.Strips[Frame];
         /// <summary>Gets the number of horizontal strips in the selected draw list.</summary>
         internal int RunCount => Strips.Length;
         /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
@@ -37,10 +37,10 @@ internal static class BombTorizoHandDraws
     }
 
     /// <summary>Recognizes one of the two hand draw pointers and returns its calculated descriptor.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
-        bool owned = request is PlmFrameDraw<BombTorizoHandDraw>;
-        draw = owned ? new(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "BombTorizoHandDraw")) : default;
+        bool owned = request is RoomObjectFrameDraw<BombTorizoHandDraw>;
+        draw = owned ? new(RoomObjectDraw.FrameOf<BombTorizoHandDraw>(request, "BombTorizoHandDraw")) : default;
         return owned;
     }
 }

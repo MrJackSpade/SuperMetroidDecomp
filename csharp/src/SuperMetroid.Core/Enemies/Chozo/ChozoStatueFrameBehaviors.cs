@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static class ChozoStatueFrameBehaviors
 {
     /// <summary>Waits for the hand's trigger block to clear; the hand's animation installs it.</summary>
-    internal static PlmFrameBehavior WaitForLowerNorfairHand { get; } = new(
+    internal static RoomObjectFrameBehavior WaitForLowerNorfairHand { get; } = new(
         "Lower Norfair Chozo hand wait",
-        static (slot, context) => ChozoStatuePlms.RunChozoStatueFrameBehavior(context.Level, slot));
+        static (slot, context) => ChozoStatueObjects.RunChozoStatueFrameBehavior(context.Level, slot));
 }

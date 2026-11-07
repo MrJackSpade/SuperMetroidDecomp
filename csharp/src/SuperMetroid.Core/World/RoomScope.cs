@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
@@ -140,7 +140,7 @@ internal sealed record RoomScope
     public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>The room's PLM population and the family owners that run it.</summary>
-    public required RoomPlmSystem Plms { get; init; }
+    public required RoomObjectSystem RoomObjects { get; init; }
 
     /// <summary>The room's runtime services, bound to its area, shared by its PLMs and enemies.</summary>
     public required RoomEnemyRuntimeServices Services { get; init; }

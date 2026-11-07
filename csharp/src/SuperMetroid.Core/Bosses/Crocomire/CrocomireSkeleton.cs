@@ -65,7 +65,7 @@ internal sealed class CrocomireSkeleton
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
         _room.Services.RoomScroll.Write(3, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.RightEdge;
         RoomEnemySlot body = state.Body;
         body.Properties = body.Properties.Replace(
@@ -142,9 +142,9 @@ internal sealed class CrocomireSkeleton
         body.Position = body.Position.WithWhole(new(480, 54));
         death.RumbleCooldown = 80;
         state.SkeletonVelocity = SignedSixteenSixteen.Zero;
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.CreateInvisibleWall);
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), CrocomireArenaMutation.ClearBridge);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.CreateInvisibleWall);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(112, 11), CrocomireArenaMutation.ClearBridge);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         // The skeleton draws in the common colours with its arm's laid over them (#1512).
@@ -208,7 +208,7 @@ internal sealed class CrocomireSkeleton
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Dead);
         state.Body.Position += new Offset16<RoomPixels>(64, 21);
         state.Body.Radius = new(40, 28);
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.ClearInvisibleWall);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.ClearInvisibleWall);
 
         // The death drops emit sixteen independent pickup projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:
@@ -229,7 +229,7 @@ internal sealed class CrocomireSkeleton
     {
         for (int index = 0; index < 4; index++)
             _room.Services.RoomScroll.Write(index, RoomScrollState.Blue);
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 

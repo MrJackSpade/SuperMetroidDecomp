@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

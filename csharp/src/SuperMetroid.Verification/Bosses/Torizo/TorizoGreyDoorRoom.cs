@@ -10,8 +10,8 @@ internal readonly record struct TorizoGreyDoorRoom
     /// <summary>Level.</summary>
     public required RoomLevelData Level { get; init; }
 
-    /// <summary>Plms.</summary>
-    public required RoomPlmSystem Plms { get; init; }
+    /// <summary>RoomObjects.</summary>
+    public required RoomObjectSystem RoomObjects { get; init; }
 
     /// <summary>System.</summary>
     public required SharedGameState System { get; init; }

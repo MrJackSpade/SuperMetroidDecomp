@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainStockVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathPlmsVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathObjectsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -25,25 +25,25 @@ internal static class MotherBrainFakeDeathVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain stock oracle revision");
         // A private installation copy, whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMotherBrainFakeDeathVisualDirectory))
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectMotherBrainFakeDeathVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
-                installation.RoomPlmMotherBrainFakeDeathVisualDirectory);
-            RoomPlmMotherBrainFakeDeathVisualCatalog stock =
-                installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
+            RoomObjectMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
+                installation.RoomObjectMotherBrainFakeDeathVisualDirectory);
+            RoomObjectMotherBrainFakeDeathVisualCatalog stock =
+                installation.LoadRoomObjectMotherBrainFakeDeathVisuals();
             VerifyMotherBrainStockMapping(rom, stock);
             VerifyMotherBrainVisualDraw(MotherBrainRoomMutation.BackgroundRowD,
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 null);
 
             string stockPath = Path.Combine(
-                installation.RoomPlmMotherBrainFakeDeathVisualDirectory,
-                RoomPlmMotherBrainFakeDeathVisualFiles.VisualFileName);
+                installation.RoomObjectMotherBrainFakeDeathVisualDirectory,
+                RoomObjectMotherBrainFakeDeathVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
-                    installation.RoomPlmMotherBrainFakeDeathVisualDirectory),
+                () => RoomObjectMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
+                    installation.RoomObjectMotherBrainFakeDeathVisualDirectory),
                 "tampered Mother Brain fake-death stock fails loudly where it is read");
         }
         Console.WriteLine(
@@ -53,16 +53,16 @@ internal static class MotherBrainFakeDeathVisualsVerification
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
     private static void VerifyMotherBrainVisualDraw(MotherBrainRoomMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
-        RoomPlmMotherBrainFakeDeathVisualCatalog? visuals)
+        RoomObjectMotherBrainFakeDeathVisualCatalog? visuals)
     {
         const int width = 32;
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainFakeDeathVisuals = visuals });
-        AssertTrue(plms.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(5, 3), mutation)),
+        var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectMotherBrainFakeDeathVisuals = visuals });
+        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(5, 3), mutation)),
             $"Mother Brain visual mutation {mutation} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
-        plms.Step(level);
+        roomObjects.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physical,
             level.GetCollisionBlockByIndex(blockIndex).Terrain,

@@ -1,11 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -24,9 +24,9 @@ internal static class LookupBlueCapVerification
     {
         ushort[] pointers = [0xa9b3,0xa9bf,0xa9cb,0xa9d7,0xa9ef,0xa9fb,0xaa07,0xaa13,0xaa2b,0xaa37,0xaa43,0xaa4f,0xaa67,0xaa73,0xaa7f,0xaa8b,0xa9a7,0xa9e3,0xaa1f,0xaa5b];
         string[] ids = ["left-frame-0","left-frame-1","left-frame-2","left-frame-3","right-frame-0","right-frame-1","right-frame-2","right-frame-3","up-frame-0","up-frame-1","up-frame-2","up-frame-3","down-frame-0","down-frame-1","down-frame-2","down-frame-3","left-frame-0","right-frame-0","up-frame-0","down-frame-0"];
-        var exported = BlueDoorPlmDrawDefinitionsTooling.All.ToArray();
+        var exported = BlueDoorObjectDrawDefinitionsTooling.All.ToArray();
         AssertEqual(20, exported.Length, "Blue cap export count");
-        AssertTrue(RoomPlmBlueDoorVisualFiles.Editable.Select(frame => PlmDrawAddressCodec.Of(frame.Draw)).SequenceEqual(pointers.Take(16)), "Blue cap editable identity domain and order");
+        AssertTrue(RoomObjectBlueDoorVisualFiles.Editable.Select(frame => RoomObjectDrawAddressCodec.Of(frame.Draw)).SequenceEqual(pointers.Take(16)), "Blue cap editable identity domain and order");
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -34,39 +34,39 @@ internal static class LookupBlueCapVerification
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
                 ushort alias = pointer switch { 0xa9a7 => 0xa9b3, 0xa9e3 => 0xa9ef, 0xaa1f => 0xaa2b, 0xaa5b => 0xaa67, _ => pointer };
-                AssertEqual(NativePlmDraws.At<BlueDoorCaps.Draw>(alias), BlueDoorCaps.VisualSource(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap alias and passthrough domain");
-                AssertEqual(owned, BlueDoorCaps.TryDescribe(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var shape), "Blue cap descriptor domain");
-                AssertEqual(owned, RoomPlmBlueDoorVisualFiles.TryGet(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var dto), "Blue cap DTO domain");
+                AssertEqual(NativeObjectDraws.At<BlueDoorCaps.Draw>(alias), BlueDoorCaps.VisualSource(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap alias and passthrough domain");
+                AssertEqual(owned, BlueDoorCaps.TryDescribe(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var shape), "Blue cap descriptor domain");
+                AssertEqual(owned, RoomObjectBlueDoorVisualFiles.TryGet(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var dto), "Blue cap DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(BlueDoorCaps.Draw), shape, "Blue cap missing descriptor");
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Blue cap missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmBlueDoorVisualFiles.VisualId(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap missing ID");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Blue cap missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap missing ID");
                 }
             }
             foreach (string id in new[] { "LEFT-FRAME-0", "left-frame-4", "", "unknown" })
             {
-                AssertTrue(!RoomPlmBlueDoorVisualFiles.TryGetByVisualId(id, out var missing), "Blue cap ordinal ID domain");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Blue cap missing ID output");
+                AssertTrue(!RoomObjectBlueDoorVisualFiles.TryGetByVisualId(id, out var missing), "Blue cap ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Blue cap missing ID output");
             }
         }
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            BlueDoorCaps.TryDescribe(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var shape);
-            RoomPlmBlueDoorVisualFiles.TryGet(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer), out var dto);
+            BlueDoorCaps.TryDescribe(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var shape);
+            RoomObjectBlueDoorVisualFiles.TryGet(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var dto);
             if (field == 0)
             {
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Blue cap original order");
-                AssertEqual(ids[index], RoomPlmBlueDoorVisualFiles.VisualId(NativePlmDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap published ID");
-                AssertTrue(RoomPlmBlueDoorVisualFiles.TryGetByVisualId(ids[index], out var byId), "Blue cap reverse ID");
-                AssertEqual(index < 16 ? pointer : pointers[(index - 16) * 4], PlmDrawAddressCodec.Of(byId.Draw), "Blue cap ID identity");
-                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), dto.Runs.Span[0].Direction, 4, "Blue cap native geometry");
-                AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Blue cap native final offset");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Blue cap original order");
+                AssertEqual(ids[index], RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap published ID");
+                AssertTrue(RoomObjectBlueDoorVisualFiles.TryGetByVisualId(ids[index], out var byId), "Blue cap reverse ID");
+                AssertEqual(index < 16 ? pointer : pointers[(index - 16) * 4], RoomObjectDrawAddressCodec.Of(byId.Draw), "Blue cap ID identity");
+                AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), dto.Runs.Span[0].Direction, 4, "Blue cap native geometry");
+                AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 10)), "Blue cap native final offset");
                 foreach (var frame in new[] {dto,exported[index]})
                 {
                     AssertEqual(1, frame.Runs.Length, "Blue cap one run");
-                    AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Blue cap DTO geometry");
+                    AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Blue cap DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].Count, "Blue cap DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Blue cap DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Blue cap DTO final Y");
@@ -76,7 +76,7 @@ internal static class LookupBlueCapVerification
             }
             else for (int row = 0; row < 4; row++)
             {
-                RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + row * 2)));
+                RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + row * 2)));
                 AssertEqual(expected, shape.BlockAt(row), "Blue cap original calculated field");
                 AssertEqual(expected, dto.Runs.Span[0].Blocks.Span[row], "Blue cap original DTO field");
                 AssertEqual(expected, exported[index].Runs.Span[0].Blocks.Span[row], "Blue cap original export field");

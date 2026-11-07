@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -87,7 +87,7 @@ internal sealed class BgArtworkBytes
     /// </summary>
     internal BgArtworkBytes WithCollectibles()
     {
-        foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
+        foreach (InWorldCollectibleKind kind in RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds)
         {
             InWorldCollectibleKind collectible = kind;
             Add(RoomBgArtwork.Collectible(collectible), () => DynamicCollectibleGraphics.Get(collectible).Tiles);

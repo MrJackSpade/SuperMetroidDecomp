@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Elevator.Artwork;
 
@@ -12,7 +12,7 @@ internal static class ElevatorPlatformArtwork
     /// <summary>Resolves one elevator-platform block appearance without replacing its compiled terrain block or draw offset.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported platform frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
-    internal static RoomBlockAppearance Appearance(IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customAppearances, PlmDraw draw, int runIndex, int cellIndex)
+    internal static RoomBlockAppearance Appearance(IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customAppearances, RoomObjectDraw draw, int runIndex, int cellIndex)
     {
         if (!ElevatorPlatformDraws.TryDescribe(draw, out var shape))
             throw new InvalidDataException(

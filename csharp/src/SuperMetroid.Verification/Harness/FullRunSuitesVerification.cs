@@ -35,9 +35,9 @@ using static SuperMetroid.Verification.Samus.Abilities.BoostFloorAuditVerificati
 using static SuperMetroid.Verification.Samus.Abilities.BoostFloorScrollVerification;
 using static SuperMetroid.Verification.Bosses.BossMapMarkersVerification;
 using static SuperMetroid.Verification.Bosses.BossResetOnLoadVerification;
-using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonPlmIdentityVerification;
+using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonObjectIdentityVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonPositionHistoryVerification;
-using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallPlmsVerification;
+using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallVisualsVerification;
 using static SuperMetroid.Verification.Samus.Movement.CeilingWrapRoomVerification;
 using static SuperMetroid.Verification.Samus.Movement.CeilingWrapVerification;
@@ -55,20 +55,20 @@ using static SuperMetroid.Verification.Samus.Projectiles.ChainsawFiringVerificat
 using static SuperMetroid.Verification.Frontend.Intro.CinematicCrystalFlashVerification;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicTextGlowVerification;
-using static SuperMetroid.Verification.Rooms.Plms.CollectibleMessageTimingVerification;
-using static SuperMetroid.Verification.Rooms.Plms.CollectibleVisualsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SaveStationSoundVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectibleMessageTimingVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectibleVisualsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SaveStationSoundVerification;
 using static SuperMetroid.Verification.Hardware.ColorWindowSnapshotTestsVerification;
 using static SuperMetroid.Verification.Samus.Movement.CompactWalkOffCollisionVerification;
 using static SuperMetroid.Verification.Hardware.CompressionVerification;
-using static SuperMetroid.Verification.Rooms.Plms.ContactCrumbleProgramsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.ContactCrumbleProgramsVerification;
 using static SuperMetroid.Verification.Audio.ContactDamageSoundVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.WorkRamCellVerification;
 using static SuperMetroid.Verification.Samus.Movement.CrampedAerialLandingVerification;
-using static SuperMetroid.Verification.Rooms.Plms.CrateriaMainstreetEscapePassageVerification;
-using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaPlmsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CrateriaMainstreetEscapePassageVerification;
+using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBodyCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltingDefinitionsVerification;
@@ -90,9 +90,9 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorMusicTimingVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorOrientationDomainVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorSoundsDuringPowerBombVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorWaitsForMessageBoxVerification;
-using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.DownwardGateObjectsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.DrainedSparkCrashVerification;
-using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonPlmsVerification;
+using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonEscapeDragVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonEyeEffectsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitionsVerification;
@@ -120,7 +120,7 @@ using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerificatio
 using static SuperMetroid.Verification.Areas.Escape.EscapeTimerFloorVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirInitTimerVerification;
 using static SuperMetroid.Verification.Map.ExploredMapPackingDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.EyeDoorObjectsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatSpanUnderflowVerification;
 using static SuperMetroid.Verification.Hardware.EyeWindowSnapshotTestsVerification;
 using static SuperMetroid.Verification.Samus.Movement.FallingSpeedRecurrenceVerification;
@@ -132,9 +132,9 @@ using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaFxVerification;
 using static SuperMetroid.Verification.Frontend.FrontendCompletionVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRenderCaptureTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
-using static SuperMetroid.Verification.Rooms.Plms.FrozenGateGlitchVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.FrozenGateGlitchVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.FrozenTimeEnemyProjectilesVerification;
-using static SuperMetroid.Verification.Rooms.Plms.GModeGateGlitchVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.GModeGateGlitchVerification;
 using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverRomDataVerification;
 using static SuperMetroid.Verification.Saves.GameSaveJsonVerification;
@@ -142,8 +142,8 @@ using static SuperMetroid.Verification.Progression.GameTimeVerification;
 using static SuperMetroid.Verification.Frontend.ControllerRepeatDelayVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplaySnapshotTestsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.GateBeamCollisionVerification;
-using static SuperMetroid.Verification.Rooms.Plms.GateJumpTraceVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.GateBeamCollisionVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.GateJumpTraceVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.GoldNinjaDeathDropsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoAttackChoiceVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDemoTrajectoryVerification;
@@ -153,7 +153,7 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleGatesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePoseRefireVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleSoundsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleSpinVerification;
-using static SuperMetroid.Verification.Rooms.Plms.GreenHillGateGlitchVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.GreenHillGateGlitchVerification;
 using static SuperMetroid.Verification.Samus.Movement.GroundedBombSpreadVerification;
 using static SuperMetroid.Verification.Samus.Movement.GroundedSpreadTransitionVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipLandingVerification;
@@ -180,10 +180,10 @@ using static SuperMetroid.Verification.Samus.Movement.KnockbackHorizontalStopVer
 using static SuperMetroid.Verification.Samus.Movement.KnockbackShinesparkLaunchVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmSamusContactVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSamusContactVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomPlmsVerification;
+using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LoadStationDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.LoadStationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteApexThresholdVerification;
 using static SuperMetroid.Verification.Runtime.MainGameLoopCarryVerification;
 using static SuperMetroid.Verification.Frontend.BootDemoSetCountVerification;
@@ -191,7 +191,7 @@ using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleEnemyDefini
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleShellContourVerification;
 using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
-using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubePlmVerification;
+using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeObjectVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
 using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Hud.MessageSnapshotTestsVerification;
@@ -205,7 +205,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBodyHitboxe
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainContactHitboxesVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathHandoffVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathLockVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathPlmsVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathObjectsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathVisualsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassSuperMissileVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlitchMechanicsVerification;
@@ -221,7 +221,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTubeHdmaDel
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTubeTimingVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainWalkBackwardsPoseVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MurderBeamVerification;
-using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.NoobTubeObjectVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.OceanSkyVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.ScrollingSkyLayerVerification;
 using static SuperMetroid.Verification.Fx.Layer3PlaneVerification;
@@ -233,7 +233,7 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltFrameSelect
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBodyPublicationVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyBodyPublicationVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomBackgroundsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.OldTourianEscapeShaftWallVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.OldTourianEscapeShaftWallVerification;
 using static SuperMetroid.Verification.Harness.OperationContractsVerification;
 using static SuperMetroid.Verification.Harness.NullContractsVerification;
 using static SuperMetroid.Verification.Harness.SpanQueriesVerification;
@@ -254,7 +254,7 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseSnapshotTestsVerifica
 using static SuperMetroid.Verification.Frontend.Pause.PauseHudPlaneVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonPositionVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonWaveVerification;
-using static SuperMetroid.Verification.Rooms.Plms.PlmsAndPostureVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectsAndPostureVerification;
 using static SuperMetroid.Verification.Enemies.Powamp.PowampDeathSequenceVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombDeathRadiusVerification;
@@ -270,7 +270,7 @@ using static SuperMetroid.Verification.Enemies.Puromi.PuromiArcPositionVerificat
 using static SuperMetroid.Verification.Fx.QuicksandVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.RainbowReleaseKnockbackVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.RedTowerHeroVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RefillStationLockVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RefillStationLockVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.ReleasedSamusFallsOffDraygonVerification;
 using static SuperMetroid.Verification.Rendering.RenderFrameHandoffTestsVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
@@ -283,7 +283,7 @@ using static SuperMetroid.Verification.Enemies.RespawnedEnemyContactVerification
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyExplosionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyShotHealthStageVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RightFacingGateGlitchVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RightFacingGateGlitchVerification;
 using static SuperMetroid.Verification.Rooms.RoomAssetRomDataVerification;
 using static SuperMetroid.Verification.Rooms.RoomCallbackDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomDefinitionIntegrationVerification;
@@ -293,10 +293,10 @@ using static SuperMetroid.Verification.Fx.RoomFxRomDataVerification;
 using static SuperMetroid.Verification.Fx.RoomFxSnapshotTestsVerification;
 using static SuperMetroid.Verification.Rooms.RoomHeaderDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmHeaderCatalogVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmAnimationScriptCatalogVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectHeaderCatalogVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectAnimationScriptCatalogVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.RoomScrollDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomSetupCodeCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomStateDefinitionsVerification;
@@ -305,7 +305,7 @@ using static SuperMetroid.Verification.Runtime.RuntimeCartridgeBoundaryVerificat
 using static SuperMetroid.Verification.Samus.Movement.SamusAerialAndLiquidsVerification;
 using static SuperMetroid.Verification.Samus.SamusAimVerification;
 using static SuperMetroid.Verification.Samus.SamusDamageAndGrabVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterVisualsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterVisualsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleBeamDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;
 using static SuperMetroid.Verification.Samus.Hud.SamusHudSelectionVerification;
@@ -328,13 +328,13 @@ using static SuperMetroid.Verification.Samus.SamusTurnsAndKnockbackVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayScopeDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.SandAnimatedTilesVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SaveConfirmationCadenceVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SaveConfirmationCadenceVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
-using static SuperMetroid.Verification.Rooms.Scrolling.ScrollPlmsVerification;
+using static SuperMetroid.Verification.Rooms.Scrolling.ScrollObjectsVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification;
-using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
 using static SuperMetroid.Verification.Enemies.FollowUpAfterStruckPartVerification;
@@ -351,19 +351,19 @@ using static SuperMetroid.Verification.Enemies.Spike.SpikeDamageBoostVerificatio
 using static SuperMetroid.Verification.Samus.Artwork.SamusLandingDrawVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorTransitionAutosaveVerification;
 using static SuperMetroid.Verification.Enemies.Spike.SpikeShinesparkSuitVerification;
-using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCeilingPlmsVerification;
+using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCeilingObjectsVerification;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCeilingVisualsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SpringBallBounceVerification;
 using static SuperMetroid.Verification.Samus.Movement.SpringBallFallingFallbackVerification;
 using static SuperMetroid.Verification.Samus.Movement.SquareSlopeBeamCollisionVerification;
-using static SuperMetroid.Verification.Rooms.Plms.StationAnimationProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.StationAnimationProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.StrictFailuresVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SuitPickupPeriodicDamageVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SuperMissileDeathAnimationVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SuperMissileEnemyHitQuakeVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleSnapshotTestsVerification;
-using static SuperMetroid.Verification.Areas.Tourian.TourianAccessPlmProgramsVerification;
+using static SuperMetroid.Verification.Areas.Tourian.TourianAccessObjectProgramsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianAccessVisualsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueDescentRoundingVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueXrayFreezeVerification;
@@ -642,7 +642,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyXrayExtensions), () => VerifyXrayExtensions()),
         new(nameof(VerifyXrayTilemap), () => VerifyXrayTilemap()),
         new(nameof(VerifyXrayOverlays), () => VerifyXrayOverlays()),
-        new(nameof(VerifyBreakableGrapplePlms), () => VerifyBreakableGrapplePlms()),
+        new(nameof(VerifyBreakableGrappleObjects), () => VerifyBreakableGrappleObjects()),
         new(nameof(VerifyBombBlockPrograms), () => VerifyBombBlockPrograms()),
         new(nameof(VerifyContactCrumblePrograms), () => VerifyContactCrumblePrograms()),
         new(nameof(VerifyStationAnimationProgramDefinitions), () => VerifyStationAnimationProgramDefinitions()),
@@ -659,7 +659,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRetailWrapShotDoors), () => VerifyRetailWrapShotDoors()),
         new(nameof(VerifyWrapShotEnemySeparation), () => VerifyWrapShotEnemySeparation()),
         new(nameof(VerifyWrapShotWidths), () => VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv")),
-        new(nameof(VerifyCeilingWrapPlmTrace), () => VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv")),
+        new(nameof(VerifyCeilingWrapObjectTrace), () => VerifyCeilingWrapObjectTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv")),
         new(nameof(VerifyKronicGateBeamCollision), () => VerifyKronicGateBeamCollision()),
         new(nameof(VerifyGateJumpTraces), () => VerifyGateJumpTraces()),
         new(nameof(VerifyRightFacingGateGlitches), () => VerifyRightFacingGateGlitches()),
@@ -682,7 +682,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows()),
         new(nameof(VerifyBeamCallbackTables), () => VerifyBeamCallbackTables()),
         new(nameof(VerifySamusMorphBallMovement), () => VerifySamusMorphBallMovement()),
-        new(nameof(VerifyShotBlockPlmPrograms), () => VerifyShotBlockPlmPrograms()),
+        new(nameof(VerifyShotBlockObjectPrograms), () => VerifyShotBlockObjectPrograms()),
         new(nameof(VerifyCompactWalkOffCollision), () => VerifyCompactWalkOffCollision()),
         new(nameof(VerifyPauseMomentumReconciliation), () => VerifyPauseMomentumReconciliation()),
         new(nameof(VerifyBombChargeRejection), () => VerifyBombChargeRejection()),
@@ -696,17 +696,17 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusSlopePhysics), () => VerifySamusSlopePhysics()),
         new(nameof(VerifySamusBlockCollision), () => VerifySamusBlockCollision()),
         new(nameof(VerifySpeedBoosterCollisionBlocks), () => VerifySpeedBoosterCollisionBlocks()),
-        new(nameof(VerifyMaridiaElevatubePlm), () => VerifyMaridiaElevatubePlm()),
-        new(nameof(VerifyCompiledTourianAccessPlmPrograms), () => VerifyCompiledTourianAccessPlmPrograms()),
+        new(nameof(VerifyMaridiaElevatubeObject), () => VerifyMaridiaElevatubeObject()),
+        new(nameof(VerifyCompiledTourianAccessObjectPrograms), () => VerifyCompiledTourianAccessObjectPrograms()),
         new(nameof(VerifyTourianAccessVisuals), () => VerifyTourianAccessVisuals()),
         new(nameof(VerifySpeedBoosterVisuals), () => VerifySpeedBoosterVisuals()),
         new(nameof(VerifyMaridiaElevatubeVisuals), () => VerifyMaridiaElevatubeVisuals()),
-        new(nameof(VerifyCompiledSporeSpawnCeilingPlms), () => VerifyCompiledSporeSpawnCeilingPlms()),
-        new(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms()),
+        new(nameof(VerifyCompiledSporeSpawnCeilingObjects), () => VerifyCompiledSporeSpawnCeilingObjects()),
+        new(nameof(VerifyCompiledBotwoonWallObjects), () => VerifyCompiledBotwoonWallObjects()),
         new(nameof(VerifyBotwoonWallVisuals), () => VerifyBotwoonWallVisuals()),
-        new(nameof(VerifyCompiledKraidRoomPlms), () => VerifyCompiledKraidRoomPlms()),
-        new(nameof(VerifyCompiledCrocomireArenaPlms), () => VerifyCompiledCrocomireArenaPlms()),
-        new(nameof(VerifyCompiledMotherBrainFakeDeathPlms), () => VerifyCompiledMotherBrainFakeDeathPlms()),
+        new(nameof(VerifyCompiledKraidRoomObjects), () => VerifyCompiledKraidRoomObjects()),
+        new(nameof(VerifyCompiledCrocomireArenaObjects), () => VerifyCompiledCrocomireArenaObjects()),
+        new(nameof(VerifyCompiledMotherBrainFakeDeathObjects), () => VerifyCompiledMotherBrainFakeDeathObjects()),
         new(nameof(VerifyMotherBrainFakeDeathVisuals), () => VerifyMotherBrainFakeDeathVisuals()),
         new(nameof(VerifyCrocomireArenaVisuals), () => VerifyCrocomireArenaVisuals()),
         new(nameof(VerifyKraidRoomVisuals), () => VerifyKraidRoomVisuals()),
@@ -719,21 +719,21 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyObjRendering), () => VerifyObjRendering()),
         new(nameof(VerifyHudState), () => VerifyHudState()),
         new(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera()),
-        new(nameof(VerifyRoomScrollPlms), () => VerifyRoomScrollPlms()),
-        new(nameof(VerifyRoomPlmHeaderCatalog), () => VerifyRoomPlmHeaderCatalog()),
-        new(nameof(VerifyRoomPlmAnimationScriptCatalog), () => VerifyRoomPlmAnimationScriptCatalog()),
-        new(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader()),
+        new(nameof(VerifyRoomScrollObjects), () => VerifyRoomScrollObjects()),
+        new(nameof(VerifyRoomObjectHeaderCatalog), () => VerifyRoomObjectHeaderCatalog()),
+        new(nameof(VerifyRoomObjectAnimationScriptCatalog), () => VerifyRoomObjectAnimationScriptCatalog()),
+        new(nameof(VerifySequentialRoomObjectPopulationLoader), () => VerifySequentialRoomObjectPopulationLoader()),
         new(nameof(VerifyMotherBrainEscapeGateCompiledDefinitions), () => VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyEscapeGateVisuals), () => VerifyEscapeGateVisuals(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
-        new(nameof(VerifyCompiledRoomPlmPopulationDefinitions), () => VerifyCompiledRoomPlmPopulationDefinitions(
+        new(nameof(VerifyCompiledRoomObjectPopulationDefinitions), () => VerifyCompiledRoomObjectPopulationDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
-        new(nameof(VerifyNoobTubePlm), () => VerifyNoobTubePlm()),
-        new(nameof(VerifyDownwardGatePlms), () => VerifyDownwardGatePlms()),
-        new(nameof(VerifyEyeDoorPlms), () => VerifyEyeDoorPlms()),
-        new(nameof(VerifyDraygonCannonPlms), () => VerifyDraygonCannonPlms()),
-        new(nameof(VerifyBombTorizoHandPlm), () => VerifyBombTorizoHandPlm()),
+        new(nameof(VerifyNoobTubeObject), () => VerifyNoobTubeObject()),
+        new(nameof(VerifyDownwardGateObjects), () => VerifyDownwardGateObjects()),
+        new(nameof(VerifyEyeDoorObjects), () => VerifyEyeDoorObjects()),
+        new(nameof(VerifyDraygonCannonObjects), () => VerifyDraygonCannonObjects()),
+        new(nameof(VerifyBombTorizoHandObject), () => VerifyBombTorizoHandObject()),
         new(nameof(VerifyPauseMenuEquipmentInteraction), () => VerifyPauseMenuEquipmentInteraction()),
         new(nameof(VerifyPauseMapArrows), () => VerifyPauseMapArrows()),
         new(nameof(VerifyPauseMapAreaLabels), () => VerifyPauseMapAreaLabels()),
@@ -744,7 +744,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMovedSamusCameraTracking), () => VerifyMovedSamusCameraTracking()),
         new(nameof(VerifyBackgroundScrollState), () => VerifyBackgroundScrollState()),
         new(nameof(VerifyRoomBackgroundSources), () => VerifyRoomBackgroundSources()),
-        new(nameof(VerifyPlmBlockChangeReachesPlane), () => VerifyPlmBlockChangeReachesPlane()),
+        new(nameof(VerifyObjectBlockChangeReachesPlane), () => VerifyObjectBlockChangeReachesPlane()),
         new(nameof(VerifyPublishedRoomBackgrounds), () => VerifyPublishedRoomBackgrounds()),
         new(nameof(VerifyLevelBlockTilemapExpansion), () => VerifyLevelBlockTilemapExpansion()),
         new(nameof(VerifyRoomLevelData), () => VerifyRoomLevelData()),
@@ -940,7 +940,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMaridiaLargeSnailCollisionDefinitions), () => VerifyMaridiaLargeSnailCollisionDefinitions()),
         new(nameof(VerifyCrocomireTongueCollisionDefinitions), () => VerifyCrocomireTongueCollisionDefinitions()),
         new(nameof(VerifyCrocomireBodyCollisionDefinitions), () => VerifyCrocomireBodyCollisionDefinitions()),
-        new(nameof(VerifyBotwoonPlmIdentity), () => VerifyBotwoonPlmIdentity()),
+        new(nameof(VerifyBotwoonObjectIdentity), () => VerifyBotwoonObjectIdentity()),
         .. CompiledEnemyTrigonometrySuites(),
         new(nameof(VerifyRidleyExplosionDefinitions), () => VerifyRidleyExplosionDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),

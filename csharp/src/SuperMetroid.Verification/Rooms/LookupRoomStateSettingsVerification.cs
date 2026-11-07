@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -63,7 +63,7 @@ internal static class LookupRoomStateSettingsVerification
         Suite(nameof(VerifyRoomStateScrollPointer), () => VerifyRoomStateScrollPointer(rom));
         Suite(nameof(VerifyRoomStateXrayPointer), () => VerifyRoomStateXrayPointer(rom));
         Suite(nameof(VerifyRoomStateMainCodePointer), () => VerifyRoomStateMainCodePointer(rom));
-        Suite(nameof(VerifyRoomStatePlmPointer), () => VerifyRoomStatePlmPointer(rom));
+        Suite(nameof(VerifyRoomStateObjectPointer), () => VerifyRoomStateObjectPointer(rom));
         Suite(nameof(VerifyRoomStateBackgroundDataPointer), () => VerifyRoomStateBackgroundDataPointer(rom));
         Suite(nameof(VerifyRoomStateSetupCodePointer), () => VerifyRoomStateSetupCodePointer(rom));
     }
@@ -139,7 +139,7 @@ internal static class LookupRoomStateSettingsVerification
     /// <summary>Checks the per-frame room callback pointer in each state.</summary>
     private static void VerifyRoomStateMainCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomCallbackDefinitions.PointerOf(state.MainCallback), "MainCodePointer");
     /// <summary>Checks the room's PLM population pointer in each state.</summary>
-    private static void VerifyRoomStatePlmPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.PlmPointer, "PlmPointer");
+    private static void VerifyRoomStateObjectPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.RoomObjectPointer, "RoomObjectPointer");
     /// <summary>Checks the scripted background-data pointer in each state.</summary>
     private static void VerifyRoomStateBackgroundDataPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundDataPointer, "BackgroundDataPointer");
     /// <summary>Checks the one-time room setup callback pointer in each state.</summary>

@@ -23,7 +23,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -557,7 +557,7 @@ internal static class RoomBlockPicturesVerification
                 .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
             // A collectible slot's block shows the collectible in the slot as the collectible writes it, or the room's load
             // while the slot holds none (#1486).
-            ushort[] blockWords = !ceres && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is { } slot
+            ushort[] blockWords = !ceres && CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots) is { } slot
                 && scope.Appearance.CollectibleIn(slot) is not null
                 ? CollectibleSlotWords(scope.Appearance, slot, block)
                 : stock[(block * BlockTiles)..((block + 1) * BlockTiles)];

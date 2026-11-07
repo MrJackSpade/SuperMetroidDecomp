@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -19,7 +19,7 @@ public static class XrayRevealOverlays
     /// <param name="foregroundPosition">Camera position, which places the overlays on screen.</param>
     /// <param name="visuals">Installed reveal art.</param>
     public static void Apply(RoomLevelData level, Span<RevealedBlock?> blocks,
-        IReadOnlyList<CollectiblePlmSnapshot> items, SharedGameState system,
+        IReadOnlyList<CollectibleObjectSnapshot> items, SharedGameState system,
         XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> foregroundPosition,
         InstalledXrayReveals? visuals = null)
     {
@@ -31,7 +31,7 @@ public static class XrayRevealOverlays
             "X-ray reveal requires installed item and room-overlay definitions.");
         for (int i = items.Count - 1; i >= 0; i--)
         {
-            CollectiblePlmSnapshot item = items[i];
+            CollectibleObjectSnapshot item = items[i];
             if (item.ItemBit is not { } itemBit || system.HasCollectedItemBit(itemBit)) continue;
             // The four tanks draw from the dynamic slots that follow the loaded item graphics, in tank order.
             int graphics = item.Kind switch

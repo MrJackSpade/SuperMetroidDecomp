@@ -31,7 +31,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         SamusPowerBombExplosionState powerBomb)
     {
         if (slot.IsSpent)
@@ -59,15 +59,15 @@ internal sealed class ProjectileMotion
             SamusProjectileDirection.UpFacingRight or
             SamusProjectileDirection.DownFacingRight or
             SamusProjectileDirection.DownFacingLeft or
-            SamusProjectileDirection.UpFacingLeft => ProjectileTerrainCollision.MoveVertically(level, slot, roomPlms),
+            SamusProjectileDirection.UpFacingLeft => ProjectileTerrainCollision.MoveVertically(level, slot, roomObjects),
             SamusProjectileDirection.Right or SamusProjectileDirection.Left =>
-                ProjectileTerrainCollision.MoveHorizontally(level, slot, roomPlms),
+                ProjectileTerrainCollision.MoveHorizontally(level, slot, roomObjects),
             SamusProjectileDirection.UpRight or
             SamusProjectileDirection.DownRight or
             SamusProjectileDirection.DownLeft or
             SamusProjectileDirection.UpLeft =>
-                ProjectileTerrainCollision.MoveHorizontally(level, slot, roomPlms) ||
-                ProjectileTerrainCollision.MoveVertically(level, slot, roomPlms),
+                ProjectileTerrainCollision.MoveHorizontally(level, slot, roomObjects) ||
+                ProjectileTerrainCollision.MoveVertically(level, slot, roomObjects),
             _ => throw new InvalidDataException(
                 $"Beam slot contains undefined direction {direction}."),
         };
@@ -89,7 +89,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         if (slot.IsSpent)
         {
@@ -111,7 +111,7 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        RunWaveBeamShared(level, slot, cameraPosition, roomPlms);
+        RunWaveBeamShared(level, slot, cameraPosition, roomObjects);
     }
 
     /// <summary>Uses Wave's block-transparent movement for Hyper Beam without spawning projectile trails.</summary>
@@ -119,7 +119,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         if (slot.IsSpent)
         {
@@ -130,7 +130,7 @@ internal sealed class ProjectileMotion
         // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
         // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
         // and the separately counting muzzle flare provide the complete presentation.
-        RunWaveBeamShared(level, slot, cameraPosition, roomPlms);
+        RunWaveBeamShared(level, slot, cameraPosition, roomObjects);
     }
 
     /// <summary>Advances Wave or Hyper positions and notifies shootable blocks while ignoring terrain collision carry.</summary>
@@ -138,7 +138,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         int direction = slot.Direction.ToAimIndex();
         Accelerate(slot, new EightEightVector<RoomPixels>(SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamXAccelerations + direction * 2), SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)));
@@ -151,12 +151,12 @@ internal sealed class ProjectileMotion
         if (direction is 2 or 7 or 1 or 3 or 6 or 8)
         {
             slot.Position = slot.Position.AdvanceX(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.X.SignedRawValue));
-            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, slot, roomPlms);
+            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, slot, roomObjects);
         }
         if (direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
             slot.Position = slot.Position.AdvanceY(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.Y.SignedRawValue));
-            ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, slot, roomPlms);
+            ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, slot, roomObjects);
         }
 
         DeleteIfOutsideMovementWindow(slot, cameraPosition);
@@ -169,7 +169,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot slot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         if (slot.IsSpent)
         {
@@ -205,11 +205,11 @@ internal sealed class ProjectileMotion
 
         bool collided = direction switch
         {
-            0 or 4 or 5 or 9 => MoveMissileVertically(level, slot, roomPlms),
-            2 or 7 => MoveMissileHorizontally(level, slot, roomPlms),
+            0 or 4 or 5 or 9 => MoveMissileVertically(level, slot, roomObjects),
+            2 or 7 => MoveMissileHorizontally(level, slot, roomObjects),
             1 or 3 or 6 or 8 =>
-                MoveMissileHorizontally(level, slot, roomPlms) ||
-                MoveMissileVertically(level, slot, roomPlms),
+                MoveMissileHorizontally(level, slot, roomObjects) ||
+                MoveMissileVertically(level, slot, roomObjects),
             _ => throw new InvalidDataException(
                 $"Missile slot contains invalid direction ${direction:X2}."),
         };
@@ -230,7 +230,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot slot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         if (slot.IsSpent)
         {
@@ -267,19 +267,19 @@ internal sealed class ProjectileMotion
         bool collided = false;
         if (direction is 2 or 7 or 1 or 3 or 6 or 8)
         {
-            collided = MoveMissileHorizontally(level, slot, roomPlms);
+            collided = MoveMissileHorizontally(level, slot, roomObjects);
             if (collided)
                 _terrainCollision.KillMissile(slot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, slot, axis: Axis.Horizontal, sharedProjectiles, roomPlms);
+                level, slot, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
         }
         if (!collided && direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
-            collided = MoveMissileVertically(level, slot, roomPlms);
+            collided = MoveMissileVertically(level, slot, roomObjects);
             if (collided)
                 _terrainCollision.KillMissile(slot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, slot, axis: Axis.Vertical, sharedProjectiles, roomPlms);
+                level, slot, axis: Axis.Vertical, sharedProjectiles, roomObjects);
         }
 
         if (DeleteIfOutsideMovementWindow(slot, cameraPosition))
@@ -385,7 +385,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot owner,
         Axis axis,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkSlot is not { } linkIndex)
             return;
@@ -426,7 +426,7 @@ internal sealed class ProjectileMotion
         if (MissilePointReaction(
                 level,
                 link,
-                roomPlms: roomPlms))
+                roomObjects: roomObjects))
             _terrainCollision.KillMissile(link, sharedProjectiles);
         if (ownerExploded)
             _animation.ClearProjectile(link);
@@ -446,7 +446,7 @@ internal sealed class ProjectileMotion
     private static bool MoveMissileHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         slot.Position = slot.Position.AdvanceX(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.X.SignedRawValue));
 
@@ -457,14 +457,14 @@ internal sealed class ProjectileMotion
         if ((EightEight.WholeOf(slot.Position.X.Whole)) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
-            level, slot, roomPlms: roomPlms);
+            level, slot, roomObjects: roomObjects);
     }
 
     /// <summary>Advances missile Y and tests its center unless it has crossed the room's screen-height boundary.</summary>
     private static bool MoveMissileVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         slot.Position = slot.Position.AdvanceY(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
@@ -472,14 +472,14 @@ internal sealed class ProjectileMotion
         if ((EightEight.WholeOf(slot.Position.Y.Whole)) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
-            level, slot, roomPlms: roomPlms);
+            level, slot, roomObjects: roomObjects);
     }
 
     /// <summary>Resolves the missile center's extension chain, PLM reaction, and collision carry by block type.</summary>
     private static bool MissilePointReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = slot.Position.Y.Whole >> 4;
@@ -500,14 +500,14 @@ internal sealed class ProjectileMotion
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
         }
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
             // The shootable reactions run the spawn before returning the collision
             // nibble's normal carry: type four remains pass-through; type C is solid.
-            ProjectileTerrainCollision.TrySpawnShootableReaction(level, slot, block, roomPlms);
+            ProjectileTerrainCollision.TrySpawnShootableReaction(level, slot, block, roomObjects);
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 

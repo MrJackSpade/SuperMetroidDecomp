@@ -53,8 +53,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="GameplayTimeFreeze"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayTimeFreeze Freeze { get; }
 
-    /// <summary>The <see cref="PlmFramePhase"/> owner of this SuperMetroidRuntime.</summary>
-    internal PlmFramePhase PlmPhase { get; }
+    /// <summary>The <see cref="RoomObjectFramePhase"/> owner of this SuperMetroidRuntime.</summary>
+    internal RoomObjectFramePhase RoomObjectPhase { get; }
 
     /// <summary>The <see cref="RoomMainRoutines"/> owner of this SuperMetroidRuntime.</summary>
     internal RoomMainRoutines RoomMains { get; }
@@ -102,8 +102,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The assists this runtime plays under, and the owner of its granted loadout and saved-encounter reset.</summary>
     internal ActiveAssists Assists { get; }
 
-    /// <summary>The <see cref="PlmShotBlockVisuals"/> owner of this SuperMetroidRuntime.</summary>
-    internal PlmShotBlockVisuals ShotBlockVisuals { get; }
+    /// <summary>The <see cref="RoomObjectVisuals"/> owner of this SuperMetroidRuntime.</summary>
+    internal RoomObjectVisuals ShotBlockVisuals { get; }
 
     /// <summary>The <see cref="GameplayActorDrawing"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayActorDrawing ActorDrawing { get; }
@@ -189,12 +189,12 @@ internal sealed class SuperMetroidRuntime
         LiquidWaveAndStatueDescent = new LiquidWaveAndStatueDescent(Freeze, System, EffectPhaseOrder);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
-        ShotBlockVisuals = new PlmShotBlockVisuals();
+        ShotBlockVisuals = new RoomObjectVisuals();
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
-        PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
+        RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
@@ -227,32 +227,32 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
         Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);
-        Bind(a => a.RoomPlmShotBlockVisuals, value => ShotBlockVisuals.RoomPlmShotBlockVisuals = value);
-        Bind(a => a.RoomPlmGrappleBlockVisuals, value => ShotBlockVisuals.RoomPlmGrappleBlockVisuals = value);
-        Bind(a => a.RoomPlmStationVisuals, value => ShotBlockVisuals.RoomPlmStationVisuals = value);
-        Bind(a => a.RoomPlmBlueDoorVisuals, value => ShotBlockVisuals.RoomPlmBlueDoorVisuals = value);
-        Bind(a => a.RoomPlmColoredDoorVisuals, value => ShotBlockVisuals.RoomPlmColoredDoorVisuals = value);
-        Bind(a => a.RoomPlmGreyDoorVisuals, value => ShotBlockVisuals.RoomPlmGreyDoorVisuals = value);
-        Bind(a => a.RoomPlmEyeDoorVisuals, value => ShotBlockVisuals.RoomPlmEyeDoorVisuals = value);
-        Bind(a => a.RoomPlmMotherBrainGlassVisuals, value => ShotBlockVisuals.RoomPlmMotherBrainGlassVisuals = value);
-        Bind(a => a.RoomPlmNoobTubeVisuals, value => ShotBlockVisuals.RoomPlmNoobTubeVisuals = value);
-        Bind(a => a.RoomPlmDownwardGateVisuals, value => ShotBlockVisuals.RoomPlmDownwardGateVisuals = value);
-        Bind(a => a.RoomPlmElevatorPlatformVisuals, value => ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = value);
-        Bind(a => a.RoomPlmEscapeGateVisuals, value => ShotBlockVisuals.RoomPlmEscapeGateVisuals = value);
-        Bind(a => a.RoomPlmBombTorizoHandVisuals, value => ShotBlockVisuals.RoomPlmBombTorizoHandVisuals = value);
-        Bind(a => a.RoomPlmDraygonCannonVisuals, value => ShotBlockVisuals.RoomPlmDraygonCannonVisuals = value);
-        Bind(a => a.RoomPlmChozoStatueVisuals, value => ShotBlockVisuals.RoomPlmChozoStatueVisuals = value);
-        Bind(a => a.RoomPlmLinkedRestoreVisuals, value => ShotBlockVisuals.RoomPlmLinkedRestoreVisuals = value);
-        Bind(a => a.RoomPlmTourianAccessVisuals, value => ShotBlockVisuals.RoomPlmTourianAccessVisuals = value);
-        Bind(a => a.RoomPlmSpeedBoosterVisuals, value => ShotBlockVisuals.RoomPlmSpeedBoosterVisuals = value);
-        Bind(a => a.RoomPlmMaridiaElevatubeVisuals, value => ShotBlockVisuals.RoomPlmMaridiaElevatubeVisuals = value);
-        Bind(a => a.RoomPlmSporeSpawnCeilingVisuals, value => ShotBlockVisuals.RoomPlmSporeSpawnCeilingVisuals = value);
-        Bind(a => a.RoomPlmSamusEaterVisuals, value => ShotBlockVisuals.RoomPlmSamusEaterVisuals = value);
-        Bind(a => a.RoomPlmBotwoonWallVisuals, value => ShotBlockVisuals.RoomPlmBotwoonWallVisuals = value);
-        Bind(a => a.RoomPlmKraidVisuals, value => ShotBlockVisuals.RoomPlmKraidVisuals = value);
-        Bind(a => a.RoomPlmCrocomireVisuals, value => ShotBlockVisuals.RoomPlmCrocomireVisuals = value);
-        Bind(a => a.RoomPlmMotherBrainFakeDeathVisuals, value => ShotBlockVisuals.RoomPlmMotherBrainFakeDeathVisuals = value);
-        Bind(a => a.RoomPlmCollectibleVisuals, value => ShotBlockVisuals.RoomPlmCollectibleVisuals = value);
+        Bind(a => a.RoomObjectShotBlockVisuals, value => ShotBlockVisuals.RoomObjectShotBlockVisuals = value);
+        Bind(a => a.RoomObjectGrappleBlockVisuals, value => ShotBlockVisuals.RoomObjectGrappleBlockVisuals = value);
+        Bind(a => a.RoomObjectStationVisuals, value => ShotBlockVisuals.RoomObjectStationVisuals = value);
+        Bind(a => a.RoomObjectBlueDoorVisuals, value => ShotBlockVisuals.RoomObjectBlueDoorVisuals = value);
+        Bind(a => a.RoomObjectColoredDoorVisuals, value => ShotBlockVisuals.RoomObjectColoredDoorVisuals = value);
+        Bind(a => a.RoomObjectGreyDoorVisuals, value => ShotBlockVisuals.RoomObjectGreyDoorVisuals = value);
+        Bind(a => a.RoomObjectEyeDoorVisuals, value => ShotBlockVisuals.RoomObjectEyeDoorVisuals = value);
+        Bind(a => a.RoomObjectMotherBrainGlassVisuals, value => ShotBlockVisuals.RoomObjectMotherBrainGlassVisuals = value);
+        Bind(a => a.RoomObjectNoobTubeVisuals, value => ShotBlockVisuals.RoomObjectNoobTubeVisuals = value);
+        Bind(a => a.RoomObjectDownwardGateVisuals, value => ShotBlockVisuals.RoomObjectDownwardGateVisuals = value);
+        Bind(a => a.RoomObjectElevatorPlatformVisuals, value => ShotBlockVisuals.RoomObjectElevatorPlatformVisuals = value);
+        Bind(a => a.RoomObjectEscapeGateVisuals, value => ShotBlockVisuals.RoomObjectEscapeGateVisuals = value);
+        Bind(a => a.RoomObjectBombTorizoHandVisuals, value => ShotBlockVisuals.RoomObjectBombTorizoHandVisuals = value);
+        Bind(a => a.RoomObjectDraygonCannonVisuals, value => ShotBlockVisuals.RoomObjectDraygonCannonVisuals = value);
+        Bind(a => a.RoomObjectChozoStatueVisuals, value => ShotBlockVisuals.RoomObjectChozoStatueVisuals = value);
+        Bind(a => a.RoomObjectLinkedRestoreVisuals, value => ShotBlockVisuals.RoomObjectLinkedRestoreVisuals = value);
+        Bind(a => a.RoomObjectTourianAccessVisuals, value => ShotBlockVisuals.RoomObjectTourianAccessVisuals = value);
+        Bind(a => a.RoomObjectSpeedBoosterVisuals, value => ShotBlockVisuals.RoomObjectSpeedBoosterVisuals = value);
+        Bind(a => a.RoomObjectMaridiaElevatubeVisuals, value => ShotBlockVisuals.RoomObjectMaridiaElevatubeVisuals = value);
+        Bind(a => a.RoomObjectSporeSpawnCeilingVisuals, value => ShotBlockVisuals.RoomObjectSporeSpawnCeilingVisuals = value);
+        Bind(a => a.RoomObjectSamusEaterVisuals, value => ShotBlockVisuals.RoomObjectSamusEaterVisuals = value);
+        Bind(a => a.RoomObjectBotwoonWallVisuals, value => ShotBlockVisuals.RoomObjectBotwoonWallVisuals = value);
+        Bind(a => a.RoomObjectKraidVisuals, value => ShotBlockVisuals.RoomObjectKraidVisuals = value);
+        Bind(a => a.RoomObjectCrocomireVisuals, value => ShotBlockVisuals.RoomObjectCrocomireVisuals = value);
+        Bind(a => a.RoomObjectMotherBrainFakeDeathVisuals, value => ShotBlockVisuals.RoomObjectMotherBrainFakeDeathVisuals = value);
+        Bind(a => a.RoomObjectCollectibleVisuals, value => ShotBlockVisuals.RoomObjectCollectibleVisuals = value);
         Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
 
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
@@ -451,7 +451,7 @@ internal sealed class SuperMetroidRuntime
             bool deathOwnsSamus = context.Samus.Mode.Beta == SamusBetaHandler.Fatal;
             if (!deathOwnsSamus)
                 DoorTransition.RunEnemyProjectileHandler(Room.LoadedScope.BombProjectiles, Room.LoadedScope);
-            PlmPhase.RunPlmPhase(deathOwnsSamus, Player.Samus, Room.LoadedScope.Plms, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
+            RoomObjectPhase.RunObjectPhase(deathOwnsSamus, Player.Samus, Room.LoadedScope.RoomObjects, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
             OpenGunshipPrompt();
             context.Tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
         }
@@ -469,9 +469,9 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        scope.Plms.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion.Activity);
+        scope.RoomObjects.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion.Activity);
         Player.Samus?.Shinespark.BindProjectileOwners(BeamCharge, scope.BombProjectiles.PowerBombExplosion);
-        EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms, scope.FxOverlay, Room.LoadedScope.Enemies);
+        EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
     }
 
     /// <summary>Opens the frame's impact-audio window, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
@@ -489,7 +489,7 @@ internal sealed class SuperMetroidRuntime
         // The liquid wave and the statues read the random number before the main loop draws the next one. A
         // message box's wait does not run them.
         if (Room.Camera is not null && !MessageBox.IsActive)
-            LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
+            LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
 
         // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
@@ -904,7 +904,7 @@ internal sealed class SuperMetroidRuntime
             // Samus during this frame, and those values must enter the next frame boundary.
             // PLM_Handler has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
-            if (Player.Samus is not null && !Room.LoadedScope.Plms.CollectiblePlms.HasPendingCollectibleMessage)
+            if (Player.Samus is not null && !Room.LoadedScope.RoomObjects.CollectibleObjects.HasPendingCollectibleMessage)
                 Hud.UpdateGameplayCounters(Player.Samus, Freeze.TimeIsFrozen,
                     soundSuppressed: Room.LoadedScope.BombProjectiles.PowerBombExplosion.IsActive);
         }
@@ -931,7 +931,7 @@ internal sealed class SuperMetroidRuntime
                 Room.LevelData,
                 Player.Samus,
                 Clock.Counter,
-                Room.LoadedScope.Plms,
+                Room.LoadedScope.RoomObjects,
                 Room.RoomMainCarryover);
         }
 
@@ -1075,7 +1075,7 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(assists);
         bool statuesOpening = !Assists.Current.TourianStatuesOpen && assists.TourianStatuesOpen;
         Assists.Rebind(assists);
-        if (statuesOpening && Room.LoadedScope.TourianStatues.Enabled) Room.LoadedScope.TourianStatues.RestartWithStatuesOpen(Room.LoadedScope.Plms);
+        if (statuesOpening && Room.LoadedScope.TourianStatues.Enabled) Room.LoadedScope.TourianStatues.RestartWithStatuesOpen(Room.LoadedScope.RoomObjects);
     }
 
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
@@ -1097,7 +1097,7 @@ internal sealed class SuperMetroidRuntime
         {
             // The message box's restoring update advances the liquid wave and the statues too.
             if (Room.Camera is not null)
-                LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
+                LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
             if (Player.Samus is { } samus)
                 Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
         }
@@ -1106,7 +1106,7 @@ internal sealed class SuperMetroidRuntime
         if (MessageBox.IsActive)
             return Snapshot(infiniteAmmoGuard);
 
-        MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.Plms, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
+        MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
         // PLM_Handler returns once the box and its item routine finish; the
         // parked remainder of that gameplay frame runs now, in this same dispatch.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)

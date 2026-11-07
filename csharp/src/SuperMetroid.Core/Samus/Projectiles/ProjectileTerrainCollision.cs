@@ -2,7 +2,7 @@
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -29,17 +29,17 @@ internal sealed class ProjectileTerrainCollision
     internal static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         bool waveBeam = false)
     {
         slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X.SignedRawValue));
 
         if (waveBeam)
         {
-            ScanHorizontalWaveShotReactions(level, slot, roomPlms);
+            ScanHorizontalWaveShotReactions(level, slot, roomObjects);
             return false;
         }
-        return ScanHorizontalShotReactions(level, slot, roomPlms);
+        return ScanHorizontalShotReactions(level, slot, roomObjects);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ internal sealed class ProjectileTerrainCollision
     internal bool RunInitialBeamCollision(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         bool waveBeam,
         SamusPowerBombExplosionState powerBomb)
     {
@@ -71,7 +71,7 @@ internal sealed class ProjectileTerrainCollision
             SamusProjectileDirection.Left or
             SamusProjectileDirection.UpLeft)
         {
-            bool horizontalReaction = MoveHorizontally(level, slot, roomPlms, waveBeam);
+            bool horizontalReaction = MoveHorizontally(level, slot, roomObjects, waveBeam);
 
             // The Wave-beam dispatcher deliberately clears carry after publishing a block
             // reaction. Preserve that contract here instead of allowing our shared scanner's
@@ -94,7 +94,7 @@ internal sealed class ProjectileTerrainCollision
             SamusProjectileDirection.DownFacingLeft or
             SamusProjectileDirection.UpFacingLeft))
         {
-            bool verticalReaction = MoveVertically(level, slot, roomPlms, waveBeam);
+            bool verticalReaction = MoveVertically(level, slot, roomObjects, waveBeam);
             collided = !waveBeam && verticalReaction;
         }
 
@@ -113,24 +113,24 @@ internal sealed class ProjectileTerrainCollision
     internal static bool MoveVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         bool waveBeam = false)
     {
         slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
         if (waveBeam)
         {
-            ScanVerticalWaveShotReactions(level, slot, roomPlms);
+            ScanVerticalWaveShotReactions(level, slot, roomObjects);
             return false;
         }
-        return ScanVerticalShotReactions(level, slot, roomPlms);
+        return ScanVerticalShotReactions(level, slot, roomObjects);
     }
 
     /// <summary>Checks every block along the projectile's vertical span and reports collision only when the scan's solid counter completes.</summary>
     internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         int topBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) >> 4;
         int bottomBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) >> 4;
@@ -155,7 +155,7 @@ internal sealed class ProjectileTerrainCollision
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
             var context = new ShotSpan(span, bottomBlock - blockY, targetX);
-            if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan))
+            if (!RunShotReaction(level, slot, block, roomObjects, context, out bool endSpan))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
@@ -166,7 +166,7 @@ internal sealed class ProjectileTerrainCollision
     internal static bool ScanVerticalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
         int leftBlock = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
         int rightBlock = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
@@ -188,7 +188,7 @@ internal sealed class ProjectileTerrainCollision
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
             var context = new ShotSpan(span, rightBlock - blockX, targetY);
-            if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, axis: Axis.Vertical))
+            if (!RunShotReaction(level, slot, block, roomObjects, context, out bool endSpan, axis: Axis.Vertical))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
@@ -294,7 +294,7 @@ internal sealed class ProjectileTerrainCollision
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomCollisionBlock block,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         ShotSpan span,
         out bool endSpan,
         Axis axis = Axis.Horizontal)
@@ -336,16 +336,16 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
         }
 
         // Both type-$8 and type-$C behaviour-$44 collision routes allocate the generic shot trigger,
         // which publishes the live projectile word to the resident PLM at this block.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
-            block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+            block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
+            NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return true;
         }
 
@@ -355,12 +355,12 @@ internal sealed class ProjectileTerrainCollision
             {
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full PLM pool skips setup entirely, so it must not end the scan.
-                endSpan = roomPlms?.BlockReactions.TrySpawnProjectileShotBlock(
+                endSpan = roomObjects?.BlockReactions.TrySpawnProjectileShotBlock(
                     level, block.Index, block.Behavior, slot.Type,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
-            TrySpawnShootableReaction(level, slot, block, roomPlms);
+            TrySpawnShootableReaction(level, slot, block, roomObjects);
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
@@ -430,9 +430,9 @@ internal sealed class ProjectileTerrainCollision
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomCollisionBlock block,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomObjects? roomObjects)
     {
-        if (roomPlms is null)
+        if (roomObjects is null)
             return;
 
         // Downward gate behaviour $46-$4D bypasses the normal 16-entry shot-block table and
@@ -441,16 +441,16 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomPlms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, slot.Type);
+            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, slot.Type);
             return;
         }
 
         // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
         // actors all share type-$C/behaviour-$44. The resident PLM determines the accepted family
         // after the generic shot trigger publishes the projectile word.
-        if (block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+        if (block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
+            NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return;
         }
 
@@ -461,7 +461,7 @@ internal sealed class ProjectileTerrainCollision
         // same owner and power bombs retain Setup_BlueDoor's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            roomPlms.DoorPlms.TrySpawnBlueDoorOpening(
+            roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
                 block.Index,
                 block.Behavior,
@@ -472,7 +472,7 @@ internal sealed class ProjectileTerrainCollision
         // Nonnegative behaviour 0..F indexes the ordinary retail shot-block entries, and $10 is
         // the table's deliberate collision-probe/no-op PLM. Negative behaviour
         // 0..7 is also admitted so shootable-solid can preserve its area-table no-op
-        // slot; shootable-air's method exits without allocating. The RoomPlm owner performs
+        // slot; shootable-air's method exits without allocating. The RoomObject owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
         // each setup sees the current projectile type during Spawn_PLM.
         bool translatedBehavior = block.Behavior.IsAreaReactionIndex(8) ||
@@ -481,7 +481,7 @@ internal sealed class ProjectileTerrainCollision
             block.Behavior.IsShootableCollisionProbe;
         if (translatedBehavior)
         {
-            roomPlms.BlockReactions.TrySpawnProjectileShotBlock(
+            roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 block.Index,
                 block.Behavior,
@@ -492,12 +492,12 @@ internal sealed class ProjectileTerrainCollision
 
     /// <summary>Publishes the projectile type to the PLM occupying a resident-trigger block and fails if none owns it.</summary>
     private static void NotifyResidentProjectileHit(
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         RoomCollisionBlock block,
         SamusProjectileType projectileType)
     {
-        if (roomPlms is not null &&
-            roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
+        if (roomObjects is not null &&
+            roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
         {
             return;
         }
@@ -590,7 +590,7 @@ internal sealed class ProjectileTerrainCollision
     }
     /// <summary>Preserves the horizontal scan's byte indexing and chained-add carry.</summary>
     internal static void ScanHorizontalWaveShotReactions(
-        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
+        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomObjects? roomObjects)
     {
         int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
@@ -624,7 +624,7 @@ internal sealed class ProjectileTerrainCollision
                     // still use floor(byteOffset / 2), including aligned writes.
                     block = block with { Terrain = Straddling(block.Terrain, next) };
                 }
-                RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
+                RunShotReaction(level, slot, block, roomObjects, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.
                 if (endSpan) return;
             }
@@ -640,7 +640,7 @@ internal sealed class ProjectileTerrainCollision
     /// Preserves the vertical scan's linear tile addressing across the room's side edges.
     /// </summary>
     internal static void ScanVerticalWaveShotReactions(
-        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
+        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomObjects? roomObjects)
     {
         int left = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int right = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
@@ -667,7 +667,7 @@ internal sealed class ProjectileTerrainCollision
             int index = byteOffset >> 1;
             if (index < level.Size.X * level.Size.Y)
             {
-                RunShotReaction(level, slot, level.GetCollisionBlock(new(CoordinateAxis.Wrap(index % level.Size.X), CoordinateAxis.Wrap(index / level.Size.X))), roomPlms,
+                RunShotReaction(level, slot, level.GetCollisionBlock(new(CoordinateAxis.Wrap(index % level.Size.X), CoordinateAxis.Wrap(index / level.Size.X))), roomObjects,
                     new ShotSpan(span, remaining, targetY), out bool endSpan, axis: Axis.Vertical);
                 if (endSpan) return;
             }

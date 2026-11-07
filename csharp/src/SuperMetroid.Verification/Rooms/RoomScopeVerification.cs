@@ -53,7 +53,7 @@ internal static class RoomScopeVerification
             Name: "room scope verification door",
             DestinationRoom: RoomHeaderDefinitions.Parlor,
             Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
-            PlmBlock: default,
+            RoomObjectBlock: default,
             DestinationScreen: camera.ToRoomScreen(),
             SamusSpeed: DoorSamusSpeed.None,
             SetupCode: DoorSetupCode.None);
@@ -67,10 +67,10 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertTrue(ReferenceEquals(destination.Camera, runtime.Room.Camera) &&
             ReferenceEquals(destination.LevelData, runtime.Room.LevelData),
             "the room views read the adopted scope");
-        VerificationAssertions.AssertTrue(!ReferenceEquals(source.Plms, destination.Plms) &&
-            !destination.Plms.SlotTable.Slots.Intersect(source.Plms.SlotTable.Slots).Any(),
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source.RoomObjects, destination.RoomObjects) &&
+            !destination.RoomObjects.SlotTable.Slots.Intersect(source.RoomObjects.SlotTable.Slots).Any(),
             "no PLM slot survives the load: the destination builds its own PLM system");
-        VerificationAssertions.AssertTrue(ReferenceEquals(destination.Plms, runtime.Plms),
+        VerificationAssertions.AssertTrue(ReferenceEquals(destination.RoomObjects, runtime.RoomObjects),
             "the runtime's PLM system is the loaded room's");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.Projectiles, destination.Projectiles) &&
             !ReferenceEquals(source.BombProjectiles, destination.BombProjectiles) &&

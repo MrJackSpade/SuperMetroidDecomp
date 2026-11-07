@@ -8,7 +8,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -25,18 +25,18 @@ internal static class ElevatorPlatformVisualsVerification
     /// <summary>Checks the real PLM draws its stock physical block and streams its native tile.</summary>
     internal static void VerifyElevatorPlatformVisuals()
     {
-        RoomPlmElevatorPlatformVisualCatalog stock =
-            RoomPlmElevatorPlatformVisualCatalog.Stock();
-        RenderResult Render(RoomPlmElevatorPlatformVisualCatalog visuals)
+        RoomObjectElevatorPlatformVisualCatalog stock =
+            RoomObjectElevatorPlatformVisualCatalog.Stock();
+        RenderResult Render(RoomObjectElevatorPlatformVisualCatalog visuals)
         {
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();
-            SeedSoleElevatorPlatformPlm(bus, population, new(0x0c, 0x08), ElevatorPlatformPlmDefinitionsConstants.InstructionLoop);
+            SeedSoleElevatorPlatformObject(bus, population, new(0x0c, 0x08), ElevatorPlatformObjectDefinitionsConstants.InstructionLoop);
             RoomLevelData level = CreateEmptyRoom(new(32, 16));
-            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmElevatorPlatformVisuals = visuals });
-            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectElevatorPlatformVisuals = visuals });
+            AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 "elevator visual fixture loads one real PLM");
-            plms.Step(level);
+            roomObjects.Step(level);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).Terrain == PlatformEdge);
             return new RenderResult(level.GetCollisionBlockByIndex(index).Terrain,
@@ -59,21 +59,21 @@ internal static class ElevatorPlatformVisualsVerification
     private static void VerifyElevatorPlatformVisualInstallation()
     {
         // A private installation copy, whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmElevatorPlatformVisualDirectory))
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectElevatorPlatformVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
-            RoomPlmElevatorPlatformVisualFilesConstants.ValidateStock(
-                installation.RoomPlmElevatorPlatformVisualDirectory);
-            VerifyElevatorPlatformStockMapping(rom, installation.LoadRoomPlmElevatorPlatformVisuals());
+            RoomObjectElevatorPlatformVisualFilesConstants.ValidateStock(
+                installation.RoomObjectElevatorPlatformVisualDirectory);
+            VerifyElevatorPlatformStockMapping(rom, installation.LoadRoomObjectElevatorPlatformVisuals());
 
             string stockPath = Path.Combine(
-                installation.RoomPlmElevatorPlatformVisualDirectory,
-                RoomPlmElevatorPlatformVisualFiles.VisualFileName);
+                installation.RoomObjectElevatorPlatformVisualDirectory,
+                RoomObjectElevatorPlatformVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmElevatorPlatformVisuals(),
+                () => installation.LoadRoomObjectElevatorPlatformVisuals(),
                 "elevator stock manifest rejects corruption");
         }
     }

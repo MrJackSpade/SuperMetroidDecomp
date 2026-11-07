@@ -606,14 +606,14 @@ internal sealed class EnemyTerrain
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
     /// context belongs to one frame; every enemy frame supplies it again, including after a saved game state is restored.
     /// </summary>
-    private EnemyBreakableTerrainPlms? _collisionPlms;
+    private EnemyBreakableTerrainObjects? _collisionObjects;
 
     /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
-        var plms = _collisionPlms ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
-        plms.TrySpawnEnemyBreakableBlock(level, blockIndex);
+        var roomObjects = _collisionObjects ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
+        roomObjects.TrySpawnEnemyBreakableBlock(level, blockIndex);
         return false; // The block reaction reports no collision even if the PLM pool was full.
     }
 
@@ -623,15 +623,15 @@ internal sealed class EnemyTerrain
         /// <summary>Terrain owner whose active PLM context is temporarily replaced.</summary>
         private readonly EnemyTerrain owner;
         /// <summary>PLM context restored when the enemy frame leaves this scope.</summary>
-        private readonly EnemyBreakableTerrainPlms? previous;
+        private readonly EnemyBreakableTerrainObjects? previous;
         /// <summary>Installs the frame's room PLM owner while retaining the previous context.</summary>
-        public EnemyTerrainScope(EnemyTerrain owner, EnemyBreakableTerrainPlms? current)
+        public EnemyTerrainScope(EnemyTerrain owner, EnemyBreakableTerrainObjects? current)
         {
             this.owner = owner;
-            previous = owner._collisionPlms;
-            owner._collisionPlms = current;
+            previous = owner._collisionObjects;
+            owner._collisionObjects = current;
         }
         /// <summary>Restores the terrain owner's prior PLM context.</summary>
-        public void Dispose() => owner._collisionPlms = previous;
+        public void Dispose() => owner._collisionObjects = previous;
     }
 }

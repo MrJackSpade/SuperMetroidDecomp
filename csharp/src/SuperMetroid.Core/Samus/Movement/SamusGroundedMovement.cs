@@ -39,7 +39,7 @@ public static class SamusGroundedMovement
         SamusState samus,
         int frameCounter,
         bool elevatorIsMoving = false,
-        ISamusRoomPlms? plms = null,
+        ISamusRoomObjects? roomObjects = null,
         bool publishDoorSideEffects = true)
     {
 
@@ -58,7 +58,7 @@ public static class SamusGroundedMovement
             // downward mover with one whole pixel. That entry deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
         }
 
         // Is the only write in the ordinary no-elevator path. In particular,
@@ -78,7 +78,7 @@ public static class SamusGroundedMovement
         SamusState samus,
         int frameCounter,
         ControllerButton controllerInput,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -100,7 +100,7 @@ public static class SamusGroundedMovement
         // pose's direction byte is $04, so the helper is the LEFT form even though its
         // base argument is zero, which matters once extra displacement contributes.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -109,7 +109,7 @@ public static class SamusGroundedMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
 
         // Cancels speed boost and clears extra speed, base speed, and
         // acceleration mode after both movement calls, whichever way Samus faces. Speed-booster
@@ -137,7 +137,7 @@ public static class SamusGroundedMovement
         SamusState samus,
         int frameCounter,
         ControllerButton controllerInput = ControllerButton.None,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -175,7 +175,7 @@ public static class SamusGroundedMovement
         uint baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Running);
         bool movesLeft = (speed.AccelerationMode is SamusAccelerationMode.Accelerating or SamusAccelerationMode.Decelerating) == facingLeft;
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
 
         // Invokes Samus_ClearXSpeedIfColl immediately after block collision. Total
         // speed deliberately remains published: the following grounding routine reads it
@@ -188,7 +188,7 @@ public static class SamusGroundedMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -203,7 +203,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -254,7 +254,7 @@ public static class SamusGroundedMovement
         // the literal direction byte also preserves the game's behavior for unexpected
         // nonzero acceleration-mode values instead of manufacturing another unsupported arm.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -263,7 +263,7 @@ public static class SamusGroundedMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
 
         // Calls `Samus_CancelSpeedBoost` on every turn frame. This matters even
         // without the Speed Booster item: the turn initializer folded the numeric extra component but
@@ -283,7 +283,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -314,7 +314,7 @@ public static class SamusGroundedMovement
         // does for every other family. Do not derive either direction from the pose's name.
         uint baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -325,7 +325,7 @@ public static class SamusGroundedMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -338,7 +338,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -357,7 +357,7 @@ public static class SamusGroundedMovement
         // `$8A/$D0/$D2` store four (left). Extra speed is included in the requested move
         // before the handler's unconditional cleanup, matching the call order.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -369,7 +369,7 @@ public static class SamusGroundedMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
 
         // Cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
@@ -390,7 +390,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -409,7 +409,7 @@ public static class SamusGroundedMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -418,7 +418,7 @@ public static class SamusGroundedMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         // Landing art still uses standing movement: it does not reset Y words.
         // Collision command five owns landing cleanup; a later hurt expiry may write
@@ -438,7 +438,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -454,7 +454,7 @@ public static class SamusGroundedMovement
             level,
             samus,
             frameCounter,
-            plms);
+            roomObjects);
     }
 
     /// <summary>
@@ -466,7 +466,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomPlms? plms)
+        ISamusRoomObjects? roomObjects)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
@@ -475,7 +475,7 @@ public static class SamusGroundedMovement
         // Alternates its left-to-right and right-to-left horizontal scan order on
         // the frame counter's parity. That parity can affect which simultaneous
         // collision side effect wins, so it remains an explicit input even in this slice.
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
     }
 
 }

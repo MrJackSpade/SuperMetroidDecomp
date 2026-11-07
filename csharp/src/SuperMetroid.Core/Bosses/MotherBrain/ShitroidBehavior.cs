@@ -3,7 +3,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
@@ -206,7 +206,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Function = ShitroidAiFunction.HoverNearSamus;
                     state.ReactsToSamus = true;
                     SetShitroidScrollPair(RoomScrollState.Blue);
-                    QueueShitroidWallPlms(ShitroidWallMutation.Clear);
+                    QueueShitroidWallObjects(ShitroidWallMutation.Clear);
                 }
                 return;
 
@@ -361,7 +361,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // byte scroll array without pretending that this is ordinary camera tracking.
         _frameResults.CameraXOverride = 512;
         SetShitroidScrollPair(RoomScrollState.RedBoundary);
-        QueueShitroidWallPlms(ShitroidWallMutation.Create);
+        QueueShitroidWallObjects(ShitroidWallMutation.Create);
         state.Function = ShitroidAiFunction.BeginEntranceDelay;
         state.CryEnabled = true;
     }
@@ -378,10 +378,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Requests the two room-column wall PLMs at the authored Tourian positions.</summary>
-    private void QueueShitroidWallPlms(ShitroidWallMutation mutation)
+    private void QueueShitroidWallObjects(ShitroidWallMutation mutation)
     {
-        _frameResults.ShitroidPlms.Add(new PlmSpawnRequest<ShitroidWallMutation>(new(48, 3), mutation));
-        _frameResults.ShitroidPlms.Add(new PlmSpawnRequest<ShitroidWallMutation>(new(31, 3), mutation));
+        _frameResults.ShitroidObjects.Add(new RoomObjectSpawnRequest<ShitroidWallMutation>(new(48, 3), mutation));
+        _frameResults.ShitroidObjects.Add(new RoomObjectSpawnRequest<ShitroidWallMutation>(new(31, 3), mutation));
     }
 
     /// <summary>Accelerates to the Sidehopper's head and enters the latched feeding animation on arrival.</summary>

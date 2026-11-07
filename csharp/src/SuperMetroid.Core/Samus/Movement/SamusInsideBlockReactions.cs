@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -13,7 +13,7 @@ public static class SamusInsideBlockReactions
 
     /// <summary>Samples bottom, center, and top in order.</summary>
     internal static void PrepareFrame(RoomLevelData level, SamusState samus,
-        AreaId area, bool areaBossDefeated = false, ISamusRoomPlms? plms = null)
+        AreaId area, bool areaBossDefeated = false, ISamusRoomObjects? roomObjects = null)
     {
         var body = samus.Kinematics;
         body.SandCollisionArea = area;
@@ -33,7 +33,7 @@ public static class SamusInsideBlockReactions
                 // this center wake-up lets a lower trigger win after the torso clears
                 // an upper trigger, without changing PLM slot priority.
                 if (centerPoint && block.Behavior == RoomBlockBehaviorValues.ScrollTrigger &&
-                    (plms is null || !plms.Scrolls.TryNotifyScrollTouch(block.Index)))
+                    (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
@@ -44,16 +44,16 @@ public static class SamusInsideBlockReactions
                 SpecialAirReactions.ResolveInside(
                     area,
                     block.Behavior.AreaReactionIndex);
-            PlmHeaderId header = areaReaction.Header;
-            if (header == PlmHeaderId.None) return;
+            RoomObjectHeaderId header = areaReaction.Header;
+            if (header == RoomObjectHeaderId.None) return;
             bool hasCompiledReaction = QuicksandReactions.TryGetReaction(
                 header,
                 out QuicksandReactionDefinition reaction);
             SpecialAirReactionSetup setup = hasCompiledReaction
                 ? reaction.Setup
                 : areaReaction.Setup;
-            if (hasCompiledReaction && plms is not null &&
-                !plms.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
+            if (hasCompiledReaction && roomObjects is not null &&
+                !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
             {
                 return;
             }
@@ -65,7 +65,7 @@ public static class SamusInsideBlockReactions
                     break;
                 case SpecialAirReactionSetup.BrinstarFloorPlant:
                 case SpecialAirReactionSetup.BrinstarCeilingPlant:
-                    (plms ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
+                    (roomObjects ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
                         .SamusEater.TrySpawnSamusEater(level, block, header, samus.RoomView);
                     break;
                 case SpecialAirReactionSetup.QuicksandSurface:
@@ -166,7 +166,7 @@ public static class SamusInsideBlockReactions
     internal static bool ReactCollision(SamusCollisionContact contact,
         RoomCollisionBlock block, Axis axis, ref int displacement, out bool surfaceContact,
         SamusCollisionDirection? blockReactionDirection = null,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
@@ -175,16 +175,16 @@ public static class SamusInsideBlockReactions
             SpecialAirReactions.ResolveCollision(
                 body.SandCollisionArea,
                 block.Behavior.AreaReactionIndex);
-        PlmHeaderId header = areaReaction.Header;
-        if (header == PlmHeaderId.None) return false;
+        RoomObjectHeaderId header = areaReaction.Header;
+        if (header == RoomObjectHeaderId.None) return false;
         bool hasCompiledReaction = QuicksandReactions.TryGetReaction(
             header,
             out QuicksandReactionDefinition reaction);
         SpecialAirReactionSetup setup = hasCompiledReaction
             ? reaction.Setup
             : areaReaction.Setup;
-        if (hasCompiledReaction && plms is not null &&
-            !plms.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
+        if (hasCompiledReaction && roomObjects is not null &&
+            !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
         {
             return false;
         }

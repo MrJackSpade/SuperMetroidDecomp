@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class ColoredDoorFrameBehaviors
 {
     /// <summary>A yellow cap wakes on a power bomb.</summary>
-    internal static PlmFrameBehavior WakeOnPowerBomb { get; } = Wake(ColoredDoorFrameBehavior.WakeOnPowerBomb);
+    internal static RoomObjectFrameBehavior WakeOnPowerBomb { get; } = Wake(ColoredDoorFrameBehavior.WakeOnPowerBomb);
 
     /// <summary>A red cap wakes on a missile or Super Missile.</summary>
-    internal static PlmFrameBehavior WakeOnMissile { get; } = Wake(ColoredDoorFrameBehavior.WakeOnMissile);
+    internal static RoomObjectFrameBehavior WakeOnMissile { get; } = Wake(ColoredDoorFrameBehavior.WakeOnMissile);
 
     /// <summary>A green cap wakes on a Super Missile.</summary>
-    internal static PlmFrameBehavior WakeOnSuperMissile { get; } = Wake(ColoredDoorFrameBehavior.WakeOnSuperMissile);
+    internal static RoomObjectFrameBehavior WakeOnSuperMissile { get; } = Wake(ColoredDoorFrameBehavior.WakeOnSuperMissile);
 
     /// <summary>The behavior of <paramref name="routine"/>.</summary>
-    internal static IPlmFrameBehavior Of(ColoredDoorFrameBehavior routine) => routine switch
+    internal static IRoomObjectFrameBehavior Of(ColoredDoorFrameBehavior routine) => routine switch
     {
-        ColoredDoorFrameBehavior.None => PlmFrameBehaviors.Inert,
+        ColoredDoorFrameBehavior.None => RoomObjectFrameBehaviors.Inert,
         ColoredDoorFrameBehavior.WakeOnPowerBomb => WakeOnPowerBomb,
         ColoredDoorFrameBehavior.WakeOnMissile => WakeOnMissile,
         ColoredDoorFrameBehavior.WakeOnSuperMissile => WakeOnSuperMissile,
@@ -25,6 +25,6 @@ internal static class ColoredDoorFrameBehaviors
     };
 
     /// <summary>The wake object for <paramref name="routine"/>.</summary>
-    private static PlmFrameBehavior Wake(ColoredDoorFrameBehavior routine) =>
-        new($"coloured door {routine}", (slot, context) => context.Plms.DoorPlms.RunColoredDoorWake(slot, routine));
+    private static RoomObjectFrameBehavior Wake(ColoredDoorFrameBehavior routine) =>
+        new($"coloured door {routine}", (slot, context) => context.RoomObjects.DoorObjects.RunColoredDoorWake(slot, routine));
 }

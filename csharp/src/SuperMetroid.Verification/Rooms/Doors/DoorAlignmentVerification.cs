@@ -65,7 +65,7 @@ internal static class DoorAlignmentVerification
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
-                PlmBlock: new(0, 0),
+                RoomObjectBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
                 SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
                 SetupCode: DoorSetupCode.None);

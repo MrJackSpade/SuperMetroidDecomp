@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -12,7 +12,7 @@ internal static class EscapeGateArtwork
     /// <summary>Resolves one escape-gate block's selected appearance independently of its compiled solid collision.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported escape-gate frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The row ordinal is outside the four-block run.</exception>
-    internal static RoomBlockAppearance Appearance(PlmVisualOverrides customBlocks, PlmDraw draw, int blockIndex)
+    internal static RoomBlockAppearance Appearance(RoomObjectVisualOverrides customBlocks, RoomObjectDraw draw, int blockIndex)
     {
         if (!MotherBrainEscapeGateDraws.TryDescribe(draw, out var shape))
             throw new InvalidDataException(

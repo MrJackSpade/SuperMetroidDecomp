@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainGlassFrameBehaviors
 {
     /// <summary>Missile hits advance the glass's hit count.</summary>
-    internal static PlmFrameBehavior Hit { get; } = new(
+    internal static RoomObjectFrameBehavior Hit { get; } = new(
         "Mother Brain glass hit",
-        static (slot, _) => MotherBrainGlassPlms.RunMotherBrainGlassFrameBehavior(slot));
+        static (slot, _) => MotherBrainGlassObjects.RunMotherBrainGlassFrameBehavior(slot));
 }

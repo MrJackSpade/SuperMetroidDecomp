@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
 using static SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
@@ -27,22 +27,22 @@ internal static class SpeedBoosterPickupVerification
             var vram = new SnesVram();
             var fxSession = CreateRetailFxSession(cartridge);
             var fx = RoomFxOverlayState.ForRoom(fxSession, RoomFxDefinitions.Suffix(0x8600), null, 0);
-            CollectibleFixture fixture = LoadCollectible(bus, PlmNativeWords.Word(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
-            fixture.Plms.Step(fixture.Level);
+            CollectibleFixture fixture = LoadCollectible(bus, RoomObjectNativeWords.Word(chozo ? RoomObjectHeaderId.ChozoSpeedBooster : RoomObjectHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
+            fixture.RoomObjects.Step(fixture.Level);
             if (chozo)
             {
                 // The orb must be shot open before its item can be touched.
-                AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(fixture.BlockIndex),
+                AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(fixture.BlockIndex),
                     "Speed Booster orb accepts a projectile");
                 StepUntil(
-                    () => fixture.Plms.CollectiblePhases[0] == CollectiblePhase.Visible,
-                    _ => fixture.Plms.Step(fixture.Level),
+                    () => fixture.RoomObjects.CollectiblePhases[0] == CollectiblePhase.Visible,
+                    _ => fixture.RoomObjects.Step(fixture.Level),
                     maximumFrames: 20,
                     context: "Speed Booster orb burst");
             }
-            AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
+            AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "Speed Booster pickup accepts contact");
-            fixture.Plms.Step(fixture.Level);
+            fixture.RoomObjects.Step(fixture.Level);
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 "Speed Booster acquired before message continuation");
             AssertEqual((ushort)0, fx.YVelocity.RawValue, "message has not yet armed lava");
@@ -51,7 +51,7 @@ internal static class SpeedBoosterPickupVerification
 
             // Runtime suspends gameplay while the message is active and invokes this
             // continuation when the routine returns, before the next FX pass.
-            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
+            fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.YVelocity.RawValue,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
@@ -72,7 +72,7 @@ internal static class SpeedBoosterPickupVerification
                     fx.BaseY.Whole, "lava rises at native subpixel speed after delay");
             }
             fx.SetLiquidMotion(packedYVelocity: 0);
-            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
+            fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
             AssertEqual((ushort)0, fx.YVelocity.RawValue, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");

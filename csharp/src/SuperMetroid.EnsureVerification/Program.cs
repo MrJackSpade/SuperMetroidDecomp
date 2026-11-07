@@ -59,7 +59,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(VerifyPrimitiveDomainAnalyzer), VerifyPrimitiveDomainAnalyzer),
                 new AnalyzerSuite(nameof(VerifySpatialClumpAnalyzer), VerifySpatialClumpAnalyzer),
                 new AnalyzerSuite(nameof(VerifyCartridgeEncodingAnalyzer), VerifyCartridgeEncodingAnalyzer),
-                new AnalyzerSuite(nameof(VerifyPlmSlotAllocationAnalyzer), VerifyPlmSlotAllocationAnalyzer),
+                new AnalyzerSuite(nameof(VerifyObjectSlotAllocationAnalyzer), VerifyObjectSlotAllocationAnalyzer),
                 new AnalyzerSuite(nameof(VerifyLooseCommentAnalyzer), VerifyLooseCommentAnalyzer),
                 new AnalyzerSuite(nameof(VerifyPragmaWarningDisableAnalyzer), VerifyPragmaWarningDisableAnalyzer),
                 new AnalyzerSuite(nameof(VerifyNumberedSequenceAnalyzer), VerifyNumberedSequenceAnalyzer),

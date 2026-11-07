@@ -16,7 +16,7 @@ internal static class FixtureRoomHeaders
         Name: "fixture door matching no transfer",
         DestinationRoom: UnloadedDestination,
         Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
-        PlmBlock: default,
+        RoomObjectBlock: default,
         DestinationScreen: default,
         SamusSpeed: DoorSamusSpeed.None,
         SetupCode: DoorSetupCode.None);

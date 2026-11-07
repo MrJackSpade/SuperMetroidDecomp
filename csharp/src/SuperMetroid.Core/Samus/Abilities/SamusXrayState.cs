@@ -49,8 +49,8 @@ public sealed class SamusXrayState
         (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != XraySuspendedSubsystems.None;
 
     /// <summary>Whether X-ray's independent PLM disable remains set, suppressing room-object instruction processing separately from shared time freeze.</summary>
-    public bool ArePlmsSuspended =>
-        (SuspendedSubsystems & XraySuspendedSubsystems.Plms) != XraySuspendedSubsystems.None;
+    public bool AreObjectsSuspended =>
+        (SuspendedSubsystems & XraySuspendedSubsystems.RoomObjects) != XraySuspendedSubsystems.None;
 
     /// <summary>Whether X-ray's independent animated-tile disable remains set, preventing animated-tile object advancement even after shared time resumes.</summary>
     public bool AreAnimatedTilesSuspended =>

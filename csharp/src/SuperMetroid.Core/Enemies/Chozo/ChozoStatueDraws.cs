@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
 /// The Chozo statue PLMs' block draws: which PLM draws are the statues', the runs each lays from
-/// <see cref="ChozoStatuePlmDrawDefinitions"/>.
+/// <see cref="ChozoStatueObjectDrawDefinitions"/>.
 /// </summary>
 internal static class ChozoStatueDraws
 {
@@ -13,7 +13,7 @@ internal static class ChozoStatueDraws
     internal readonly record struct Draw(ChozoStatueDraw Frame)
     {
         /// <summary>The draw's runs in order.</summary>
-        private PlmBlockStrip[] Strips => ChozoStatuePlmDrawDefinitions.Strips[Frame];
+        private RoomObjectBlockStrip[] Strips => ChozoStatueObjectDrawDefinitions.Strips[Frame];
         /// <summary>One run for the hand cell, five for the Wrecked Ship slope layout.</summary>
         internal int RunCount => Strips.Length;
         /// <summary>The cells in one run, rejecting an invalid run index.</summary>
@@ -25,19 +25,19 @@ internal static class ChozoStatueDraws
         /// <summary>One cell's complete terrain block.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)
         {
-            PlmBlockStrip strip = Strip(run);
+            RoomObjectBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
             return strip.Cells[cell];
         }
         /// <summary>Selects a run, rejecting indexes outside the selected hand or slope geometry.</summary>
-        private PlmBlockStrip Strip(int run) =>
+        private RoomObjectBlockStrip Strip(int run) =>
             (uint)run < (uint)RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
     }
 
     /// <summary>Accepts the two Wrecked Ship slope-access draws and Lower Norfair's cleared hand.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
-        bool found = PlmDraw.TryFrame(request, out ChozoStatueDraw frame);
+        bool found = RoomObjectDraw.TryFrame(request, out ChozoStatueDraw frame);
         draw = found ? new(frame) : default;
         return found;
     }

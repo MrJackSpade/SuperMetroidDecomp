@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
                     (statue.SpeciesState<ChozoStatueState>()
                         ?? throw new InvalidOperationException($"{name} has no statue state.")).Program,
                     $"{name} keeps native animation selection");
-                AssertTrue(enemies.ChozoStatuePlmRequests.Count != 0,
+                AssertTrue(enemies.ChozoStatueObjectRequests.Count != 0,
                     $"{name} still publishes its native PLM request");
             }
         }

@@ -69,7 +69,7 @@ internal sealed class KraidRise
             _access.Backdrop.ShowKraidColours();
             state.BodyAppearance = KraidBodyAppearance.Hidden;
             ShowKraidRoomBackdrop();
-            _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);
+            _frameResults.KraidObjects.AddRange(KraidObjectDefinitions.DefeatedRoom);
             // The body owns the sinking: a defeated room's body starts at hiding his body layer's halves and
             // the death's four-update wait. The other seven physical records take their own dead initializer and
             // remain deleted as in the original game.
@@ -158,7 +158,7 @@ internal sealed class KraidRise
                     int rock = _parts.StateOf(state, body).CeilingRock;
                     if (_background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock)))
                         state.CeilingRockSpawnCount++;
-                    _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[rock]);
+                    _frameResults.KraidObjects.Add(KraidObjectDefinitions.GrowthCeiling[rock]);
                     _parts.StateOf(state, body).CeilingRock = rock + 1;
                 }
                 if (CoordinateAxis.Difference(body.Position.Y.Whole, 296) < 0)

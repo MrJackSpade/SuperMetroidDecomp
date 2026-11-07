@@ -1,9 +1,9 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -25,7 +25,7 @@ internal static class LookupCannonLayoutsVerification
     {
         ushort[] pointers = [0x9fcd,0x9fdd,0xa02d,0xa03d,0xa04d,0xa05d,0xa0ed,0xa101,0xa165,0xa179,0xa18d,0xa1a1];
         string[] ids = ["right-shield-a","right-shield-b","right-damaged-a","right-damaged-b","right-damaged-c","right-damaged-d","left-shield-a","left-shield-b","left-damaged-a","left-damaged-b","left-damaged-c","left-damaged-d"];
-        var exported = RoomPlmDraygonCannonVisualFiles.All.ToArray();
+        var exported = RoomObjectDraygonCannonVisualFiles.All.ToArray();
         AssertEqual(12, exported.Length, "Cannon layout export count");
         if (field == 0)
         {
@@ -33,33 +33,33 @@ internal static class LookupCannonLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var shape), "Cannon layout shape domain");
-                AssertEqual(owned, RoomPlmDraygonCannonVisualFiles.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto), "Cannon layout DTO domain");
+                AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var shape), "Cannon layout shape domain");
+                AssertEqual(owned, RoomObjectDraygonCannonVisualFiles.TryGet(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var dto), "Cannon layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(DraygonCannonDraws.Draw), shape, "Cannon layout missing shape");
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Cannon layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout missing ID");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Cannon layout missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectDraygonCannonVisualFiles.VisualId(NativeObjectDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout missing ID");
                 }
             }
             foreach (string id in new[] { "RIGHT-SHIELD-A", "broken", "", "unknown" })
             {
-                AssertTrue(!RoomPlmDraygonCannonVisualFiles.TryGetByVisualId(id, out var missing), "Cannon layout ordinal ID domain");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Cannon layout rejected ID output");
+                AssertTrue(!RoomObjectDraygonCannonVisualFiles.TryGetByVisualId(id, out var missing), "Cannon layout ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Cannon layout rejected ID output");
             }
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            DraygonCannonDraws.TryDescribe(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var shape);
-            RoomPlmDraygonCannonVisualFiles.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto);
-            RoomPlmDraygonCannonVisualFiles.TryGetByVisualId(ids[index], out var byId);
+            DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var shape);
+            RoomObjectDraygonCannonVisualFiles.TryGet(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var dto);
+            RoomObjectDraygonCannonVisualFiles.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Cannon layout original export order");
-                AssertEqual(ids[index], RoomPlmDraygonCannonVisualFiles.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout published ID");
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Cannon layout reverse ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Cannon layout original export order");
+                AssertEqual(ids[index], RoomObjectDraygonCannonVisualFiles.VisualId(NativeObjectDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout published ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Cannon layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Cannon layout run bounds");
@@ -71,9 +71,9 @@ internal static class LookupCannonLayoutsVerification
             int run = 0;
             while (true)
             {
-                ushort header = ReadSamusEaterPlmWord(rom, cursor);
+                ushort header = ReadSamusEaterObjectWord(rom, cursor);
                 int count = header & 0x7fff;
-                ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
+                ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "Cannon layout native direction");
@@ -92,7 +92,7 @@ internal static class LookupCannonLayoutsVerification
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     AssertTerrainField(field, expected, shape.BlockAt(run, cell), "Cannon layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
                         AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "Cannon layout original DTO field");

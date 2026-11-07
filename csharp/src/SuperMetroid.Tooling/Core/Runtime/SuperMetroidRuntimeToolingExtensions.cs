@@ -73,7 +73,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 Name: "debug room entry",
                 DestinationRoom: definition,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
-                PlmBlock: default,
+                RoomObjectBlock: default,
                 DestinationScreen: camera.ToRoomScreen(),
                 SamusSpeed: DoorSamusSpeed.None,
                 SetupCode: DoorSetupCode.None);
@@ -107,7 +107,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 room,
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport,
-                new RoomEntry { RunDoorClosingPlm = true });
+                new RoomEntry { RunDoorClosingObject = true });
         }
 
     }

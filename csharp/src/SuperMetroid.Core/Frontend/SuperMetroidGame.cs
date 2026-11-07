@@ -531,7 +531,7 @@ public sealed class SuperMetroidGame
                 break;
             case DispatchRandomStep.NonGameplayLineEffectsThenAdvance:
                 // The per-line effects still run on the update before the pause screen; lava swaps the live random bytes.
-                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
+                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope.RoomObjects, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case DispatchRandomStep.AdvanceUnlessResumingWait:
                 if (!NextUpdateResumesFrameWait)

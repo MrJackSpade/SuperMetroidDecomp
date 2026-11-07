@@ -1,0 +1,88 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Video;
+namespace SuperMetroid.Verification.Rooms.RoomObjects;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
+
+/// <summary>Checks typed PLM population ownership and execution on a RAM-only bus.</summary>
+internal static class RoomObjectPopulationInputBoundaryVerification
+{
+    /// <summary>
+    /// Processing positions the typed population occupies after extension deletion frees the first slot in processing
+    /// order.
+    /// </summary>
+    private static readonly int[] ReusedPopulationSlots =
+        [0, 1];
+
+    /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
+    internal static void VerifyObjectPopulationInputBoundary()
+    {
+        byte[] pairs = [1, (byte)RoomScrollState.Green, 0x80];
+        var trigger = new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.ScrollTrigger),
+            new(3, 3), null, pairs);
+        var extension = new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.RightwardsScrollExtension),
+            new(4, 3), null);
+        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = new byte[] { 0x80 } };
+        RoomObjectPlacement[] records = [trigger, extension, second];
+        var population = new RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
+        pairs[0] = 49;
+        pairs[1] = 0;
+        records[0] = second;
+        AssertEqual((byte)1, population.Placements.Span[0].ScrollProgram.Span[0],
+            "decoded population owns its scroll pairs independently of caller mutation");
+        AssertEqual(3, population.Placements.Span[0].Block.X,
+            "decoded population owns its record ordering independently of caller mutation");
+
+        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new RoomTerrainBlock[64], new RoomBlockBehavior[64], new RoomBlockAppearance[64]), RoomLevelData.NothingBeyondGrid());
+        var roomObjects = RoomObjectFixtures.Unbound();
+        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            "typed population runs the real sequential allocator using a RAM-only bus");
+        AssertTrue(roomObjects.PopulationSlots.Select(slot => slot.ProcessingPosition).SequenceEqual(ReusedPopulationSlots),
+            "extension deletion lets the next record reuse the first slot in processing order, in authored order");
+        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Behavior.Value,
+            "typed trigger setup publishes its native collision behavior");
+        AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
+            "typed extension setup publishes its native collision type");
+        var scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
+        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
+        roomObjects.Step(level, scrolls);
+        AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
+        AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
+
+        AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
+            [trigger with { ScrollProgram = new byte[] { 0, 2 } }]), "unterminated decoded pairs are rejected before allocation");
+        AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
+            [trigger with { ScrollProgram = new byte[] { 0, 3, 0x80 } }]), "invalid decoded scroll states are rejected");
+        AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
+            Enumerable.Repeat(second, RoomObjectPopulationFormat.MaximumParserIterations)),
+            "typed records cannot evade the native bounded terminator limit");
+        AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
+            [extension with { ScrollProgram = new byte[] { 0x80 } }]), "an extension cannot own a resident scroll program");
+
+        int count = 0;
+        foreach (ushort pointer in RoomObjectPopulationDefinitions.Pointers)
+            count += RoomObjectPopulationDefinitions.Get(pointer).Placements.Length;
+        AssertEqual(RoomObjectPopulationDefinitions.RetailRecordCount, count,
+            "every compiled population converts to the typed contract before gameplay");
+        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
+    }
+
+    /// <summary>Runs the focused compiled-population conversion and scroll execution check.</summary>
+    [VerificationCommand("--plm-population-input-boundary")]
+    internal static int RoomObjectPopulationInputBoundaryCommand()
+    {
+        Suite(nameof(VerifyObjectPopulationInputBoundary), () => VerifyObjectPopulationInputBoundary());
+        return 0;
+    }
+}

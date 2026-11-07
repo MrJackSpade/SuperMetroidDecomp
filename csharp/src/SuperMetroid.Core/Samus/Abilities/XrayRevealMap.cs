@@ -74,7 +74,7 @@ public static class XrayRevealMap
 
         XrayRevealDefinition? Lookup(int index)
         {
-            RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(index);
+            RoomCollisionBlock block = level.GetObjectCollisionBlockByIndex(index);
             return visuals is not null
                 ? visuals.Apply(block.CollisionType, block.Behavior)
                 : XrayRevealTable.Find(block.CollisionType, block.Behavior);

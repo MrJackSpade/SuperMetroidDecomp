@@ -1,13 +1,13 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterPlmProgramsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
+using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterObjectProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -28,10 +28,10 @@ internal static class SpeedBoosterCollisionBlocksVerification
     internal static void VerifySpeedBoosterCollisionBlocks()
     {
         Suite(nameof(VerifyInactiveSpeedBlockRemainsSolid), () => VerifyInactiveSpeedBlockRemainsSolid());
-        Suite(nameof(VerifyBoostedFloorContactRunsRespawningPlm), () => VerifyBoostedFloorContactRunsRespawningPlm());
-        Suite(nameof(VerifyBoostedWallContactRunsPermanentPlm), () => VerifyBoostedWallContactRunsPermanentPlm());
+        Suite(nameof(VerifyBoostedFloorContactRunsRespawningObject), () => VerifyBoostedFloorContactRunsRespawningObject());
+        Suite(nameof(VerifyBoostedWallContactRunsPermanentObject), () => VerifyBoostedWallContactRunsPermanentObject());
         Suite(nameof(VerifyBrinstarAreaTableVariants), () => VerifyBrinstarAreaTableVariants());
-        Suite(nameof(VerifyCompiledSpeedBoosterPlmPrograms), () => VerifyCompiledSpeedBoosterPlmPrograms());
+        Suite(nameof(VerifyCompiledSpeedBoosterObjectPrograms), () => VerifyCompiledSpeedBoosterObjectPrograms());
 
         Console.WriteLine(
             "  Speed Booster blocks: contact gating, all five PLMs, sound, crumble, and respawn agree.");
@@ -40,81 +40,81 @@ internal static class SpeedBoosterCollisionBlocksVerification
     /// <summary>Confirms an unboosted downward contact remains solid and releases the temporary setup slot without changing terrain.</summary>
     private static void VerifyInactiveSpeedBlockRemainsSolid()
     {
-        (_, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
+        (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: false);
 
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
 
         AssertTrue(result.Collided,
             "inactive contact with BTS $0E retains the special-solid collision result");
         AssertEqual(RoomCollisionType.SpecialBlock,
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "inactive contact does not mutate Speed Booster terrain");
-        AssertEqual(0, plms.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
             "rejected setup synchronously releases its temporary PLM slot");
     }
 
     /// <summary>Confirms stage-four floor contact clears collision immediately, queues the crumble sound, and later restores solid terrain.</summary>
-    private static void VerifyBoostedFloorContactRunsRespawningPlm()
+    private static void VerifyBoostedFloorContactRunsRespawningObject()
     {
-        (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
+        (TestAddressSpace bus, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
 
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
 
         AssertTrue(!result.Collided,
             "stage-four downward contact passes through the newly cleared floor block");
         AssertEqual(RoomCollisionType.Air,
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "accepted setup clears the live collision nibble in the contact frame");
-        AssertEqual(RoomPlmVisualBlockDefinitions.SpeedBoosterParent,
+        AssertEqual(RoomObjectVisualBlockDefinitions.SpeedBoosterParent,
             level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
             "accepted setup installs cartridge visual parent $0B6");
-        RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-        AssertEqual(PlmHeaderId.SpeedBlockRespawning, slot.HeaderPointer,
+        RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
+        AssertEqual(RoomObjectHeaderId.SpeedBlockRespawning, slot.HeaderPointer,
             "BTS $0E selects the standard respawning header");
-        AssertTrue(slot.Animation is SpeedBoosterBlockPlmAnimation { Program: SpeedBoosterBlockProgram.Respawning },
+        AssertTrue(slot.Animation is SpeedBoosterBlockObjectAnimation { Program: SpeedBoosterBlockProgram.Respawning },
             "BTS $0E starts the respawning program");
 
-        StepSpeedBoosterPlm(plms, level);
-        AssertTrue(plms.Sounds.SoundRequests.Any(request =>
+        StepSpeedBoosterObject(roomObjects, level);
+        AssertTrue(roomObjects.Sounds.SoundRequests.Any(request =>
                 request.SoundEffect == Library2Sound.ContactBlockBreak &&
                 request.Priority.Requests == 1),
             "first handler pass queues crumble sound six with cartridge maximum one");
 
-        for (int frame = 0; frame < 80 && plms.SlotTable.ActiveCount != 0; frame++)
-            StepSpeedBoosterPlm(plms, level);
-        AssertEqual(0, plms.SlotTable.ActiveCount,
+        for (int frame = 0; frame < 80 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+            StepSpeedBoosterObject(roomObjects, level);
+        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
             "respawning speed-block list reaches its delete instruction");
         AssertEqual(RoomCollisionType.SpecialBlock,
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "respawning list restores special-solid collision");
-        AssertEqual(RoomPlmVisualBlockDefinitions.SpeedBoosterParent,
+        AssertEqual(RoomObjectVisualBlockDefinitions.SpeedBoosterParent,
             level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
             "respawning list restores synthesized visual parent $0B6");
     }
 
     /// <summary>Confirms stage-four wall contact selects the permanent PLM and leaves its block as air after the crumble frames.</summary>
-    private static void VerifyBoostedWallContactRunsPermanentPlm()
+    private static void VerifyBoostedWallContactRunsPermanentObject()
     {
-        (_, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
+        (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0f), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
         samus.Position = samus.Position.WithWhole(new(34, 72));
 
-        BlockMoveResult result = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 4 << 16 });
+        BlockMoveResult result = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 4 << 16 });
 
         AssertTrue(!result.Collided,
             "stage-four horizontal contact passes through permanent speed terrain");
-        AssertEqual(PlmHeaderId.SpeedBlockPermanent,
-            plms.PopulationSlots.Single().HeaderPointer,
+        AssertEqual(RoomObjectHeaderId.SpeedBlockPermanent,
+            roomObjects.PopulationSlots.Single().HeaderPointer,
             "BTS $0F selects the standard permanent header");
 
-        for (int frame = 0; frame < 12 && plms.SlotTable.ActiveCount != 0; frame++)
-            StepSpeedBoosterPlm(plms, level);
-        AssertEqual(0, plms.SlotTable.ActiveCount,
+        for (int frame = 0; frame < 12 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+            StepSpeedBoosterObject(roomObjects, level);
+        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
             "permanent speed-block list deletes after its four crumble frames");
         AssertEqual(RoomCollisionType.Air,
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
@@ -126,25 +126,25 @@ internal static class SpeedBoosterCollisionBlocksVerification
     {
         var cases = new SpeedBoosterCollisionBlocksCase[]
         {
-            new SpeedBoosterCollisionBlocksCase(0x82, SpeedBoosterBlockPlmDefinitions.BrinstarSlowRespawning),
-            new SpeedBoosterCollisionBlocksCase(0x83, SpeedBoosterBlockPlmDefinitions.BrinstarSlowPermanent),
-            new SpeedBoosterCollisionBlocksCase(0x84, SpeedBoosterBlockPlmDefinitions.DachoraRespawning),
-            new SpeedBoosterCollisionBlocksCase(0x85, SpeedBoosterBlockPlmDefinitions.Permanent),
+            new SpeedBoosterCollisionBlocksCase(0x82, SpeedBoosterBlockObjectDefinitions.BrinstarSlowRespawning),
+            new SpeedBoosterCollisionBlocksCase(0x83, SpeedBoosterBlockObjectDefinitions.BrinstarSlowPermanent),
+            new SpeedBoosterCollisionBlocksCase(0x84, SpeedBoosterBlockObjectDefinitions.DachoraRespawning),
+            new SpeedBoosterCollisionBlocksCase(0x85, SpeedBoosterBlockObjectDefinitions.Permanent),
         };
 
-        foreach ((byte bts, SpeedBoosterBlockPlmDefinition expected) in cases)
+        foreach ((byte bts, SpeedBoosterBlockObjectDefinition expected) in cases)
         {
-            (_, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
+            (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
                 CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(bts), AreaId.Brinstar);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
 
             AssertTrue(!result.Collided,
                 $"Brinstar BTS ${bts:X2} clears through the production collision path");
-            RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
+            RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
             AssertEqual(expected.Header, slot.HeaderPointer,
                 $"Brinstar BTS ${bts:X2} selects its exact PLM header");
-            AssertTrue(slot.Animation is SpeedBoosterBlockPlmAnimation animation && animation.Program == expected.Program,
+            AssertTrue(slot.Animation is SpeedBoosterBlockObjectAnimation animation && animation.Program == expected.Program,
                 $"Brinstar BTS ${bts:X2} starts its exact typed program");
             AssertEqual(RoomCollisionType.Air,
                 level.GetCollisionBlockByIndex(blockIndex).CollisionType,
@@ -172,10 +172,10 @@ internal static class SpeedBoosterCollisionBlocksVerification
         RoomLevelData level = CreateRoom(new(width, height),
             words,
             behaviors);
-        var plms = PlmFixtures.Unbound();
-        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), area), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        var roomObjects = RoomObjectFixtures.Unbound();
+        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), area), RoomObjectPopulationImporter.Read(bus, emptyPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, parsed, "speed-block fixture begins with an empty room PLM population");
-        return new CreateSpeedBoosterBlockFixtureResult(bus, level, plms, blockIndex);
+        return new CreateSpeedBoosterBlockFixtureResult(bus, level, roomObjects, blockIndex);
     }
 
     /// <summary>Positions Samus for the fixture contact and selects either stage-four boost or the inactive counter.</summary>
@@ -247,14 +247,14 @@ internal static class SpeedBoosterCollisionBlocksVerification
     }
 
     /// <summary>Advances a fixture PLM one frame with stationary view and no controller or enemy-death events.</summary>
-    private static void StepSpeedBoosterPlm(
-        RoomPlmSystem plms,
+    private static void StepSpeedBoosterObject(
+        RoomObjectSystem roomObjects,
         RoomLevelData level) =>
-        plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Runs the focused Speed Booster collision and PLM verification from its command-line switch.</summary>
     [VerificationCommand("--speed-booster-block-plms")]
-    internal static int SpeedBoosterBlockPlmsCommand()
+    internal static int SpeedBoosterBlockObjectsCommand()
     {
         Suite(nameof(VerifySpeedBoosterCollisionBlocks), () => VerifySpeedBoosterCollisionBlocks());
         return 0;

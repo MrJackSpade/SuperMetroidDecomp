@@ -27,9 +27,9 @@ internal static class ParameterContractsTests
         VerifyContract("a PLM family cannot reach another family's effect", "noobTube.DisableDraygonCannon(0);", "CS1061");
         VerifyContract("PLM boss reads are read-only", "bossReader.SetDefeated(BossBits.AreaTorizo);", "CS1061");
         VerifyContract("area boss flags satisfy the PLM reader", "IAreaBossFlagReader reader = bosses;");
-        VerifyContract("PLM services require Samus", "_ = new RoomPlmServices { Bosses = bossReader };", "CS9035");
+        VerifyContract("PLM services require Samus", "_ = new RoomObjectServices { Bosses = bossReader };", "CS9035");
         VerifyContract("PLM services accept their required capabilities",
-            "_ = new RoomPlmServices { Samus = samus, Bosses = bossReader };");
+            "_ = new RoomObjectServices { Samus = samus, Bosses = bossReader };");
 
         // Runtime frames: the request composes its policy; audio scenarios are named, not delegates.
         VerifyContract("a runtime frame request composes its policy",
@@ -54,13 +54,13 @@ internal static class ParameterContractsTests
             using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
             using SuperMetroid.Core.Rooms.Doors;
-            using SuperMetroid.Core.Rooms.Plms;
+            using SuperMetroid.Core.Rooms.RoomObjects;
             using SuperMetroid.Core.Runtime;
             using SuperMetroid.Core.World;
             class ContractCaller
             {
                 void Run(IRoomEnemyServices enemies, IChozoStatueRoomServices chozo, IMotherBrainRoomServices motherBrain,
-                    IRoomPlmEnemyEffects effects, INoobTubeProjectileSpawner noobTube, IAreaBossFlags bosses,
+                    IRoomObjectEnemyEffects effects, INoobTubeProjectileSpawner noobTube, IAreaBossFlags bosses,
                     IAreaBossFlagReader bossReader, IRoomSamusAccess samus,
                     DemoInputState demo)
                 {

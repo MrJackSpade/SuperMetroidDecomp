@@ -9,7 +9,7 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 using SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
-using SuperMetroid.ResourceAudit.PlmPrograms;
+using SuperMetroid.ResourceAudit.RoomObjectPrograms;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -158,7 +158,7 @@ internal sealed class ClosedPresentationAudit
             Gap(unbound);
             return true;
         }
-        string? invalid = InvalidConstantIndex(operation, provider.Name) ?? PlmVisualDomainAudit.InvalidConstants(operation)
+        string? invalid = InvalidConstantIndex(operation, provider.Name) ?? RoomObjectVisualDomainAudit.InvalidConstants(operation)
             ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
             ?? EnemyDisplayArtworkDomainAudit.InvalidConstants(operation)
             ?? SamusBodyTransferDomainAudit.InvalidConstants(operation)

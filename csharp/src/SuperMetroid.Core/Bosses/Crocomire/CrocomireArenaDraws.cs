@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Crocomire's bridge and invisible-wall block draws: which PLM draws are the arena's, their run geometry and cells
-/// from <see cref="CrocomireArenaPlmDrawDefinitions"/>.
+/// from <see cref="CrocomireArenaObjectDrawDefinitions"/>.
 /// </summary>
 internal static class CrocomireArenaDraws
 {
@@ -16,7 +16,7 @@ internal static class CrocomireArenaDraws
         internal bool Wall => Shape != CrocomireArenaShape.Bridge;
 
         /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
-        internal int RunCount => CrocomireArenaPlmDrawDefinitions.Cells[Frame].Length;
+        internal int RunCount => CrocomireArenaObjectDrawDefinitions.Cells[Frame].Length;
         /// <summary>The bridge tile or the wall's alternating rows and final base row, solid only in the create-wall state.</summary>
         internal RoomTerrainBlock BlockAt(int run, int block)
         {
@@ -24,21 +24,21 @@ internal static class CrocomireArenaDraws
                 throw new ArgumentOutOfRangeException(nameof(run));
             if ((uint)block >= BlocksPerRun)
                 throw new ArgumentOutOfRangeException(nameof(block));
-            return CrocomireArenaPlmDrawDefinitions.Cells[Frame][run][block];
+            return CrocomireArenaObjectDrawDefinitions.Cells[Frame][run][block];
         }
     }
 
     /// <summary>
     /// Describes a draw handed over by the shared PLM drawing; draws of other families are not the arena's.
     /// </summary>
-    internal static bool TryDescribe(PlmDraw draw, out Draw shape)
+    internal static bool TryDescribe(RoomObjectDraw draw, out Draw shape)
     {
-        if (draw is not PlmFrameDraw<CrocomireArenaDraw> { Frame: var frame })
+        if (draw is not RoomObjectFrameDraw<CrocomireArenaDraw> { Frame: var frame })
         {
             shape = default;
             return false;
         }
-        shape = new(frame, CrocomireArenaPlmDrawDefinitions.Shapes[frame], CrocomireArenaPlmDrawDefinitions.Cells[frame][0].Length);
+        shape = new(frame, CrocomireArenaObjectDrawDefinitions.Shapes[frame], CrocomireArenaObjectDrawDefinitions.Cells[frame][0].Length);
         return true;
     }
 }

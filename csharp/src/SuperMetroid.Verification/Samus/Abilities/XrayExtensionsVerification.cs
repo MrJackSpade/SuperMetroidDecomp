@@ -11,8 +11,8 @@ internal static class XrayExtensionsVerification
         RoomLevelData Create() => new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 64).ToArray(), new RoomBlockBehavior[64], new RoomBlockAppearance[64]), RoomLevelData.NothingBeyondGrid());
         void Set(RoomLevelData level, int index, RoomCollisionType type, int behavior)
         {
-            level.SetPlmTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type));
-            level.SetPlmBehavior(index, new RoomBlockBehavior(behavior));
+            level.SetObjectTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type));
+            level.SetObjectBehavior(index, new RoomBlockBehavior(behavior));
         }
         var level = Create();
         Set(level, 18, RoomCollisionType.HorizontalExtension, 0xff);

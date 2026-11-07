@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
@@ -103,7 +103,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public RoomEnemySystem? Enemies { get; set; }
 
     /// <summary>The PLM system, once the PLM population step has built it.</summary>
-    public RoomPlmSystem? Plms { get; set; }
+    public RoomObjectSystem? RoomObjects { get; set; }
 
     /// <summary>The runtime services, once the PLM population step has created them.</summary>
     public RoomEnemyRuntimeServices? Services { get; set; }
@@ -152,7 +152,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         CeresFallingDebris = CeresFallingDebris ?? throw Missing(nameof(CeresFallingDebris)),
         EscapeDiagonalQuake = EscapeDiagonalQuake ?? throw Missing(nameof(EscapeDiagonalQuake)),
         Enemies = Enemies ?? throw Missing(nameof(Enemies)),
-        Plms = Plms ?? throw Missing(nameof(Plms)),
+        RoomObjects = RoomObjects ?? throw Missing(nameof(RoomObjects)),
         Services = Services ?? throw Missing(nameof(Services)),
     };
 

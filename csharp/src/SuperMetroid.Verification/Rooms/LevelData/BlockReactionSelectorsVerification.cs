@@ -1,11 +1,11 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Rooms.LevelData;
@@ -23,14 +23,14 @@ internal static class BlockReactionSelectorsVerification
         {
             for (int frame = 0; frame < 7; frame++)
                 AssertEqual(ReadRomWord(rom,0x840000 | (firstOperands[shape] + 4 * frame)),
-                    RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),"shared breakup native shape/frame selection");
+                    RoomObjectBreakAnimationDefinitions.DrawForShape(shape,frame),"shared breakup native shape/frame selection");
             foreach (int frame in new[] {int.MinValue,-1,7,8,255,256,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectBreakAnimationDefinitions.DrawForShape(shape,frame),
                     "shared breakup rejects frames outside forward/reverse sequence");
         }
         foreach (int shape in new[] {int.MinValue,-1,4,5,255,256,int.MaxValue})
         for (int frame = 0; frame < 7; frame++)
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectBreakAnimationDefinitions.DrawForShape(shape,frame),
                 "shared breakup rejects unknown shapes");
     }
 
@@ -40,14 +40,14 @@ internal static class BlockReactionSelectorsVerification
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            bool found = BombedRevealPlmDraws.TryGet(NativePlmDraws.At<RoomPlmBombedRevealDraw>(pointer), out var draw);
+            bool found = BombedRevealObjectDraws.TryGet(NativeObjectDraws.At<RoomObjectBombedRevealDraw>(pointer), out var draw);
             AssertEqual(nativePointers.Contains((ushort)pointer), found, "bombed reveal complete native draw pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), draw, "bombed reveal missing draw cleared");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), draw, "bombed reveal missing draw cleared");
                 continue;
             }
-            AssertEqual((ushort)pointer, PlmDrawAddressCodec.Of(draw.Draw), "bombed reveal draw identity");
+            AssertEqual((ushort)pointer, RoomObjectDrawAddressCodec.Of(draw.Draw), "bombed reveal draw identity");
             AssertEqual(1, draw.Runs.Length, "bombed reveal single native run");
             var run = draw.Runs.Span[0];
             ushort count = ReadRomWord(rom,0x840000 | pointer);
@@ -68,13 +68,13 @@ internal static class BlockReactionSelectorsVerification
         var known = controls.Concat(operands).ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = RoomPlmBombedRevealProgramDefinitions.TryReadWord((ushort)address, out ushort value);
+            bool found = RoomObjectBombedRevealProgramDefinitions.TryReadWord((ushort)address, out ushort value);
             AssertEqual(known.Contains((ushort)address), found, "bombed reveal complete word domain including unused-list gaps and odd bytes");
             if (!found) AssertEqual((ushort)0, value, "bombed reveal missing value cleared");
         }
         foreach (ushort address in controls)
         {
-            AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native control owned");
+            AssertTrue(RoomObjectBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native control owned");
             AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal native one-frame duration/delete");
         }
     }
@@ -85,7 +85,7 @@ internal static class BlockReactionSelectorsVerification
         ushort[] operands = [0xc8ee,0xc8f4,0xc8fa,0xc900,0xc91e,0xc924];
         foreach (ushort address in operands)
         {
-            AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native draw operand owned");
+            AssertTrue(RoomObjectBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native draw operand owned");
             AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal named draw selection matches native operand");
         }
     }
@@ -96,42 +96,42 @@ internal static class BlockReactionSelectorsVerification
         // Header identities are arbitrary values since #1452, so the cartridge's header pointer is decoded
         // through the native header table and compared as an identity.
         for (int index = 0; index < 8; index++)
-            AssertEqual(PlmNativeWords.Header(ReadRomWord(rom, 0x949139 + 2 * index)),
-                RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
+            AssertEqual(RoomObjectNativeWords.Header(ReadRomWord(rom, 0x949139 + 2 * index)),
+                RoomObjectHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
         for (int index = 8; index <= byte.MaxValue; index++)
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectHeaders.ContactCrumbleByReactionIndex(index),
                 "contact crumble header rejects unsupported BTS without masking");
         foreach (int index in new[] {int.MinValue, -1, 256, int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectHeaders.ContactCrumbleByReactionIndex(index),
                 "contact crumble header int bounds");
     }
 
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.CollisionBomb(index)), "collision bomb"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.CollisionBomb(index)), "collision bomb"));
 
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
-            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.ReactionBomb(index)), "bomb reaction"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.ReactionBomb(index)), "bomb reaction"));
 
     /// <summary>Checks crumble-reveal instruction selection for the four native sizes.</summary>
     internal static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
-            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.CrumbleReveal(index)), "crumble reveal"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.CrumbleReveal(index)), "crumble reveal"));
 
     /// <summary>Checks contact-crumble instruction selection for the eight native reactions.</summary>
     internal static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
-            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.ContactCrumble(index)), "contact crumble"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.ContactCrumble(index)), "contact crumble"));
 
     /// <summary>Checks the bounded bomb-special BTS domain, including adjacent area aliases.</summary>
     internal static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)
     {
         AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,
-            index => PlmProgramStartOracle.NativeListOf(BombSpecialBlockReactions.ProgramAt(index)), "bomb special including adjacent area aliases"));
+            index => RoomObjectProgramStartOracle.NativeListOf(BombSpecialBlockReactions.ProgramAt(index)), "bomb special including adjacent area aliases"));
     }
 
     /// <summary>Compares a selector with the native header indirection and rejects indexes outside its domain.</summary>

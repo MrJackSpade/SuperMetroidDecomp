@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 

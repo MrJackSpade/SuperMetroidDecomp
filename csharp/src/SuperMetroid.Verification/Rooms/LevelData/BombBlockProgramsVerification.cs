@@ -1,12 +1,12 @@
 using SuperMetroid.AssetExtraction;
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.LinkedRestoreVisualsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
@@ -20,19 +20,19 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
-        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreVisualFiles.AllOf(LinkedRestorePlmFamily.BombBlock).Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
+        AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.AllOf(LinkedRestoreObjectFamily.BombBlock).Select(draw => RoomObjectDrawAddressCodec.Of(draw.Draw))),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = LinkedRestorePlmFamily.BombBlock.TryDescribe(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var draw);
-            bool exported = LinkedRestorePlmFamily.BombBlock.TryGet(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var list);
+            bool found = LinkedRestoreObjectFamily.BombBlock.TryDescribe(NativeObjectDraws.At<BombBlockRestoreDraw>(pointer), out var draw);
+            bool exported = LinkedRestoreObjectFamily.BombBlock.TryGet(NativeObjectDraws.At<BombBlockRestoreDraw>(pointer), out var list);
             AssertEqual(expected, found, "bomb restoration full native pointer domain");
             AssertEqual(expected, exported, "bomb restoration export pointer domain");
             if (!found)
             {
-                AssertEqual(default(LinkedRestorePlmFamily.Draw), draw, "missing restoration descriptor cleared");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
+                AssertEqual(default(LinkedRestoreObjectFamily.Draw), draw, "missing restoration descriptor cleared");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
                 continue;
             }
             int cursor = pointer;
@@ -96,11 +96,11 @@ internal static class BombBlockProgramsVerification
                 addresses.Add((ushort)cursor);
         }
         AssertEqual(88, addresses.Count, "bomb native control extent");
-        AssertTrue(addresses.SequenceEqual(RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses()), "bomb complete native control enumeration");
+        AssertTrue(addresses.SequenceEqual(RoomObjectBombBlockProgramDefinitions.MechanicsWordAddresses()), "bomb complete native control enumeration");
         var known = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
+            bool found = RoomObjectBombBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
             AssertEqual(known.Contains((ushort)address), found, "bomb full control address domain");
             AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
                 "bomb native queue, goto, timing, restoration and deletion controls");
@@ -117,7 +117,7 @@ internal static class BombBlockProgramsVerification
         AssertEqual(47, addresses.Count, "bomb native draw operand extent");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
+            bool found = RoomObjectBombBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
             AssertEqual(addresses.Contains((ushort)address), found, "bomb full draw address domain");
             AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
                 "bomb native forward/reverse breakup and restoration draws");
@@ -129,11 +129,11 @@ internal static class BombBlockProgramsVerification
     {
         ushort[] addresses = [0xcc37,0xcc3e,0xcc61,0xcc68,0xcc8d,0xcc94,0xccb9,0xccc0,
             0xcce5,0xccec,0xcd01,0xcd08,0xcd1d,0xcd24,0xcd39,0xcd40];
-        AssertTrue(addresses.SequenceEqual(RoomPlmBombBlockProgramDefinitions.MechanicsByteAddresses()), "bomb native packed sound enumeration");
+        AssertTrue(addresses.SequenceEqual(RoomObjectBombBlockProgramDefinitions.MechanicsByteAddresses()), "bomb native packed sound enumeration");
         var known = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
+            bool found = RoomObjectBombBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
             AssertEqual(known.Contains((ushort)address), found, "bomb full packed byte address domain");
             AssertEqual(found ? rom.ReadCartridgeByte(0x840000 | address) : (byte)0, value, "bomb native collision/projectile sound bytes");
         }
@@ -148,12 +148,12 @@ internal static class BombBlockProgramsVerification
         Suite(nameof(VerifyBombBlockDrawMapping), () => VerifyBombBlockDrawMapping(rom));
         Suite(nameof(VerifyBombBlockSoundMapping), () => VerifyBombBlockSoundMapping(rom));
         var forbidden = new HashSet<int>();
-        foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses())
+        foreach (ushort address in RoomObjectBombBlockProgramDefinitions.MechanicsWordAddresses())
         {
             forbidden.Add(0x840000 | address);
             forbidden.Add(0x840000 | (address + 1));
         }
-        foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsByteAddresses())
+        foreach (ushort address in RoomObjectBombBlockProgramDefinitions.MechanicsByteAddresses())
             forbidden.Add(0x840000 | address);
 
         Suite(nameof(VerifyBombBlockRestorationMapping), () => VerifyBombBlockRestorationMapping(rom));
@@ -163,11 +163,11 @@ internal static class BombBlockProgramsVerification
         // All sixteen breakup frames are shared with the already compiled shot-block
         // family. Forbid their source bytes as well, so this production check covers
         // the complete bomb-block draw path rather than only its three unique restores.
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmShotBlockVisualFiles.All)
+        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in
+                 RoomObjectShotBlockVisualFiles.All)
         {
-            int cursor = PlmDrawAddressCodec.Of(list.Draw);
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
+            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 int byteCountForRun = 2 + 2 * run.Count + 2;
                 for (int offset = 0; offset < byteCountForRun; offset++)
@@ -184,11 +184,11 @@ internal static class BombBlockProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                native.Plms.Step(native.Level);
-                compiled.Plms.Step(compiled.Level);
-                AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
+                native.RoomObjects.Step(native.Level);
+                compiled.RoomObjects.Step(compiled.Level);
+                AssertEqual(native.RoomObjects.SlotTable.ActiveCount, compiled.RoomObjects.SlotTable.ActiveCount,
                     $"bomb BTS {behavior}/{producer} active count, frame {frame}");
-                AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
+                AssertEqual(native.RoomObjects.Sounds.SoundRequests.Count, compiled.RoomObjects.Sounds.SoundRequests.Count,
                     $"bomb BTS {behavior}/{producer} sound count, frame {frame}");
                 for (int block = 0; block < 64; block++)
                 {
@@ -203,7 +203,7 @@ internal static class BombBlockProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"bomb BTS {behavior}/{producer} never rereads compiled control bytes");
-            AssertEqual(0, compiled.Plms.SlotTable.ActiveCount,
+            AssertEqual(0, compiled.RoomObjects.SlotTable.ActiveCount,
                 $"bomb BTS {behavior}/{producer} completes its native timeline");
         }
 
@@ -218,23 +218,23 @@ internal static class BombBlockProgramsVerification
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
         BombBlockProgramsRenderResult Render(
-            InstalledRoomPlmShotBlockVisuals visuals)
+            InstalledRoomObjectShotBlockVisuals visuals)
         {
             const int width = 8;
             const int blockIndex = 27;
             var words = new RoomTerrainBlock[width * width];
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
-            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
-            AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
+            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals });
+            AssertTrue(roomObjects.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
-            plms.Step(level);
+            roomObjects.Step(level);
             return new BombBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
                 level.DisplayedAppearance(blockIndex),
                 level.DisplayedAppearance(blockIndex));
         }
 
-        var stock = Render(InstalledRoomPlmShotBlockVisuals.Stock());
+        var stock = Render(InstalledRoomObjectShotBlockVisuals.Stock());
         AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), stock.Physical,
             "native bomb-break frame installs its original air collision word");
         // The block BG1 shows names its picture (#1431): the stock breakup frame's block.
@@ -248,12 +248,12 @@ internal static class BombBlockProgramsVerification
             var words = new RoomTerrainBlock[width * width];
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
-            var plms = PlmFixtures.Unbound();
-            AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
+            var roomObjects = RoomObjectFixtures.Unbound();
+            AssertTrue(roomObjects.TrySpawnCollisionBombBlock(level, blockIndex, 1),
                 "restored-art test installs linked respawning bomb block");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
-                plms.Step(level);
+                roomObjects.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
             return new RenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
@@ -282,9 +282,9 @@ internal static class BombBlockProgramsVerification
 
     /// <summary>Constructed room and PLM owners for one bomb-block trigger and animation.</summary>
     /// <param name="Level">Room collision and BTS planes containing the triggered tile.</param>
-    /// <param name="Plms">PLM system executing the chosen native program.</param>
+    /// <param name="RoomObjects">PLM system executing the chosen native program.</param>
     internal sealed record BombBlockFixture(
-        RoomLevelData Level, RoomPlmSystem Plms);
+        RoomLevelData Level, RoomObjectSystem RoomObjects);
 
     /// <summary>Spawns a bomb-block PLM through body collision, Bomb or Power Bomb against one synthetic room tile.</summary>
     private static BombBlockFixture NewBombBlockFixture(byte behavior, BombBlockProducer producer)
@@ -296,21 +296,21 @@ internal static class BombBlockProgramsVerification
         var bts = new RoomBlockBehavior[words.Length];
         bts[blockIndex] = new RoomBlockBehavior(behavior);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
-        var plms = PlmFixtures.Unbound();
+        var roomObjects = RoomObjectFixtures.Unbound();
         bool spawned = producer switch
         {
             BombBlockProducer.Collision =>
-                plms.TrySpawnCollisionBombBlock(level, blockIndex, behavior),
+                roomObjects.TrySpawnCollisionBombBlock(level, blockIndex, behavior),
             BombBlockProducer.Bomb =>
-                plms.TrySpawnBombReactionBlock(level, blockIndex, behavior,
+                roomObjects.TrySpawnBombReactionBlock(level, blockIndex, behavior,
                     SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
             BombBlockProducer.PowerBomb =>
-                plms.TrySpawnBombReactionBlock(level, blockIndex, behavior,
+                roomObjects.TrySpawnBombReactionBlock(level, blockIndex, behavior,
                     SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             _ => throw new ArgumentOutOfRangeException(nameof(producer)),
         };
         AssertTrue(spawned, $"bomb BTS {behavior}/{producer} installs its native program");
-        return new BombBlockFixture(level, plms);
+        return new BombBlockFixture(level, roomObjects);
     }
 
     /// <summary>Runs the bomb-block mapping, timeline and visual-separation verification command.</summary>

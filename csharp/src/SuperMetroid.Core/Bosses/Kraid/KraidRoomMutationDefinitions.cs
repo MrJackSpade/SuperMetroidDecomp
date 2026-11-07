@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -6,17 +6,17 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidRoomMutationDefinitions
 {
     /// <summary>The room PLM each mutation occupies its slot as.</summary>
-    internal static readonly IReadOnlyDictionary<KraidRoomMutation, PlmHeaderId> Plms =
-        new Dictionary<KraidRoomMutation, PlmHeaderId>
+    internal static readonly IReadOnlyDictionary<KraidRoomMutation, RoomObjectHeaderId> RoomObjects =
+        new Dictionary<KraidRoomMutation, RoomObjectHeaderId>
         {
-            [KraidRoomMutation.CrumbleCeilingIntoBackground1] = PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
-            [KraidRoomMutation.CrumblePlatformVariant1] = PlmHeaderId.CrumbleKraidPlatformVariant1,
-            [KraidRoomMutation.CrumbleCeilingIntoBackground2] = PlmHeaderId.CrumbleKraidCeilingIntoBackground2,
-            [KraidRoomMutation.CrumblePlatformVariant2] = PlmHeaderId.CrumbleKraidPlatformVariant2,
-            [KraidRoomMutation.CrumbleCeilingIntoBackground3] = PlmHeaderId.CrumbleKraidCeilingIntoBackground3,
-            [KraidRoomMutation.ClearCeiling] = PlmHeaderId.ClearKraidCeiling,
-            [KraidRoomMutation.ClearSpikes] = PlmHeaderId.ClearKraidSpikes,
-            [KraidRoomMutation.CrumbleSpikes] = PlmHeaderId.CrumbleKraidSpikes,
+            [KraidRoomMutation.CrumbleCeilingIntoBackground1] = RoomObjectHeaderId.CrumbleKraidCeilingIntoBackground1,
+            [KraidRoomMutation.CrumblePlatformVariant1] = RoomObjectHeaderId.CrumbleKraidPlatformVariant1,
+            [KraidRoomMutation.CrumbleCeilingIntoBackground2] = RoomObjectHeaderId.CrumbleKraidCeilingIntoBackground2,
+            [KraidRoomMutation.CrumblePlatformVariant2] = RoomObjectHeaderId.CrumbleKraidPlatformVariant2,
+            [KraidRoomMutation.CrumbleCeilingIntoBackground3] = RoomObjectHeaderId.CrumbleKraidCeilingIntoBackground3,
+            [KraidRoomMutation.ClearCeiling] = RoomObjectHeaderId.ClearKraidCeiling,
+            [KraidRoomMutation.ClearSpikes] = RoomObjectHeaderId.ClearKraidSpikes,
+            [KraidRoomMutation.CrumbleSpikes] = RoomObjectHeaderId.CrumbleKraidSpikes,
         };
 
     /// <summary>The room program each mutation runs: a platform variant only sets its block to its background.</summary>

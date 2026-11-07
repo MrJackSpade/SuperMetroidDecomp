@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World.RoomStates;
@@ -12,7 +12,7 @@ internal readonly record struct RoomEntry
     public GunshipLoadScenario GunshipScenario { get; init; }
 
     /// <summary>Whether the entry door's closing PLM spawns after the room's PLMs, as a door transition does.</summary>
-    public bool RunDoorClosingPlm { get; init; }
+    public bool RunDoorClosingObject { get; init; }
 
     /// <summary>The destination assets a door transition built before consuming its door, or null to load them here.</summary>
     public LoadedRoomAssets? PreloadedAssets { get; init; }

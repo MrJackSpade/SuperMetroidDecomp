@@ -1,9 +1,9 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Areas.Maridia;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Areas.Maridia;
@@ -14,25 +14,25 @@ internal static class LookupElevatubeVerification
     /// <summary>Compares the single installed elevatube draw with its native run, tile, and displacement.</summary>
     internal static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
     {
-        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x849369)), MaridiaElevatubePlmDefinitions.Terrain, "Elevatube native terrain");
-        var all = RoomPlmMaridiaElevatubeVisualFiles.AllDraws.ToArray();
+        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)), MaridiaElevatubeObjectDefinitions.Terrain, "Elevatube native terrain");
+        var all = RoomObjectMaridiaElevatubeVisualFiles.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
-        AssertTrue(RoomPlmMaridiaElevatubeVisualFiles.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
-        foreach (var draw in new[] {RoomPlmMaridiaElevatubeVisualFiles.BlockDrawList,all[0],selected})
+        AssertTrue(RoomObjectMaridiaElevatubeVisualFiles.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
+        foreach (var draw in new[] {RoomObjectMaridiaElevatubeVisualFiles.BlockDrawList,all[0],selected})
         {
-            AssertEqual((ushort)0x9367, PlmDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");
+            AssertEqual((ushort)0x9367, RoomObjectDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");
             AssertEqual(1, draw.Runs.Length, "Elevatube one run");
             var run = draw.Runs.Span[0];
-            AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x849367), run, "Elevatube native run header");
+            AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x849367), run, "Elevatube native run header");
             AssertEqual(1, run.Count, "Elevatube one word");
-            AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x849369)), run.Blocks.Span[0], "Elevatube DTO native terrain");
+            AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)), run.Blocks.Span[0], "Elevatube DTO native terrain");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), run.Next.X, "Elevatube original X");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936c)), run.Next.Y, "Elevatube original Y");
         }
         foreach (string id in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
         {
-            AssertTrue(!RoomPlmMaridiaElevatubeVisualFiles.TryGetDrawByVisualId(id, out var missing), "Elevatube unknown visual ID");
-            AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Elevatube missing DTO");
+            AssertTrue(!RoomObjectMaridiaElevatubeVisualFiles.TryGetDrawByVisualId(id, out var missing), "Elevatube unknown visual ID");
+            AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Elevatube missing DTO");
         }
     }
 
@@ -51,11 +51,11 @@ internal static class LookupElevatubeVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = raw == 0xb8f2 || controls.Contains((ushort)raw);
-            AssertEqual(owned, MaridiaElevatubePlmDefinitionsConstants.TryReadMechanicsWord((ushort)raw, out ushort value), "Elevatube complete word domain");
+            AssertEqual(owned, MaridiaElevatubeObjectDefinitionsConstants.TryReadMechanicsWord((ushort)raw, out ushort value), "Elevatube complete word domain");
             if (!owned) AssertEqual((ushort)0, value, "Elevatube missing word zero");
             else if (draw == (raw == 0xb8f2))
             {
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | raw), value, "Elevatube native program field");
+                AssertEqual(ReadSamusEaterObjectWord(rom, 0x840000 | raw), value, "Elevatube native program field");
             }
         }
     }
@@ -65,7 +65,7 @@ internal static class LookupElevatubeVerification
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            AssertEqual(raw == 0xb8f6, MaridiaElevatubePlmDefinitionsConstants.TryReadMechanicsByte((ushort)raw, out byte value), "Elevatube sole sound byte domain");
+            AssertEqual(raw == 0xb8f6, MaridiaElevatubeObjectDefinitionsConstants.TryReadMechanicsByte((ushort)raw, out byte value), "Elevatube sole sound byte domain");
             AssertEqual(raw == 0xb8f6 ? ElevatubeProgramSoundRomByte(rom, 0x84b8f6) : (byte)0, value, "Elevatube native sound or missing zero");
         }
     }

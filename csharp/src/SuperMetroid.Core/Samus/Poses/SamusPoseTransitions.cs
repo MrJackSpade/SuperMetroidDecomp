@@ -16,7 +16,7 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static void ApplyWalkedOffFloorTransition(SamusState samus, 
 RoomLevelData level, SamusPoseId targetPose,
-        int frameCounter = 0, ISamusRoomPlms? plms = null)
+        int frameCounter = 0, ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -44,7 +44,7 @@ RoomLevelData level, SamusPoseId targetPose,
         // floor after a near-ground unmorph. Rejection also skips command five.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-level, targetPose, frameCounter, plms, out int centerAdjustment);
+level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -128,7 +128,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         bool wasSpinning,
         ControllerButton controllerInput,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -141,7 +141,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             level,
             targetPose,
             frameCounter,
-            plms,
+            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
@@ -247,7 +247,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
 
         RoomLevelData level,
         int frameCounter,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(level);
@@ -267,7 +267,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             level,
             targetPose,
             frameCounter,
-            plms,
+            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {

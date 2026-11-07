@@ -340,6 +340,6 @@ internal sealed class AcceptedFrameBoundary
     private XrayRevealedBlocks? CaptureXrayReveal(GameplayLatchedScene scene) =>
         // Where X-ray preserves the backgrounds it reveals no blocks: the tiles are another room's.
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.Boss)
-            ? _xray.Reveal((_room.Scope ?? throw new InvalidOperationException("The X-ray reveals no loaded room.")).Plms)
+            ? _xray.Reveal((_room.Scope ?? throw new InvalidOperationException("The X-ray reveals no loaded room.")).RoomObjects)
             : null;
 }

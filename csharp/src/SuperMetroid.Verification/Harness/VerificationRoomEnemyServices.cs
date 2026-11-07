@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Harness;
 /// </summary>
 internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) : IRoomEnemyServices,
     IEnemyRandomNumbers, IGlobalEventFlags, IAreaBossFlags, IRoomScrollZoneAccess, ISamusControlLock,
-    IMotherBrainRoomEffects, IRoomPlmPresence
+    IMotherBrainRoomEffects, IRoomObjectPresence
 {
     /// <summary>Optional case-owned callback for advancing the enemy RNG.</summary>
     public Func<ushort>? NextRandom { get; set; }
@@ -46,7 +46,7 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Exposes this fixture's boss-flag overrides through the enemy service contract.</summary>
     public IAreaBossFlags Bosses => this;
     /// <summary>Uses loaded room services for active PLM queries.</summary>
-    public IRoomPlmPresence Plms => this;
+    public IRoomObjectPresence RoomObjects => this;
     /// <summary>Exposes this fixture's room scroll-write override through the enemy service contract.</summary>
     public IRoomScrollZoneAccess RoomScroll => this;
     /// <summary>Uses loaded room services for Samus control changes.</summary>
@@ -142,8 +142,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
         Loaded("draw over the room's turning floor").DrawFloor(picture);
 
     /// <summary>Queries the loaded room's active PLM headers.</summary>
-    public bool HasActiveHeader(PlmHeaderId header) =>
-        Loaded("query the active room PLM population").Plms.HasActiveHeader(header);
+    public bool HasActiveHeader(RoomObjectHeaderId header) =>
+        Loaded("query the active room PLM population").RoomObjects.HasActiveHeader(header);
 
     /// <summary>Fails at the missing dependency when neither the case nor room loading supplied a service.</summary>
     private IRoomEnemyServices Loaded(string operation) => loaded ?? throw new InvalidOperationException(

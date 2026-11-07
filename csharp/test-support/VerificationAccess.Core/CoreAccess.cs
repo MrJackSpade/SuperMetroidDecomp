@@ -14,7 +14,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -188,8 +188,8 @@ internal static class CoreAccess
     extension(RoomEnemySystem enemies)
     {
         /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
-        internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
-            enemies.ChozoStatueBehavior.ChozoStatuePlmRequests;
+        internal IReadOnlyList<ChozoStatueObjectRequest> ChozoStatueObjectRequests =>
+            enemies.ChozoStatueBehavior.ChozoStatueObjectRequests;
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
             [.. enemies.SlotTable.Slots.Select(slot => slot.SpeciesState<ChozoStatueState>())];
@@ -221,13 +221,13 @@ internal static class CoreAccess
     }
 
     /// <summary>Finds a unique population PLM and snapshots active stations in processing order.</summary>
-    extension(RoomPlmSystem plms)
+    extension(RoomObjectSystem roomObjects)
     {
 
         /// <summary>The one active slot running <paramref name="headerPointer"/>; throws unless exactly one does.</summary>
-        internal RoomPlmSlotSnapshot SinglePopulationSlot(PlmHeaderId headerPointer)
+        internal RoomObjectSlotSnapshot SinglePopulationSlot(RoomObjectHeaderId headerPointer)
         {
-            RoomPlmSlotSnapshot[] matches = plms.PopulationSlots
+            RoomObjectSlotSnapshot[] matches = roomObjects.PopulationSlots
                 .Where(slot => slot.HeaderPointer == headerPointer).ToArray();
             return matches.Length switch
             {
@@ -238,18 +238,18 @@ internal static class CoreAccess
         }
 
         /// <summary>Active station PLMs, in processing order.</summary>
-        internal IReadOnlyList<StationPlmSnapshot> StationSnapshots
+        internal IReadOnlyList<StationObjectSnapshot> StationSnapshots
         {
             get
             {
-                bool lockedOut = plms.Stations.SaveStationLockedOut;
-                return plms.SlotTable.InProcessingOrder
-                    .Select((slot, position) => new IndexedPlmSlot(slot, position))
+                bool lockedOut = roomObjects.Stations.SaveStationLockedOut;
+                return roomObjects.SlotTable.InProcessingOrder
+                    .Select((slot, position) => new IndexedObjectSlot(slot, position))
                     .Where(entry => entry.Slot.Active)
-                    .SelectMany(entry => entry.Slot.Family is StationPlms.StationPlmState station
-                        ? [new StationPlmSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
+                    .SelectMany(entry => entry.Slot.Family is StationObjects.StationObjectState station
+                        ? [new StationObjectSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
-                        : Array.Empty<StationPlmSnapshot>())
+                        : Array.Empty<StationObjectSnapshot>())
                     .ToArray();
             }
         }
@@ -342,7 +342,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Reads the contact latch of the unique live scroll PLM at a room block.</summary>
-    extension(RoomPlmSystem plms)
+    extension(RoomObjectSystem roomObjects)
     {
         /// <summary>
         /// Native PLM_Vars bit fifteen of the live resident scroll trigger at
@@ -350,12 +350,12 @@ internal static class CoreAccess
         /// bank-$8F program returns the object to sleep. Throws unless exactly one live
         /// scroll PLM owns that block.
         /// </summary>
-        internal bool ScrollPlmTriggered(int blockIndex)
+        internal bool ScrollObjectTriggered(int blockIndex)
         {
-            ScrollPlms.ScrollPlmState[] owners = [.. plms.SlotTable.Slots
+            ScrollObjects.ScrollObjectState[] owners = [.. roomObjects.SlotTable.Slots
                 .Where(slot => slot.Active && slot.BlockIndex == blockIndex)
-                .Select(slot => slot.Family as ScrollPlms.ScrollPlmState)
-                .OfType<ScrollPlms.ScrollPlmState>()];
+                .Select(slot => slot.Family as ScrollObjects.ScrollObjectState)
+                .OfType<ScrollObjects.ScrollObjectState>()];
             if (owners.Length != 1)
                 throw new InvalidOperationException(
                     $"Expected one live scroll PLM at block {blockIndex}; found {owners.Length}.");
@@ -394,21 +394,21 @@ internal static class CoreAccess
     }
 
     /// <summary>Lists active PLM block positions and collectible phases and artwork in slot order.</summary>
-    extension(RoomPlmSystem self)
+    extension(RoomObjectSystem self)
     {
         /// <summary>Block index of every active PLM, by slot ordinal.</summary>
-        internal IReadOnlyList<int> ActivePlmBlockIndices =>
+        internal IReadOnlyList<int> ActiveObjectBlockIndices =>
         [
-            .. Group4ActivePlmSlots(self).Select(slot => slot.BlockIndex),
+            .. Group4ActiveObjectSlots(self).Select(slot => slot.BlockIndex),
         ];
 
-        /// <summary>Phase of every permanent-item PLM, in the same order as <see cref="CollectiblePlms.Collectibles"/>.</summary>
+        /// <summary>Phase of every permanent-item PLM, in the same order as <see cref="CollectibleObjects.Collectibles"/>.</summary>
         internal IReadOnlyList<CollectiblePhase> CollectiblePhases =>
         [
             .. Group4CollectibleItems(self).Select(item => item.Phase),
         ];
 
-        /// <summary>Presentation of every permanent-item PLM, in the same order as <see cref="CollectiblePlms.Collectibles"/>.</summary>
+        /// <summary>Presentation of every permanent-item PLM, in the same order as <see cref="CollectibleObjects.Collectibles"/>.</summary>
         internal IReadOnlyList<CollectiblePresentation> CollectiblePresentations =>
         [
             .. Group4CollectibleItems(self).Select(item => item.Presentation),
@@ -417,10 +417,10 @@ internal static class CoreAccess
 
 
     /// <summary>Visits occupied PLM slots by ordinal.</summary>
-    private static IEnumerable<PlmSlot> Group4ActivePlmSlots(RoomPlmSystem plms) =>
-        plms.SlotTable.Slots.Where(slot => slot.Active);
+    private static IEnumerable<RoomObjectSlot> Group4ActiveObjectSlots(RoomObjectSystem roomObjects) =>
+        roomObjects.SlotTable.Slots.Where(slot => slot.Active);
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
-    private static IEnumerable<CollectiblePlms.CollectiblePlmState> Group4CollectibleItems(RoomPlmSystem plms) =>
-        Group4ActivePlmSlots(plms).Select(slot => slot.Family).OfType<CollectiblePlms.CollectiblePlmState>();
+    private static IEnumerable<CollectibleObjects.CollectibleObjectState> Group4CollectibleItems(RoomObjectSystem roomObjects) =>
+        Group4ActiveObjectSlots(roomObjects).Select(slot => slot.Family).OfType<CollectibleObjects.CollectibleObjectState>();
 }

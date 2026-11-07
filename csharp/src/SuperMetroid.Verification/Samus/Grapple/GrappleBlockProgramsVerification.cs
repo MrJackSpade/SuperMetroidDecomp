@@ -1,10 +1,10 @@
 using SuperMetroid.AssetExtraction;
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -21,11 +21,11 @@ internal static class GrappleBlockProgramsVerification
     {
         ushort[] addresses = [0xcd6a,0xcd6e,0xcd71,0xcd75,0xcd79,0xcd7d,0xcd81,0xcd85,0xcd89,0xcd8d,0xcd8f,0xcd91,
             0xcda9,0xcdad,0xcdb0,0xcdb4,0xcdb8,0xcdbc,0xcdc0];
-        AssertTrue(addresses.SequenceEqual(RoomPlmGrappleBlockProgramDefinitions.MechanicsWordAddresses()), "Grapple native control enumeration");
+        AssertTrue(addresses.SequenceEqual(RoomObjectGrappleBlockProgramDefinitions.MechanicsWordAddresses()), "Grapple native control enumeration");
         var known = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord((ushort)address,out ushort value);
+            bool found = RoomObjectGrappleBlockProgramDefinitions.TryReadMechanicsWord((ushort)address,out ushort value);
             AssertEqual(known.Contains((ushort)address),found,"Grapple complete control domain including callback gap");
             AssertEqual(found ? ReadRomWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native timing, sound queue, BTS restoration and deletion");
         }
@@ -39,7 +39,7 @@ internal static class GrappleBlockProgramsVerification
         var known = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address,out ushort value);
+            bool found = RoomObjectGrappleBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address,out ushort value);
             AssertEqual(known.Contains((ushort)address),found,"Grapple complete draw operand domain");
             AssertEqual(found ? ReadRomWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native initial, forward and reverse draw selection");
         }
@@ -49,10 +49,10 @@ internal static class GrappleBlockProgramsVerification
     private static void VerifyGrappleBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd70,0xcdaf];
-        AssertTrue(addresses.SequenceEqual(RoomPlmGrappleBlockProgramDefinitions.MechanicsByteAddresses()), "Grapple native sound enumeration");
+        AssertTrue(addresses.SequenceEqual(RoomObjectGrappleBlockProgramDefinitions.MechanicsByteAddresses()), "Grapple native sound enumeration");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte((ushort)address,out byte value);
+            bool found = RoomObjectGrappleBlockProgramDefinitions.TryReadMechanicsByte((ushort)address,out byte value);
             AssertEqual(addresses.Contains((ushort)address),found,"Grapple complete packed sound domain");
             AssertEqual(found ? GrappleBlockSoundMappingRomByte(rom, 0x840000 | address) : (byte)0,value,"Grapple native packed sound bytes");
         }
@@ -65,32 +65,32 @@ internal static class GrappleBlockProgramsVerification
     private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
-        var exported = RoomPlmGrappleBlockVisualFiles.All.ToArray();
-        AssertTrue(pointers.SequenceEqual(exported.Select(draw => NativePlmDraws.AddressOf(PlmDraw.Of(draw.Frame)))), "Grapple native draw export order");
+        var exported = RoomObjectGrappleBlockVisualFiles.All.ToArray();
+        AssertTrue(pointers.SequenceEqual(exported.Select(draw => NativeObjectDraws.AddressOf(RoomObjectDraw.Of(draw.Frame)))), "Grapple native draw export order");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            bool found = GrappleBlockPlmDraws.TryGet(GrappleAt(pointer),out var draw);
+            bool found = GrappleBlockObjectDraws.TryGet(GrappleAt(pointer),out var draw);
             AssertEqual(pointers.Contains((ushort)pointer),found,"Grapple full native draw pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomPlmGrappleBlockDrawDefinitions.DrawList),draw,"Grapple missing draw cleared");
+                AssertEqual(default(RoomObjectGrappleBlockDrawDefinitions.DrawList),draw,"Grapple missing draw cleared");
                 continue;
             }
-            AssertEqual((ushort)pointer,NativePlmDraws.AddressOf(PlmDraw.Of(draw.Frame)),"Grapple draw identity");
-            AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunDirection,SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunLength,"Grapple native single-block geometry");
+            AssertEqual((ushort)pointer,NativeObjectDraws.AddressOf(RoomObjectDraw.Of(draw.Frame)),"Grapple draw identity");
+            AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles.RunDirection,SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles.RunLength,"Grapple native single-block geometry");
             AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))),draw.Terrain,"Grapple native terrain");
-            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunNextX,"Grapple native terminal X");
-            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunNextY,"Grapple native terminal Y");
-            AssertEqual(draw,exported.Single(entry => NativePlmDraws.AddressOf(PlmDraw.Of(entry.Frame)) == pointer),"Grapple exported draw matches calculation");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles.RunNextX,"Grapple native terminal X");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles.RunNextY,"Grapple native terminal Y");
+            AssertEqual(draw,exported.Single(entry => NativeObjectDraws.AddressOf(RoomObjectDraw.Of(entry.Frame)) == pointer),"Grapple exported draw matches calculation");
         }
     }
 
     /// <summary>The Grapple-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
-    private static PlmDraw GrappleAt(int pointer) => NativePlmDraws.At<GrappleBlockDraw>(pointer);
+    private static RoomObjectDraw GrappleAt(int pointer) => NativeObjectDraws.At<GrappleBlockDraw>(pointer);
 
     /// <summary>The artwork identity of the Grapple-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
     private static string GrappleId(int pointer) =>
-        RoomPlmGrappleBlockVisualFiles.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
+        RoomObjectGrappleBlockVisualFiles.VisualId(RoomObjectDraw.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
 
     /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
@@ -101,10 +101,10 @@ internal static class GrappleBlockProgramsVerification
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
         var native = pointers.ToDictionary(pointer => pointer, pointer =>
             RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom,0x840000 | (pointer + 2))));
-        var entries = native.Select(pair => new RoomPlmVisualBlockEntry(GrappleId(pair.Key),pair.Value)).ToArray();
-        var stock = InstalledRoomPlmGrappleBlockVisuals.Stock();
-        var imported = RoomPlmGrappleBlockVisualFiles.Create(entries);
-        string expectedHash = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmGrappleBlockVisuals),native.ToDictionary(pair => GrappleId(pair.Key), pair => pair.Value));
+        var entries = native.Select(pair => new RoomObjectVisualBlockEntry(GrappleId(pair.Key),pair.Value)).ToArray();
+        var stock = InstalledRoomObjectGrappleBlockVisuals.Stock();
+        var imported = RoomObjectGrappleBlockVisualFiles.Create(entries);
+        string expectedHash = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomObjectGrappleBlockVisuals),native.ToDictionary(pair => GrappleId(pair.Key), pair => pair.Value));
         AssertEqual(expectedHash,stock.ContentIdentity,"Grapple calculated stock original hash");
         AssertEqual(expectedHash,imported.ContentIdentity,"Grapple imported stock original hash");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -117,8 +117,8 @@ internal static class GrappleBlockProgramsVerification
             else
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(GrappleAt(pointer)),"Grapple stock rejects unsupported draw identity");
         }
-        AssertThrows<InvalidDataException>(() => RoomPlmGrappleBlockVisualFiles.Create(entries[..4]),"Grapple rejects incomplete selection");
-        AssertThrows<InvalidDataException>(() => RoomPlmGrappleBlockVisualFiles.Create(entries.Append(entries[0])),"Grapple rejects duplicate selection");
+        AssertThrows<InvalidDataException>(() => RoomObjectGrappleBlockVisualFiles.Create(entries[..4]),"Grapple rejects incomplete selection");
+        AssertThrows<InvalidDataException>(() => RoomObjectGrappleBlockVisualFiles.Create(entries.Append(entries[0])),"Grapple rejects duplicate selection");
     }
 
     /// <summary>Runs both BTS programs under read guards for 300 frames.</summary>
@@ -131,12 +131,12 @@ internal static class GrappleBlockProgramsVerification
         Suite(nameof(VerifyGrappleBlockDrawOperandMapping), () => VerifyGrappleBlockDrawOperandMapping(rom));
         Suite(nameof(VerifyGrappleBlockSoundMapping), () => VerifyGrappleBlockSoundMapping(rom));
         var forbidden = new HashSet<int>();
-        foreach (ushort address in RoomPlmGrappleBlockProgramDefinitions.MechanicsWordAddresses())
+        foreach (ushort address in RoomObjectGrappleBlockProgramDefinitions.MechanicsWordAddresses())
         {
             forbidden.Add(0x840000 | address);
             forbidden.Add(0x840000 | (address + 1));
         }
-        foreach (ushort address in RoomPlmGrappleBlockProgramDefinitions.MechanicsByteAddresses())
+        foreach (ushort address in RoomObjectGrappleBlockProgramDefinitions.MechanicsByteAddresses())
             forbidden.Add(0x840000 | address);
 
         Suite(nameof(VerifyGrappleBlockPhysicalDrawMapping), () => VerifyGrappleBlockPhysicalDrawMapping(rom));
@@ -150,11 +150,11 @@ internal static class GrappleBlockProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 300; frame++)
             {
-                native.Plms.Step(native.Level);
-                compiled.Plms.Step(compiled.Level);
-                AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
+                native.RoomObjects.Step(native.Level);
+                compiled.RoomObjects.Step(compiled.Level);
+                AssertEqual(native.RoomObjects.SlotTable.ActiveCount, compiled.RoomObjects.SlotTable.ActiveCount,
                     $"Grapple BTS {bts} active count, frame {frame}");
-                AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
+                AssertEqual(native.RoomObjects.Sounds.SoundRequests.Count, compiled.RoomObjects.Sounds.SoundRequests.Count,
                     $"Grapple BTS {bts} sound count, frame {frame}");
                 AssertEqual(native.Level.GetCollisionBlockByIndex(27).Terrain,
                     compiled.Level.GetCollisionBlockByIndex(27).Terrain,
@@ -166,7 +166,7 @@ internal static class GrappleBlockProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"Grapple BTS {bts} never rereads compiled control bytes");
-            AssertEqual(0, compiled.Plms.SlotTable.ActiveCount,
+            AssertEqual(0, compiled.RoomObjects.SlotTable.ActiveCount,
                 $"Grapple BTS {bts} finishes its cartridge timeline");
         }
 
@@ -180,62 +180,62 @@ internal static class GrappleBlockProgramsVerification
     private static void VerifyGrappleBlockVisualSeparation(
 )
     {
-        RoomPlmVisualBlockEntry[] entries =
-            RoomPlmGrappleBlockVisualFiles.All.Select(draw =>
-                new RoomPlmVisualBlockEntry(RoomPlmGrappleBlockVisualFiles.VisualId(draw.Frame),
+        RoomObjectVisualBlockEntry[] entries =
+            RoomObjectGrappleBlockVisualFiles.All.Select(draw =>
+                new RoomObjectVisualBlockEntry(RoomObjectGrappleBlockVisualFiles.VisualId(draw.Frame),
                     draw.Terrain.Appearance)).ToArray();
 
         // Run the first PLM draw and capture collision, immediate tile upload, and later camera-streamed tile output.
         GrappleBlockProgramsRenderResult Render(
-            InstalledRoomPlmGrappleBlockVisuals visuals)
+            InstalledRoomObjectGrappleBlockVisuals visuals)
         {
             const int width = 8;
             const int blockIndex = 27;
             var words = new RoomTerrainBlock[width * width];
             words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
-            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGrappleBlockVisuals = visuals });
-            AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
+            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectGrappleBlockVisuals = visuals });
+            AssertTrue(roomObjects.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
-            plms.Step(level);
+            roomObjects.Step(level);
             return new GrappleBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
                 level.DisplayedAppearance(blockIndex),
                 level.DisplayedAppearance(blockIndex));
         }
 
-        var stock = Render(InstalledRoomPlmGrappleBlockVisuals.Stock());
+        var stock = Render(InstalledRoomObjectGrappleBlockVisuals.Stock());
         AssertEqual(RoomTerrainBlock.Of(0x0b7, BlockMirroring.None, RoomCollisionType.GrappleBlock), stock.Physical,
             "native first Grapple frame installs Grapple collision");
         AssertEqual(RoomBlockAppearance.Of(0x0b7), stock.Immediate,
             "stock visual block reaches immediate tile upload");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmGrappleBlockVisualFiles.Create(entries.Skip(1)),
+            () => RoomObjectGrappleBlockVisualFiles.Create(entries.Skip(1)),
             "Grapple catalog rejects incomplete draw-list coverage");
     }
 
     /// <summary>Checks the extracted stock art and that a corrupt installed visual file fails loudly where it is read.</summary>
     private static void VerifyGrappleBlockVisualInstallation()
     {
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmGrappleBlockVisualDirectory);
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectGrappleBlockVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmGrappleBlockVisualFilesConstants.ValidateStock(
-            installation.RoomPlmGrappleBlockVisualDirectory);
+        RoomObjectGrappleBlockVisualFilesConstants.ValidateStock(
+            installation.RoomObjectGrappleBlockVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x0b7),
-            installation.LoadRoomPlmGrappleBlockVisuals().GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),
+            installation.LoadRoomObjectGrappleBlockVisuals().GetAppearance(RoomObjectDraw.Of(GrappleBlockDraw.Intact)),
             "installed Grapple frame matches native stock art");
 
         string stockPath = Path.Combine(
-            installation.RoomPlmGrappleBlockVisualDirectory,
-            RoomPlmGrappleBlockVisualFiles.VisualFileName);
+            installation.RoomObjectGrappleBlockVisualDirectory,
+            RoomObjectGrappleBlockVisualFiles.VisualFileName);
         File.WriteAllText(stockPath, "corrupt stock");
         AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmGrappleBlockVisuals(),
+            () => installation.LoadRoomObjectGrappleBlockVisuals(),
             "corrupt installed Grapple visuals fail loudly where they are read");
     }
 
     /// <summary>Constructed room collision and PLM system for one grapple BTS program.</summary>
     internal sealed record GrappleBlockFixture(
-        RoomLevelData Level, RoomPlmSystem Plms);
+        RoomLevelData Level, RoomObjectSystem RoomObjects);
 
     /// <summary>Spawns one grapple block at cell 27 in an eight-column synthetic room.</summary>
     private static GrappleBlockFixture NewGrappleBlockFixture(byte bts)
@@ -245,10 +245,10 @@ internal static class GrappleBlockProgramsVerification
         var words = new RoomTerrainBlock[width * width];
         words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
-        var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
+        var roomObjects = RoomObjectFixtures.Unbound();
+        AssertTrue(roomObjects.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
             $"Grapple BTS {bts} installs its native program");
-        return new GrappleBlockFixture(level, plms);
+        return new GrappleBlockFixture(level, roomObjects);
     }
 
     /// <summary>Runs the grapple-block mechanics and visual checks from their command-line switch.</summary>

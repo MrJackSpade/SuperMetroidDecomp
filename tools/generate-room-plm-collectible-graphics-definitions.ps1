@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 try {
     $repoRoot = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
     $romFile = [IO.Path]::GetFullPath((Join-Path $repoRoot $RomPath))
-    $outputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs'
+    $outputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDynamicCollectibleGraphicsDefinitions.Generated.cs'
     $expectedHash = '12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72'
     $actualHash = (Get-FileHash -LiteralPath $romFile -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($actualHash -cne $expectedHash) {
@@ -19,7 +19,7 @@ try {
     $lines.Add('namespace SuperMetroid.AssetExtraction.Rooms;')
     $lines.Add('')
     $lines.Add('/// <summary>Pinned bank-$89 item tiles; regenerate with tools/generate-room-plm-collectible-graphics-definitions.ps1.</summary>')
-    $lines.Add('internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions')
+    $lines.Add('internal static partial class RoomObjectDynamicCollectibleGraphicsDefinitions')
     $lines.Add('{')
     $lines.Add('    /// <summary>')
     $lines.Add('    /// ItemPLMGFX_Bombs through ItemPLMGFX_ReserveTank, $89:8000-$90FF:')

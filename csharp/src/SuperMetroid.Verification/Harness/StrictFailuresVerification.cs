@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Harness;
@@ -31,10 +31,10 @@ internal static void VerifyStrictFailureBoundaries()
         () => _ = DisplayBrightness.Require(DisplayBrightness.Full + 1),
         "display brightness above full is rejected");
 
-    AssertTrue(RoomPlmSystem.IsSupportedRoomPopulationHeader(
-            PlmHeaderId.YellowDoorFacingLeft),
+    AssertTrue(RoomObjectSystem.IsSupportedRoomPopulationHeader(
+            RoomObjectHeaderId.YellowDoorFacingLeft),
         "translated yellow-door PLM is classified by the production dispatcher");
-    AssertTrue(!RoomPlmSystem.IsSupportedRoomPopulationHeader((PlmHeaderId)(-1)),
+    AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectHeaderId)(-1)),
         "unknown PLM is absent from the production dispatcher");
 
     var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());

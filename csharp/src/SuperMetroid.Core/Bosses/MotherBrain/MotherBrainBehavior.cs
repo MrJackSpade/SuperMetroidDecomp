@@ -315,7 +315,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
                 state.FunctionTimer = 0;
                 state.GrayFadeIndex = 0;
-                Access.RequestMotherBrainPlm(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
+                Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
 
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:

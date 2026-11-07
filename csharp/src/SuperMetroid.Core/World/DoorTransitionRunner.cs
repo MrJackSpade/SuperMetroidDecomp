@@ -68,7 +68,7 @@ internal sealed class DoorTransitionRunner
     /// address receives the same writes. Unknown nonzero pointers throw so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
-    internal void RunDoorSetupCode(DoorDefinition door, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
+    internal void RunDoorSetupCode(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -107,19 +107,19 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, plms, wreckedShipTreadmill);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, roomObjects, wreckedShipTreadmill);
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, plms, wreckedShipTreadmill);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, roomObjects, wreckedShipTreadmill);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
-                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, plms, maridiaElevatube);
+                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, roomObjects, maridiaElevatube);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
-                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, plms, maridiaElevatube);
+                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, roomObjects, maridiaElevatube);
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
@@ -211,7 +211,7 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Starts animated treadmill tiles and attempts the matching entrance PLM spawn.</summary>
-    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
+    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
     {
         if (_room.LevelData is null || _room.ActiveRoom is null)
         {
@@ -223,14 +223,14 @@ internal sealed class DoorTransitionRunner
         // Both spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the PLM allocator's false result here.
-        _ = plms.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
+        _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
             direction,
             _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room PLM spawn.</summary>
-    private void SetUpMaridiaElevatube(ElevatubeEntry entry, RoomPlmSystem plms, MaridiaElevatubeRoomMainState maridiaElevatube)
+    private void SetUpMaridiaElevatube(ElevatubeEntry entry, RoomObjectSystem roomObjects, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Maridia elevatube setup requires active level data.");
@@ -244,12 +244,12 @@ internal sealed class DoorTransitionRunner
 
         // The door routine ignores SpawnHardcodedPLM's carry result when all forty IDs are
         // occupied. Retaining the bool-returning allocator preserves that edge.
-        _ = plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
+        _ = roomObjects.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
     public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room)
     {
-        RunDoorSoundWaitPrologue(controllerInput, room.Plms, room.BombProjectiles, room);
+        RunDoorSoundWaitPrologue(controllerInput, room.RoomObjects, room.BombProjectiles, room);
         DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room);
     }
 
@@ -259,11 +259,11 @@ internal sealed class DoorTransitionRunner
     /// precedes the door's own step, so its room-FX sound requests are queued before the door cancels and disables
     /// sounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-        plms.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion.Activity);
+        roomObjects.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion.Activity);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
-        AdvanceEffectsAndRandom(plms, room);
+        AdvanceEffectsAndRandom(roomObjects, room);
     }
 
     /// <summary>The enemy and draw pass shared by the source door's waits and the fades.</summary>
@@ -307,11 +307,11 @@ internal sealed class DoorTransitionRunner
     /// The opening of an update without gameplay: the liquid wave and statue descent, unless a door transition has stopped them
     /// (<see cref="EffectPhaseRandomOrder"/>), then the update's random draw.
     /// </summary>
-    internal void AdvanceEffectsAndRandom(RoomPlmSystem plms, RoomScope room)
+    internal void AdvanceEffectsAndRandom(RoomObjectSystem roomObjects, RoomScope room)
     {
         if (_liquidWaveAndStatueDescent.RunsThisUpdate)
         {
-            _liquidWaveAndStatueDescent.Advance(plms, room);
+            _liquidWaveAndStatueDescent.Advance(roomObjects, room);
             if (_player.Samus is not null && room.FxOverlay.MovesLiquidBeforeMainLoop)
                 _player.Samus.LiquidPhysics.ConfigureFor(room.FxOverlay);
         }

@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -43,7 +43,7 @@ internal static class RoomAppearanceBindings
     internal static void BindShown(BgArtworkBindings bindings, RoomAppearance appearance, BgArtworkBytes artwork)
     {
         Ensure.NotNull(appearance);
-        for (int slot = 0; slot < CollectiblePlms.GraphicsSlots; slot++)
+        for (int slot = 0; slot < CollectibleObjects.GraphicsSlots; slot++)
         {
             if (appearance.CollectibleIn(slot) is { } kind)
                 Bind(bindings, RoomBgArtwork.Collectible(kind), RoomTileCharacters.CollectiblesFirst + slot * RoomTileCharacters.CollectibleSlotCharacters, artwork);

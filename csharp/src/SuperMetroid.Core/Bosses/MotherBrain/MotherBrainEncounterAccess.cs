@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -22,8 +22,8 @@ internal sealed class MotherBrainEncounterAccess
     }
 
     /// <summary>Requests one of Mother Brain's room mutations at a foreground room block for this pass.</summary>
-    internal void RequestMotherBrainPlm(Position16<RoomBlocks> block, MotherBrainRoomMutation mutation) =>
-        _frameResults.MotherBrainPlms.Add(new PlmSpawnRequest<MotherBrainRoomMutation>(block, mutation));
+    internal void RequestMotherBrainObject(Position16<RoomBlocks> block, MotherBrainRoomMutation mutation) =>
+        _frameResults.MotherBrainObjects.Add(new RoomObjectSpawnRequest<MotherBrainRoomMutation>(block, mutation));
 
     /// <summary>Ports <c>SetMotherBrainHeadInstList</c>: restarts the brain on <paramref name="program"/>.</summary>
     internal static void SetMotherBrainBrainProgram(MotherBrainEnemyState state, MotherBrainHeadProgram program)

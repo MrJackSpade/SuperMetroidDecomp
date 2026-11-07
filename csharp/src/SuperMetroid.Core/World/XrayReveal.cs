@@ -1,7 +1,7 @@
 ﻿using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.World;
@@ -36,15 +36,15 @@ internal sealed class XrayReveal
     /// room and changes nothing.
     /// </summary>
     /// <exception cref="InvalidOperationException">No room or level data is loaded.</exception>
-    internal XrayRevealedBlocks Reveal(IRoomPlms plms)
+    internal XrayRevealedBlocks Reveal(IRoomObjects roomObjects)
     {
-        Ensure.NotNull(plms);
+        Ensure.NotNull(roomObjects);
         var room = _room.ActiveRoom ?? throw new InvalidOperationException("The X-ray reveals no room.");
         var level = _room.LevelData ?? throw new InvalidOperationException("The X-ray reveals a room with no level data.");
         Position16<RoomPixels> foregroundPosition = _backgroundScroll.ForegroundPosition;
         RevealedBlock?[] blocks = XrayRevealMap.Build(level, foregroundPosition, _backgroundScroll.ForegroundOffset,
             room.AreaIndex, XrayRevealVisuals);
-        XrayRevealOverlays.Apply(level, blocks, plms.CollectiblePlms.Collectibles, _system,
+        XrayRevealOverlays.Apply(level, blocks, roomObjects.CollectibleObjects.Collectibles, _system,
             room.State.XrayOverlay, foregroundPosition, XrayRevealVisuals);
         return new(XrayRevealMap.OriginOf(foregroundPosition, _backgroundScroll.ForegroundOffset), [.. blocks]);
     }

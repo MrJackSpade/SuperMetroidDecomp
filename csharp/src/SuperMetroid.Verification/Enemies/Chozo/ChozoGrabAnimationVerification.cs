@@ -56,7 +56,7 @@ internal static class ChozoGrabAnimationVerification
             expectedExplosion.Arm();
             expectedExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
         }
-        runtime.Plms.ChozoStatue.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
+        runtime.RoomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && samus.Control.AlphaLocked,
             "hand trigger installs native stationary handlers");
         AssertEqual(2, samus.AnimationFrame, "grab preserves captured ball frame");

@@ -20,7 +20,7 @@ internal static class SuperMetroidRuntimeAccess
     extension(SuperMetroidRuntime self)
     {
         /// <summary>The loaded room's PLM system, which each room builds with its scope.</summary>
-        internal RoomPlmSystem Plms => self.Room.LoadedScope.Plms;
+        internal RoomObjectSystem RoomObjects => self.Room.LoadedScope.RoomObjects;
 
         /// <summary>The loaded room's Samus projectiles.</summary>
         internal SamusProjectileSystem Projectiles => self.Room.LoadedScope.Projectiles;

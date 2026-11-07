@@ -489,20 +489,20 @@ internal static class AnalyzerTests
     }
 
     /// <summary>Checks that only the PLM slot table claims a PLM slot (#1361).</summary>
-    internal static void VerifyPlmSlotAllocationAnalyzer()
+    internal static void VerifyObjectSlotAllocationAnalyzer()
     {
-        var analyzer = new PlmSlotAllocationAnalyzer();
+        var analyzer = new RoomObjectSlotAllocationAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>
             VerifySnippet(source, id, message, analyzer);
         const string api =
-            "namespace SuperMetroid.Core.Rooms.Plms { sealed class PlmSlot { public bool Active { get; private set; } internal void Claim() => Active = true; } " +
-            "sealed class PlmSlotTable { private readonly PlmSlot[] slots = new PlmSlot[40]; internal PlmSlot? SpawnHardcoded() { foreach (PlmSlot slot in slots) if (!slot.Active) { slot.Claim(); return slot; } return null; } } } ";
+            "namespace SuperMetroid.Core.Rooms.RoomObjects { sealed class RoomObjectSlot { public bool Active { get; private set; } internal void Claim() => Active = true; } " +
+            "sealed class RoomObjectSlotTable { private readonly RoomObjectSlot[] slots = new RoomObjectSlot[40]; internal RoomObjectSlot? SpawnHardcoded() { foreach (RoomObjectSlot slot in slots) if (!slot.Active) { slot.Claim(); return slot; } return null; } } } ";
 
         // SME6303: an open-coded free-slot search claims its slot directly.
-        Expect(api + "namespace SuperMetroid.Core.Rooms.Doors { using SuperMetroid.Core.Rooms.Plms; sealed class DoorPlms { void M(PlmSlot[] slots) { foreach (PlmSlot slot in slots) if (!slot.Active) { slot.Claim(); return; } } } }",
-            PlmSlotAllocationAnalyzer.OpenCodedClaimId, "DoorPlms claims a PLM slot directly");
+        Expect(api + "namespace SuperMetroid.Core.Rooms.Doors { using SuperMetroid.Core.Rooms.RoomObjects; sealed class DoorObjects { void M(RoomObjectSlot[] slots) { foreach (RoomObjectSlot slot in slots) if (!slot.Active) { slot.Claim(); return; } } } }",
+            RoomObjectSlotAllocationAnalyzer.OpenCodedClaimId, "DoorObjects claims a PLM slot directly");
         // The slot table's spawn operations, and callers that use them, pass.
-        Expect(api + "namespace SuperMetroid.Core.Rooms.Doors { using SuperMetroid.Core.Rooms.Plms; sealed class DoorPlms { PlmSlot? M(PlmSlotTable table) => table.SpawnHardcoded(); } }");
+        Expect(api + "namespace SuperMetroid.Core.Rooms.Doors { using SuperMetroid.Core.Rooms.RoomObjects; sealed class DoorObjects { RoomObjectSlot? M(RoomObjectSlotTable table) => table.SpawnHardcoded(); } }");
     }
 
     /// <summary>Checks paired coordinate, parameter and parallel-array diagnostics without flagging named spatial values.</summary>

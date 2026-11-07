@@ -3,13 +3,13 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandDrawVerification;
-using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -27,7 +27,7 @@ internal static class BombTorizoHandVerification
     /// Locks Bomb Torizo's resident `$D6EA` header, Bombs inventory gate, crumble delay, eight debris
     /// requests, final music command, and cartridge-timed deletion together.
     /// </summary>
-    internal static void VerifyBombTorizoHandPlm()
+    internal static void VerifyBombTorizoHandObject()
     {
         Suite(nameof(VerifyBombTorizoHandProgramDefinitions), () => VerifyBombTorizoHandProgramDefinitions());
         Suite(nameof(VerifyBombTorizoHandVisualInstallation), () => VerifyBombTorizoHandVisualInstallation());
@@ -44,15 +44,15 @@ internal static class BombTorizoHandVerification
 
         var level = CreateEmptyRoom(new(width, height));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
-        var plms = PlmFixtures.Unbound();
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        var roomObjects = RoomObjectFixtures.Unbound();
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "undefeated Bomb Torizo hand occupies PLM slot");
-        AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
+        AssertTrue(roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
             "enemy header scan sees live Bomb Torizo hand");
 
         // First pass draws the closed hand; second installs D33B and reaches sleep. Many
         // additional passes prove that neither a countdown nor host wall clock bypasses it.
-        plms.Step(level);
+        roomObjects.Step(level);
         int handOrigin = level.GetBlockIndex(new(13, 11));
         AssertEqual(RoomTerrainBlock.Of(0x65, BlockMirroring.None, RoomCollisionType.SolidBlock),
             level.GetCollisionBlockByIndex(handOrigin).Terrain,
@@ -61,58 +61,58 @@ internal static class BombTorizoHandVerification
             "multi-run hand geometry retains the second native run");
         AssertEqual(RoomTerrainBlock.Of(0x49, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(14, 12)).Terrain,
             "multi-run hand geometry retains the fourth native run");
-        plms.Step(level);
+        roomObjects.Step(level);
         for (int frame = 0; frame < 180; frame++)
-            plms.Step(level);
-        AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
+            roomObjects.Step(level);
+        AssertTrue(roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
             "hand remains resident while Samus lacks Bombs");
-        AssertEqual(0, plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
+        AssertEqual(0, roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
             "sleeping hand drops no premature fragment");
 
         samus.CollectedItems |= SamusEquipmentFlags.Bombs;
-        plms.Step(level); // D33B skips sleep, starts 120-frame wait.
-        AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
+        roomObjects.Step(level); // D33B skips sleep, starts 120-frame wait.
+        AssertTrue(roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
             "Bombs wake starts authored delay without deleting hand");
 
         for (int frame = 0; frame < 119; frame++)
-            plms.Step(level);
-        AssertEqual(0, plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
+            roomObjects.Step(level);
+        AssertEqual(0, roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
             "the hand holds through its 120-frame post-pickup delay");
-        plms.Step(level);
+        roomObjects.Step(level);
         var fragments = new List<int>();
         int firstFragmentFrame = 0;
-        for (int frame = 1; frame <= 400 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand); frame++)
+        for (int frame = 1; frame <= 400 && roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand); frame++)
         {
-            plms.Step(level);
-            if (fragments.Count == 0 && plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Count > 0)
+            roomObjects.Step(level);
+            if (fragments.Count == 0 && roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count > 0)
                 firstFragmentFrame = frame;
-            fragments.AddRange(plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
+            fragments.AddRange(roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
                 request => request.Fragment));
         }
         // The crumble starts on the delay's last frame; the first fragment drops its own delay later, with no step
         // between them for the debris characters the cartridge loaded there (#1406).
-        AssertEqual(BombTorizoHandPlmProgramDefinitions.FragmentDelays[0], firstFragmentFrame,
+        AssertEqual(BombTorizoHandObjectProgramDefinitions.FragmentDelays[0], firstFragmentFrame,
             "the first fragment drops its authored delay after the crumble begins");
         AssertSequenceEqual(
             new[] { 0, 1, 2, 3, 4, 5, 6, 7 },
             fragments,
             "hand fragments preserve cartridge order");
-        AssertTrue(!plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
+        AssertTrue(!roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
             "final delete removes header seen by Torizo AI");
         AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             level.GetCollisionBlockByIndex(handOrigin).Terrain,
             "five-run cleared hand removes its physical origin block");
-        AssertEqual(1, plms.BombTorizoHand.MusicRequests.Count,
+        AssertEqual(1, roomObjects.BombTorizoHand.MusicRequests.Count,
             "terminal hand pass queues one music command");
         AssertEqual(
             new DelayedMusicRequest(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest),
-            plms.BombTorizoHand.MusicRequests[0],
+            roomObjects.BombTorizoHand.MusicRequests[0],
             "terminal hand music request");
 
-        var defeated = PlmFixtures.Unbound();
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref defeated, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
+        var defeated = RoomObjectFixtures.Unbound();
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref defeated, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
             "single loader still parses defeated hand record before setup deletes it");
-        AssertTrue(!defeated.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
+        AssertTrue(!defeated.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
             "defeated setup exposes no transient hand header");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "complete hand lifecycle and defeated reload never reread program or draw bytes");
@@ -131,7 +131,7 @@ internal static class BombTorizoHandVerification
         Suite(nameof(VerifyBombTorizoHandDrawGeometry), () => VerifyBombTorizoHandDrawGeometry(rom));
         Suite(nameof(VerifyBombTorizoHandDrawCollision), () => VerifyBombTorizoHandDrawCollision(rom));
         Suite(nameof(VerifyBombTorizoHandDrawVisuals), () => VerifyBombTorizoHandDrawVisuals(rom));
-        Suite(nameof(BossRoomPlmProgramsVerification.VerifyBombTorizoHandPrograms), () => BossRoomPlmProgramsVerification.VerifyBombTorizoHandPrograms(rom));
+        Suite(nameof(BossRoomObjectProgramsVerification.VerifyBombTorizoHandPrograms), () => BossRoomObjectProgramsVerification.VerifyBombTorizoHandPrograms(rom));
     }
 
     /// <summary>Forbids live reads from migrated hand instruction and draw-list bytes.</summary>
@@ -144,13 +144,13 @@ internal static class BombTorizoHandVerification
     static void SeedBombTorizoHandCartridge(TestAddressSpace bus, ushort population)
     {
         // One six-byte room-population record at the retail Bomb Torizo hand coordinate.
-        SeedRoomPlmPopulation(bus, population,
+        SeedRoomObjectPopulation(bus, population,
             [0xea, 0xd6, 0x0d, 0x0b, 0x00, 0x00, 0x00, 0x00]);
 
         // This is the complete `$84:D368` stream. Keeping the seven unaligned operands of
         // `$87E5` byte-for-byte is important: parsing this as words changes the following
         // 96-frame duration into `$7700` and never reaches the fragment sequence.
-        SeedPlmProgramBytes(bus, 0xd368,
+        SeedObjectProgramBytes(bus, 0xd368,
         [
             0x01, 0x00, 0x77, 0x98,
             0xc1, 0x86, 0x3b, 0xd3,
@@ -181,9 +181,9 @@ internal static class BombTorizoHandVerification
 
     /// <summary>Runs the complete Bomb Torizo hand PLM lifecycle verification.</summary>
     [VerificationCommand("--bomb-torizo-hand-plm-program")]
-    internal static int BombTorizoHandPlmProgramCommand()
+    internal static int BombTorizoHandObjectProgramCommand()
     {
-        Suite(nameof(VerifyBombTorizoHandPlm), () => VerifyBombTorizoHandPlm());
+        Suite(nameof(VerifyBombTorizoHandObject), () => VerifyBombTorizoHandObject());
         return 0;
     }
 }

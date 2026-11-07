@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Verification.Areas.Escape;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -15,7 +15,7 @@ internal static class LookupCrocomireStockVerification
 {
     /// <summary>Compares five frame shapes, stock and imported identity, and invalid entries.</summary>
     internal static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
-        RoomPlmCrocomireVisualCatalog installed)
+        RoomObjectCrocomireVisualCatalog installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9b5b,"clear-bridge"), new LookupEscapeGateStockFrame(0x9b73,"crumble-bridge-block"),
             new LookupEscapeGateStockFrame(0x9b79,"clear-bridge-block"), new LookupEscapeGateStockFrame(0x9b7f,"clear-invisible-wall"), new LookupEscapeGateStockFrame(0x9bbb,"create-invisible-wall")];
@@ -25,47 +25,47 @@ internal static class LookupCrocomireStockVerification
         {
             var appearances = new List<RoomBlockAppearance>();
             int cursor = frame.Pointer;
-            widths.Add(frame.Pointer, ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff);
+            widths.Add(frame.Pointer, ReadSamusEaterObjectWord(rom, 0x840000 | cursor) & 0x7fff);
             while (true)
             {
-                int count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff;
+                int count = ReadSamusEaterObjectWord(rom, 0x840000 | cursor) & 0x7fff;
                 cursor += 2;
                 for (int index = 0; index < count; index++, cursor += 2)
-                    appearances.Add(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor)).Appearance);
+                    appearances.Add(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor)).Appearance);
                 byte x = CrocomireStockMappingRomByte(rom, 0x840000 | cursor++), y = CrocomireStockMappingRomByte(rom, 0x840000 | cursor++);
                 if (x == 0 && y == 0) break;
             }
             native.Add(frame.Pointer, appearances.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = RoomPlmCrocomireVisualCatalog.Stock();
-        var imported = RoomPlmCrocomireVisualFiles.Create(entries.Reverse());
+        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var stock = RoomObjectCrocomireVisualCatalog.Stock();
+        var imported = RoomObjectCrocomireVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmCrocomireVisualCatalog), appearances.ToDictionary(pair => RoomPlmCrocomireVisualFiles.VisualId(NativePlmDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomObjectCrocomireVisualCatalog), appearances.ToDictionary(pair => RoomObjectCrocomireVisualFiles.VisualId(NativeObjectDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Crocomire original flattened hash");
             foreach (var frame in frames)
             {
                 for (int index = 0; index < native[frame.Pointer].Length; index++)
-                    AssertEqual(native[frame.Pointer][index], catalog.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire native stock word");
+                    AssertEqual(native[frame.Pointer][index], catalog.GetAppearance(NativeObjectDraws.At<CrocomireArenaDraw>(frame.Pointer),index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire native stock word");
                 foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length / widths[frame.Pointer],int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),bad,0), "Crocomire run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<CrocomireArenaDraw>(frame.Pointer),bad,0), "Crocomire run bounds");
                 foreach (int bad in new[] {int.MinValue,-1,widths[frame.Pointer],int.MaxValue})
                 for (int run = 0; run < native[frame.Pointer].Length / widths[frame.Pointer]; run++)
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),run,bad), "Crocomire block bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<CrocomireArenaDraw>(frame.Pointer),run,bad), "Crocomire block bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>((ushort)pointer),0,0), "Crocomire unknown pointer");
-        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(entries[..4]), "Crocomire missing frame");
-        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(entries.Append(entries[0])), "Crocomire duplicate frame");
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<CrocomireArenaDraw>((ushort)pointer),0,0), "Crocomire unknown pointer");
+        AssertThrows<InvalidDataException>(() => RoomObjectCrocomireVisualFiles.Create(entries[..4]), "Crocomire missing frame");
+        AssertThrows<InvalidDataException>(() => RoomObjectCrocomireVisualFiles.Create(entries.Append(entries[0])), "Crocomire duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("CLEAR-BRIDGE", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(invalid), "Crocomire ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomObjectCrocomireVisualFiles.Create(invalid), "Crocomire ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(invalid), "Crocomire exact frame shape");
+        AssertThrows<InvalidDataException>(() => RoomObjectCrocomireVisualFiles.Create(invalid), "Crocomire exact frame shape");
     }
 
     /// <summary>Reads native draw-stream bytes for the independent stock catalog oracle.</summary>

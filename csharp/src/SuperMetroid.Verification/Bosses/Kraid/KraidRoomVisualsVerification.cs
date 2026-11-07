@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Bosses.Kraid;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomPlmsVerification;
+using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualSelectionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -22,34 +22,34 @@ internal static class KraidRoomVisualsVerification
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         // A private installation copy, whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmKraidVisualDirectory))
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectKraidVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmKraidVisualFilesConstants.ValidateStock(
-                installation.RoomPlmKraidVisualDirectory);
-            InstalledRoomPlmKraidVisuals stock =
-                installation.LoadRoomPlmKraidVisuals();
-            foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
-                     RoomPlmKraidVisualFiles.All)
+            RoomObjectKraidVisualFilesConstants.ValidateStock(
+                installation.RoomObjectKraidVisualDirectory);
+            InstalledRoomObjectKraidVisuals stock =
+                installation.LoadRoomObjectKraidVisuals();
+            foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in
+                     RoomObjectKraidVisualFiles.All)
             {
                 for (int block = 0; block < draw.Runs.Span[0].Count;
                      block++)
                     AssertEqual(draw.Runs.Span[0].Blocks.Span[block].Appearance,
                         stock.GetAppearance(draw.Draw, 0, block),
-                        $"Kraid stock draw ${PlmDrawAddressCodec.Of(draw.Draw):X4}, block {block}");
+                        $"Kraid stock draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4}, block {block}");
             }
             AssertThrows<InvalidDataException>(
-                () => RoomPlmKraidVisualFiles.Create([]),
+                () => RoomObjectKraidVisualFiles.Create([]),
                 "Kraid visual catalog rejects missing frames");
-            Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(KraidRoomMutation.CrumbleCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x180)));
+            Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(KraidRoomMutation.CrumbleCeilingIntoBackground1, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x180)));
 
             string stockPath = Path.Combine(
-                installation.RoomPlmKraidVisualDirectory,
-                RoomPlmKraidVisualFiles.VisualFileName);
+                installation.RoomObjectKraidVisualDirectory,
+                RoomObjectKraidVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmKraidVisualFilesConstants.ValidateStock(
-                    installation.RoomPlmKraidVisualDirectory),
+                () => RoomObjectKraidVisualFilesConstants.ValidateStock(
+                    installation.RoomObjectKraidVisualDirectory),
                 "tampered Kraid stock fails loudly where it is read");
         }
         Console.WriteLine(
@@ -65,11 +65,11 @@ internal static class KraidRoomVisualsVerification
             words[5 * width + x] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock);
         RoomLevelData level = CreateRoom(new(width, 16), words,
             new RoomBlockBehavior[words.Length]);
-        var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation)),
+        var roomObjects = RoomObjectFixtures.Unbound();
+        AssertTrue(roomObjects.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation)),
             $"Kraid visual owner {mutation} allocates");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
-        plms.Step(level);
+        roomObjects.Step(level);
         int blockIndex = 5 * width + 5 + blockOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).Terrain,

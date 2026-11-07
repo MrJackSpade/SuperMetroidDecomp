@@ -259,26 +259,26 @@ internal static class NativeSnapshotMemory
     /// <summary>$84:BE4B: grey-door condition pre-instruction dispatch table.</summary>
     public const int GreyDoorConditionTable = 0x84be4b;
     /// <summary>Bank $84 contains PLM programs and callback identities.</summary>
-    public const int PlmProgramBank = 0x840000;
+    public const int RoomObjectProgramBank = 0x840000;
 
     /// <summary>$1C87: PLM BlockIndex, word-strided across forty physical slots.</summary>
-    public const int PlmBlockIndex = 0x1c87;
+    public const int RoomObjectBlockIndex = 0x1c87;
     /// <summary>$1CD7: PLM FrameBehavior, word-strided across forty physical slots.</summary>
-    public const int PlmFrameBehavior = 0x1cd7;
+    public const int RoomObjectFrameBehavior = 0x1cd7;
     /// <summary>$1D27: PLM InstructionPointer, word-strided across forty physical slots.</summary>
-    public const int PlmInstructionPointer = 0x1d27;
+    public const int RoomObjectInstructionPointer = 0x1d27;
     /// <summary>$1D77: PLM LoopTimer, word-strided across forty physical slots.</summary>
-    public const int PlmLoopTimer = 0x1d77;
+    public const int RoomObjectLoopTimer = 0x1d77;
     /// <summary>$1DC7: PLM RoomArgument, word-strided across forty physical slots.</summary>
-    public const int PlmRoomArgument = 0x1dc7;
+    public const int RoomObjectRoomArgument = 0x1dc7;
     /// <summary>$DE1C: PLM FrameHold, word-strided across forty physical slots.</summary>
-    public const int PlmFrameHold = 0xde1c;
+    public const int RoomObjectFrameHold = 0xde1c;
     /// <summary>$1E17: PLM family variable; grey-door condition table byte offset.</summary>
-    public const int PlmFamilyVariable = 0x1e17;
+    public const int RoomObjectFamilyVariable = 0x1e17;
     /// <summary>$DF0C: extra PLM variable; grey-door hit counter.</summary>
-    public const int PlmExtraVariable = 0xdf0c;
+    public const int RoomObjectExtraVariable = 0xdf0c;
     /// <summary>$DEBC: PLM LinkInstruction, word-strided across forty physical slots.</summary>
-    public const int PlmLinkInstruction = 0xdebc;
+    public const int RoomObjectLinkInstruction = 0xdebc;
     /// <summary>$2000: Ridley TailFunctionIndex, native bank-$A6 controller state.</summary>
     public const int RidleyTailFunctionIndex = 0x2000;
     /// <summary>$2002: Ridley IdleTailWhipEnabled, native bank-$A6 controller state.</summary>
@@ -574,8 +574,8 @@ internal static class NativeSnapshotMemory
     public const int EnemyExtra = 0x7800;
     /// <summary>$7802: Brinstar pipe bug variable 01, imported from the original movie.</summary>
     public const int EnemyExtraPreviousAnimation = 0x7802;
-    /// <summary>$1C37: plm_header_ptr, imported from the original movie.</summary>
-    public const int PlmHeaders = 0x1c37;
+    /// <summary>$1C37: roomObject_header_ptr, imported from the original movie.</summary>
+    public const int RoomObjectHeaders = 0x1c37;
     /// <summary>$0998: game_state, imported from the original movie.</summary>
     public const int GameState = 0x998;
     /// <summary>$80:9459: ReadControllerInput, accepted-NMI input checkpoint.</summary>

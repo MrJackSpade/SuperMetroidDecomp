@@ -8,7 +8,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -61,13 +61,13 @@ internal static class WrapShotEnemiesVerification
                 EquippedBeams = SamusBeamFlags.Wave };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
-            var plms = PlmFixtures.Unbound();
+            var roomObjects = RoomObjectFixtures.Unbound();
             int health = enemy.Health;
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {
                 ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
+                shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
                 AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
             AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(target).Terrain, "Same shot actually triggers the remote tile");

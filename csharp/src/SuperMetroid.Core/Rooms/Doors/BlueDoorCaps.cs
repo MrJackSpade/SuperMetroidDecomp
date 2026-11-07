@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The blue-door caps: the closed alias and the four opening frames of each facing, and their physical cells from
-/// <see cref="BlueDoorPlmDrawDefinitions"/>.
+/// <see cref="BlueDoorObjectDrawDefinitions"/>.
 /// </summary>
 internal static class BlueDoorCaps
 {
@@ -19,19 +19,19 @@ internal static class BlueDoorCaps
         internal RoomTerrainBlock BlockAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return BlueDoorPlmDrawDefinitions.Cells[this][cell];
+            return BlueDoorObjectDrawDefinitions.Cells[this][cell];
         }
     }
 
     /// <summary>The closed cap facing <paramref name="orientation"/>, the alias that shows frame zero's artwork.</summary>
-    internal static PlmDraw Alias(ColoredDoorOrientation orientation) =>
-        PlmDraw.Of(new Draw(orientation, BlueDoorPlmDrawDefinitions.AliasFrame));
+    internal static RoomObjectDraw Alias(ColoredDoorOrientation orientation) =>
+        RoomObjectDraw.Of(new Draw(orientation, BlueDoorObjectDrawDefinitions.AliasFrame));
 
     /// <summary>Accepts a blue-cap draw: the alias or one of the four opening frames.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw) =>
-        PlmDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= BlueDoorPlmDrawDefinitions.AliasFrame and < 4, out draw);
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
+        RoomObjectDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= BlueDoorObjectDrawDefinitions.AliasFrame and < 4, out draw);
 
     /// <summary>Maps a physical closed-cap alias to the matching editable frame-zero artwork.</summary>
-    internal static PlmDraw VisualSource(PlmDraw request) =>
-        request is PlmFrameDraw<Draw> { Frame: { Frame: BlueDoorPlmDrawDefinitions.AliasFrame } alias } ? PlmDraw.Of(alias with { Frame = 0 }) : request;
+    internal static RoomObjectDraw VisualSource(RoomObjectDraw request) =>
+        request is RoomObjectFrameDraw<Draw> { Frame: { Frame: BlueDoorObjectDrawDefinitions.AliasFrame } alias } ? RoomObjectDraw.Of(alias with { Frame = 0 }) : request;
 }

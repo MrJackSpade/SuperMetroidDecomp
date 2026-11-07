@@ -40,10 +40,10 @@ public sealed class TourianStatueSequence
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
     /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomPaletteFx">The room's palette FX.</param>
-    /// <param name="plms">The room's PLM system, which receives the Tourian access PLM when the statues are already open.</param>
+    /// <param name="roomObjects">The room's PLM system, which receives the Tourian access PLM when the statues are already open.</param>
     /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
     internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomFxOverlayState roomFxOverlay,
-        RoomPaletteFxSystem roomPaletteFx, RoomPlmSystem plms, RoomEnemySystem enemies)
+        RoomPaletteFxSystem roomPaletteFx, RoomObjectSystem roomObjects, RoomEnemySystem enemies)
     {
 
         _enemies = Ensure.NotNull(enemies);
@@ -54,7 +54,7 @@ public sealed class TourianStatueSequence
         _system = dependencies.System;
         _assists = dependencies.Assists;
         _freeze = dependencies.Freeze;
-        Begin(Ensure.NotNull(plms));
+        Begin(Ensure.NotNull(roomObjects));
     }
 
     /// <summary>One spawned statue animation's definition, program position, and frame timer.</summary>
@@ -113,14 +113,14 @@ public sealed class TourianStatueSequence
     /// Restarts the room's statue sequence when the statues newly stand open while Samus is in the room: the statues
     /// return to their starting delay and descent, then begin as a room load would.
     /// </summary>
-    /// <param name="plms">The room's PLM system.</param>
-    internal void RestartWithStatuesOpen(RoomPlmSystem plms)
+    /// <param name="roomObjects">The room's PLM system.</param>
+    internal void RestartWithStatuesOpen(RoomObjectSystem roomObjects)
     {
         objects.Clear();
         delay = -2;
         Descent = 0;
         DisplayedVerticalOffset = 0;
-        Begin(plms);
+        Begin(roomObjects);
     }
 
     /// <summary>Begins the room's statue sequence, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
@@ -128,7 +128,7 @@ public sealed class TourianStatueSequence
     /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
     /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
     /// </remarks>
-    private void Begin(RoomPlmSystem plms)
+    private void Begin(RoomObjectSystem roomObjects)
     {
         Enabled = _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
@@ -137,7 +137,7 @@ public sealed class TourianStatueSequence
         {
             Descent = SixteenSixteen.FromWhole(TourianStatueSequenceDefinitions.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
-            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
+            roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();
         }
         else
@@ -255,7 +255,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>Including the authored delay and quarter-pixel descent.</summary>
-    public void StepDescent(RoomPlmSystem plms)
+    public void StepDescent(RoomObjectSystem roomObjects)
     {
         if (!Enabled) return;
         _enemies.TourianStatue.WaterSurface = new(0, _roomFxOverlay.Surface.Y);
@@ -285,7 +285,7 @@ public sealed class TourianStatueSequence
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
         {
-            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Crumble);
+            roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Crumble);
             _system.SetEvent(EventNumber.TourianUnlocked);
         }
     }

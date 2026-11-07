@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -12,7 +12,7 @@ internal static class CrocomireArenaArtwork
     /// <summary>Resolves one arena-layout block, translating run-local indices into the flattened visual override.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported arena layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
-    internal static RoomBlockAppearance Appearance(PlmVisualOverrides customAppearances, PlmDraw draw, int runIndex, int blockIndex)
+    internal static RoomBlockAppearance Appearance(RoomObjectVisualOverrides customAppearances, RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (!CrocomireArenaDraws.TryDescribe(draw, out var shape))
             throw new InvalidDataException(

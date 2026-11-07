@@ -1,12 +1,12 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -160,10 +160,10 @@ internal static class QuicksandVerification
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
-        // PlmHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
-        foreach (PlmHeaderId candidate in Enum.GetValues<PlmHeaderId>())
+        // RoomObjectHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
+        foreach (RoomObjectHeaderId candidate in Enum.GetValues<RoomObjectHeaderId>())
         {
-            ushort header = PlmNativeWords.Word(candidate);
+            ushort header = RoomObjectNativeWords.Word(candidate);
             bool expected = headers.Contains(header);
             bool found = QuicksandReactions.TryGetReaction(candidate, out var actual);
             AssertEqual(expected, found, "quicksand header ownership");
@@ -177,7 +177,7 @@ internal static class QuicksandVerification
             AssertEqual(actual, QuicksandReactions.ResolveReaction(candidate), "quicksand allocator resolution");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             if (instruction)
-                AssertEqual(PlmProgramStartOracle.ForNativeList(native), actual.Program, $"quicksand header {(int)header:X4} program");
+                AssertEqual(RoomObjectProgramStartOracle.ForNativeList(native), actual.Program, $"quicksand header {(int)header:X4} program");
             else
                 AssertEqual(native, FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup), $"quicksand header {(int)header:X4} setup");
         }
@@ -275,7 +275,7 @@ internal static class QuicksandVerification
             AssertEqual(true, bts.UsesAreaReactionTable, "special-air BTS sign selects area dispatch");
             AssertEqual((byte)index, bts.AreaReactionIndex, "special-air BTS clears its sign bit");
             SpecialAirReactionDefinition actual = resolve(area, bts.AreaReactionIndex);
-            AssertEqual(expected, setup ? FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup) : PlmNativeWords.Word(actual.Header),
+            AssertEqual(expected, setup ? FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup) : RoomObjectNativeWords.Word(actual.Header),
                 $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
         }
     }

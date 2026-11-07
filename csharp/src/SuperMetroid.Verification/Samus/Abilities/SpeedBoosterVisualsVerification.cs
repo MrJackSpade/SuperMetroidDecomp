@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -18,26 +18,26 @@ internal static class SpeedBoosterVisualsVerification
     {
         const ushort pointer = 0xa4f3;
         RoomBlockAppearance native = RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom,0x84a4f5));
-        var stock = InstalledRoomPlmSpeedBoosterVisuals.Stock();
-        var imported = RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native])]);
+        var stock = InstalledRoomObjectSpeedBoosterVisuals.Stock();
+        var imported = RoomObjectSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native])]);
         string Hash(RoomBlockAppearance appearance) => SuperMetroid.AssetExtraction.SelectedPresentationHash.Create(
-            nameof(InstalledRoomPlmSpeedBoosterVisuals), content => content.AppendAppearances("block",[appearance]));
-        AssertEqual(native,stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
-        AssertEqual(native,imported.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed imported visual matches original native draw");
+            nameof(InstalledRoomObjectSpeedBoosterVisuals), content => content.AppendAppearances("block",[appearance]));
+        AssertEqual(native,stock.GetAppearance(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
+        AssertEqual(native,imported.GetAppearance(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer),0,0),"speed imported visual matches original native draw");
         AssertEqual(Hash(native),stock.ContentIdentity,"speed stock scalar identity");
         AssertEqual(Hash(native),imported.ContentIdentity,"speed imported scalar identity");
         for (int address = 0; address <= ushort.MaxValue; address++)
             if (address != pointer)
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address),0,0),"speed visual full pointer rejection");
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>((ushort)address),0,0),"speed visual full pointer rejection");
         foreach (int invalid in new[] {int.MinValue,-1,1,2,int.MaxValue})
         {
-            AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),invalid,0),"speed visual run bounds");
-            AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
+            AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer),invalid,0),"speed visual run bounds");
+            AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
         }
-        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([]),"speed visual requires entry");
-        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
-        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
-        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
+        AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.Create([]),"speed visual requires entry");
+        AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
+        AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.Create([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
+        AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
@@ -46,23 +46,23 @@ internal static class SpeedBoosterVisualsVerification
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySpeedBoosterStockVisualMapping), () => VerifySpeedBoosterStockVisualMapping(rom));
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSpeedBoosterVisualDirectory);
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectSpeedBoosterVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmSpeedBoosterVisualFilesConstants.ValidateStock(
-            installation.RoomPlmSpeedBoosterVisualDirectory);
-        PlmDraw drawPointer = SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw;
+        RoomObjectSpeedBoosterVisualFilesConstants.ValidateStock(
+            installation.RoomObjectSpeedBoosterVisualDirectory);
+        RoomObjectDraw drawPointer = SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw;
         AssertEqual(RoomBlockAppearance.Of(0x0b6),
-            installation.LoadRoomPlmSpeedBoosterVisuals()
+            installation.LoadRoomObjectSpeedBoosterVisuals()
                 .GetAppearance(drawPointer, 0, 0),
             "stock bomb-reveal visual matches the cartridge");
 
         string stockPath = Path.Combine(
-            installation.RoomPlmSpeedBoosterVisualDirectory,
-            RoomPlmSpeedBoosterVisualFiles.VisualFileName);
+            installation.RoomObjectSpeedBoosterVisualDirectory,
+            RoomObjectSpeedBoosterVisualFiles.VisualFileName);
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmSpeedBoosterVisualFilesConstants.ValidateStock(
-                installation.RoomPlmSpeedBoosterVisualDirectory),
+            () => RoomObjectSpeedBoosterVisualFilesConstants.ValidateStock(
+                installation.RoomObjectSpeedBoosterVisualDirectory),
             "stock tampering fails validation");
         Console.WriteLine(
             "Speed Booster visuals: native reveal parity and strict failures pass.");

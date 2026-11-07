@@ -2,7 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -41,7 +41,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public IAreaBossFlags Bosses { get; init; } = Unavailable.Instance;
 
     /// <inheritdoc />
-    public IRoomPlmPresence Plms { get; init; } = Unavailable.Instance;
+    public IRoomObjectPresence RoomObjects { get; init; } = Unavailable.Instance;
 
     /// <inheritdoc />
     public IRoomScrollZoneAccess RoomScroll { get; init; } = Unavailable.Instance;
@@ -98,7 +98,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     }
 
     /// <summary>The services a standalone host does not provide: every call fails at the dependency.</summary>
-    private sealed class Unavailable : IGlobalEventFlags, IAreaBossFlags, IRoomPlmPresence, IRoomScrollZoneAccess,
+    private sealed class Unavailable : IGlobalEventFlags, IAreaBossFlags, IRoomObjectPresence, IRoomScrollZoneAccess,
         ISamusControlLock, IMotherBrainRoomEffects
     {
         /// <summary>Shared failure object for every cartridge-state capability absent from this standalone host.</summary>
@@ -120,7 +120,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         /// <summary>Fails when boss status is written without an installed area-boss service.</summary>
         public void SetDefeated(BossBits bits) => throw Missing($"set the area {bits} flag");
         /// <summary>Fails when AI inspects room PLM population without an installed presence service.</summary>
-        public bool HasActiveHeader(PlmHeaderId header) => throw Missing("query the active room PLM population");
+        public bool HasActiveHeader(RoomObjectHeaderId header) => throw Missing("query the active room PLM population");
         /// <summary>Fails when AI reads scroll-zone state without an installed room-scroll service.</summary>
         public RoomScrollState Read(int index) => throw Missing("read a room scroll state");
         /// <summary>Fails when AI changes a scroll zone without an installed room-scroll service.</summary>

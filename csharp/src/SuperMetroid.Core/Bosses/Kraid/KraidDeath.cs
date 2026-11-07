@@ -230,7 +230,7 @@ internal sealed class KraidDeath
             _deathsAndDrops.StartGenericEnemyDeath(lint, deathAnimation: EnemyDeathExplosion.Small);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
-        _frameResults.KraidPlms.Add(KraidPlmDefinitions.LiveDeathSpikes);
+        _frameResults.KraidObjects.Add(KraidObjectDefinitions.LiveDeathSpikes);
     }
 
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
@@ -288,11 +288,11 @@ internal sealed class KraidDeath
             // deliberately empty callback used by rows whose only job is clearing a strip of his body.
             // Do not merge that callback with the adjacent crumble callback: they are
             // distinct legal callbacks in the retail table.
-            if (KraidPlms.ForSinkCallback(function) is { } request)
+            if (KraidObjects.ForSinkCallback(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
                 _ = _background.SpawnKraidCeilingRock(request.Block.X * 16);
-                _frameResults.KraidPlms.Add(request);
+                _frameResults.KraidObjects.Add(request);
             }
             return;
         }

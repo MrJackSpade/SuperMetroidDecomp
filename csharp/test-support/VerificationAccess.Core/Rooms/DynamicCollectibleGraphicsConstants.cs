@@ -1,5 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
-using static SuperMetroid.AssetExtraction.Rooms.RoomPlmDynamicCollectibleGraphicsDefinitions;
+﻿using SuperMetroid.Core.Rooms.RoomObjects;
+using static SuperMetroid.AssetExtraction.Rooms.RoomObjectDynamicCollectibleGraphicsDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -7,5 +7,5 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class DynamicCollectibleGraphicsConstants
 {
     /// <summary>Enumerates the complete set of dynamic permanent-item graphics in collectible-kind order.</summary>
-    internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All => Kinds.Select(DynamicCollectibleGraphics.Get);
+    internal static IEnumerable<RoomObjectDynamicCollectibleGraphic> All => Kinds.Select(DynamicCollectibleGraphics.Get);
 }

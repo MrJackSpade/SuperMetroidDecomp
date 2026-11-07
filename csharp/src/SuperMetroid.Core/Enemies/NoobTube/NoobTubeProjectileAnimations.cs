@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Programs;
-using K = SuperMetroid.Core.Rooms.Plms.NoobTubeProjectileCueKind;
-using P = SuperMetroid.Core.Rooms.Plms.NoobTubeProjectileProgram;
+using K = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileCueKind;
+using P = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileProgram;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.NoobTube;
 

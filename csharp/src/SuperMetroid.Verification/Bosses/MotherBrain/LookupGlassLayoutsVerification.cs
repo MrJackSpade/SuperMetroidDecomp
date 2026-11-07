@@ -1,9 +1,9 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -25,7 +25,7 @@ internal static class LookupGlassLayoutsVerification
     {
         ushort[] pointers = [0x9717,0x971d,0x9731,0x9745,0x974f,0x9769,0x9781,0x978f,0x97b7,0x97e7,0x9817];
         string[] ids = ["initial","pane-damage-1","pane-damage-2","pane-transition","shifted-pane-1","shifted-pane-2","shifted-pane-3","shatter-1","shatter-2","shatter-3","cleared"];
-        var exported = RoomPlmMotherBrainGlassVisualFiles.All.ToArray();
+        var exported = RoomObjectMotherBrainGlassVisualFiles.All.ToArray();
         AssertEqual(11, exported.Length, "Glass layout export count");
         if (field == 0)
         {
@@ -33,33 +33,33 @@ internal static class LookupGlassLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, MotherBrainGlassDraws.TryDescribe(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var shape), "Glass layout shape domain");
-                AssertEqual(owned, RoomPlmMotherBrainGlassVisualFiles.TryGet(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var dto), "Glass layout DTO domain");
+                AssertEqual(owned, MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(pointer), out var shape), "Glass layout shape domain");
+                AssertEqual(owned, RoomObjectMotherBrainGlassVisualFiles.TryGet(NativeObjectDraws.At<MotherBrainGlassDraw>(pointer), out var dto), "Glass layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(MotherBrainGlassDraws.Draw), shape, "Glass layout missing shape");
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Glass layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainGlassVisualFiles.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pointer)), "Glass layout missing ID");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Glass layout missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectMotherBrainGlassVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainGlassDraw>(pointer)), "Glass layout missing ID");
                 }
             }
             foreach (string id in new[] { "INTACT", "broken", "", "unknown" })
             {
-                AssertTrue(!RoomPlmMotherBrainGlassVisualFiles.TryGetByVisualId(id, out var missing), "Glass layout ordinal ID domain");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Glass layout rejected ID output");
+                AssertTrue(!RoomObjectMotherBrainGlassVisualFiles.TryGetByVisualId(id, out var missing), "Glass layout ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Glass layout rejected ID output");
             }
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            MotherBrainGlassDraws.TryDescribe(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var shape);
-            RoomPlmMotherBrainGlassVisualFiles.TryGet(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var dto);
-            RoomPlmMotherBrainGlassVisualFiles.TryGetByVisualId(ids[index], out var byId);
+            MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(pointer), out var shape);
+            RoomObjectMotherBrainGlassVisualFiles.TryGet(NativeObjectDraws.At<MotherBrainGlassDraw>(pointer), out var dto);
+            RoomObjectMotherBrainGlassVisualFiles.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Glass layout original export order");
-                AssertEqual(ids[index], RoomPlmMotherBrainGlassVisualFiles.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pointer)), "Glass layout published ID");
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Glass layout reverse ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Glass layout original export order");
+                AssertEqual(ids[index], RoomObjectMotherBrainGlassVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainGlassDraw>(pointer)), "Glass layout published ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Glass layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Glass layout run bounds");
@@ -71,9 +71,9 @@ internal static class LookupGlassLayoutsVerification
             int run = 0;
             while (true)
             {
-                ushort header = ReadSamusEaterPlmWord(rom, cursor);
+                ushort header = ReadSamusEaterObjectWord(rom, cursor);
                 int count = header & 0x7fff;
-                ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
+                ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
                 if (field == 0)
                 {
                     AssertEqual((ushort)(count | (shape.Vertical(run) ? 0x8000 : 0)), header, "Glass layout native direction");
@@ -92,7 +92,7 @@ internal static class LookupGlassLayoutsVerification
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     AssertTerrainField(field, expected, shape.BlockAt(run, cell), "Glass layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
                         AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "Glass layout original DTO field");

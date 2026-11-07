@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -26,7 +26,7 @@ internal sealed class DownwardGateBehavior
     {
         _room.EnsureLoaded();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        Ensure.AtLeastZero(request.PlmBlockIndex);
+        Ensure.AtLeastZero(request.RoomObjectBlockIndex);
 
         switch (request.Operation)
         {
@@ -34,7 +34,7 @@ internal sealed class DownwardGateBehavior
                 SpawnDownwardGateProjectile(request, roomWidthInBlocks);
                 return;
             case DownwardGateProjectileOperation.Wake:
-                WakeDownwardGateProjectile(request.PlmBlockIndex);
+                WakeDownwardGateProjectile(request.RoomObjectBlockIndex);
                 return;
             default:
                 throw new ArgumentOutOfRangeException(
@@ -60,8 +60,8 @@ internal sealed class DownwardGateBehavior
             return; // SpawnEprojInner's deliberate finite-pool failure.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
-        int blockX = request.PlmBlockIndex % roomWidthInBlocks;
-        int blockY = request.PlmBlockIndex / roomWidthInBlocks;
+        int blockX = request.RoomObjectBlockIndex % roomWidthInBlocks;
+        int blockY = request.RoomObjectBlockIndex / roomWidthInBlocks;
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
             blockX * DownwardGateDefinitions.PixelsPerRoomBlock), CoordinateAxis.Wrap(
             blockY * DownwardGateDefinitions.PixelsPerRoomBlock +
@@ -70,11 +70,11 @@ internal sealed class DownwardGateBehavior
                 : 0))));
 
         // The gate's block ties the actor to its gate; the gate's PLM searches for it when the gate needs to open again.
-        projectile.State = new DownwardGateState(request.PlmBlockIndex);
+        projectile.State = new DownwardGateState(request.RoomObjectBlockIndex);
     }
 
     /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
-    private void WakeDownwardGateProjectile(int plmBlockIndex)
+    private void WakeDownwardGateProjectile(int roomObjectBlockIndex)
     {
         RoomEnemyProjectileSlot? projectile = null;
         for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)
@@ -83,7 +83,7 @@ internal sealed class DownwardGateBehavior
             if (candidate.IsActive &&
                 candidate.Kind is (RoomEnemyProjectileKind.DownwardGateMoving or
                     RoomEnemyProjectileKind.DownwardGateClosed) &&
-                candidate.StateOf<DownwardGateState>().PlmBlockIndex == plmBlockIndex)
+                candidate.StateOf<DownwardGateState>().RoomObjectBlockIndex == roomObjectBlockIndex)
             {
                 projectile = candidate;
                 break;
@@ -92,7 +92,7 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
         {
             throw new InvalidDataException(
-                $"Downward gate PLM block {plmBlockIndex} has no associated gate projectile.");
+                $"Downward gate PLM block {roomObjectBlockIndex} has no associated gate projectile.");
         }
 
         ResumeDownwardGate(projectile);

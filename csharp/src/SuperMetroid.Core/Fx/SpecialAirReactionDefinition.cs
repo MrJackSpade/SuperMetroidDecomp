@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Fx;
 /// by its PLM header.
 /// </summary>
 public readonly record struct SpecialAirReactionDefinition(
-    PlmHeaderId Header,
+    RoomObjectHeaderId Header,
     SpecialAirReactionSetup Setup);

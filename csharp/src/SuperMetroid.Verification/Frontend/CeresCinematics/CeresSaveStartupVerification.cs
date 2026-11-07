@@ -54,8 +54,8 @@ internal static class CeresSaveStartupVerification
         bind(game, true);
         game.BindArtwork(game.Artwork with
         {
-            RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
-            RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
+            RoomObjectBlueDoorVisuals = installation.LoadRoomObjectBlueDoorVisuals(),
+            RoomObjectElevatorPlatformVisuals = installation.LoadRoomObjectElevatorPlatformVisuals(),
         });
         var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         options.Phase = GameOptionsPhase.StartGame;
@@ -99,8 +99,8 @@ internal static class CeresSaveStartupVerification
         bind(fresh, true);
         fresh.BindArtwork(fresh.Artwork with
         {
-            RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
-            RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
+            RoomObjectBlueDoorVisuals = installation.LoadRoomObjectBlueDoorVisuals(),
+            RoomObjectElevatorPlatformVisuals = installation.LoadRoomObjectElevatorPlatformVisuals(),
         });
         SetState(fresh, SuperMetroidGameState.SetUpNewGame);
         fresh.Step(0);
@@ -117,8 +117,8 @@ internal static class CeresSaveStartupVerification
         bind(reload, true);
         reload.BindArtwork(reload.Artwork with
         {
-            RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
-            RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
+            RoomObjectBlueDoorVisuals = installation.LoadRoomObjectBlueDoorVisuals(),
+            RoomObjectElevatorPlatformVisuals = installation.LoadRoomObjectElevatorPlatformVisuals(),
         });
         var reloadOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         reloadOptions.Phase = GameOptionsPhase.StartGame;
@@ -146,8 +146,8 @@ internal static class CeresSaveStartupVerification
         bind(gameOverProbe, true);
         gameOverProbe.BindArtwork(gameOverProbe.Artwork with
         {
-            RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
-            RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
+            RoomObjectBlueDoorVisuals = installation.LoadRoomObjectBlueDoorVisuals(),
+            RoomObjectElevatorPlatformVisuals = installation.LoadRoomObjectElevatorPlatformVisuals(),
         });
         var probeOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         probeOptions.Phase = GameOptionsPhase.StartGame;

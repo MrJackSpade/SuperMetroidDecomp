@@ -14,7 +14,7 @@ public static class XrayRevealExtensions
         InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
-        RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = level.GetObjectCollisionBlockByIndex(blockIndex);
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
             throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(blockIndex));
         if (block.Behavior == RoomBlockBehaviorValues.None) return null;
@@ -34,7 +34,7 @@ public static class XrayRevealExtensions
             if (vertical) y = coordinate; else x = coordinate;
             // The block lookup takes Y's row within the scan cycle; X is then added, so it may legitimately spill into
             // the next row.
-            block = level.GetPlmCollisionBlockByIndex(CoordinateAxis.Wrap(BlockScanCycle.RowStart(y, level.Size.X) + x));
+            block = level.GetObjectCollisionBlockByIndex(CoordinateAxis.Wrap(BlockScanCycle.RowStart(y, level.Size.X) + x));
             step = block.Behavior.Value;
             if (block.CollisionType == RoomCollisionType.VerticalExtension)
             {

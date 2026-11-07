@@ -6,7 +6,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -166,7 +166,7 @@ internal static class RoomBlockSheetComposer
                     tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, blocks.LoadRunsOfSlotBlock(block), tiles, options, loaded);
                     continue;
                 }
-                int slot = CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots)
+                int slot = CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots)
                     ?? throw new InvalidOperationException($"Block {block} is a collectible slot's block in no slot.");
                 ImmutableArray<AppearanceInput> slotInput = [new CollectibleSlotAppearance(slot)];
                 string[] loadedValue = [RoomAppearanceValues.Loaded];

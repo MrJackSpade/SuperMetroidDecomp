@@ -4,14 +4,14 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
 using static SuperMetroid.Verification.Saves.GameSaveJsonVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -226,7 +226,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(1, exposed.System.LoadedItemCount, "exposed item setup increments saved counter");
         AssertEqual(1, shot.System.LoadedItemCount, "collected shot-block setup increments saved counter");
         shot.System.LoadedItemCount = ushort.MaxValue;
-        shot.Plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(shot.Level, BgArtworkFixtures.For(new SnesVram()), shot.System, AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        shot.RoomObjects.PopulationLoader.LoadRoomPopulation(new RoomObjectRoom(shot.Level, BgArtworkFixtures.For(new SnesVram()), shot.System, AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomObjectPopulationImporter.Read(fixtureBus, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, shot.System.LoadedItemCount, "saved item-load counter wraps as a native word");
         ram.SelectSlot(0);
     }

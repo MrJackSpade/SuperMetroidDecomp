@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -200,7 +200,7 @@ public sealed class SamusBombProjectileSystem
                 terrain.Level,
                 slot,
                 blockReactions,
-                terrain.Plms,
+                terrain.RoomObjects,
                 samus.LiquidPhysics.AreaIndex,
                 samus.Kinematics);
             explosionStarted |= slotExplosionStarted;
@@ -576,7 +576,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         AreaId areaIndex,
         SamusKinematicsState samusKinematics)
     {
@@ -643,7 +643,7 @@ public sealed class SamusBombProjectileSystem
             // As soon as a normal bomb's fuse reads zero its explosion reacts with the
             // five-block cross around it, exactly once.
             slot.HasReactedToTerrain = true;
-            CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms, areaIndex);
+            CollectBlockExplosionReactions(level, slot, blockReactions, roomObjects, areaIndex);
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
@@ -661,7 +661,7 @@ public sealed class SamusBombProjectileSystem
                     PowerBombExplosion.Position,
                     PowerBombExplosion.ExplosionRadius,
                     blockReactions,
-                    roomPlms,
+                    roomObjects,
                     areaIndex,
                     slot.Type);
             }
@@ -763,7 +763,7 @@ public sealed class SamusBombProjectileSystem
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius,
         List<BombBlockReaction> reactions,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         AreaId areaIndex,
         SamusProjectileType projectileType)
     {
@@ -783,13 +783,13 @@ public sealed class SamusBombProjectileSystem
         // intentionally visited twice; synchronous PLM terrain mutation means the second
         // visit can observe a different collision type than the first.
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, top), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, top), reactions, roomObjects, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(left, y), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(left, y), reactions, roomObjects, areaIndex, projectileType);
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, bottom), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, bottom), reactions, roomObjects, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(right, y), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(right, y), reactions, roomObjects, areaIndex, projectileType);
     }
 
     /// <summary>Visits the normal bomb's five-block cross in order when its fuse reaches zero.</summary>
@@ -797,7 +797,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> reactions,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         AreaId areaIndex)
     {
         int centerX = slot.Position.X.Whole >> 4;
@@ -823,7 +823,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 new Position16<RoomBlocks>(x, y),
                 reactions,
-                roomPlms,
+                roomObjects,
                 areaIndex,
                 slot.Type);
         }
@@ -834,7 +834,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
         List<BombBlockReaction> reactions,
-        ISamusRoomPlms? roomPlms,
+        ISamusRoomObjects? roomObjects,
         AreaId areaIndex,
         SamusProjectileType projectileType)
     {
@@ -857,7 +857,7 @@ public sealed class SamusBombProjectileSystem
         if (block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
             return;
         }
 
@@ -867,10 +867,10 @@ public sealed class SamusBombProjectileSystem
         // word. The n00b tube begins as type $8 but its intact draw changes the live origin
         // to type $C, so narrowing this seam to colored doors strands the progression PLM.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
-            block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+            block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
         {
-            if (roomPlms is null ||
-                !roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
+            if (roomObjects is null ||
+                !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Index} has no active PLM owner.");
@@ -887,12 +887,12 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            if (roomPlms is null)
+            if (roomObjects is null)
             {
                 throw new InvalidOperationException(
                     $"Bombed blue-door cap at ({x},{y}) requires a room PLM owner.");
             }
-            roomPlms.DoorPlms.TrySpawnBlueDoorOpening(
+            roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
                 block.Index,
                 block.Behavior,
@@ -931,7 +931,7 @@ public sealed class SamusBombProjectileSystem
                     $"Bombable block {block.Index} has behaviour ${block.Behavior.Value:X2} outside " +
                     "the bomb-block reaction table.");
             }
-            if (roomPlms is null)
+            if (roomObjects is null)
             {
                 // Gameplay always owns the room's PLM pool. Null is supported only for
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
@@ -943,7 +943,7 @@ public sealed class SamusBombProjectileSystem
 
             // Spawn is synchronous: accepted behaviour 0..7 applies CEDA's temporary type-$8
             // or type-$0 word before the caller proceeds to its next border/cross member.
-            roomPlms.BlockReactions.TrySpawnBombReactionBlock(
+            roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 block.Index,
                 block.Behavior,
@@ -958,12 +958,12 @@ public sealed class SamusBombProjectileSystem
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
-                if (roomPlms is null)
+                if (roomObjects is null)
                 {
                     throw new InvalidOperationException(
                         $"Bombed downward gate trigger at ({x},{y}) requires a room PLM owner.");
                 }
-                roomPlms.Gates.TrySpawnDownwardGateTrigger(
+                roomObjects.Gates.TrySpawnDownwardGateTrigger(
                     level,
                     block.Index,
                     block.Behavior,
@@ -993,14 +993,14 @@ public sealed class SamusBombProjectileSystem
                     $"Area-dependent shootable block {block.Index} has behaviour " +
                     $"${block.Behavior.Value:X2} outside its eight-entry table.");
             }
-            if (roomPlms is null)
+            if (roomObjects is null)
             {
                 throw new InvalidOperationException(
                     $"Bombed shootable type {block.CollisionType}/behaviour ${block.Behavior.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
-            roomPlms.BlockReactions.TrySpawnProjectileShotBlock(
+            roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 block.Index,
                 block.Behavior,
@@ -1011,14 +1011,14 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType == RoomCollisionType.SpecialBlock)
         {
-            if (roomPlms is null)
+            if (roomObjects is null)
             {
                 throw new InvalidOperationException(
                     $"Bombed special block behaviour ${block.Behavior.Value:X2} at ({x},{y}) " +
                     "requires a room PLM owner.");
             }
 
-            roomPlms.BlockReactions.TrySpawnBombedSpecialBlock(
+            roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 block.Index,
                 block.Behavior,

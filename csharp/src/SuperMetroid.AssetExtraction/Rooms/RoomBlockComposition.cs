@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -49,7 +49,7 @@ internal sealed class RoomBlockComposition
         tiles.AsSpan(block * RoomMetatileFormat.TilesPerBlock, RoomMetatileFormat.TilesPerBlock);
 
     /// <summary>Whether block <paramref name="block"/> is a collectible slot's, which shows only the collectible bound over the slot.</summary>
-    internal bool IsCollectibleSlotBlock(int block) => CollectibleSlots && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is not null;
+    internal bool IsCollectibleSlotBlock(int block) => CollectibleSlots && CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots) is not null;
 
     /// <summary>The blocks of each block set some tileset of <paramref name="tilesets"/> loads.</summary>
     /// <exception cref="InvalidDataException">One block set is loaded both inside and outside Ceres.</exception>
@@ -115,7 +115,7 @@ internal sealed class RoomBlockComposition
         for (int block = 0; block < blocks.Length; block++)
         {
             IEnumerable<int> stock = tiles.Skip(block * RoomMetatileFormat.TilesPerBlock).Take(RoomMetatileFormat.TilesPerBlock).Select(tile => tile.Tile);
-            if (!ceres && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is not null)
+            if (!ceres && CollectibleSlotBlocks.SlotOf(block, CollectibleObjects.GraphicsSlots) is not null)
             {
                 blocks[block] = Runs(CollectibleSlotBlocks.CharactersOf(block));
                 slotLoadRuns.Add(block, [.. Runs(stock)]);

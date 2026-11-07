@@ -1,9 +1,9 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -17,24 +17,24 @@ internal static class LookupMotherBrainBoundaryVerification
     /// <summary>Checks pointer ownership, two-run geometry, and bounds for the wall and door boundary records.</summary>
     internal static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
     {
-        var exports = RoomPlmMotherBrainFakeDeathVisualFiles.All.Take(2).ToArray();
+        var exports = RoomObjectMotherBrainFakeDeathVisualFiles.All.Take(2).ToArray();
         ushort[] pointers = [0x94a3,0x94b1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             int index = Array.IndexOf(pointers, (ushort)raw);
-            AssertEqual(index >= 0, MotherBrainFakeDeathDraws.TryDescribeBoundary(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var shape),
+            AssertEqual(index >= 0, MotherBrainFakeDeathDraws.TryDescribeBoundary(NativeObjectDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var shape),
                 "Mother Brain wall/door ownership");
             if (index < 0)
             {
                 AssertEqual(default(MotherBrainFakeDeathDraws.BoundaryDraw), shape, "Mother Brain missing wall/door descriptor");
                 continue;
             }
-            AssertEqual((ushort)raw, PlmDrawAddressCodec.Of(exports[index].Draw), "Mother Brain boundary export order");
-            MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var dto);
+            AssertEqual((ushort)raw, RoomObjectDrawAddressCodec.Of(exports[index].Draw), "Mother Brain boundary export order");
+            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var dto);
             int cursor = raw;
             for (int run = 0; run < 2; run++)
             {
-                ushort direction = ReadSamusEaterPlmWord(rom, 0x840000 | cursor);
+                ushort direction = ReadSamusEaterObjectWord(rom, 0x840000 | cursor);
                 int count = direction & 0x7fff;
                 AssertEqual((ushort)(0x8000 | shape.Count(run)), direction, "Mother Brain vertical boundary run");
                 cursor += 2 + count * 2;
@@ -84,17 +84,17 @@ internal static class LookupMotherBrainBoundaryVerification
         foreach (ushort pointer in new ushort[] {0x94a3,0x94b1})
         {
             if (field == 1 && pointer != 0x94a3 || field == 2 && pointer != 0x94b1) continue;
-            MotherBrainFakeDeathDraws.TryDescribeBoundary(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
-            MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
+            MotherBrainFakeDeathDraws.TryDescribeBoundary(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
+            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
             int cursor = pointer;
             int compared = field == 0 ? CollisionField : field;
             for (int run = 0; run < 2; run++)
             {
-                int count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff;
+                int count = ReadSamusEaterObjectWord(rom, 0x840000 | cursor) & 0x7fff;
                 cursor += 2;
                 for (int block = 0; block < count; block++, cursor += 2)
                 {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor));
                     AssertTerrainField(compared, expected, shape.BlockAt(run,block), "Mother Brain native boundary field");
                     AssertTerrainField(compared, expected, dto.Runs.Span[run].Blocks.Span[block], "Mother Brain DTO boundary field");
                 }

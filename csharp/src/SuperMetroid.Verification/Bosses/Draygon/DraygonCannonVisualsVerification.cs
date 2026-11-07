@@ -14,20 +14,20 @@ internal static class DraygonCannonVisualsVerification
         SuperMetroidAddressSpace rom)
     {
         // A private installation copy, whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmDraygonCannonVisualDirectory))
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectDraygonCannonVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmDraygonCannonVisualFilesConstants.ValidateStock(
-                installation.RoomPlmDraygonCannonVisualDirectory);
-            VerifyDraygonCannonStockMapping(rom, installation.LoadRoomPlmDraygonCannonVisuals());
+            RoomObjectDraygonCannonVisualFilesConstants.ValidateStock(
+                installation.RoomObjectDraygonCannonVisualDirectory);
+            VerifyDraygonCannonStockMapping(rom, installation.LoadRoomObjectDraygonCannonVisuals());
 
             string stockPath = Path.Combine(
-                installation.RoomPlmDraygonCannonVisualDirectory,
-                RoomPlmDraygonCannonVisualFiles.VisualFileName);
+                installation.RoomObjectDraygonCannonVisualDirectory,
+                RoomObjectDraygonCannonVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmDraygonCannonVisualFilesConstants.ValidateStock(
-                    installation.RoomPlmDraygonCannonVisualDirectory),
+                () => RoomObjectDraygonCannonVisualFilesConstants.ValidateStock(
+                    installation.RoomObjectDraygonCannonVisualDirectory),
                 "tampered cannon stock fails loudly where it is read");
         }
     }

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
@@ -31,7 +31,7 @@ internal static class RetailSaveCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaSave, new Position16<RoomPixels>(0, 0));
-        var station = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
+        var station = runtime.RoomObjects.StationSnapshots.Single(s => s.Kind == StationKind.Save);
         var level = runtime.Room.LoadedLevelData;
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -39,7 +39,7 @@ internal static class RetailSaveCaptureTests
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(station.BlockIndex % level.Size.X * 16 + 13), (ushort)(station.BlockIndex / level.Size.X * 16 - samus.Kinematics.Radius.Y)));
         samus.Control.Unlock(); samus.Presentation.PrimeGraphics(samus);
-        if (!runtime.Plms.Stations.TryNotifyStationCollision(station.BlockIndex, RoomBlockBehaviorCodec.StationAccess(StationAccessBehavior.SaveFloor),
+        if (!runtime.RoomObjects.Stations.TryNotifyStationCollision(station.BlockIndex, RoomBlockBehaviorCodec.StationAccess(StationAccessBehavior.SaveFloor),
             samus.Pose.ForRoomCollision(), Axis.Vertical, movingPositive: true, roomWidthInBlocks: level.Size.X))
             throw new InvalidOperationException("Save fixture could not trigger resident station.");
         bool confirmation = false, electricity = false, completion = false, finished = false;
@@ -67,7 +67,7 @@ internal static class RetailSaveCaptureTests
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new DisplayPacket((ushort)frames, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");
-            var current = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
+            var current = runtime.RoomObjects.StationSnapshots.Single(s => s.Kind == StationKind.Save);
             if (completion && current.SaveStationLockedOut && current.SavePhase == SaveStationPhase.Idle && !samus.Control.AlphaLocked)
             { finished = true; break; }
         }

@@ -208,7 +208,7 @@ their payloads but check against the compiled run lengths before translating a
 run/word tuple into a flat offset. Each proof lists the provider and
 draw-definition sources, including the shared run record definition.
 
-`PlmVisualDomainDefinitions` supplies those exact shapes to the constant selector
+`RoomObjectVisualDomainDefinitions` supplies those exact shapes to the constant selector
 check. A known pointer narrows the shape before run/word checking; a one-word
 shot-block frame cannot borrow the width of another frame to accept word one.
 Unknown pointer/run components use only the union of compatible declared shapes;

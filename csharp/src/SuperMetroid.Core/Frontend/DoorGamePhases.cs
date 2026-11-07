@@ -22,7 +22,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // The door's next state follows in the same dispatch and publishes the one after it.
         // The update's per-line effect pass runs before this phase. A rising
         // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.Plms, session.GameplayRuntime.Room.LoadedScope.BombProjectiles, session.GameplayRuntime.Room.LoadedScope);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope.BombProjectiles, session.GameplayRuntime.Room.LoadedScope);
         PublishDoorEntryRoomFxSounds(session.GameplayRuntime);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy instruction's

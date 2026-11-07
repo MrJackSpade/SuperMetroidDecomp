@@ -1,0 +1,48 @@
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using static SuperMetroid.Core.Rooms.RoomObjects.SpeedBoosterBlockObjectDefinitions;
+
+namespace SuperMetroid.Core.Rooms.RoomObjects;
+
+/// <summary>Which Speed Booster block a behaviour and area select.</summary>
+internal static class SpeedBoosterBlocks
+{
+    /// <summary>
+    /// Resolves precisely the two area-independent and four Brinstar area-table entries
+    /// that select the Speed Booster block setup. Other areas' negative behaviour entries are unrelated.
+    /// </summary>
+    public static bool TryResolve(
+        RoomBlockBehavior bts,
+        AreaId area,
+        out SpeedBoosterBlockObjectDefinition definition)
+    {
+        if (!bts.UsesAreaReactionTable)
+        {
+            if (bts.Value == RespawningBts)
+            {
+                definition = Respawning;
+                return true;
+            }
+            if (bts.Value == PermanentBts)
+            {
+                definition = Permanent;
+                return true;
+            }
+        }
+        else if (area == AreaId.Brinstar)
+        {
+            definition = bts.AreaReactionIndex switch
+            {
+                2 => BrinstarSlowRespawning,
+                3 => BrinstarSlowPermanent,
+                4 => DachoraRespawning,
+                5 => Permanent,
+                _ => default,
+            };
+            return bts.AreaReactionIndex is >= 2 and <= 5;
+        }
+
+        definition = default;
+        return false;
+    }
+}

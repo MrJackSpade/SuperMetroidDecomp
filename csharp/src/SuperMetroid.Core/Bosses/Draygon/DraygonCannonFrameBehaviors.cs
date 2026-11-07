@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonCannonFrameBehaviors
 {
     /// <summary>A missile hit wakes the cannon; a Super Missile seeds its counter.</summary>
-    internal static PlmFrameBehavior MissileHit { get; } = new(
+    internal static RoomObjectFrameBehavior MissileHit { get; } = new(
         "Draygon cannon missile hit",
-        static (slot, _) => DraygonCannonPlms.RunDraygonCannonFrameBehavior(slot));
+        static (slot, _) => DraygonCannonObjects.RunDraygonCannonFrameBehavior(slot));
 }

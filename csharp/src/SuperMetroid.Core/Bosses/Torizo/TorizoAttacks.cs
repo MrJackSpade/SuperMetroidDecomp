@@ -799,7 +799,7 @@ internal sealed class TorizoAttacks
             graphics: default);
 
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Program));
-        projectile.Position = projectile.Position.WithWhole(request.PlmBlock.ToRoomPixels() + definition.Offset);
+        projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(definition.YVelocity));
         projectile.State = new BombTorizoStatueFragmentState(definition.Acceleration);
         return projectile;

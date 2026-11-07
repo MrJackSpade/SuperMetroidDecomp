@@ -16,7 +16,7 @@ public static class RoomBlockBehaviorValues
     public static readonly RoomBlockBehavior BlueDoorFacingRight = new(65);
 
     /// <summary>Resident colored-door or special PLM projectile-notification seam.</summary>
-    public static readonly RoomBlockBehavior ResidentPlmProjectileTrigger = new(68);
+    public static readonly RoomBlockBehavior ResidentObjectProjectileTrigger = new(68);
 
     /// <summary>Resident permanent-collectible touch/projectile-notification seam.</summary>
     public static readonly RoomBlockBehavior CollectibleTrigger = new(69);

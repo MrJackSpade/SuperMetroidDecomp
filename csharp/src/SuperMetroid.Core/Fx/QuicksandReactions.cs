@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -24,19 +24,19 @@ public static class QuicksandReactions
     /// The definition of one of the eight supported sand headers, which select the shared delete list; any other header,
     /// including the unused surface clones between the named headers, returns false.
     /// </summary>
-    internal static bool TryGetReaction(PlmHeaderId header, out QuicksandReactionDefinition definition)
+    internal static bool TryGetReaction(RoomObjectHeaderId header, out QuicksandReactionDefinition definition)
     {
         if (!QuicksandDefinitions.Reactions.TryGetValue(header, out SpecialAirReactionSetup setup))
         {
             definition = default;
             return false;
         }
-        definition = new(setup, PlmProgramStart.Delete);
+        definition = new(setup, RoomObjectProgramStart.Delete);
         return true;
     }
 
     /// <summary>Resolves one supported sand header or rejects an invalid allocator request.</summary>
-    internal static QuicksandReactionDefinition ResolveReaction(PlmHeaderId header) =>
+    internal static QuicksandReactionDefinition ResolveReaction(RoomObjectHeaderId header) =>
         TryGetReaction(header, out QuicksandReactionDefinition definition)
             ? definition
             : throw new ArgumentOutOfRangeException(

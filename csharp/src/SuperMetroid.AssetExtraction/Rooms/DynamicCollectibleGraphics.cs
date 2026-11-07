@@ -1,16 +1,16 @@
-using SuperMetroid.Core.Rooms.Plms;
-using static SuperMetroid.AssetExtraction.Rooms.RoomPlmDynamicCollectibleGraphicsDefinitions;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using static SuperMetroid.AssetExtraction.Rooms.RoomObjectDynamicCollectibleGraphicsDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Which graphics and palette offsets each dynamic collectible loads.</summary>
 internal static class DynamicCollectibleGraphics
 {
-    /// <summary>The place of <paramref name="kind"/> in <see cref="RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds"/>, or -1 when it has no dynamic graphics upload.</summary>
+    /// <summary>The place of <paramref name="kind"/> in <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/>, or -1 when it has no dynamic graphics upload.</summary>
     internal static int KindIndex(InWorldCollectibleKind kind) => Array.IndexOf(Kinds, kind);
 
     /// <summary>Combines a permanent item's eight palette selectors and tile bytes.</summary>
-    internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
+    internal static RoomObjectDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
         if (KindIndex(kind) < 0)
             throw new InvalidDataException(

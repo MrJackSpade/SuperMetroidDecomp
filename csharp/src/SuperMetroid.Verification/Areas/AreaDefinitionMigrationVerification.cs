@@ -61,7 +61,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0xa6c43a, CeresEscapeNativeSources.OverlaySource(CeresEscapeOverlayTilemapDefinitions.JapaneseFourth), "last subtitle row source");
         AssertEqual(0x0800, EscapeTextPages.PageOffset(4), "fifth escape text page offset");
 
-        // MaridiaElevatubeRomData and MaridiaElevatubePlmRomData.
+        // MaridiaElevatubeRomData and MaridiaElevatubeObjectRomData.
         AssertEqual(0x0080, MaridiaElevatubeDefinitions.SamusCenterX, "elevatube Samus X");
         AssertEqual(0x09c0, MaridiaElevatubeDefinitions.SouthStartingY, "south entry position");
         AssertEqual(0xff00, MaridiaElevatubeDefinitions.SouthStartingVelocity.RawValue, "south entry velocity");
@@ -70,7 +70,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x0100, MaridiaElevatubeDefinitions.NorthStartingVelocity.RawValue, "north entry velocity");
         AssertEqual(0x0020, MaridiaElevatubeDefinitions.NorthAcceleration.RawValue, "north entry acceleration");
         AssertEqual(0x0e20, MaridiaElevatubeDefinitions.MaximumSpeed.RawValue, "elevatube speed limit");
-        AssertEqual(new Position16<RoomBlocks>(1, 0), MaridiaElevatubeDefinitions.PlmBlock, "elevatube PLM block");
+        AssertEqual(new Position16<RoomBlocks>(1, 0), MaridiaElevatubeDefinitions.RoomObjectBlock, "elevatube PLM block");
 
         // TourianStatueRomData and TourianStatuePaletteRomData.
         AssertEqual(300, TourianStatueSequenceDefinitions.DescentDelay, "descent delay");

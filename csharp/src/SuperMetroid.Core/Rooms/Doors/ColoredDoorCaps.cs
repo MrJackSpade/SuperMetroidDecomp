@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The yellow, green and red door caps: each colour's four frames per facing and their physical cells from
-/// <see cref="ColoredDoorPlmDrawDefinitions"/>.
+/// <see cref="ColoredDoorObjectDrawDefinitions"/>.
 /// </summary>
 internal static class ColoredDoorCaps
 {
@@ -19,14 +19,14 @@ internal static class ColoredDoorCaps
         internal RoomTerrainBlock BlockAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return ColoredDoorPlmDrawDefinitions.Cells[this][cell];
+            return ColoredDoorObjectDrawDefinitions.Cells[this][cell];
         }
     }
 
     /// <summary>Decodes only the forty-eight aligned twelve-byte cap pointers into color, orientation, and frame.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw)
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
-        if (request is PlmFrameDraw<Draw> { Frame: { Frame: >= 0 and < 4 } cap })
+        if (request is RoomObjectFrameDraw<Draw> { Frame: { Frame: >= 0 and < 4 } cap })
         {
             draw = cap;
             return true;

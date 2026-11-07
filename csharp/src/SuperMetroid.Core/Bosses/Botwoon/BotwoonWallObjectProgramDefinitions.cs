@@ -1,0 +1,45 @@
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Programs;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Botwoon.BotwoonWallProgram, SuperMetroid.Core.Rooms.RoomObjects.BotwoonWallDraw, SuperMetroid.Core.Bosses.Botwoon.BotwoonWallCue>;
+
+namespace SuperMetroid.Core.Bosses.Botwoon;
+
+/// <summary>
+/// Botwoon's wall PLM programs (#1296), in place of their animation scripts. The
+/// crumble opens the first two scroll cells and crumbles the wall one row at a time, top to bottom.
+/// </summary>
+internal static class BotwoonWallObjectProgramDefinitions
+{
+    /// <summary>Rows the crumble program crumbles.</summary>
+    internal const int CrumbleRows = 9;
+    /// <summary>Updates each crumble frame lasts.</summary>
+    internal const int CrumbleFrameDuration = 4;
+    /// <summary>The sound each crumbled row queues: library two sound ten.</summary>
+    internal static SoundEffectId CrumbleSound { get; } = Library2Sound.BlockCrumble;
+    /// <summary>The crumble sound's request priority.</summary>
+    internal static readonly SoundRequestPriority CrumbleSoundPriority = SoundRequestPriority.Normal;
+
+    /// <summary>Every wall program.</summary>
+    internal static AnimationProgramSet<BotwoonWallProgram, BotwoonWallDraw, BotwoonWallCue> Programs { get; } = new(
+        new Dictionary<BotwoonWallProgram, Step[]>
+        {
+            [BotwoonWallProgram.Crumble] =
+            [
+                Step.SetCounter(CrumbleRows),
+                Step.Publish(BotwoonWallCue.SetScrollsBlue),
+                Step.FallInto(BotwoonWallProgram.CrumbleRow),
+            ],
+            [BotwoonWallProgram.CrumbleRow] =
+            [
+                Step.Publish(BotwoonWallCue.QueueCrumbleSound),
+                Step.Show(BotwoonWallDraw.CrumbleFirst, CrumbleFrameDuration),
+                Step.Show(BotwoonWallDraw.CrumbleSecond, CrumbleFrameDuration),
+                Step.Show(BotwoonWallDraw.CrumbleThird, CrumbleFrameDuration),
+                Step.Show(BotwoonWallDraw.CrumbleFourth, CrumbleFrameDuration),
+                Step.Publish(BotwoonWallCue.MoveDownOneBlock),
+                Step.RepeatWhileCounting(BotwoonWallProgram.CrumbleRow),
+                Step.Stop,
+            ],
+            [BotwoonWallProgram.Clear] = [Step.Show(BotwoonWallDraw.Clear, 1), Step.Stop],
+        });
+}

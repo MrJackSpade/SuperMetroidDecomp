@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Bosses.Crocomire;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaPlmsVerification;
+using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.LookupCrocomireStockVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -25,24 +25,24 @@ internal static class CrocomireArenaVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire stock oracle revision");
         // A private installation copy, whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmCrocomireVisualDirectory))
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectCrocomireVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmCrocomireVisualFilesConstants.ValidateStock(
-                installation.RoomPlmCrocomireVisualDirectory);
-            RoomPlmCrocomireVisualCatalog stock =
-                installation.LoadRoomPlmCrocomireVisuals();
+            RoomObjectCrocomireVisualFilesConstants.ValidateStock(
+                installation.RoomObjectCrocomireVisualDirectory);
+            RoomObjectCrocomireVisualCatalog stock =
+                installation.LoadRoomObjectCrocomireVisuals();
             VerifyCrocomireStockMapping(rom, stock);
             VerifyCrocomireVisualDraw(CrocomireArenaMutation.ClearBridge,
                 new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x80), null);
 
             string stockPath = Path.Combine(
-                installation.RoomPlmCrocomireVisualDirectory,
-                RoomPlmCrocomireVisualFiles.VisualFileName);
+                installation.RoomObjectCrocomireVisualDirectory,
+                RoomObjectCrocomireVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmCrocomireVisualFilesConstants.ValidateStock(
-                    installation.RoomPlmCrocomireVisualDirectory),
+                () => RoomObjectCrocomireVisualFilesConstants.ValidateStock(
+                    installation.RoomObjectCrocomireVisualDirectory),
                 "tampered Crocomire stock fails loudly where it is read");
         }
         Console.WriteLine("Crocomire arena visuals: five stock draws, the compiled bridge clear and strict failures pass.");
@@ -51,16 +51,16 @@ internal static class CrocomireArenaVisualsVerification
     /// <summary>Runs one arena mutation and checks its collision word, immediate BG1 update, and ROM-free visual source.</summary>
     private static void VerifyCrocomireVisualDraw(CrocomireArenaMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
-        RoomPlmCrocomireVisualCatalog? visuals)
+        RoomObjectCrocomireVisualCatalog? visuals)
     {
         const int width = 32;
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmCrocomireVisuals = visuals });
-        AssertTrue(plms.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
+        var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectCrocomireVisuals = visuals });
+        AssertTrue(roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
             $"Crocomire visual mutation {mutation} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
-        plms.Step(level);
+        roomObjects.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physical,
             level.GetCollisionBlockByIndex(blockIndex).Terrain,

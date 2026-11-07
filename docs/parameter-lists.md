@@ -23,15 +23,15 @@ Exemptions are declared on the member, never per project:
 
 ## Designing a context
 
-- Name the context for its domain purpose: `RoomEnemyFrame`, `PlmView`, `SamusTerrain`. Do not
+- Name the context for its domain purpose: `RoomEnemyFrame`, `RoomObjectView`, `SamusTerrain`. Do not
   use a generic `Options`, `Context` or `Parameters` name when the concept is known.
 - A parent operation's context is the explicit superset of its children's contracts. Each child
   accepts only its own narrow contract: `RoomEnemyFrame : IEnemyAiFrame`, `IRoomEnemyServices :
-  IChozoStatueRoomServices, IMotherBrainRoomServices`, `IRoomPlmEnemyEffects :
+  IChozoStatueRoomServices, IMotherBrainRoomServices`, `IRoomObjectEnemyEffects :
   INoobTubeProjectileSpawner, ...`. Where a private child would see only one implementation, compose
   a narrow concrete value (`PaletteFxConditions`, `RuntimeFramePolicy`, `VerticalTerrainProbe`)
   instead of passing the whole parent.
-- Required capabilities are non-null and validated at construction (`PlmRoom`,
+- Required capabilities are non-null and validated at construction (`RoomObjectRoom`,
   `RuntimeFrameAudio.Gameplay`). Optional behaviour is a named scenario or null object
   (a default `RuntimeFrameRequest`, `RuntimeFrameAudio.Deferred`, `HostGameplayOverrides.None`),
   not a nullable delegate.
@@ -39,8 +39,8 @@ Exemptions are declared on the member, never per project:
   `IRoomSamusAccess`, `IRoomEarthquakeWriter`).
 - Reuse existing domain values before adding new ones (`Mode7RenderRegisters`,
   `OrdinaryGameplayRenderLayer`, `EnemySpritemapDraw`, `PauseMenuEntry`).
-- Keep per-invocation input separate from long-lived dependencies: `LoadRoomPopulation(PlmRoom,
-  population, RoomPlmServices)`.
+- Keep per-invocation input separate from long-lived dependencies: `LoadRoomPopulation(RoomObjectRoom,
+  population, RoomObjectServices)`.
 
 Compile-time contract checks live in `SuperMetroid.EnsureVerification`
 (`VerifyParameterContracts`), runtime invariants in the Verification suite

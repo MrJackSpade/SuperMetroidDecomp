@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Rooms.Plms.SaveStationElectricityProgram;
+using P = SuperMetroid.Core.Rooms.RoomObjects.SaveStationElectricityProgram;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.SaveStation;
 

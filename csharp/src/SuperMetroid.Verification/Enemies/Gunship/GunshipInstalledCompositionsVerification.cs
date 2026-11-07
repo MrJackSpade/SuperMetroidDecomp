@@ -61,8 +61,8 @@ internal static class GunshipInstalledCompositionsVerification
         BindInstalledArtwork(installation, enemyArtwork)(game, true);
         game.BindArtwork(game.Artwork with
         {
-            RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
-            RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
+            RoomObjectBlueDoorVisuals = installation.LoadRoomObjectBlueDoorVisuals(),
+            RoomObjectElevatorPlatformVisuals = installation.LoadRoomObjectElevatorPlatformVisuals(),
         });
         SetState(game, SuperMetroidGameState.SetUpNewGame);
         game.StepCaptured(0);

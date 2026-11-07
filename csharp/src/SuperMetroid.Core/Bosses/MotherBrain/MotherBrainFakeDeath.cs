@@ -124,7 +124,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
 
             case MotherBrainTubeCollapseFunction.ClearBottomLeftTube:
-                RequestMotherBrainTubePlm(state, new(5, 9),
+                RequestMotherBrainTubeObject(state, new(5, 9),
                     MotherBrainRoomMutation.ClearBottomLeftTube,
                     MotherBrainTubeCollapseFunction.SpawnTopRightTube, 32);
                 return;
@@ -135,7 +135,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn9;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn9:
-                RequestMotherBrainTubePlm(state, new(9, 2),
+                RequestMotherBrainTubeObject(state, new(9, 2),
                     MotherBrainRoomMutation.ClearCeilingBlock,
                     MotherBrainTubeCollapseFunction.SpawnTopLeftTube, 32);
                 return;
@@ -146,7 +146,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn6;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn6:
-                RequestMotherBrainTubePlm(state, new(6, 2),
+                RequestMotherBrainTubeObject(state, new(6, 2),
                     MotherBrainRoomMutation.ClearCeilingBlock,
                     MotherBrainTubeCollapseFunction.SpawnBottomRightTube, 32);
                 return;
@@ -157,7 +157,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomRightTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomRightTube:
-                RequestMotherBrainTubePlm(state, new(10, 9),
+                RequestMotherBrainTubeObject(state, new(10, 9),
                     MotherBrainRoomMutation.ClearBottomRightTube,
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube, 32);
                 return;
@@ -168,7 +168,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube:
-                RequestMotherBrainTubePlm(state, new(6, 10),
+                RequestMotherBrainTubeObject(state, new(6, 10),
                     MotherBrainRoomMutation.ClearBottomMiddleSideTube,
                     MotherBrainTubeCollapseFunction.SpawnTopMiddleLeftTube, 32);
                 return;
@@ -179,7 +179,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn7;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn7:
-                RequestMotherBrainTubePlm(state, new(7, 2),
+                RequestMotherBrainTubeObject(state, new(7, 2),
                     MotherBrainRoomMutation.ClearCeilingTube,
                     MotherBrainTubeCollapseFunction.SpawnTopMiddleRightTube, 32);
                 return;
@@ -190,7 +190,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn8;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn8:
-                RequestMotherBrainTubePlm(state, new(8, 2),
+                RequestMotherBrainTubeObject(state, new(8, 2),
                     MotherBrainRoomMutation.ClearCeilingTube,
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube, 32);
                 return;
@@ -201,7 +201,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube:
-                RequestMotherBrainTubePlm(state, new(9, 10),
+                RequestMotherBrainTubeObject(state, new(9, 10),
                     MotherBrainRoomMutation.ClearBottomMiddleSideTube,
                     MotherBrainTubeCollapseFunction.SpawnMainTube, 2);
                 return;
@@ -212,7 +212,7 @@ internal sealed class MotherBrainFakeDeath
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes:
-                RequestMotherBrainTubePlm(state, new(7, 7),
+                RequestMotherBrainTubeObject(state, new(7, 7),
                     MotherBrainRoomMutation.ClearBottomMiddleTubes,
                     MotherBrainTubeCollapseFunction.Finished, 0);
                 return;
@@ -228,14 +228,14 @@ internal sealed class MotherBrainFakeDeath
     private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state) => --state.TubeCollapseTimer < 0;
 
     /// <summary>Queues the room tile change at the tube's location.</summary>
-    private void RequestMotherBrainTubePlm(
+    private void RequestMotherBrainTubeObject(
         MotherBrainEnemyState state,
         Position16<RoomBlocks> block,
         MotherBrainRoomMutation mutation,
         MotherBrainTubeCollapseFunction next,
         int timer)
     {
-        _access.RequestMotherBrainPlm(block, mutation);
+        _access.RequestMotherBrainObject(block, mutation);
         state.TubeCollapseFunction = next;
         state.TubeCollapseTimer = timer;
     }
@@ -518,8 +518,8 @@ internal sealed class MotherBrainFakeDeath
                 MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
-        _access.RequestMotherBrainPlm(new(2, CoordinateAxis.Wrap(firstRow)), firstRowMutation);
-        _access.RequestMotherBrainPlm(new(2, CoordinateAxis.Wrap(firstRow + 1)), secondRowMutation);
+        _access.RequestMotherBrainObject(new(2, CoordinateAxis.Wrap(firstRow)), firstRowMutation);
+        _access.RequestMotherBrainObject(new(2, CoordinateAxis.Wrap(firstRow + 1)), secondRowMutation);
         state.Function = next;
     }
 

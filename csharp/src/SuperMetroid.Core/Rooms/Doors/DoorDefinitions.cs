@@ -617,9 +617,9 @@ public static class DoorDefinitions
 
     /// <summary>Builds the door named <paramref name="name"/> from its fields.</summary>
     private static DoorDefinition Door(string name, RoomHeaderDefinition destination, DoorOrientation orientation,
-        Position16<RoomBlocks> plmBlock, Position16<RoomScreens> destinationScreen, DoorSamusSpeed samusSpeed,
+        Position16<RoomBlocks> roomObjectBlock, Position16<RoomScreens> destinationScreen, DoorSamusSpeed samusSpeed,
         DoorSetupCode setupCode) =>
-        new(name, destination, orientation, plmBlock, destinationScreen, samusSpeed, setupCode);
+        new(name, destination, orientation, roomObjectBlock, destinationScreen, samusSpeed, setupCode);
     /// <summary>The <c>Door_DemoSet3_0_2_4</c> door.</summary>
     public static DoorDefinition DemoSet3024 { get; } = Find(nameof(DemoSet3024));
     /// <summary>The <c>UNUSED_Door_83991E</c> door.</summary>

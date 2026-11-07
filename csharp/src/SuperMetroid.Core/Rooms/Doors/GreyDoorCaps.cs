@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The grey door caps and the four shared cleared openings, and their physical cells from
-/// <see cref="GreyDoorPlmDrawDefinitions"/>.
+/// <see cref="GreyDoorObjectDrawDefinitions"/>.
 /// </summary>
 internal static class GreyDoorCaps
 {
@@ -19,11 +19,11 @@ internal static class GreyDoorCaps
         internal RoomTerrainBlock BlockAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return GreyDoorPlmDrawDefinitions.Cells[this][cell];
+            return GreyDoorObjectDrawDefinitions.Cells[this][cell];
         }
     }
 
     /// <summary>Decodes a pointer on the twelve-byte grid into clear or animated cap orientation and frame.</summary>
-    internal static bool TryDescribe(PlmDraw request, out Draw draw) =>
-        PlmDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= GreyDoorPlmDrawDefinitions.ClearFrame and < 4, out draw);
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
+        RoomObjectDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= GreyDoorObjectDrawDefinitions.ClearFrame and < 4, out draw);
 }

@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -26,29 +26,29 @@ internal static class LookupEyeDoorVisualIdsVerification
             new LookupEscapeGateStockFrame(0x9c83,"right-middle-frame-0"),new LookupEscapeGateStockFrame(0x9c89,"right-middle-frame-1"),new LookupEscapeGateStockFrame(0x9c8f,"right-middle-frame-2"),
             new LookupEscapeGateStockFrame(0x9c95,"right-bottom-frame-0"),new LookupEscapeGateStockFrame(0x9c9b,"right-bottom-frame-1"),new LookupEscapeGateStockFrame(0x9ca1,"right-bottom-frame-2"),
         ];
-        var exported = RoomPlmEyeDoorVisualFiles.Editable.ToArray();
+        var exported = RoomObjectEyeDoorVisualFiles.Editable.ToArray();
         AssertEqual(expected.Length, exported.Length, "Eye door original editable identity count");
         for (int index = 0; index < expected.Length; index++)
         {
             var entry = expected[index];
-            AssertEqual(entry.Pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Eye door original editable order");
-            AssertEqual(entry.Id, RoomPlmEyeDoorVisualFiles.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>(entry.Pointer)), "Eye door original artwork ID");
-            AssertTrue(RoomPlmEyeDoorVisualFiles.TryGetByVisualId(entry.Id,out var named), "Eye door reverse ID");
-            AssertEqual(entry.Pointer,PlmDrawAddressCodec.Of(named.Draw),"Eye door reverse draw selection");
+            AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Eye door original editable order");
+            AssertEqual(entry.Id, RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>(entry.Pointer)), "Eye door original artwork ID");
+            AssertTrue(RoomObjectEyeDoorVisualFiles.TryGetByVisualId(entry.Id,out var named), "Eye door reverse ID");
+            AssertEqual(entry.Pointer,RoomObjectDrawAddressCodec.Of(named.Draw),"Eye door reverse draw selection");
             foreach (string bad in new[] {entry.Id.ToUpperInvariant()," " + entry.Id,entry.Id + " "})
             {
-                AssertTrue(!RoomPlmEyeDoorVisualFiles.TryGetByVisualId(bad,out var missing), "Eye door ordinal identity");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"Eye door rejected ID output");
+                AssertTrue(!RoomObjectEyeDoorVisualFiles.TryGetByVisualId(bad,out var missing), "Eye door ordinal identity");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList),missing,"Eye door rejected ID output");
             }
         }
         foreach (string bad in new[] {"","left-eye-frame-5","right-middle-frame-3","left-bottom-frame-01","right-eye-clear"})
-            AssertTrue(!RoomPlmEyeDoorVisualFiles.TryGetByVisualId(bad,out _),"Eye door unsupported identity");
+            AssertTrue(!RoomObjectEyeDoorVisualFiles.TryGetByVisualId(bad,out _),"Eye door unsupported identity");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             if (!expected.Any(entry => entry.Pointer == raw))
-                AssertThrows<InvalidDataException>(() => RoomPlmEyeDoorVisualFiles.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door full rejected pointer domain");
-            AssertEqual(NativePlmDraws.At<EyeDoorDraws.Draw>(raw == 0x9bf7 ? 0x9c4f : raw),
-                EyeDoorDraws.VisualSource(NativePlmDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door original mirrored alias");
+                AssertThrows<InvalidDataException>(() => RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door full rejected pointer domain");
+            AssertEqual(NativeObjectDraws.At<EyeDoorDraws.Draw>(raw == 0x9bf7 ? 0x9c4f : raw),
+                EyeDoorDraws.VisualSource(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door original mirrored alias");
         }
     }
 }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 using static SuperMetroid.Core.Frontend.Map.MapSaveMarkerDefinitions;
 

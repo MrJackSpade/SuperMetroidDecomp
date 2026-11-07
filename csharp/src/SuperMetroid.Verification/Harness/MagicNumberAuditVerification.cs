@@ -58,7 +58,7 @@ internal static class MagicNumberAuditVerification
                 "internal enum Mode { A }\ninternal sealed class PoseState\n{\n    int pose = 0x20;\n}").Count,
             "a file with behavior beside an enum keeps its classifiers");
 
-        AssertEqual(0, ProductionMagicNumberAudit.AuditText("RoomPlmPopulationDefinitions.Generated.cs", UnsafeSource).Count,
+        AssertEqual(0, ProductionMagicNumberAudit.AuditText("RoomObjectPopulationDefinitions.Generated.cs", UnsafeSource).Count,
             "generated partial definition catalogs retain the existing catalog exemption");
         AssertEqual(findings.Count, ProductionMagicNumberAudit.AuditText("FunctionalState.Generated.cs", UnsafeSource).Count,
             "generated functional code retains all domain classifiers");

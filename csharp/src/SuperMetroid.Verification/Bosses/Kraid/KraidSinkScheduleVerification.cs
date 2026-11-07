@@ -1,7 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Kraid;
@@ -24,32 +24,32 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Checks platform column immediates encoded in each nonempty sink callback.</summary>
-    private static void VerifyKraidSinkPlmColumns(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
-        Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 17, request => request.Block.X));
+    private static void VerifyKraidSinkObjectColumns(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
+        Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 17, request => request.Block.X));
     /// <summary>Checks platform row immediates encoded in each nonempty sink callback.</summary>
-    private static void VerifyKraidSinkPlmRows(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
-        Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 18, request => request.Block.Y));
+    private static void VerifyKraidSinkObjectRows(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
+        Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 18, request => request.Block.Y));
     /// <summary>Checks native PLM header words selected by the sink callbacks.</summary>
-    private static void VerifyKraidSinkPlmHeaders(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
-        Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 19, request => PlmNativeWords.Word(KraidRoomMutationDefinitions.Plms[request.Plm])));
+    private static void VerifyKraidSinkObjectHeaders(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
+        Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 19, request => RoomObjectNativeWords.Word(KraidRoomMutationDefinitions.RoomObjects[request.RoomObject])));
 
     /// <summary>Compares one inline PLM field across the six mutating callbacks and excludes the empty RTS.</summary>
-    private static void VerifyKraidSinkPlmField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
-        int offset, Func<PlmSpawnRequest<KraidRoomMutation>, ushort> field)
+    private static void VerifyKraidSinkObjectField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
+        int offset, Func<RoomObjectSpawnRequest<KraidRoomMutation>, ushort> field)
     {
         int count = 0;
         foreach (ushort callback in callbacks.Distinct())
         {
             int code = 0xa70000 | callback;
-            var request = KraidPlms.ForSinkCallback(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
-            if (KraidSinkPlmFieldRomByte(rom, code) == 0x60)
+            var request = KraidObjects.ForSinkCallback(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
+            if (KraidSinkObjectFieldRomByte(rom, code) == 0x60)
             {
-                AssertEqual<PlmSpawnRequest<KraidRoomMutation>?>(null, request, "Native empty RTS emits no request");
+                AssertEqual<RoomObjectSpawnRequest<KraidRoomMutation>?>(null, request, "Native empty RTS emits no request");
                 continue;
             }
             ushort expected = offset == 19
-                ? LittleEndianBytes.Word(KraidSinkPlmFieldRomByte(rom, code + offset), KraidSinkPlmFieldRomByte(rom, code + offset + 1))
-                : KraidSinkPlmFieldRomByte(rom, code + offset);
+                ? LittleEndianBytes.Word(KraidSinkObjectFieldRomByte(rom, code + offset), KraidSinkObjectFieldRomByte(rom, code + offset + 1))
+                : KraidSinkObjectFieldRomByte(rom, code + offset);
             AssertEqual(expected, field((request ?? throw new InvalidOperationException("Verification requires request."))), "Native sink callback inline field");
             count++;
         }
@@ -60,7 +60,7 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads a native callback byte for the independent PLM argument oracle.</summary>
-    private static byte KraidSinkPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidSinkObjectFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Exercises each production callback and checks its rock X, PLM request count, and event count.</summary>
     private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,
@@ -70,7 +70,7 @@ internal static class KraidSinkScheduleVerification
         var state = new KraidEnemyState();
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
-        var requests = enemies.BossFrameResults.KraidPlms;
+        var requests = enemies.BossFrameResults.KraidObjects;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
@@ -105,9 +105,9 @@ internal static class KraidSinkScheduleVerification
             callbacks.Add(y, Word(address + 4));
         }
         Suite(nameof(VerifyKraidSinkCallbackSelection), () => VerifyKraidSinkCallbackSelection(callbacks));
-        Suite(nameof(VerifyKraidSinkPlmColumns), () => VerifyKraidSinkPlmColumns(rom, callbacks.Values));
-        Suite(nameof(VerifyKraidSinkPlmRows), () => VerifyKraidSinkPlmRows(rom, callbacks.Values));
-        Suite(nameof(VerifyKraidSinkPlmHeaders), () => VerifyKraidSinkPlmHeaders(rom, callbacks.Values));
+        Suite(nameof(VerifyKraidSinkObjectColumns), () => VerifyKraidSinkObjectColumns(rom, callbacks.Values));
+        Suite(nameof(VerifyKraidSinkObjectRows), () => VerifyKraidSinkObjectRows(rom, callbacks.Values));
+        Suite(nameof(VerifyKraidSinkObjectHeaders), () => VerifyKraidSinkObjectHeaders(rom, callbacks.Values));
         Suite(nameof(VerifyKraidSinkRockPlacement), () => VerifyKraidSinkRockPlacement(rom, callbacks));
         if (definitionsOnly)
         {
@@ -118,7 +118,7 @@ internal static class KraidSinkScheduleVerification
         var state = new KraidEnemyState();
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
-        var requests = enemies.BossFrameResults.KraidPlms;
+        var requests = enemies.BossFrameResults.KraidObjects;
         var body = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -135,7 +135,7 @@ internal static class KraidSinkScheduleVerification
             if (!crumble) continue;
             int code = 0xa70000 | callback;
             AssertEqual(new Position16<RoomBlocks>(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), requests[0].Block, "Native callback inline PLM block");
-            AssertEqual(PlmNativeWords.Header(Word(code + 19)), KraidRoomMutationDefinitions.Plms[requests[0].Plm], "Native callback inline PLM identity");
+            AssertEqual(RoomObjectNativeWords.Header(Word(code + 19)), KraidRoomMutationDefinitions.RoomObjects[requests[0].RoomObject], "Native callback inline PLM identity");
         }
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }

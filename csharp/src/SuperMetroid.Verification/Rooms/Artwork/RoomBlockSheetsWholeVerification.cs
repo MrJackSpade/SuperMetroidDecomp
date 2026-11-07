@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -40,7 +40,7 @@ internal static class RoomBlockSheetsWholeVerification
     {
         // The installation's room artwork is the process's shared fixture, loaded once for every suite reading it (#1532).
         InstalledRoomArtwork artwork = InstalledFixtures.RoomAssets.BlockSheets;
-        InstalledRoomPlmCollectibleVisuals visuals = RepositoryInstallation.Installation.LoadRoomPlmCollectibleVisuals();
+        InstalledRoomObjectCollectibleVisuals visuals = RepositoryInstallation.Installation.LoadRoomObjectCollectibleVisuals();
         var placed = CollectiblesPlaced();
         var collectibleBlocks = CollectibleBlocks(visuals);
         var failures = new List<string>();
@@ -147,10 +147,10 @@ internal static class RoomBlockSheetsWholeVerification
         {
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
             {
-                foreach (RoomPlmPlacement placement in state.PlmPopulation.Placements.Span)
+                foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
                 {
-                    if (!CollectiblePlms.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
-                        || !CollectiblePlms.UsesDynamicGraphics(kind))
+                    if (!CollectibleObjects.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
+                        || !CollectibleObjects.UsesDynamicGraphics(kind))
                         continue;
                     TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
                     if (!placed.TryGetValue(tileset, out HashSet<InWorldCollectibleKind>? kinds))
@@ -166,14 +166,14 @@ internal static class RoomBlockSheetsWholeVerification
     /// The blocks a collectible that loads its own graphics draws where it lies, each with its graphics slot, as the
     /// installed collectible visuals draw each slot's two frames.
     /// </summary>
-    private static Dictionary<int, int> CollectibleBlocks(InstalledRoomPlmCollectibleVisuals visuals)
+    private static Dictionary<int, int> CollectibleBlocks(InstalledRoomObjectCollectibleVisuals visuals)
     {
-        InWorldCollectibleKind any = Enum.GetValues<InWorldCollectibleKind>().First(CollectiblePlms.UsesDynamicGraphics);
+        InWorldCollectibleKind any = Enum.GetValues<InWorldCollectibleKind>().First(CollectibleObjects.UsesDynamicGraphics);
         var blocks = new Dictionary<int, int>();
-        for (int slot = 0; slot < CollectiblePlms.GraphicsSlots; slot++)
+        for (int slot = 0; slot < CollectibleObjects.GraphicsSlots; slot++)
         {
             for (int frame = 0; frame < CollectibleFrames; frame++)
-                blocks.Add(visuals.GetAppearance(CollectiblePlmDraws.VisibleFrame(any, frame, slot)).Block, slot);
+                blocks.Add(visuals.GetAppearance(CollectibleObjectDraws.VisibleFrame(any, frame, slot)).Block, slot);
         }
         return blocks;
     }

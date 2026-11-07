@@ -1,8 +1,8 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -25,7 +25,7 @@ internal static class LookupBombTorizoHandDrawVerification
     {
         ushort[] pointers = [0x9877,0x989d];
         string[] ids = ["intact","cleared"];
-        var exported = RoomPlmBombTorizoHandVisualFiles.All.ToArray();
+        var exported = RoomObjectBombTorizoHandVisualFiles.All.ToArray();
         AssertEqual(2, exported.Length, "Torizo hand export count");
         if (field == 0)
         {
@@ -33,36 +33,36 @@ internal static class LookupBombTorizoHandDrawVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, BombTorizoHandDraws.TryDescribe(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var shape), "Torizo hand descriptor domain");
-                AssertEqual(owned, RoomPlmBombTorizoHandVisualFiles.TryGet(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var dto), "Torizo hand DTO domain");
+                AssertEqual(owned, BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var shape), "Torizo hand descriptor domain");
+                AssertEqual(owned, RoomObjectBombTorizoHandVisualFiles.TryGet(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var dto), "Torizo hand DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(BombTorizoHandDraws.Draw), shape, "Torizo hand missing descriptor");
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Torizo hand missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand missing ID");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Torizo hand missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectBombTorizoHandVisualFiles.VisualId(NativeObjectDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand missing ID");
                 }
             }
             foreach (string bad in new[] {"Intact","cleared ","","unknown"})
             {
-                AssertTrue(!RoomPlmBombTorizoHandVisualFiles.TryGetByVisualId(bad, out var missing), "Torizo hand ordinal ID domain");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Torizo hand missing ID output");
+                AssertTrue(!RoomObjectBombTorizoHandVisualFiles.TryGetByVisualId(bad, out var missing), "Torizo hand ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Torizo hand missing ID output");
             }
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            BombTorizoHandDraws.TryDescribe(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var shape);
-            RoomPlmBombTorizoHandVisualFiles.TryGet(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var dto);
-            AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Torizo hand original export order");
-            AssertEqual(ids[index], RoomPlmBombTorizoHandVisualFiles.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand published identity");
-            AssertTrue(RoomPlmBombTorizoHandVisualFiles.TryGetByVisualId(ids[index], out var byId), "Torizo hand reverse identity");
-            AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Torizo hand reverse pointer");
+            BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var shape);
+            RoomObjectBombTorizoHandVisualFiles.TryGet(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var dto);
+            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Torizo hand original export order");
+            AssertEqual(ids[index], RoomObjectBombTorizoHandVisualFiles.VisualId(NativeObjectDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand published identity");
+            AssertTrue(RoomObjectBombTorizoHandVisualFiles.TryGetByVisualId(ids[index], out var byId), "Torizo hand reverse identity");
+            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Torizo hand reverse pointer");
             int cursor = pointer, run = 0;
             sbyte x = 0, y = 0;
             while (true)
             {
-                ushort count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor);
+                ushort count = ReadSamusEaterObjectWord(rom, 0x840000 | cursor);
                 cursor += 2;
                 AssertTrue(count is > 0 and < 0x8000, "Torizo hand original horizontal run");
                 if (field == 0)
@@ -82,7 +82,7 @@ internal static class LookupBombTorizoHandDrawVerification
                 {
                     if (field != 0)
                     {
-                        RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
+                        RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor));
                         AssertTerrainField(field, expected, shape.BlockAt(run,word), "Torizo hand original calculated field");
                         AssertTerrainField(field, expected, dto.Runs.Span[run].Blocks.Span[word], "Torizo hand original DTO field");
                         AssertTerrainField(field, expected, exported[index].Runs.Span[run].Blocks.Span[word], "Torizo hand original export field");

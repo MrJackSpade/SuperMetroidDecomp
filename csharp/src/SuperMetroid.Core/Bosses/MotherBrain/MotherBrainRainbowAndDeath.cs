@@ -133,8 +133,8 @@ internal sealed class MotherBrainRainbowAndDeath
             // The door explosion's sound competes at low priority.
             _audio.QueueEnemySound(doorDust.SoundEffect, priority: SoundRequestPriority.Low);
         }
-        if (step.EscapeDoorPlm is { } doorPlm)
-            _access.RequestMotherBrainPlm(doorPlm.Block, doorPlm.Plm);
+        if (step.EscapeDoorObject is { } doorObject)
+            _access.RequestMotherBrainObject(doorObject.Block, doorObject.RoomObject);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Parameter);
         if (step.TimeBombSetSubtitleSpawnRequested)
         {

@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
@@ -28,7 +28,7 @@ internal static class BombJumpWallVerification
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x4000);
         samus.RequestMorphedBombJump(SamusBombJumpDirection.Right);
         SamusBombJumpMovement.Start(samus);
-        var result = SamusBombJumpMovement.Step(level, samus, 0, PlmFixtures.Unbound());
+        var result = SamusBombJumpMovement.Step(level, samus, 0, RoomObjectFixtures.Unbound());
         // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
         AssertTrue(samus.HorizontalSpeed.BaseFixed == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.Position.X.RawValue:X8}, radius={samus.Kinematics.Radius.X})");
         AssertTrue(result.Vertical is { Collided: false }, "shaft wall leaves vertical travel clear");
@@ -56,7 +56,7 @@ internal static class BombJumpWallVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(-1);
-        var hit = SamusMorphBallMovement.StepGrounded(level, samus, 0, PlmFixtures.Unbound());
+        var hit = SamusMorphBallMovement.StepGrounded(level, samus, 0, RoomObjectFixtures.Unbound());
         AssertTrue(hit.Vertical.Collided && hit.HitCeiling, "upward platform carry publishes a ceiling collision, not a floor contact");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "movement leaves ceiling response deferred until pose priority is resolved");
         SamusPosturePoseTransitions.ApplySolidCeilingCollision(samus);
@@ -64,7 +64,7 @@ internal static class BombJumpWallVerification
         AssertEqual(71, samus.Position.Y.Whole, "carried Morph Ball remains at the ceiling boundary");
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1C00);
-        SamusMorphBallMovement.StepGrounded(level, samus, 1, PlmFixtures.Unbound());
+        SamusMorphBallMovement.StepGrounded(level, samus, 1, RoomObjectFixtures.Unbound());
         AssertEqual(71, samus.Position.Y.Whole, "following frame moves by old zero speed, not a one-pixel grounding probe");
         AssertEqual(0x1C00, samus.Kinematics.YSpeed.Fraction, "following frame stores normal gravity for its successor");
 
@@ -78,9 +78,9 @@ internal static class BombJumpWallVerification
         SamusBombJumpMovement.Start(hurt);
         hurt.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
         hurt.Kinematics.YAcceleration = hurt.Kinematics.YAcceleration.WithFraction(0x4000);
-        SamusBombJumpMovement.Step(level, hurt, 0, PlmFixtures.Unbound());
+        SamusBombJumpMovement.Step(level, hurt, 0, RoomObjectFixtures.Unbound());
         AssertTrue(hurt.BombJumpPoseInputLocked, "one-pixel speed keeps input locked despite crossing threshold this frame");
-        SamusBombJumpMovement.Step(level, hurt, 1, PlmFixtures.Unbound());
+        SamusBombJumpMovement.Step(level, hurt, 1, RoomObjectFixtures.Unbound());
         AssertTrue(!hurt.BombJumpPoseInputLocked, "fractional upward speed restores next frame's input");
         AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");

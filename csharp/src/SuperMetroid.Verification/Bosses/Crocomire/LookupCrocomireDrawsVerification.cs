@@ -1,7 +1,7 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -15,29 +15,29 @@ internal static class LookupCrocomireDrawsVerification
     internal static void VerifyCrocomirePhysicalDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x9b5b, 0x9b73, 0x9b79, 0x9b7f, 0x9bbb];
-        var exported = RoomPlmCrocomireVisualFiles.All.ToArray();
+        var exported = RoomObjectCrocomireVisualFiles.All.ToArray();
         AssertEqual(pointers.Length, exported.Length, "Crocomire physical export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
             bool owned = Array.IndexOf(pointers, pointer) >= 0;
-            AssertEqual(owned, CrocomireArenaDraws.TryDescribe(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var shape),
+            AssertEqual(owned, CrocomireArenaDraws.TryDescribe(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var shape),
                 $"Crocomire descriptor ownership {value:X4}");
-            AssertEqual(owned, RoomPlmCrocomireVisualFiles.TryGet(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var dto),
+            AssertEqual(owned, RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var dto),
                 $"Crocomire DTO ownership {value:X4}");
             if (!owned)
             {
                 AssertEqual(default(CrocomireArenaDraws.Draw), shape, "Crocomire missing descriptor");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Crocomire missing DTO");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Crocomire missing DTO");
             }
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Crocomire export order");
-            CrocomireArenaDraws.TryDescribe(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var shape);
-            RoomPlmCrocomireVisualFiles.TryGet(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var dto);
+            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Crocomire export order");
+            CrocomireArenaDraws.TryDescribe(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var shape);
+            RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var dto);
             int cursor = pointer, run = 0;
             while (true)
             {

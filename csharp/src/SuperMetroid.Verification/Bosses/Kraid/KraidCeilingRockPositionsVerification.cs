@@ -35,7 +35,7 @@ internal static class KraidCeilingRockPositionsVerification
         enemies.KraidBehavior.Access.Kraid = state;
         enemies.VerificationServices().ReadRandom = () => 63;
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthFunction;
-        var requests = enemies.BossFrameResults.KraidPlms;
+        var requests = enemies.BossFrameResults.KraidObjects;
         var body = enemies.SlotTable.Slots[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -58,7 +58,7 @@ internal static class KraidCeilingRockPositionsVerification
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");
             AssertEqual((ushort)312, rock.Position.Y.Whole, "Ceiling projectile origin Y");
             AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");
-            AssertEqual(KraidPlmDefinitions.GrowthCeiling[index], requests[0], "Rock and ceiling mutation stay paired");
+            AssertEqual(KraidObjectDefinitions.GrowthCeiling[index], requests[0], "Rock and ceiling mutation stay paired");
         }
         Console.WriteLine("Kraid ceiling rocks: all 9 rock positions and 589824 actual growth updates match with placement reads forbidden.");
     }

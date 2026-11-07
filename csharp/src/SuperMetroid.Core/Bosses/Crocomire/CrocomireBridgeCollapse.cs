@@ -60,7 +60,7 @@ internal sealed class CrocomireBridgeCollapse
         death.AcidSmokeTimer = 1;
         death.AcidSoundTimer = 1;
 
-        PublishCrocomireBridgeCollapsePlms();
+        PublishCrocomireBridgeCollapseObjects();
 
         if (state.Tongue is { } tongue)
         {
@@ -103,7 +103,7 @@ internal sealed class CrocomireBridgeCollapse
             if (!death.BridgeBlockAt1568Crumbling)
             {
                 death.BridgeBlockAt1568Crumbling = true;
-                _access.PublishCrocomirePlm(
+                _access.PublishCrocomireObject(
                     new Position16<RoomBlocks>(97, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(1568, 176), MiscDustAnimation.BigDustCloud);
             }
@@ -115,9 +115,9 @@ internal sealed class CrocomireBridgeCollapse
             !death.BridgeBlocksAt1584Crumbling)
         {
             death.BridgeBlocksAt1584Crumbling = true;
-            _access.PublishCrocomirePlm(
+            _access.PublishCrocomireObject(
                 new Position16<RoomBlocks>(98, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
-            _access.PublishCrocomirePlm(
+            _access.PublishCrocomireObject(
                 new Position16<RoomBlocks>(99, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
             _projectiles.SpawnRoomGraphicsDustExplosion(new(1584, 176), MiscDustAnimation.BigDustCloud);
         }
@@ -135,16 +135,16 @@ internal sealed class CrocomireBridgeCollapse
     /// immediate operands, not a contiguous table. All seven pairs and their
     /// order match the authored ones; there is no eighth dust spawn.
     /// </summary>
-    private void PublishCrocomireBridgeCollapsePlms()
+    private void PublishCrocomireBridgeCollapseObjects()
     {
         for (int blockX = 97; blockX <= 106; blockX++)
-            _access.PublishCrocomirePlm(
+            _access.PublishCrocomireObject(
                 new Position16<RoomBlocks>(CoordinateAxis.Wrap(blockX), 11), CrocomireArenaMutation.ClearBridgeBlock);
 
         for (int puff = 0; puff < CrocomireBehavior.CrocomireBridgeDustCount; puff++)
             _projectiles.SpawnRoomGraphicsDustExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
 
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.CreateInvisibleWall);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.CreateInvisibleWall);
     }
 
     /// <summary>
@@ -313,7 +313,7 @@ internal sealed class CrocomireBridgeCollapse
         _room.Services.RoomScroll.Write(5, RoomScrollState.Blue);
         if (state.Tongue is { } tongue)
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
-        _access.PublishCrocomirePlm(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
+        _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
         _access.RequireCrocomireDeath().SkeletonChunksShown = 0;
     }

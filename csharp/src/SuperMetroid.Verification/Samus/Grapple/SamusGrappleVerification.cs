@@ -9,7 +9,7 @@ using static SuperMetroid.Verification.Samus.Artwork.SamusRenderingFixtureVerifi
 using static SuperMetroid.Verification.Harness.SyntheticSamusCartridgeVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -262,23 +262,23 @@ firingLevel, firingSamus, ControllerButton.X);
     RoomLevelData breakableFiringLevel = CreateRoom(new(8, 8), breakableFiringBlocks, breakableFiringBts);
     SamusState breakableFiringSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     breakableFiringSamus.Kinematics.YSpeed = breakableFiringSamus.Kinematics.YSpeed.WithWhole(1);
-    var breakableFiringPlms = PlmFixtures.Unbound();
+    var breakableFiringObjects = RoomObjectFixtures.Unbound();
     SamusGrappleMovement.BeginFiring(breakableFiringSamus);
     SamusGrappleMovement.StepFiring(
 
         breakableFiringLevel,
         breakableFiringSamus,
         ControllerButton.X,
-        breakableFiringPlms);
+        breakableFiringObjects);
     GrappleMovementResult breakableConnection = SamusGrappleMovement.StepFiring(
 
         breakableFiringLevel,
         breakableFiringSamus,
         ControllerButton.X,
-        breakableFiringPlms);
+        breakableFiringObjects);
     AssertTrue(breakableConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
         "BTS-one grapple firing connects through PLM setup");
-    AssertEqual(1, breakableFiringPlms.SlotTable.ActiveCount,
+    AssertEqual(1, breakableFiringObjects.SlotTable.ActiveCount,
         "BTS-one acquisition installs one independent room PLM");
     AssertEqual(0, breakableFiringLevel.GetCollisionBlock(new(3, 3)).Behavior.Value,
         "BTS-one acquisition synchronously clears low BTS byte");
@@ -380,7 +380,7 @@ spikeLevel, spikeSamus, ControllerButton.X);
     // and seven therefore remain air; their solid twins C and F cancel the live beam.
     // BTS C selects one of the retail no-op projectile-shot PLMs for types four/C, proving
     // that the shared reaction side effect is retained independently of collision carry.
-    foreach ((RoomCollisionType collisionKind, bool expectedCancellation, int expectedPlms) in new[]
+    foreach ((RoomCollisionType collisionKind, bool expectedCancellation, int expectedObjects) in new[]
     {
         // `$94:A85B` runs all four fractional probes unless a carry+overflow connection
         // is accepted. Both air type four and solid type C therefore allocate four
@@ -396,19 +396,19 @@ spikeLevel, spikeSamus, ControllerButton.X);
         endpointBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, collisionKind);
         endpointBts[3 * 8 + 3] = new RoomBlockBehavior(0x0c);
         RoomLevelData endpointLevel = CreateRoom(new(8, 8), endpointBlocks, endpointBts);
-        var endpointPlms = PlmFixtures.Unbound();
+        var endpointObjects = RoomObjectFixtures.Unbound();
         SamusState endpointSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
         SamusGrappleMovement.BeginFiring(endpointSamus);
         SamusGrappleMovement.StepFiring(
-endpointLevel, endpointSamus, ControllerButton.X, endpointPlms);
+endpointLevel, endpointSamus, ControllerButton.X, endpointObjects);
         GrappleMovementResult endpointReaction = SamusGrappleMovement.StepFiring(
-endpointLevel, endpointSamus, ControllerButton.X, endpointPlms);
+endpointLevel, endpointSamus, ControllerButton.X, endpointObjects);
 
         AssertEqual(expectedCancellation, endpointReaction.Phase == GrapplePhase.CancelPending,
             $"grapple endpoint {collisionKind} cancellation topology");
         AssertEqual(!expectedCancellation, endpointReaction.Fired,
             $"grapple endpoint {collisionKind} live-beam topology");
-        AssertEqual(expectedPlms, endpointPlms.SlotTable.ActiveCount,
+        AssertEqual(expectedObjects, endpointObjects.SlotTable.ActiveCount,
             $"grapple endpoint {collisionKind} shared PLM side effect");
     }
 

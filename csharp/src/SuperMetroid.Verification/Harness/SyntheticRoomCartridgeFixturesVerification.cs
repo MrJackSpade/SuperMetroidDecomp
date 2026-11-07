@@ -11,7 +11,7 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// cartridge fixture. <paramref name="records"/> are the native six-byte placement records
     /// (header pointer, X, Y, argument) followed by whatever terminator bytes the test supplies.
     /// </summary>
-    internal static void SeedRoomPlmPopulation(TestAddressSpace bus, ushort population, ReadOnlySpan<byte> records) =>
+    internal static void SeedRoomObjectPopulation(TestAddressSpace bus, ushort population, ReadOnlySpan<byte> records) =>
         bus.WriteBytes(0x8f0000 | population, records);
 
     /// <summary>
@@ -22,7 +22,7 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     {
         Ensure.LengthEqual(bank84, 0x8000);
         var bus = new TestAddressSpace();
-        SeedPlmProgramBytes(bus, 0x8000, bank84);
+        SeedObjectProgramBytes(bus, 0x8000, bank84);
         return bus;
     }
 
@@ -31,12 +31,12 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// platform PLM header (<c>$84:B70B</c>) at <paramref name="block"/>,
     /// and points that header's instruction-list word (<c>$84:B70D</c>) at <paramref name="animationScript"/>.
     /// </summary>
-    internal static void SeedSoleElevatorPlatformPlm(
+    internal static void SeedSoleElevatorPlatformObject(
         TestAddressSpace bus, ushort population, Position16<RoomBlocks> block, ushort animationScript)
     {
-        SeedRoomPlmPopulation(bus, population,
+        SeedRoomObjectPopulation(bus, population,
             [0x0b, 0xb7, unchecked((byte)block.X), unchecked((byte)block.Y), 0x00, 0x00, 0x00, 0x00]);
-        SeedPlmProgramWords(bus, 0xb70d, animationScript);
+        SeedObjectProgramWords(bus, 0xb70d, animationScript);
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// lists, operands or draw records) starting at the bank-local <paramref name="pointer"/>.
     /// Each word's address wraps within bank $84 exactly as the native 16-bit list cursor does.
     /// </summary>
-    internal static void SeedPlmProgramWords(TestAddressSpace bus, ushort pointer, params ReadOnlySpan<ushort> words)
+    internal static void SeedObjectProgramWords(TestAddressSpace bus, ushort pointer, params ReadOnlySpan<ushort> words)
     {
         for (int index = 0; index < words.Length; index++)
             WriteTestWord(bus, 0x840000 | unchecked((ushort)(pointer + index * sizeof(ushort))), words[index]);
@@ -54,7 +54,7 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// Seeds raw bank-$84 PLM bytes (instruction streams with unaligned operands, draw
     /// records) starting at the bank-local <paramref name="pointer"/>.
     /// </summary>
-    internal static void SeedPlmProgramBytes(TestAddressSpace bus, ushort pointer, ReadOnlySpan<byte> bytes) =>
+    internal static void SeedObjectProgramBytes(TestAddressSpace bus, ushort pointer, ReadOnlySpan<byte> bytes) =>
         bus.WriteBytes(0x840000 | pointer, bytes);
 
     /// <summary>

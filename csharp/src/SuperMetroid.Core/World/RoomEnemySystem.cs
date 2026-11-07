@@ -508,11 +508,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     internal IEnemyAttractDemoHooks AttractDemoHooks => field ??= new EnemyAttractDemoHooks(KraidBehavior);
 
     /// <summary>The enemy-side effects room PLMs and room effects trigger.</summary>
-    internal IEnemyPlmSpawns PlmSpawns => field ??= new EnemyPlmSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
+    internal IEnemyObjectSpawns RoomObjectSpawns => field ??= new EnemyObjectSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
         DraygonBehavior, MotherBrainBehavior, BombTorizoBehavior, EscapeExplosionsBehavior);
 
     /// <summary>The PLM work the Chozo statues and downward gates exchange with their PLMs each frame.</summary>
-    internal IEnemyPlmRequests PlmRequests => field ??= new EnemyPlmRequests(ChozoStatueBehavior, DownwardGateBehavior);
+    internal IEnemyObjectRequests RoomObjectRequests => field ??= new EnemyObjectRequests(ChozoStatueBehavior, DownwardGateBehavior);
 
     /// <summary>The Tourian statue sequence's operations.</summary>
     internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
@@ -901,7 +901,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
     public EnemyFrameResult StepFrame(RoomEnemyFrame frame)
     {
-        using var terrainScope = new EnemyTerrain.EnemyTerrainScope(Terrain, frame.CollisionPlms);
+        using var terrainScope = new EnemyTerrain.EnemyTerrainScope(Terrain, frame.CollisionObjects);
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(frame.Samus);
         ScrollCap.BeginFrame(frame.SamusPreviousPositionCheckpoint);

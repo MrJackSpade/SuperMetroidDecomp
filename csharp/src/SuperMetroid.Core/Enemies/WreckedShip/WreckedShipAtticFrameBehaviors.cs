@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
@@ -9,5 +9,5 @@ internal static class WreckedShipAtticFrameBehaviors
     /// The attic's frame behaviour switches its arithmetic width and immediately back, then returns. Those
     /// switches leave no gameplay state.
     /// </summary>
-    internal static PlmFrameBehavior NoOpCallback { get; } = PlmFrameBehavior.NoOp("Wrecked Ship attic callback");
+    internal static RoomObjectFrameBehavior NoOpCallback { get; } = RoomObjectFrameBehavior.NoOp("Wrecked Ship attic callback");
 }

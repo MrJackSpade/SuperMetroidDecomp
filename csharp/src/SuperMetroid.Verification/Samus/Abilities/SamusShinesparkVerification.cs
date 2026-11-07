@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
@@ -284,19 +284,19 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontal.Shinespark.BeginDirectionalLaunch(
         horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
     horizontal.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
-    var shineBombPlms = PlmFixtures.Unbound();
+    var shineBombObjects = RoomObjectFixtures.Unbound();
 
     uint firstYBefore = horizontal.Kinematics.Position.Y.RawValue;
-    horizontal.Shinespark.Step(new SamusTerrain { Level = empty, Plms = shineBombPlms }, horizontal, new ShinesparkFrame { FrameCounter = 4 });
+    horizontal.Shinespark.Step(new SamusTerrain { Level = empty, RoomObjects = shineBombObjects }, horizontal, new ShinesparkFrame { FrameCounter = 4 });
     AssertTrue(horizontal.Shinespark.Phase == ShinesparkPhase.Horizontal &&
         horizontal.Kinematics.Position.Y.RawValue == firstYBefore,
         "horizontal spark uses only block X movement without colliding");
-    AssertSequenceEqual(new[] { sparkBombBlockIndex }, shineBombPlms.ActivePlmBlockIndices,
+    AssertSequenceEqual(new[] { sparkBombBlockIndex }, shineBombObjects.ActiveObjectBlockIndices,
         "horizontal spark breaks the BTS-7 block");
     AssertEqual(RoomTerrainBlock.Of(0x58, BlockMirroring.None, RoomCollisionType.Air),
         empty.GetCollisionBlockByIndex(sparkBombBlockIndex).Terrain,
         "bomb-block setup replaces the block with the air bomb-block parent, like CE83");
-    AssertEqual(1, shineBombPlms.SlotTable.ActiveCount,
+    AssertEqual(1, shineBombObjects.SlotTable.ActiveCount,
         "shinespark collision installs the bank-$84 BTS-7 PLM in the active room owner");
     AssertEqual(RoomTerrainBlock.Of(0x56, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
         empty.GetCollisionBlockByIndex(sparkExtensionBlockIndex).Terrain,

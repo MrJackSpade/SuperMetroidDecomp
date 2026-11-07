@@ -5,7 +5,7 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -51,11 +51,11 @@ internal static class WrapShotRoomsVerification
             {
                 ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 runtime.BombProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
-                runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
-                if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
+                runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
+                if (firstHit < 0 && runtime.RoomObjects.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == RoomObjectHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
-                runtime.Plms.Step(level);
-                openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal));
+                runtime.RoomObjects.Step(level);
+                openingSound |= runtime.RoomObjects.Sounds.SoundRequests.Any(request => request == new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal));
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;
             }

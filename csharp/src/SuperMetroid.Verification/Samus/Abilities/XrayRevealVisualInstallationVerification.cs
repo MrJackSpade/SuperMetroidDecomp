@@ -75,15 +75,15 @@ internal static class XrayRevealVisualInstallationVerification
         int originalTop = tall.Required("topLeft").GetValue<int>();
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());
-        level.SetPlmTerrain(33, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock));
-        level.SetPlmBehavior(33, new RoomBlockBehavior(2));
-        RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
+        level.SetObjectTerrain(33, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock));
+        level.SetObjectBehavior(33, new RoomBlockBehavior(2));
+        RoomCollisionBlock before = level.GetObjectCollisionBlockByIndex(33);
         // Each reveal cell is the whole block shown and its arrangement (#1431).
         RevealedBlock?[] originalMap = XrayRevealMap.Build(level, new(16, 16), default, AreaId.Brinstar, stock);
         AssertEqual(Defined(originalTop), originalMap[0], "stock tall reveal top-left metatile");
         AssertEqual(Defined(0xb8), originalMap[XrayRevealLayout.Columns],
             "stock tall reveal copies the native lower block");
-        AssertEqual(before, level.GetPlmCollisionBlockByIndex(33),
+        AssertEqual(before, level.GetObjectCollisionBlockByIndex(33),
             "X-ray reveal leaves collision type and BTS untouched");
         Console.WriteLine($"  X-ray visuals: {drawable} reveal rules, eight item slots, " +
             $"and {specialRecords} special-room records match the cartridge; the stock tall reveal copies its two blocks " +

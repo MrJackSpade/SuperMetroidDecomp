@@ -13,7 +13,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -100,10 +100,10 @@ internal static class ChainsawFiringVerification
             EquippedBeams = (SamusBeamFlags)0x000d,
             SelectedHudItem = HudItem.Beam,
         };
-        var doorPlms = PlmFixtures.Unbound();
+        var doorObjects = RoomObjectFixtures.Unbound();
         var doorProjectiles = CreateProjectileFixture();
-        doorProjectiles.StepFrame(new SamusTerrain { Level = doorLevel, Plms = doorPlms }, doorSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture());
-        AssertEqual(1, doorPlms.SlotTable.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
+        doorProjectiles.StepFrame(new SamusTerrain { Level = doorLevel, RoomObjects = doorObjects }, doorSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture());
+        AssertEqual(1, doorObjects.SlotTable.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
         AssertEqual(RoomCollisionType.SolidBlock,
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
@@ -177,10 +177,10 @@ internal static class ChainsawFiringVerification
         RoomBlockBehavior[] interferenceBts = new RoomBlockBehavior[25];
         interferenceWords[yellowDoorBlock] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid());
-        var interferencePlms = PlmFixtures.Unbound();
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref interferencePlms, new PlmRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        var interferenceObjects = RoomObjectFixtures.Unbound();
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref interferenceObjects, new RoomObjectRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
-        interferencePlms.Step(interferenceLevel);
+        interferenceObjects.Step(interferenceLevel);
 
         var interferenceReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
@@ -188,7 +188,7 @@ internal static class ChainsawFiringVerification
             new(32, 32),
             PowerBombRadius.FromRaw(0x1000),
             interferenceReactions,
-            interferencePlms,
+            interferenceObjects,
             AreaId.Crateria,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
@@ -196,11 +196,11 @@ internal static class ChainsawFiringVerification
             new(32, 32),
             PowerBombRadius.FromRaw(0x1000),
             interferenceReactions,
-            interferencePlms,
+            interferenceObjects,
             AreaId.Crateria,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
-        interferencePlms.Step(interferenceLevel);
-        ColoredDoorPlmSnapshot suppressedDoor = interferencePlms.ColoredDoors.Single();
+        interferenceObjects.Step(interferenceLevel);
+        ColoredDoorObjectSnapshot suppressedDoor = interferenceObjects.ColoredDoors.Single();
         AssertEqual(ColoredDoorPhase.Waiting, suppressedDoor.Phase,
             "later Chainsaw hit suppresses yellow-door opening");
         AssertEqual((byte)0, suppressedDoor.HitCounter,
@@ -210,14 +210,14 @@ internal static class ChainsawFiringVerification
         breakingWords[bombableBlock] =
             RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
         var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new RoomBlockBehavior[25], new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid());
-        var breakingPlms = PlmFixtures.Unbound();
+        var breakingObjects = RoomObjectFixtures.Unbound();
         var breakingReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
             new(32, 32),
             PowerBombRadius.FromRaw(0x1000),
             breakingReactions,
-            breakingPlms,
+            breakingObjects,
             AreaId.Crateria,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
@@ -225,15 +225,15 @@ internal static class ChainsawFiringVerification
             new(32, 32),
             PowerBombRadius.FromRaw(0x1000),
             breakingReactions,
-            breakingPlms,
+            breakingObjects,
             AreaId.Crateria,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         AssertEqual(RoomCollisionType.SolidBlock,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Chainsaw callback preserves the Power Bomb's synchronous break setup");
-        AssertEqual(1, breakingPlms.SlotTable.ActiveCount,
+        AssertEqual(1, breakingObjects.SlotTable.ActiveCount,
             "Power Bomb terrain reaction remains owned after Chainsaw callback");
-        breakingPlms.Step(breakingLevel);
+        breakingObjects.Step(breakingLevel);
         AssertEqual(RoomCollisionType.Air,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Power Bomb terrain completes its visible break after Chainsaw callback");
@@ -283,7 +283,7 @@ internal static class ChainsawFiringVerification
         WriteTestWord(
             interferenceBus,
             0x8f0000 | population,
-            PlmNativeWords.Word(PlmHeaderId.YellowDoorFacingLeft));
+            RoomObjectNativeWords.Word(RoomObjectHeaderId.YellowDoorFacingLeft));
         interferenceBus.WriteByte(0x8f0000 | (population + 2), 2);
         interferenceBus.WriteByte(0x8f0000 | (population + 3), 1);
         WriteTestWord(

@@ -257,11 +257,11 @@ internal static class NativeSnapshotImport
 
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
-        var initialPlms = runtime.Plms.SlotTable.Slots;
-        for (int index = 0; index < initialPlms.Count; index++)
+        var initialObjects = runtime.RoomObjects.SlotTable.Slots;
+        for (int index = 0; index < initialObjects.Count; index++)
         {
-            VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.PlmHeaders + index * 2) == 0, "native initial PLM pool is empty");
-            initialPlms[index].Delete();
+            VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.RoomObjectHeaders + index * 2) == 0, "native initial PLM pool is empty");
+            initialObjects[index].Delete();
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             ImportNativeEnemyProjectile(projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);

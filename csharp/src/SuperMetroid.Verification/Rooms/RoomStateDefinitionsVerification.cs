@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.LookupRoomStateSettingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
 

@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Enemies.Kago;
 using SuperMetroid.Verification.Enemies.YappingMaws;
@@ -47,7 +47,7 @@ using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDe
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
 using static SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.BlueDoorPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.BlueDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombSpreadLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoAttackDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDroolSineVerification;
@@ -76,8 +76,8 @@ using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareDefinitionsV
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlarePlacementVerification;
 using static SuperMetroid.Verification.Enemies.Choot.ChootPatternDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatuePlmDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.ColoredDoorPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueObjectDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.ColoredDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.CompiledProjectileMathVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.CrawlerAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.CrawlerSpeedsVerification;
@@ -91,7 +91,7 @@ using static SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperCorpseDefin
 using static SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoCorpseDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTourianCorpseDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.DownwardGateObjectsVerification;
 using static SuperMetroid.Verification.Enemies.Dragon.DragonAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonBurialEvirDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefinitionsVerification;
@@ -116,7 +116,7 @@ using static SuperMetroid.Verification.Enemies.Animals.EscapeEtecoonAnimationsVe
 using static SuperMetroid.Verification.Enemies.Animals.EscapeEtecoonDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Animals.EtecoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.EyeDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileInstructionProgramDefinitionsVerification;
@@ -132,7 +132,7 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleBodyPlacementVerific
 using static SuperMetroid.Verification.Samus.Grapple.GrappleCompiledMathVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.GreyDoorPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.GreyDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustAnimationsVerification;
@@ -167,13 +167,13 @@ using static SuperMetroid.Verification.Samus.Projectiles.MiscDustProjectileDefin
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBabyMetroidDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathExplosionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDoorFragmentDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassPlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassShardDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainNeckSineVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTurretDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmDrawDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.NoobTubeObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumpDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
@@ -221,7 +221,7 @@ using static SuperMetroid.Verification.Enemies.Rios.RioLaunchDefinitionsVerifica
 using static SuperMetroid.Verification.Enemies.Ripper.RipperAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Ripper.RipperBehaviorVerification;
 using static SuperMetroid.Verification.Fx.RoomPaletteFxDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Fx.RoomShakeDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
@@ -230,13 +230,13 @@ using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDe
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericEffectDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusBallBounceDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Death.SamusDeathExplosionTimingDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Hud.SamusHudDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.SamusImpulseDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.SamusIndexedSpeedsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusStandaloneSpeedsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusVerticalDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SaveStationAnimationDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SaveStationAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolInstructionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitionsVerification;
@@ -251,14 +251,14 @@ using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVer
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoProjectileAnimationsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SquareSlopeDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.StationAccessPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.StationAccessObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SuitPickupBeamCurveDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Samus.Movement.SurfaceMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoInitializationDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoRandomizedProjectileDefinitionsVerification;
-using static SuperMetroid.Verification.Areas.Tourian.TourianAccessPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Areas.Tourian.TourianAccessObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueUnlockDefinitionsVerification;
@@ -496,10 +496,10 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassShardDefinitions), () => VerifyMotherBrainGlassShardDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyTourianStatueUnlockDefinitions), () => VerifyTourianStatueUnlockDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyTourianAccessPlmDefinitions), () => VerifyTourianAccessPlmDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyChozoStatuePlmDefinitions), () => VerifyChozoStatuePlmDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifySamusEaterPlmDefinitions), () => VerifySamusEaterPlmDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyStationAccessPlmDefinitions), () => VerifyStationAccessPlmDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyTourianAccessObjectDefinitions), () => VerifyTourianAccessObjectDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyChozoStatueObjectDefinitions), () => VerifyChozoStatueObjectDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifySamusEaterObjectDefinitions), () => VerifySamusEaterObjectDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyStationAccessObjectDefinitions), () => VerifyStationAccessObjectDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMaridiaLargeSnailInstructionDefinitions), () => VerifyMaridiaLargeSnailInstructionDefinitions(LoadRepositoryRom())),
         new(nameof(MaridiaLargeSnailAnimationsVerification.VerifyMaridiaLargeSnailAnimations), () => MaridiaLargeSnailAnimationsVerification.VerifyMaridiaLargeSnailAnimations(LoadRepositoryRom())),
         new(nameof(VerifyEtecoonInstructionProgramDefinitions), () => VerifyEtecoonInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -526,13 +526,13 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEnemyVulnerabilityDefinitions), () => VerifyEnemyVulnerabilityDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDownwardGateShotBlockDefinitions), () => VerifyDownwardGateShotBlockDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySpeedBoosterEscapeStageDefinitions), () => VerifySpeedBoosterEscapeStageDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyDoorClosingPlmDefinitions), () => VerifyDoorClosingPlmDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyBlueDoorPlmDrawDefinitions), () => VerifyBlueDoorPlmDrawDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyColoredDoorPlmDrawDefinitions), () => VerifyColoredDoorPlmDrawDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyGreyDoorPlmDrawDefinitions), () => VerifyGreyDoorPlmDrawDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyEyeDoorPlmDrawDefinitions), () => VerifyEyeDoorPlmDrawDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyMotherBrainGlassPlmDrawDefinitions), () => VerifyMotherBrainGlassPlmDrawDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyNoobTubePlmDrawDefinitions), () => VerifyNoobTubePlmDrawDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyDoorClosingObjectDefinitions), () => VerifyDoorClosingObjectDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyBlueDoorObjectDrawDefinitions), () => VerifyBlueDoorObjectDrawDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyColoredDoorObjectDrawDefinitions), () => VerifyColoredDoorObjectDrawDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyGreyDoorObjectDrawDefinitions), () => VerifyGreyDoorObjectDrawDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyEyeDoorObjectDrawDefinitions), () => VerifyEyeDoorObjectDrawDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyMotherBrainGlassObjectDrawDefinitions), () => VerifyMotherBrainGlassObjectDrawDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyNoobTubeObjectDrawDefinitions), () => VerifyNoobTubeObjectDrawDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySamusArmCannonDefinitions), () => VerifySamusArmCannonDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyDeathExplosionDefinitions), () => VerifyEnemyDeathExplosionDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyProjectileDefinitions), () => VerifyEnemyProjectileDefinitions(LoadRepositoryRom())),

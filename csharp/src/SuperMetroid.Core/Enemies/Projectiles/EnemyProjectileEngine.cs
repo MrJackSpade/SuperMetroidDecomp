@@ -852,11 +852,11 @@ internal sealed class EnemyProjectileEngine
     /// The game derives the actor origin from the currently executing save-station
     /// PLM: one block right and two blocks above its trigger block.
     /// </summary>
-    public void SpawnSaveStationElectricity(int plmBlockIndex, int roomWidthInBlocks)
+    public void SpawnSaveStationElectricity(int roomObjectBlockIndex, int roomWidthInBlocks)
     {
         _room.EnsureLoaded();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        Ensure.AtLeastZero(plmBlockIndex);
+        Ensure.AtLeastZero(roomObjectBlockIndex);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -870,8 +870,8 @@ internal sealed class EnemyProjectileEngine
             projectile,
             RoomEnemyProjectileKind.SaveStationElectricity,
             graphics: default);
-        int blockX = plmBlockIndex % roomWidthInBlocks;
-        int blockY = plmBlockIndex / roomWidthInBlocks;
+        int blockX = roomObjectBlockIndex % roomWidthInBlocks;
+        int blockY = roomObjectBlockIndex / roomWidthInBlocks;
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(16 * (blockX + 1)), CoordinateAxis.Wrap(16 * (blockY - 2))));
     }
 

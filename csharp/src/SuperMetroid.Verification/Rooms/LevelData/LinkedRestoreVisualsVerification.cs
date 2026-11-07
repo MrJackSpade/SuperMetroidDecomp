@@ -4,7 +4,7 @@ using SuperMetroid.Core;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -15,8 +15,8 @@ namespace SuperMetroid.Verification.Rooms.LevelData;
 internal static class LinkedRestoreVisualsVerification
 {
     /// <summary>The bomb-block or contact-crumble restoration draw the cartridge stores at <paramref name="pointer"/>.</summary>
-    private static PlmDraw LinkedAt(int pointer) => NativePlmDraws.IsDrawAt<BombBlockRestoreDraw>(pointer)
-        ? NativePlmDraws.At<BombBlockRestoreDraw>(pointer) : NativePlmDraws.At<ContactCrumbleRestoreDraw>(pointer);
+    private static RoomObjectDraw LinkedAt(int pointer) => NativeObjectDraws.IsDrawAt<BombBlockRestoreDraw>(pointer)
+        ? NativeObjectDraws.At<BombBlockRestoreDraw>(pointer) : NativeObjectDraws.At<ContactCrumbleRestoreDraw>(pointer);
 
     /// <summary>Compares six flattened stock layouts with bank-$84 draw words and checks catalog bounds and rejection.</summary>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
@@ -40,10 +40,10 @@ internal static class LinkedRestoreVisualsVerification
             }
             native.Add(frame.Pointer, words.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = InstalledRoomPlmLinkedRestoreVisuals.Stock();
-        var imported = RoomPlmLinkedRestoreVisualFiles.Create(entries);
-        string expectedHash = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmLinkedRestoreVisuals), native.ToDictionary(pair => RoomPlmLinkedRestoreVisualFiles.VisualId(LinkedAt(pair.Key)), pair => pair.Value));
+        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var stock = InstalledRoomObjectLinkedRestoreVisuals.Stock();
+        var imported = RoomObjectLinkedRestoreVisualFiles.Create(entries);
+        string expectedHash = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomObjectLinkedRestoreVisuals), native.ToDictionary(pair => RoomObjectLinkedRestoreVisualFiles.VisualId(LinkedAt(pair.Key)), pair => pair.Value));
         AssertEqual(expectedHash, stock.ContentIdentity, "linked restore calculated stock preserves original flattened hash");
         AssertEqual(expectedHash, imported.ContentIdentity, "linked restore imported stock hash");
         foreach (var frame in frames)
@@ -61,8 +61,8 @@ internal static class LinkedRestoreVisualsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(LinkedAt(pointer),0,0), "linked restore rejects unknown frame");
-        AssertThrows<InvalidDataException>(() => RoomPlmLinkedRestoreVisualFiles.Create(entries[..5]), "linked restore rejects incomplete stock");
-        AssertThrows<InvalidDataException>(() => RoomPlmLinkedRestoreVisualFiles.Create(entries.Append(entries[0])), "linked restore rejects duplicate stock");
+        AssertThrows<InvalidDataException>(() => RoomObjectLinkedRestoreVisualFiles.Create(entries[..5]), "linked restore rejects incomplete stock");
+        AssertThrows<InvalidDataException>(() => RoomObjectLinkedRestoreVisualFiles.Create(entries.Append(entries[0])), "linked restore rejects duplicate stock");
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
@@ -70,33 +70,33 @@ internal static class LinkedRestoreVisualsVerification
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyLinkedRestoreStockMapping), () => VerifyLinkedRestoreStockMapping(rom));
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmLinkedRestoreVisualDirectory);
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectLinkedRestoreVisualDirectory);
         GameInstallation installation = copy.Installation;
         // The installer's extraction checked all six compiled row shapes, full physical
         // words, and signed offsets against the pinned retail cartridge.
-        RoomPlmLinkedRestoreVisualFilesConstants.ValidateStock(
-            installation.RoomPlmLinkedRestoreVisualDirectory);
+        RoomObjectLinkedRestoreVisualFilesConstants.ValidateStock(
+            installation.RoomObjectLinkedRestoreVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x058),
-            installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
-                PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
+            installation.LoadRoomObjectLinkedRestoreVisuals().GetAppearance(
+                RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
             "stock bomb restore selects cartridge block 058");
         AssertEqual(RoomBlockAppearance.Of(0x0bc),
-            installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
-                PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 0, 0),
+            installation.LoadRoomObjectLinkedRestoreVisuals().GetAppearance(
+                RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 0, 0),
             "stock crumble restore selects cartridge block 0BC");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmLinkedRestoreVisualFiles.Create(
-                [new RoomPlmVisualEntry("bomb-horizontal",
+            () => RoomObjectLinkedRestoreVisualFiles.Create(
+                [new RoomObjectVisualEntry("bomb-horizontal",
                     new RoomBlockAppearance[2])]),
             "restore catalog rejects missing linked layouts");
 
         string stockPath = Path.Combine(
-            installation.RoomPlmLinkedRestoreVisualDirectory,
-            RoomPlmLinkedRestoreVisualFiles.VisualFileName);
+            installation.RoomObjectLinkedRestoreVisualDirectory,
+            RoomObjectLinkedRestoreVisualFiles.VisualFileName);
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmLinkedRestoreVisualFilesConstants.ValidateStock(
-                installation.RoomPlmLinkedRestoreVisualDirectory),
+            () => RoomObjectLinkedRestoreVisualFilesConstants.ValidateStock(
+                installation.RoomObjectLinkedRestoreVisualDirectory),
             "tampered restore stock fails loudly where it is read");
     }
 

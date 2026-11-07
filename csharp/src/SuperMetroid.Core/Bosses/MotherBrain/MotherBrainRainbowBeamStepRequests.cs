@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -89,7 +89,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     internal List<MotherBrainEscapeDoorParticleSpawnRequest> EscapeDoorParticleSpawns { get; } = new(capacity: 8);
 
     /// <summary>The escape door's PLM requested, if any.</summary>
-    internal PlmSpawnRequest<MotherBrainRoomMutation>? EscapeDoorPlm { get; set; }
+    internal RoomObjectSpawnRequest<MotherBrainRoomMutation>? EscapeDoorObject { get; set; }
 
     /// <summary>Whether the earthquake timer was refreshed.</summary>
     internal bool EarthquakeTimerRefreshed { get; set; }
@@ -103,5 +103,5 @@ internal sealed class MotherBrainRainbowBeamStepRequests
             EscapeSequencePages, ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
-            EscapeDoorPlm, EarthquakeTimerRefreshed);
+            EscapeDoorObject, EarthquakeTimerRefreshed);
 }

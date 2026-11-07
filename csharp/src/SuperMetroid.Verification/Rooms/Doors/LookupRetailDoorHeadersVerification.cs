@@ -22,8 +22,8 @@ internal static class LookupRetailDoorHeadersVerification
         Suite(nameof(VerifyDoorHeaderIdentities), () => VerifyDoorHeaderIdentities());
         Suite(nameof(VerifyDoorHeaderDestinationRoomPointer), () => VerifyDoorHeaderDestinationRoomPointer(rom));
         Suite(nameof(VerifyDoorHeaderOrientation), () => VerifyDoorHeaderOrientation(rom));
-        Suite(nameof(VerifyDoorHeaderPlmX), () => VerifyDoorHeaderPlmX(rom));
-        Suite(nameof(VerifyDoorHeaderPlmY), () => VerifyDoorHeaderPlmY(rom));
+        Suite(nameof(VerifyDoorHeaderObjectX), () => VerifyDoorHeaderObjectX(rom));
+        Suite(nameof(VerifyDoorHeaderObjectY), () => VerifyDoorHeaderObjectY(rom));
         Suite(nameof(VerifyDoorHeaderDestinationScreenX), () => VerifyDoorHeaderDestinationScreenX(rom));
         Suite(nameof(VerifyDoorHeaderDestinationScreenY), () => VerifyDoorHeaderDestinationScreenY(rom));
         Suite(nameof(VerifyDoorHeaderSamusSpeed), () => VerifyDoorHeaderSamusSpeed(rom));
@@ -73,9 +73,9 @@ internal static class LookupRetailDoorHeadersVerification
     private static void VerifyDoorHeaderOrientation(SuperMetroidAddressSpace rom) =>
         VerifyDoorHeaderField(rom, 3, 1, raw => DoorRecordCodec.DecodeOrientation(checked((byte)raw)), header => header.Orientation);
     /// <summary>Matches the door PLM's horizontal block coordinate at offset four.</summary>
-    private static void VerifyDoorHeaderPlmX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.PlmBlock.X);
+    private static void VerifyDoorHeaderObjectX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.RoomObjectBlock.X);
     /// <summary>Matches the door PLM's vertical block coordinate at offset five.</summary>
-    private static void VerifyDoorHeaderPlmY(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.PlmBlock.Y);
+    private static void VerifyDoorHeaderObjectY(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.RoomObjectBlock.Y);
     /// <summary>Matches the destination screen's horizontal coordinate at offset six.</summary>
     private static void VerifyDoorHeaderDestinationScreenX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 6, 1, raw => raw, header => header.DestinationScreen.X);
     /// <summary>Matches the destination screen's vertical coordinate at offset seven.</summary>

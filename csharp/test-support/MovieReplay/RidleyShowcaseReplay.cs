@@ -21,7 +21,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -102,7 +102,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         Game = game;
         // Ridley's body, fragments and fireballs run typed programs (#1287); compare their cursors as native pointers.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        PlmSlot[] initialPlms = [.. runtime.Plms.SlotTable.Slots];
+        RoomObjectSlot[] initialObjects = [.. runtime.RoomObjects.SlotTable.Slots];
         var checkedProjectileCompositions = new HashSet<CheckedProjectileComposition>();
         ushort[]? pendingLoadedOwners = null;
         int loadingIntervals = 0;
@@ -596,49 +596,49 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 // The movie's memory lists PLMs by slot ordinal, and the table processes the highest ordinal first.
-                var plmSlots = runtime.Plms.PopulationSlots.ToDictionary(slot => PlmSlotTable.Capacity - 1 - slot.ProcessingPosition);
-                for (int slotIndex = 0; slotIndex < initialPlms.Length; slotIndex++)
+                var roomObjectSlots = runtime.RoomObjects.PopulationSlots.ToDictionary(slot => RoomObjectSlotTable.Capacity - 1 - slot.ProcessingPosition);
+                for (int slotIndex = 0; slotIndex < initialObjects.Length; slotIndex++)
                 {
                     int offset = slotIndex * 2;
-                    bool active = plmSlots.TryGetValue(slotIndex, out var slot);
-                    Check($"PLM {slotIndex} header", active ? PlmNativeWords.Word(slot.HeaderPointer) : (ushort)0, NativeSnapshotMemory.PlmHeaders + offset);
-                    if (!active || W(NativeSnapshotMemory.PlmHeaders + offset) == 0) continue;
+                    bool active = roomObjectSlots.TryGetValue(slotIndex, out var slot);
+                    Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(slot.HeaderPointer) : (ushort)0, NativeSnapshotMemory.RoomObjectHeaders + offset);
+                    if (!active || W(NativeSnapshotMemory.RoomObjectHeaders + offset) == 0) continue;
                     ushort frameBehavior = slot.FrameBehavior;
-                    var greyDoor = runtime.Plms.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
-                    VerificationAssertions.AssertTrue(greyDoor.Header != PlmHeaderId.None,
+                    var greyDoor = runtime.RoomObjects.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
+                    VerificationAssertions.AssertTrue(greyDoor.Header != RoomObjectHeaderId.None,
                         $"Movie PLM {slot.HeaderPointer} needs a family-variable coverage mapping");
-                    Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.PlmFamilyVariable + offset);
+                    Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.RoomObjectFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
                     // before that transition setup's zero is the live counter value.
-                    Check($"PLM {slotIndex} grey-door hit count", checked(greyDoor.HitCounter), NativeSnapshotMemory.PlmExtraVariable + offset);
+                    Check($"PLM {slotIndex} grey-door hit count", checked(greyDoor.HitCounter), NativeSnapshotMemory.RoomObjectExtraVariable + offset);
                     // The typed cap names its native instruction and link through the oracle's step addresses; a closing
                     // cap's link is the one its previous program left, which the closing never reads.
-                    GreyDoorPlmAnimation typedDoor = slot.Animation as GreyDoorPlmAnimation
+                    GreyDoorObjectAnimation typedDoor = slot.Animation as GreyDoorObjectAnimation
                         ?? throw new InvalidDataException($"Movie grey door at block {slot.BlockIndex} runs no typed program.");
-                    ushort instruction = DoorPlmNativeProgramOracle.GreyDoorNativeInstruction(bus, typedDoor);
+                    ushort instruction = DoorObjectNativeProgramOracle.GreyDoorNativeInstruction(bus, typedDoor);
                     if (greyDoor.Phase != GreyDoorPhase.Closing && typedDoor.Link is { } link)
-                        Check($"PLM {slotIndex} grey-door link", DoorPlmNativeProgramOracle.GreyDoorNativeEntry(typedDoor.Variant, link),
-                            NativeSnapshotMemory.PlmLinkInstruction + offset);
-                    Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.PlmBlockIndex + offset);
-                    Check($"PLM {slotIndex} FrameBehavior", frameBehavior, NativeSnapshotMemory.PlmFrameBehavior + offset);
-                    Check($"PLM {slotIndex} InstructionPointer", instruction, NativeSnapshotMemory.PlmInstructionPointer + offset);
+                        Check($"PLM {slotIndex} grey-door link", DoorObjectNativeProgramOracle.GreyDoorNativeEntry(typedDoor.Variant, link),
+                            NativeSnapshotMemory.RoomObjectLinkInstruction + offset);
+                    Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.RoomObjectBlockIndex + offset);
+                    Check($"PLM {slotIndex} FrameBehavior", frameBehavior, NativeSnapshotMemory.RoomObjectFrameBehavior + offset);
+                    Check($"PLM {slotIndex} InstructionPointer", instruction, NativeSnapshotMemory.RoomObjectInstructionPointer + offset);
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to, otherwise the loop counter is compared.
                     if (slot.ProjectileHit is { } pendingHit)
                     {
-                        SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.PlmLoopTimer + offset)).Family;
+                        SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.RoomObjectLoopTimer + offset)).Family;
                         if (recordedHit != pendingHit.Family)
                             mismatches.Add($"PLM {slotIndex} projectile hit: native={recordedHit} port={pendingHit.Family}");
                     }
                     else
                     {
-                        Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.PlmLoopTimer + offset);
+                        Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.RoomObjectLoopTimer + offset);
                     }
-                    Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.PlmRoomArgument + offset);
+                    Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.RoomObjectRoomArgument + offset);
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms
                     // one on each pass. Both wake with one, so only a sleeping door's countdown is left uncompared.
                     if (typedDoor.Program != GreyDoorProgram.Sleep)
-                        Check($"PLM {slotIndex} FrameHold", slot.FrameHold, NativeSnapshotMemory.PlmFrameHold + offset);
+                        Check($"PLM {slotIndex} FrameHold", slot.FrameHold, NativeSnapshotMemory.RoomObjectFrameHold + offset);
                 }
                 var activeLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.Size.X * activeLevel.Size.Y; block++)

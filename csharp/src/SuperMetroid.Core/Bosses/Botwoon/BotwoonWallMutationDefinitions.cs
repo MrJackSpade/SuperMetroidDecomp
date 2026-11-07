@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
@@ -9,11 +9,11 @@ internal static class BotwoonWallMutationDefinitions
     internal static readonly Position16<RoomBlocks> Block = new(15, 4);
 
     /// <summary>The room PLM each mutation occupies its slot as.</summary>
-    internal static readonly IReadOnlyDictionary<BotwoonWallMutation, PlmHeaderId> Plms =
-        new Dictionary<BotwoonWallMutation, PlmHeaderId>
+    internal static readonly IReadOnlyDictionary<BotwoonWallMutation, RoomObjectHeaderId> RoomObjects =
+        new Dictionary<BotwoonWallMutation, RoomObjectHeaderId>
         {
-            [BotwoonWallMutation.Clear] = PlmHeaderId.ClearBotwoonWall,
-            [BotwoonWallMutation.Crumble] = PlmHeaderId.CrumbleBotwoonWall,
+            [BotwoonWallMutation.Clear] = RoomObjectHeaderId.ClearBotwoonWall,
+            [BotwoonWallMutation.Crumble] = RoomObjectHeaderId.CrumbleBotwoonWall,
         };
 
     /// <summary>The wall program each mutation runs.</summary>

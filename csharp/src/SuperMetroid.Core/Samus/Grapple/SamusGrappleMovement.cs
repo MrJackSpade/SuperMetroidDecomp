@@ -165,7 +165,7 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         ControllerButton controllerInput,
-        ISamusRoomPlms? plms = null,
+        ISamusRoomObjects? roomObjects = null,
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
         GrapplePoseChange connectionPoseChange = GrapplePoseChange.Immediate)
     {
@@ -248,7 +248,7 @@ public static class SamusGrappleMovement
                 level,
                 samus,
                 grapple.Anchor,
-                plms);
+                roomObjects);
             finalReaction = reaction;
             if (reaction != GrappleBlockReaction.Connects)
                 continue;
@@ -331,7 +331,7 @@ public static class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallJumping)
             return CompleteGrappleWallJump(terrain.Level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
-            return CompleteDropped(terrain.Level, samus, grapple, frameCounter, terrain.Plms, poseChange == GrapplePoseChange.Deferred);
+            return CompleteDropped(terrain.Level, samus, grapple, frameCounter, terrain.RoomObjects, poseChange == GrapplePoseChange.Deferred);
 
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
@@ -617,7 +617,7 @@ public static class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple,
         int frameCounter,
-        ISamusRoomPlms? plms,
+        ISamusRoomObjects? roomObjects,
         bool deferPoseChange)
     {
         SamusPoseId targetPose = SelectDroppedPose(samus);
@@ -629,7 +629,7 @@ public static class SamusGrappleMovement
         samus.Kinematics.YSpeed = default;
         bool emptyBeta = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Grappling;
         if (!deferPoseChange)
-            SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, frameCounter, plms);
+            SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, frameCounter, roomObjects);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
@@ -751,7 +751,7 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> endpoint,
-        ISamusRoomPlms? plms = null)
+        ISamusRoomObjects? roomObjects = null)
     {
         int blockX = endpoint.X >> 4;
         int blockY = endpoint.Y >> 4;
@@ -837,12 +837,12 @@ public static class SamusGrappleMovement
                     // preserve that lifecycle, so keep the missing integration seam explicit.
                     if (block.Behavior.IsBreakableGrappleReaction)
                     {
-                        if (plms is null)
+                        if (roomObjects is null)
                         {
                             throw new InvalidOperationException(
-                                "Breakable grapple acquisition requires a ISamusRoomPlms.");
+                                "Breakable grapple acquisition requires a ISamusRoomObjects.");
                         }
-                        if (!plms.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.Index, block.Behavior))
+                        if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.Index, block.Behavior))
                         {
                             throw new InvalidOperationException(
                                 "All 40 PLM slots are occupied during grapple acquisition.");
@@ -863,35 +863,35 @@ public static class SamusGrappleMovement
                     // entries reject it while behaviour 0..7 retain their unconditional block
                     // animation. The collision nibble—not PLM setup—owns carry: type 4 is
                     // air and type C is solid.
-                    if (plms is null)
+                    if (roomObjects is null)
                     {
                         throw new InvalidOperationException(
-                            "Shootable grapple reaction requires a ISamusRoomPlms.");
+                            "Shootable grapple reaction requires a ISamusRoomObjects.");
                     }
                     // Blue caps occupy the same table as breakable blocks but
                     // select door PLMs. Grapple's negative projectile index bypasses the
                     // power-bomb rejection in Setup_BlueDoor; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
                     if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                        plms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
+                        roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                        plms.DoorPlms.TrySpawnBlueDoorOpening(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
-                    else if (block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+                        roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
+                    else if (block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
                     {
                         // Generic shot-trigger setup also belongs to the grapple table.
                         // Notify the resident actor with no weapon family; its own
                         // frame behaviour decides whether to reject the hit or wake up.
-                        if (!plms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType: SamusProjectileType.None))
+                        if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType: SamusProjectileType.None))
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident PLM owner.");
                     }
                     else if (block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
-                        plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
+                        roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
                     else
                     {
                         try
                         {
-                            plms.BlockReactions.TrySpawnProjectileShotBlock(
+                            roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                                 level,
                                 block.Index,
                                 block.Behavior,

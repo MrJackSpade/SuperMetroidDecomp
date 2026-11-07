@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -42,8 +42,8 @@ internal static class XrayOverlaysVerification
         var system = new SharedGameState();
         var items = new[]
         {
-            new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs, 1),
-            new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
+            new CollectibleObjectSnapshot(RoomObjectHeaderId.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs, 1),
+            new CollectibleObjectSnapshot(RoomObjectHeaderId.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.

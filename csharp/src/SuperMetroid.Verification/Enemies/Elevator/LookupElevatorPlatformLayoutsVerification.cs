@@ -1,14 +1,14 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -32,7 +32,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
     {
         ushort[] pointers = [0xaa97,0xaaaf,0xaac7];
         string[] ids = ["first-frame","second-frame","third-frame"];
-        var exported = RoomPlmElevatorPlatformVisualFiles.DrawLists.ToArray();
+        var exported = RoomObjectElevatorPlatformVisualFiles.DrawLists.ToArray();
         AssertEqual(3, exported.Length, "ElevatorPlatform layout export count");
         if (field == 0)
         {
@@ -40,33 +40,33 @@ internal static class LookupElevatorPlatformLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ElevatorPlatformDraws.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape), "ElevatorPlatform layout shape domain");
-                AssertEqual(owned, RoomPlmElevatorPlatformVisualFiles.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto), "ElevatorPlatform layout DTO domain");
+                AssertEqual(owned, ElevatorPlatformDraws.TryDescribe(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var shape), "ElevatorPlatform layout shape domain");
+                AssertEqual(owned, RoomObjectElevatorPlatformVisualFiles.TryGetDraw(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var dto), "ElevatorPlatform layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(ElevatorPlatformDraws.Draw), shape, "ElevatorPlatform layout missing shape");
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "ElevatorPlatform layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmElevatorPlatformVisualFiles.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout missing ID");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "ElevatorPlatform layout missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectElevatorPlatformVisualFiles.VisualId(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout missing ID");
                 }
             }
             foreach (string id in new[] { "FIRST-FRAME", "broken", "", "unknown" })
             {
-                AssertTrue(!RoomPlmElevatorPlatformVisualFiles.TryGetByVisualId(id, out var missing), "ElevatorPlatform layout ordinal ID domain");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "ElevatorPlatform layout rejected ID output");
+                AssertTrue(!RoomObjectElevatorPlatformVisualFiles.TryGetByVisualId(id, out var missing), "ElevatorPlatform layout ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "ElevatorPlatform layout rejected ID output");
             }
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ElevatorPlatformDraws.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape);
-            RoomPlmElevatorPlatformVisualFiles.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto);
-            RoomPlmElevatorPlatformVisualFiles.TryGetByVisualId(ids[index], out var byId);
+            ElevatorPlatformDraws.TryDescribe(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var shape);
+            RoomObjectElevatorPlatformVisualFiles.TryGetDraw(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var dto);
+            RoomObjectElevatorPlatformVisualFiles.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "ElevatorPlatform layout original export order");
-                AssertEqual(ids[index], RoomPlmElevatorPlatformVisualFiles.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout published ID");
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "ElevatorPlatform layout reverse ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "ElevatorPlatform layout original export order");
+                AssertEqual(ids[index], RoomObjectElevatorPlatformVisualFiles.VisualId(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout published ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "ElevatorPlatform layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "ElevatorPlatform layout run bounds");
@@ -76,22 +76,22 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 }
             }
             var level = CreateEmptyRoom(new(32, 16));
-            var plms = PlmFixtures.Unbound();
+            var roomObjects = RoomObjectFixtures.Unbound();
             var bus = new TestAddressSpace();
             if (field == 0)
             {
-                SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
-                AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
-                plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<ElevatorPlatformDraw>(pointer));
+                SeedSoleElevatorPlatformObject(bus, 0x9400, new(3, 4), 0xafb6);
+                AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomObjectPopulationImporter.Read(bus, 0x9400), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
+                roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<ElevatorPlatformDraw>(pointer));
             }
             int drawX = 3, drawY = 4;
             int cursor = 0x840000 | pointer;
             int run = 0;
             while (true)
             {
-                ushort header = ReadSamusEaterPlmWord(rom, cursor);
+                ushort header = ReadSamusEaterObjectWord(rom, cursor);
                 int count = header & 0x7fff;
-                ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
+                ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "ElevatorPlatform layout native direction");
@@ -105,7 +105,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "ElevatorPlatform layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
-                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2)),
+                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2)),
                             level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).Terrain,
                             "ElevatorPlatform decoded native block at original absolute run position");
                     drawX = 3 + unchecked((sbyte)offset);
@@ -116,7 +116,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     AssertTerrainField(field, expected, shape.BlockAt(run, cell), "ElevatorPlatform layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
                         AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "ElevatorPlatform layout original DTO field");

@@ -67,7 +67,7 @@ statically, member by member), so none survives into the next room. PLM setup re
 the room under construction and fails if it does so before the enemy step, where the cartridge's enemy load would
 overwrite what it wrote.
 
-Each room builds its `RoomPlmSystem` at the PLM step, so no slot, sound, gate request, binding, tilemap update, station
+Each room builds its `RoomObjectSystem` at the PLM step, so no slot, sound, gate request, binding, tilemap update, station
 event, Mother Brain glass, collectible or Bomb Torizo hand state survives a door.
 
 ## Deliberate carry-overs
@@ -111,7 +111,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 
 ## Deliberate resets
 
-- **Room PLMs never survive** a door: each room builds its own `RoomPlmSystem`.
+- **Room PLMs never survive** a door: each room builds its own `RoomObjectSystem`.
 - **Samus projectiles and bombs never survive** a door: each room builds its own `SamusProjectileSystem` and
   `SamusBombProjectileSystem` at the teardown step, before the beam upload, and the installed projectile artwork is
   bound to them there. Samus's speed and shinespark echo storage is cleared at the same step.
@@ -140,7 +140,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 | `ElevatorBehavior` | actor states, arrival slot | room |
 | `EnemySession` | elevator journey, fade counter, Ceres status, drop bias, language, random counter, death quota, staging, Mode 7 residue, OBJ table, artwork | session carry-over |
 | `EnemyProjectileEngine`, `RoomSpriteObjectPool` | pools | room |
-| `RoomPlmSystem` | slots, sounds, gate requests, bindings, tilemap updates, station events, Chozo references | room |
+| `RoomObjectSystem` | slots, sounds, gate requests, bindings, tilemap updates, station events, Chozo references | room |
 | `SamusBombProjectileSystem` | slots, bomb counter, cooldown, power-bomb explosion | room |
 | `SamusProjectileSystem` | slots, trails, counter, combo, earthquake | room |
 | `BeamChargeState` | charge, flare, charge palette | session carry-over |

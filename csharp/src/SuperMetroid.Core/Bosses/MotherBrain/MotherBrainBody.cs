@@ -154,8 +154,8 @@ internal sealed class MotherBrainBody
                 // allocator searches the same descending pool for each call.
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
-                _access.RequestMotherBrainPlm(new(15, 4), MotherBrainRoomMutation.FillWall);
-                _access.RequestMotherBrainPlm(new(15, 9), MotherBrainRoomMutation.FillWall);
+                _access.RequestMotherBrainObject(new(15, 4), MotherBrainRoomMutation.FillWall);
+                _access.RequestMotherBrainObject(new(15, 9), MotherBrainRoomMutation.FillWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }

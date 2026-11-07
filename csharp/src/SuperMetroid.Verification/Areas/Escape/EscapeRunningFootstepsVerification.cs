@@ -53,10 +53,10 @@ internal static class EscapeRunningFootstepsVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
             runtime.Player.Samus = samus;
             // Area flags are outside this fixture. Preserve the actual timer requests.
-            runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms(EnemyRoomEffectRequestsConstants.None with
+            runtime.EnemyRoomEffects.ApplyPendingMotherBrainObjects(EnemyRoomEffectRequestsConstants.None with
             {
                 MotherBrainDeathStep = request with { MotherBrainBossBitRequested = false, ZebesTimebombEventRequested = false },
-            }, runtime.Plms, runtime.RoomFxOverlay, runtime.RoomPaletteFx);
+            }, runtime.RoomObjects, runtime.RoomFxOverlay, runtime.RoomPaletteFx);
 
             samus.Pose = pose;
             samus.Control.Unlock();

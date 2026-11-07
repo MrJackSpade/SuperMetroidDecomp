@@ -31,8 +31,8 @@ internal static class RoomLevelDataAccess
                 throw new ArgumentException("A level can only be restored from one with the same layout.", nameof(source));
             for (int index = 0; index < source.Terrain.Length; index++)
             {
-                self.SetPlmTerrain(index, source.Terrain[index], source.ShownForeground[index]);
-                self.SetPlmBehavior(index, source.Behaviors[index]);
+                self.SetObjectTerrain(index, source.Terrain[index], source.ShownForeground[index]);
+                self.SetObjectBehavior(index, source.Behaviors[index]);
             }
             for (int beyond = 0; beyond < source.BeyondRoom.Count; beyond++)
             {

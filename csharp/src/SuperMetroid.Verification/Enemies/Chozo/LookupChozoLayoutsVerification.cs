@@ -1,12 +1,12 @@
-using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Enemies.Chozo;
@@ -26,7 +26,7 @@ internal static class LookupChozoLayoutsVerification
     {
         ushort[] pointers = [0xa2b5,0x9cc5,0x9d0f];
         string[] ids = ["lower-norfair-cleared-hand","wrecked-ship-clear-slope-access","wrecked-ship-block-slope-access"];
-        var exported = RoomPlmChozoStatueVisualFiles.All.ToArray();
+        var exported = RoomObjectChozoStatueVisualFiles.All.ToArray();
         AssertEqual(3, exported.Length, "Chozo layout export count");
         if (field == 0)
         {
@@ -34,33 +34,33 @@ internal static class LookupChozoLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ChozoStatueDraws.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape), "Chozo layout shape domain");
-                AssertEqual(owned, RoomPlmChozoStatueVisualFiles.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto), "Chozo layout DTO domain");
+                AssertEqual(owned, ChozoStatueDraws.TryDescribe(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var shape), "Chozo layout shape domain");
+                AssertEqual(owned, RoomObjectChozoStatueVisualFiles.TryGet(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var dto), "Chozo layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(ChozoStatueDraws.Draw), shape, "Chozo layout missing shape");
-                    AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Chozo layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmChozoStatueVisualFiles.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout missing ID");
+                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Chozo layout missing DTO");
+                    AssertThrows<InvalidDataException>(() => RoomObjectChozoStatueVisualFiles.VisualId(NativeObjectDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout missing ID");
                 }
             }
             foreach (string id in new[] { "LOWER-NORFAIR-CLEARED-HAND", "broken", "", "unknown" })
             {
-                AssertTrue(!RoomPlmChozoStatueVisualFiles.TryGetByVisualId(id, out var missing), "Chozo layout ordinal ID domain");
-                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Chozo layout rejected ID output");
+                AssertTrue(!RoomObjectChozoStatueVisualFiles.TryGetByVisualId(id, out var missing), "Chozo layout ordinal ID domain");
+                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Chozo layout rejected ID output");
             }
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ChozoStatueDraws.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape);
-            RoomPlmChozoStatueVisualFiles.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto);
-            RoomPlmChozoStatueVisualFiles.TryGetByVisualId(ids[index], out var byId);
+            ChozoStatueDraws.TryDescribe(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var shape);
+            RoomObjectChozoStatueVisualFiles.TryGet(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var dto);
+            RoomObjectChozoStatueVisualFiles.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Chozo layout original export order");
-                AssertEqual(ids[index], RoomPlmChozoStatueVisualFiles.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout published ID");
-                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Chozo layout reverse ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Chozo layout original export order");
+                AssertEqual(ids[index], RoomObjectChozoStatueVisualFiles.VisualId(NativeObjectDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout published ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Chozo layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Chozo layout run bounds");
@@ -70,13 +70,13 @@ internal static class LookupChozoLayoutsVerification
                 }
             }
             var level = CreateEmptyRoom(new(32, 16));
-            var plms = PlmFixtures.Unbound();
+            var roomObjects = RoomObjectFixtures.Unbound();
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             if (field == 0)
             {
-                AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
-                    new ChozoStatuePlmRequest(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)), "Chozo layout fixture spawn");
-                plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<ChozoStatueDraw>(pointer));
+                AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
+                    new ChozoStatueObjectRequest(RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)), "Chozo layout fixture spawn");
+                roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<ChozoStatueDraw>(pointer));
                 AssertEqual(0, guarded.ForbiddenReadAttempts, "Chozo calculated draw avoids ROM reads");
             }
             int drawX = 3, drawY = 4;
@@ -84,9 +84,9 @@ internal static class LookupChozoLayoutsVerification
             int run = 0;
             while (true)
             {
-                ushort header = ReadSamusEaterPlmWord(rom, cursor);
+                ushort header = ReadSamusEaterObjectWord(rom, cursor);
                 int count = header & 0x7fff;
-                ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
+                ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "Chozo layout native direction");
@@ -100,7 +100,7 @@ internal static class LookupChozoLayoutsVerification
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Chozo layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
-                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2)),
+                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2)),
                             level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).Terrain,
                             "Chozo decoded native block at original absolute run position");
                     drawX = 3 + unchecked((sbyte)offset);
@@ -111,7 +111,7 @@ internal static class LookupChozoLayoutsVerification
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     AssertTerrainField(field, expected, shape.BlockAt(run, cell), "Chozo layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
                         AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "Chozo layout original DTO field");

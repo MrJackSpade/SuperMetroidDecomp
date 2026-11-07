@@ -17,7 +17,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Hud;
@@ -123,10 +123,10 @@ internal static class RoomBlockUploads
     private static HashSet<InWorldCollectibleKind> CollectiblesPlacedIn(RoomStateSettings state)
     {
         var placed = new HashSet<InWorldCollectibleKind>();
-        foreach (RoomPlmPlacement placement in state.PlmPopulation.Placements.Span)
+        foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
         {
-            if (CollectiblePlms.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
-                && CollectiblePlms.UsesDynamicGraphics(kind))
+            if (CollectibleObjects.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
+                && CollectibleObjects.UsesDynamicGraphics(kind))
                 placed.Add(kind);
         }
         return placed;
@@ -375,8 +375,8 @@ internal static class RoomBlockUploads
     {
         foreach (InWorldCollectibleKind kind in kinds.Order())
         {
-            RoomPlmDynamicCollectibleGraphic graphic = DynamicCollectibleGraphics.Get(kind);
-            for (int slot = 0; slot < CollectiblePlms.GraphicsSlots; slot++)
+            RoomObjectDynamicCollectibleGraphic graphic = DynamicCollectibleGraphics.Get(kind);
+            for (int slot = 0; slot < CollectibleObjects.GraphicsSlots; slot++)
                 yield return new CollectibleSlotCharacters(new AppearanceOption(new CollectibleSlotAppearance(slot), CollectibleSlotAppearance.ValueOf(graphic.Kind),
                         CollectibleSlotBlocks.SlotUpload(graphic.Kind, slot, graphic.Tiles)),
                     CollectibleSlotBlocks.FirstBlockOf(slot), CollectibleSlotBlocks.Tiles(slot, graphic.PaletteOffsets.Span));

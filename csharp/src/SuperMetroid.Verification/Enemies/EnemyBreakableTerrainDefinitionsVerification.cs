@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -14,7 +14,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         for (int index = 0; index < 16; index++)
         {
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0c2da + index * 2));
-            AssertEqual(index == 15 ? PlmNativeWords.Word(PlmHeaderId.EnemyBreakableBlock) : (ushort)0,
+            AssertEqual(index == 15 ? RoomObjectNativeWords.Word(RoomObjectHeaderId.EnemyBreakableBlock) : (ushort)0,
                 header,
                 $"enemy spike reaction header {index}");
         }
@@ -31,16 +31,16 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 [RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
                 [new RoomBlockBehavior(behavior)],
                 [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid());
-            var plms = PlmFixtures.Unbound();
+            var roomObjects = RoomObjectFixtures.Unbound();
             var terrain = new EnemyTerrain();
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(0);
             bool collision;
-            using (new EnemyTerrain.EnemyTerrainScope(terrain, plms.BreakableTerrain))
+            using (new EnemyTerrain.EnemyTerrainScope(terrain, roomObjects.BreakableTerrain))
                 collision = terrain.ReactToEnemySpikeBlock(level, 0, block);
 
             AssertEqual(index != 15, collision,
                 $"production enemy spike collision ${behavior:X2}");
-            AssertEqual(index == 15 ? 1 : 0, plms.PopulationSlots.Count,
+            AssertEqual(index == 15 ? 1 : 0, roomObjects.PopulationSlots.Count,
                 $"production enemy spike PLM count ${behavior:X2}");
             AssertEqual(index == 15 ? RoomCollisionType.Air : RoomCollisionType.SpikeBlock,
                 level.GetCollisionBlockByIndex(0).CollisionType,

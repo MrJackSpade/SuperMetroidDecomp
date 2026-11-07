@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Title;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>
@@ -29,4 +31,15 @@ internal static class TitleFloorTileDefinitions
 
     /// <summary>The Baby Metroid animation pages the floor shows: pages 0, 1 and 2.</summary>
     public const int BabyPageCount = 3;
+
+    /// <summary>The page of the installed Baby Metroid characters that holds each of its poses.</summary>
+    public static IReadOnlyDictionary<TitleBabyPose, int> BabyPages { get; } = new Dictionary<TitleBabyPose, int>
+    {
+        [TitleBabyPose.Closed] = 0,
+        [TitleBabyPose.Middle] = 1,
+        [TitleBabyPose.Open] = 2,
+    };
+
+    /// <summary>The Baby Metroid's floor tiles: one page of four.</summary>
+    internal const int BabyTileCount = 4;
 }

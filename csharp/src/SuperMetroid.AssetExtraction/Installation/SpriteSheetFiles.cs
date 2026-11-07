@@ -123,7 +123,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>
             EndingPictureSheetComposer.FrameNames(sheet),
-        SpriteSheetId.TitleFloor => Enumerable.Range(0, TitleFloorTileDefinitions.BabyPageCount).Select(TitleFloors.FrameName),
+        SpriteSheetId.TitleFloor => Enum.GetValues<TitleBabyPose>().Select(TitleFloors.BabyFrameName).Prepend(TitleFloors.FloorFrameName),
         SpriteSheetId.CeresFloor => Enum.GetValues<CeresFloorShot>().Select(CeresFloors.FrameName),
         SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
             SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or

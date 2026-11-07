@@ -88,11 +88,12 @@ public static class TitleSequenceDefinitions
         public const TitleSpriteColouring CopyrightColouring = TitleSpriteColouring.Copyright;
     }
 
-    /// <summary>The installed title graphics' extents and the Baby Metroid's animation pages.</summary>
+    /// <summary>The title's animated artwork.</summary>
     public static class Graphics
     {
-        /// <summary>The Baby Metroid's four-phase page cycle 0, 1, 2, 1.</summary>
-        public static TitleBabyPageSequence BabyAnimationSourcePages => default;
+        /// <summary>The poses the Baby Metroid lying on the floor pulses through, one each animation frame, in turn.</summary>
+        public static IReadOnlyList<TitleBabyPose> BabyAnimation { get; } =
+            [TitleBabyPose.Closed, TitleBabyPose.Middle, TitleBabyPose.Open, TitleBabyPose.Middle];
     }
 
     /// <summary>Holds, fades and the buttons that skip.</summary>
@@ -110,7 +111,7 @@ public static class TitleSequenceDefinitions
         public const int TitleScreenNtscFrames = 900;
         /// <summary>Updates between brightness decrements when leaving the idle title screen.</summary>
         public const int TitleFadeCadenceFrames = 2;
-        /// <summary>Updates per Baby Metroid animation phase.</summary>
+        /// <summary>Updates the Baby Metroid holds each pose of its animation.</summary>
         public const int BabyFrameDuration = 10;
         /// <summary>The buttons whose new presses skip the opening or leave the idle title screen.</summary>
         public static ControllerButton ConfirmButtons =>

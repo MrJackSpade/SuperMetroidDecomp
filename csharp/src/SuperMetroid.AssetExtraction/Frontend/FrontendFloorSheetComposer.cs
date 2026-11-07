@@ -24,7 +24,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
-/// Composes the frontend's turning floors once (#1467): the title's floor with each Baby Metroid page shown, the Ceres
+/// Composes the frontend's turning floors once (#1467): the title's floor and the Baby Metroid's poses drawn over it, the Ceres
 /// cinematics' floor in each of their shots, and each ending shot's floor. Each is the whole floor the cartridge's map and
 /// character transfers leave for that shot, pictured under the palette of the screen that shows it; the screens select
 /// the pictures by scene state.
@@ -62,11 +62,14 @@ internal static class FrontendFloorSheetComposer
         }.ToFrozenDictionary();
 
     /// <summary>
-    /// The title's floor with each Baby Metroid page shown: the title's map over the start of a floor whose other cells
-    /// keep the initial tile, as the title's setup fills the map and loads the installed map over its start; and its
-    /// characters with the page loaded over the Baby's tiles.
+    /// The title's floor (#1538): the whole floor without the Baby Metroid, the title's map over the start of a floor whose
+    /// other cells keep the initial tile, as the title's setup fills the map and loads the installed map over its start,
+    /// showing the floor's characters with the Baby's tiles blank; and the Baby in each of its poses, the cells of the map
+    /// that show the Baby's tiles, showing the pose's characters over them, drawn over the floor where the Baby lies.
     /// </summary>
-    /// <exception cref="InvalidDataException">The installed map or characters are shorter than the title loads.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The installed map or characters are shorter than the title loads, or the map shows no cell of the Baby.
+    /// </exception>
     internal static ComposedSpriteSheet Title(TitleGraphicsPresentation graphics, TitlePalettePresentation palette)
     {
         TitleGraphicsCharacters title = TitleGraphicsCharacters.Of(Ensure.NotNull(graphics));
@@ -79,15 +82,22 @@ internal static class FrontendFloorSheetComposer
         var map = new byte[FloorSheetComposer.CellCount];
         map.AsSpan().Fill(TitleFloorTileDefinitions.FloorInitialMapByte);
         title.FloorMap[..TitleFloorTileDefinitions.FloorMapByteCount].CopyTo(map);
-        var pictures = new List<FloorSheetComposer.FloorPicture>();
-        for (int page = 0; page < TitleFloorTileDefinitions.BabyPageCount; page++)
+        var floorPixels = new byte[FloorSheetComposer.TileSetBytes];
+        title.FloorCharacters[..TitleFloorTileDefinitions.FloorCharacterByteCount]
+            .CopyTo(floorPixels.AsSpan(TitleFloorTileDefinitions.FloorFirstTile * FloorSheetComposer.TileBytes));
+        floorPixels.AsSpan(TitleFloorTileDefinitions.BabyFirstTile * FloorSheetComposer.TileBytes, TitleFloorTileDefinitions.BabyCharacterPageByteCount).Clear();
+        BabyCellRectangle baby = BabyCells(map);
+        byte[] babyCells = new byte[baby.Columns * baby.Rows];
+        for (int row = 0; row < baby.Rows; row++)
+            map.AsSpan((baby.Top + row) * FloorSheetComposer.Side + baby.Left, baby.Columns).CopyTo(babyCells.AsSpan(row * baby.Columns));
+        var pictures = new List<FloorSheetComposer.FloorPicture> { FloorSheetComposer.Whole(TitleFloors.FloorFrameName, map, floorPixels) };
+        foreach (TitleBabyPose pose in Enum.GetValues<TitleBabyPose>())
         {
-            var pixels = new byte[FloorSheetComposer.TileSetBytes];
-            title.FloorCharacters[..TitleFloorTileDefinitions.FloorCharacterByteCount]
-                .CopyTo(pixels.AsSpan(TitleFloorTileDefinitions.FloorFirstTile * FloorSheetComposer.TileBytes));
-            title.BabyCharacters.Slice(page * TitleFloorTileDefinitions.BabyCharacterPageByteCount, TitleFloorTileDefinitions.BabyCharacterPageByteCount)
-                .CopyTo(pixels.AsSpan(TitleFloorTileDefinitions.BabyFirstTile * FloorSheetComposer.TileBytes));
-            pictures.Add(FloorSheetComposer.Whole(TitleFloors.FrameName(page), map, pixels));
+            byte[] posePixels = [.. floorPixels];
+            title.BabyCharacters.Slice(TitleFloorTileDefinitions.BabyPages[pose] * TitleFloorTileDefinitions.BabyCharacterPageByteCount,
+                    TitleFloorTileDefinitions.BabyCharacterPageByteCount)
+                .CopyTo(posePixels.AsSpan(TitleFloorTileDefinitions.BabyFirstTile * FloorSheetComposer.TileBytes));
+            pictures.Add(new FloorSheetComposer.FloorPicture(TitleFloors.BabyFrameName(pose), babyCells, baby.Columns, baby.Left, baby.Top, posePixels));
         }
         ComposedSpriteSheet floor = FloorSheetComposer.Compose(pictures, ScreenPaletteColours.TitleColours(palette));
         // The floor shows each record the console lights show (#1512), over the inks each light recolours.
@@ -100,6 +110,35 @@ internal static class FrontendFloorSheetComposer
         }
         return floor with { Manifest = floor.Manifest with { Shades = SheetShade.Documents(shades) } };
     }
+
+    /// <summary>
+    /// The rectangle of the title floor's <paramref name="map"/> the Baby Metroid lies in: the left column, top row, columns
+    /// and rows of the cells that show the Baby's tiles.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No cell of the map shows the Baby's tiles.</exception>
+    private static BabyCellRectangle BabyCells(byte[] map)
+    {
+        int left = FloorSheetComposer.Side, top = FloorSheetComposer.Side, right = -1, bottom = -1;
+        for (int cell = 0; cell < map.Length; cell++)
+        {
+            if (map[cell] is < TitleFloorTileDefinitions.BabyFirstTile or >= TitleFloorTileDefinitions.BabyFirstTile + TitleFloorTileDefinitions.BabyTileCount)
+                continue;
+            int column = cell % FloorSheetComposer.Side, row = cell / FloorSheetComposer.Side;
+            left = Math.Min(left, column);
+            top = Math.Min(top, row);
+            right = Math.Max(right, column);
+            bottom = Math.Max(bottom, row);
+        }
+        return right >= 0 ? new BabyCellRectangle(left, top, right - left + 1, bottom - top + 1)
+            : throw new InvalidDataException("The title floor's map shows no cell of the Baby Metroid.");
+    }
+
+    /// <summary>The cells of the title floor's map the Baby Metroid lies in.</summary>
+    /// <param name="Left">The leftmost cell's column.</param>
+    /// <param name="Top">The topmost cell's row.</param>
+    /// <param name="Columns">The rectangle's width in cells.</param>
+    /// <param name="Rows">The rectangle's height in cells.</param>
+    private readonly record struct BabyCellRectangle(int Left, int Top, int Columns, int Rows);
 
     /// <summary>
     /// The Ceres cinematics' floor in each shot, under the flight's palette: each shot's views over the start of a floor of

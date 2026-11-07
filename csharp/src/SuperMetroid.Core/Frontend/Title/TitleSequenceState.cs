@@ -95,9 +95,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal int Zoom { get; private set; }
     /// <summary>Current screen brightness applied after composing title layers.</summary>
     internal int Brightness { get; private set; }
-    /// <summary>Index into the Baby Metroid character page cycle.</summary>
+    /// <summary>The frame of the Baby Metroid's pulse animation the floor shows.</summary>
     internal int BabyFrame { get; private set; }
-    /// <summary>Frames left before the next Baby Metroid character page transfer.</summary>
+    /// <summary>Updates left before the Baby Metroid's animation shows its next frame.</summary>
     private int babyFrameTimer;
     /// <summary>Whether the title shows its perspective floor behind the title objects.</summary>
     private bool floorBackgroundEnabled;
@@ -376,7 +376,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 : null,
             Ensure.BetweenInclusive(0, byte.MaxValue, Brightness), gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled
-                ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame]).Shaded(FloorShading)
+                ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimation[BabyFrame]).Shaded(FloorShading)
                 : null);
     }
 
@@ -537,13 +537,13 @@ public sealed class TitleSequenceState : IFrontendScreen
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
     }
 
-    /// <summary>Advances the Baby Metroid page cycle when its authored frame duration expires.</summary>
+    /// <summary>Advances the Baby Metroid's pulse animation when its authored frame duration expires.</summary>
     private void StepBabyMetroidAnimation()
     {
         if (--babyFrameTimer > 0)
             return;
 
-        BabyFrame = (BabyFrame + 1) % TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages.Length;
+        BabyFrame = (BabyFrame + 1) % TitleSequenceDefinitions.Graphics.BabyAnimation.Count;
         babyFrameTimer = TitleSequenceDefinitions.Timing.BabyFrameDuration;
     }
 

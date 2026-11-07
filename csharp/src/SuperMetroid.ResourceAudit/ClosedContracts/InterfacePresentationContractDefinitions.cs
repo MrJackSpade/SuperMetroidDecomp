@@ -69,9 +69,12 @@ internal static class InterfacePresentationContractDefinitions
             [ContractTypeNames.MetadataName(typeof(CinematicSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(TypedTextSpriteSheet))],
-        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation))],
+        // The import's installed presentation is the same catalog read from an installation (#1527).
+        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation)),
+            ContractTypeNames.MetadataName(typeof(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation))],
         "SuperMetroid.Core.Map.IAreaMapSource" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation)),
-            ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent))],
+            ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent)),
+            ContractTypeNames.MetadataName(typeof(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation))],
         _ => null,
     };
 }

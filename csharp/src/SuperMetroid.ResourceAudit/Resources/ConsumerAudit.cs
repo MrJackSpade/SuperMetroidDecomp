@@ -24,7 +24,8 @@ internal static class ConsumerAudit
         {
             // Catalog implementation is the provider, not a gameplay consumer: the shared Assets module and each
             // domain's Artwork module (#626).
-            if (IsArtworkLayer(tree.FilePath) || tree.FilePath.StartsWith('<')) continue;
+            // The import builds the installed content: it provides resources and is compiled only so contracts bind.
+            if (IsArtworkLayer(tree.FilePath) || IsImport(tree) || tree.FilePath.StartsWith('<')) continue;
             SemanticModel semantic = compilation.GetSemanticModel(tree);
             foreach (ClassDeclarationSyntax declaration in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
                 operands.Inspect(declaration, semantic);
@@ -41,6 +42,10 @@ internal static class ConsumerAudit
     internal static bool IsTooling(SyntaxTree tree) =>
         tree.FilePath.StartsWith("csharp/src/SuperMetroid.Tooling/", StringComparison.Ordinal);
 
+    /// <summary>Whether a compiled source belongs to the import pipeline, which provides installed resources.</summary>
+    internal static bool IsImport(SyntaxTree tree) =>
+        tree.FilePath.StartsWith("csharp/src/SuperMetroid.AssetExtraction/", StringComparison.Ordinal);
+
     /// <summary>A Core program owner's runtime type, or the development type it moved to whole.</summary>
     internal static Type? ProgramOwnerType(string fullName) =>
         typeof(SuperMetroid.Core.World.RoomEnemySystem).Assembly.GetType(fullName) ?? typeof(ToolingTypes).Assembly.GetType(fullName);
@@ -54,9 +59,14 @@ internal static class ConsumerAudit
         // belong to the same owners, so ownership guards and program discovery see them too.
         string tooling = Path.Combine(root, "csharp/src/SuperMetroid.Tooling");
         if (!Directory.Exists(tooling)) throw new DirectoryNotFoundException(tooling);
+        // The import owns the installed presentation providers that moved out of Core (#1513, #1527), so their reviewed
+        // contracts name import sources; the import is compiled with Core for the same semantic inspection.
+        string import = Path.Combine(root, "csharp/src/SuperMetroid.AssetExtraction");
+        if (!Directory.Exists(import)) throw new DirectoryNotFoundException(import);
         var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
         var trees = Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories)
             .Concat(Directory.EnumerateFiles(tooling, "*.cs", SearchOption.AllDirectories))
+            .Concat(Directory.EnumerateFiles(import, "*.cs", SearchOption.AllDirectories))
             .Where(path => !path.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar) &&
                            !path.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar))
             .OrderBy(path => path, StringComparer.Ordinal)

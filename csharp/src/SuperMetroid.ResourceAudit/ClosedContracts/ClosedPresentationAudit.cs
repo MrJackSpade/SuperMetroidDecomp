@@ -42,13 +42,22 @@ internal sealed class ClosedPresentationAudit
             StringComparer.Ordinal);
         foreach (ClosedPresentationContract contract in ClosedPresentationContractDefinitions.All)
         {
-            bool valid = contract.Sources.All(source => sources.ContainsKey(source.Path));
+            string[] missing = [.. contract.Sources.Where(source => !sources.ContainsKey(source.Path)).Select(source => source.Path)];
+            bool valid = missing.Length == 0;
+            // Why a proof is stale, so its report says what to re-inspect.
+            string? staleReason = valid ? null : "its sources are missing: " + string.Join(", ", missing);
             // A new partial implementation could access the reviewed private state.
             // Every source declaration of the provider must remain in the proof.
             if (valid && compilation.GetTypeByMetadataName(contract.Type) is { } provider)
-                valid = provider.DeclaringSyntaxReferences.All(declaration =>
-                    contract.Sources.Any(source => source.Path == declaration.SyntaxTree.FilePath));
+            {
+                string[] undeclared = [.. provider.DeclaringSyntaxReferences.Select(declaration => declaration.SyntaxTree.FilePath)
+                    .Where(path => !contract.Sources.Any(source => source.Path == path))];
+                valid = undeclared.Length == 0;
+                if (!valid)
+                    staleReason = "the provider is also declared in " + string.Join(", ", undeclared);
+            }
             if (valid) valid = InterfacePresentationDomainAudit.HasReviewedImplementations(compilation, contract);
+            if (!valid) staleReason ??= "an implementation of its interface is not reviewed";
             // This existing definition uses a readonly array reference, not an
             // immutable array. Its reviewed reads are wholly inside these files;
             // a new external use could mutate its keys and must revoke the proof.
@@ -117,7 +126,7 @@ internal sealed class ClosedPresentationAudit
                             IMethodSymbol { Name: "FromPlacement" } factory &&
                                 factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonSourceArtwork).FullName));
             foreach (string method in contract.Methods)
-                contracts.Add(new PresentationMethod(contract.Type, method), new ContractValidity(contract, valid));
+                contracts.Add(new PresentationMethod(contract.Type, method), new ContractValidity(contract, valid, valid ? null : staleReason ?? "a reviewed escape condition no longer holds"));
             if (!valid)
                 invalidContracts.Add(contract.Type);
             if (valid)
@@ -145,7 +154,7 @@ internal sealed class ClosedPresentationAudit
         }
         if (!reviewed.Valid)
         {
-            Gap($"Reviewed provider proof {contract.Rule} is stale or its source is unavailable; re-inspect the loader and selector contract.");
+            Gap($"Reviewed provider proof {contract.Rule} is stale ({reviewed.StaleReason}); re-inspect the loader and selector contract.");
             return true;
         }
         if (semantic.GetOperation(call) is not IInvocationOperation operation)

@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Harness;
 /// at the dependency when neither provides it.
 /// </summary>
 internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) : IRoomEnemyServices,
-    IEnemyRandomNumbers, IGlobalEventFlags, IAreaBossFlags, IRoomScrollZoneAccess, ISamusControlLock,
+    IEnemyRandomNumbers, IGlobalEventFlags, IZebetiteProgress, IAreaBossFlags, IRoomScrollZoneAccess, ISamusControlLock,
     IMotherBrainRoomEffects, IRoomObjectPresence
 {
     /// <summary>Optional case-owned callback for advancing the enemy RNG.</summary>
@@ -26,6 +26,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public Action<ushort>? SeedRandom { get; set; }
     /// <summary>Optional case-owned query for global event flags.</summary>
     public Func<EventNumber, bool>? HasEvent { get; set; }
+    /// <summary>Optional case-owned query for how many Zebetites have been destroyed.</summary>
+    public Func<int>? ReadZebetitesDestroyed { get; set; }
     /// <summary>Optional case-owned query for the area's major boss flag.</summary>
     public Func<bool>? IsAreaBossDefeated { get; set; }
     /// <summary>Optional case-owned query for the area's mini-boss flag.</summary>
@@ -43,6 +45,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public IEnemyRandomNumbers Random => this;
     /// <summary>Exposes this fixture's event query override through the enemy service contract.</summary>
     public IGlobalEventFlags Events => this;
+    /// <summary>Exposes this fixture's Zebetite count override through the enemy service contract.</summary>
+    public IZebetiteProgress ZebetiteProgress => this;
     /// <summary>Exposes this fixture's boss-flag overrides through the enemy service contract.</summary>
     public IAreaBossFlags Bosses => this;
     /// <summary>Uses loaded room services for active PLM queries.</summary>
@@ -78,6 +82,15 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
 
     /// <summary>Forwards event clearing to loaded room services.</summary>
     public void Clear(EventNumber eventNumber) => Loaded("clear a global event bit").Events.Clear(eventNumber);
+
+    /// <summary>Reads the Zebetite count through the case override or loaded services; writes go to loaded services.</summary>
+    int IZebetiteProgress.ZebetitesDestroyed
+    {
+        get => ReadZebetitesDestroyed is { } read
+            ? read()
+            : Loaded("read the Zebetites destroyed").ZebetiteProgress.ZebetitesDestroyed;
+        set => Loaded("advance the Zebetites destroyed").ZebetiteProgress.ZebetitesDestroyed = value;
+    }
 
     /// <summary>Queries the selected boss bit through its case callback or loaded services.</summary>
     public bool IsDefeated(BossBits bits) => (bits switch

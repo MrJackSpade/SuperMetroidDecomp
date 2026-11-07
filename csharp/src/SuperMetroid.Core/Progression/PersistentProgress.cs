@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The progress a save keeps (#1475): the story events that have happened, each area's defeated bosses, the Chozo orbs
-/// broken, the item locations collected, the doors opened for good, each area's used save stations and elevators, the
-/// area maps acquired and each area's explored map cells. Each is a set keyed by its own identity. Lifetime: the
+/// The progress a save keeps (#1475): the story events that have happened, how many Zebetites have been destroyed, each
+/// area's defeated bosses, the Chozo orbs broken, the item locations collected, the doors opened for good, each area's
+/// used save stations and elevators, the area maps acquired and each area's explored map cells. Each set is keyed by its
+/// own identity, and the Zebetite count is a count (#1527). Lifetime: the
 /// session's <see cref="SharedGameState"/> owns the live progress; every save slot and save snapshot owns a detached copy.
 /// </summary>
 public sealed class PersistentProgress
@@ -16,6 +17,9 @@ public sealed class PersistentProgress
 
     /// <summary>The save stations and elevators each area numbers, 0 through 15.</summary>
     public const int StationsPerArea = 16;
+
+    /// <summary>The Zebetites barring the way to Mother Brain, destroyed one after another.</summary>
+    public const int ZebetiteCount = 4;
 
     /// <summary>The cells of one area's 64-by-32 map.</summary>
     private const int MapCellsPerArea = AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles;
@@ -34,6 +38,17 @@ public sealed class PersistentProgress
 
     /// <summary>The story events that have happened, by event number.</summary>
     public NumberedFlagSet Events { get; } = new(EventCount);
+
+    /// <summary>
+    /// How many Zebetites Samus has destroyed, 0 through <see cref="ZebetiteCount"/>. The Zebetites read it when they
+    /// spawn, to place the next one standing or to stay away once all are destroyed, and each one's destruction advances it.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The value is negative or more than <see cref="ZebetiteCount"/>.</exception>
+    public int ZebetitesDestroyed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ZebetiteCount, value);
+    }
 
     /// <summary>The Chozo orbs broken open, by room-data number; independent of whether the item they exposed was collected.</summary>
     public NumberedFlagSet ChozoOrbs { get; } = new(RoomFlagCount);
@@ -95,14 +110,16 @@ public sealed class PersistentProgress
         _explored[AreaIds.ToIndex(area)].Members.Select(AreaMapLayout.Size.CellAtRowMajorIndex);
 
     /// <summary>
-    /// Applies SpaceTime's progression overwrite: every story event, boss, orb, item, door, station and map it decides
-    /// takes the state it gives, and everything else keeps its state.
+    /// Applies SpaceTime's progression overwrite: every story event, boss, orb, item, door, station and map it decides,
+    /// and the Zebetite count when it decides it, takes the state it gives, and everything else keeps its state.
     /// </summary>
     /// <exception cref="ArgumentException">The overwrite decides more flags than a range numbers.</exception>
     public void Overwrite(ProgressionOverwrite overwrite)
     {
         Ensure.NotNull(overwrite);
         Events.Overwrite(overwrite.Events);
+        if (overwrite.ZebetitesDestroyed is int zebetitesDestroyed)
+            ZebetitesDestroyed = zebetitesDestroyed;
         foreach (KeyValuePair<AreaId, BossBits> bosses in overwrite.AreaBosses)
             SetDefeatedBosses(bosses.Key, bosses.Value);
         ChozoOrbs.Overwrite(overwrite.ChozoOrbs);
@@ -119,6 +136,7 @@ public sealed class PersistentProgress
     {
         Ensure.NotNull(source);
         Events.CopyFrom(source.Events);
+        ZebetitesDestroyed = source.ZebetitesDestroyed;
         source._defeatedBosses.CopyTo(_defeatedBosses, 0);
         ChozoOrbs.CopyFrom(source.ChozoOrbs);
         CollectedItems.CopyFrom(source.CollectedItems);

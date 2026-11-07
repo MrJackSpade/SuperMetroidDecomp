@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Progression;
 using static SuperMetroid.Core.Bosses.MotherBrain.ZebetiteDefinitions;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -13,7 +14,7 @@ internal static class Zebetites
     /// </summary>
     internal static ZebetiteGenerationDefinition Generation(int generation)
     {
-        if ((uint)generation >= 4)
+        if ((uint)generation >= PersistentProgress.ZebetiteCount)
         {
             throw new InvalidDataException(
                 $"Zebetite generation {generation} exceeds its four active records.");

@@ -10,7 +10,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// The one-way upgrade of older game saves to the schema Core reads: schema one (#1421) carried the cartridge's whole
 /// SRAM image as raw pages, whose remaining fields are read back through <see cref="SaveRamCodec"/>; schema two (#1475)
 /// listed bosses, used stations and acquired maps by the cartridge's table positions, which become lists by area; schema
-/// three (#1523) kept the cartridge's loading-state word, which becomes the startup route it selects.
+/// three (#1523) kept the cartridge's loading-state word, which becomes the startup route it selects; schema four
+/// (#1527) listed the Zebetite count as three event bits, which become a count, and named an event after its number.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -48,7 +49,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through three to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through four to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -60,9 +61,60 @@ public static class LegacyGameSaveJson
             UpgradeSchemaOne(root);
         if (sourceSchemaVersion <= SchemaTwo)
             UpgradeSchemaTwo(root);
-        UpgradeSchemaThree(root);
+        if (sourceSchemaVersion <= SchemaThree)
+            UpgradeSchemaThree(root);
+        UpgradeSchemaFour(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
+    }
+
+    /// <summary>The schema that kept the cartridge's loading-state word.</summary>
+    private const int SchemaThree = 3;
+
+    /// <summary>The event names through which schema four listed the Zebetite counter's bits, lowest bit first.</summary>
+    private static readonly string[] ZebetiteCounterEventNames =
+        ["ZebetiteDestroyedBit0", "ZebetiteDestroyedBit1", "ZebetiteDestroyedBit2"];
+
+    /// <summary>The name schema four gave the event schema five names <see cref="EventNumber.ShitroidApproachCalmed"/>.</summary>
+    private const string ShitroidApproachCalmedSchemaFourName = "Unused14";
+
+    /// <summary>
+    /// Schema four to five (#1527): schema four listed the Zebetite count as the three events
+    /// <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c>, the bits of the cartridge's counter; they leave
+    /// a slot's events and become its <c>zebetitesDestroyed</c> count, read as the cartridge's table codec reads the
+    /// counter. The event schema four called <c>Unused14</c> is renamed to <see cref="EventNumber.ShitroidApproachCalmed"/>.
+    /// </summary>
+    private static void UpgradeSchemaFour(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is null) continue;
+            JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
+            JsonObject progression = slot["progression"] as JsonObject ??
+                throw new InvalidDataException($"slots[{index}].progression is required");
+            if (progression.ContainsKey("zebetitesDestroyed"))
+                throw new InvalidDataException($"slots[{index}].progression.zebetitesDestroyed is not part of schema four");
+            JsonArray events = progression["events"] as JsonArray ??
+                throw new InvalidDataException($"slots[{index}].progression.events is required");
+            var upgraded = new JsonArray();
+            int counter = 0;
+            foreach (JsonNode? entry in events)
+            {
+                string name = entry is JsonValue value && value.TryGetValue(out string? text) ? text
+                    : throw new InvalidDataException($"slots[{index}].progression.events lists an event that is not a string");
+                int bit = Array.FindIndex(ZebetiteCounterEventNames,
+                    counterName => string.Equals(counterName, name, StringComparison.OrdinalIgnoreCase));
+                if (bit >= 0)
+                    counter |= 1 << bit;
+                else if (string.Equals(name, ShitroidApproachCalmedSchemaFourName, StringComparison.OrdinalIgnoreCase))
+                    upgraded.Add(nameof(EventNumber.ShitroidApproachCalmed));
+                else
+                    upgraded.Add(name);
+            }
+            progression["events"] = upgraded;
+            progression["zebetitesDestroyed"] = SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec.ZebetitesDestroyed(counter);
+        }
     }
 
     /// <summary>

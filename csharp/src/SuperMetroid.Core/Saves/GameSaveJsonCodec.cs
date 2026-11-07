@@ -151,6 +151,7 @@ public static class GameSaveJsonCodec
         Events = [.. progress.Events.Members.Select(number => EventNumberCodec.TryFromEventNumber(number, out EventNumber named)
             ? named.ToString()
             : $"0x{number:X2}")],
+        ZebetitesDestroyed = progress.ZebetitesDestroyed,
         DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.DefeatedBosses(area)))],
         BrokenChozoOrbs = [.. progress.ChozoOrbs.Members],
         CollectedItems = [.. progress.CollectedItems.Members],
@@ -335,6 +336,9 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException($"{property} is incomplete");
         var progress = new PersistentProgress();
         DecodeNumbers(DecodeEvents(progression.Events, $"{property}.events"), progress.Events, $"{property}.events");
+        if (progression.ZebetitesDestroyed is < 0 or > PersistentProgress.ZebetiteCount)
+            throw new InvalidDataException($"{property}.zebetitesDestroyed must be 0 through {PersistentProgress.ZebetiteCount}");
+        progress.ZebetitesDestroyed = progression.ZebetitesDestroyed;
         DecodeNumbers(progression.BrokenChozoOrbs, progress.ChozoOrbs, $"{property}.brokenChozoOrbs");
         DecodeNumbers(progression.CollectedItems, progress.CollectedItems, $"{property}.collectedItems");
         DecodeNumbers(progression.OpenedDoors, progress.OpenedDoors, $"{property}.openedDoors");
@@ -405,7 +409,9 @@ public static class GameSaveJsonCodec
                 numbers[index] = named.ToEventNumber();
             else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) &&
                      int.TryParse(value[2..], NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out int raw))
-                numbers[index] = raw;
+                numbers[index] = raw >= PersistentProgress.EventCount || EventNumberCodec.IsStoryEventNumber(raw)
+                    ? raw // A number past the event range is rejected with the range check of DecodeNumbers.
+                    : throw new InvalidDataException($"{property}[{index}] '{value}' numbers no story event; the Zebetite count is zebetitesDestroyed");
             else
                 throw new InvalidDataException($"{property}[{index}] '{value}' is not a known name or 0xNN event number");
         }

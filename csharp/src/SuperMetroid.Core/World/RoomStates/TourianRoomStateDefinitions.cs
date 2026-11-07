@@ -58,8 +58,8 @@ public static class TourianRoomStateDefinitions
 
 
     /// <summary>The Blue Hopper room's state 1.</summary>
-    public static RoomStateSettings BlueHopperWhenUnused14 { get; } =
-        new(nameof(BlueHopperWhenUnused14), RoomLevelDefinitions.BlueHopper, 13, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BlueHopper, RoomEnemyPopulationDefinitions.BlueHopper, Enemies.RoomEnemyGraphicsSetDefinitions.BlueHopper, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueHopper, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueHopper, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianDVerticalStructures, RoomSetupCallback.ReturnBeforeZebesTimebombSetup);
+    public static RoomStateSettings BlueHopperWhenShitroidApproachCalmed { get; } =
+        new(nameof(BlueHopperWhenShitroidApproachCalmed), RoomLevelDefinitions.BlueHopper, 13, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BlueHopper, RoomEnemyPopulationDefinitions.BlueHopper, Enemies.RoomEnemyGraphicsSetDefinitions.BlueHopper, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueHopper, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueHopper, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianDVerticalStructures, RoomSetupCallback.ReturnBeforeZebesTimebombSetup);
 
 
     /// <summary>The Dust Torizo room's state 0.</summary>
@@ -68,8 +68,8 @@ public static class TourianRoomStateDefinitions
 
 
     /// <summary>The Dust Torizo room's state 1.</summary>
-    public static RoomStateSettings DustTorizoWhenUnused14 { get; } =
-        new(nameof(DustTorizoWhenUnused14), RoomLevelDefinitions.DustTorizo, 13, new RoomMusic(MusicDataSet.Tourian, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.DustTorizo, RoomEnemyPopulationDefinitions.DustTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.DustTorizo, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.DustTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DustTorizo, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianDVerticalStructures, RoomSetupCallback.ReturnBeforeZebesTimebombSetup);
+    public static RoomStateSettings DustTorizoWhenShitroidApproachCalmed { get; } =
+        new(nameof(DustTorizoWhenShitroidApproachCalmed), RoomLevelDefinitions.DustTorizo, 13, new RoomMusic(MusicDataSet.Tourian, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.DustTorizo, RoomEnemyPopulationDefinitions.DustTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.DustTorizo, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.DustTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DustTorizo, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianDVerticalStructures, RoomSetupCallback.ReturnBeforeZebesTimebombSetup);
 
 
     /// <summary>The Big Boy room's state 0.</summary>
@@ -78,8 +78,8 @@ public static class TourianRoomStateDefinitions
 
 
     /// <summary>The Big Boy room's state 1.</summary>
-    public static RoomStateSettings BigBoyWhenUnused14 { get; } =
-        new(nameof(BigBoyWhenUnused14), RoomLevelDefinitions.BigBoy, 13, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BigBoy, RoomEnemyPopulationDefinitions.BigBoy, Enemies.RoomEnemyGraphicsSetDefinitions.BigBoy, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BigBoy, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BigBoy, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianDVerticalStructures, RoomSetupCallback.ReturnBeforeZebesTimebombSetup);
+    public static RoomStateSettings BigBoyWhenShitroidApproachCalmed { get; } =
+        new(nameof(BigBoyWhenShitroidApproachCalmed), RoomLevelDefinitions.BigBoy, 13, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BigBoy, RoomEnemyPopulationDefinitions.BigBoy, Enemies.RoomEnemyGraphicsSetDefinitions.BigBoy, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BigBoy, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BigBoy, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianDVerticalStructures, RoomSetupCallback.ReturnBeforeZebesTimebombSetup);
 
 
     /// <summary>The Seaweed room's state.</summary>

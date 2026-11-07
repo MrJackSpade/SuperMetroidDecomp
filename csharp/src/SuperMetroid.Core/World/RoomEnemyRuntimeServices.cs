@@ -30,6 +30,8 @@ internal sealed class RoomEnemyRuntimeServices(
     public IEnemyRandomNumbers Random => this;
     /// <summary>Exposes persistent global event bits to enemy AI.</summary>
     public IGlobalEventFlags Events => progress;
+    /// <summary>Exposes the persistent Zebetite count to the Zebetites.</summary>
+    public IZebetiteProgress ZebetiteProgress => progress;
     /// <summary>Exposes boss bits for the active room's area.</summary>
     public IAreaBossFlags Bosses => progress;
     /// <summary>Exposes active PLM-header presence to enemy AI.</summary>

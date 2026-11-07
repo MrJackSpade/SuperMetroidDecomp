@@ -23,7 +23,8 @@ internal static class PersistentProgressAccess
     {
         /// <summary>Whether <paramref name="other"/> holds the same progress.</summary>
         internal bool SameAs(PersistentProgress other) =>
-            self.Events.SetEquals(other.Events) && self.ChozoOrbs.SetEquals(other.ChozoOrbs) &&
+            self.Events.SetEquals(other.Events) && self.ZebetitesDestroyed == other.ZebetitesDestroyed &&
+            self.ChozoOrbs.SetEquals(other.ChozoOrbs) &&
             self.CollectedItems.SetEquals(other.CollectedItems) && self.OpenedDoors.SetEquals(other.OpenedDoors) &&
             Enum.GetValues<AreaId>().All(area => self.DefeatedBosses(area) == other.DefeatedBosses(area) &&
                 self.UsedStations(area).SetEquals(other.UsedStations(area)) && self.HasAreaMap(area) == other.HasAreaMap(area) &&

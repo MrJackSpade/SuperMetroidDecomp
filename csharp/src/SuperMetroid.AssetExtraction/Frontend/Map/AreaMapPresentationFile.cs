@@ -35,7 +35,7 @@ public static class AreaMapPresentationFile
         }
         if (document.Version != MapPresentationFormat.Version || document.Area != rules.Area.ToString())
             throw new InvalidDataException($"Map presentation requires version {MapPresentationFormat.Version} and area {rules.Area}.");
-        int count = AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles;
+        int count = AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles;
         if (document.Cells is null || document.Cells.Length != count)
             throw new InvalidDataException($"Map presentation requires exactly {count} cells in 64-column row order.");
         var cells = new MapCell[count];
@@ -44,7 +44,7 @@ public static class AreaMapPresentationFile
             AreaMapDocumentCell? cell = document.Cells[i];
             if (cell is null || !Enum.IsDefined(cell.Kind) || !Enum.IsDefined(cell.Slope) || !Enum.IsDefined(cell.Top) ||
                 !Enum.IsDefined(cell.Bottom) || !Enum.IsDefined(cell.Left) || !Enum.IsDefined(cell.Right))
-                throw new InvalidDataException($"Map presentation cell ({i % AreaMapLayout.WidthInTiles},{i / AreaMapLayout.WidthInTiles}) names an undefined kind, slope or edge.");
+                throw new InvalidDataException($"Map presentation cell ({i % AreaMapSize.WidthInTiles},{i / AreaMapSize.WidthInTiles}) names an undefined kind, slope or edge.");
             cells[i] = new MapCell(cell.Kind, new MapCellEdges(cell.Top, cell.Bottom, cell.Left, cell.Right), cell.Slope);
         }
         return new(cells, rules);
@@ -57,13 +57,13 @@ public static class AreaMapPresentationFile
     {
         Ensure.NotNull(json);
         Ensure.NotNull(map);
-        var cells = new AreaMapDocumentCell[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
-        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+        var cells = new AreaMapDocumentCell[AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles];
+        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
+        for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
         {
             var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
             MapCell shown = map.Cell(cell);
-            cells[AreaMapLayout.Size.RowMajorIndex(cell)] = new()
+            cells[AreaMapSize.Extent.RowMajorIndex(cell)] = new()
             {
                 Kind = shown.Kind, Slope = shown.Slope,
                 Top = shown.Edges.Top, Bottom = shown.Edges.Bottom, Left = shown.Edges.Left, Right = shown.Edges.Right,

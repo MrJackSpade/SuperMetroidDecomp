@@ -367,9 +367,9 @@ public static class GameSaveJsonCodec
             int previousIndex = -1;
             foreach (MapCoordinateJsonDocument tile in tiles)
             {
-                if (tile is null || !AreaMapLayout.Size.Contains(tile.Cell))
+                if (tile is null || !AreaMapSize.Extent.Contains(tile.Cell))
                     throw new InvalidDataException($"{property}.exploredAreas of {area} contains an invalid tile");
-                int logicalIndex = AreaMapLayout.Size.RowMajorIndex(tile.Cell);
+                int logicalIndex = AreaMapSize.Extent.RowMajorIndex(tile.Cell);
                 if (logicalIndex <= previousIndex)
                     throw new InvalidDataException($"{property}.exploredAreas of {area} must be row-major and unique");
                 progress.SetExplored(area, tile.Cell, explored: true);

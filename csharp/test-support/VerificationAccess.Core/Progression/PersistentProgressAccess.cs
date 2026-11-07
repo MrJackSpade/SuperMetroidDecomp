@@ -34,9 +34,9 @@ internal static class PersistentProgressAccess
         {
             for (int area = 0; area < AreaIds.RetailCount; area++)
             {
-                for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
+                for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
                 {
-                    for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+                    for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
                         self.SetExplored(AreaIds.At(area), new Position16<MapTiles>(checked((ushort)x), checked((ushort)y)), explored: true);
                 }
             }

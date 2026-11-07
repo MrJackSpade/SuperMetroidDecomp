@@ -76,12 +76,9 @@ internal static class LoadedBeamProjectilePrograms
     private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
         starts.AddRange(SamusProjectileHeaders.Programs(header));
 
-    /// <summary>Adds the first list of <paramref name="header"/>, when it names one.</summary>
-    private static void AddFirst(List<SamusProjectileProgram> starts, SamusProjectileHeader header)
-    {
-        if (SamusProjectileHeaders.Program(header, 0) is { } program)
-            starts.Add(program);
-    }
+    /// <summary>Adds the program a shot from <paramref name="header"/> starts in its first direction.</summary>
+    private static void AddFirst(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
+        starts.Add(SamusProjectileHeaders.Program(header, 0));
 
     /// <summary><paramref name="starts"/> and every list they continue into.</summary>
     private static HashSet<SamusProjectileProgram> Continued(IEnumerable<SamusProjectileProgram> starts)

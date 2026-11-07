@@ -24,7 +24,7 @@ public static class XrayRevealOverlays
         InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
-        Ensure.LengthEqual(blocks, XrayRevealLayout.Cells);
+        Ensure.LengthEqual(blocks, XrayRevealArea.BlockCount);
         if (visuals is null)
             throw new InvalidOperationException("X-ray reveal requires installed overlay visuals.");
         InstalledXrayOverlays overlays = visuals.Overlays ?? throw new InvalidOperationException(
@@ -69,11 +69,11 @@ public static class XrayRevealOverlays
         Offset16<RoomBlocks> visible = block - foregroundPosition.ToRoomBlock();
         int x = visible.X, y = visible.Y;
         // Only an overlay inside the revealed area shows.
-        if ((uint)x >= XrayRevealLayout.Columns || (uint)y >= XrayRevealLayout.Rows) return;
+        if ((uint)x >= XrayRevealArea.Columns || (uint)y >= XrayRevealArea.Rows) return;
         // The overlay swaps the two tile rows for vertical mirroring. It neither toggles each tile's mirroring nor
         // implements horizontal mirroring; preserve that game behaviour.
         bool flip = (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None;
-        blocks[y * XrayRevealLayout.Columns + x] = new RevealedBlock(appearance.Block,
+        blocks[y * XrayRevealArea.Columns + x] = new RevealedBlock(appearance.Block,
             flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
     }
 }

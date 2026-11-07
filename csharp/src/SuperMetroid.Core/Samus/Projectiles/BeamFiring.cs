@@ -382,7 +382,7 @@ internal sealed class BeamFiring
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileHeader header = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
+        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -476,7 +476,7 @@ internal sealed class BeamFiring
         // The selected HUD item chose the missile family above; the family selects the header.
         SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
+        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);

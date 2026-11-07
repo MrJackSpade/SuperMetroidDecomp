@@ -25,19 +25,19 @@ public static class XrayRevealMap
     /// </param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
     /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
-    /// <returns>The revealed blocks, row by row, <see cref="XrayRevealLayout.Columns"/> to a row; null beyond the room.</returns>
+    /// <returns>The revealed blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row; null beyond the room.</returns>
     public static RevealedBlock?[] Build(RoomLevelData level, Position16<RoomPixels> foregroundPosition,
         Offset16<RoomPixels> foregroundOffset, AreaId area, InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
         RoomBlockCells foreground = level.ForegroundPlane.Cells;
         Position16<RoomPixels> foregroundScroll = foregroundPosition + foregroundOffset;
-        var result = new RevealedBlock?[XrayRevealLayout.Cells];
-        for (int row = 0; row < XrayRevealLayout.Rows; row++)
-        for (int col = 0; col < XrayRevealLayout.Columns; col++)
+        var result = new RevealedBlock?[XrayRevealArea.BlockCount];
+        for (int row = 0; row < XrayRevealArea.Rows; row++)
+        for (int col = 0; col < XrayRevealArea.Columns; col++)
             Place(col, row, Copied(col, row));
         int firstBlock = BlockScanCycle.RowStart(foregroundPosition.Y >> 4, level.Size.X) + (foregroundPosition.X >> 4);
-        for (int row = 0; row < XrayRevealLayout.Rows; row++)
+        for (int row = 0; row < XrayRevealArea.Rows; row++)
         {
             int first = firstBlock + row * level.Size.X;
             // The prior column may own a 2-wide reveal crossing the left edge. Its
@@ -49,7 +49,7 @@ public static class XrayRevealMap
                 if (predecessor.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
                     CopyMetatile(0, row, predecessor.TopRight);
             }
-            for (int col = 0; col < XrayRevealLayout.Columns; col++)
+            for (int col = 0; col < XrayRevealArea.Columns; col++)
             {
                 int index = first + col;
                 if (Lookup(index) is not { } reveal) continue;
@@ -95,8 +95,8 @@ public static class XrayRevealMap
         // Only blocks inside the revealed area are shown.
         void Place(int col, int row, RevealedBlock? block)
         {
-            if (col < XrayRevealLayout.Columns && row < XrayRevealLayout.Rows)
-                result[row * XrayRevealLayout.Columns + col] = block;
+            if (col < XrayRevealArea.Columns && row < XrayRevealArea.Rows)
+                result[row * XrayRevealArea.Columns + col] = block;
         }
     }
 

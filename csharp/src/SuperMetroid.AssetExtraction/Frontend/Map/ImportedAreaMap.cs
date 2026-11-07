@@ -50,7 +50,7 @@ public sealed class ImportedAreaMap : IAreaMapView
     public MapCell Cell(Position16<MapTiles> cell)
     {
         _ = AreaMapPages.GetTilemapWordIndex(cell);
-        return cells[AreaMapLayout.Size.RowMajorIndex(cell)];
+        return cells[AreaMapSize.Extent.RowMajorIndex(cell)];
     }
 
     /// <summary>Whether the area's ordinary map station reveals this coordinate.</summary>

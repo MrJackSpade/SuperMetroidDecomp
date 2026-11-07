@@ -40,6 +40,6 @@ internal static class AreaMapPictures
             string frame = FrameName(shown);
             cells.Add(sheet.ShowsNothing(frame) ? null : new GridPicture(sheet.Frame(frame), TileFlip.None, PictureShading.Standard));
         }
-        return new PictureGrid(new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), cells.MoveToImmutable());
+        return new PictureGrid(new Extent16<TilemapCells>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles), cells.MoveToImmutable());
     }
 }

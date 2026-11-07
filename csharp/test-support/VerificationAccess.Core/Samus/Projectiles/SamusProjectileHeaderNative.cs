@@ -118,7 +118,7 @@ internal static class SamusProjectileHeaderNative
     extension(SamusProjectileHeaders)
     {
         /// <summary>The program the header at bank-$93 <paramref name="header"/>'s list field <paramref name="direction"/> selects.</summary>
-        internal static SamusProjectileProgram? Program(ushort header, int direction) =>
+        internal static SamusProjectileProgram Program(ushort header, int direction) =>
             SamusProjectileHeaders.Program(At(0x930000 | header)
                 ?? throw new InvalidDataException($"$93:{header:X4} is not a Samus projectile header."), direction);
     }

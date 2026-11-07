@@ -30,8 +30,8 @@ internal static class MapPictureSheets
         for (int index = 0; index < AreaIds.RetailCount; index++)
         {
             IAreaMapView map = maps.Get(AreaIds.At(index));
-            for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
-            for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+            for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
+            for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
             {
                 MapCell cell = map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y));
                 if (cells.Add(cell))

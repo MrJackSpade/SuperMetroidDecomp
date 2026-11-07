@@ -496,13 +496,13 @@ internal sealed class StationObjects : IRoomObjectFamilySource
                 SetupSaveStation(level, area, slot, original);
                 return;
             case StationKind.Map:
-                SetupAccessStation(level, system, area, slot, original, StationAccessLayouts.Map);
+                SetupAccessStation(level, system, area, slot, original, StationAccessRuleDefinitions.Map);
                 return;
             case StationKind.Energy:
-                SetupAccessStation(level, system, area, slot, original, StationAccessLayouts.Energy);
+                SetupAccessStation(level, system, area, slot, original, StationAccessRuleDefinitions.Energy);
                 return;
             case StationKind.Missile:
-                SetupAccessStation(level, system, area, slot, original, StationAccessLayouts.Missile);
+                SetupAccessStation(level, system, area, slot, original, StationAccessRuleDefinitions.Missile);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(StationKind)} {kind}.");
@@ -536,19 +536,19 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         AreaId area,
         RoomObjectSlot slot,
         RoomTerrainBlock original,
-        StationAccessLayout layout)
+        StationAccessRule rule)
     {
         WriteStationBlock(level, slot.BlockIndex, original, RoomCollisionType.SolidBlock, behavior: null);
-        WriteAccessBlock(level, slot.BlockIndex + layout.RightOffset, layout.RightBehavior);
-        WriteAccessBlock(level, slot.BlockIndex + layout.LeftOffset, layout.LeftBehavior);
+        WriteAccessBlock(level, slot.BlockIndex + rule.RightOffset, rule.RightBehavior);
+        WriteAccessBlock(level, slot.BlockIndex + rule.LeftOffset, rule.LeftBehavior);
 
-        StationAnimationList normalAnimationList = layout.Animation;
-        StationAnimationList completedAnimationList = layout.AcquiredAnimation ?? normalAnimationList;
-        StationAnimationList initialAnimationList = layout.AcquiredAnimation is not null && system.HasAreaMap(area)
+        StationAnimationList normalAnimationList = rule.Animation;
+        StationAnimationList completedAnimationList = rule.AcquiredAnimation ?? normalAnimationList;
+        StationAnimationList initialAnimationList = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
         slot.Family = new StationObjectState(
-            layout.Kind,
+            rule.Kind,
             area,
             initialAnimationList,
             completedAnimationList,

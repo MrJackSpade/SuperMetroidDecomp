@@ -11,18 +11,18 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class XrayRevealPlane
 {
 
-    /// <summary>The blocks, row by row, <see cref="XrayRevealLayout.Columns"/> to a row; null beyond the room.</summary>
+    /// <summary>The blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row; null beyond the room.</summary>
     private readonly RevealedBlock?[] blocks;
 
     /// <summary>Keeps where the reveal lies, its blocks and the pictures they draw from.</summary>
     /// <param name="origin">The foreground pixel the first block's top-left corner lies on.</param>
-    /// <param name="blocks">The blocks, row by row, <see cref="XrayRevealLayout.Columns"/> to a row.</param>
+    /// <param name="blocks">The blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row.</param>
     /// <param name="pictures">The pictures the blocks draw from.</param>
     /// <exception cref="ArgumentException">The blocks do not fill the reveal's rows and columns.</exception>
     /// <exception cref="InvalidDataException">A block draws a definition the pictures do not hold.</exception>
     public XrayRevealPlane(Position16<RoomPixels> origin, ReadOnlySpan<RevealedBlock?> blocks, RoomBlockPictureTable pictures)
     {
-        Ensure.LengthEqual(blocks, XrayRevealLayout.Cells);
+        Ensure.LengthEqual(blocks, XrayRevealArea.BlockCount);
         Origin = origin;
         Pictures = Ensure.NotNull(pictures);
         foreach (RevealedBlock? shown in blocks)

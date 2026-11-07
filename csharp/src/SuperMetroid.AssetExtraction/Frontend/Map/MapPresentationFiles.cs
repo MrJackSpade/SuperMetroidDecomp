@@ -76,7 +76,7 @@ public static class MapPresentationFiles
             }
             // Hash framed contents in fixed area order, the station cells with the map they reveal.
             AppendFramed(mapBytes);
-            byte[] stationPlane = new byte[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
+            byte[] stationPlane = new byte[AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles];
             foreach (int cell in stationCells[area]) stationPlane[cell] = 1;
             AppendFramed(stationPlane);
         }
@@ -260,7 +260,7 @@ public static class MapPresentationFiles
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
                 if (!masks.TryGetValue(area.ToString(), out int[]? cells) || cells is null ||
-                    cells.Any(cell => (uint)cell >= AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles) ||
+                    cells.Any(cell => (uint)cell >= AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles) ||
                     cells.Distinct().Count() != cells.Length)
                     throw new InvalidDataException($"Invalid or duplicate station reveal cells for {area}.");
                 stationCells.Add(area, cells.ToHashSet());

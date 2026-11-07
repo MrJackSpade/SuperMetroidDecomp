@@ -58,8 +58,8 @@ internal static class HudImageSheet
         var minimap = new HashSet<HudMinimapCellImage>();
         foreach (IAreaMapView map in Ensure.NotNull(maps))
         {
-            for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
-            for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+            for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
+            for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
             {
                 MapCell cell = map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y));
                 foreach (MinimapShade shade in Enum.GetValues<MinimapShade>())

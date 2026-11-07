@@ -41,7 +41,7 @@ internal static class XrayTilemapVerification
         // Layer one, and BG1 with it, half a block into the room's second block: the camera's block is block 33.
         Position16<RoomPixels> cameraPosition = new(24, 24);
         RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, default, area);
-        RevealedBlock? Cell(RevealedBlock?[] map, int column, int row) => map[row * XrayRevealLayout.Columns + column];
+        RevealedBlock? Cell(RevealedBlock?[] map, int column, int row) => map[row * XrayRevealArea.Columns + column];
         // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy.
         void Set(int index, RoomCollisionType type, int behavior)
         {
@@ -54,8 +54,8 @@ internal static class XrayTilemapVerification
         AssertEqual(Copied(16, 1), Cell(basis, 15, 0), "base copy crosses BG1's 256-pixel screen boundary block for block");
         AssertEqual(Copied(17, 1), Cell(basis, 16, 0), "the seventeenth column copies the block a scrolled screen also shows");
         AssertEqual(Copied(1, 16), Cell(basis, 0, 15), "base copy continues past BG1's 256-pixel height into the room's next rows");
-        AssertTrue(Enumerable.Range(0, XrayRevealLayout.Cells).All(cell => basis[cell] ==
-                Copied(1 + cell % XrayRevealLayout.Columns, 1 + cell / XrayRevealLayout.Columns)),
+        AssertTrue(Enumerable.Range(0, XrayRevealArea.BlockCount).All(cell => basis[cell] ==
+                Copied(1 + cell % XrayRevealArea.Columns, 1 + cell / XrayRevealArea.Columns)),
             "every cell copies the BG1 block at its scrolled position");
         // With layer one at the room's right edge the seventeenth column lies beyond the room, where the foreground shows nothing.
         cameraPosition = new(RoomSide * 16 - 256 + 8, 24);

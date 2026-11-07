@@ -21,9 +21,10 @@ internal static class BossBodyWords
     internal const int KraidLayerRows = 4 * BossBodySourceDefinitions.ScreenRows;
 
     /// <summary>
-    /// The tilemap entry each cell of <paramref name="layer"/> shows, row by row, 32 to a row: the word the frame shown over
-    /// the cell writes there, a later frame over an earlier, or where no frame shows, <paramref name="blankWord"/> or else
-    /// <paramref name="owner"/>'s blank. A cell whose top lies at or below the row the body is hidden from shows the blank.
+    /// The tilemap entry each cell of <paramref name="layer"/> shows as the cartridge writes it, row by row, 32 to a row: the
+    /// word the frame shown over the cell writes there, a later frame over an earlier, or where no frame shows,
+    /// <paramref name="blankWord"/> or else <paramref name="owner"/>'s blank. A cell whose top lies at or below the row above
+    /// which alone the body shows shows the blank.
     /// </summary>
     /// <exception cref="InvalidDataException">The layer shows a frame <paramref name="bosses"/> does not compose.</exception>
     internal static ushort[] Of(BossBodyLayer layer, BossBodyOwner owner, BossArtworkCatalog bosses, ushort? blankWord = null)
@@ -40,7 +41,7 @@ internal static class BossBodyWords
             foreach ((int cell, BackgroundTile tile) in frame.Cells)
                 words[cell] = tile.PackedWord;
         }
-        if (layer.HiddenFrom is { } hidden)
+        if (layer.ShownAbove is { } hidden)
         {
             for (int cell = 0; cell < words.Length; cell++)
             {

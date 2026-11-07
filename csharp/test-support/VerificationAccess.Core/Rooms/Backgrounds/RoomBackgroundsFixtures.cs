@@ -96,30 +96,29 @@ internal static class RoomBackgroundsFixtures
         SeededImage(random, scene, RoomBackgroundImageGeometry.Words / RoomBackgroundImage.PageTiles);
 
     /// <summary>
-    /// A seeded boss body of <paramref name="rows"/> eight-pixel rows (#1466, #1514, #1515) whose screens of rows cover
-    /// <paramref name="area"/> left to right and then downward: every four rows one piece, showing a seeded block picture
-    /// repeated across them.
+    /// A seeded boss body of <paramref name="rows"/> eight-pixel rows (#1466, #1514, #1515, #1540) whose screens of rows cover
+    /// <paramref name="area"/> left to right and then downward: every four rows a seeded block picture tiled across them,
+    /// one part for each place of it.
     /// </summary>
     internal static ShownBossBody SeededBody(Random random, RgbColor[] scene, int rows, Extent16<BackgroundPixels> area)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
         const int partRows = 4;
-        var pieces = new List<ShownBossBodyPiece>();
+        var parts = new List<ShownBossBodyPart>();
         for (int top = 0; top < rows; top += partRows)
         {
             SpriteSheetFrame picture = blocks.Picture(random.Next(Definitions))
                 ?? throw new InvalidOperationException("A seeded block has no picture.");
-            for (int row = top; row < Math.Min(top + partRows, rows); row++)
-                pieces.Add(RunPiece(picture, row, 0, BodyColumns, top, area));
+            Tile(parts, picture, CellCorner(top, 0, area), BodyColumns * BodyCellPixels, Math.Min(partRows, rows - top) * BodyCellPixels);
         }
-        return new ShownBossBody([.. pieces], area);
+        return new ShownBossBody([.. parts], area);
     }
 
     /// <summary>
     /// The boss body a fixture loaded as a <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
-    /// <paramref name="image"/>, in the hardware's screen order (#1403, #1466): one part for each distinct word, its
-    /// picture a block of four copies of the word painted from the characters at <paramref name="characterWord"/>,
-    /// repeated over the cells showing the word.
+    /// <paramref name="image"/>, in the hardware's screen order (#1403, #1466, #1540): for each distinct word a picture, a
+    /// block of four copies of the word painted from the characters at <paramref name="characterWord"/>, tiled as parts over
+    /// each run of cells showing the word.
     /// </summary>
     internal static ShownBossBody BodyFromTilemap(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
         Extent16<TilemapCells> size, int characterWord = 0)
@@ -134,25 +133,26 @@ internal static class RoomBackgroundsFixtures
         for (int corner = 0; corner < BlockTiles; corner++)
             definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
         RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
-        var pieces = new List<ShownBossBodyPiece>();
+        var parts = new List<ShownBossBodyPart>();
         Extent16<BackgroundPixels> area = AreaOf(size);
         for (int cell = 0; cell < words.Length;)
         {
-            // Each run of a row's cells showing one word is one piece of that word's picture.
+            // Each run of a row's cells showing one word shows that word's picture tiled across it; every quarter of the
+            // picture shows the word.
             int first = cell, row = cell / BodyColumns;
             while (cell < words.Length && cell / BodyColumns == row && words[cell] == words[first])
                 cell++;
             SpriteSheetFrame picture = painted.Picture(Array.IndexOf(distinct, words[first]))
                 ?? throw new InvalidOperationException("A painted word has no picture.");
-            pieces.Add(RunPiece(picture, row, first % BodyColumns, cell - first, 0, area));
+            Tile(parts, picture, CellCorner(row, first % BodyColumns, area), (cell - first) * BodyCellPixels, BodyCellPixels);
         }
-        return new ShownBossBody([.. pieces], area);
+        return new ShownBossBody([.. parts], area);
     }
 
     /// <summary>
-    /// A boss body of <paramref name="size"/> that shows tilemap word <paramref name="word"/> in every cell (#1403, #1466):
-    /// one part, a block of four copies of the word painted from the characters at <paramref name="characterWord"/> in
-    /// <paramref name="image"/>, repeated over every cell.
+    /// A boss body of <paramref name="size"/> that shows tilemap word <paramref name="word"/> in every cell (#1403, #1466,
+    /// #1540): a block of four copies of the word painted from the characters at <paramref name="characterWord"/> in
+    /// <paramref name="image"/>, tiled as parts over the whole body.
     /// </summary>
     internal static ShownBossBody UniformBody(SnesBgTilemapWord word, Extent16<TilemapCells> size, ReadOnlySpan<byte> image,
         ReadOnlySpan<RgbColor> palette, int characterWord = 0)
@@ -162,7 +162,9 @@ internal static class RoomBackgroundsFixtures
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
         Extent16<BackgroundPixels> area = AreaOf(size);
-        return new ShownBossBody([new ShownBossBodyPiece(block, default, area, default)], area);
+        var parts = new List<ShownBossBodyPart>();
+        Tile(parts, block, default, area.X, area.Y);
+        return new ShownBossBody([.. parts], area);
     }
 
     /// <summary>The area a body loaded as a <paramref name="size"/> tilemap covers.</summary>
@@ -176,19 +178,29 @@ internal static class RoomBackgroundsFixtures
     private const int BodyCellPixels = 8;
 
     /// <summary>
-    /// The piece of <paramref name="picture"/> over <paramref name="count"/> cells of tilemap row <paramref name="row"/> from
-    /// column <paramref name="column"/>, the picture repeating across from the body's left edge and down from row
-    /// <paramref name="top"/>: the tilemap's screens of rows lie left to right and then downward across <paramref name="area"/>.
+    /// The body pixel the top-left corner of cell <paramref name="column"/> of tilemap row <paramref name="row"/> lies on: the
+    /// tilemap's screens of rows lie left to right and then downward across <paramref name="area"/>.
     /// </summary>
-    private static ShownBossBodyPiece RunPiece(SpriteSheetFrame picture, int row, int column, int count, int top, Extent16<BackgroundPixels> area)
+    private static Position16<BackgroundPixels> CellCorner(int row, int column, Extent16<BackgroundPixels> area)
     {
         const int screenPixels = BodyColumns * BodyCellPixels;
         int screen = row / BodyColumns, screensAcross = area.X / screenPixels;
-        return new ShownBossBodyPiece(picture,
-            new Position16<BackgroundPixels>(screen % screensAcross * screenPixels + column * BodyCellPixels,
-                screen / screensAcross * screenPixels + row % BodyColumns * BodyCellPixels),
-            new Extent16<BackgroundPixels>(count * BodyCellPixels, BodyCellPixels),
-            new Position16<ImagePixels>(column * BodyCellPixels % picture.Size.X, (row - top) * BodyCellPixels % picture.Size.Y));
+        return new Position16<BackgroundPixels>(screen % screensAcross * screenPixels + column * BodyCellPixels,
+            screen / screensAcross * screenPixels + row % BodyColumns * BodyCellPixels);
+    }
+
+    /// <summary>
+    /// Adds the parts that tile <paramref name="picture"/> over the <paramref name="width"/> by <paramref name="height"/>
+    /// pixels from <paramref name="corner"/>, from the picture's top-left corner, each cut where the rectangle ends.
+    /// </summary>
+    private static void Tile(List<ShownBossBodyPart> parts, SpriteSheetFrame picture, Position16<BackgroundPixels> corner, int width, int height)
+    {
+        for (int y = 0; y < height; y += picture.Size.Y)
+        for (int x = 0; x < width; x += picture.Size.X)
+        {
+            parts.Add(new ShownBossBodyPart(picture, new Position16<BackgroundPixels>(corner.X + x, corner.Y + y),
+                new Extent16<BackgroundPixels>(Math.Min(picture.Size.X, width - x), Math.Min(picture.Size.Y, height - y))));
+        }
     }
 
     /// <summary>

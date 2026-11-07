@@ -15,7 +15,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <param name="FxOverlay">What the room effect's overlay shows, placed where it shows, or null (#1514).</param>
 /// <param name="WrittenOverBackground">What room actors wrote over the background, or null (#1403).</param>
 /// <param name="Floor">The turning floor map, or null.</param>
-/// <param name="BossBody">The boss body layer shown, or null.</param>
+/// <param name="BossBody">The boss body shown, its parts' pictures layered in draw order, or null (#1540).</param>
 /// <param name="XrayReveal">The X-ray reveal the background shows, or null (#1392).</param>
 /// <param name="BackgroundImage">The room's library background drawn from its image, or null (#1392).</param>
 /// <param name="MessagePicture">The image of the message box the frame shows, or null (#1392).</param>

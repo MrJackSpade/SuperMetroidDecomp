@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -10,9 +9,9 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-assembled boss body sheets (#1466, #1515): each boss's sheet as an image, palette map and frames, the
-/// manifest naming each frame's whole picture, where it lies on the body's area and the rectangles it covers, and the
-/// provenance of their hashes. A player edits a sheet's installed files in place.
+/// Installs the pre-assembled boss body sheets (#1466, #1515, #1540): each boss's sheet as an image, palette map and frames,
+/// the manifest naming each frame's whole picture and where it lies on the body's area, and the provenance of their
+/// hashes. A player edits a sheet's installed files in place.
 /// </summary>
 public static class BossBodySheetFiles
 {
@@ -23,10 +22,12 @@ public static class BossBodySheetFiles
     public const string ManifestFileName = "boss-bodies.json";
 
     /// <summary>
-    /// The manifest's schema revision: 4 names each frame's one whole picture, placed on the body's area with the
-    /// rectangles it covers, with no cell footprints, blank (#1515) or pieces of pictures laid over a frame (#1513).
+    /// The manifest's schema revision: 5 names each frame's one whole picture and where it lies on the body's area, a part
+    /// drawn over the parts before it with no rectangles it covers (#1540), Kraid's body below his head and the head it
+    /// rises with as frames of their own; with no cell footprints, blank (#1515) or pieces of pictures laid over a frame
+    /// (#1513).
     /// </summary>
-    private const int ManifestVersion = 4;
+    private const int ManifestVersion = 5;
 
     /// <summary>Composes and writes every boss's body sheet.</summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
@@ -74,31 +75,19 @@ public static class BossBodySheetFiles
     }
 
     /// <summary>The manifest entry of <paramref name="frame"/>.</summary>
-    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner, [.. frame.Covers.Select(Area)]);
+    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner);
 
     /// <summary>
-    /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its pictures cut from
-    /// <paramref name="sheet"/>; a frame naming no picture covers what lies beneath it and shows nothing there (#1513).
+    /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its picture cut from
+    /// <paramref name="sheet"/>; a frame naming no picture shows nothing, and the part showing it is not drawn (#1513).
     /// </summary>
-    /// <exception cref="InvalidDataException">The entry is missing or incomplete, or covers nothing.</exception>
+    /// <exception cref="InvalidDataException">The entry is missing or places its picture nowhere.</exception>
     private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath)
     {
-        if (document?.Corner is null || document.Covers is null || document.Covers.Length == 0)
-            throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete or covers nothing.");
-        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), document.Corner.Value,
-            Rectangles(document.Covers, manifestPath));
+        if (document is not { Corner: { } corner })
+            throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete.");
+        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), corner);
     }
-
-    /// <summary>The manifest entry of <paramref name="rectangle"/>.</summary>
-    private static AreaDocument Area(BossBodyRectangle rectangle) => new(rectangle.Corner, rectangle.Size);
-
-    /// <summary>The rectangles <paramref name="documents"/> name.</summary>
-    /// <exception cref="InvalidDataException">A rectangle is missing, empty or lies off the body.</exception>
-    private static ImmutableArray<BossBodyRectangle> Rectangles(AreaDocument?[] documents, string manifestPath) =>
-        [.. documents.Select(document => document is { Corner: { } corner, Size: { X: > 0, Y: > 0 } size }
-                && corner.X + size.X <= ushort.MaxValue && corner.Y + size.Y <= ushort.MaxValue
-            ? new BossBodyRectangle(corner, size)
-            : throw new InvalidDataException($"Boss body manifest {manifestPath} has a rectangle that is missing, empty or off the body."))];
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
     /// <param name="Version">The schema revision.</param>
@@ -109,16 +98,10 @@ public static class BossBodySheetFiles
     /// <param name="Frames">Each frame, by frame name.</param>
     private sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
 
-    /// <summary>One frame: its whole picture, where it lies and what it covers.</summary>
+    /// <summary>One frame: its whole picture and where it lies.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Corner">The body pixel its picture's top-left corner lies on.</param>
-    /// <param name="Covers">The rectangles of the body it covers.</param>
-    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner, AreaDocument?[]? Covers);
-
-    /// <summary>A rectangle of the body.</summary>
-    /// <param name="Corner">The body pixel of its top-left corner.</param>
-    /// <param name="Size">Its width and height in body pixels.</param>
-    private sealed record AreaDocument(Position16<BackgroundPixels>? Corner, Extent16<BackgroundPixels>? Size);
+    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

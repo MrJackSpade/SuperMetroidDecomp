@@ -56,8 +56,8 @@ internal sealed class DraygonParts
 
         // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
-        // Draygon shows his body and eye frames on his body (#1354, #1466, #1515), nothing at first.
-        _presentation.AttachBossBody(new BossBodyParts());
+        // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first.
+        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon));
 
         body.FrameHold = WrappingCountdown.Start(1);
 

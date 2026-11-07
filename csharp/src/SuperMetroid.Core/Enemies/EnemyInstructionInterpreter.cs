@@ -20,13 +20,15 @@ internal sealed class EnemyInstructionInterpreter
     internal EnemyInstructionInterpreter(EnemyPresentation presentation) => _presentation = presentation;
 
     /// <summary>
-    /// Shows the body frame the already resolved visual frame shows on its boss's body (#1466, #1515), on the update its
-    /// instruction selects a new frame: from then on it is the frame that part of the boss shows. The common writer draws
+    /// Shows the body frame the already resolved visual frame shows on its boss's body (#1466, #1515, #1540), on the update its
+    /// instruction selects a new frame: from then on it is the frame the slot's part of the boss shows. The common writer draws
     /// its sprite half, which may be empty for a pose shown only on the body. Selecting a pose with no body frame leaves
     /// the part's frame as it was.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed body sheet lacks the frame.</exception>
-    /// <exception cref="InvalidOperationException">The frame is shown before its boss attached the body it shows on.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The frame is shown before its boss attached the body it shows on, or by a part its boss does not draw there.
+    /// </exception>
     internal void DrawBossBodyFrame(RoomEnemySlot slot, EnemyFrameId selected)
     {
         if ((slot.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
@@ -35,7 +37,7 @@ internal sealed class EnemyInstructionInterpreter
             return;
         // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
         (_presentation.BossBody ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on."))
-            .Show(slot.SlotIndex, frame);
+            .Show(slot.DefinitionId, frame);
     }
 
     /// <summary>

@@ -116,7 +116,7 @@ internal sealed class MotherBrainBody
         };
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
-        _presentation.AttachBossBody(BossBodyParts.Hidden());
+        _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain));
         // Both source palettes include transparent color zero. The initializer deliberately
         // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
         // ranges used by glass shards and tube projectiles.

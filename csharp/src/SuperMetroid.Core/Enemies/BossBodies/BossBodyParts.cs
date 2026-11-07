@@ -1,27 +1,46 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
-/// A boss's body as its parts show it (#1515): the frame each part of the boss last showed on it, a later part's frame over
-/// the frames of the parts before it in the room's enemy list, and the row from which the body is hidden. Phantoon's body,
-/// eye, tentacles and mouth, Draygon's body and eyes, Crocomire's body and melt images, and Mother Brain's body show their
-/// frames here; each frame shown is the part's current one, whatever it covered before.
+/// A boss's body as its parts show it (#1515, #1540): the frame each part of the boss last showed, layered in the order its
+/// boss draws its parts (<see cref="BossBodyPartDefinitions"/>), and the row above which alone the body shows. Phantoon's
+/// body, eye, tentacles and mouth, Draygon's body, eye and dying arms, Crocomire's body and melt images, and Mother
+/// Brain's body show their frames here; a part shows its current frame alone, in place of the frame it showed before.
 /// </summary>
 internal sealed class BossBodyParts
 {
-    /// <summary>The frame each part shows, by its place in the room's enemy list.</summary>
-    private readonly SortedDictionary<int, BossBodyFrame> frames = [];
+    /// <summary>The boss whose body it is.</summary>
+    private readonly BossBodyOwner owner;
 
-    /// <summary>The body row from which nothing shows, or null when the whole body shows.</summary>
-    private int? hiddenFrom;
+    /// <summary>The boss's parts, in draw order.</summary>
+    private readonly ImmutableArray<EnemyDefinitionId> parts;
 
-    /// <summary>The body as it stands, until a part shows another frame or the body is cleared or hidden.</summary>
+    /// <summary>The frame each part shows, by its place in <see cref="parts"/>, or null before it shows one.</summary>
+    private readonly BossBodyFrame?[] frames;
+
+    /// <summary>The body row above which alone the body shows, or null when the whole body shows.</summary>
+    private int? shownAbove;
+
+    /// <summary>The body as it stands, until a part shows another frame or the body is cleared or cut.</summary>
     private BossBodyLayer? published;
 
-    /// <summary>A body no part shows a frame on yet, which the room shows from the start.</summary>
-    public BossBodyParts() => IsShown = true;
+    /// <summary>A body of <paramref name="owner"/>'s no part shows a frame on yet, which the room shows from the start.</summary>
+    /// <exception cref="InvalidOperationException">The boss draws its own body, as Kraid does.</exception>
+    public BossBodyParts(BossBodyOwner owner)
+    {
+        parts = BossBodyPartDefinitions.DrawOrders.TryGetValue(owner, out ImmutableArray<EnemyDefinitionId> order) ? order
+            : throw new InvalidOperationException($"{owner} draws its own body; it shows no parts' frames.");
+        frames = new BossBodyFrame?[parts.Length];
+        this.owner = owner;
+        IsShown = true;
+    }
 
-    /// <summary>A body no part shows a frame on yet, which the room shows only once it is revealed, as Mother Brain's second phase begins.</summary>
-    public static BossBodyParts Hidden() => new() { IsShown = false };
+    /// <summary>
+    /// A body of <paramref name="owner"/>'s no part shows a frame on yet, which the room shows only once it is revealed, as
+    /// Mother Brain's second phase begins.
+    /// </summary>
+    public static BossBodyParts Hidden(BossBodyOwner owner) => new(owner) { IsShown = false };
 
     /// <summary>Whether the room shows the body: false only while Mother Brain readies hers before her second phase (#1356).</summary>
     public bool IsShown { get; private set; }
@@ -30,36 +49,40 @@ internal sealed class BossBodyParts
     public void Reveal() => IsShown = true;
 
     /// <summary>
-    /// The part at <paramref name="part"/> in the room's enemy list shows <paramref name="frame"/> from now on. A frame shown
-    /// shows the body whole again.
+    /// Part <paramref name="part"/> of the boss shows <paramref name="frame"/> from now on, in place of the frame it showed.
+    /// A frame shown shows the body whole again.
     /// </summary>
-    public void Show(int part, BossBodyFrame frame)
+    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
+    public void Show(EnemyDefinitionId part, BossBodyFrame frame)
     {
-        frames[part] = Ensure.NotNull(frame);
-        hiddenFrom = null;
+        int place = parts.IndexOf(part);
+        if (place < 0)
+            throw new InvalidOperationException($"{part} is not a part {owner} draws on its body.");
+        frames[place] = Ensure.NotNull(frame);
+        shownAbove = null;
         published = null;
     }
 
     /// <summary>No part shows anything on the body, as a boss's death clears it.</summary>
     public void Clear()
     {
-        frames.Clear();
-        hiddenFrom = null;
+        Array.Clear(frames);
+        shownAbove = null;
         published = null;
     }
 
     /// <summary>
-    /// Hides the body from body row <paramref name="top"/> down until a part next shows a frame; a lower row hides nothing
-    /// more than is hidden already.
+    /// Shows the body only above body row <paramref name="top"/> until a part next shows a frame, each part's picture cut
+    /// there, as the acid hides Crocomire's sinking body; a lower row shows no more than shows already.
     /// </summary>
-    public void HideFrom(int top)
+    public void ShowAbove(int top)
     {
-        if (hiddenFrom is { } hidden && hidden <= top)
+        if (shownAbove is { } shown && shown <= top)
             return;
-        hiddenFrom = top;
+        shownAbove = top;
         published = null;
     }
 
     /// <summary>The body as it stands, shared until it changes.</summary>
-    public BossBodyLayer Publish() => published ??= new BossBodyLayer([.. frames.Values], hiddenFrom);
+    public BossBodyLayer Publish() => published ??= new BossBodyLayer([.. frames.OfType<BossBodyFrame>()], shownAbove);
 }

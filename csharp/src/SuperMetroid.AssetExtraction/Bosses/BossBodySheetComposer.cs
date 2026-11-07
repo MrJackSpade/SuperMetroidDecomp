@@ -16,10 +16,10 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
-/// Pre-assembles and pre-colours every boss body frame (#1466, #1515): each frame a boss shows on its body (Kraid's whole
-/// body and head, Phantoon's, Draygon's, Crocomire's and Mother Brain's poses and parts, Crocomire's melt images) as one
-/// whole picture painted over the characters the boss's room shows, placed where it lies on the body's area, with the
-/// rectangles it covers. A frame the cartridge writes only in part over another is pictured whole over it. The cells of
+/// Pre-assembles and pre-colours every boss body frame (#1466, #1515, #1540): each frame a boss shows on its body (Kraid's
+/// body, the head it rises with and his head's poses, Phantoon's, Draygon's, Crocomire's and Mother Brain's poses and
+/// parts, Crocomire's melt images) as one whole picture painted over the characters the boss's room shows, placed where it
+/// lies on the body's area. A frame the cartridge writes only in part over another is pictured whole over it. The cells of
 /// each animation a frame shows are pictured again over every frame of that animation. The tilemap words the cartridge
 /// writes are read here, once, and nowhere else.
 /// </summary>
@@ -162,8 +162,10 @@ internal static class BossBodySheetComposer
     }
 
     /// <summary>
-    /// Kraid's frames: his whole body, its upper half on the top-left screen of his layer and its lower half on the
-    /// bottom-left, with and without the priority his growth sets, and his head at each mouth stage over its top rows.
+    /// Kraid's frames (#1540): his body below his head, its upper half on the top-left screen of his layer and its lower
+    /// half on the bottom-left, and the head his body rises with on the upper half's top rows, each with and without the
+    /// priority his growth sets; and his head at each mouth stage on those same rows. Each mouth stage is written over every
+    /// one of those rows, so his head shows there alone and is a frame beside his body, never over it.
     /// </summary>
     private static IEnumerable<BossBodyFrameSource> KraidFrames(KraidBackgroundArtwork art)
     {
@@ -171,16 +173,20 @@ internal static class BossBodySheetComposer
         BackgroundTile[] upper = working[..KraidWorkingMapDefinitions.PageCells];
         BackgroundTile[] lower = working[KraidWorkingMapDefinitions.LowerPageFirstCell..(KraidWorkingMapDefinitions.LowerPageFirstCell + KraidWorkingMapDefinitions.PageCells)];
         int lowerCell = LowerPageTopRow * BossBodySourceDefinitions.LayerColumns;
+        const int headCells = KraidWorkingMapDefinitions.HeadImageCells;
         foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })
         {
-            bool inFront = appearance == KraidBodyAppearance.InFrontOfSprites;
+            BackgroundTile[] upperShown = InFront(upper, appearance == KraidBodyAppearance.InFrontOfSprites);
+            yield return BossBodyFrameSource.Written(KraidBodyFrameNames.RestingHead(appearance)
+                ?? throw new InvalidDataException("Kraid's body rises with no head."), 0, upperShown[..headCells]);
             BossBodyFrameSource body = BossBodyFrameSource.Written(KraidBodyFrameNames.Of(appearance)
-                ?? throw new InvalidDataException("Kraid's body has no frame."), 0, InFront(upper, inFront));
-            BackgroundTile[] lowerShown = InFront(lower, inFront);
+                ?? throw new InvalidDataException("Kraid's body has no frame."), headCells, upperShown[headCells..]);
+            BackgroundTile[] lowerShown = InFront(lower, appearance == KraidBodyAppearance.InFrontOfSprites);
             for (int index = 0; index < lowerShown.Length; index++)
                 body.Cells[lowerCell + index] = lowerShown[index];
             yield return body;
         }
+        // Each installed head pose holds exactly the head's rows (KraidHeadTilemapAtlas), so it shows there alone.
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
             yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Head(head.MouthStage), 0, art.HeadTiles(head));
 

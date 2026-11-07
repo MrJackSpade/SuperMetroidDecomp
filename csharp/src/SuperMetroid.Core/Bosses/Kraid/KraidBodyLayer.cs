@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's body layer (#1352, #1466, #1515): his whole body as he now appears, from his installed body sheet, with his
-/// head at its current pose over it.
+/// Kraid's body layer (#1352, #1466, #1515, #1540): his body as he now appears, from his installed body sheet, with his
+/// head at its current pose above it, or the head his body rises with before his head shows a pose.
 /// </summary>
 [RoomLifetime]
 internal sealed class KraidBodyLayer
@@ -51,15 +51,14 @@ internal sealed class KraidBodyLayer
 
     /// <summary>
     /// The body <paramref name="appearance"/> shows, drawn from <paramref name="sheet"/>: nothing while it is hidden, and
-    /// otherwise his whole body with <paramref name="head"/>, when his head has shown a pose, over it.
+    /// otherwise his body with <paramref name="head"/> above it once his head has shown a pose, and before that the head
+    /// his body rises with.
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows.</exception>
     private static BossBodyLayer Draw(KraidBodyAppearance appearance, KraidHeadFrame? head, BossBodySheet sheet)
     {
-        if (KraidBodyFrameNames.Of(appearance) is not { } body)
+        if (KraidBodyFrameNames.Of(appearance) is not { } body || KraidBodyFrameNames.RestingHead(appearance) is not { } resting)
             return BossBodyLayer.Empty;
-        return head is { } pose
-            ? new BossBodyLayer([sheet.Frame(body), sheet.Frame(KraidBodyFrameNames.Head(pose.MouthStage))])
-            : new BossBodyLayer([sheet.Frame(body)]);
+        return new BossBodyLayer([sheet.Frame(body), sheet.Frame(head is { } pose ? KraidBodyFrameNames.Head(pose.MouthStage) : resting)]);
     }
 }

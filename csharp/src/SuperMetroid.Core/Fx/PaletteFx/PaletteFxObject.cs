@@ -6,130 +6,130 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 public enum PaletteFxObject
 {
-    /// <summary><c>PaletteFXObjects_FadeInSuperMetroidTitleLogo</c>.</summary>
+    /// <summary>The Super Metroid logo fading in on the title screen.</summary>
     FadeInSuperMetroidTitleLogo = 1,
-    /// <summary><c>PaletteFXObjects_FadeInNintendoBootLogoForUnusedCode</c>.</summary>
+    /// <summary>The Nintendo logo fading in at boot, which no screen shows.</summary>
     FadeInNintendoBootLogo,
-    /// <summary><c>PaletteFXObjects_FadeInNintendoCopyright</c>.</summary>
+    /// <summary>The Nintendo copyright line fading in on the title screen.</summary>
     FadeInNintendoCopyright,
-    /// <summary><c>PaletteFXObjects_TitleScreenBabyMetroidTubeLight</c>.</summary>
+    /// <summary>The light of the baby Metroid's tube on the title screen.</summary>
     TitleScreenBabyMetroidTubeLight,
-    /// <summary><c>PaletteFXObjects_TitleScreenFlickeringDisplays</c>.</summary>
+    /// <summary>The flickering monitors on the title screen.</summary>
     TitleScreenFlickeringDisplays,
-    /// <summary><c>PaletteFXObjects_CutsceneGunshipEngineFlicker</c>.</summary>
+    /// <summary>The gunship's flickering engine in the intro cutscenes.</summary>
     CutsceneGunshipEngineFlicker,
-    /// <summary><c>PaletteFXObjects_CutsceneCeresNavigationLights_SpriteCeres</c>.</summary>
+    /// <summary>Ceres station's blinking navigation lights on the cutscene's sprites.</summary>
     CutsceneCeresNavigationLightsSprite,
-    /// <summary><c>PaletteFXObjects_FadeInPlanetZebesText</c>.</summary>
+    /// <summary>The "Planet Zebes" caption fading in.</summary>
     FadeInPlanetZebesText,
-    /// <summary><c>PaletteFXObjects_FadeOutPlanetZebesText</c>.</summary>
+    /// <summary>The "Planet Zebes" caption fading out.</summary>
     FadeOutPlanetZebesText,
-    /// <summary><c>PaletteFXObjects_CutsceneCeresNavigationLights_BGCeres</c>.</summary>
+    /// <summary>Ceres station's blinking navigation lights on the cutscene's background.</summary>
     CutsceneCeresNavigationLightsBackground,
-    /// <summary><c>PaletteFXObjects_OldMotherBrainFightBackgroundLights</c>.</summary>
+    /// <summary>The background lights of the Mother Brain fight scene.</summary>
     OldMotherBrainFightBackgroundLights,
-    /// <summary><c>PaletteFXObjects_GunshipGlow</c>.</summary>
+    /// <summary>The gunship's glowing lights.</summary>
     GunshipGlow,
-    /// <summary><c>PaletteFXObjects_FadeOutZoomedOutExplodingZebes</c>.</summary>
+    /// <summary>Exploding Zebes fading out in the ending's distant shot.</summary>
     FadeOutZoomedOutExplodingZebes,
-    /// <summary><c>PaletteFXObjects_WidePartOfZebesExplosion_Foreground</c>.</summary>
+    /// <summary>The foreground of the wide shot of the planet's explosion.</summary>
     WidePartOfZebesExplosionForeground,
-    /// <summary><c>PaletteFXObjects_ZebesExplosionFinale</c>.</summary>
+    /// <summary>The final burst of the planet's explosion.</summary>
     ZebesExplosionFinale,
-    /// <summary><c>PaletteFXObjects_WhiteOutSpaceDuringZebesExplosion</c>.</summary>
+    /// <summary>Space whiting out as the planet explodes.</summary>
     WhiteOutSpaceDuringZebesExplosion,
-    /// <summary><c>PaletteFXObjects_ZebesExplosionPlanetAfterglow</c>.</summary>
+    /// <summary>The planet's afterglow once it has exploded.</summary>
     ZebesExplosionPlanetAfterglow,
-    /// <summary><c>PaletteFXObjects_ExplodingZebesLava</c>.</summary>
+    /// <summary>The lava glowing through the exploding planet.</summary>
     ExplodingZebesLava,
-    /// <summary><c>PaletteFXObjects_FadeOutExplodingZebesCrust</c>.</summary>
+    /// <summary>The exploding planet's crust fading out.</summary>
     FadeOutExplodingZebesCrust,
-    /// <summary><c>PaletteFXObjects_FadeOutExplodingZebesGreyClouds</c>.</summary>
+    /// <summary>The grey clouds around the exploding planet fading out.</summary>
     FadeOutExplodingZebesGreyClouds,
-    /// <summary><c>PaletteFXObjects_GunshipEmergineFromZebesExplosion</c>.</summary>
+    /// <summary>The gunship emerging from the planet's explosion.</summary>
     GunshipEmergingFromZebesExplosion,
-    /// <summary><c>PaletteFXObjects_WidePartOfZebesExplosion_Background</c>.</summary>
+    /// <summary>The background of the wide shot of the planet's explosion.</summary>
     WidePartOfZebesExplosionBackground,
-    /// <summary><c>UNUSED_PaletteFXObjects_8DE1EC</c>.</summary>
+    /// <summary>A cinematic fade that no scene uses.</summary>
     UnusedCinematicFade,
-    /// <summary><c>PaletteFXObjects_HyperBeam</c>.</summary>
+    /// <summary>The Hyper Beam's cycling colours.</summary>
     HyperBeam,
-    /// <summary><c>PaletteFXObjects_SamusLoading_PowerSuit</c>.</summary>
+    /// <summary>Samus materialising in the Power Suit as a game loads.</summary>
     SamusLoadingPowerSuit,
-    /// <summary><c>PaletteFXObjects_SamusLoading_VariaSuit</c>.</summary>
+    /// <summary>Samus materialising in the Varia Suit as a game loads.</summary>
     SamusLoadingVariaSuit,
-    /// <summary><c>PaletteFXObjects_SamusLoading_GravitySuit</c>.</summary>
+    /// <summary>Samus materialising in the Gravity Suit as a game loads.</summary>
     SamusLoadingGravitySuit,
-    /// <summary><c>PaletteFXObjects_PostCreditsSuperMetroidIcon</c>.</summary>
+    /// <summary>The glare on the Super Metroid icon after the credits.</summary>
     PostCreditsSuperMetroidIcon,
-    /// <summary><c>PaletteFXObjects_Nothing</c>.</summary>
+    /// <summary>An object that shows nothing and deletes itself.</summary>
     Nothing,
-    /// <summary><c>PaletteFXObjects_GreyOutTourianStatue_Draygon</c>.</summary>
+    /// <summary>Draygon's statue in the Tourian entrance greying out.</summary>
     GreyOutTourianStatueDraygon,
-    /// <summary><c>PaletteFXObjects_GreyOutTourianStatue_Kraid</c>.</summary>
+    /// <summary>Kraid's statue in the Tourian entrance greying out.</summary>
     GreyOutTourianStatueKraid,
-    /// <summary><c>PaletteFXObjects_GreyOutTourianStatue_Ridley</c>.</summary>
+    /// <summary>Ridley's statue in the Tourian entrance greying out.</summary>
     GreyOutTourianStatueRidley,
-    /// <summary><c>PaletteFXObjects_GreyOutTourianStatue_Phantoon</c>.</summary>
+    /// <summary>Phantoon's statue in the Tourian entrance greying out.</summary>
     GreyOutTourianStatuePhantoon,
-    /// <summary><c>PaletteFXObjects_BombTorizoBelly</c>.</summary>
+    /// <summary>The Bomb Torizo's glowing belly.</summary>
     BombTorizoBelly,
-    /// <summary><c>PaletteFXObjects_GoldenTorizoBelly</c>.</summary>
+    /// <summary>The Golden Torizo's glowing belly.</summary>
     GoldenTorizoBelly,
-    /// <summary><c>PaletteFXObjects_Norfair1_Tourian1</c>.</summary>
+    /// <summary>Samus's heat shimmer in a heated room, which also burns her without a heat-protecting suit.</summary>
     SamusInHeat,
-    /// <summary><c>PaletteFXObjects_Crateria1_Lightning</c>.</summary>
+    /// <summary>The lightning flashing over the Crateria surface.</summary>
     CrateriaLightning,
-    /// <summary><c>UNUSED_PaletteFXObjects_DarkLightning_8DF769</c>.</summary>
+    /// <summary>A darker lightning flash that no room uses.</summary>
     UnusedDarkLightning,
-    /// <summary><c>PaletteFXObjects_WreckedShip1_GreenLights</c>.</summary>
+    /// <summary>The Wrecked Ship's pulsing green lights.</summary>
     WreckedShipGreenLights,
-    /// <summary><c>UNUSED_PaletteFXObjects_WreckedShip1_GreenLights_dup_8DF771</c>.</summary>
+    /// <summary>A copy of the Wrecked Ship's green lights that no room uses.</summary>
     UnusedWreckedShipGreenLightsDuplicate,
-    /// <summary><c>PaletteFXObjects_Brinstar1_BlueBackgroundSpores</c>.</summary>
+    /// <summary>The blue spores drifting in Brinstar's background.</summary>
     BrinstarBlueBackgroundSpores,
-    /// <summary><c>PaletteFXObjects_Brinstar8_SporeSpawnBlueBackgroundSpores</c>.</summary>
+    /// <summary>The blue background spores of Spore Spawn's room.</summary>
     SporeSpawnBlueBackgroundSpores,
-    /// <summary><c>PaletteFXObjects_Brinstar2_RedBackgroundGlow</c>.</summary>
+    /// <summary>Red Brinstar's glowing background.</summary>
     BrinstarRedBackgroundGlow,
-    /// <summary><c>PaletteFXObjects_Crateria80_Brinstar4_BeaconFlashing</c>.</summary>
+    /// <summary>The flashing beacon lights.</summary>
     BeaconFlashing,
-    /// <summary><c>PaletteFXObjects_Norfair2</c>.</summary>
+    /// <summary>Norfair's glowing foreground, which also paces the heat shimmer.</summary>
     NorfairForegroundAndHeatPhase,
-    /// <summary><c>PaletteFXObjects_Norfair4</c>.</summary>
+    /// <summary>Norfair's glowing foreground in its fourth colour group.</summary>
     NorfairForegroundPalette4,
-    /// <summary><c>PaletteFXObjects_Norfair8</c>.</summary>
+    /// <summary>Norfair's glowing foreground in its fifth colour group.</summary>
     NorfairForegroundPalette5,
-    /// <summary><c>PaletteFXObjects_Norfair10</c>.</summary>
+    /// <summary>Norfair's glowing foreground in its sixth colour group.</summary>
     NorfairForegroundPalette6,
-    /// <summary><c>PaletteFXObjects_Maridia1_SandPits</c>.</summary>
+    /// <summary>Maridia's shifting sand pits.</summary>
     MaridiaSandPits,
-    /// <summary><c>PaletteFXObjects_Maridia2_SandFalls</c>.</summary>
+    /// <summary>Maridia's falling sand.</summary>
     MaridiaSandFalls,
-    /// <summary><c>PaletteFXObjects_Maridia4_BackgroundWaterfalls</c>.</summary>
+    /// <summary>The waterfalls in Maridia's background.</summary>
     MaridiaBackgroundWaterfalls,
-    /// <summary><c>PaletteFXObjects_Tourian2_GlowingArkanoidBlocksAndRedOrbs</c>.</summary>
+    /// <summary>Tourian's glowing blocks and red orbs.</summary>
     TourianGlowingArkanoidBlocksAndRedOrbs,
-    /// <summary><c>UNUSED_PaletteFXObjects_Tourian4_8DF7A5</c>.</summary>
+    /// <summary>A copy of Tourian's glowing blocks and red orbs that no room uses.</summary>
     UnusedTourianGlowClone,
-    /// <summary><c>PaletteFXObjects_Tourian8_ShutterRedFlashing</c>.</summary>
+    /// <summary>Tourian's shutters flashing red.</summary>
     TourianShutterRedFlashing,
-    /// <summary><c>PaletteFXObjects_Tourian10_BackgroundRedFlashing</c>.</summary>
+    /// <summary>Tourian's background flashing red during the escape.</summary>
     TourianBackgroundRedFlashing,
-    /// <summary><c>PaletteFXObjects_Tourian20_GeneralLevelRedFlashing</c>.</summary>
+    /// <summary>Tourian's rooms flashing red during the escape.</summary>
     TourianGeneralLevelRedFlashing,
-    /// <summary><c>PaletteFXObjects_Tourian40_RedFlashingArkanoidBlocksRedOrbs</c>.</summary>
+    /// <summary>Tourian's blocks and red orbs flashing red during the escape.</summary>
     TourianRedFlashingArkanoidBlocksAndRedOrbs,
-    /// <summary><c>PaletteFXObjects_Crateria8_OldTourianRedFlashing</c>.</summary>
+    /// <summary>Old Tourian's rooms flashing red during the escape.</summary>
     OldTourianRedFlashing,
-    /// <summary><c>PaletteFXObjects_Crateria10_OldTourianBGRailingsFlashYellow</c>.</summary>
+    /// <summary>Old Tourian's background railings flashing yellow during the escape.</summary>
     OldTourianBackgroundRailingsFlashYellow,
-    /// <summary><c>PaletteFXObjects_Crateria20_OldTourianBGPanelsFlashYellow</c>.</summary>
+    /// <summary>Old Tourian's background panels flashing yellow during the escape.</summary>
     OldTourianBackgroundPanelsFlashYellow,
-    /// <summary><c>PaletteFXObjects_Crateria2_UpperCrateriaRedFlashing</c>.</summary>
+    /// <summary>Upper Crateria flashing red during the escape.</summary>
     UpperCrateriaRedFlashing,
-    /// <summary><c>PaletteFXObjects_Crateria4_YellowLightning</c>.</summary>
+    /// <summary>The yellow lightning over Crateria during the escape.</summary>
     CrateriaEscapeYellowLightning,
-    /// <summary><c>PaletteFXObjects_Crateria40_SlightlyModifiesAPixelInCREBlock</c>.</summary>
+    /// <summary>A single pixel of a shared block tile changing in Crateria during the escape.</summary>
     CrateriaEscapeCreBlockPixel,
 }

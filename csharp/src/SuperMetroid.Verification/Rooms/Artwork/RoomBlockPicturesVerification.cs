@@ -327,22 +327,26 @@ internal static class RoomBlockPicturesVerification
                 int cellY = (index - firstWord) / FxOverlayPlaneConstants.Columns * CharacterPixels;
                 var word = new SnesBgTilemapWord(planeWords[index]);
                 SpriteImage sheet = shownPage.Sheet;
+                // A character an effect's animation paints shows the frame it selected (#1406), which VRAM never holds.
+                ReadOnlySpan<byte> bytes = CharacterBytes(effects, frames, layer3, word.CharacterIndex, animatedTiles,
+                    vram[(characterBase * sizeof(ushort))..], out _);
                 for (int y = 0; y < CharacterPixels; y++)
                 for (int x = 0; x < CharacterPixels; x++)
                 {
                     int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;
                     int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
-                    // A character an effect's animation paints shows the frame it selected (#1406), which VRAM never holds.
-                    ReadOnlySpan<byte> bytes = CharacterBytes(effects, frames, layer3, word.CharacterIndex, animatedTiles,
-                        vram[(characterBase * sizeof(ushort))..], out _);
                     int address = pixelRow * 2;
                     int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1;
                     int expected = word.PaletteIndex * 4 + colour;
                     int at = (shownPage.Corner.Y + cellY + y) * sheet.Size.X + shownPage.Corner.X + cellX + x;
-                    AssertTrue(sheet.Inks[at].PaletteIndex == expected && sheet.Inks[at].FrontTile == word.HasPriority
-                            && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel()),
-                        $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {sheet.Inks[at].PaletteIndex} where its character, "
-                        + $"{runtime.BgArtwork.Showing(layer3, word.CharacterIndex, 1)}, paints {expected}");
+                    // The message names the character's picture, which costs a lookup, so it is built only for a failing pixel.
+                    if (!(sheet.Inks[at].PaletteIndex == expected && sheet.Inks[at].FrontTile == word.HasPriority
+                            && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel())))
+                    {
+                        AssertTrue(false,
+                            $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {sheet.Inks[at].PaletteIndex} where its character, "
+                            + $"{runtime.BgArtwork.Showing(layer3, word.CharacterIndex, 1)}, paints {expected}");
+                    }
                 }
             }
             Console.WriteLine($"BG3 pictures: {room.Name}'s HUD and effect page painted from their pictures at base ${characterBase:X4}.");

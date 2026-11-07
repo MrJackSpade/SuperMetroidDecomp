@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Verification access to what a room's grid shows in the foreground (#1346, #1431, #1469).</summary>

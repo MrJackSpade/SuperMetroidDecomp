@@ -112,7 +112,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectibleObjectState { } item
-            ? [new CollectibleObjectSnapshot(slot.Header, slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.ItemBit, item.Kind)]
+            ? [new CollectibleObjectSnapshot(slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.ItemBit, item.Kind)]
             : Array.Empty<CollectibleObjectSnapshot>())
         .ToArray();
 

@@ -19,10 +19,6 @@ public static class CollectibleCellPictures
     /// <summary>The definition after the last kind's last frame: the number of pictures a room's block picture table holds.</summary>
     public static int End => First + Kinds.Length * CollectiblePicture.Frames;
 
-    /// <summary>Every frame of every kind that shows its own picture, in definition order.</summary>
-    public static IEnumerable<CollectiblePicture> All =>
-        Kinds.SelectMany(kind => Enumerable.Range(0, CollectiblePicture.Frames).Select(frame => new CollectiblePicture(kind, frame)));
-
     /// <summary>The definition a cell showing <paramref name="picture"/> names.</summary>
     public static int DefinitionOf(CollectiblePicture picture) =>
         First + Array.IndexOf(Kinds, picture.Kind) * CollectiblePicture.Frames + picture.Frame;

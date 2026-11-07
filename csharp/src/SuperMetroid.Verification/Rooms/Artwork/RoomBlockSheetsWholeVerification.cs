@@ -46,7 +46,8 @@ internal static class RoomBlockSheetsWholeVerification
                 foreach (AppearanceInput input in inputs.Where(input => input is not (AnimationAppearance or KraidBackdropAppearance or EncounterLookAppearance)))
                     failures.Add($"{name}: block {Hex(block)} depends on {input.Token}, which shows no artwork over a room's blocks");
             }
-            foreach (CollectiblePicture collectible in CollectibleCellPictures.All)
+            foreach (CollectiblePicture collectible in Enum.GetValues<InWorldCollectibleKind>().Where(CollectibleObjects.ShowsOwnPicture)
+                .SelectMany(kind => Enumerable.Range(0, CollectiblePicture.Frames).Select(frame => new CollectiblePicture(kind, frame))))
             {
                 string picture = RoomBlockPictureNames.OfCollectible(collectible);
                 bool pictured = sheet.Sheet.frames.ContainsKey(picture);

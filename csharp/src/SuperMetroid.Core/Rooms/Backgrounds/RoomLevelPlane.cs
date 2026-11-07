@@ -41,9 +41,6 @@ public sealed class RoomLevelPlane
     /// <summary>The room's size in blocks.</summary>
     public Extent16<RoomBlocks> Size { get; }
 
-    /// <summary>What each block shows beneath any collectible picture, row by row.</summary>
-    public ReadOnlySpan<RoomBlockAppearance> Blocks => blocks;
-
     /// <summary>
     /// The plane's blocks as a frame shows them (#1403), read once: a collectible's picture where one lies, as
     /// <see cref="CollectibleCellPictures"/> names it, and each other block's own.

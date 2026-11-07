@@ -83,8 +83,8 @@ internal static class RightFacingGateGlitchVerification
         RoomObjectPopulation population = RoomObjectPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.RoomObjectPointer);
         RoomObjectSystem unboundObjects = RoomObjectFixtures.Unbound();
         var areaIndex = runtime.Room.LoadedRoom.AreaIndex;
-        // Published once here, so no worker builds the room's lazily published background plane.
-        SuperMetroid.Core.Rooms.Backgrounds.RoomLevelPlane background = original.BackgroundPlane;
+        // The gate and its activations read only terrain and behaviour, so every position's level shows a blank background.
+        var background = new RoomBlockAppearance[original.Size.X * original.Size.Y];
         int firstX = gateX - 192;
         var activationsByColumn = new List<string>[gateX - firstX];
         // The shared installed fixtures every position's Samus, shots and bombs are built from load here, on the suite's
@@ -102,7 +102,7 @@ internal static class RightFacingGateGlitchVerification
             var populationVram = new SnesVram();
             // One pristine level and one working level restored from it per position. The
             // field-by-field check proves no state from the previous position survives.
-            RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.Terrain, original.Behaviors, background.Blocks), RoomLevelData.NothingBeyondGrid());
+            RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.Terrain, original.Behaviors, background), RoomLevelData.NothingBeyondGrid());
             RoomLevelData pristine = NewLevel();
             RoomLevelData level = NewLevel();
             for (int y = gateY - 32; y <= gateY + 96; y++)

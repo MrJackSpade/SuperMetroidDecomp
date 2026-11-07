@@ -21,7 +21,7 @@ internal sealed class SetCharacters
     private readonly byte[] table;
 
     /// <summary>The encounters the set's members play, and what each of their looks copies.</summary>
-    private readonly IReadOnlyList<EncounterLookSteps> encounters;
+    internal IReadOnlyList<EncounterLookSteps> Encounters { get; }
 
     /// <summary>Each encounter's characters as each of its looks leaves them, from the loaded table.</summary>
     private readonly Dictionary<ComposedEncounter, byte[][]> afterLook = [];
@@ -40,14 +40,14 @@ internal sealed class SetCharacters
     /// rooms.
     /// </summary>
     /// <exception cref="InvalidDataException">An encounter's look changes a corpse's rows after the corpse's own characters load.</exception>
-    internal SetCharacters(byte[] table, IReadOnlyList<EncounterLookSteps> encounters, IReadOnlyList<RottingCorpseCells> corpses)
+    internal SetCharacters(byte[] table, IReadOnlyList<EncounterLookSteps> Encounters, IReadOnlyList<RottingCorpseCells> corpses)
     {
         this.table = Ensure.NotNull(table);
-        this.encounters = Ensure.NotNull(encounters);
+        this.Encounters = Ensure.NotNull(Encounters);
         this.corpses = Ensure.NotNull(corpses);
         foreach (RottingCorpseCells corpse in corpses)
-            corpse.RequireUnchangedBy(encounters);
-        foreach (EncounterLookSteps encounter in encounters)
+            corpse.RequireUnchangedBy(Encounters);
+        foreach (EncounterLookSteps encounter in Encounters)
         {
             byte[] shown = [.. table];
             afterLook.Add(encounter.Encounter, [.. encounter.Looks.Select(look =>
@@ -89,7 +89,7 @@ internal sealed class SetCharacters
         RottingCorpseCells? corpse = showsCorpse ? CorpseRowPictures.CorpseOf(name, frame, corpses) : null;
         int[] read = [.. frame.Parts.SelectMany(Read).Distinct().Order()];
         var parts = new List<FrameLookPart>();
-        foreach (EncounterLookSteps encounter in encounters)
+        foreach (EncounterLookSteps encounter in Encounters)
         {
             if (drawings.For(encounter.Encounter) is not FrameDrawnLooks drawn)
                 continue;
@@ -157,7 +157,7 @@ internal sealed class SetCharacters
     /// The characters of <paramref name="corpse"/>'s rows the looks of each part, up to the one <paramref name="combination"/>
     /// names, have copied other characters over since the corpse's own last loaded (#1531).
     /// </summary>
-    private static HashSet<int> Covered(RottingCorpseCells corpse, IReadOnlyList<FrameLookPart> parts, int[] combination)
+    private static HashSet<int> Covered(RottingCorpseCells corpse, List<FrameLookPart> parts, int[] combination)
     {
         var covered = new HashSet<int>();
         for (int index = 0; index < parts.Count; index++)
@@ -205,36 +205,8 @@ internal sealed class SetCharacters
         return true;
     }
 
-    /// <summary>
-    /// The characters as the set's encounters leave them once each shows its look of <paramref name="shown"/> (#1538): every
-    /// look of each such encounter up to the one shown copied in order over the room's load, which a frame's picture of
-    /// those looks paints like.
-    /// </summary>
-    /// <exception cref="InvalidDataException">A look is of an encounter the set's members do not play, or the encounter has no such look.</exception>
-    internal SpriteArtwork Page(IReadOnlyList<EncounterLook> shown)
-    {
-        Ensure.NotNull(shown);
-        FrameLookPart[] parts = [.. shown.Select(look => encounters.FirstOrDefault(encounter => EncounterLookUploads.ShownAs(encounter.Encounter) == look.Encounter)
-            is { } played ? new FrameLookPart(played, [EncounterLookUploads.IndexOf(played.Encounter, look.Name)], look.Encounter)
-            : throw new InvalidDataException($"The set's members play no encounter that shows {look}."))];
-        return Page(parts, [.. parts.Select(part => part.Looks[0])]);
-    }
-
-    /// <summary>
-    /// The characters as the set's members leave them once <paramref name="encounter"/> shows its look at
-    /// <paramref name="look"/> (#1538): every look of it up to that one copied in order over the room's load, which the
-    /// finished pictures of a frame drawn in that look paint like, whether or not gameplay shows the encounter's looks.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The set's members do not play the encounter.</exception>
-    internal SpriteArtwork Page(ComposedEncounter encounter, int look)
-    {
-        EncounterLookSteps played = encounters.FirstOrDefault(candidate => candidate.Encounter == encounter)
-            ?? throw new InvalidDataException($"The set's members do not play {encounter}.");
-        return Page([new FrameLookPart(played, [look], EncounterLookUploads.ShownAs(encounter))], [look]);
-    }
-
     /// <summary>The characters with every look of each part up to the one <paramref name="combination"/> names copied in order.</summary>
-    private SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, int[] combination)
+    internal SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, int[] combination)
     {
         string key = Key(parts, combination);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
@@ -292,5 +264,5 @@ internal sealed class SetCharacters
     /// <param name="Encounter">The encounter and what its looks copy.</param>
     /// <param name="Looks">The places of the looks the frame is pictured in.</param>
     /// <param name="ShownAs">The encounter gameplay shows, whose looks name the frame's pictures; none for a part that pictures the frame in one look.</param>
-    private sealed record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<int> Looks, EncounterArtwork? ShownAs);
+    internal sealed record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<int> Looks, EncounterArtwork? ShownAs);
 }

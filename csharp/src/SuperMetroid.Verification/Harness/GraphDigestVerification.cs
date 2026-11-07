@@ -315,6 +315,17 @@ internal static class GraphDigestVerification
                         return false;
                     }
                 }
+                else if (left is System.Collections.IDictionary leftMap && right is System.Collections.IDictionary rightMap)
+                {
+                    // A map the state owns (the collectible pictures a room shows) compares by its entries (#1538).
+                    if (leftMap.Count != rightMap.Count)
+                        return false;
+                    foreach (System.Collections.DictionaryEntry entry in leftMap)
+                    {
+                        if (!rightMap.Contains(entry.Key) || !Equals(entry.Value, rightMap[entry.Key]))
+                            return false;
+                    }
+                }
                 else if (left is not null && right is not null && !Equals(left, right) && left.GetType() == right.GetType() &&
                          !left.GetType().IsValueType && left.GetType().Assembly == typeof(Ensure).Assembly)
                 {

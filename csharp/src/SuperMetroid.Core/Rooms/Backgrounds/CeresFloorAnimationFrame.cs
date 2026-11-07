@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// The seven frames the Ceres door, the Baby's capsule and Ridley's wings draw onto the rotating floor.

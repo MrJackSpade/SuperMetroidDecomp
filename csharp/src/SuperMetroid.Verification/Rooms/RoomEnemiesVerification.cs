@@ -686,12 +686,12 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorLight), map.Drawn.Single(),
+    AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Drawn.Single(),
         "Ceres elevator landed platform light floor frame");
 
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorDark), map.Drawn.Single(),
+    AssertEqual(CeresFloorAnimationFrame.ElevatorDark, map.Drawn.Single(),
         "Ceres elevator landed platform dark floor frame, drawn over the light one");
 
     Console.WriteLine("  Ceres elevator: landed Mode-7 platform continues its ROM transfer animation.");

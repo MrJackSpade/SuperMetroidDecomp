@@ -125,6 +125,13 @@ internal sealed class ClosedPresentationAudit
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
                             IMethodSymbol { Name: "FromPlacement" } factory &&
                                 factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonSourceArtwork).FullName));
+            // The installed room artwork and a spawned-object sheet accept whatever content they are given: their proofs are
+            // the checks of the reviewed loaders that build them (#1536), so a construction anywhere else revokes the proof.
+            if (valid && LoaderBuiltProviders.Contains(contract.Type) && ConstructedOutsideSources(compilation, contract) is { } constructor)
+            {
+                valid = false;
+                staleReason = "the provider is constructed outside its reviewed loader, in " + constructor;
+            }
             foreach (string method in contract.Methods)
                 contracts.Add(new PresentationMethod(contract.Type, method), new ContractValidity(contract, valid, valid ? null : staleReason ?? "a reviewed escape condition no longer holds"));
             if (!valid)
@@ -133,6 +140,34 @@ internal sealed class ClosedPresentationAudit
                 foreach (string method in contract.Methods)
                     exports.Add("closed-presentation-contract", contract.Type + "." + method);
         }
+    }
+
+    /// <summary>The providers whose complete key domain only their reviewed loader's checks establish (#1536).</summary>
+    private static readonly HashSet<string> LoaderBuiltProviders =
+    [
+        typeof(SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork).FullName ?? throw new InvalidOperationException("The installed room artwork type has no name."),
+        typeof(SpawnedObjectSheet).FullName ?? throw new InvalidOperationException("The spawned-object sheet type has no name."),
+    ];
+
+    /// <summary>
+    /// The source that constructs <paramref name="contract"/>'s provider outside the contract's reviewed sources, or null when
+    /// none does. A source that constructs it names it, so only sources whose text names the provider are bound.
+    /// </summary>
+    private static string? ConstructedOutsideSources(Compilation compilation, ClosedPresentationContract contract)
+    {
+        string name = contract.Type[(contract.Type.LastIndexOf('.') + 1)..];
+        foreach (SyntaxTree tree in compilation.SyntaxTrees)
+        {
+            if (contract.Sources.Any(source => source.Path == tree.FilePath) || !tree.GetText().ToString().Contains(name, StringComparison.Ordinal))
+                continue;
+            SemanticModel semantic = compilation.GetSemanticModel(tree);
+            BaseObjectCreationExpressionSyntax? creation = tree.GetRoot().DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>()
+                .FirstOrDefault(candidate => semantic.GetSymbolInfo(candidate).Symbol is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor &&
+                    constructor.ContainingType.ToDisplayString() == contract.Type);
+            if (creation is not null)
+                return tree.FilePath + ":" + (creation.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
+        }
+        return null;
     }
 
     /// <summary>Classifies a provider call only when its reviewed proof and index domain remain valid.</summary>

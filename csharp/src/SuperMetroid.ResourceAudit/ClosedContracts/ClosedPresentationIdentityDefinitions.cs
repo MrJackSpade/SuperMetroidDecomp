@@ -19,6 +19,11 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.World.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -76,6 +81,17 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(name => (int)EnemyProjectileFrames.Identity(name)).Append((int)EnemyProjectileFrameId.Blank).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "frame") => EnemyProjectilePresentationFrameSets.All
             .SelectToArray(frame => (int)frame.Frame),
+        // The import pictures every floor animation frame in every Ceres floor (#1536).
+        ("RoomFloorSheet", "Picture", "frame") => Enum.GetValues<CeresFloorAnimationFrame>().SelectToArray(frame => (int)frame),
+        // A form's message is one the message box shows, which the import pictures in every form it takes (#1536).
+        ("MessageBoxSheet", "Picture", "shown.Message") => GameplayMessageArtwork.Forms().Select(form => (int)form.Message).Distinct().ToArray(),
+        // Only the effects that show a page are pictured as one (#1536).
+        ("FxOverlayPagePictures", "Page", "type") => Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsPage)
+            .SelectToArray(type => (int)type),
+        // A sky is installed for each variant some retail room state's scrolling-sky room main reads (#1536).
+        ("InstalledRoomArtwork", "Sky", "variant") => RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
+            .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
+            .Select(state => (int)ScrollingSkyState.VariantOf(state.MainCallback)).Distinct().ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,
@@ -86,6 +102,14 @@ internal static class ClosedPresentationIdentityDefinitions
     {
         ("RoomLevelArtworks" or "InstalledRoomLevelStreams", "Get", "level.Name") =>
             RoomVisualLayoutSourceDefinitions.All.Select(level => level.Name).ToArray(),
+        // A spawned object draws a frame some spawner's objects show: on its spawner's own sheet, on a set's shared sheet
+        // with every encounter's own frames and every common spawner's objects, or on a sheet of its own (#1536). A picture
+        // of an artwork sequence's step is named after its frame; a constant naming one is not owned here.
+        ("SpawnedObjectSheet", "Frame", "picture") => SpawnedObjectSheetComposer.FrameNames(SpawnedObjectOwner.Shared,
+                SpawnedObjectFrameDefinitions.ByEnemy.Keys.Concat(EncounterFrameDefinitions.ByEnemy.Keys).Distinct(),
+                SpawnedObjectFrameDefinitions.SharedByEnemy.Keys, SpawnedObjectFrameDefinitions.Common)
+            .Concat(SpawnedObjectFrameDefinitions.BySheet.Keys.SelectMany(owner => SpawnedObjectSheetComposer.FrameNames(owner, [], [], [])))
+            .Distinct(StringComparer.Ordinal).ToArray(),
         _ => null,
     };
 }

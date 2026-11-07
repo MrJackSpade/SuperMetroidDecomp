@@ -4,6 +4,8 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -65,7 +67,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                 $"Ceres {pointer}'s picture writes exactly the cells and tiles its list writes");
         }
         AssertThrows<InvalidDataException>(() =>
-            CeresFloorAnimation.PictureOf((CeresFloorAnimationFrame)0xffff),
+            RoomFloorSheet.PictureNameOf((CeresFloorAnimationFrame)0xffff),
             "Ceres unknown floor animation frame fails loudly");
         Console.WriteLine($"Ceres floor animation: {checkedTransfers} native transfers across all seven lists match the pictured cells and installed updates.");
     }

@@ -148,8 +148,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
         Loaded("write over the room's BG2").WriteBackgroundPicture(picture);
 
     /// <summary>Draws a picture over the loaded room's turning floor.</summary>
-    public void DrawFloor(string picture) =>
-        Loaded("draw over the room's turning floor").DrawFloor(picture);
+    public void DrawFloor(CeresFloorAnimationFrame frame) =>
+        Loaded("draw over the room's turning floor").DrawFloor(frame);
 
     /// <summary>Queries the loaded room's active PLM headers.</summary>
     public bool HasActiveHeader(RoomObjectHeaderId header) =>

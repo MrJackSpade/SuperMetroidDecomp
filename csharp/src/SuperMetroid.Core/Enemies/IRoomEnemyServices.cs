@@ -32,6 +32,6 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>Writes <paramref name="picture"/> over the room's background at its tilemap cell (#1348, #1466).</summary>
     void WriteBackgroundPicture(WrittenPicture picture);
 
-    /// <summary>Draws the picture named <paramref name="picture"/> over the part of the room's turning floor it covers (#1349, #1467).</summary>
-    void DrawFloor(string picture);
+    /// <summary>Draws <paramref name="frame"/>'s picture over the part of the room's turning floor it covers (#1349, #1467).</summary>
+    void DrawFloor(CeresFloorAnimationFrame frame);
 }

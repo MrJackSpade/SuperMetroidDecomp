@@ -14,6 +14,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -67,7 +68,7 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(uploads);
         HudSheetLayout hud = HudImageSheet.Layout(GameplayHudArtwork.Of(inputs.Maps.GameplayHud), HudImageSheet.Maps(inputs.Maps));
         // The game shows nothing where no effect's page lies (#1514), so the cell the effect area is cleared to is not pictured.
-        List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPlane.EffectPagePicture(type),
+        List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPagePictures.PictureName(type),
                 Rows(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
         return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),

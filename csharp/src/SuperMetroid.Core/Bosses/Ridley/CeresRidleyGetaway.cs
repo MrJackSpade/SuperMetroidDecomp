@@ -138,7 +138,7 @@ internal sealed class CeresRidleyGetaway
         if ((frameCounter & 3) == 0)
         {
             state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
-            _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame)));
+            _room.Services.DrawFloor(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame));
         }
 
         // The six sparse wing rows alternate on every eighth frame of the frame counter. Each wing frame's floor
@@ -149,7 +149,7 @@ internal sealed class CeresRidleyGetaway
             CeresFloorAnimationFrame wing = state.GetawayWingFrame == 0
                 ? CeresFloorAnimationFrame.WingFrame0
                 : CeresFloorAnimationFrame.WingFrame1;
-            _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(wing));
+            _room.Services.DrawFloor(wing);
             CeresRidleyGetawayBoostDelays delays = _bossArtwork.CeresRidleyGetawayBoostDelays ?? throw new InvalidOperationException(
                 "The Ceres Ridley getaway requires the installed delays its wing frames leave behind.");
             _room.UnauthoredBoostCadence.TakeDelaysLeftByWings(delays.LeftBy(wing));

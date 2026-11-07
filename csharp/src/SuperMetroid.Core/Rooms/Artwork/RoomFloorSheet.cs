@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// The installed turning floor of one Ceres tileset (#1392, #1467): the whole floor a room of the tileset starts from, and
-/// a picture of every state gameplay draws over part of it, each under the name gameplay draws it by and placed by its
-/// origin. The import composes them once, coloured with the tileset's standard palette and the sprite half as a room load
+/// a picture of every floor animation frame gameplay draws over part of it, placed by its origin and drawn by the
+/// frame (#1536). The import composes them once, coloured with the tileset's standard palette and the sprite half as a room load
 /// leaves it; the pictures of one part of the floor share its place, and no two parts overlap.
 /// </summary>
 public sealed class RoomFloorSheet
@@ -15,13 +15,20 @@ public sealed class RoomFloorSheet
     /// <summary>The frame picturing the whole floor a room starts from.</summary>
     public const string FloorFrameName = "floor";
 
-    /// <summary>Checks the sheet pictures the whole floor.</summary>
-    /// <exception cref="InvalidDataException">The floor's frame is not the whole floor or not coloured from the full palette.</exception>
+    /// <summary>The picture of each floor animation frame, by the frame.</summary>
+    private readonly Dictionary<CeresFloorAnimationFrame, SpriteSheetFrame> pictures;
+
+    /// <summary>Checks the sheet pictures the whole floor and every floor animation frame (#1536).</summary>
+    /// <exception cref="InvalidDataException">
+    /// The floor's frame is not the whole floor or not coloured from the full palette, or the sheet pictures a floor
+    /// animation frame under no frame of its name.
+    /// </exception>
     public RoomFloorSheet(TilesetDefinition tileset, SpriteSheet sheet)
     {
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         Floor = new AffineFloor(sheet.Frame(FloorFrameName));
+        pictures = Enum.GetValues<CeresFloorAnimationFrame>().ToDictionary(frame => frame, frame => sheet.Frame(PictureNameOf(frame)));
     }
 
     /// <summary>The Ceres tileset.</summary>
@@ -36,10 +43,18 @@ public sealed class RoomFloorSheet
     /// <summary>The floor a room of the tileset starts from, with nothing drawn over it.</summary>
     public AffineFloor Floor { get; }
 
-    /// <summary>The picture gameplay draws over the floor under <paramref name="name"/>.</summary>
-    /// <exception cref="InvalidDataException">The sheet holds no such picture.</exception>
-    public SpriteSheetFrame Picture(string name) => Sheet.Frame(name);
+    /// <summary>The picture of floor animation frame <paramref name="frame"/>, which gameplay draws over the floor.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a floor animation frame.</exception>
+    public SpriteSheetFrame Picture(CeresFloorAnimationFrame frame) =>
+        pictures.TryGetValue(frame, out SpriteSheetFrame? picture) ? picture
+            : throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
 
     /// <summary>The installed name of <paramref name="tileset"/>'s floor.</summary>
     public static string NameOf(TilesetDefinition tileset) => $"Floor.{RoomBlockSheet.NameOf(tileset)}";
+
+    /// <summary>The name <paramref name="frame"/>'s picture is installed under in a floor's sheet.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a floor animation frame.</exception>
+    public static string PictureNameOf(CeresFloorAnimationFrame frame) => Enum.IsDefined(frame)
+        ? $"Ceres.{frame}"
+        : throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
 }

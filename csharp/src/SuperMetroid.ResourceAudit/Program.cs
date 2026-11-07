@@ -46,6 +46,13 @@ internal static class Program
                 Console.WriteLine("Derived room-layout and X-ray source admission contracts passed.");
                 return 0;
             }
+            if (args is ["--room-picture-contract-check"])
+            {
+                RoomPicturePresentationContractChecks.Run();
+                SpawnedObjectSheetContractChecks.Run();
+                Console.WriteLine("Pre-coloured room picture and spawned-object sheet contracts passed.");
+                return 0;
+            }
             if (args is ["--enemy-artwork-contract-check"])
             {
                 EnemyTileArtworkPresentationContractChecks.Run();
@@ -109,7 +116,7 @@ internal static class Program
                     case "--json" when index + 1 < args.Length: jsonPath = args[++index]; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
                         "--self-check | --enemy-visual-program-audit REPOSITORY REPORT_JSON | --enemy-visual-audit-self-check | " +
-                        "--extended-display-contract-check | " +
+                        "--extended-display-contract-check | --room-picture-contract-check | " +
                         "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
                         "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint | " +

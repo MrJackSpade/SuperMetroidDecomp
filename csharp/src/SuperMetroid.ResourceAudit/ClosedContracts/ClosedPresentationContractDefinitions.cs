@@ -46,6 +46,8 @@ internal static class ClosedPresentationContractDefinitions
         .. RoomObjectActorClosedContractDefinitions.All,
         .. RoomObjectProgressionClosedContractDefinitions.All,
         .. RoomObjectDoorClosedContractDefinitions.All,
+        .. RoomPictureClosedContractDefinitions.All,
+        .. SpawnedObjectSheetClosedContractDefinitions.All,
         new("SuperMetroid.Core.Hud.Artwork.GameplayHudPresentation", "hud-v2-complete-valid-domain",
             ["IconShowsOverTemplate", "Icon", "EnergyTank", "EnergyCount", "Ammo", "AutoReserve", "MinimapCell"],
             [new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayHudPresentation.cs"),

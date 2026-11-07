@@ -306,7 +306,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         // actor keeps alternating these four turning-floor tilemap bytes forever. Omitting this
         // queue made the moving sprite pad flash correctly, then left the landed floor platform
         // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
-        _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(CeresFloorAnimation.PlatformFrame((frame & 2) >> 1)));
+        _room.Services.DrawFloor(CeresFloorAnimation.PlatformFrame((frame & 2) >> 1));
 
         // Bits 3..5 of the frame counter: a new step of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;

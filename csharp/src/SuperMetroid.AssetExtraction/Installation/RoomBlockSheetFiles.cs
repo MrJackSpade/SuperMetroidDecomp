@@ -5,6 +5,9 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -101,6 +104,7 @@ public static class RoomBlockSheetFiles
             throw new InvalidDataException($"Floor manifest {floorPath} is not revision {FloorManifestVersion}.");
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
+        RequireRetailSelections(directory, tilesets, manifest, written, floors);
         SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName,
             2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + floors.Tilesets.Length);
         // The inputs each block depends on are the extraction's record: an edit repaints a block's pictures, not what they
@@ -115,7 +119,7 @@ public static class RoomBlockSheetFiles
                         Inputs(cell.Inputs)))),
                 StringComparer.Ordinal),
             Sheets(WrittenPictureLayer.WrittenOverRoom), Sheets(WrittenPictureLayer.FxOverlayAndHud),
-            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)))),
+            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), GameplayMessageArtwork.Forms())),
             floors.Tilesets.Select(name => byName.TryGetValue(name, out TilesetDefinition tileset)
                     ? new RoomFloorSheet(tileset, store.Read(RoomFloorSheet.NameOf(tileset)))
                     : throw new InvalidDataException($"Floor manifest {floorPath} names unknown tileset {name}."))
@@ -127,6 +131,47 @@ public static class RoomBlockSheetFiles
             .Select(sheet => Written(sheet, byName.TryGetValue(sheet.Tileset, out TilesetDefinition tileset) ? tileset
                 : throw new InvalidDataException($"Written picture manifest {writtenPath} names unknown tileset {sheet.Tileset}."), store))
             .ToDictionary(sheet => sheet.Tileset);
+    }
+
+    /// <summary>
+    /// Requires the manifests to install the room artwork every retail room state can select (#1536), so that no lookup a
+    /// room makes by its tileset, background, sky or effect finds nothing: the block sheet and message boxes of every
+    /// tileset are read for each of <paramref name="tilesets"/> itself; this requires an effect overlay picture sheet of each
+    /// of them with the page of every effect its rooms show, the turning floor of every Ceres tileset, and every background
+    /// image a room state shows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A manifest installs none of one of them.</exception>
+    private static void RequireRetailSelections(string directory, IReadOnlyList<TilesetDefinition> tilesets, BackgroundManifest backgrounds,
+        WrittenManifest written, FloorManifest floors)
+    {
+        string backgroundPath = Path.Combine(directory, BackgroundManifestFileName);
+        string writtenPath = Path.Combine(directory, WrittenManifestFileName);
+        string floorPath = Path.Combine(directory, FloorManifestFileName);
+        foreach (string name in RoomBlockUploads.BackgroundNames())
+        {
+            if (!backgrounds.Words.ContainsKey(name))
+                throw new InvalidDataException($"Room background manifest {backgroundPath} names no image {name}, which a retail room state shows.");
+        }
+        foreach (TilesetDefinition tileset in tilesets)
+        {
+            string installed = RoomBlockSheet.NameOf(tileset);
+            WrittenSheetDocument overlay = written.Sheets.FirstOrDefault(sheet => sheet.Layer == WrittenPictureLayer.FxOverlayAndHud && sheet.Tileset == installed)
+                ?? throw new InvalidDataException($"Written picture manifest {writtenPath} names no effect overlay picture sheet of {installed}, whose rooms show one.");
+            WrittenPictureDocument[] pictures = overlay.Pictures
+                ?? throw new InvalidDataException($"Written picture sheet {WrittenPictureSheet.NameOf(overlay.Layer, tileset)} records no pictures.");
+            foreach (RoomFxType effect in RoomBlockUploads.EffectPagesOf(tileset))
+            {
+                string page = FxOverlayPagePictures.PictureName(effect);
+                if (!pictures.Any(picture => picture.Picture == page))
+                    throw new InvalidDataException($"Written picture sheet {WrittenPictureSheet.NameOf(overlay.Layer, tileset)} pictures no page {page}, which a room of {installed} shows.");
+            }
+        }
+        string[] floorTilesets = floors.Tilesets ?? throw new InvalidDataException($"Floor manifest {floorPath} names no tilesets.");
+        foreach (TilesetDefinition tileset in RoomBlockUploads.CeresTilesets())
+        {
+            if (!floorTilesets.Contains(RoomBlockSheet.NameOf(tileset), StringComparer.Ordinal))
+                throw new InvalidDataException($"Floor manifest {floorPath} names no floor of Ceres tileset {RoomBlockSheet.NameOf(tileset)}, whose rooms show one.");
+        }
     }
 
     /// <summary>The written picture sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>

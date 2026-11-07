@@ -7,7 +7,7 @@ internal static class RoomFloorAccess
     /// <summary>Exposes <see cref="RoomFloor"/> state that only verification reads.</summary>
     extension(RoomFloor self)
     {
-        /// <summary>The names of the pictures drawn over the floor, in drawing order.</summary>
-        public IReadOnlyList<string> Drawn => self.drawn;
+        /// <summary>The floor animation frames drawn over the floor, in drawing order.</summary>
+        public IReadOnlyList<CeresFloorAnimationFrame> Drawn => self.drawn;
     }
 }

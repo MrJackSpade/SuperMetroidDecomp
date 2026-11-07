@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

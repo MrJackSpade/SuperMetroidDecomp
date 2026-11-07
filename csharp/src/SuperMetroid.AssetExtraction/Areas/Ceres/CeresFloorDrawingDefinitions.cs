@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 

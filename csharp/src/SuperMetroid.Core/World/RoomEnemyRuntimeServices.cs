@@ -90,9 +90,9 @@ internal sealed class RoomEnemyRuntimeServices(
     public void WriteBackgroundPicture(WrittenPicture picture) => room.LoadedScope.WriteBackgroundPicture(picture);
 
     /// <inheritdoc />
-    public void DrawFloor(string picture) =>
+    public void DrawFloor(CeresFloorAnimationFrame frame) =>
         (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a Ceres room has a turning floor to draw over."))
-            .Draw(picture);
+            .Draw(frame);
 
     /// <summary>Checks whether a requested Bomb Torizo hand PLM header remains active.</summary>
     public bool HasActiveHeader(RoomObjectHeaderId header) => roomObjects.BombTorizoHand.HasActiveHeader(header);

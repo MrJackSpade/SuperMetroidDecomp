@@ -1,5 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -44,8 +46,8 @@ internal static class CeresFloorDrawings
         {
             foreach (CeresFloorAnimationFrame second in Enum.GetValues<CeresFloorAnimationFrame>())
             {
-                FloorSheetComposer.FloorPicture one = pictures.Single(picture => picture.Name == CeresFloorAnimation.PictureOf(first));
-                FloorSheetComposer.FloorPicture other = pictures.Single(picture => picture.Name == CeresFloorAnimation.PictureOf(second));
+                FloorSheetComposer.FloorPicture one = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(first));
+                FloorSheetComposer.FloorPicture other = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(second));
                 if (one.Column == other.Column && one.Row == other.Row && !Cells(first).Keys.ToHashSet().SetEquals(Cells(second).Keys))
                     throw new InvalidDataException($"Ceres floor frames {first} and {second} draw over one part but write different cells.");
             }
@@ -66,6 +68,6 @@ internal static class CeresFloorDrawings
             int cell = (top + index / columns) * FloorSheetComposer.Side + left + index % columns;
             cells[index] = written.TryGetValue(cell, out int tile) ? checked((byte)tile) : map[cell];
         }
-        return new FloorSheetComposer.FloorPicture(CeresFloorAnimation.PictureOf(frame), cells, columns, left, top, tilePixels);
+        return new FloorSheetComposer.FloorPicture(RoomFloorSheet.PictureNameOf(frame), cells, columns, left, top, tilePixels);
     }
 }

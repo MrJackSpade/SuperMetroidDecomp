@@ -1028,20 +1028,19 @@ internal static class LookupStream4Verification
         var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
-        string[] capsulePictures = [.. new[] { CeresFloorAnimationFrame.BabyFrame0, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.BabyFrame2 }
-            .Select(CeresFloorAnimation.PictureOf)];
-        string? Capsule() => map.Drawn.SingleOrDefault(capsulePictures.Contains);
+        CeresFloorAnimationFrame[] capsulePictures = [CeresFloorAnimationFrame.BabyFrame0, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.BabyFrame2];
+        CeresFloorAnimationFrame? Capsule() => map.Drawn.Where(capsulePictures.Contains).Cast<CeresFloorAnimationFrame?>().SingleOrDefault();
         int expectedPhase = 0;
         for (ushort nmi = 0; nmi < 16; nmi++)
         {
             vram.LoadBytes(0, untouched);
-            string? before = Capsule();
+            CeresFloorAnimationFrame? before = Capsule();
             bool advances = (nmi & 3) == 0;
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(state, null, nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
             AssertEqual((ushort)expectedPhase, state.GetawayBabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
-            AssertEqual(advances ? CeresFloorAnimation.PictureOf(CeresFloorAnimation.BabyFrameForPhase(expectedPhase)) : before, Capsule(),
+            AssertEqual(advances ? CeresFloorAnimation.BabyFrameForPhase(expectedPhase) : before, Capsule(),
                 "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
         }
         Console.WriteLine("Baby reflected phase: four original pointers and one actual 16-NMI cycle preserve advance-before-select and the drawn capsule frames.");

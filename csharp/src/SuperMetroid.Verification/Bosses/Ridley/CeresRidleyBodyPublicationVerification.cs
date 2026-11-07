@@ -57,7 +57,7 @@ internal static class CeresRidleyBodyPublicationVerification
             AffineFloor map = runtime.Display.Latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("The arena publishes its floor.");
             RoomFloorSheet sheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("The arena shows a floor.")).Sheet;
-            AssertTrue(map.DrawnOver.Contains(sheet.Picture(CeresFloorAnimation.PictureOf(wings))),
+            AssertTrue(map.DrawnOver.Contains(sheet.Picture(wings)),
                 $"angle {ridley.FloorAngle} publishes his {wings} body frame");
             var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Equals(map), $"angle {ridley.FloorAngle} draws his published body");

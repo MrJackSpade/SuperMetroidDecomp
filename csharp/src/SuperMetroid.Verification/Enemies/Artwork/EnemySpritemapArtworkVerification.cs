@@ -618,7 +618,7 @@ internal static class EnemySpritemapArtworkVerification
                         : EnemySpritemapDefinitions.BoyonBank);
             slot.Frame = RoomEnemySlotFrameAccess.FrameAt(frameBank, pointer);
             if (slot.Frame is { } shown)
-                SpawnedObjectFixtures.ShowDrawnSteps(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
+                SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
             slot.FrameHold = WrappingCountdown.Start(7);
             slot.Timer = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));

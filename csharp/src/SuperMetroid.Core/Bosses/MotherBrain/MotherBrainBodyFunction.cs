@@ -40,10 +40,10 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentSetupPhase2Brain,
     /// <summary>Waits for signed underflow, then seeds the 32-count rising-preparation delay and falls into it.</summary>
     FakeDeathAscentPauseForSuspense,
-    /// <summary>Starts the floor-clipping effect, installs the hidden head list, and starts leg-tile transfer with a $100-count later pause.</summary>
+    /// <summary>Starts the floor-clipping effect, installs the hidden head list, and starts readying her standing body with a $100-count later pause.</summary>
     FakeDeathAscentPrepareForRising,
-    /// <summary>Processes one leg-tile transfer per call and decrements the suspense timer on the same call that finishes the list.</summary>
-    FakeDeathAscentLoadLegTiles,
+    /// <summary>Readies her standing body one update per call and decrements the suspense timer on the same call that finishes it.</summary>
+    FakeDeathAscentReadyStandingBody,
     /// <summary>Waits for the $100 timer's signed underflow before placing the hidden body/background and enabling its hitboxes.</summary>
     FakeDeathAscentContinuePausing,
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
@@ -118,10 +118,10 @@ public enum MotherBrainBodyFunction
     SecondPhaseFinishSamusOffStandUp,
     /// <summary>Expires the admiration pause, installs the stretching head list, and starts a $100-count final-charge delay.</summary>
     SecondPhaseFinishSamusOffAdmire,
-    /// <summary>On timer underflow installs charging head bytecode and immediately begins baby-Metroid tile loading.</summary>
+    /// <summary>On timer underflow installs charging head bytecode and immediately begins readying the Baby Metroid's arrival.</summary>
     SecondPhaseFinishSamusOffChargeFinalBeam,
-    /// <summary>Transfers one baby sprite-tile record per call; list completion retracts the head, spawns the baby, and seeds a $100-count firing wait.</summary>
-    SecondPhaseFinishSamusOffLoadBabyTiles,
+    /// <summary>Readies the Baby Metroid's arrival one update per call; the last retracts the head, spawns the baby, and seeds a $100-count firing wait.</summary>
+    SecondPhaseFinishSamusOffReadyBaby,
     /// <summary>Expires the final wait, starts firing head bytecode/neck extension and its sound, then installs its own empty step as the holding function.</summary>
     SecondPhaseFinishSamusOffFireFinalBeam,
     /// <summary>Inert step that waits until the independently running baby latches on and replaces the body function.</summary>
@@ -194,8 +194,8 @@ public enum MotherBrainBodyFunction
     ThirdPhaseDeathRealizeDecapitation,
     /// <summary>Phase-three death/escape: BrainFallsToGround.</summary>
     ThirdPhaseDeathBrainFallsToGround,
-    /// <summary>Phase-three death/escape: LoadCorpseTiles.</summary>
-    ThirdPhaseDeathLoadCorpseTiles,
+    /// <summary>Phase-three death/escape: readies her corpse one update per call.</summary>
+    ThirdPhaseDeathReadyCorpse,
     /// <summary>Phase-three death/escape: SetupFadeToGrey.</summary>
     ThirdPhaseDeathSetupFadeToGrey,
     /// <summary>Phase-three death/escape: FadeToGrey.</summary>
@@ -206,8 +206,8 @@ public enum MotherBrainBodyFunction
     ThirdPhaseDeathCorpseRotsAway,
     /// <summary>Phase-three death/escape: 20FrameDelay.</summary>
     ThirdPhaseDeath20FrameDelay,
-    /// <summary>Phase-three death/escape: LoadEscapeTimerTiles.</summary>
-    ThirdPhaseDeathLoadEscapeTimerTiles,
+    /// <summary>Phase-three death/escape: readies the escape timer and message one update per call.</summary>
+    ThirdPhaseDeathReadyEscapeWarning,
     /// <summary>Phase-three death/escape: StartEscape.</summary>
     ThirdPhaseDeathStartEscape,
     /// <summary>Phase-three death/escape: SpawnTimeBombSetSubtitle.</summary>

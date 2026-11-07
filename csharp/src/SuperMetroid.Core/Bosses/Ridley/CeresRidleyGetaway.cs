@@ -196,21 +196,21 @@ internal sealed class CeresRidleyGetaway
                 // The warning setup copies four already-live colors before the warning graphics
                 // replace their tiles. These are palette indices, not byte offsets.
                 state.Colours.Room.Lay(RidleyShades.Warning);
-                state.CeresEscapePages = CeresEscapePageCursor.Objects;
-                state.CeresSelfDestructPhase = CeresSelfDestructPhase.ShowingObjectPages;
-                goto case CeresSelfDestructPhase.ShowingObjectPages;
+                state.CeresEscapeReadying = CeresEscapeReadying.Warning;
+                state.CeresSelfDestructPhase = CeresSelfDestructPhase.ReadyingWarning;
+                goto case CeresSelfDestructPhase.ReadyingWarning;
 
-            case CeresSelfDestructPhase.ShowingObjectPages:
-                if (ShowNextCeresEscapePage(state))
+            case CeresSelfDestructPhase.ReadyingWarning:
+                if (ReadyCeresEscapeWarning(state))
                 {
-                    state.CeresEscapePages = CeresEscapePageCursor.Backgrounds;
-                    state.CeresSelfDestructPhase = CeresSelfDestructPhase.ShowingBackgroundPages;
-                    goto case CeresSelfDestructPhase.ShowingBackgroundPages;
+                    state.CeresEscapeReadying = CeresEscapeReadying.Backgrounds;
+                    state.CeresSelfDestructPhase = CeresSelfDestructPhase.ReadyingBackgrounds;
+                    goto case CeresSelfDestructPhase.ReadyingBackgrounds;
                 }
                 return;
 
-            case CeresSelfDestructPhase.ShowingBackgroundPages:
-                if (ShowNextCeresEscapePage(state))
+            case CeresSelfDestructPhase.ReadyingBackgrounds:
+                if (ReadyCeresEscapeWarning(state))
                 {
                     // The warning setup calls DrawEmergencyText immediately after the final
                     // graphics record. The call was missing from the earlier
@@ -293,25 +293,23 @@ internal sealed class CeresRidleyGetaway
         _room.Services.WriteForegroundPicture(new WrittenPicture(page.Picture, page.Cell));
 
     /// <summary>
-    /// Ports ProcessSpriteTilesTransfers (#1406, #1513): shows the list's next page, one an update. A page of the
-    /// timer-sprite list advances the escape's artwork sequence from this update's frame on; the background list's pages
-    /// show nowhere, so each of its updates shows nothing but still takes its update.
+    /// Runs one update of the self-destruct's current readying stage (#1406, #1538): on the last update of bringing up the
+    /// escape timer and warning, the arena's backgrounds show them from this update's frame on; readying the backgrounds
+    /// shows nothing new but still takes its updates.
     /// </summary>
-    /// <returns>True once every page of the list has been shown.</returns>
-    /// <exception cref="InvalidDataException">The cursor names no list.</exception>
-    internal bool ShowNextCeresEscapePage(RidleyEnemyState state)
+    /// <returns>True once the stage has spent all its updates.</returns>
+    /// <exception cref="InvalidDataException">No stage was started.</exception>
+    internal bool ReadyCeresEscapeWarning(RidleyEnemyState state)
     {
-        CeresEscapePageCursor cursor = state.CeresEscapePages;
-        if (!cursor.IsStarted)
-            throw new InvalidDataException("The Ceres escape graphics dispatcher was never given a page list.");
-        if (cursor.IsFinished)
+        CeresEscapeReadying readying = state.CeresEscapeReadying;
+        if (!readying.IsStarted)
+            throw new InvalidDataException("The Ceres self-destruct readied its warning without starting a stage.");
+        if (readying.IsFinished)
             return true;
-        if (cursor.List == CeresEscapePageList.Objects)
-        {
-            _presentation.ShowArtwork(EncounterArtworkSequence.CeresEscapePages, cursor.Shown);
-        }
-        state.CeresEscapePages = cursor.Advance();
-        return state.CeresEscapePages.IsFinished;
+        state.CeresEscapeReadying = readying.Advance();
+        if (state.CeresEscapeReadying is { Stage: CeresEscapeReadyingStage.Warning, IsFinished: true })
+            _presentation.ShowLook(CeresEscapeReadyingDefinitions.WarningLook);
+        return state.CeresEscapeReadying.IsFinished;
     }
 
     /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's foreground.</summary>

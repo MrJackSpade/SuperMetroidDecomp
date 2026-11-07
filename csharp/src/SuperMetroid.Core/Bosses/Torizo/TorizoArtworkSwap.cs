@@ -1,3 +1,6 @@
+using System.Globalization;
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
@@ -19,6 +22,9 @@ internal readonly record struct TorizoArtworkSwap
     /// <exception cref="ArgumentOutOfRangeException">The body programs make no swap at that place.</exception>
     internal TorizoArtworkSwap(int ordinal) => this.ordinal = (uint)ordinal < Count ? ordinal
         : throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "Torizo's body programs make no such artwork swap.");
+
+    /// <summary>The look the swap gives <paramref name="torizo"/>, named by the swap's place (#1538).</summary>
+    internal EncounterLook Look(EncounterArtwork torizo) => new(torizo, string.Create(CultureInfo.InvariantCulture, $"Swap{ordinal}"));
 
     /// <summary>Names the swap by its place, as a sequence that does not show it reports it.</summary>
     public override string ToString() => $"Torizo artwork swap {ordinal}";

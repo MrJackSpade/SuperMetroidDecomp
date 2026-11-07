@@ -78,8 +78,11 @@ public enum BabyMetroidCutscenePhase
     /// <summary>Runs the falling, palette-fading death sequence and periodic dust explosions.</summary>
     DeathSequence,
 
-    /// <summary>Removes the Baby's sprite tiles after its body leaves the active cutscene.</summary>
-    UnloadTiles,
+    /// <summary>
+    /// Readies Mother Brain's attacks again over <see cref="MotherBrainReadyingDefinitions.AttacksAgainDuration"/> once the
+    /// Baby's body has left the active cutscene.
+    /// </summary>
+    ReadyMotherBrainAttacksAgain,
 
     /// <summary>Keeps Samus's restored rainbow palette cycling through the remaining scripted delay.</summary>
     LetSamusRainbowSomeMore,

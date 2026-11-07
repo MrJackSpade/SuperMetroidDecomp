@@ -19,16 +19,15 @@ internal sealed record EnemySheetManifestDocument
     public required Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>> Spawned { get; init; }
 
     /// <summary>
-    /// For each graphics set by name, then each enemy by definition name and each of its frames by name, how the frame
-    /// follows each encounter artwork sequence that changes it (#1513), by the sequence's name: for each step, the step whose
-    /// picture it shows then, or null for its loaded picture, the steps it is drawn at, and whether it is drawn before the
-    /// first. The enemy's sheet holds the frame's picture of each combination of those steps it is drawn at. A frame no
-    /// sequence changes is absent and drawn as its room's load leaves it.
+    /// For each graphics set by name, then each enemy by definition name and each of its frames by name, the encounters whose
+    /// looks change the frame (#1538), by encounter name in encounter order, each with the names of its looks the frame is
+    /// drawn in. The enemy's sheet holds the frame's finished picture of each combination of those looks, one look of each
+    /// encounter. A frame no encounter's looks change is absent and has one picture.
     /// </summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>> Variations { get; init; }
+    public required Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>> LookChanges { get; init; }
 
-    /// <summary>The same for each set's spawned-object sheets, by the tile base in decimal in place of the enemy.</summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>> SpawnedVariations { get; init; }
+    /// <summary>The same for each set's spawned-object sheets, by owner in place of the enemy.</summary>
+    public required Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>> SpawnedLookChanges { get; init; }
 
     /// <summary>
     /// For each graphics set by name, then each enemy by definition name and each of its frames that shows a rotting corpse
@@ -40,14 +39,4 @@ internal sealed record EnemySheetManifestDocument
     /// <summary>The same for each set's spawned-object sheets, by owner in place of the enemy.</summary>
     public required Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>> SpawnedCorpsePictures { get; init; }
 
-    /// <summary>
-    /// For each graphics set by name, then each enemy by definition name, the names of its frames' pictures in which every
-    /// character they read is blank (#1513), as the room's load or an encounter's artwork sequence leaves
-    /// them: the frame shows nothing while it shows such a picture, so its sheet holds none and the frame draws nothing then.
-    /// An enemy none of whose pictures shows nothing is absent.
-    /// </summary>
-    public required Dictionary<string, Dictionary<string, string[]>> BlankPictures { get; init; }
-
-    /// <summary>The same for each set's spawned-object sheets, by owner in place of the enemy.</summary>
-    public required Dictionary<string, Dictionary<string, string[]>> SpawnedBlankPictures { get; init; }
 }

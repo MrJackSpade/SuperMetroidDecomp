@@ -427,7 +427,7 @@ internal sealed class MotherBrainFakeDeath
                 MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain or
                 MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense or
                 MotherBrainBodyFunction.FakeDeathAscentPrepareForRising or
-                MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles or
+                MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody or
                 MotherBrainBodyFunction.FakeDeathAscentContinuePausing or
                 MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake or
                 MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain or
@@ -466,7 +466,7 @@ internal sealed class MotherBrainFakeDeath
                 MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp or
                 MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire or
                 MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam or
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles or
+                MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby or
                 MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam or
                 MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding or
                 MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback or
@@ -503,13 +503,13 @@ internal sealed class MotherBrainFakeDeath
                 MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions or
                 MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation or
                 MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround or
-                MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles or
+                MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse or
                 MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey or
                 MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey or
                 MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver or
                 MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway or
                 MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay or
-                MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles or
+                MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning or
                 MotherBrainBodyFunction.ThirdPhaseDeathStartEscape or
                 MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle or
                 MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText or

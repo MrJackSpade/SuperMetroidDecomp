@@ -65,18 +65,11 @@ internal sealed class EnemyPresentation
     internal BossBodyParts RequireBossBody() =>
         BossBody ?? throw new InvalidOperationException("No boss has attached its body.");
 
-    /// <summary>How far the room's encounters have played their artwork sequences, which their frames' pictures follow (#1513).</summary>
-    internal EncounterArtworkProgress ArtworkProgress => _room.Session.ArtworkProgress;
+    /// <summary>The look each of the room's encounters shows, which the frames its looks change show their pictures of (#1538).</summary>
+    internal EncounterLooks Looks => _room.Session.Looks;
 
-    /// <summary>Advances the encounter playing <paramref name="sequence"/> to step <paramref name="step"/> at this update (#1513).</summary>
-    internal void ShowArtwork(EncounterArtworkSequence sequence, int step) => ArtworkProgress.Show(sequence, step);
-
-    /// <summary>
-    /// Advances the encounter playing <paramref name="sequence"/>, whose steps show <paramref name="order"/>, to the step
-    /// showing <paramref name="look"/> at this update (#1513).
-    /// </summary>
-    internal void ShowArtwork<TLook>(EncounterArtworkSequence sequence, IReadOnlyList<TLook> order, TLook look)
-        where TLook : IEquatable<TLook> => ArtworkProgress.Show(sequence, order, look);
+    /// <summary>Shows <paramref name="look"/> on its encounter's frames from this update on (#1538).</summary>
+    internal void ShowLook(EncounterLook look) => Looks.Show(look);
 
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
@@ -99,10 +92,9 @@ internal sealed class EnemyPresentation
         (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin) = draw;
         PictureShading shading = draw.Shading ?? PictureShading.Standard;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
-        string picture = Picture(frame, Sheets.Variations(LoadedSet, enemy, frame));
-        // A picture whose every character the frame reads is blank, as the room's load or an encounter's artwork sequence
-        // leaves them, shows nothing: the sheet holds none and the frame draws nothing then (#1513).
-        if (Sheets.ShowsNothing(LoadedSet, enemy, picture))
+        string picture = Picture(frame, Sheets.ChangingEncounters(LoadedSet, enemy, frame));
+        // A finished picture that shows nothing draws nothing (#1538).
+        if (sheet.ShowsNothing(picture))
             return;
         SpriteSheetFrame image = sheet.Frame(picture);
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
@@ -132,10 +124,9 @@ internal sealed class EnemyPresentation
     {
         SpawnedObjectOwner owner = graphics.Owner;
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, owner);
-        string picture = Picture(frame, Sheets.SpawnedVariations(LoadedSet, owner, frame));
-        // A picture whose every character the frame reads is blank shows nothing: the sheet holds none and the object draws
-        // nothing then (#1513).
-        if (Sheets.SpawnedShowsNothing(LoadedSet, owner, picture))
+        string picture = Picture(frame, Sheets.SpawnedChangingEncounters(LoadedSet, owner, frame));
+        // A finished picture that shows nothing draws nothing (#1538).
+        if (sheet.ShowsNothing(picture))
             return;
         SpriteSheetFrame image = sheet.Frame(picture);
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
@@ -155,26 +146,12 @@ internal sealed class EnemyPresentation
         layout is not null && rows is not null ? CorpseRotDrawing.Picture(layout, rows, image.Size, picture) : null;
 
     /// <summary>
-    /// The picture <paramref name="frame"/> draws as: for a frame the room's encounters' artwork sequences change, its
-    /// picture of the step each of its <paramref name="variations"/> has reached (#1513); else the frame itself.
+    /// The finished picture <paramref name="frame"/> draws as (#1538): for a frame the room's encounters' looks change, its
+    /// picture of the look each of the <paramref name="encounters"/> shows now; else the frame's one picture. A sheet holds
+    /// a frame's picture of only the looks it is drawn in, so a draw in another fails when the sheet is asked for it.
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The frame is drawn at a step of a sequence, or before a sequence's first step, at which it is never drawn, so its
-    /// sheet holds no picture of it then.
-    /// </exception>
-    private string Picture(string frame, IReadOnlyList<FrameArtworkVariation> variations)
-    {
-        var shown = new List<EncounterArtworkStep>();
-        foreach (FrameArtworkVariation variation in variations)
-        {
-            int? reached = ArtworkProgress.StepOf(variation.Sequence);
-            if (reached is null && !variation.DrawnBeforeFirstStep)
-                throw new InvalidDataException($"Sheet frame {frame} is drawn before {variation.Sequence} reaches its first step, when it is never drawn; its sheet holds no picture of it then.");
-            if ((reached is int step ? variation.PictureAt(step, frame) : variation.PictureBeforeFirstStep) is int picture)
-                shown.Add(new EncounterArtworkStep(variation.Sequence, picture));
-        }
-        return FrameArtworkVariation.PictureName(frame, shown);
-    }
+    private string Picture(string frame, IReadOnlyList<EncounterArtwork> encounters) =>
+        EncounterLook.PictureName(frame, encounters.Select(Looks.Current));
 
     /// <summary>
     /// Publishes a frame an encounter draws itself, outside the enemy list (#1392): from its graphics set's shared

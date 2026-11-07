@@ -32,9 +32,9 @@ public sealed class CrocomireSkeletonArtwork
     /// <exception cref="InvalidDataException"><paramref name="index"/> is outside the sequence and its end entry.</exception>
     internal static bool IsChunk(int index)
     {
-        if ((uint)index < CrocomireSkeletonTransferDefinitions.FrameCount)
+        if ((uint)index < CrocomireSkeletonCharacterDefinitions.ChunkCount)
             return true;
-        if (index != CrocomireSkeletonTransferDefinitions.FrameCount)
+        if (index != CrocomireSkeletonCharacterDefinitions.ChunkCount)
             throw new InvalidDataException(
                 $"Crocomire skeleton upload index {index} is outside its sequence.");
         return false;

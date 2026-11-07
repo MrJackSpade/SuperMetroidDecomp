@@ -99,18 +99,18 @@ internal sealed class MotherBrainAscent
         state.RisingFloorClipActive = true;
         state.Head.Properties = state.Head.Properties.With(EnemyProperties.Invisible);
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
-        state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
+        state.Function = MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody;
         state.FunctionTimer = 256;
 
-        // The first leg page shows on the same frame the floor-clipping effect starts.
-        LoadMotherBrainLegTiles(state);
+        // The first readying update runs on the same frame the floor-clipping effect starts.
+        ReadyMotherBrainStandingBody(state);
     }
 
-    /// <summary>Loads the leg tiles needed before the phase-two body becomes visible.</summary>
-    internal void LoadMotherBrainLegTiles(
+    /// <summary>Runs one update of readying her standing body before the phase-two body becomes visible.</summary>
+    internal static void ReadyMotherBrainStandingBody(
         MotherBrainEnemyState state)
     {
-        if (!ShowNextLegPage(state))
+        if (!ReadyStandingBodyOnce(state))
         {
             return;
         }
@@ -123,26 +123,20 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>
-    /// Shows the next of the leg-loading pages, one per call, and reports whether that was the last: the eight leg pages,
-    /// then the four attack pages the legs had covered.
+    /// Runs one update of readying her standing body, one per call, and reports whether it was the last of
+    /// <see cref="MotherBrainReadyingDefinitions.StandingBodyDuration"/>: the last completes in the same call and starts
+    /// the count over.
     /// </summary>
-    internal bool ShowNextLegPage(MotherBrainEnemyState state)
+    internal static bool ReadyStandingBodyOnce(MotherBrainEnemyState state)
     {
-        int index = state.NextLegTilePage;
-        int legPages = MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Legs);
-        _motherBrainEncounter.ShowSpritePage(index < legPages
-            ? MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Legs, index)
-            : MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Attack, index - legPages));
-
-        // Checks the next record's zero terminator on the same call as
-        // page eleven. Preserve that same-frame completion and list reset.
-        if (index + 1 == MotherBrainEnemyState.LegLoadPageCount)
+        int elapsed = state.StandingBodyReadyingElapsed;
+        if (elapsed + 1 == MotherBrainReadyingDefinitions.StandingBodyDuration)
         {
-            state.NextLegTilePage = 0;
+            state.StandingBodyReadyingElapsed = 0;
             return true;
         }
 
-        state.NextLegTilePage = index + 1;
+        state.StandingBodyReadyingElapsed = elapsed + 1;
         return false;
     }
 

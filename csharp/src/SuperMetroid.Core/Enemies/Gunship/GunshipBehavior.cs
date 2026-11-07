@@ -262,8 +262,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                     _frameResults.Gunship = GunshipFrameEvent.ExitCompleted;
                 }
                 return;
-            case GunshipFunction.LoadLiftoffDustTiles:
-                ShowGunshipTakeoffPage(top);
+            case GunshipFunction.ReadyTakeoffEngines:
+                ReadyGunshipTakeoffEngines(top);
                 return;
             case GunshipFunction.FireUpEngines:
                 FireUpGunshipEngines(top, samus);
@@ -384,7 +384,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipFunction.Idle or GunshipFunction.WaitForEntranceToOpen or GunshipFunction.LowerSamus or
         GunshipFunction.WaitForEntranceToClose or GunshipFunction.BeginLiftoffOrRestoreSamus or
         GunshipFunction.HandleSaveConfirmation or GunshipFunction.WaitForExitPadToOpen or GunshipFunction.RaiseSamus or
-        GunshipFunction.FinishSamusExit or GunshipFunction.LoadLiftoffDustTiles;
+        GunshipFunction.FinishSamusExit or GunshipFunction.ReadyTakeoffEngines;
 
     /// <summary>Cycles the four idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
@@ -475,8 +475,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (_room.Services.Events.Has(EventNumber.ZebesTimebombSet))
         {
             RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
-            Part(top).Function = GunshipFunction.LoadLiftoffDustTiles;
-            Part(top).NextLiftoffPage = 0;
+            Part(top).Function = GunshipFunction.ReadyTakeoffEngines;
+            Part(top).EngineReadyingElapsed = 0;
             Part(bottom).EscapeVelocity = 0;
             Part(bottom).RumbleFrame = 0;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffStarted;
@@ -516,22 +516,23 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs gunship function 17 (#1406, #1513): advances the takeoff's artwork sequence to the next of its five pages,
-    /// one a step, from this update's frame on; after the fifth, the engines fire up.
+    /// Runs one update of the takeoff readying the engines (#1406, #1538): on the last of
+    /// <see cref="GunshipTakeoffDefinitions.EngineReadyingDuration"/> updates the gunship shows its takeoff look from this
+    /// update's frame on, and the engines fire up.
     /// </summary>
-    /// <exception cref="InvalidDataException">The page index left its five pages.</exception>
-    internal void ShowGunshipTakeoffPage(RoomEnemySlot top)
+    /// <exception cref="InvalidDataException">The readying ran past its duration.</exception>
+    internal void ReadyGunshipTakeoffEngines(RoomEnemySlot top)
     {
-        int page = Part(top).NextLiftoffPage;
-        if ((uint)page >= GunshipLiftoffDefinitions.PageCount)
-            throw new InvalidDataException("Gunship takeoff page escaped its five pages.");
-        _room.Session.ArtworkProgress.Show(EncounterArtworkSequence.GunshipLiftoff, page);
+        int elapsed = Part(top).EngineReadyingElapsed;
+        if ((uint)elapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
+            throw new InvalidDataException("The gunship's takeoff readied its engines past its duration.");
 
-        Part(top).NextLiftoffPage = page + 1;
-        if (Part(top).NextLiftoffPage >= GunshipLiftoffDefinitions.PageCount)
+        Part(top).EngineReadyingElapsed = elapsed + 1;
+        if (Part(top).EngineReadyingElapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
         {
+            _room.Session.Looks.Show(GunshipTakeoffDefinitions.TakeoffLook);
             Part(top).Function = GunshipFunction.FireUpEngines;
-            Part(top).NextLiftoffPage = 0;
+            Part(top).EngineReadyingElapsed = 0;
         }
     }
 

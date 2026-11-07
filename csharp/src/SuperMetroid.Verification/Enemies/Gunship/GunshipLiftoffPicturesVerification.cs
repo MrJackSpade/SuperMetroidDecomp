@@ -17,16 +17,16 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 
 /// <summary>
-/// Checks the gunship draws from pictures of its landing site's pre-coloured sheet (#1392, #1513): before its takeoff and at
-/// each takeoff page the ship paints its frames over the characters then, and every frame the pages change, the takeoff's
-/// dust among them, shows its picture of each page it is drawn over.
+/// Checks the gunship draws from finished pictures of its landing site's pre-coloured sheet (#1392, #1538): landed and once
+/// its engines are readied for the takeoff the ship paints its frames over the characters then, and every frame the
+/// takeoff's look changes shows its picture of each look it is drawn in.
 /// </summary>
 internal static class GunshipLiftoffPicturesVerification
 {
     /// <summary>
-    /// At the landing site the ship's top and bottom show, before its takeoff and at each takeoff page, the picture of the
-    /// page reached, painting exactly what the frame paints over the characters the set leaves at that page; and every frame
-    /// of the set's sheets the takeoff changes follows it at the pages it is drawn over.
+    /// At the landing site the ship's top and bottom show, landed and in the takeoff look, the finished picture of the look
+    /// shown, painting exactly what the frame paints over the characters the set leaves in that look; and every frame of the
+    /// set's sheets the takeoff changes follows its looks.
     /// </summary>
     internal static void VerifyGunshipLiftoffPictures()
     {
@@ -45,15 +45,12 @@ internal static class GunshipLiftoffPicturesVerification
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
 
-        int pages = GunshipLiftoffDefinitions.PageCount;
         int pictured = 0;
-        for (int step = 0; step <= pages; step++)
+        foreach (EncounterLook look in new[] { EncounterLook.Loaded(EncounterArtwork.Gunship), GunshipTakeoffDefinitions.TakeoffLook })
         {
-            // Step zero is the ship before its takeoff, then each takeoff page in turn.
-            IReadOnlyList<EncounterArtworkStep> reached =
-                step == 0 ? [] : [new EncounterArtworkStep(EncounterArtworkSequence.GunshipLiftoff, step - 1)];
-            if (step > 0)
-                runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.GunshipLiftoff, step - 1);
+            // The ship landed, then in its takeoff look.
+            IReadOnlyList<EncounterLook> reached = look.Name == EncounterLook.LoadedName ? [] : [look];
+            runtime.EnemySession.Looks.Show(look);
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
             SpriteArtwork live = EnemySheetFixtures.LivePage(set, reached);
             var sprites = new SpriteFrameBuffer();
@@ -65,26 +62,25 @@ internal static class GunshipLiftoffPicturesVerification
             {
                 EnemyFrameId frame = part.Frame ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} shows a frame.");
                 string name = EnemySheetDefinitions.FrameName(frame);
-                IReadOnlyList<FrameArtworkVariation> variations = sheets.Variations(set, part.DefinitionId, name);
-                if (variations.Count > 0)
+                IReadOnlyList<EncounterArtwork> changing = sheets.ChangingEncounters(set, part.DefinitionId, name);
+                if (changing.Count > 0)
                     pictured++;
                 var source = new SpriteSource(SpriteSourceKind.Enemy, part.SlotIndex);
                 ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
                 UploadedPictureChecks.AssertDrawnPicture(sheets.For(set, part.DefinitionId).Frame,
-                    UploadedPictureChecks.ExpectedPicture(name, variations, reached), drawn,
-                    $"after {step} liftoff pages the ship's {part.DefinitionId}");
+                    UploadedPictureChecks.ExpectedPicture(name, changing, reached), drawn,
+                    $"in {look} the ship's {part.DefinitionId}");
 
                 CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(live, source, RuntimeArtworkContent.Of(runtime).EnemyTiles.Spritemaps
                     ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), new EnemySpritemapDraw
                 {
                     Frame = frame, Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(part.PaletteRowIn(runtime.Enemies)), BaseTileIndex = part.NativeTileBaseIn(runtime.Enemies),
                 }) ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} frame has parts.");
-                UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the ship's {part.DefinitionId} after {step} liftoff uploads");
+                UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the ship's {part.DefinitionId} in {look}");
             }
         }
-        // The takeoff's pages are the dust's characters, which the dust shows once the engines have fired.
-        int followed = UploadedPictureChecks.AssertFramesFollowSequence(set, EncounterArtworkSequence.GunshipLiftoff, pages, "the gunship's takeoff");
-        Console.WriteLine($"Gunship liftoff pictures: the ship paints its frames over the characters each of the {pages} takeoff pages leaves ({pictured} of its draws follow the pages), and {followed} frames follow the pages they are drawn over.");
+        int followed = UploadedPictureChecks.AssertFramesFollowLooks(set, EncounterArtwork.Gunship, "the gunship's takeoff");
+        Console.WriteLine($"Gunship liftoff pictures: the ship paints its frames over the characters each of its looks leaves ({pictured} of its draws follow the looks), and {followed} frames follow the looks they are drawn in.");
     }
 
     /// <summary>Runs the gunship liftoff picture check.</summary>

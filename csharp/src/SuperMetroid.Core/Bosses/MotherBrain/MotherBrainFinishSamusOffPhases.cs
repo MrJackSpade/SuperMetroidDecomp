@@ -35,15 +35,13 @@ internal sealed class MotherBrainFinishSamusOffPhases
             : divided + 20;
     }
 
-    /// <summary>Selects the next Baby Metroid page, rejecting calls after its last page has shown.</summary>
-    private MotherBrainSpritePage NextBabyMetroidPage()
+    /// <summary>Runs one update of readying the Baby Metroid's arrival, rejecting calls once it has arrived.</summary>
+    private void ReadyBabyMetroidArrival()
     {
-        int index = _state.BabyMetroidPagesShown;
-        if (index >= MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.BabyMetroid))
-            throw new InvalidOperationException("Every Baby Metroid page has already shown.");
+        if (_state.BabyArrivalReadyingElapsed >= MotherBrainReadyingDefinitions.BabyArrivalDuration)
+            throw new InvalidOperationException("The Baby Metroid's arrival is already readied.");
 
-        _state.BabyMetroidPagesShown++;
-        return MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, index);
+        _state.BabyArrivalReadyingElapsed++;
     }
 
     /// <summary>
@@ -135,7 +133,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.ChargingRainbowBeam);
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles;
+            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby;
             return true;
         }
         return false;
@@ -145,13 +143,11 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// Runs the second phase finish samus off load baby tiles body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOffLoadBabyTiles(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunSecondPhaseFinishSamusOffReadyBaby(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The baby-tiles step processes exactly one seven-byte table entry per call. The
-        // fourth entry sees the following zero terminator, clears its saved pointer,
-        // and returns carry set on that same call.
-        requests.SpritePage = NextBabyMetroidPage();
-        if (_state.BabyMetroidPagesShown == MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.BabyMetroid))
+        // Each call readies one update of the Baby's arrival; the last spawns it on that same call.
+        ReadyBabyMetroidArrival();
+        if (_state.BabyArrivalReadyingElapsed == MotherBrainReadyingDefinitions.BabyArrivalDuration)
         {
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;

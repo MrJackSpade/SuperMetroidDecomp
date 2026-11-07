@@ -7,8 +7,8 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// When one frame is drawn under each encounter artwork sequence (#1513), as <see cref="EncounterArtworkDrawingDefinitions"/>
-/// lists it: a sheet holds the frame's pictures of only those steps.
+/// Which looks of each encounter one frame is drawn in (#1513, #1538), as <see cref="EncounterArtworkDrawingDefinitions"/>
+/// lists them: a sheet holds the frame's finished pictures of only those looks.
 /// </summary>
 internal sealed class FrameDrawings
 {
@@ -24,7 +24,7 @@ internal sealed class FrameDrawings
     /// <summary>A frame the entries <paramref name="listed"/> list.</summary>
     private FrameDrawings(EncounterArtworkDrawing[] listed) => this.listed = listed;
 
-    /// <summary>A frame drawn under no sequence, which shows only its loaded picture.</summary>
+    /// <summary>A frame no encounter draws in a look of its own, which shows only its room's load.</summary>
     internal static FrameDrawings None { get; } = new([]);
 
     /// <summary>When enemy frame <paramref name="frame"/> is drawn, on whichever sheet holds it.</summary>
@@ -35,22 +35,18 @@ internal sealed class FrameDrawings
     internal static FrameDrawings Of(EnemyProjectileFrameId frame) =>
         new([.. Entries.Where(entry => entry.Projectiles.Contains(frame)).Select(entry => entry.Drawing)]);
 
-    /// <summary>When the frame is drawn under <paramref name="sequence"/>, or none when no entry lists it for the sequence.</summary>
-    internal FrameDrawnSteps? For(EncounterArtworkSequence sequence)
+    /// <summary>The looks of <paramref name="encounter"/> the frame is drawn in, or none when no entry lists it for the encounter.</summary>
+    /// <exception cref="InvalidDataException">The entries disagree on whether the frame's artwork is its look's own, or name a look the encounter lacks.</exception>
+    internal FrameDrawnLooks? For(ComposedEncounter encounter)
     {
-        EncounterArtworkDrawing[] drawn = [.. listed.Where(entry => entry.Sequence == sequence)];
-        return drawn.Length == 0 ? null
-            : new FrameDrawnSteps(drawn.Any(entry => entry.DrawnBeforeFirstStep), [.. drawn.SelectMany(entry => entry.Steps)],
-                CompletedBy(sequence, drawn));
-    }
-
-    /// <summary>The one source <paramref name="drawn"/> name as completing the frame's artwork under <paramref name="sequence"/>, or none.</summary>
-    /// <exception cref="InvalidDataException">The entries name different sources.</exception>
-    private static EncounterArtworkSource? CompletedBy(EncounterArtworkSequence sequence, EncounterArtworkDrawing[] drawn)
-    {
-        EncounterArtworkSource?[] completing = [.. drawn.Select(entry => entry.CompletedBy).Distinct()];
-        return completing.Length == 1 ? completing[0]
-            : throw new InvalidDataException($"Entries listing a frame for {sequence} name different sources completing its artwork.");
+        EncounterArtworkDrawing[] drawn = [.. listed.Where(entry => entry.Encounter == encounter)];
+        if (drawn.Length == 0)
+            return null;
+        bool[] own = [.. drawn.Select(entry => entry.ArtworkOfLook).Distinct()];
+        if (own.Length != 1)
+            throw new InvalidDataException($"Entries listing a frame for {encounter} disagree on whether its artwork is its look's own.");
+        return new FrameDrawnLooks([.. drawn.SelectMany(entry => entry.Looks).Select(look => EncounterLookUploads.IndexOf(encounter, look)).Distinct().Order()],
+            own[0]);
     }
 
     /// <summary>A catalogue entry with the frames it lists resolved.</summary>

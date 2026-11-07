@@ -1416,15 +1416,17 @@ internal static class LookupStream2Verification
             AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
             AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
-            enemies.GunshipBehavior.ShowGunshipTakeoffPage(slot);
-            AssertEqual<int?>(enumerated, enemies.Room.Session.ArtworkProgress.StepOf(SuperMetroid.Core.Assets.EncounterArtworkSequence.GunshipLiftoff),
-                "Gunship reaches its page's step of the takeoff");
+            enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(slot);
+            AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineReadyingDuration,
+                enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
+                "the gunship shows its takeoff look from the readying's last update only");
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
-        AssertEqual(0, part.NextLiftoffPage, "Gunship completes its page phase");
+        AssertEqual(GunshipTakeoffDefinitions.EngineReadyingDuration, enumerated, "the readying lasts one update a native transfer");
+        AssertEqual(0, part.EngineReadyingElapsed, "Gunship completes its readying phase");
         AssertEqual(GunshipFunction.FireUpEngines, part.Function, "Gunship starts engines after fifth transfer");
-        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the pages shown/phase handoff and enumeration pass.");
+        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the readying's duration, takeoff look and phase handoff pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors and the shades the import pre-colours the arrow in (#1512).</summary>
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)

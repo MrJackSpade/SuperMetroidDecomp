@@ -3,8 +3,8 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// One copy a step of an encounter's artwork sequence makes over the cartridge's sprite characters (#1513): the
-/// characters and the sprite character they land from. Only the import knows it; it composes the step's pictures from it.
+/// One copy a look of an encounter makes over the cartridge's sprite characters (#1513, #1538): the
+/// characters and the sprite character they land from. Only the import knows it; it composes the look's pictures from it.
 /// </summary>
 /// <param name="FirstCharacter">The sprite character the copy lands from.</param>
 /// <param name="Characters">The bytes it copies.</param>

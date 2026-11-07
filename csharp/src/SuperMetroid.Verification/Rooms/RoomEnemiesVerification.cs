@@ -1155,7 +1155,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(state.GetawayFinished, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
         "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");
-    AssertEqual(CeresEscapePageList.None, state.CeresEscapePages.List,
+    AssertEqual(CeresEscapeReadyingStage.None, state.CeresEscapeReadying.Stage,
         "Mode-7 terminator does not run the new actor function in the same enemy frame");
 
     var spriteTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4cb);
@@ -1166,26 +1166,29 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalSprite = record == spriteTransfers.Count - 1;
-        AssertEqual<int?>(record, enemies.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
-            "Ceres sprite pages show one per frame");
-        AssertEqual(finalSprite ? CeresSelfDestructPhase.ShowingBackgroundPages : CeresSelfDestructPhase.ShowingObjectPages, state.CeresSelfDestructPhase, "Ceres sprite/background phase handoff");
+        AssertEqual(finalSprite, enemies.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
+            "Ceres shows the warning look on the warning's last readying update only");
+        AssertEqual(finalSprite ? CeresSelfDestructPhase.ReadyingBackgrounds : CeresSelfDestructPhase.ReadyingWarning, state.CeresSelfDestructPhase, "Ceres sprite/background phase handoff");
     }
     for (int record = 1; record < backgroundTransfers.Count; record++)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalBackground = record == backgroundTransfers.Count - 1;
-        AssertEqual<int?>(spriteTransfers.Count - 1, enemies.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
-            "Ceres background pages show nothing over the sprites");
+        AssertTrue(enemies.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
+            "Ceres readying the backgrounds shows nothing new over the sprites");
         AssertEqual(finalBackground, !ceresOverlay.Pictures.IsEmpty,
             "Ceres writes EMERGENCY over BG1 on the final background frame");
-        AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ShowingBackgroundPages, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
+        AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ReadyingBackgrounds, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
     }
     var escapeResolver = new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(InstalledFixtures.EnemyArtwork,
         timer: SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
+    IReadOnlyList<EncounterArtworkUpload> warningPages = EncounterLookUploads.Uploads(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
+        EncounterLookUploads.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeReadyingDefinitions.WarningLook.Name), escapeResolver);
+    AssertEqual(spriteTransfers.Count, warningPages.Count, "the warning look copies one page a native sprite transfer");
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
         VramWriteEntry expected = spriteTransfers[index];
-        EncounterArtworkUpload actual = EncounterArtworkUploads.Step(EncounterArtworkSequence.CeresEscapePages, index, escapeResolver).Single();
+        EncounterArtworkUpload actual = warningPages[index];
         AssertEqual(expected.SizeInBytes, actual.Characters.Length, $"Ceres page {index} native size");
         AssertEqual(SpriteArtworkPlacements.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
         if (index < 2)

@@ -899,8 +899,8 @@ internal static class LookupStream3Verification
         AssertTrue(expectedSheets.SequenceEqual(MotherBrainSpecialSpriteSheetDefinitions.All),
             "stream 3 named special sheet order and every field");
         AssertTrue(MotherBrainSpecialSpriteSheetDefinitions.All.Select(sheet => (sheet.Sheet, sheet.FirstCharacter)).SequenceEqual(
-            [(MotherBrainSpritePageSheet.Legs, 320), (MotherBrainSpritePageSheet.BabyMetroid, 448),
-             (MotherBrainSpritePageSheet.Attack, 448), (MotherBrainSpritePageSheet.ExplodedDoor, 256)]),
+            [(MotherBrainSpriteSheet.Legs, 320), (MotherBrainSpriteSheet.BabyMetroid, 448),
+             (MotherBrainSpriteSheet.Attack, 448), (MotherBrainSpriteSheet.ExplodedDoor, 256)]),
             "stream 3 special sheet identities and first characters");
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainSpecialSpriteSheetDefinitions.All[invalid],
@@ -1219,52 +1219,57 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>
-    /// Checks the pages the escape sequence and the exploded door show against the cartridge's lists: each production
-    /// selection, in list order, shows the record's bytes where the record places them, and each list's cursor advances once
-    /// per call and refuses a call past its last page.
+    /// Checks the pages her escape looks copy against the cartridge's lists (#1538): each copy, in list order, holds the
+    /// record's bytes where the record places them, and her death readies the escape warning and the exploded door one
+    /// update a record, refusing an update past the last.
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        Func<MotherBrainSpritePage> timer = sequence.ThirdPhaseDeath.NextEscapePage;
-        Func<MotherBrainSpritePage> door = sequence.ThirdPhaseDeath.NextExplodedDoorPage;
+        EncounterArtworkUpload[] Copies(params string[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
+            EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
             int start = timerList ? 0xa6c4cb : 0xa9902f;
-            var method = timerList ? timer : door;
+            Action ready = timerList ? sequence.ThirdPhaseDeath.ReadyEscapeWarning : sequence.ThirdPhaseDeath.ReadyExplodedDoor;
+            EncounterArtworkUpload[] copies = timerList
+                ? Copies(EncounterLookUploads.MotherBrainEscapeTimerLook, EncounterLookUploads.MotherBrainEscapeTextLook)
+                : Copies(EncounterLookUploads.MotherBrainExplodedDoorLook);
+            AssertEqual(count, copies.Length, "stream 3 escape looks copy one page a native record");
+            AssertEqual(count, timerList ? MotherBrainReadyingDefinitions.EscapeWarningDuration : MotherBrainReadyingDefinitions.ExplodedDoorDuration,
+                "stream 3 escape readying takes one update a native record");
             for (int index = 0; index < count; index++)
             {
                 int address = start + index * 7;
                 int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2;
-                EncounterArtworkUpload shown = EncounterArtworkUploads.Step(SuperMetroid.Core.Assets.EncounterArtworkSequence.MotherBrainPages,
-                    EncounterArtworkPlacements.MotherBrainSteps([method()])[0], InstalledPageResolver).Single();
-                AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 production escape page shows where the native record places it");
-                AssertEqual(nativeSize, shown.Characters.Length, "stream 3 production escape page shows the native record's bytes");
-                AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapePagesShown : sequence.ThirdPhaseDeath.ExplodedDoorPagesShown,
-                    "stream 3 production escape cursor advances once");
+                EncounterArtworkUpload shown = copies[index];
+                AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 escape page lands where the native record places it");
+                AssertEqual(nativeSize, shown.Characters.Length, "stream 3 escape page copies the native record's bytes");
+                ready();
+                AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapeWarningReadyingElapsed : sequence.ThirdPhaseDeath.ExplodedDoorReadyingElapsed,
+                    "stream 3 production escape readying advances once");
             }
             try
             {
-                method();
-                throw new InvalidDataException("Completed escape page list unexpectedly produced another page.");
+                ready();
+                throw new InvalidDataException("Completed escape readying unexpectedly readied another update.");
             }
             catch (InvalidOperationException) { }
         }
-        for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (EscapeTextArtworkDefinitions.TimerPageCount + page) * 7 + 2),
+        int timerPages = Enum.GetValues<SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTilePage>().Length;
+        for (int page = 0; page < EscapeTextSheetFormat.PageCount; page++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (timerPages + page) * 7 + 2),
                 (int)EscapeSourceDefinitions.TextCharacters + EscapeTextPages.PageOffset(page), "stream 3 escape text page source: the page's offset into the installed sheet");
         AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa9902f + 2),
-            (uint)MotherBrainSourceDefinitions.SpecialSprites.Sources[MotherBrainSpritePageSheet.ExplodedDoor], "stream 3 exploded door source");
+            (uint)MotherBrainSourceDefinitions.SpecialSprites.Sources[MotherBrainSpriteSheet.ExplodedDoor], "stream 3 exploded door source");
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextPages.PageOffset(invalid), "stream 3 text page offset bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextPages.PageFirstCharacter(invalid), "stream 3 text page destination bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextPages.PageByteCount(invalid), "stream 3 text page size bounds");
         }
-        foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, invalid), "stream 3 door page bounds");
         Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(InstalledFixtures.EnemyArtwork));
     }
 
@@ -1294,8 +1299,8 @@ internal static class LookupStream3Verification
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
-            EncounterArtworkUpload page = EncounterArtworkUploads.Step(SuperMetroid.Core.Assets.EncounterArtworkSequence.MotherBrainPages,
-                EncounterArtworkPlacements.MotherBrainSteps([MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)])[0], InstalledPageResolver).Single();
+            EncounterArtworkUpload page = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
+                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook), InstalledPageResolver)[row];
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.Characters.Length, "stream 3 corpse page bytes");

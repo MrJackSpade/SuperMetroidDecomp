@@ -12,7 +12,7 @@ internal static class SpawnedObjectSheetClosedContractDefinitions
         new("SuperMetroid.Core.Enemies.Artwork.SpawnedObjectSheet", "spawned-object-sheet-exact-spawned-pictures", ["Frame"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/SpawnedObjectSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySheetDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/FrameArtworkVariation.cs"),
+             new("csharp/src/SuperMetroid.Core/Assets/EncounterLook.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/InstalledEnemySheets.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/EnemyPresentation.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/SpawnedObjectSheetComposer.cs"),

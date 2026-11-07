@@ -60,21 +60,23 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>Whether the death has reached the point where the start of Mother Brain's body is cleared (#1466).</summary>
     public bool BodyClearRequested { get; private set; }
 
-    /// <summary>How many of the six corpse pages have shown, which is also the next to show.</summary>
-    public int CorpsePagesShown { get; private set; }
+    /// <summary>
+    /// The updates her death has spent readying her corpse so far, zero through
+    /// <see cref="MotherBrainReadyingDefinitions.CorpseDuration"/>.
+    /// </summary>
+    public int CorpseReadyingElapsed { get; private set; }
 
     /// <summary>
-    /// How many pages of the escape sequence's list have shown: the two escape-timer digit pages, then
-    /// the five escape-message pages.
+    /// The updates her death has spent readying the escape timer and message so far, zero through
+    /// <see cref="MotherBrainReadyingDefinitions.EscapeWarningDuration"/>.
     /// </summary>
-    public int EscapePagesShown { get; private set; }
+    public int EscapeWarningReadyingElapsed { get; private set; }
 
-    /// <summary>How many of the two exploded-door pages have shown.</summary>
-    public int ExplodedDoorPagesShown { get; private set; }
-
-    /// <summary>The pages the escape sequence shows one per call: the escape timer's digits, then the escape message.</summary>
-    public static int EscapePageCount =>
-        MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.EscapeTimer) + MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.EscapeText);
+    /// <summary>
+    /// The updates her death has spent readying the escape door's explosion so far, zero through
+    /// <see cref="MotherBrainReadyingDefinitions.ExplodedDoorDuration"/>.
+    /// </summary>
+    public int ExplodedDoorReadyingElapsed { get; private set; }
 
     /// <summary>Unpause-hook enable word cleared when the escape typewriter is installed.</summary>
     public bool MotherBrainUnpauseHookEnabled { get; internal set; } = true;
@@ -85,40 +87,31 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public bool BrainDrawSetupRequested { get; private set; }
 
-    /// <summary>Selects the next corpse page, rejecting calls after the last has shown.</summary>
-    private MotherBrainSpritePage NextCorpsePage()
+    /// <summary>Runs one update of readying her corpse, rejecting calls once it is readied.</summary>
+    private void ReadyCorpse()
     {
-        int index = CorpsePagesShown;
-        if (index >= MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Corpse))
-            throw new InvalidOperationException("Every Mother Brain corpse page has already shown.");
+        if (CorpseReadyingElapsed >= MotherBrainReadyingDefinitions.CorpseDuration)
+            throw new InvalidOperationException("Mother Brain's corpse is already readied.");
 
-        CorpsePagesShown++;
-        return MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, index);
+        CorpseReadyingElapsed++;
     }
 
-    /// <summary>Selects the next page of the escape sequence: a timer digit page, then a message page.</summary>
-    internal MotherBrainSpritePage NextEscapePage()
+    /// <summary>Runs one update of readying the escape timer and message, rejecting calls once they are readied.</summary>
+    internal void ReadyEscapeWarning()
     {
-        int index = EscapePagesShown;
-        if (index >= EscapePageCount)
-            throw new InvalidOperationException("Every escape sequence page has already shown.");
+        if (EscapeWarningReadyingElapsed >= MotherBrainReadyingDefinitions.EscapeWarningDuration)
+            throw new InvalidOperationException("The escape timer and message are already readied.");
 
-        EscapePagesShown++;
-        int timerPages = MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.EscapeTimer);
-        return index < timerPages
-            ? MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, index)
-            : MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeText, index - timerPages);
+        EscapeWarningReadyingElapsed++;
     }
 
-    /// <summary>Selects the next exploded-door page, rejecting calls after the last has shown.</summary>
-    internal MotherBrainSpritePage NextExplodedDoorPage()
+    /// <summary>Runs one update of readying the escape door's explosion, rejecting calls once it is readied.</summary>
+    internal void ReadyExplodedDoor()
     {
-        int index = ExplodedDoorPagesShown;
-        if (index >= MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.ExplodedDoor))
-            throw new InvalidOperationException("Every exploded-door page has already shown.");
+        if (ExplodedDoorReadyingElapsed >= MotherBrainReadyingDefinitions.ExplodedDoorDuration)
+            throw new InvalidOperationException("The escape door's explosion is already readied.");
 
-        ExplodedDoorPagesShown++;
-        return MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, index);
+        ExplodedDoorReadyingElapsed++;
     }
 
     /// <summary>
@@ -396,8 +389,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.EarthquakeType = 2;
             _state.EarthquakeTimer = WrappingCountdown.Start(20);
             _state.BrainPosition = _state.BrainPosition.WithY(196);
-            CorpsePagesShown = 0;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles;
+            CorpseReadyingElapsed = 0;
+            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse;
             _state.FunctionTimer = 256;
         }
         else
@@ -411,12 +404,11 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Runs the third phase death load corpse tiles body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunThirdPhaseDeathLoadCorpseTiles(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunThirdPhaseDeathReadyCorpse()
     {
-        // ProcessSpriteTilesTransfers handles one record per call and notices the
-        // following zero terminator on the sixth call, just like the Baby tile list.
-        requests.SpritePage = NextCorpsePage();
-        if (CorpsePagesShown == MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Corpse))
+        // Each call readies one update of her corpse; the last moves on to the fade on that same call.
+        ReadyCorpse();
+        if (CorpseReadyingElapsed == MotherBrainReadyingDefinitions.CorpseDuration)
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey;
             _state.FunctionTimer = 32;
@@ -520,7 +512,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             // delay. Loading the escape-timer tiles finally parks it at (0,0) before escape-timer tile
             // loading begins; this is a real actor-coordinate mutation, not rendering.
             _state.BrainPosition = Position16<RoomPixels>.Zero;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles;
+            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning;
         }
         return false;
     }
@@ -529,14 +521,13 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Runs the third phase death load escape timer tiles body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunThirdPhaseDeathLoadEscapeTimerTiles(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunThirdPhaseDeathReadyEscapeWarning()
     {
-        requests.EscapeSequencePages.Add(NextEscapePage());
-        if (EscapePagesShown == EscapePageCount)
+        ReadyEscapeWarning();
+        if (EscapeWarningReadyingElapsed == MotherBrainReadyingDefinitions.EscapeWarningDuration)
         {
-            // Carry set after entry six clears the shared list cursor, installs
-            // And falls through far enough to emit exploded-door entry zero
-            // during this same enemy AI call.
+            // The last readying update installs the escape's start and falls through far enough to ready the escape
+            // door's explosion's first update during this same enemy AI call.
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
             return true;
         }
@@ -549,12 +540,11 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathStartEscape(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.EscapeSequencePages.Add(NextExplodedDoorPage());
-        if (ExplodedDoorPagesShown != MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.ExplodedDoor))
+        ReadyExplodedDoor();
+        if (ExplodedDoorReadyingElapsed != MotherBrainReadyingDefinitions.ExplodedDoorDuration)
             return false;
 
-        // The second door record observes the zero terminator and performs the full
-        // escape-door handoff on that call: copy fourteen colors (palette zero is
+        // The last readying update performs the full escape-door handoff on that call: copy fourteen colors (palette zero is
         // skipped), start escape music, hold the quake indefinitely, create four
         // palette-FX objects, disable the old unpause hook, and initialize text.
         requests.ExplodedDoorPaletteRequested = true; // 14 colors into the target palette.

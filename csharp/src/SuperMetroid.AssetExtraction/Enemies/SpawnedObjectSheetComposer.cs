@@ -121,9 +121,9 @@ internal static class SpawnedObjectSheetComposer
         int projectileBase = checked((ushort)plan.ProjectileCharacters);
         int objectBase = checked((ushort)plan.ObjectCharacters);
         SpawnedObjects spawned = Spawned(plan);
-        // Mother Brain's tank glass sheet is drawn from only by the glass's pieces, which shatter before any of her artwork
-        // sequence's steps; the other objects of her body it holds are drawn from her body's own sheet, so none of its
-        // frames is drawn under a sequence and none has a picture of a step (#1513).
+        // Mother Brain's tank glass sheet is drawn from only by the glass's pieces, which shatter before she shows any look
+        // after her room's load; the other objects of her body it holds are drawn from her body's own sheet, so none of its
+        // frames is drawn in a look of hers and each shows her room's load (#1513, #1538).
         FrameDrawings Drawn(FrameDrawings drawings) => plan.Owner.IsMotherBrainTankGlass ? FrameDrawings.None : drawings;
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
         FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(
@@ -151,8 +151,8 @@ internal static class SpawnedObjectSheetComposer
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.GameplaySizes, plan.Palette,
                 Shades: [.. inkShades.DistinctBy(shade => shade.Shade)], RowShades: [.. rowShades.DistinctBy(shade => shade.Shade)]),
-            frames.Where(pictures => pictures.Variations.Length > 0)
-                .ToDictionary(pictures => pictures.Name, pictures => pictures.Variations, StringComparer.Ordinal),
+            frames.Where(pictures => pictures.Changes.Count > 0)
+                .ToDictionary(pictures => pictures.Name, pictures => pictures.Changes, StringComparer.Ordinal),
             frames.SelectMany(pictures => pictures.Corpses).ToDictionary(corpse => corpse.Key, corpse => corpse.Value, StringComparer.Ordinal),
             frames.SelectMany(pictures => pictures.Blank).ToHashSet(StringComparer.Ordinal));
     }

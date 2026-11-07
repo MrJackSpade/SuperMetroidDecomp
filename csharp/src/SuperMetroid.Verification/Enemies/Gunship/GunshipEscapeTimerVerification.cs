@@ -70,10 +70,9 @@ internal static class GunshipEscapeTimerVerification
             }
         }
         AssertTrue(sawDustUpload, "Confirmation reaches the actual liftoff dust upload");
-        // The final dust page shows on the update that reached it (#1406, #1513).
-        AssertEqual<int?>(GunshipLiftoffDefinitions.PageCount - 1, runtime.EnemySession.ArtworkProgress.StepOf(EncounterArtworkSequence.GunshipLiftoff),
-            "Liftoff reaches its last dust page");
-        AssertTrue(!TimerSpritesPresent(), "No stale timer draw remains once the dust page shows");
+        // The takeoff look shows on the update the engines are readied (#1406, #1538).
+        AssertTrue(runtime.EnemySession.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "Liftoff shows the takeoff look once its engines are readied");
+        AssertTrue(!TimerSpritesPresent(), "No stale timer draw remains once the takeoff look shows");
         AssertEqual(timeBeforeBoarding, Time(), "Liftoff keeps the timer suspended");
         Console.WriteLine("Gunship escape timer: normal timer draws, same-frame boarding suppression, preserved active status and no timer sprites through liftoff dust upload passed.");
         return 0;

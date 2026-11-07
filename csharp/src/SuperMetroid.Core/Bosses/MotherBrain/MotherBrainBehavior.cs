@@ -128,7 +128,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
             case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:
             case MotherBrainBodyFunction.FakeDeathAscentPrepareForRising:
-            case MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles:
+            case MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody:
             case MotherBrainBodyFunction.FakeDeathAscentContinuePausing:
             case MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake:
             case MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain:
@@ -167,7 +167,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam:
-            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam:
             case MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding:
             case MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback:
@@ -204,13 +204,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions:
             case MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation:
             case MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround:
-            case MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse:
             case MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey:
             case MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey:
             case MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver:
             case MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway:
             case MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay:
-            case MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning:
             case MotherBrainBodyFunction.ThirdPhaseDeathStartEscape:
             case MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
             case MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText:
@@ -376,7 +376,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
             case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:
             case MotherBrainBodyFunction.FakeDeathAscentPrepareForRising:
-            case MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles:
+            case MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody:
             case MotherBrainBodyFunction.FakeDeathAscentContinuePausing:
             case MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake:
             case MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain:
@@ -415,7 +415,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam:
-            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam:
             case MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding:
             case MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback:
@@ -452,13 +452,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions:
             case MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation:
             case MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround:
-            case MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse:
             case MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey:
             case MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey:
             case MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver:
             case MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway:
             case MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay:
-            case MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning:
             case MotherBrainBodyFunction.ThirdPhaseDeathStartEscape:
             case MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
             case MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText:
@@ -527,8 +527,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathAscentPrepareForRising:
                 Ascent.PrepareMotherBrainForRising(state);
                 return;
-            case MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles:
-                Ascent.LoadMotherBrainLegTiles(state);
+            case MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody:
+                MotherBrainAscent.ReadyMotherBrainStandingBody(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentContinuePausing:
                 MotherBrainAscent.ContinueMotherBrainAscentPause(state);
@@ -608,7 +608,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam:
-            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam:
             case MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding:
             case MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback:
@@ -645,13 +645,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions:
             case MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation:
             case MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround:
-            case MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse:
             case MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey:
             case MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey:
             case MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver:
             case MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway:
             case MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay:
-            case MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning:
             case MotherBrainBodyFunction.ThirdPhaseDeathStartEscape:
             case MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
             case MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText:

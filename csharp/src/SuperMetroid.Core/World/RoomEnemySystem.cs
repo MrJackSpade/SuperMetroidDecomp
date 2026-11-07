@@ -625,7 +625,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
         Terrain = new EnemyTerrain();
         DeadMonsters = new DeadMonsterFrame(Audio);
-        MotherBrainEncounter = new MotherBrainEncounter(Presentation, Audio);
+        MotherBrainEncounter = new MotherBrainEncounter(Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room, SlotTable);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
@@ -867,9 +867,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (_populationLoaded)
             throw new InvalidOperationException("A room's enemy system loads its population once; each room builds its own.");
         _populationLoaded = true;
-        // Every frame shows the picture its room's load gives it until one of the new room's encounters plays its
-        // artwork sequence (#1513), its initialization among them.
-        Room.Session.ArtworkProgress.Restart();
+        // Every encounter of the new room shows the look its room's load gives it until it shows another (#1538), its
+        // initialization among them.
+        Room.Session.Looks.Restart();
         IRoomEnemyDefinitionSource definitions = Room.LoadedDefinitions;
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);

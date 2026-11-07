@@ -502,7 +502,7 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>What the loaded room of <paramref name="runtime"/> shows over its load, with <paramref name="frames"/> its animations selected.</summary>
     private static RoomAppearanceView AppearanceOf(SuperMetroidRuntime runtime, ArtworkFrameSelections frames) =>
-        new(RoomScopeOf(runtime).Appearance, frames, runtime.EnemySession.ArtworkProgress);
+        new(RoomScopeOf(runtime).Appearance, frames, runtime.EnemySession.Looks);
 
     /// <summary>What the loaded room's tileset's rooms show over their characters, as the import pipeline replays it.</summary>
     private static RoomBlockUploads.TilesetUploads UploadsOf(SuperMetroidRuntime runtime) => TilesetUploads.Value[RoomScopeOf(runtime).Assets.Tileset];
@@ -548,7 +548,7 @@ internal static class RoomBlockPicturesVerification
         bool sprites = rooms.BlockArtwork == RoomBlockArtwork.Sprites;
         IReadOnlyList<AppearanceOption> options = sprites ? [] : UploadsOf(runtime).Options;
         byte[] tiles = sprites
-            ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Reached(runtime)).Characters.ToArray()
+            ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Shown(runtime)).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         RoomScope scope = RoomScopeOf(runtime);
         bool ceres = scope.Room.AreaIndex == AreaId.Ceres;

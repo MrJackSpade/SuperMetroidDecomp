@@ -9,23 +9,16 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain encounter state shared across Tourian: the state extension, the end of
-/// the tube effects the elevator observes, and the pages of artwork both Mother Brain and the
-/// cutscene Baby show their sprites.
+/// the tube effects the elevator observes, and the encounter's sound and music requests.
 /// </summary>
 [RoomLifetime]
 internal sealed class MotherBrainEncounter
 {
-    /// <summary>Sprite presentation owner whose frames picture the pages the encounter shows.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Receives the encounter's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds the encounter's page selections to sprite presentation and its requests to the enemy audio queue.</summary>
-    internal MotherBrainEncounter(EnemyPresentation presentation, EnemyAudioQueue audio)
-    {
-        _presentation = presentation;
-        _audio = audio;
-    }
+    /// <summary>Binds the encounter's requests to the enemy audio queue.</summary>
+    internal MotherBrainEncounter(EnemyAudioQueue audio) => _audio = audio;
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
@@ -48,13 +41,6 @@ internal sealed class MotherBrainEncounter
     /// <exception cref="InvalidOperationException">Mother Brain is not loaded.</exception>
     internal void ShowEscapeShutterFlash(PaletteFxFrame record) =>
         Colours.Sprites.Lay(PaletteFxShades.Of(PaletteFxColours.TourianShutters, record));
-
-    /// <summary>
-    /// Advances the encounter's artwork sequence to <paramref name="page"/> on this update (#1406, #1513): from now on her
-    /// and the Baby's frames show their pictures of that step.
-    /// </summary>
-    internal void ShowSpritePage(MotherBrainSpritePage page) =>
-        _presentation.ShowArtwork(EncounterArtworkSequence.MotherBrainPages, MotherBrainSpritePageDefinitions.Sequence, page);
 
     /// <summary>
     /// Requests a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the

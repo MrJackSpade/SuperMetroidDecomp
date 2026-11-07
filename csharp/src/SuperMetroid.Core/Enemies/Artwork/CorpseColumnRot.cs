@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>
 /// How one character column of a rotting corpse's picture shows the corpse's rot (#1531): the band of the corpse's rows
 /// the column's flesh begins at, which no move of a row above it reaches, and the bands of the corpse's rows the column
-/// shows rotting, eight pixel rows to a band. Every other row of the column shows itself, as where a later page has
-/// copied other characters over the corpse's.
+/// shows rotting, eight pixel rows to a band. Every other row of the column shows itself, as where a later look of its
+/// encounter shows other artwork over the corpse's.
 /// </summary>
 public sealed class CorpseColumnRot
 {

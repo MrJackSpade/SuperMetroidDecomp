@@ -42,9 +42,9 @@ internal static class TitleScreenMemory
         return vram.CaptureImage();
     }
 
-    /// <summary>The memory image <paramref name="title"/> shows at its current Baby Metroid frame.</summary>
+    /// <summary>The memory image <paramref name="title"/> shows at its current Baby Metroid animation frame.</summary>
     [WholeImageFixture("the title screen's memory image")]
     internal static byte[] Compose(TitleSequenceState title) =>
         Compose(title.TitleGraphics ?? throw new InvalidOperationException("Title rendering requires installed title artwork."),
-            TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[title.BabyFrame]);
+            TitleFloorTileDefinitions.BabyPages[TitleSequenceDefinitions.Graphics.BabyAnimation[title.BabyFrame]]);
 }

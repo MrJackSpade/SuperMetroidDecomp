@@ -158,9 +158,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         slot.SetSpeciesState(state, state.ClearWithRecord);
         DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
 
-        // Only the pre-explosion overlay shows the door's own artwork (#1406, #1513).
+        // Only the pre-explosion overlay shows the door's own look (#1406, #1538).
         if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)
-            _presentation.ShowArtwork(EncounterArtworkSequence.CeresDoor, 0);
+            _presentation.ShowLook(CeresDoorLookDefinitions.OverlayLook);
 
         // The game loads the door's colours into one of two palettes, the inactive door's or the active door's, whose
         // completed fade target this runtime shows directly: the escaping colours once Ridley has escaped, otherwise the

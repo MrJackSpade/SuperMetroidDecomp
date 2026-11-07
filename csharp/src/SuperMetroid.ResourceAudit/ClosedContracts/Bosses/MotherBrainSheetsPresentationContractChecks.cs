@@ -32,8 +32,8 @@ internal static class MotherBrainSheetsPresentationContractChecks
         }
         var sheets = MotherBrainSpecialSpriteSheetDefinitions.All.ToDictionary(sheet => sheet.Sheet,
             sheet => Sheet(sheet.ByteCount));
-        MotherBrainSpritePageSheet first = MotherBrainSpecialSpriteSheetDefinitions.Legs.Sheet;
-        var malformed = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>(sheets);
+        MotherBrainSpriteSheet first = MotherBrainSpecialSpriteSheetDefinitions.Legs.Sheet;
+        var malformed = new Dictionary<MotherBrainSpriteSheet, RoomCharacterAtlas>(sheets);
         malformed[first] = Sheet(RoomCharacterAtlasFormat.BytesPerTile);
         bool rejected = false;
         try { _ = new MotherBrainSpecialSpriteArtworkCatalog(malformed); }
@@ -50,12 +50,12 @@ internal static class MotherBrainSheetsPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
-            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+
             class SheetConsumer {
-                void Inspect(MotherBrainSpecialSpriteArtworkCatalog sheets, MotherBrainSpritePageSheet selected) {
-                    sheets.Get(MotherBrainSpritePageSheet.{{first}});
+                void Inspect(MotherBrainSpecialSpriteArtworkCatalog sheets, MotherBrainSpriteSheet selected) {
+                    sheets.Get(MotherBrainSpriteSheet.{{first}});
                     sheets.Get(selected);
-                    sheets.Get(MotherBrainSpritePageSheet.Corpse);
+                    sheets.Get(MotherBrainSpriteSheet.Corpse);
                 }
             }
             """, path: "fixture-mb-sheets-consumer.cs");
@@ -63,7 +63,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("MotherBrainSheetsFixture", sources,
             platforms.Append(typeof(MotherBrainSpecialSpriteArtworkCatalog).Assembly.Location)
-                .Append(typeof(MotherBrainSpritePageSheet).Assembly.Location).Distinct()
+                .Append(typeof(SuperMetroid.Core.Ensure).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

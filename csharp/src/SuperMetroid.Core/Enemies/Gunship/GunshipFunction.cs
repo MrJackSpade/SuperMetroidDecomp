@@ -38,8 +38,8 @@ internal enum GunshipFunction
     RaiseSamus,
     /// <summary>Wait for the entrance to close after Samus exits.</summary>
     FinishSamusExit,
-    /// <summary>Load liftoff dust-cloud tiles.</summary>
-    LoadLiftoffDustTiles,
+    /// <summary>Ready the engines for the takeoff, which then fire up.</summary>
+    ReadyTakeoffEngines,
     /// <summary>Run the engine-rumble/dust phase.</summary>
     FireUpEngines,
     /// <summary>Constant-speed first liftoff phase.</summary>

@@ -9,6 +9,9 @@ public static class EscapeTextSheetFormat
     /// <summary>Indexed four-bit sheet kept separate from the preceding corpse source range.</summary>
     public const string FileName = "mother-brain-escape-text-tiles.png";
 
+    /// <summary>The text's characters load as five pages: four full pages, then a half page.</summary>
+    public const int PageCount = 5;
+
     /// <summary>Sixteen 4bpp tiles occupy each full 512-byte page.</summary>
     public const int PageBytes = 512;
 

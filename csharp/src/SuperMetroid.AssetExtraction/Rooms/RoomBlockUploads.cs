@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -290,16 +291,30 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>
-    /// What <paramref name="state"/>'s encounters copy over the OBJ character table after its room loads, step by step of
-    /// the artwork sequences they play, each shown once its sequence reaches its step (#1466, #1513): Ceres Ridley's getaway
-    /// its escape timer and its warning.
+    /// What <paramref name="state"/>'s encounters copy over the OBJ character table after its room loads, look by look of
+    /// the encounters gameplay shows the looks of, each shown while its encounter shows its look (#1466, #1538): every copy
+    /// of the looks up to it, in order, so the latest copy over a character shows there. Ceres Ridley's getaway shows its
+    /// escape timer and warning so.
     /// </summary>
-    private static IEnumerable<AppearanceOption> EncounterLookOptions(RoomBlockSheetInputs inputs, RoomStateSettings state) =>
-        EncounterArtworkUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(state.EnemyGraphicsSet)).SelectMany(sequence => EncounterArtworkUploads.Steps(sequence, inputs.Objects)
-            .SelectMany((copies, step) => copies.Select(upload => new AppearanceOption(
-                new EncounterLookAppearance(sequence, step), RoomAppearanceValues.Shown,
-                new BgCharacterUpload(new BgArtworkIdentity($"{sequence} step {step}"), BgCharacterSet.Tiles, upload.FirstCharacter,
-                    upload.Characters)))));
+    private static IEnumerable<AppearanceOption> EncounterLookOptions(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    {
+        foreach (ComposedEncounter encounter in EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(state.EnemyGraphicsSet)))
+        {
+            if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs)
+                continue;
+            EncounterLookSteps steps = EncounterLookUploads.Steps(encounter, inputs.Objects);
+            IReadOnlyList<string> looks = EncounterLookUploads.Looks(encounter);
+            for (int look = 1; look < looks.Count; look++)
+            {
+                var appearance = new EncounterLookAppearance(new EncounterLook(shownAs, looks[look]));
+                EncounterArtworkUpload[] copies = [.. steps.Looks.Take(look + 1).SelectMany(earlier => earlier)];
+                for (int copy = 0; copy < copies.Length; copy++)
+                    yield return new AppearanceOption(appearance, RoomAppearanceValues.Shown,
+                        new BgCharacterUpload(new BgArtworkIdentity($"{encounter} look {looks[look]} copy {copy}"), BgCharacterSet.Tiles,
+                            copies[copy].FirstCharacter, copies[copy].Characters));
+            }
+        }
+    }
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
     internal static BgCharacterUpload HudCharacters(RoomBlockSheetInputs inputs) =>

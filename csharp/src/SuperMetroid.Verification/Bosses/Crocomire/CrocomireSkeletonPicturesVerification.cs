@@ -17,7 +17,7 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomireSkeletonPicturesVerification
 {
-    /// <summary>At each of the skeleton's chunks, every frame of Crocomire's room's sheets the chunks change shows its picture of that chunk.</summary>
+    /// <summary>In each of Crocomire's looks, every frame of his room's sheets his looks change shows its finished picture of that look.</summary>
     internal static void VerifyCrocomireSkeletonPictures()
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
@@ -25,9 +25,8 @@ internal static class CrocomireSkeletonPicturesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
-        int frames = UploadedPictureChecks.AssertFramesFollowSequence(runtime.Enemies.GraphicsSet.LoadedSet, EncounterArtworkSequence.CrocomireSkeleton,
-            CrocomireSkeletonTransferDefinitions.FrameCount, "Crocomire's skeleton");
-        Console.WriteLine($"Crocomire skeleton pictures: {frames} frames follow his {CrocomireSkeletonTransferDefinitions.FrameCount} skeleton chunks.");
+        int frames = UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet.LoadedSet, EncounterArtwork.Crocomire, "Crocomire's skeleton");
+        Console.WriteLine($"Crocomire skeleton pictures: {frames} frames follow his looks, alive and bared to the skeleton.");
     }
 
     /// <summary>Runs the Crocomire skeleton picture check.</summary>

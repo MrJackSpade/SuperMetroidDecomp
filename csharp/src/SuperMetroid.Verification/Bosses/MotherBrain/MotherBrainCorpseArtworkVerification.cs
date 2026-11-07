@@ -79,19 +79,15 @@ internal static class MotherBrainCorpseArtworkVerification
         Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging pass.");
     }
 
-    /// <summary>Shows every corpse page through the production encounter and returns the sprite characters they show.</summary>
+    /// <summary>Copies every corpse page her corpse's look copies and returns the sprite characters they show (#1538).</summary>
     private static byte[] TransferMotherBrainCorpsePages(
         InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount)
-            .Select(page => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page))];
-        foreach (MotherBrainSpritePage page in pages)
-            enemies.MotherBrainEncounter.ShowSpritePage(page);
-        IReadOnlyList<int> steps = EncounterArtworkPlacements.MotherBrainSteps(pages);
-        AssertEqual<int?>(steps[^1], enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages),
-            "the encounter reaches the last corpse page's step");
-        return new ObjCharacterTablePage().Page(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, new EnemyTileTransfers(artwork)),
+        int corpse = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook);
+        AssertEqual(MotherBrainCorpseArtworkDefinitions.RowCount,
+            EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, corpse, new EnemyTileTransfers(artwork)).Count,
+            "her corpse's look copies one page a corpse row");
+        return new ObjCharacterTablePage().Page(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [corpse], new EnemyTileTransfers(artwork)),
                 new EnemyTileTransfers(artwork))
             .Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
     }

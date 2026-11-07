@@ -562,7 +562,7 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The manifest omits a sheet, or an installed file is invalid.</exception>
     internal MotherBrainSpecialSpriteArtworkCatalog MotherBrainSpecialSprites()
     {
-        var motherBrainSpecialSheets = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>();
+        var motherBrainSpecialSheets = new Dictionary<MotherBrainSpriteSheet, RoomCharacterAtlas>();
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
                  MotherBrainSpecialSpriteSheetDefinitions.All)
         {

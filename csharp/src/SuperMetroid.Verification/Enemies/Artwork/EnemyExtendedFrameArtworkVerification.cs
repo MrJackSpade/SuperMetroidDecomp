@@ -285,7 +285,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.Frame = frame;
         if (frame is { } shown)
-            SpawnedObjectFixtures.ShowDrawnSteps(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
+            SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
         slot.FrameHold = WrappingCountdown.Start(7);
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();

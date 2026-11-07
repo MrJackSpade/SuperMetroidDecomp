@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -122,42 +123,30 @@ internal static class UploadedPictureChecks
 
     /// <summary>
     /// Asserts each of <paramref name="pictures"/> paints exactly what its frame's parts paint over the characters graphics
-    /// set <paramref name="set"/> leaves once its encounters have played each sequence <paramref name="reached"/> names
-    /// through the step it names (#1513): its own composition drawn over those characters.
+    /// set <paramref name="set"/> leaves once its encounters show each look of <paramref name="shown"/> (#1538): its own
+    /// composition drawn over those characters.
     /// </summary>
-    internal static void AssertPicturesPaintOverSteps(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterArtworkStep> reached,
+    internal static void AssertPicturesPaintOverLooks(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown,
         ImmutableArray<SpriteDraw> pictures, string message)
     {
-        SpriteArtwork live = EnemySheetFixtures.LivePage(set, reached);
+        SpriteArtwork live = EnemySheetFixtures.LivePage(set, shown);
         AssertPaintsLikeParts(pictures,
             [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
             message);
     }
 
-    /// <summary>The sequences the runtime's room encounters have reached and the step each reached (#1513).</summary>
-    internal static IReadOnlyList<EncounterArtworkStep> Reached(SuperMetroidRuntime runtime) =>
-        [.. Enum.GetValues<EncounterArtworkSequence>().Select(sequence => (sequence, runtime.EnemySession.ArtworkProgress.StepOf(sequence)))
-            .Where(entry => entry.Item2 is not null).Select(entry => new EncounterArtworkStep(entry.sequence, entry.Item2 ?? 0))];
+    /// <summary>The looks the runtime's room encounters show other than their room's load (#1538).</summary>
+    internal static IReadOnlyList<EncounterLook> Shown(SuperMetroidRuntime runtime) =>
+        [.. Enum.GetValues<EncounterArtwork>().Select(runtime.EnemySession.Looks.Current).Where(look => look.Name != EncounterLook.LoadedName)];
 
     /// <summary>
-    /// The picture <paramref name="frame"/> draws as once the room's encounters have played each sequence
-    /// <paramref name="reached"/> names through the step it names: the frame itself, or its picture of the step each of its
-    /// <paramref name="variations"/> shows then (#1513).
+    /// The picture <paramref name="frame"/> draws as while the room's encounters show the looks of <paramref name="shown"/>:
+    /// its picture of the look each of the <paramref name="changing"/> encounters shows then, the room's load for one
+    /// <paramref name="shown"/> names no look of (#1538).
     /// </summary>
-    internal static string ExpectedPicture(string frame, IReadOnlyList<FrameArtworkVariation> variations,
-        IReadOnlyList<EncounterArtworkStep> reached)
-    {
-        var shown = new List<EncounterArtworkStep>();
-        foreach (FrameArtworkVariation variation in variations)
-        {
-            foreach ((EncounterArtworkSequence sequence, int step) in reached)
-            {
-                if (sequence == variation.Sequence && variation.PictureAt(step, frame) is int picture)
-                    shown.Add(new EncounterArtworkStep(sequence, picture));
-            }
-        }
-        return FrameArtworkVariation.PictureName(frame, shown);
-    }
+    internal static string ExpectedPicture(string frame, IReadOnlyList<EncounterArtwork> changing, IReadOnlyList<EncounterLook> shown) =>
+        EncounterLook.PictureName(frame, changing.Select(encounter =>
+            shown.Where(look => look.Encounter == encounter).DefaultIfEmpty(EncounterLook.Loaded(encounter)).Single()));
 
     /// <summary>
     /// Asserts <paramref name="drawn"/> is exactly the picture named <paramref name="expected"/> that <paramref name="pictureOf"/>
@@ -170,76 +159,76 @@ internal static class UploadedPictureChecks
     }
 
     /// <summary>
-    /// Asserts that at each of the <paramref name="steps"/> steps of <paramref name="sequence"/> at which it is drawn, every
-    /// frame of the installed enemy and spawned-object sheets of graphics set <paramref name="set"/> the sequence changes
-    /// shows a picture that paints exactly what the frame's parts paint over the characters the set leaves at that step
-    /// (#1513): the step's own copies and every earlier one, the picture an earlier step shares included. At a step the frame
-    /// is never drawn at, drawing it fails loudly, naming the frame, for its sheet holds no picture of it there.
+    /// Asserts that in each look of <paramref name="encounter"/> it is drawn in, every frame of the installed enemy and
+    /// spawned-object sheets of graphics set <paramref name="set"/> the encounter's looks change shows a finished picture
+    /// that paints exactly what the frame's parts paint over the characters the set leaves in that look (#1538): the look's
+    /// own copies and every earlier look's. In a look the frame is never drawn in, its sheet holds no picture and asking
+    /// for one fails loudly, naming the picture.
     /// </summary>
     /// <param name="set">The graphics set whose sheets are checked.</param>
-    /// <param name="sequence">The sequence the set's encounter plays.</param>
-    /// <param name="steps">The sequence's steps.</param>
+    /// <param name="encounter">The encounter the set's members play.</param>
     /// <param name="message">Names the check in failures.</param>
-    /// <param name="requireFrames">Whether the sequence must change some frame of the set's sheets; the escape pages change backgrounds alone.</param>
-    /// <returns>The frames the sequence changes.</returns>
-    internal static int AssertFramesFollowSequence(RoomEnemyGraphicsSetDefinition set, EncounterArtworkSequence sequence, int steps, string message,
-        bool requireFrames = true)
+    /// <param name="requireFrames">Whether the encounter's looks must change some frame of the set's sheets; the escape warning changes backgrounds alone.</param>
+    /// <returns>The frames the encounter's looks change.</returns>
+    internal static int AssertFramesFollowLooks(RoomEnemyGraphicsSetDefinition set, EncounterArtwork encounter, string message, bool requireFrames = true)
     {
         InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
         int frames = 0;
-        foreach ((EnemySheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.variations.Where(entry => entry.Key.Set == set.Name))
-            frames += AssertSheetFollowsSequence(set, sequence, steps, sheets.For(set, key.Enemy).Frame, followed,
-                picture => sheets.ShowsNothing(set, key.Enemy, picture), $"{message}: {key.Enemy}");
+        foreach ((EnemySheetKey key, IReadOnlyDictionary<string, EncounterArtwork[]> changed) in sheets.changingEncounters.Where(entry => entry.Key.Set == set.Name))
+        {
+            SpriteSheet sheet = sheets.For(set, key.Enemy);
+            frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, changed,
+                picture => sheet.FrameNames.Contains(picture) || sheet.BlankFrameNames.Contains(picture), sheet.ShowsNothing, $"{message}: {key.Enemy}");
+        }
         var checkedSheets = new HashSet<SpawnedObjectSheet>(ReferenceEqualityComparer.Instance);
-        foreach ((SpawnedObjectSheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.spawnedVariations.Where(entry => entry.Key.Set == set.Name))
+        foreach ((SpawnedObjectSheetKey key, IReadOnlyDictionary<string, EncounterArtwork[]> changed) in sheets.spawnedChangingEncounters.Where(entry => entry.Key.Set == set.Name))
         {
             // Owners sharing one set's spawned-object pictures are checked once.
             SpawnedObjectSheet sheet = sheets.Spawned(set, key.Owner);
             if (checkedSheets.Add(sheet))
-                frames += AssertSheetFollowsSequence(set, sequence, steps, sheet.Frame, followed,
-                    picture => sheets.SpawnedShowsNothing(set, key.Owner, picture), $"{message}: {key.Owner}'s spawned objects");
+                frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, changed,
+                    picture => sheet.frames.ContainsKey(picture) || sheet.empty.Contains(picture), sheet.ShowsNothing, $"{message}: {key.Owner}'s spawned objects");
         }
         if (requireFrames)
-            AssertTrue(frames > 0, $"{message}: {sequence} changes frames of {set.Name}'s sheets");
+            AssertTrue(frames > 0, $"{message}: {encounter}'s looks change frames of {set.Name}'s sheets");
         return frames;
     }
 
     /// <summary>
-    /// Asserts the frames whose pictures <paramref name="pictureOf"/> finds that <paramref name="followed"/> says
-    /// <paramref name="sequence"/> changes follow it at each of its <paramref name="steps"/> steps, as
-    /// <see cref="AssertFramesFollowSequence"/> describes.
+    /// Asserts the frames whose pictures <paramref name="pictureOf"/> finds that <paramref name="changed"/> says
+    /// <paramref name="encounter"/>'s looks change follow its looks, as <see cref="AssertFramesFollowLooks"/> describes.
     /// </summary>
-    /// <returns>The frames the sequence changes.</returns>
-    private static int AssertSheetFollowsSequence(RoomEnemyGraphicsSetDefinition set, EncounterArtworkSequence sequence, int steps, Func<string, SpriteSheetFrame> pictureOf,
-        IReadOnlyDictionary<string, FrameArtworkVariation[]> followed, Func<string, bool> showsNothing, string message)
+    /// <returns>The frames the encounter's looks change.</returns>
+    private static int AssertSheetFollowsLooks(RoomEnemyGraphicsSetDefinition set, EncounterArtwork encounter, Func<string, SpriteSheetFrame> pictureOf,
+        IReadOnlyDictionary<string, EncounterArtwork[]> changed, Func<string, bool> holds, Func<string, bool> showsNothing, string message)
     {
         var origin = new Position16<ScreenPixels>(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2);
+        ComposedEncounter composed = Enum.GetValues<ComposedEncounter>().Single(candidate => EncounterLookUploads.ShownAs(candidate) == encounter);
         int frames = 0;
-        foreach ((string frame, FrameArtworkVariation[] variations) in followed.Where(entry => entry.Value.Any(variation => variation.Sequence == sequence)))
+        foreach ((string frame, EncounterArtwork[] encounters) in changed.Where(entry => entry.Value.Contains(encounter)))
         {
             frames++;
-            FrameArtworkVariation variation = variations.Single(entry => entry.Sequence == sequence);
-            AssertEqual(steps, variation.Pictures.Length, $"{message} frame {frame} follows every step of {sequence}");
-            AssertTrue(Enumerable.Range(0, steps).Any(variation.DrawnAt), $"{message} frame {frame} is drawn at some step of {sequence}");
-            for (int step = 0; step < steps; step++)
+            int drawnLooks = 0;
+            foreach (string name in EncounterLookUploads.Looks(composed))
             {
-                if (!variation.DrawnAt(step))
+                var look = new EncounterLook(encounter, name);
+                string picture = ExpectedPicture(frame, encounters, [look]);
+                if (!holds(picture))
                 {
-                    int undrawn = step;
-                    InvalidDataException failure = AssertThrows<InvalidDataException>(
-                        () => ExpectedPicture(frame, variations, [new EncounterArtworkStep(sequence, undrawn)]),
-                        $"{message} frame {frame} drawn at step {step} of {sequence}, a step it is never drawn at, fails");
-                    AssertTrue(failure.Message.Contains(frame, StringComparison.Ordinal), $"{message} frame {frame}'s failure at step {step} names the frame");
+                    InvalidDataException failure = AssertThrows<InvalidDataException>(() => pictureOf(picture),
+                        $"{message} frame {frame} drawn in {look}, a look it is never drawn in, fails");
+                    AssertTrue(failure.Message.Contains(picture, StringComparison.Ordinal), $"{message} frame {frame}'s failure in {look} names the picture");
                     continue;
                 }
-                string picture = ExpectedPicture(frame, variations, [new EncounterArtworkStep(sequence, step)]);
-                // A picture in which every character the frame reads is blank is on no sheet and draws nothing (#1513).
+                drawnLooks++;
+                // A finished picture that shows nothing is on no sheet and draws nothing (#1538).
                 if (showsNothing(picture))
                     continue;
                 var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), pictureOf(picture), origin, SpriteMirror.None);
-                AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [new EncounterArtworkStep(sequence, step)]))],
-                    $"{message} frame {frame} at step {step} of {sequence}", requirePixels: false);
+                AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [look]))],
+                    $"{message} frame {frame} in {look}", requirePixels: false);
             }
+            AssertTrue(drawnLooks > 1, $"{message} frame {frame} has a picture of more than one of {encounter}'s looks");
         }
         return frames;
     }

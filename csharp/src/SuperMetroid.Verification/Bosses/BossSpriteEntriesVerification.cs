@@ -78,7 +78,7 @@ internal static class BossSpriteEntriesVerification
         Console.WriteLine("Boss sprite entries stage 1: Dead Torizo's hook frame publishes over the OBJ page, and installed and staged corpse uploads bind as owned sources.");
     }
 
-    /// <summary>Stage 2: Draygon's opening's one artwork step copies Evir's installed tiles (#1513).</summary>
+    /// <summary>Stage 2: Draygon's look once her opening readies the Evirs copies Evir's installed tiles (#1538).</summary>
     internal static void VerifyBossSpriteEntriesStage2()
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
@@ -86,9 +86,10 @@ internal static class BossSpriteEntriesVerification
         ReadOnlyMemory<byte> evirTiles = artwork.Enemies.TilesOf(EnemyDefinitionId.Evir);
         AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.Evir], evirTiles.Length,
             "Evir's installed sheet is its whole tile set");
-        EncounterArtworkUpload upload = EncounterArtworkUploads.Steps(EncounterArtworkSequence.DraygonEvirs, resolver).Single().Single();
-        AssertTrue(upload.Characters.Span.SequenceEqual(evirTiles.Span), "Draygon's opening copies Evir's installed sheet");
-        Console.WriteLine("Boss sprite entries stage 2: Draygon's opening step copies Evir's installed tiles.");
+        EncounterArtworkUpload upload = EncounterLookUploads.Uploads(ComposedEncounter.DraygonEvirs,
+            EncounterLookUploads.IndexOf(ComposedEncounter.DraygonEvirs, EncounterLookUploads.DraygonEvirsLook), resolver).Single();
+        AssertTrue(upload.Characters.Span.SequenceEqual(evirTiles.Span), "Draygon's Evirs look copies Evir's installed sheet");
+        Console.WriteLine("Boss sprite entries stage 2: Draygon's Evirs look copies Evir's installed tiles.");
     }
 
     /// <summary>
@@ -139,21 +140,6 @@ internal static class BossSpriteEntriesVerification
         Console.WriteLine("Boss sprite entries stage 3: Ridley's tail and wings publish named entries in order; Ceres warning transfers name their pages.");
     }
 
-    /// <summary>Stage 4: Mother Brain's page selections advance her artwork sequence, and a page her sheets do not have is refused (#1406, #1513).</summary>
-    internal static void VerifyBossSpriteEntriesStage4()
-    {
-        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        MotherBrainSpritePage corpsePage = MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1);
-        enemies.MotherBrainEncounter.ShowSpritePage(corpsePage);
-        AssertEqual<int?>(MotherBrainSpritePageDefinitions.Sequence.ToList().IndexOf(corpsePage),
-            enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages), "A corpse page selection reaches its step");
-
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, MotherBrainCorpseArtworkDefinitions.RowCount),
-            "A corpse page past the last is refused");
-        Console.WriteLine("Boss sprite entries stage 4: Mother Brain's page selections show installed pages and refuse pages her sheets lack.");
-    }
-
     /// <summary>Runs the #1344 confirmations.</summary>
     [VerificationCommand("--boss-sprite-entries")]
     internal static int BossSpriteEntriesCommand()
@@ -161,7 +147,6 @@ internal static class BossSpriteEntriesVerification
         Suite(nameof(VerifyBossSpriteEntriesStage1), VerifyBossSpriteEntriesStage1);
         Suite(nameof(VerifyBossSpriteEntriesStage2), VerifyBossSpriteEntriesStage2);
         Suite(nameof(VerifyBossSpriteEntriesStage3), VerifyBossSpriteEntriesStage3);
-        Suite(nameof(VerifyBossSpriteEntriesStage4), VerifyBossSpriteEntriesStage4);
         return 0;
     }
 }

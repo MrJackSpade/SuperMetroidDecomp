@@ -52,9 +52,11 @@ internal static class InstalledArtworkContentIdentity
                     content.AppendName("picture", picture);
                     content.AppendName("held on", frame.Sheet.Name);
                 }
+                foreach (string picture in spawned.empty.Order(StringComparer.Ordinal))
+                    content.AppendName("shows nothing", picture);
             }
-            AppendPictures(content, "variations", installed.variations.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
-            AppendPictures(content, "spawned-variations", installed.spawnedVariations.Select(entry => new PictureOwner(entry.Key.Set,
+            AppendPictures(content, "look-changes", installed.changingEncounters.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
+            AppendPictures(content, "spawned-look-changes", installed.spawnedChangingEncounters.Select(entry => new PictureOwner(entry.Key.Set,
                 SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), entry.Value)));
             AppendCorpsePictures(content, "corpse-pictures", installed.corpsePictures.Select(entry => new CorpsePictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
             AppendCorpsePictures(content, "spawned-corpse-pictures", installed.spawnedCorpsePictures.Select(entry => new CorpsePictureOwner(entry.Key.Set,
@@ -373,41 +375,26 @@ internal static class InstalledArtworkContentIdentity
     /// <param name="Frames">The frames and where the corpse lies in each.</param>
     private sealed record CorpsePictureOwner(string Set, string Owner, IReadOnlyDictionary<string, CorpsePictureLayout> Frames);
 
-    /// <summary>
-    /// Appends each sheet's frames encounter artwork sequences change and the step whose picture each shows at each step of
-    /// each sequence (#1513), in a stable order.
-    /// </summary>
+    /// <summary>Appends each sheet's frames encounters' looks change and the encounters that change each (#1538), in a stable order.</summary>
     private static void AppendPictures(SelectedPresentationHash content, string label, IEnumerable<PictureOwner> owners)
     {
         foreach (PictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
         {
             content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
-            foreach ((string frame, FrameArtworkVariation[] variations) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            foreach ((string frame, EncounterArtwork[] encounters) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 content.Append("frame", System.Text.Encoding.UTF8.GetBytes(frame));
-                foreach (FrameArtworkVariation variation in variations)
-                {
-                    content.Append("sequence", System.Text.Encoding.UTF8.GetBytes(variation.Sequence.ToString()));
-                    content.Append("drawn-before-first-step", variation.DrawnBeforeFirstStep ? 1 : 0);
-                    for (int step = 0; step < variation.Pictures.Length; step++)
-                    {
-                        if (!variation.Drawn[step])
-                            content.Append("undrawn-step", step);
-                        else if (variation.Pictures[step] is int picture)
-                            content.Append("picture-step", picture);
-                        else
-                            content.Append("loaded-step", step);
-                    }
-                }
+                foreach (EncounterArtwork encounter in encounters)
+                    content.Append("encounter", System.Text.Encoding.UTF8.GetBytes(encounter.ToString()));
             }
         }
     }
 
-    /// <summary>One sheet's frames encounter artwork sequences change.</summary>
+    /// <summary>One sheet's frames encounters' looks change.</summary>
     /// <param name="Set">The graphics set's name.</param>
-    /// <param name="Owner">The enemy's name, or the spawned objects' tile base.</param>
-    /// <param name="Frames">The frames and how each follows the sequences that change it.</param>
-    private sealed record PictureOwner(string Set, string Owner, IReadOnlyDictionary<string, FrameArtworkVariation[]> Frames);
+    /// <param name="Owner">The enemy's name, or the spawned objects' owner.</param>
+    /// <param name="Frames">The frames and the encounters whose looks change each.</param>
+    private sealed record PictureOwner(string Set, string Owner, IReadOnlyDictionary<string, EncounterArtwork[]> Frames);
 
     /// <summary>Appends the tokens of <paramref name="inputs"/> to a content identity.</summary>
     private static void AppendInputs(SelectedPresentationHash content, ImmutableArray<AppearanceInput> inputs)

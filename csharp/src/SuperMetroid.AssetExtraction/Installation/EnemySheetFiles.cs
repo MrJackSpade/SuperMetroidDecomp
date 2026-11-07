@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 20;
+    public const int ManifestVersion = 21;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -64,12 +64,10 @@ public static class EnemySheetFiles
         SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName, names.Length);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
-        var variations = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
-        var spawnedVariations = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
+        var changingEncounters = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>();
+        var spawnedChangingEncounters = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>();
         var corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>();
         var spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>();
-        var blankPictures = new Dictionary<EnemySheetKey, IReadOnlySet<string>>();
-        var spawnedBlankPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlySet<string>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
         var artwork = new Lazy<InstalledEnemyArtwork>(() => EnemyTileArtworkFiles.Load(
             Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory))
@@ -85,19 +83,17 @@ public static class EnemySheetFiles
             {
                 var enemy = Enum.Parse<EnemyDefinitionId>(enemyName);
                 SpriteSheet sheet = loaded[name];
-                Dictionary<string, FrameArtworkVariation[]> frameVariations = FrameVariations(manifest.Variations, set, enemyName);
-                HashSet<string> pictures = [.. EnemySheetComposer.FrameNames(artwork.Value.Enemies, enemy).SelectMany(frame => PictureNames(frame, frameVariations))];
+                Dictionary<string, FrameLookChange[]> frameChanges = LookChanges(manifest.LookChanges, set, enemyName);
+                HashSet<string> pictures = [.. EnemySheetComposer.FrameNames(artwork.Value.Enemies, enemy).SelectMany(frame => PictureNames(frame, frameChanges))];
                 Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.CorpsePictures, set, enemyName, pictures);
-                HashSet<string> blank = Blank(manifest.BlankPictures, set, enemyName, pictures);
-                if (!sheet.HoldsExactly(pictures.Where(picture => !blank.Contains(picture))))
+                // The sheet holds each of the frames' finished pictures, or names it among those that show nothing (#1538).
+                if (!sheet.HoldsExactly(pictures))
                     throw new InvalidDataException($"Enemy sheet {name} does not hold exactly the pictures of the frames {enemy} shows.");
                 sheets.Add(new EnemySheetKey(set, enemy), sheet);
-                if (frameVariations.Count > 0)
-                    variations.Add(new EnemySheetKey(set, enemy), frameVariations);
+                if (frameChanges.Count > 0)
+                    changingEncounters.Add(new EnemySheetKey(set, enemy), Encounters(frameChanges));
                 if (frameCorpses.Count > 0)
                     corpsePictures.Add(new EnemySheetKey(set, enemy), frameCorpses);
-                if (blank.Count > 0)
-                    blankPictures.Add(new EnemySheetKey(set, enemy), blank);
             }
         }
         var spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>();
@@ -113,31 +109,29 @@ public static class EnemySheetFiles
                 EnemyDefinitionId[] spawners = Spawners(entry.Spawners, set);
                 EnemyDefinitionId[] sharedSpawners = Spawners(entry.SharedSpawners, set);
                 SpawnedObjectOwner sheetOwner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(entry.Owner);
-                Dictionary<string, FrameArtworkVariation[]> frameVariations = FrameVariations(manifest.SpawnedVariations, set, ownerName);
+                Dictionary<string, FrameLookChange[]> frameChanges = LookChanges(manifest.SpawnedLookChanges, set, ownerName);
                 CommonSpawnedObjects[] common =
                     [.. entry.Common.Select(spawner => CommonSpawners.Named(spawner).Spawned)];
                 HashSet<string> pictures = [.. SpawnedObjectSheetComposer.FrameNames(sheetOwner, spawners, sharedSpawners, common).SelectMany(frame => PictureNames(frame,
-                    frameVariations))];
+                    frameChanges))];
                 Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.SpawnedCorpsePictures, set, ownerName, pictures);
-                HashSet<string> blank = Blank(manifest.SpawnedBlankPictures, set, ownerName, pictures);
+                HashSet<string> blank = Empty(entry.Empty, $"{set} {ownerName}", pictures);
                 string resolution = $"{entry.Sheet}/{string.Join("/", entry.CommonPictures.OrderBy(held => held.Key, StringComparer.Ordinal)
-                    .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}";
+                    .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}/{string.Join(",", blank.Order(StringComparer.Ordinal))}";
                 HashSet<string> shown = [.. pictures.Where(picture => !blank.Contains(picture))];
                 if (!resolved.TryGetValue(resolution, out SpawnedObjectSheet? sheet))
-                    resolved.Add(resolution, sheet = SpawnedPictures(entry, loaded, shown, $"{set} {ownerName}"));
-                if (!shown.SetEquals(sheet.frames.Keys))
+                    resolved.Add(resolution, sheet = SpawnedPictures(entry, loaded, shown, blank, $"{set} {ownerName}"));
+                if (!shown.SetEquals(sheet.frames.Keys) || !blank.SetEquals(sheet.empty))
                     throw new InvalidDataException($"Enemy sheet manifest does not draw exactly the pictures of the objects {set} {ownerName}'s spawners spawn.");
                 spawned.Add(new SpawnedObjectSheetKey(set, owner), sheet);
-                if (frameVariations.Count > 0)
-                    spawnedVariations.Add(new SpawnedObjectSheetKey(set, owner), frameVariations);
+                if (frameChanges.Count > 0)
+                    spawnedChangingEncounters.Add(new SpawnedObjectSheetKey(set, owner), Encounters(frameChanges));
                 if (frameCorpses.Count > 0)
                     spawnedCorpsePictures.Add(new SpawnedObjectSheetKey(set, owner), frameCorpses);
-                if (blank.Count > 0)
-                    spawnedBlankPictures.Add(new SpawnedObjectSheetKey(set, owner), blank);
             }
         }
-        return new InstalledEnemySheets(new(sheets, variations, corpsePictures, blankPictures),
-            new(spawned, spawnedVariations, spawnedCorpsePictures, spawnedBlankPictures));
+        return new InstalledEnemySheets(new(sheets, changingEncounters, corpsePictures),
+            new(spawned, spawnedChangingEncounters, spawnedCorpsePictures));
     }
 
     /// <summary>
@@ -150,7 +144,7 @@ public static class EnemySheetFiles
     /// pictures the entry draws from it.
     /// </exception>
     private static SpawnedObjectSheet SpawnedPictures(SpawnedObjectSheetDocument entry, Dictionary<string, SpriteSheet> loaded, HashSet<string> shown,
-        string owner)
+        HashSet<string> empty, string owner)
     {
         var common = new Dictionary<string, SpriteSheet>(StringComparer.Ordinal);
         foreach ((string sheetName, List<string> held) in entry.CommonPictures)
@@ -168,28 +162,24 @@ public static class EnemySheetFiles
         SpriteSheet? own = entry.Sheet is { } name ? loaded[name] : null;
         if (own is null ? particular.Length > 0 : !own.HoldsExactly(particular))
             throw new InvalidDataException($"Spawned-object sheet {entry.Sheet ?? "(none)"} does not hold exactly the pictures particular to {owner}'s objects.");
-        return new SpawnedObjectSheet(own, common);
+        return new SpawnedObjectSheet(own, common, empty);
     }
 
     /// <summary>
-    /// The pictures the manifest says frames of <paramref name="owner"/>'s sheet under <paramref name="set"/> show nothing
-    /// in (#1513): each one of the sheet's frames' <paramref name="pictures"/>, in which every character the frame reads is
-    /// blank, so the sheet holds no such picture.
+    /// The finished pictures the manifest says frames of <paramref name="owner"/>'s spawned objects show nothing in (#1538):
+    /// each one of the frames' <paramref name="pictures"/>, which no sheet holds.
     /// </summary>
-    /// <exception cref="InvalidDataException">A named picture is no picture of the sheet's frames.</exception>
-    private static HashSet<string> Blank(Dictionary<string, Dictionary<string, string[]>> manifest, string set, string owner,
-        HashSet<string> pictures)
+    /// <exception cref="InvalidDataException">The manifest names none, or a named picture is no picture of the owner's frames.</exception>
+    private static HashSet<string> Empty(List<string> named, string owner, HashSet<string> pictures)
     {
-        var blank = new HashSet<string>(StringComparer.Ordinal);
-        if (!manifest.TryGetValue(set, out Dictionary<string, string[]>? owners) || !owners.TryGetValue(owner, out string[]? named))
-            return blank;
-        foreach (string picture in named)
+        var empty = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string picture in named ?? throw new InvalidDataException($"Enemy sheet manifest names no pictures {owner} shows nothing in."))
         {
             if (!pictures.Contains(picture))
-                throw new InvalidDataException($"Enemy sheet manifest says {set} {owner} picture {picture} shows nothing, but it is no picture of its frames.");
-            blank.Add(picture);
+                throw new InvalidDataException($"Enemy sheet manifest says {owner} picture {picture} shows nothing, but it is no picture of its frames.");
+            empty.Add(picture);
         }
-        return blank;
+        return empty;
     }
 
     /// <summary>The definitions <paramref name="names"/> names, in the manifest's set <paramref name="set"/>.</summary>
@@ -199,11 +189,15 @@ public static class EnemySheetFiles
             ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
 
     /// <summary>
-    /// The names of the pictures a sheet holds of <paramref name="frame"/>: for a frame encounter artwork sequences change,
-    /// its picture of each combination of the steps they show (#1513); else the frame itself.
+    /// The names of the finished pictures a sheet holds of <paramref name="frame"/>: for a frame encounters' looks change, its
+    /// picture of each combination of the looks it is drawn in (#1538); else the frame itself.
     /// </summary>
-    private static IEnumerable<string> PictureNames(string frame, Dictionary<string, FrameArtworkVariation[]> frameVariations) =>
-        frameVariations.TryGetValue(frame, out FrameArtworkVariation[]? followed) ? FrameVariationPictures.Names(frame, followed) : [frame];
+    private static IEnumerable<string> PictureNames(string frame, Dictionary<string, FrameLookChange[]> frameChanges) =>
+        frameChanges.TryGetValue(frame, out FrameLookChange[]? changes) ? FrameLookPictures.Names(frame, changes) : [frame];
+
+    /// <summary>The encounters whose looks change each frame of <paramref name="frameChanges"/>, in encounter order.</summary>
+    private static Dictionary<string, EncounterArtwork[]> Encounters(Dictionary<string, FrameLookChange[]> frameChanges) =>
+        frameChanges.ToDictionary(frame => frame.Key, frame => frame.Value.Select(change => change.Encounter).ToArray(), StringComparer.Ordinal);
 
     /// <summary>
     /// Where the manifest says a rotting corpse lies in each picture of <paramref name="owner"/>'s sheet under
@@ -227,33 +221,32 @@ public static class EnemySheetFiles
     }
 
     /// <summary>
-    /// How the manifest says each frame of <paramref name="owner"/>'s sheet under <paramref name="set"/> follows the
-    /// encounter artwork sequences that change it (#1513), each sequence one the game plays and each step's picture one of
-    /// its steps: a frame whose artwork a run of pages completes shows that step's picture at every step it is drawn at.
+    /// How the manifest says encounters' looks change each frame of <paramref name="owner"/>'s sheet under
+    /// <paramref name="set"/> (#1538), in encounter order: each encounter one whose looks gameplay shows, each with the names
+    /// of its looks the frame is drawn in.
     /// </summary>
-    /// <exception cref="InvalidDataException">A frame follows no sequence, an unknown one, or shows a picture of a step the sequence does not have.</exception>
-    private static Dictionary<string, FrameArtworkVariation[]> FrameVariations(
-        Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>> manifest, string set, string owner)
+    /// <exception cref="InvalidDataException">A frame is changed by no encounter, an unknown one, or in no look.</exception>
+    private static Dictionary<string, FrameLookChange[]> LookChanges(
+        Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>> manifest, string set, string owner)
     {
-        var variations = new Dictionary<string, FrameArtworkVariation[]>(StringComparer.Ordinal);
-        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>? owners)
-            || !owners.TryGetValue(owner, out Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>? frames))
-            return variations;
-        foreach ((string frame, Dictionary<string, FrameArtworkVariationDocument> sequences) in frames)
+        var changes = new Dictionary<string, FrameLookChange[]>(StringComparer.Ordinal);
+        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, Dictionary<string, string[]>>>? owners)
+            || !owners.TryGetValue(owner, out Dictionary<string, Dictionary<string, string[]>>? frames))
+            return changes;
+        foreach ((string frame, Dictionary<string, string[]> encounters) in frames)
         {
-            if (sequences.Count == 0)
-                throw new InvalidDataException($"Enemy sheet manifest follows {set} {owner} frame {frame} through no artwork sequence.");
-            variations.Add(frame, [.. sequences.OrderBy(entry => entry.Key, StringComparer.Ordinal).Select(entry =>
+            if (encounters.Count == 0)
+                throw new InvalidDataException($"Enemy sheet manifest changes {set} {owner} frame {frame} by no encounter's looks.");
+            changes.Add(frame, [.. encounters.Select(entry =>
             {
-                if (!Enum.TryParse(entry.Key, out EncounterArtworkSequence sequence) || !Enum.IsDefined(sequence))
-                    throw new InvalidDataException($"Enemy sheet manifest follows {set} {owner} frame {frame} through unknown artwork sequence {entry.Key}.");
-                FrameArtworkVariation variation = entry.Value.Variation(sequence);
-                if (variation.Pictures.Any(picture => picture is int shown && (uint)shown >= (uint)variation.Pictures.Length))
-                    throw new InvalidDataException($"Enemy sheet manifest shows {set} {owner} frame {frame} at a step of {entry.Key} by a picture of a step the sequence does not have.");
-                return variation;
-            }).OrderBy(variation => variation.Sequence)]);
+                if (!Enum.TryParse(entry.Key, out EncounterArtwork encounter) || !Enum.IsDefined(encounter))
+                    throw new InvalidDataException($"Enemy sheet manifest changes {set} {owner} frame {frame} by the looks of unknown encounter {entry.Key}.");
+                if (entry.Value is not { Length: > 0 } looks)
+                    throw new InvalidDataException($"Enemy sheet manifest draws {set} {owner} frame {frame} in no look of {entry.Key}.");
+                return new FrameLookChange(encounter, looks);
+            }).OrderBy(change => change.Encounter)]);
         }
-        return variations;
+        return changes;
     }
 
     /// <summary>Stable camel-case manifest fields.</summary>

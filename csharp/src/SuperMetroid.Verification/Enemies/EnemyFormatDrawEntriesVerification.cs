@@ -62,7 +62,7 @@ internal static class EnemyFormatDrawEntriesVerification
         // (#1513), as a picture showing nothing draws nothing.
         EnemyProjectileFrameId projectileFrame = EnemySheetComposer.CommonSpawnersOf(set, RoomEnemyGraphicsSetLists.Members).SelectMany(common => common.Objects.Projectiles).Order()
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0
-                && !InstalledFixtures.EnemySheets.SpawnedShowsNothing(set, SpawnedObjectOwner.Shared, EnemySheetDefinitions.ProjectileFrameName(frame)));
+                && !InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared).ShowsNothing(EnemySheetDefinitions.ProjectileFrameName(frame)));
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;

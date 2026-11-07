@@ -23,10 +23,9 @@ internal static class AppearanceInputSpellings
         if (token.StartsWith(AppearanceInputTokens.AnimationPrefix, StringComparison.Ordinal) && token.Length > AppearanceInputTokens.AnimationPrefix.Length)
             return new AnimationAppearance(new ArtworkAnimation(token[AppearanceInputTokens.AnimationPrefix.Length..]));
         if (token.StartsWith(AppearanceInputTokens.EncounterLookPrefix, StringComparison.Ordinal)
-            && token[AppearanceInputTokens.EncounterLookPrefix.Length..].Split(' ') is [string sequenceName, string stepText]
-            && Enum.TryParse(sequenceName, out EncounterArtworkSequence sequence) && Enum.IsDefined(sequence)
-            && int.TryParse(stepText, NumberStyles.None, CultureInfo.InvariantCulture, out int step))
-            return new EncounterLookAppearance(sequence, step);
+            && token[AppearanceInputTokens.EncounterLookPrefix.Length..].Split(' ') is [string encounterName, string lookName]
+            && Enum.TryParse(encounterName, out EncounterArtwork encounter) && Enum.IsDefined(encounter) && lookName.Length > 0)
+            return new EncounterLookAppearance(new EncounterLook(encounter, lookName));
         throw new InvalidDataException($"No appearance input is spelled \"{token}\".");
     }
 }

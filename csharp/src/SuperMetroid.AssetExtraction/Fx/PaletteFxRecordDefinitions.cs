@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// The import's palette write layout of the palette-FX programs (#1298, #1526): each <see cref="PaletteFxFrame"/>
 /// record's runs of written colours and skipped colour entries, which the import reads to locate each record's colours
 /// and to lay its shade over the inks its group recolours. The game sees only the installed colours, keyed by
-/// <see cref="PaletteFxColorKey"/>. Generated from the verified animation scripts.
+/// <see cref="PaletteFxColorKey"/>. The palette-FX program checks compare each layout with the original records.
 /// </summary>
 internal static class PaletteFxRecordDefinitions
 {

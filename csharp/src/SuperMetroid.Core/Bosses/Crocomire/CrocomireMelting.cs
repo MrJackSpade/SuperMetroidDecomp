@@ -31,7 +31,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// <c>MainAI_Crocomire_DeathSequence_10_Hop_3_LoadMeltingTilemap</c>. Only
+    /// Shows the first melting image of Crocomire's death hop. Only
     /// this first melt hands the tongue its melting program and moves it onto the body.
     /// </summary>
     internal void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
@@ -57,7 +57,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// <c>MainAI_Crocomire_DeathSequence_2C_Hop_6_LoadMeltingTilemap</c>. It
+    /// Shows the second melting image of Crocomire's death hop. It
     /// first refills the melt's per-line background vertical scroll and leaves the tongue alone.
     /// </summary>
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)

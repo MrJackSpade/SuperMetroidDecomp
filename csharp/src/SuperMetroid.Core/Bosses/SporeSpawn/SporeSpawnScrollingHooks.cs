@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 public static class SporeSpawnScrollingHooks
 {
     /// <summary>
-    /// <c>ScrollingFinishedHook_SporeSpawnFight</c>. The routine
+    /// The scrolling-finished hook of the Spore Spawn fight. The routine
     /// prevents the camera from moving above Y 464 while the live encounter owns
     /// the global scrolling-finished callback.
     /// </summary>

@@ -12,23 +12,23 @@ internal static class PhantoonSoundDefinitions
     /// <summary>SpawnCasualFlame: blue flame launch sound in library three.</summary>
     internal static SoundEffectId CasualFlame => Library3Sound.PhantoonFlame;
 
-    /// <summary>Library-2 sound $73, queued when a shot hurts or kills Phantoon.</summary>
+    /// <summary>Phantoon's cry, queued when a shot hurts or kills Phantoon.</summary>
     internal static readonly SoundEffectId ShotCry = Library2Sound.PhantoonCry;
 
-    /// <summary>Library-2 sound $7E, queued as the dying Phantoon turns wavy.</summary>
+    /// <summary>The high cry, queued as the dying Phantoon turns wavy.</summary>
     internal static readonly SoundEffectId DyingCry = Library2Sound.MotherBrainHighCry;
 
-    /// <summary>Library-2 sound $24, queued after a big death explosion.</summary>
+    /// <summary>The small explosion, queued after a big death explosion.</summary>
     internal static readonly SoundEffectId BigDeathExplosionSound = Library2Sound.SmallExplosion;
 
-    /// <summary>Library-2 sound $2B, queued after any other death explosion.</summary>
+    /// <summary>The fireball impact, queued after any other death explosion.</summary>
     internal static readonly SoundEffectId DeathExplosionSound = Library2Sound.FireballImpact;
 
     /// <summary>The casual-flame sound's request priority.</summary>
     internal static readonly SoundRequestPriority CasualFlamePriority = SoundRequestPriority.Normal;
 
     /// <summary>
-    /// <c>Phantoon_MaterializationSFX</c>: the library-two sounds queued in a repeating
+    /// The materialization sounds: the library-two sounds queued in a repeating
     /// three-callback cycle.
     /// </summary>
     internal static readonly SoundEffectId[] MaterializationSounds =

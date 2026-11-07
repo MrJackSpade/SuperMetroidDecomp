@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>A gameplay cue of Draygon's programs.</summary>
 internal abstract record DraygonCue
 {
-    /// <summary>Starts a program on each of the four parts, as <c>Instruction_Draygon_SetInstList_Body_Eye_Tail_Arms</c> does.</summary>
+    /// <summary>Starts a program on each of the four parts: body, eye, tail and arms.</summary>
     internal sealed record StartPartPrograms(DraygonProgram Body, DraygonProgram Eye, DraygonProgram Tail, DraygonProgram Arms) : DraygonCue;
 
     /// <summary>Gives the eye its tracking function.</summary>

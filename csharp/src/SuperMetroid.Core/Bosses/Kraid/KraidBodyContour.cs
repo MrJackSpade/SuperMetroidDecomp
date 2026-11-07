@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Compiled staircase used by Kraid's private body/projectile collision path.</summary>
 public static class KraidBodyContour
 {
-    /// <summary>First bottom boundary of HitboxDefinitionTable_KraidBody.</summary>
+    /// <summary>First bottom boundary of Kraid's body hitbox contour.</summary>
     private const int FirstBottomBoundary = 1023;
 
     /// <summary>

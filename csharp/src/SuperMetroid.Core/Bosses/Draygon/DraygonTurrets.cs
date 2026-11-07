@@ -61,7 +61,7 @@ internal sealed class DraygonTurrets
         turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(target.Origin);
 
-        // PlaceAndAim negates the common zero-up angle, then adds $40 before retaining the
+        // PlaceAndAim negates the common zero-up angle, then adds a quarter turn (64) before retaining the
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
         // signs from this retained angle on every frame.
         ByteAngle flightAngle = EnemyMath.CalculateBearing(

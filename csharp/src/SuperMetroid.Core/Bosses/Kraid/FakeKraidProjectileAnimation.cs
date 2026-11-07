@@ -17,8 +17,8 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
         ShownProjectileFrames[frame];
 
     /// <summary>
-    /// Each pose's program: <c>InstList_EnemyProjectile_MiniKraidSpit</c> and <c>InstList_EnemyProjectile_MiniKraidSpikes_Left</c>
-    /// and <c>_Right</c> each show their pose for the authored duration, then sleep.
+    /// Each pose's program: the spit and the left
+    /// and right spikes each show their pose for the authored duration, then sleep.
     /// </summary>
     private static AnimationProgramSet<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PosePrograms { get; } = new(
         Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new[]

@@ -10,15 +10,15 @@ internal static class KraidArmCollision
 {
     /// <summary>Selects the arm pushback/lint reaction for active shapes, ordinary touch for background/lunge shapes.</summary>
     /// <remarks>Independently reviewed for #1165 against all selected authored
-    /// rectangles. The selected lists through Hitbox_KraidArm_F use arm touch;
-    /// Hitbox_KraidArm_10..12 and both dying/lunge lists use background touch.</remarks>
+    /// rectangles. The selected lists through the last active arm frame use arm touch;
+    /// the three background frames after it and both dying/lunge lists use background touch.</remarks>
     internal static EnemyReaction TouchReaction(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));
         return rectangle < FirstBackgroundRectangle ? EnemyReaction.KraidArmTouch : EnemyReaction.KraidBackgroundTouch;
     }
 
-    /// <summary>Every selected arm rectangle uses the arm's shot reaction (EnemyShot_KraidArm).</summary>
+    /// <summary>Every selected arm rectangle uses the arm's shot reaction.</summary>
     internal static EnemyReaction ShotReaction(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));

@@ -53,7 +53,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The eleven authored Japan/USA spawn points. Mother Brain's
     /// three special actors compete for these resources and may rewrite their spawn snapshots
-    /// when the original point is outside the current screen. The even extra-RAM token is
+    /// when the original point is outside the current screen. The even reservation token is
     /// derived from each point's position in this table.
     /// </summary>
     private static readonly Position16<RoomPixels>[] RinkaSpawnPoints =
@@ -71,7 +71,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         new(128, 168),
     ];
 
-    /// <summary>Pairs an authored spawn point with its one-based even extra-RAM resource token.</summary>
+    /// <summary>Pairs an authored spawn point with its one-based even reservation token.</summary>
     internal static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
         new(RinkaSpawnPoints[index], 2 * (index + 1));
 
@@ -88,7 +88,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private Position16<RoomPixels> _rinkaCamera;
     /// <summary>
     /// Special Rinka slots awaiting the door loader's camera for spawn selection, in the
-    /// ascending order used by <c>Initialise_Enemies</c>.
+    /// ascending order the room's enemy setup uses.
     /// </summary>
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
@@ -101,7 +101,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         _rinkaCamera = camera;
     }
 
-    /// <summary>Ports <c>Rinka_Init</c>.</summary>
+    /// <summary>Sets a Rinka up when the room spawns it.</summary>
     internal void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState();
@@ -145,7 +145,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeRinkaLife(slot, state);
     }
 
-    /// <summary>Ports <c>Rinka_Init2</c> and <c>Rinka_Init3</c>.</summary>
+    /// <summary>Re-initializes a Rinka, covering both of its later setup paths.</summary>
     private void ReinitializeRinka(RoomEnemySlot slot, RinkaEnemyState state)
     {
         if (IsSpecialRinka(slot))
@@ -205,7 +205,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>Rinka_Main</c> and all four indirect functions.</summary>
+    /// <summary>Runs a Rinka's per-frame behaviour through all four of its functions.</summary>
     private void RunRinkaMain(
         RoomEnemySlot slot,
         RinkaEnemyState state,
@@ -387,7 +387,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
             }
 
-            // All eleven resources being occupied is a real failure path: Rinka_1
+            // All eleven resources being occupied is a real failure path: the reservation
             // returns without inventing a twelfth location or overwriting another owner.
             if (selectedIndex < 0)
                 return;
@@ -416,7 +416,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return index;
         }
 
-        // Rinka_2 falls back to the first table resource when a population coordinate does
+        // The location lookup falls back to the first table resource when a population coordinate does
         // not match. Preserve that odd behavior instead of rejecting a synthetic fixture.
         return 0;
     }
@@ -550,7 +550,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
         // The shared spawn helper initially carries the dying enemy's graphics word, but
-        // EprojInit_EnemyDeathExplosion immediately replaces eproj_gfx_idx with zero. Pool
+        // the death explosion's initializer immediately replaces the projectile's graphics with zero. Pool
         // exhaustion genuinely loses both the effect and the only future respawn instruction.
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is not null)

@@ -17,7 +17,7 @@ public sealed class RinkaEnemyState
     /// </summary>
     public RinkaEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Signed 8.8 velocity: X produced by Math_MultBySin, Y by Math_MultByCos.</summary>
+    /// <summary>Signed 8.8 velocity: X produced by the sine multiply, Y by the cosine multiply.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>

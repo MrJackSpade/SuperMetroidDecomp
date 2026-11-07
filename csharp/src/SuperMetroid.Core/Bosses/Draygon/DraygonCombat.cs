@@ -148,7 +148,7 @@ internal sealed class DraygonCombat
     }
 
     /// <remarks>
-    /// `DraygonReaction_Common`'s dead branch has no "already dying" test. Every
+    /// Draygon's shared reaction has no "already dying" test in its dead branch. Every
     /// touch, shot or power-bomb reaction on a zero-health body runs it again: the dying
     /// arm and eye lists restart, the drift function is reinstalled and Samus is released.
     /// </remarks>
@@ -214,7 +214,7 @@ internal sealed class DraygonCombat
                 if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
                     // Body, claws, and shell use the shared common touch; only the first
-                    // eye rectangle in maps $1A/$2D reaches Draygon's damage callback.
+                    // eye rectangle of the two eye-showing body frames reaches Draygon's damage callback.
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;

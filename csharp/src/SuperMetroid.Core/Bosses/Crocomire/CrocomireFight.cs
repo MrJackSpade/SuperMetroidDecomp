@@ -52,7 +52,7 @@ internal sealed class CrocomireFight
         _access = dependencies.Access;
     }
 
-    /// <summary>Ports <c>InitAI_Crocomire</c>.</summary>
+    /// <summary>Sets Crocomire up when the room spawns it.</summary>
     internal void InitializeCrocomire(RoomEnemySlot slot)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
@@ -100,7 +100,7 @@ internal sealed class CrocomireFight
         // the bridge's fragments and his projectiles draw in (#1512).
     }
 
-    /// <summary>Ports <c>InitAI_CrocomireTongue</c>.</summary>
+    /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
     internal void InitializeCrocomireTongue(RoomEnemySlot slot)
     {
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
@@ -556,7 +556,7 @@ internal sealed class CrocomireFight
 
     /// <summary>Moves Crocomire through ordinary ignore-slopes collision with 16.16 displacement.</summary>
     private bool MoveCrocomire(RoomEnemySlot slot, RoomLevelData level, int pixels) =>
-        // The instruction callbacks pass INT16_SHL16(±4) into the ordinary ignore-slopes
+        // The instruction callbacks pass a whole ±4 pixels in 16.16 into the ordinary ignore-slopes
         // enemy mover; retaining 16.16 here preserves collision-edge alignment.
         slot.DefinitionId == EnemyDefinitionId.Crocomire &&
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SixteenSixteen.FromWhole(pixels));
@@ -578,7 +578,7 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException("Crocomire movement requires room level data.");
     }
 
-    /// <summary>Ports <c>EprojInit_CrocomireProjectile</c>.</summary>
+    /// <summary>Spawns one of Crocomire's fight projectiles.</summary>
     internal void SpawnCrocomireProjectile(RoomEnemySlot body, int spawnParameter)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

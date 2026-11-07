@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's death mosaic, as <c>Phantoon_DyingFadeOut</c> grows it: one block size every sixteenth frame,
+/// Phantoon's death mosaic, as its dying fade-out grows it: one block size every sixteenth frame,
 /// from the smallest to the largest, before the fade-out runs.
 /// </summary>
 internal static class PhantoonDeathDefinitions

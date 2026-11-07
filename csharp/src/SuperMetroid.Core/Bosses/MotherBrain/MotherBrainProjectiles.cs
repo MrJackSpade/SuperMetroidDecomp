@@ -285,7 +285,7 @@ internal sealed class MotherBrainProjectiles
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
         // Both boundaries are signed CMP/BMI tests. X reflects without clamping; the floor
-        // clamps Y to $D0 and resets the two authored bounce velocities.
+        // clamps Y to 208 and resets the two authored bounce velocities.
         if (CoordinateAxis.Difference(bomb.Position.X.Whole, 240) >= 0)
             bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.Negated());
         if (CoordinateAxis.Difference(bomb.Position.Y.Whole, 208) < 0)
@@ -397,7 +397,7 @@ internal sealed class MotherBrainProjectiles
     /// <summary>
     /// Consumes one request emitted by the glass PLM's shard step. The request retains the
     /// executing PLM's block origin because the shard initializer calls
-    /// <c>CalculateObjectBlockCoords(roomObject_id)</c> after the shared projectile allocator runs.
+    /// for the room object's block coordinates after the shared projectile allocator runs.
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
@@ -624,7 +624,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         // This private collision path intentionally ignores Samus's current invincibility
-        // timer. It writes a fresh $60 only after applying suit-divided damage.
+        // timer. It writes a fresh 96 only after applying suit-divided damage.
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
             Position16<RoomPixels> ringPosition = ring.Position.Whole;
@@ -697,7 +697,7 @@ internal sealed class MotherBrainProjectiles
         _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_MotherBrainsTurrets</c>.</summary>
+    /// <summary>Runs one of Mother Brain's turrets per frame.</summary>
     internal void RunMotherBrainTurretFrameBehavior(
         RoomEnemyProjectileSlot turret,
         Position16<RoomPixels> camera)

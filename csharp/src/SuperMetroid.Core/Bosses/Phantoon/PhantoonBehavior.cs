@@ -69,7 +69,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Per-update phase increment for the wavy background distortion.</summary>
     internal const int PhantoonWavyPhaseDelta = 8;
 
-    /// <summary>Ports <c>InitAI_PhantoonBody</c>.</summary>
+    /// <summary>Sets Phantoon's body up when the room spawns it.</summary>
     internal void InitializePhantoonBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -143,7 +143,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>MainAI_Phantoon</c>.</summary>
+    /// <summary>Runs Phantoon's per-frame behaviour.</summary>
     private void RunPhantoonMain(
         RoomEnemySlot body,
         SamusState? samus,

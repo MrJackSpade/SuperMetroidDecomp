@@ -334,7 +334,7 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>
-    /// Ports <c>Delete_EnemyProjectile_IfPowerBombed</c> for the Draygon goop
+    /// Deletes a projectile caught in a power bomb's explosion, for the Draygon goop
     /// and wall-turret shot. Inside the explosion's ellipse it clears the projectile ID and
     /// <c>XSpeedDivisor</c> only; the calling routine continues on the released slot.
     /// </summary>

@@ -124,7 +124,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// Ports <c>Crocomire_8EE5</c>: clear all ten bridge blocks and burst dust.
+    /// Clears all ten bridge blocks and bursts dust as the bridge collapses.
     /// The ten PLM operand records exactly use
     /// block X=97+i, block Y=11, and the bridge-block clearing header for i=0..9. The
     /// inclusive production loop preserves their ascending publication
@@ -318,7 +318,7 @@ internal sealed class CrocomireBridgeCollapse
         _access.RequireCrocomireDeath().SkeletonChunksShown = 0;
     }
 
-    /// <summary>Runs <c>Crocomire_Func_52</c> and the bridge fragment's initializer.</summary>
+    /// <summary>Picks the next crumbling bridge column and runs the bridge fragment's initializer.</summary>
     internal void SpawnNextCrocomireBridgeFragment()
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();

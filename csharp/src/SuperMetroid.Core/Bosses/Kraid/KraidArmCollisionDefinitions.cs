@@ -62,7 +62,7 @@ internal static class KraidArmCollisionDefinitions
 
     /// <summary>Twenty-four rectangles selected by the compiled arm frame families.</summary>
     internal const int RectangleCount = 24;
-    /// <summary>First compiled rectangle, Hitbox_KraidArm_10, using normal background touch.</summary>
+    /// <summary>First compiled rectangle of the first background arm frame, using normal background touch.</summary>
     internal const int FirstBackgroundRectangle = 17;
 
     /// <summary>The seven articulated shapes components 0 and 3 advance through.</summary>

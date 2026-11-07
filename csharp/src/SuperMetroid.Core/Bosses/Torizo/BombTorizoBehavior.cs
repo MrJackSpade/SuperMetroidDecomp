@@ -97,7 +97,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetTorizoPaletteTarget(TorizoEnemyState state, TorizoLookKind look) =>
         state.Colours.FadeToward(new TorizoLook(look));
 
-    /// <summary>Ports <c>Torizo_Main</c> and its <c>toriz_var_E</c> dispatcher.</summary>
+    /// <summary>Runs Bomb Torizo's per-frame behaviour and its main-function dispatcher.</summary>
     private void RunBombTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -164,8 +164,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         RoomLevelData? level)
     {
-        // GoldTorizo_Main counts consecutive space-jump poses for its anti-stall leap
-        // decision, then calls the same toriz_var_E dispatcher as Bomb Torizo.
+        // Golden Torizo's main behaviour counts consecutive space-jump poses for its anti-stall leap
+        // decision, then calls the same main-function dispatcher as Bomb Torizo.
         if (samus?.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
             state.CountSamusSpaceJumpFrame();
         else

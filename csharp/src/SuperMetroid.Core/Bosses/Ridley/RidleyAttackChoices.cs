@@ -2,7 +2,7 @@ using static SuperMetroid.Core.Bosses.Ridley.RidleyAiFunction;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Direct action selection from Ridley_Func_4's eight equally likely choices.</summary>
+/// <summary>Direct action selection from Ridley's eight equally likely attack choices.</summary>
 public static class RidleyAttackChoices
 {
     /// <summary>

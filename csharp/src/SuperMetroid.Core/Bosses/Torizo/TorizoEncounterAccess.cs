@@ -35,7 +35,7 @@ internal sealed class TorizoEncounterAccess
         RoomEnemySlot torizo,
         SamusState samus)
     {
-        // The awakening facing check calls Torizo_Func_12, whose operand is the facing bit XOR the sign of
+        // The awakening facing check's operand is the facing bit XOR the sign of
         // enemyX-SamusX, rather than the SamusX-enemyX test used by the walkers.
         return FacesRight(torizo) == CoordinateAxis.Difference(torizo.Position.X.Whole, samus.Position.X.Whole) < 0;
     }

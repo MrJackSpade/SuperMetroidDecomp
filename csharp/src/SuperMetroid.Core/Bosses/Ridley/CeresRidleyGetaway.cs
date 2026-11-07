@@ -64,7 +64,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Room main <c>MainASM_HandleCeresRidleyGetawayCutscene</c> and
+    /// Runs the room's Ceres Ridley getaway cutscene and
     /// <c>HandleCeresRidleyGetawayCutsceneIfActive</c>. It runs after the
     /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
     /// in which Ridley's escape handoff publishes Ceres status one.

@@ -72,13 +72,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// <c>CameraDistanceIndex</c>, shared by every boss that retargets the camera.
-    /// <c>Initialise_Special_Effects_for_New_Room</c> clears it on each room load.
+    /// The new room's special-effect setup clears it on every room load.
     /// </summary>
     public CameraDistanceMode CameraDistanceIndex { get; internal set; }
 
     /// <summary>
     /// The Zebetites' shared palette-cycle counter: physical slot zero's record word C
-    /// (<c>Get_Zebetites(0)->zebet_var_C</c>) whichever enemy holds that slot, advanced by every Zebetite in the room.
+    /// (the first Zebetite's own palette counter) whichever enemy holds that slot, advanced by every Zebetite in the room.
     /// It restarts with slot zero's record: at room load, when a Zebetite initializes into slot zero, and when a kill
     /// empties a slot-zero Zebetite. Tourian's Zebetite room puts Mother Brain's body in slot zero, and the body never
     /// uses that word.
@@ -97,7 +97,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ? PictureShading.Shaded(ZebetiteShades.Pulse(frame))
         : PictureShading.Standard;
 
-    /// <summary>Ports <c>Zebetites_Init</c>.</summary>
+    /// <summary>Sets a Zebetite up when the room spawns it.</summary>
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot.Spawn.Population);
@@ -261,7 +261,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         return spawned;
     }
 
-    /// <summary>Ports the private tail of <c>Zebetites_Shot</c>.</summary>
+    /// <summary>Resolves the private tail of a shot on a Zebetite.</summary>
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         // Every Zebetite shares one source: a second hit in the same update replaces the first hit's request

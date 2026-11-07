@@ -90,7 +90,7 @@ internal sealed class MotherBrainBody
         }
     }
 
-    /// <summary>Ports <c>InitAI_MotherBrainBody</c>.</summary>
+    /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
     internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -149,7 +149,7 @@ internal sealed class MotherBrainBody
                 state.Form = MotherBrainForm.FakeDeath;
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
 
-                // MotherBrain_SealWall creates both dust puffs before its
+                // Sealing the wall creates both dust puffs before its
                 // two identical hardcoded PLMs. Requests remain ordered because the PLM
                 // allocator searches the same descending pool for each call.
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
@@ -341,7 +341,7 @@ internal sealed class MotherBrainBody
             if (CoordinateAxis.Difference(samus.Position.Y.Whole, 192) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
-            // Only contact to the right of body X+24 calls MotherBrain_HurtSamus. Contact
+            // Only contact to the right of body X+24 hurts Samus. Contact
             // elsewhere still installs the displacement and timers above without damage.
             if (CoordinateAxis.AsSigned(state.Body.Position.X.Whole + 24 - samus.Position.X.Whole) < 0)
                 DamageSamusFromMotherBrainBody(state.Body, samus);
@@ -454,7 +454,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Makes the twelve turret spawns
-    /// <c>InitAI_MotherBrainBody</c> requests. Allocation scans from the highest slot down, so request
+    /// the body's initializer requests. Allocation scans from the highest slot down, so request
     /// zero lands in host slot 17 and request eleven lands in slot 6.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets()
@@ -463,7 +463,7 @@ internal sealed class MotherBrainBody
             SpawnMotherBrainTurret(parameter);
     }
 
-    /// <summary>Ports <c>InitAI_EnemyProjectile_MotherBrainsTurrets</c>.</summary>
+    /// <summary>Spawns one of Mother Brain's turrets.</summary>
     internal void SpawnMotherBrainTurret(int parameter)
     {
         if (parameter is < 0 or >= 12)

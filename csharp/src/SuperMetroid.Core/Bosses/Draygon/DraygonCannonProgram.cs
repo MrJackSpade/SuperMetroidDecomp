@@ -3,24 +3,24 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>Draygon's cannon PLM programs (#1296), one set per facing, in place of their lists.</summary>
 internal enum DraygonCannonProgram
 {
-    /// <summary>Links the hit program and arms the missile wake (<c>InstList_PLM_DraygonCannonWithShieldFacingRight_0</c>).</summary>
+    /// <summary>Links the hit program and arms the missile wake of the shielded right-facing cannon.</summary>
     RightStart,
-    /// <summary>Shows the shield and sleeps (<c>..FacingRight_1</c>).</summary>
+    /// <summary>Shows the shield and sleeps.</summary>
     RightIdle,
-    /// <summary>Counts a hit, flashes the shield and returns to idle (<c>..FacingRight_2</c>).</summary>
+    /// <summary>Counts a hit, flashes the shield and returns to idle.</summary>
     RightHit,
-    /// <summary>Destroys the cannon (<c>InstList_PLM_DraygonCannonFacingRight_0</c>).</summary>
+    /// <summary>Destroys the right-facing cannon.</summary>
     RightDestroy,
-    /// <summary>The destroyed cannon's smoke loop (<c>InstList_PLM_DraygonCannonFacingRight_1</c>).</summary>
+    /// <summary>The destroyed right-facing cannon's smoke loop.</summary>
     RightSmoke,
-    /// <summary>Links the hit program and arms the missile wake (<c>InstList_PLM_DraygonCannonWithShieldFacingLeft_0</c>).</summary>
+    /// <summary>Links the hit program and arms the missile wake of the shielded left-facing cannon.</summary>
     LeftStart,
-    /// <summary>Shows the shield and sleeps (<c>..FacingLeft_1</c>).</summary>
+    /// <summary>Shows the shield and sleeps.</summary>
     LeftIdle,
-    /// <summary>Counts a hit, flashes the shield and returns to idle (<c>..FacingLeft_2</c>).</summary>
+    /// <summary>Counts a hit, flashes the shield and returns to idle.</summary>
     LeftHit,
-    /// <summary>Destroys the cannon (<c>InstList_PLM_DraygonCannonFacingLeft_0</c>).</summary>
+    /// <summary>Destroys the left-facing cannon.</summary>
     LeftDestroy,
-    /// <summary>The destroyed cannon's smoke loop (<c>InstList_PLM_DraygonCannonFacingLeft_1</c>).</summary>
+    /// <summary>The destroyed left-facing cannon's smoke loop.</summary>
     LeftSmoke,
 }

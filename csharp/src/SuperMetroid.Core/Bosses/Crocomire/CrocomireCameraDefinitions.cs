@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Scroll-zone writes made by MainAI_Crocomire_DeathSequence_0_NotStarted.</summary>
+/// <summary>Scroll-zone writes made as Crocomire's death sequence starts.</summary>
 internal static class CrocomireCameraDefinitions
 {
     /// <summary>The bridge's scroll setup writes the screen immediately left of the melting viewport.</summary>

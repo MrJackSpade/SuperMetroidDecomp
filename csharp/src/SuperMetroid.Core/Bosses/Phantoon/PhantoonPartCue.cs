@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>The gameplay cues Phantoon's part programs publish: the routines their lists call through <c>Instruction_CommonA7_CallFunctionInY</c>.</summary>
+/// <summary>The gameplay cues Phantoon's part programs publish: the behaviours their lists call.</summary>
 internal enum PhantoonPartCue
 {
     /// <summary>Queues the next materialization sound (<c>PlayPhantoonMaterializationSFX</c>).</summary>

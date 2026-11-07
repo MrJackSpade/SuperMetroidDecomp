@@ -51,7 +51,7 @@ internal sealed class MotherBrainHead
         _access = dependencies.Access;
     }
 
-    /// <summary>Ports <c>InitAI_MotherBrainHead</c>.</summary>
+    /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>
     internal void InitializeMotherBrainHead(RoomEnemySlot head)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??

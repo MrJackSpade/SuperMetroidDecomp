@@ -70,7 +70,7 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>
     /// Mother Brain health-based body-palette flag. Revival writes one only after
-    /// the walk to X `$50` has really completed; it is not synonymous with the separate
+    /// the walk to X 80 has really completed; it is not synonymous with the separate
     /// brain-slot palette handler above.
     /// </summary>
     public bool HealthBasedPaletteHandlingEnabled { get; internal set; }
@@ -201,7 +201,7 @@ internal sealed class MotherBrainLateFightState
         return MotherBrainWalkResult.WalkInstalled;
     }
 
-    /// <summary>Uses the random low byte at or above $C0 to toggle a standing or leaning body list.</summary>
+    /// <summary>Uses the random low byte at or above 192 to toggle a standing or leaning body list.</summary>
     internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
         // The lean helper ignores every pose except standing (zero) and leaning (six), and its

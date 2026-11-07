@@ -88,7 +88,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 int forwardDelay = (randomNumberSeed.HasBit(1) ? 2 : 0) + 4;
 
                 // MakeMotherBrainWalkForwards reports carry only for a strictly overshot
-                // target or the independent X `$80` limit. Equality still requests a walk.
+                // target or the independent X 128 limit. Equality still requests a walk.
                 bool reachedForwardTarget =
                     CoordinateAxis.Difference(Phase3TargetXPosition, _state.Body.Position.X) < 0 ||
                     MotherBrainLateFightState.AtLeastBySignedDifference(_state.Body.Position.X, 128);
@@ -192,7 +192,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
                 Phase3NeckFunctionTimer = 11;
 
-                // Setup also falls through, making the externally visible first timer `$0A`.
+                // Setup also falls through, making the externally visible first timer 10.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
             case MotherBrainPhase3NeckPhase.HyperBeamRecoil:

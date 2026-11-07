@@ -35,14 +35,14 @@ internal static class RidleyTailDefinitions
     internal const int StabDistance = 2560;
     /// <summary>Bounce extension request.</summary>
     internal const int BounceDistance = 3072;
-    /// <summary>SetRidleyTailAngleExtrema_minClockwiseAngle for left/front/right facing.</summary>
+    /// <summary>The tail's minimum clockwise angle for left/front/right facing.</summary>
     internal static readonly Dictionary<RidleyFacing, RotationAngle> MinimumClockwiseAngles = new()
     {
         [RidleyFacing.Left] = RotationAngle.FromRaw(16368),
         [RidleyFacing.Turning] = RotationAngle.FromRaw(16368),
         [RidleyFacing.Right] = RotationAngle.FromRaw(16320),
     };
-    /// <summary>SetRidleyTailAngleExtrema_maxCounterClockwiseAngle for left/front/right facing.</summary>
+    /// <summary>The tail's maximum counter-clockwise angle for left/front/right facing.</summary>
     internal static readonly Dictionary<RidleyFacing, RotationAngle> MaximumCounterClockwiseAngles = new()
     {
         [RidleyFacing.Left] = RotationAngle.FromRaw(16448),

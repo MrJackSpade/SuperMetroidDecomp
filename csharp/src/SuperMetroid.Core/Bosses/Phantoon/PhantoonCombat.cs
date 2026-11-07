@@ -167,7 +167,7 @@ internal sealed class PhantoonCombat
             SamusProjectileType projectileType = projectile.Type;
             int projectileDamage = projectile.Damage;
             SamusProjectileFamily family = projectile.Type.Family;
-            // A0:9BE6..9BF6 excludes bombs and every family at/above beam
+            // Phantoon's shot filter excludes bombs and every family at/above beam
             // explosions. Lingering missile explosions must not reach shot AI.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
@@ -596,7 +596,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>
     /// Runs the flame's drop step. The original game forwards the flame's
-    /// exact position and the Phantoon-eye enemy header to <c>Spawn_Enemy_Drops</c>; the
+    /// exact position and the Phantoon-eye enemy header to the enemy drop spawner; the
     /// translated pickup owner is still an outer subsystem, so publish the same semantic
     /// request with the header-derived item table rather than silently discarding the drop.
     /// </summary>

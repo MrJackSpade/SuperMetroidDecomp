@@ -75,7 +75,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             dependencies.SpriteObjects);
     }
 
-    /// <summary>Ports <c>MainAI_DraygonBody</c>.</summary>
+    /// <summary>Runs Draygon's body per-frame behaviour.</summary>
     private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounter)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
@@ -177,7 +177,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Draygon body function {state.Function} is not translated.");
         }
 
-        // These are four physical enemy records, but Draygon_Main makes the body coordinate
+        // These are four physical enemy records, but Draygon's main behaviour makes the body coordinate
         // authoritative after its function returns. Copying here preserves that ordering for
         // the eye AI and each part's later instruction tick in the same enemy frame.
         state.Arms.Position = state.Arms.Position.WithWholeX(body.Position.X.Whole);

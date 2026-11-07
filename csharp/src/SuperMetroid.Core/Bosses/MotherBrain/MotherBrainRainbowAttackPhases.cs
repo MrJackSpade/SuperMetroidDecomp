@@ -260,7 +260,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         if (--_state.FunctionTimer < 0)
         {
-            requests.ChargeSoundQueued = true; // Sound library two, effect `$71`.
+            requests.ChargeSoundQueued = true; // The rainbow beam's charge sound.
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown;
             return true;
         }

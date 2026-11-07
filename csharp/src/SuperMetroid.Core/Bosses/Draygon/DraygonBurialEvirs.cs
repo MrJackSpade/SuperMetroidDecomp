@@ -30,8 +30,8 @@ internal static class DraygonBurialEvirs
     }
 
     /// <summary>
-    /// The signed per-frame displacement: X moves right when angle+$40 has bit 7 set and Y moves
-    /// down when angle+$80 has bit 7 set; otherwise each magnitude is subtracted.
+    /// The signed per-frame displacement: X moves right when the angle plus 64 has bit 7 set and Y moves
+    /// down when the angle plus 128 has bit 7 set; otherwise each magnitude is subtracted.
     /// </summary>
     internal static FixedVector<RoomPixels> Velocity(DraygonBurialEvirDefinition evir) => new(
         EnemyMath.CosineIsNegative(evir.Angle) ? evir.SubspeedMagnitude.X : SignedSixteenSixteen.Zero - evir.SubspeedMagnitude.X,

@@ -58,7 +58,7 @@ internal sealed class CeresRidleyFades
         if (state.FadeStep < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
             return;
 
-        // CeresRidley_Func_5 makes Ridley intangible after the final shade, waits
+        // The final eye-fade step makes Ridley intangible after the final shade, waits
         // five dispatcher calls, then begins the opening-roar list.
         slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.FadeStep = 0;

@@ -32,12 +32,12 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Places the latched Baby 20 pixels above Samus's center.</summary>
     private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -20);
 
-    /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c>.</summary>
+    /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
     /// <remarks>The enemy header declares width/height 36. Despite the header macro's friendly names,
     /// enemy loading copies those values directly into the enemy slot's X/Y *radius* fields; there is no
     /// diameter-to-radius division anywhere in between.</remarks>
     public const int XHitboxRadius = 36;
-    /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c>.</summary>
+    /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
     public const int YHitboxRadius = 36;
 
     /// <summary>Current function-pointer equivalent.</summary>
@@ -233,7 +233,7 @@ public sealed class BabyMetroidCutsceneState
 
         // EnemyCollisionHandling runs touch AI before main AI, against the Baby's
         // position from the previous frame. The Baby's touch is active only while it latches onto Samus; broad
-        // Samus/enemy hitboxes gate it, then its own acceleration-$10 helper decides when
+        // Samus/enemy hitboxes gate it, then its own divisor-16 acceleration helper decides when
         // both axes have reached the latch point. Main AI and its mover follow this frame.
         if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus && TouchesSamus(samus))
         {
@@ -326,7 +326,7 @@ public sealed class BabyMetroidCutsceneState
                     SetProgram(MotherBrainBabyProgram.DrainingMotherBrain);
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     motherBrain.InterruptFinalBeamForBabyDrain();
-                    latchSoundQueued = true; // Sound library one, effect `$40`.
+                    latchSoundQueued = true; // The rainbow-drain sound starts as the Baby latches on.
                 }
                 break;
             }
@@ -513,10 +513,10 @@ public sealed class BabyMetroidCutsceneState
                 goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
 
             case BabyMetroidCutscenePhase.StareDownMotherBrain:
-                // Literal target: four pixels left of Samus and Y `$60`.
-                // The helper's Y index zero means divisor `$10`. This leg and the next two
-                // enter, which stores a `$10` wrong-way off-screen X extra,
-                // not the `$400` of the entrance helpers.
+                // Literal target: four pixels left of Samus and Y 96.
+                // The helper's Y index zero means divisor 16. This leg and the next two
+                // enter, which stores a 16 wrong-way off-screen X extra,
+                // not the 1024 of the entrance helpers.
             {
                 var target = new Position16<RoomPixels>(CoordinateAxis.Wrap(samus.Position.X.Whole - 4), 96);
                 GraduallyAccelerateTowardsPoint(
@@ -561,8 +561,8 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.InitiateFinalCharge:
-                // Divisor-table index `$A` maps to `$10-$A == 6`. This helper family adds
-                // `$400` only when an off-screen actor is moving the wrong horizontal way.
+                // Divisor-table index 10 maps to 16 - 10 == 6. This helper family adds
+                // 1024 only when an off-screen actor is moving the wrong horizontal way.
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(290, 128),
                     accelerationDivisor: 6,
@@ -627,7 +627,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
                 if (--FunctionTimer < 0)
                 {
-                    // Samus command `$19` freezes the drained animation at byte-index 28.
+                    // The Hyper Beam acquisition freezes Samus's drained animation at byte-index 28.
                     // The Hyper Beam step also installs the first rainbow handler; neither handler is
                     // executed until the Baby's following enemy-AI call.
                     SamusDrainedState.FreezeForHyperBeamAcquisition(samus);
@@ -792,7 +792,7 @@ public sealed class BabyMetroidCutsceneState
         }
     }
 
-    /// <summary>Reduces horizontal 8.8 speed magnitude by $20 and adds two raw units of downward velocity.</summary>
+    /// <summary>Reduces horizontal 8.8 speed magnitude by 32 and adds two raw units of downward velocity.</summary>
     private void AccelerateDownwardsForDeath()
     {
         // The slowing step subtracts 32 from the magnitude, clamps at zero, reapplies the old
@@ -805,10 +805,10 @@ public sealed class BabyMetroidCutsceneState
             SignedEightEight.Wrapped(Velocity.Y.RawValue + 2));
     }
 
-    /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=$80, selecting the shade it shows.</summary>
+    /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=128, selecting the shade it shows.</summary>
     private bool StepFadeToBlack(ref int? fadeShade)
     {
-        // No timer changes occur until the actor's centre reaches Y `$80`.
+        // No timer changes occur until the actor's centre reaches Y 128.
         if (CoordinateAxis.Difference(Position.Y.Whole, 128) < 0)
             return false;
 
@@ -909,7 +909,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>
-    /// <c>Enemy_vs_Samus_CollisionHandling</c> for the Baby's radius hitbox.
+    /// The ordinary enemy-versus-Samus contact check, for the Baby's radius hitbox.
     /// A non-zero contact-damage index clears Samus's invincibility and proceeds; otherwise an
     /// invincible Samus is not touched. Each axis then requires
     /// <c>|delta| - SamusRadius &lt; enemy radius</c> (a delta inside Samus's own radius

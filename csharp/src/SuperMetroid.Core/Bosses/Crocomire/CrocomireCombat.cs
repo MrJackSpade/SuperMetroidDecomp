@@ -305,7 +305,7 @@ internal sealed class CrocomireCombat
             EnemyProjectileFrameBehavior.CrocomireShotFlight;
     }
 
-    /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>
+    /// <summary>Flies a fight projectile, deleting it on the first horizontal/vertical wall hit.</summary>
     internal static void RunCrocomireProjectileFlight(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -359,7 +359,7 @@ internal sealed class CrocomireCombat
         projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
-        // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
+        // its low byte remains untouched, exactly as the original projectile mover leaves it.
         FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
             .MovedBy(xVelocity);
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);

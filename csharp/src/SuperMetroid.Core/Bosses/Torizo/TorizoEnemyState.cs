@@ -77,10 +77,10 @@ public sealed class TorizoEnemyState
     /// </summary>
     public EightEightVector<RoomPixels> JumpAcceleration { get; internal set; }
 
-    /// <summary><c>toriz_var_E</c> main-function dispatcher pointer.</summary>
+    /// <summary>The main function the Torizo runs each frame.</summary>
     public TorizoFunction Function { get; internal set; }
 
-    /// <summary><c>toriz_var_F</c> active-state pre-instruction pointer.</summary>
+    /// <summary>The behaviour the Torizo runs before each animation step while active.</summary>
     public TorizoFrameBehavior FrameBehavior { get; internal set; }
 
     /// <summary>Host lifecycle latch set when the awakening check observes the hand-trigger PLM gone and resumes Bomb Torizo's awakening animation script.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <remarks>
 /// This state belongs to Mother Brain, not to Samus's movement-type dispatcher. Pose type
-/// <c>$1B</c> deliberately returns without moving; the enemy AI calls
+/// 27, the locked pose type, deliberately returns without moving; the enemy AI calls
 /// these helpers separately after it has locked Samus. Keeping that ownership explicit
 /// prevents a future runtime from accidentally applying both ordinary and forced movement.
 ///
@@ -74,7 +74,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         FixedPosition<RoomPixels> before = Capture(samus);
 
         // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
-        // coordinate range this is exactly currentY <= $7C, but preserve the 16-bit branch
+        // coordinate range this is exactly currentY <= 124, but preserve the 16-bit branch
         // semantics instead of introducing a host integer comparison with different wraps.
         int difference = CoordinateAxis.Difference(124, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
@@ -137,7 +137,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             speed, angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle());
     }
 
-    /// <summary>Applies 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=$30..$C0.</summary>
+    /// <summary>Applies 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=48..192.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
         RainbowBeamCameraCheckpoint cameraCheckpoint,
@@ -168,7 +168,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Applies 8.8 X movement, mirrors previous-position words, and clamps at the right wall X=$EB.</summary>
+    /// <summary>Applies 8.8 X movement, mirrors previous-position words, and clamps at the right wall X=235.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint, SignedEightEight velocity)
     {
         FixedCoordinate moved = AddVelocityToHighSubpixel(

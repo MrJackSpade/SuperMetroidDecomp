@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainFakeDeathObjectDrawDefinitions
 {
     /// <summary>
-    /// 84:966D..9716: the shapes of the two thirteen-cell solid fill rows and six tube clears. The middle pair
+    /// The shapes of the two thirteen-cell solid fill rows and six tube clears. The middle pair
     /// duplicates a seven-cell column; side tubes clear one extra cell toward the center using signed origin-relative X.
     /// </summary>
     internal static readonly Dictionary<MotherBrainFakeDeathDraw, MotherBrainFakeDeathDraws.RegularDraw> RegularShapes = new()
@@ -22,10 +22,10 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
     };
 
     /// <summary>
-    /// The cells of the wall-fill, escape-door, fill-row and tube-clear draws, one row per run. 84:94A3/94B1: the
+    /// The cells of the wall-fill, escape-door, fill-row and tube-clear draws, one row per run. The
     /// wall's solid caps mirror tile 30F around center tile 340; the two-column door has a door parent above three
     /// vertical extensions in its first column (broken upper edge 222/223, interior panels 1AF and 1EB, lower interior
-    /// strip 1D0, broken lower edge 220/221) and air in its second. 84:966D..9716: fill rows are solid; tube interiors
+    /// strip 1D0, broken lower edge 220/221) and air in its second. The fill rows are solid; tube interiors
     /// become blank FF, and ceiling and floor endpoints restore 12FC/1339.
     /// </summary>
     internal static readonly Dictionary<MotherBrainFakeDeathDraw, RoomTerrainBlock[][]> Cells = new()
@@ -161,9 +161,9 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
     };
 
     /// <summary>
-    /// Retained picture composition, not numeric samples: 84:9505..966C places
-    /// this 13x12 Tourian pipe/panel mural at room (2,2), as shown by A9:8C87..8D10.
-    /// Tileset E (8F:E720) expands these cells into individually placed bends,
+    /// Retained picture composition, not numeric samples: the fake-death background draw places
+    /// this 13x12 Tourian pipe/panel mural at room (2,2), as Mother Brain's fake death shows it.
+    /// The Tourian tileset expands these cells into individually placed bends,
     /// junctions, panels and gaps. Repeated pipe segments do not determine their
     /// routing; a switch or fitted rule would merely re-encode that chosen picture.
     /// Retain under #1165's nonsense exception. Geometry and collision are calculated

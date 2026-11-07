@@ -69,7 +69,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RequestShitroidMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Shitroid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Ports <c>Shitroid_Init</c>.</summary>
+    /// <summary>Sets the Shitroid up when the room spawns it.</summary>
     internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)
     {
         if (slot.SlotIndex != 0)
@@ -114,7 +114,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Shading = state.Shading;
     }
 
-    /// <summary>Ports <c>Shitroid_Main</c>.</summary>
+    /// <summary>Runs the Shitroid's per-frame behaviour.</summary>
     internal void RunShitroidMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -543,7 +543,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if ((uint)divisorTableIndex >= 16)
             throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
-        // GradualAccelerationDivisorTable holds $10 down to $01.
+        // The gradual-acceleration divisor table holds 16 down to 1.
         int divisor = 16 - divisorTableIndex;
         state.Velocity = state.Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(
             slot.Position.X.Whole, target.X, state.Velocity.X, divisor, offscreenReversalKick,
@@ -632,8 +632,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
             CoordinateAxis.Difference(samus.Position.X.Whole, 512) >= 0)
         {
-            // The expression `$80-angle+$80`, truncated to a byte, is simply the
-            // negated source angle. Magnitude $40 is added to the current 8.8 velocity.
+            // The expression `128 - angle + 128`, truncated to a byte, is simply the
+            // negated source angle. Magnitude 64 is added to the current 8.8 velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole),
                 CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
@@ -691,7 +691,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
     }
 
-    /// <summary>Ports <c>Shitroid_Powerbomb</c>.</summary>
+    /// <summary>Resolves a power bomb's hit on the Shitroid.</summary>
     private void ResolveShitroidPowerBomb(RoomEnemySlot slot, SamusState? samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);

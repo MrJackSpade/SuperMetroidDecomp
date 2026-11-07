@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidPlatformMovement
 {
     /// <summary>
-    /// Negative 16.16 displacement from KraidLint_XSubSpeed / KraidLint_XSpeed
+    /// Negative 16.16 displacement from the lint's horizontal speed,
     /// subtracted by the lint's firing function and the riding branch.
     /// </summary>
     public const int FiringDisplacement = -229376;

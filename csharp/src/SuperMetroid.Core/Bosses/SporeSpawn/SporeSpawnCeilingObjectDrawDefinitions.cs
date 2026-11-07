@@ -11,7 +11,7 @@ internal static class SporeSpawnCeilingObjectDrawDefinitions
 {
     /// <summary>
     /// The one air cell each draw fills its square with: clear fills with the blank tile; crumble advances through
-    /// tiles $53..55 in its three successive sixteen-byte records.
+    /// the three successive crumble tiles in its three successive records.
     /// </summary>
     internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomTerrainBlock> Cells = new()
     {

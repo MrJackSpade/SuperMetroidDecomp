@@ -103,7 +103,7 @@ internal sealed class RoomObjectFramePhase
     /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
     internal void RunObjectPhase(bool deathOwnsSamus, SamusState samus, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-        // Gameplay state eight reaches PLM_Handler after Samus's new-state and
+        // Main gameplay reaches the room-object update after Samus's new-state and
         // enemy-projectile passes but before MainScrollingRoutine. A grapple block
         // acquired above therefore consumes its initial timer and draws its first frame in this
         // same frame; when it later becomes air, anchor validation has already run and

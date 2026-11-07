@@ -127,14 +127,14 @@ internal sealed class RuntimeArtwork
 
 
     /// <summary>
-    /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> last loaded. The
+    /// The equipped beams whose characters the last beam artwork update loaded. The
     /// projectile sheets show this beam's characters until the next update, even when code changes the equipment in
     /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
     /// </summary>
     public SuperMetroid.Core.Progression.SamusBeamFlags LoadedBeams { get; private set; }
 
     /// <summary>
-    /// Ports <c>Update_Beam_Tiles_and_Palette</c>: latches the beam whose characters the projectile sheets
+    /// Updates the beam artwork: latches the beam whose characters the projectile sheets
     /// show and loads its palette.
     /// </summary>
     internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)

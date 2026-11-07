@@ -65,7 +65,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
 
     /// <summary>
     /// The message returns into the item's suspended instruction list, which draws
-    /// the empty block and deletes itself within the same PLM_Handler call.
+    /// the empty block and deletes itself within the same room-object update.
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
     {
@@ -99,7 +99,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     /// Consumes the one-shot music request published by a permanent-item instruction.
     /// </summary>
     /// <remarks>
-    /// The synchronous message pauses PLM_Handler, so the diagnostic pickup list
+    /// The synchronous message pauses the room-object update, so the diagnostic pickup list
     /// intentionally remains visible during many frames. Audio must not infer an
     /// edge from that retained list or it will clear/requeue the fanfare every frame.
     /// </remarks>
@@ -130,7 +130,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectibleObjectState item)
                 continue;
             // The pickup message retains both the visible block and its physical owner.
-            // On message return, movement can touch that block before PLM_Handler runs
+            // On message return, movement can touch that block before the room-object update runs
             // the pending empty draw/delete. The touch setup matches the block index without
             // filtering the instruction phase; acknowledge this owner without collecting
             // again or disturbing its message-return continuation.
@@ -262,7 +262,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         if (item is null)
             return false;
 
-        // Collision runs before PLM_Handler. The shared item trigger written by setup
+        // Collision runs before the room-object update. The shared item trigger written by setup
         // for touch and shot must therefore pre-empt an outstanding animation timer in this same
         // handler pass; otherwise touching an item can leave Samus embedded in its solid
         // type-$B word for up to four extra frames.
@@ -289,7 +289,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
                 return true;
 
             case CollectiblePhase.EmptyAwaitingDelete:
-                // InstList_PLM_EmptyItem's Instruction_PLM_Delete.
+                // The empty item's program ends by deleting the item.
                 slot.Delete();
                 slot.Header = 0;
                 return true;
@@ -494,8 +494,8 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
             return;
         }
 
-        // InstList_PLM_EmptyItem draws for one frame; its delete runs on the
-        // following PLM_Handler pass.
+        // The empty item draws for one frame; its delete runs on the
+        // following room-object update.
         DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.Empty);
         item.Phase = CollectiblePhase.EmptyAwaitingDelete;
         item.Timer = 1;

@@ -70,7 +70,7 @@ internal sealed class DoorOpeningScrollState
         FixedPosition<RoomPixels> samus = RebaseSamus(door, ApplySetupMovement(door, sourceSamus));
 
         // The background starts as far before its endpoint as the setup camera does before the
-        // destination, except upward doors: their background begins $DC (not $FB) below it.
+        // destination, except upward doors: their background begins 220 pixels (not 251) below it.
         Offset16<BackgroundPixels> backgroundSetup = direction switch
         {
             DoorDirection.Right => new(-252, 0),

@@ -620,12 +620,12 @@ public static class DoorDefinitions
         Position16<RoomBlocks> roomObjectBlock, Position16<RoomScreens> destinationScreen, DoorSamusSpeed samusSpeed,
         DoorSetupCode setupCode) =>
         new(name, destination, orientation, roomObjectBlock, destinationScreen, samusSpeed, setupCode);
-    /// <summary>The <c>Door_DemoSet3_0_2_4</c> door.</summary>
+    /// <summary>The door into the Landing Site room that demo set 3 uses for its demos 0, 2 and 4.</summary>
     public static DoorDefinition DemoSet3024 { get; } = Find(nameof(DemoSet3024));
-    /// <summary>The <c>UNUSED_Door_83991E</c> door.</summary>
+    /// <summary>An unused door that no room lists.</summary>
     public static DoorDefinition UnusedRoom83991E { get; } = Find(nameof(UnusedRoom83991E));
-    /// <summary>The <c>UNUSED_Door_WestSandHall_2_83A654</c> door.</summary>
+    /// <summary>An unused third door of the West Sand Hall room.</summary>
     public static DoorDefinition UnusedWestSandHall283A654 { get; } = Find(nameof(UnusedWestSandHall283A654));
-    /// <summary>The <c>UNUSED_Door_EastSandHall_2_83A69C</c> door.</summary>
+    /// <summary>An unused third door of the East Sand Hall room.</summary>
     public static DoorDefinition UnusedEastSandHall283A69C { get; } = Find(nameof(UnusedEastSandHall283A69C));
 }

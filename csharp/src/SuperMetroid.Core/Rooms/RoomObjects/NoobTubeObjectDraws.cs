@@ -15,7 +15,7 @@ internal static class NoobTubeObjectDraws
     }
 
     /// <summary>
-    /// Seven named NTSC layouts at 84:98D1..9A3E. Wide runs are twelve cells:
+    /// Seven named layouts. Wide runs are twelve cells:
     /// symmetric pipe edges surround air; the floor adds a second solid edge cell.
     /// Panel rows use adjacent tiles, vertically reflected below the centre.
     /// Continuations are absolute offsets from the PLM origin, not accumulated steps.

@@ -315,7 +315,7 @@ internal sealed class GameplayActorDrawing
 
                 if (grappleBeamSpecificPath)
                 {
-                    // The active grapple handler deliberately omits `Samus_DrawEchoes`. It updates
+                    // The active grapple handler deliberately omits drawing Samus's speed echoes. It updates
                     // endpoint/segment tiles after Samus, increments flare time, and only
                     // then emits rope pieces when length is nonzero.
                     SamusGrappleBeamDrawing.DrawConnectedBeam(
@@ -409,7 +409,7 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            // CeresRidley_Main installs his graphics-drawn hook as EnemyGraphicsDrawnHook. It runs
+            // Ceres Ridley's main step installs his graphics-drawn hook as EnemyGraphicsDrawnHook. It runs
             // after every ordinary enemy layer and is the only producer of the Baby
             // Metroid sprite (plus the arena-door overlay). Keeping this after layer seven
             // preserves the hook's actual sprite position instead of inventing a Baby slot.

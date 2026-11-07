@@ -136,12 +136,12 @@ internal sealed class RoomLoader
     private DoorOpeningSourceView? _pendingDoorOpeningSourceView;
 
     /// <summary>
-    /// Executes the data-loading portion of loading-state $1F: area six, station
+    /// Executes the data-loading portion of a new game's setup: area six, station
     /// zero, the station-selected room, and its fresh-save state-selection branch.
     /// </summary>
     public InitialViewportResult InitializeStartingCeresRoom()
     {
-        // `InitAndLoadGameData_Async` writes these exact indexes before calling
+        // Loading the game data writes these exact indexes before calling
         // LoadFromLoadStation. The compiled catalog preserves that general lookup rather
         // than duplicating the Ceres room/door/placement at this call site.
         LoadStationEntry station = LoadStations.Get(
@@ -289,7 +289,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Executes loading state <c>$06</c>'s special <c>loading_game_state=$22</c> branch:
+    /// Executes the game-data loading's special branch for arriving on Zebes after Ceres:
     /// Crateria area zero, load-station eighteen, with the airborne Landing Site gunship.
     /// </summary>
     public InitialViewportResult InitializePostCeresZebesRoom()
@@ -310,7 +310,7 @@ internal sealed class RoomLoader
 
         // These indexes are assigned immediately before LoadFromLoadStation.
         // Station eighteen is a cutscene-only entry high above Landing Site; station zero
-        // is not selected until GunshipTop_7 finishes the landing and performs the save.
+        // is not selected until the gunship's landing finishes and performs the save.
         LoadStationEntry station = LoadStations.Get(
             areaIndex: AreaId.Crateria,
             stationIndex: 18);
@@ -363,7 +363,7 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// True after 's type-$9 handler has selected a normal destination door and
-    /// before the frontend's states $09-$0B consume it.
+    /// before the frontend's door-transition states consume it.
     /// </summary>
     public bool HasPendingDoorTransition => _room.LevelData?.PendingDoorTransition is not null;
 
@@ -707,7 +707,7 @@ internal sealed class RoomLoader
         // Code cannot throw, but translated room construction can still reject an
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
-        // state $0B with no destination on the following frame.
+        // the door transition with no destination on the following frame.
         LoadedRoomAssets assets = LoadedRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
         DoorDefinition consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
@@ -742,7 +742,7 @@ internal sealed class RoomLoader
 
         // The door's scroll has already placed Samus before the destination room is
         // constructed. This ordering is observable for elevator arrivals:
-        // Elevator_Init sees status two, moves the platform to parameter 2, and then pins
+        // The elevator's initialization sees status two, moves the platform to parameter 2, and then pins
         // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
         // that attachment and exposed the upward arrival one row too low.
         _player.Samus.Position = placement.SamusPosition;
@@ -758,7 +758,7 @@ internal sealed class RoomLoader
             viewportLoadMode,
             new RoomEntry { RunDoorClosingObject = true, PreloadedAssets = assets });
 
-        // The door transition calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
+        // The door transition loads Samus's suit target palette after room/enemy palettes have been
         // loaded and before the door fade captures the destination fade target. The source fade
         // has already driven sprite palette four to black at this point. Omitting this shared
         // reload therefore retained valid sprite and tile data but rendered Samus as a solid
@@ -854,8 +854,8 @@ internal sealed class RoomLoader
             _backgroundScroll.CalculateScrolls();
         else
         {
-            // Up calculates background from destination+$1F before changing the scroll's camera
-            // endpoint to destination+$20. Keeping those adjacent positions distinct prevents
+            // Up calculates background from destination+31 before changing the scroll's camera
+            // endpoint to destination+32. Keeping those adjacent positions distinct prevents
             // a parallax room from accumulating a one-pixel layer mismatch at the snap.
             Position16<RoomPixels> parallaxBasis = door.Orientation.Direction == DoorDirection.Up
                 ? camera - new Offset16<RoomPixels>(0, 1)
@@ -1044,7 +1044,7 @@ internal sealed class RoomLoader
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
-            // State-$0B never calls DisplayViewablePartOfRoom: the source screen stays
+            // The door transition never calls DisplayViewablePartOfRoom: the source screen stays
             // visible while the opening scroll moves the destination in around it.
             _pendingDoorOpeningSourceView = doorOpeningSourceView;
             _room.Adopt(scope.Complete());
@@ -1059,7 +1059,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Resolves a compiled room selector against the live SRAM-mirror and Samus inventory.
+    /// Resolves a compiled room selector against the live saved progress and Samus inventory.
     /// </summary>
     /// <remarks>
     /// The fixed eleven-byte header still supplies the area index needed to choose that
@@ -1163,7 +1163,7 @@ internal sealed class RoomLoader
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
         _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
 
-        // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
+        // Samus's Ceres-start setup command installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
         // elevator arrival sequence has been translated.
         _player.GroundedSamusMovementEnabled = false;

@@ -9,7 +9,7 @@ internal static class DownwardGateShotBlockDefinitions
 {
     /// <summary>
     /// The eight shot-block triggers in color/side order (blue, red, green, yellow; left then right). Each wakes its
-    /// trigger program, and its own side receives a shootable trigger block showing blocks $46..$4D in this
+    /// trigger program, and its own side receives a shootable trigger block showing blocks 70 to 77 in this
     /// order while the opposite side receives nothing.
     /// </summary>
     internal static IReadOnlyList<DownwardGateShotBlockDefinition> Triggers { get; } =

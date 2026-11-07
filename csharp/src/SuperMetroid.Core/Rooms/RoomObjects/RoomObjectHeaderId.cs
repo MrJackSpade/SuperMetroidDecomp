@@ -270,7 +270,7 @@ public enum RoomObjectHeaderId
     /// <summary>The <c>crumbleKraidSpikeBlocks</c> PLM: animated live-death floor sweep.</summary>
     CrumbleKraidSpikes,
 
-    /// <summary>The <c>enableSoundsIn20Frames_F0FramesIfCeres</c> PLM.</summary>
+    /// <summary>The room object that enables sound effects again after a short delay, a longer one in Ceres.</summary>
     EnableSoundsIn20FramesF0FramesIfCeres,
 
     /// <summary>Speed Booster escape lavaquake controller.</summary>
@@ -294,7 +294,7 @@ public enum RoomObjectHeaderId
     /// <summary>The <c>gateBlock</c> PLM.</summary>
     GateBlock,
 
-    /// <summary>The <c>Reaction_CrittersEscapeBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting the block the critters escape through.</summary>
     ReactionCrittersEscapeBlock,
 
     /// <summary>The <c>CrittersEscapeBlock</c> PLM.</summary>
@@ -456,36 +456,34 @@ public enum RoomObjectHeaderId
     /// <summary>The <c>2x2RespawningCrumbleBlock</c> PLM.</summary>
     RoomObject2x2RespawningCrumbleBlock,
 
-    /// <summary>The <c>BombReaction_SpeedBoostBlock</c> PLM.</summary>
+    /// <summary>The room object for a bomb blast on a Speed Booster block.</summary>
     BombReactionSpeedBoostBlock,
 
     /// <summary>
-    /// The <c>Collision_BTS82</c> PLM: Brinstar behaviour <c>$82</c>, a
-    /// respawning Speed Booster block with the slower crumble animation.
+    /// The room object for Samus touching Brinstar's respawning Speed Booster block with the slower crumble
+    /// animation.
     /// </summary>
     SpeedBlockBrinstarSlowRespawning,
 
     /// <summary>
-    /// The <c>Collision_BTS83</c> PLM: Brinstar behaviour <c>$83</c>, a
-    /// permanent Speed Booster block with the slower crumble animation.
+    /// The room object for Samus touching Brinstar's permanent Speed Booster block with the slower crumble
+    /// animation.
     /// </summary>
     SpeedBlockBrinstarSlowPermanent,
 
     /// <summary>
-    /// The <c>Collision_RespawningSpeedBoostBlock</c> PLM: the
-    /// area-independent behaviour <c>$0E</c> respawning Speed Booster block.
+    /// The room object for Samus touching the area-independent respawning Speed Booster block.
     /// </summary>
     SpeedBlockRespawning,
 
     /// <summary>
-    /// The <c>Collision_DachoraRespawningSpeedBoostBlock</c> PLM:
-    /// Brinstar behaviour <c>$84</c>, the Dachora-room respawning Speed Booster block.
+    /// The room object for Samus touching the Brinstar Dachora room's respawning Speed Booster block.
     /// </summary>
     SpeedBlockDachoraRespawning,
 
     /// <summary>
-    /// The <c>Collision_SpeedBoostBlock</c> PLM: area-independent
-    /// Behaviour <c>$0F</c> and Brinstar behaviour <c>$85</c>, a permanent Speed Booster block.
+    /// The room object for Samus touching a permanent Speed Booster block, by the area-independent behaviour or
+    /// Brinstar's own.
     /// </summary>
     SpeedBlockPermanent,
 
@@ -513,106 +511,106 @@ public enum RoomObjectHeaderId
     /// <summary>Permanent 2x2 Samus-contact crumble block.</summary>
     ContactCrumble2x2Permanent,
 
-    /// <summary>The <c>Reaction_1x1RespawningShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x1 respawning shot block.</summary>
     Reaction1x1RespawningShotBlock,
 
-    /// <summary>The <c>Reaction_2x1RespawningShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x1 respawning shot block.</summary>
     Reaction2x1RespawningShotBlock,
 
-    /// <summary>The <c>Reaction_1x2RespawningShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x2 respawning shot block.</summary>
     Reaction1x2RespawningShotBlock,
 
-    /// <summary>The <c>Reaction_2x2RespawningShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x2 respawning shot block.</summary>
     Reaction2x2RespawningShotBlock,
 
-    /// <summary>The <c>Reaction_1x1ShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x1 shot block.</summary>
     Reaction1x1ShotBlock,
 
-    /// <summary>The <c>Reaction_2x1ShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x1 shot block.</summary>
     Reaction2x1ShotBlock,
 
-    /// <summary>The <c>Reaction_1x2ShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x2 shot block.</summary>
     Reaction1x2ShotBlock,
 
-    /// <summary>The <c>Reaction_2x2ShotBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x2 shot block.</summary>
     Reaction2x2ShotBlock,
 
-    /// <summary>The <c>Reaction_RespawningPowerBombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a respawning Power Bomb block.</summary>
     ReactionRespawningPowerBombBlock,
 
-    /// <summary>The <c>Reaction_PowerBombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a Power Bomb block.</summary>
     ReactionPowerBombBlock,
 
-    /// <summary>The <c>Reaction_RespawningSuperMissileBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a respawning Super Missile block.</summary>
     ReactionRespawningSuperMissileBlock,
 
-    /// <summary>The <c>Reaction_SuperMissileBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a Super Missile block.</summary>
     ReactionSuperMissileBlock,
 
     /// <summary>The <c>EnemyBreakableBlock</c> PLM.</summary>
     EnemyBreakableBlock,
 
-    /// <summary>The <c>Collision_1x1RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 1x1 respawning bomb block.</summary>
     Collision1x1RespawningBombBlock,
 
-    /// <summary>The <c>Collision_2x1RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 2x1 respawning bomb block.</summary>
     Collision2x1RespawningBombBlock,
 
-    /// <summary>The <c>Collision_1x2RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 1x2 respawning bomb block.</summary>
     Collision1x2RespawningBombBlock,
 
-    /// <summary>The <c>Collision_2x2RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 2x2 respawning bomb block.</summary>
     Collision2x2RespawningBombBlock,
 
-    /// <summary>The <c>Collision_1x1BombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 1x1 bomb block.</summary>
     Collision1x1BombBlock,
 
-    /// <summary>The <c>Collision_2x1BombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 2x1 bomb block.</summary>
     Collision2x1BombBlock,
 
-    /// <summary>The <c>Collision_1x2BombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 1x2 bomb block.</summary>
     Collision1x2BombBlock,
 
-    /// <summary>The <c>Collision_2x2BombBlock</c> PLM.</summary>
+    /// <summary>The room object for Samus touching a 2x2 bomb block.</summary>
     Collision2x2BombBlock,
 
-    /// <summary>The <c>Reaction_1x1RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x1 respawning bomb block.</summary>
     Reaction1x1RespawningBombBlock,
 
-    /// <summary>The <c>Reaction_2x1RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x1 respawning bomb block.</summary>
     Reaction2x1RespawningBombBlock,
 
-    /// <summary>The <c>Reaction_1x2RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x2 respawning bomb block.</summary>
     Reaction1x2RespawningBombBlock,
 
-    /// <summary>The <c>Reaction_2x2RespawningBombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x2 respawning bomb block.</summary>
     Reaction2x2RespawningBombBlock,
 
-    /// <summary>The <c>Reaction_1x1BombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x1 bomb block.</summary>
     Reaction1x1BombBlock,
 
-    /// <summary>The <c>Reaction_2x1BombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x1 bomb block.</summary>
     Reaction2x1BombBlock,
 
-    /// <summary>The <c>Reaction_1x2BombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 1x2 bomb block.</summary>
     Reaction1x2BombBlock,
 
-    /// <summary>The <c>Reaction_2x2BombBlock</c> PLM.</summary>
+    /// <summary>The room object for a weapon hitting a 2x2 bomb block.</summary>
     Reaction2x2BombBlock,
 
-    /// <summary>The <c>Grappled_GrappleBlock</c> PLM.</summary>
+    /// <summary>The room object for the Grapple Beam latching onto a grapple block.</summary>
     GrappledGrappleBlock,
 
-    /// <summary>The <c>Grappled_RespawningBreakableGrappleBlock</c> PLM.</summary>
+    /// <summary>The room object for the Grapple Beam latching onto a respawning breakable grapple block.</summary>
     GrappledRespawningBreakableGrappleBlock,
 
-    /// <summary>The <c>Grappled_BreakableGrappleBlock</c> PLM.</summary>
+    /// <summary>The room object for the Grapple Beam latching onto a breakable grapple block.</summary>
     GrappledBreakableGrappleBlock,
 
-    /// <summary>The <c>Grappled_GenericSpikeBlock</c> PLM.</summary>
+    /// <summary>The room object for the Grapple Beam latching onto a spike block.</summary>
     GrappledGenericSpikeBlock,
 
-    /// <summary>The <c>Grappled_DraygonsBrokenTurret</c> PLM.</summary>
+    /// <summary>The room object for the Grapple Beam latching onto one of Draygon's broken turrets.</summary>
     GrappledDraygonsBrokenTurret,
 
     /// <summary>The <c>UnusedBlueBrinstarFaceBlock</c> PLM.</summary>
@@ -630,7 +628,7 @@ public enum RoomObjectHeaderId
     /// <summary>The <c>LowerNorfairChozoHand</c> PLM.</summary>
     LowerNorfairChozoHand,
 
-    /// <summary>The <c>Collision_LowerNorfairChozoHandCheck</c> PLM.</summary>
+    /// <summary>The room object for Samus touching the Lower Norfair Chozo hand's trigger block.</summary>
     CollisionLowerNorfairChozoHandCheck,
 
     /// <summary>Mother Brain's missile-reactive glass actor.</summary>
@@ -642,7 +640,7 @@ public enum RoomObjectHeaderId
     /// <summary>The <c>WreckedShipChozoHand</c> PLM.</summary>
     WreckedShipChozoHand,
 
-    /// <summary>The <c>Collision_WreckedShipChozoHandCheck</c> PLM.</summary>
+    /// <summary>The room object for Samus touching the Wrecked Ship Chozo hand's trigger block.</summary>
     CollisionWreckedShipChozoHandCheck,
 
     /// <summary>The <c>ClearSlopeAccessForWreckedShipChozo</c> PLM.</summary>

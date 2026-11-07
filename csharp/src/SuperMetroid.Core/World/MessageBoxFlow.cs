@@ -63,7 +63,7 @@ internal sealed class MessageBoxFlow
 
     /// <summary>Holds a save station's animation until its completion message closes.</summary>
     internal void AwaitSaveCompletion(StationActivationEvent station) => _pendingSaveStationCompletion = station;
-    /// <summary>Confirmed area and station identity awaiting frontend SRAM persistence.</summary>
+    /// <summary>Confirmed area and station identity awaiting the frontend's save to the selected file.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
 
     /// <summary>One-update request for the save choice's move sound.</summary>
@@ -85,7 +85,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>
-    /// Returns and clears a confirmed save-station request. SRAM encoding remains owned by
+    /// Returns and clears a confirmed save-station request. The save file's encoding remains owned by
     /// the frontend because it owns the selected file slot; the runtime supplies only the
     /// area/station identity and already-mutated gameplay state.
     /// </summary>
@@ -119,7 +119,7 @@ internal sealed class MessageBoxFlow
             if (accepted is null)
             {
                 throw new InvalidDataException(
-                    "Save-station message $17 closed without publishing a selection.");
+                    "The save station's save-confirmation message closed without publishing a selection.");
             }
             _pendingSaveStation = null;
             RoomLevelData level = _room.LevelData ?? throw new InvalidOperationException(

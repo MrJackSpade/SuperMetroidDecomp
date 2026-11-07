@@ -113,7 +113,7 @@ internal sealed class GateObjects : IRoomObjectFamilySource
         if (!bts.TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger))
             return false;
 
-        // Spawn_PLM still probes the fixed pool even though every trigger setup deletes its
+        // Spawning the trigger still probes the fixed room-object pool even though every trigger setup deletes its
         // temporary slot synchronously. A saturated pool therefore drops the collision just
         // as the original game does.
         if (_slotTable.SpawnAtCurrentBlock() is not { } temporary)

@@ -21,8 +21,8 @@ internal static class OldTourianEscapeShaftWallObjectDefinitions
     /// <summary>The draw that opens the shaft wall's two columns.</summary>
     internal static RoomObjectFrameDraw<Draw> OpenWallDraw { get; } = RoomObjectDraw.Of(Draw.OpenWall);
 
-    /// <summary>Samus must be strictly right of X $F0 and below Y $820.</summary>
+    /// <summary>Samus must be strictly right of X 240 and below Y 2080.</summary>
     internal const int WakeTargetX = 240;
-    /// <summary>Samus must be below Y $820 as well as right of the X threshold.</summary>
+    /// <summary>Samus must be below Y 2080 as well as right of the X threshold.</summary>
     internal const int WakeTargetY = 2080;
 }

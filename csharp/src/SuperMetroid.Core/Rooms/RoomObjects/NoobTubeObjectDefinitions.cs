@@ -11,7 +11,7 @@ public static class NoobTubeObjectDefinitions
     public const ControllerButton AcceptedWakeInputMask =
         ControllerButton.B | ControllerButton.Y | ControllerButton.Left | ControllerButton.Right | ControllerButton.A | ControllerButton.X;
 
-    /// <summary>The tube's origin block: a solid block showing block $44.</summary>
+    /// <summary>The tube's origin block: a solid block showing block 68.</summary>
     public static RoomTerrainBlock SolidProjectileTrigger { get; } =
         RoomTerrainBlock.Of(68, BlockMirroring.None, RoomCollisionType.SolidBlock);
 

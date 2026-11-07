@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>Graphics-theme dispatch to independently installed room artwork resources.</summary>
 public static class RoomTilesetDefinitions
 {
-    /// <summary>Graphics themes $00..$1C precede unrelated data.</summary>
+    /// <summary>The number of room graphics themes: one per <see cref="RoomGraphicsSet"/>.</summary>
     public const int Count = 29;
 
     /// <summary>The compressed block table each room theme's blocks use.</summary>

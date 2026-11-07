@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 public static class RoomStateSelectorOperands
 {
     /// <summary>
-    /// <c>RoomStateCheck_MainAreaBossIsDead</c> always tests bit zero of the area's boss byte.
+    /// The main-area-boss-dead room state check always tests the area's main boss flag.
     /// </summary>
     public const BossBits MainAreaBoss = BossBits.AreaBoss;
 }

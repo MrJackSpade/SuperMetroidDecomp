@@ -3,72 +3,72 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>A Samus projectile header: the damage and direction programs one projectile kind starts with.</summary>
 internal enum SamusProjectileHeader
 {
-    /// <summary>ProjectileDataTable_Uncharged_Power.</summary>
+    /// <summary>The uncharged Power beam's projectile header.</summary>
     UnchargedPower,
-    /// <summary>ProjectileDataTable_Uncharged_Spazer.</summary>
+    /// <summary>The uncharged Spazer beam's projectile header.</summary>
     UnchargedSpazer,
-    /// <summary>ProjectileDataTable_Uncharged_SpazerIce.</summary>
+    /// <summary>The uncharged Spazer-Ice beam's projectile header.</summary>
     UnchargedSpazerIce,
-    /// <summary>ProjectileDataTable_Uncharged_SpazerIceWave.</summary>
+    /// <summary>The uncharged Spazer-Ice-Wave beam's projectile header.</summary>
     UnchargedSpazerIceWave,
-    /// <summary>ProjectileDataTable_Uncharged_PlasmaIceWave.</summary>
+    /// <summary>The uncharged Plasma-Ice-Wave beam's projectile header.</summary>
     UnchargedPlasmaIceWave,
-    /// <summary>ProjectileDataTable_Uncharged_Ice.</summary>
+    /// <summary>The uncharged Ice beam's projectile header.</summary>
     UnchargedIce,
-    /// <summary>ProjectileDataTable_Uncharged_Wave.</summary>
+    /// <summary>The uncharged Wave beam's projectile header.</summary>
     UnchargedWave,
-    /// <summary>ProjectileDataTable_Uncharged_Plasma.</summary>
+    /// <summary>The uncharged Plasma beam's projectile header.</summary>
     UnchargedPlasma,
-    /// <summary>ProjectileDataTable_Uncharged_IceWave.</summary>
+    /// <summary>The uncharged Ice-Wave beam's projectile header.</summary>
     UnchargedIceWave,
-    /// <summary>ProjectileDataTable_Uncharged_SpazerWave.</summary>
+    /// <summary>The uncharged Spazer-Wave beam's projectile header.</summary>
     UnchargedSpazerWave,
-    /// <summary>ProjectileDataTable_Uncharged_PlasmaWave.</summary>
+    /// <summary>The uncharged Plasma-Wave beam's projectile header.</summary>
     UnchargedPlasmaWave,
-    /// <summary>ProjectileDataTable_Uncharged_PlasmaIce.</summary>
+    /// <summary>The uncharged Plasma-Ice beam's projectile header.</summary>
     UnchargedPlasmaIce,
-    /// <summary>ProjectileDataTable_Charged_Power.</summary>
+    /// <summary>The charged Power beam's projectile header.</summary>
     ChargedPower,
-    /// <summary>ProjectileDataTable_Charged_Spazer.</summary>
+    /// <summary>The charged Spazer beam's projectile header.</summary>
     ChargedSpazer,
-    /// <summary>ProjectileDataTable_Charged_SpazerIce.</summary>
+    /// <summary>The charged Spazer-Ice beam's projectile header.</summary>
     ChargedSpazerIce,
-    /// <summary>ProjectileDataTable_Charged_SpazerIceWave.</summary>
+    /// <summary>The charged Spazer-Ice-Wave beam's projectile header.</summary>
     ChargedSpazerIceWave,
-    /// <summary>ProjectileDataTable_Charged_PlasmaIceWave.</summary>
+    /// <summary>The charged Plasma-Ice-Wave beam's projectile header.</summary>
     ChargedPlasmaIceWave,
-    /// <summary>ProjectileDataTable_Charged_Ice.</summary>
+    /// <summary>The charged Ice beam's projectile header.</summary>
     ChargedIce,
-    /// <summary>ProjectileDataTable_Charged_Plasma.</summary>
+    /// <summary>The charged Plasma beam's projectile header.</summary>
     ChargedPlasma,
-    /// <summary>ProjectileDataTable_Charged_Wave.</summary>
+    /// <summary>The charged Wave beam's projectile header.</summary>
     ChargedWave,
-    /// <summary>ProjectileDataTable_Charged_IceWave.</summary>
+    /// <summary>The charged Ice-Wave beam's projectile header.</summary>
     ChargedIceWave,
-    /// <summary>ProjectileDataTable_Charged_SpazerWave.</summary>
+    /// <summary>The charged Spazer-Wave beam's projectile header.</summary>
     ChargedSpazerWave,
-    /// <summary>ProjectileDataTable_Charged_PlasmaIce.</summary>
+    /// <summary>The charged Plasma-Ice beam's projectile header.</summary>
     ChargedPlasmaIce,
-    /// <summary>ProjectileDataTable_Charged_PlasmaWave.</summary>
+    /// <summary>The charged Plasma-Wave beam's projectile header.</summary>
     ChargedPlasmaWave,
-    /// <summary>ProjectileDataTable_NonBeam_Missile.</summary>
+    /// <summary>The missile's projectile header.</summary>
     Missile,
-    /// <summary>ProjectileDataTable_NonBeam_SuperMissile.</summary>
+    /// <summary>The Super Missile's projectile header.</summary>
     SuperMissile,
-    /// <summary>ProjectileDataTable_NonBeam_SuperMissileLink.</summary>
+    /// <summary>The Super Missile collision link's projectile header.</summary>
     SuperMissileLink,
-    /// <summary>ProjectileDataTable_NonBeam_PowerBomb.</summary>
+    /// <summary>The Power Bomb's projectile header.</summary>
     PowerBomb,
-    /// <summary>ProjectileDataTable_NonBeam_Bomb.</summary>
+    /// <summary>The bomb's projectile header.</summary>
     Bomb,
-    /// <summary>ProjectileDataTable_NonBeam_PlasmaSBA.</summary>
+    /// <summary>The Plasma special beam attack's projectile header.</summary>
     PlasmaSBA,
-    /// <summary>ProjectileDataTable_NonBeam_WaveSBA.</summary>
+    /// <summary>The Wave special beam attack's projectile header.</summary>
     WaveSBA,
-    /// <summary>ProjectileDataTable_NonBeam_SpazerSBA.</summary>
+    /// <summary>The Spazer special beam attack's projectile header.</summary>
     SpazerSBA,
-    /// <summary>ProjectileDataTable_NonBeam_SpazerSBATrail.</summary>
+    /// <summary>The Spazer special beam attack trail's projectile header.</summary>
     SpazerSBATrail,
-    /// <summary>ProjectileDataTable_NonBeam_ShinesparkEcho.</summary>
+    /// <summary>The shinespark echo's projectile header.</summary>
     ShinesparkEcho,
 }

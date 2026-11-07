@@ -23496,6 +23496,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFxRecordDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxRecordDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFxRecordPart",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFxRecordPart.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFxRecordShades",
       "kind": "static class",
       "scope": "product",
@@ -94057,12 +94083,12 @@
     {
       "type": "SuperMetroid.Core.Fx.AreaAnimatedTileObjectDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/AreaAnimatedTileObjectDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/AreaAnimatedTileObjectDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -94134,12 +94160,12 @@
     {
       "type": "SuperMetroid.Core.Fx.AreaAnimatedTileObjects",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/AreaAnimatedTileObjects.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/AreaAnimatedTileObjects.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -94147,15 +94173,28 @@
     {
       "type": "SuperMetroid.Core.Fx.AreaFxBit",
       "kind": "record struct",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/AreaFxBit.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/AreaFxBit.cs"
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.AreaPaletteFxObjects",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/AreaPaletteFxObjects.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.AnimatedTileImage",
@@ -94662,19 +94701,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxRecordDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/PaletteFxRecordDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxRecordDefinitionsConstants",
@@ -97483,19 +97509,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxRecordPart",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxRecordPart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxRecordView",
       "kind": "record struct",
       "scope": "test",
@@ -97588,19 +97601,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxSlotInspectionDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxSlotInspectionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxSoundPriorities",
@@ -99451,6 +99451,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.RoomFxDefinitionsAccess.extension(SuperMetroid.Core.Fx.RoomFxRecordDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/RoomFxDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.RoomFxDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
       "kind": "class",
       "scope": "test",
@@ -99480,32 +99496,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxEffectSlotSet",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxEffectSlotSet.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.RoomFxEffectSlots",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxEffectSlots.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.RoomFxHeader",
       "kind": "class",
       "scope": "product",
@@ -99517,6 +99507,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.RoomFxHeaderAreas",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/RoomFxHeaderAreas.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.RoomFxLoadSource",
@@ -99857,12 +99860,12 @@
     {
       "type": "SuperMetroid.Core.Fx.RoomPaletteFxDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomPaletteFxDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/RoomPaletteFxDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

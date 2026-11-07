@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -35,9 +34,6 @@ internal sealed class RoomFxAnimatedTilesState
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
     public bool IsActive { get; private set; }
-
-    /// <summary>The picture the most recent handler pass showed, if it showed one.</summary>
-    public AnimatedTileImage? LastImage { get; private set; }
 
     /// <summary>
     /// Replaces the previous room's object with the one spawned by the selected FX type.
@@ -89,7 +85,6 @@ internal sealed class RoomFxAnimatedTilesState
     public void Step(ArtworkFrameSelections frames)
     {
         Ensure.NotNull(frames);
-        LastImage = null;
         if (!IsActive)
             return;
 
@@ -102,11 +97,9 @@ internal sealed class RoomFxAnimatedTilesState
         if (frame.Duration == 0)
             throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has a zero-duration frame {shown}.");
 
-        AnimatedTileImage image = mechanics.Image(frame);
         frameHold = frame.Duration;
         // The list's goto after the last frame returns to the first frame.
         nextFrame = shown + 1 < mechanics.Frames.Count ? shown + 1 : 0;
-        LastImage = image;
         frames.Select(AnimatedTileFrames.Frame(animatedObject, shown));
     }
 }

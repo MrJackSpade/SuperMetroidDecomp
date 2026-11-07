@@ -13,6 +13,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -78,7 +79,7 @@ internal static class CrocomirePresentation1193Verification
                 if (frame % 8 == 0)
                 {
                     AssertEqual(sources[sourceIndex++], AnimatedTileFrameArtwork.SourceOf(shown), "Spikes follow 0/1/2/1/0 ping-pong sequence");
-                    AssertTrue(maps.RoomFxAnimatedTiles.TryResolve(AnimatedTileFrameArtwork.SourceOf(shown), 0x80, out _),
+                    AssertTrue(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(maps).TryResolve(AnimatedTileFrameArtwork.SourceOf(shown), 0x80, out _),
                         "Installed spike frame of four 4bpp characters exists");
                 }
             }

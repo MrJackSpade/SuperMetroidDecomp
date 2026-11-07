@@ -58,7 +58,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
         MotherBrainHealthPalette = parts.MotherBrainHealthPalette;
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
         MotherBrainRoomColors = parts.MotherBrainRoomColors;
-        RoomFxAnimatedTiles = parts.RoomFxAnimatedTiles;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
         PowerBombFixedColors = parts.PowerBombFixedColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
@@ -123,8 +122,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
     /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes.</summary>
     public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; }
-    /// <summary>Selected animated room-FX character artwork, separate from effect overlay pages and palette blending.</summary>
-    public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
     /// <summary>Selected room-FX effect overlay pages, separate from animated characters and palette-blend colors.</summary>
     /// <summary>Selected room-FX palette-blend presentation, separate from effect overlay page geometry and animated character bytes.</summary>
     public RoomFxBlendInks RoomFxPaletteBlends { get; }

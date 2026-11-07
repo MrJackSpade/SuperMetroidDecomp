@@ -19,13 +19,12 @@ internal static class SpeedBoosterPickupVerification
     /// <summary>Contrasts Chozo and exposed pickups through message return, FX delay, earthquake, and subpixel rise.</summary>
     internal static void VerifySpeedBoosterPickupContinuation()
     {
-        var cartridge = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool chozo in new[] { true, false })
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             var vram = new SnesVram();
-            var fxSession = CreateRetailFxSession(cartridge);
+            var fxSession = new RoomFxSession();
             var fx = RoomFxOverlayState.ForRoom(fxSession, RoomFxDefinitions.Suffix(0x8600), null, 0);
             CollectibleFixture fixture = LoadCollectible(bus, RoomObjectNativeWords.Word(chozo ? RoomObjectHeaderId.ChozoSpeedBooster : RoomObjectHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.RoomObjects.Step(fixture.Level);

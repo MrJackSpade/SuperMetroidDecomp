@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
 using SuperMetroid.Core.Fx;
@@ -49,7 +50,8 @@ internal static class LookupAnimatedArtworkSourcesVerification
                 "Non-frame cursor rejects including odd/source/loop words");
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
-        var unknown = new RoomFxAnimatedTileLoop(0, 32, 1, 10, 1);
+        // The import's frame-to-picture fold rejects an object the atlas holds no pictures of.
+        var unknown = new RoomFxAnimatedTileLoop(0, 32, 1, 10);
         AssertThrows<InvalidDataException>(() => AnimatedTileImageSources.Of(unknown.Image(unknown.Frames[0])),
             "Unknown object cannot acquire an artwork mapping");
     }

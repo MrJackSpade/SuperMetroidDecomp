@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <summary>
 /// The installed room-FX atlas PNG (#1409): its file name, pixel geometry and the stable order of the character segments
 /// it holds. Only the import pipeline reads and writes
-/// the file; the game holds the compiled characters (<see cref="RoomFxAnimatedTileAtlasFormat"/>).
+/// the file, and composes room sheets from its compiled characters (<see cref="RoomFxAnimatedTileAtlasFormat"/>).
 /// </summary>
 public static class RoomFxAnimatedTileAtlasFile
 {

@@ -60,14 +60,11 @@ internal static class RoomFxTextureDriftVerification
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None };
     }
 
-    /// <summary>A room-FX owner loaded from a synthetic record of <paramref name="type"/> with the installed presentation.</summary>
+    /// <summary>A room-FX owner loaded from a synthetic record of <paramref name="type"/>.</summary>
     private static RoomFxOverlayState Load(RoomFxType type, LayerBlendingConfiguration blend, RoomLiquidOptions options,
         int randomNumber)
     {
-        var presentation = RetailPresentationFixture();
-        var stateSession = new RoomFxSession{
-            AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
-        };
+        var stateSession = new RoomFxSession();
         RoomFxOverlayState state;
         var record = new RoomFxRecordDefinition(Door: null, Terminates: false, BaseYPosition: 100, TargetYPosition: 100,
             YVelocity: default, Timer: 0, Type: type, DefaultLayerBlend: blend, EffectLayerBlend: blend,

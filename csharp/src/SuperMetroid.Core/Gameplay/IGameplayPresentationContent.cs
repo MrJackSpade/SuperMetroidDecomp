@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The installed presentation content that gameplay reads: area maps, HUD and escape artwork, boss palettes, room-FX
-/// tiles and Samus palette inputs. The frontend's complete presentation catalog supplies it.
+/// palette blends and Samus palette inputs. The frontend's complete presentation catalog supplies it.
 /// </summary>
 public interface IGameplayPresentationContent : IAreaMapSource
 {
@@ -31,9 +31,6 @@ public interface IGameplayPresentationContent : IAreaMapSource
 
     /// <summary>Selected room-FX palette-blend presentation, separate from effect-overlay tilemap geometry and animated character bytes.</summary>
     RoomFxBlendInks RoomFxPaletteBlends { get; }
-
-    /// <summary>Selected animated room-FX character artwork, separate from effect-overlay tilemaps and palette blending.</summary>
-    RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
 
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     InstalledPowerBombFixedColors PowerBombFixedColors { get; }

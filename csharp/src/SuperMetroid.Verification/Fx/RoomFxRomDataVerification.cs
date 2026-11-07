@@ -142,10 +142,7 @@ internal static class RoomFxRomDataVerification
     private static void VerifyRoomLayer3FxTypes()
     {
         var bus = new TestAddressSpace();
-        var presentation = RetailPresentationFixture();
-        var stateSession = new RoomFxSession{
-            AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
-        };
+        var stateSession = new RoomFxSession();
         var state = new RoomFxOverlayState(stateSession);
         const ushort record = 0x9400;
         SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);

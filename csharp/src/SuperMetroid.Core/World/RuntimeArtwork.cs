@@ -28,8 +28,6 @@ internal sealed class RuntimeArtwork
     private readonly HudState _hud;
     /// <summary>Receives Samus palette, grapple, and tile-art bindings.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Receives animated tile, effect overlay map, and blend-color catalogs for every room's FX.</summary>
-    private readonly RoomFxSession _roomFx;
 
     /// <summary>
     /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
@@ -51,7 +49,6 @@ internal sealed class RuntimeArtwork
         _room = dependencies.Room;
         _hud = dependencies.Hud;
         _player = dependencies.Player;
-        _roomFx = dependencies.RoomFx;
     }
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
     /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD word sheet's pictures, so no characters are shown again.</remarks>
@@ -62,7 +59,6 @@ internal sealed class RuntimeArtwork
         {
             field = value;
             _hud.BindPresentation(value?.GameplayHud, _player.Samus);
-            _roomFx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;

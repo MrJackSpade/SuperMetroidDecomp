@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -30,10 +29,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>Index of the next entry in the four-frame animation script.</summary>
     public int NextFrameIndex { get; private set; }
 
-    /// <summary>The picture the most recent handler pass showed, if it showed one.</summary>
-    public AnimatedTileImage? LastImage { get; private set; }
-
-
     /// <summary>
     /// Mirrors <c>Spawn_AnimatedTilesObject</c> for either treadmill object. Both scripts begin
     /// on the wait-for-area-boss step with a frame hold of one.
@@ -57,7 +52,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         IsActive = true;
         Direction = direction;
         NextFrameIndex = 0;
-        LastImage = null;
         if (!WreckedShipTreadmills.TryResolve(animatedObject, out _compiledMechanics))
             throw new InvalidDataException($"Wrecked Ship treadmill {animatedObject} is not compiled.");
         if (_compiledMechanics.Direction != direction)
@@ -77,7 +71,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         ArtworkFrameSelections frames)
     {
         Ensure.NotNull(frames);
-        LastImage = null;
         if (!IsActive)
             return;
 
@@ -97,8 +90,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         WreckedShipTreadmillLoop definition = _compiledMechanics ?? throw new InvalidOperationException(
             "Wrecked Ship treadmill lost its compiled mechanics.");
         _frameHold = WreckedShipTreadmillMechanicsDefinitions.FrameDuration;
-        AnimatedTileImage image = definition.Image(NextFrameIndex);
-        LastImage = image;
         frames.Select(AnimatedTileFrames.Frame(definition.AnimatedObject, NextFrameIndex));
         NextFrameIndex = (NextFrameIndex + 1) % WreckedShipTreadmillMechanicsDefinitions.FrameCount;
     }

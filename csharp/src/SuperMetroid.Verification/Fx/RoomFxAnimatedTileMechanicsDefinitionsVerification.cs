@@ -61,15 +61,16 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             int presentationReadCount = 0;
             var guarded = NewRoomFxAnimatedTileMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
             var state = new RoomFxAnimatedTilesState();
-            var frames = new ArtworkFrameSelections();
             state.LoadDefinition(definition.AnimatedObject);
 
             int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
             int observedFrames = 0;
             for (int step = 0; step < steps; step++)
             {
+                // Each pass selects into fresh selections, so a selection read back is the one this pass made.
+                var frames = new ArtworkFrameSelections();
                 state.Step(frames);
-                if (state.LastImage.HasValue)
+                if (frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out _))
                     observedFrames++;
             }
 
@@ -133,13 +134,14 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             }
 
             var state = new RoomFxAnimatedTilesState();
-            var frames = new ArtworkFrameSelections();
             state.LoadDefinition(definition.AnimatedObject);
             var observed = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             for (int step = 0; step <= expected[^1].Update; step++)
             {
+                // Each pass selects into fresh selections, so a selection read back is the one this pass made.
+                var frames = new ArtworkFrameSelections();
                 state.Step(frames);
-                if (AnimatedTileImageSources.Of(state.LastImage) is int source)
+                if (AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject) is int source)
                     observed.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(step, source));
             }
             AssertTrue(expected.SequenceEqual(observed),

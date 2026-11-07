@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>One ordered strip of 2-bpp room-FX, treadmill, and statue characters.</summary>
 public static class RoomFxAnimatedTileAtlasFormat

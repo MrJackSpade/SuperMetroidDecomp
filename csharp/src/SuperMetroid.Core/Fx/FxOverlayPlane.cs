@@ -24,7 +24,4 @@ public sealed class FxOverlayPlane
 
     /// <summary>The effect whose page the overlay shows; null when it shows none.</summary>
     public RoomFxType? EffectPage { get; }
-
-    /// <summary>The name of the picture, in the room's effect overlay picture sheet, of the page room effect <paramref name="type"/> shows.</summary>
-    public static string EffectPagePicture(RoomFxType type) => $"Fx{type}";
 }

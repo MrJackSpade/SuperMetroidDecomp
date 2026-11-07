@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Fx;
@@ -19,6 +20,6 @@ internal static class FxOverlayPictureResolution
         if (resolver.Sheet.Layer != WrittenPictureLayer.FxOverlayAndHud)
             throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no effect overlay pictures.");
         return new FxOverlayPage(plane.EffectPage is { } type
-            ? resolver.Sheet.Picture(FxOverlayPlane.EffectPagePicture(type), appearance) : null);
+            ? FxOverlayPagePictures.Page(resolver.Sheet, type, appearance) : null);
     }
 }

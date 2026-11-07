@@ -72,8 +72,8 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public RoomFloor Floor { init => floor = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void DrawFloor(string picture) =>
-        (floor ?? throw Unavailable.Missing("draw over the room's turning floor")).Draw(picture);
+    public void DrawFloor(CeresFloorAnimationFrame frame) =>
+        (floor ?? throw Unavailable.Missing("draw over the room's turning floor")).Draw(frame);
 
     /// <summary>Installs the target of pictures written over BG2, which the Zebes escape typewriter writes (#1466).</summary>
     public Action<WrittenPicture> WriteBg2Pictures { init => writtenOverBackground = Ensure.NotNull(value); }

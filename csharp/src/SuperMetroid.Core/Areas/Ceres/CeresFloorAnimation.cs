@@ -1,9 +1,12 @@
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The seven Ceres floor animation frames (<see cref="CeresFloorAnimationDefinitions"/>) as pictures drawn over a Ceres
-/// room's turning floor (#1467): the capsule frame for a phase, the elevator platform's strip for its light or dark
-/// frame, and the name each frame's picture is installed and drawn under. The import pictures each frame.
+/// room's turning floor (#1467): the capsule frame for a phase and the elevator platform's strip for its light or dark
+/// frame. The import pictures each frame, and the floor's sheet draws it by the frame (<see cref="RoomFloorSheet"/>).
 /// </summary>
 public static class CeresFloorAnimation
 {
@@ -23,10 +26,4 @@ public static class CeresFloorAnimation
         (uint)frame < (uint)CeresFloorAnimationDefinitions.PlatformFrames.Length
             ? CeresFloorAnimationDefinitions.PlatformFrames[frame]
             : throw new ArgumentOutOfRangeException(nameof(frame));
-
-    /// <summary>The name <paramref name="frame"/>'s picture is installed and drawn over the floor under.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a floor animation frame.</exception>
-    public static string PictureOf(CeresFloorAnimationFrame frame) => Enum.IsDefined(frame)
-        ? $"Ceres.{frame}"
-        : throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
 }

@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 
@@ -24,6 +23,5 @@ internal static class InstalledContentTypes
         typeof(GameOverBabyPaint).FullName!,
         typeof(IntroCinematicArtwork).FullName!,
         typeof(MapSpriteCompositions).FullName!,
-        typeof(InstalledRoomArtwork).FullName!,
     };
 }

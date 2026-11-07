@@ -123,7 +123,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
         BackgroundImage = Room.State.Background is { } background
             ? new RoomBackgroundImageResolver(
-                Assets.Pictures.Background(RoomBackgroundImage.NameOf(background, background.PictureDoor(Door), Assets.Tileset)),
+                Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset),
                 Assets.BlockSheet)
             : null,
         BackgroundWrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
@@ -131,7 +131,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
         SkyImage = ScrollingSky is { } sky
-            ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),
+            ? new RoomBackgroundImageResolver(Assets.Pictures.Sky(sky.Variant, Assets.Tileset),
                 Assets.BlockSheet)
             : null,
         ScrollingSky = ScrollingSky,

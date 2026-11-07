@@ -40,6 +40,46 @@ internal static class RoomBlockUploads
         [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
+    /// <summary>
+    /// The tilesets some retail Ceres room state loads, each once in room order: those a turning floor is composed for, and
+    /// the only ones a room shows one in (#1536).
+    /// </summary>
+    internal static IReadOnlyList<TilesetDefinition> CeresTilesets() =>
+        [.. RetailRoomHeaders.All.Where(room => room.AreaIndex == AreaId.Ceres).SelectMany(RoomStateLists.GetStates)
+            .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
+
+    /// <summary>
+    /// The installed name of every background image some retail room state shows, each once (#1536): in the state's
+    /// tileset, its library background's ordinary picture and the picture of each door that shows its own, and its scrolling
+    /// sky's rows. These are the only images a room selects: it shows its background's picture for the door it was entered
+    /// through when that door is one of the background's picture doors, otherwise the ordinary one.
+    /// </summary>
+    internal static IReadOnlyList<string> BackgroundNames()
+    {
+        var names = new List<string>();
+        foreach (RoomStateSettings state in RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates))
+        {
+            TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
+            if (state.Background is { } background)
+            {
+                DoorDefinition?[] doors = [null, .. background.PictureDoors];
+                names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(background, door, tileset)));
+            }
+            if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
+                names.Add(RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(state.MainCallback), tileset));
+        }
+        return [.. names.Distinct(StringComparer.Ordinal)];
+    }
+
+    /// <summary>
+    /// The room effects some retail room state of <paramref name="tileset"/> runs whose page the effect overlay shows, each
+    /// once (#1536): the effects whose pages the tileset's effect overlay picture sheet pictures, and the only pages its
+    /// rooms show.
+    /// </summary>
+    internal static IEnumerable<RoomFxType> EffectPagesOf(TilesetDefinition tileset) =>
+        RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates).Where(state => RoomTilesets.Get(state.GraphicsSet) == tileset)
+            .SelectMany(EffectsIn).Distinct();
+
     /// <summary>The rooms of each tileset and what they show over their characters, in room order.</summary>
     /// <exception cref="InvalidDataException">A tileset is loaded both inside and outside Ceres.</exception>
     internal static IReadOnlyDictionary<TilesetDefinition, TilesetUploads> ByTileset(RoomBlockSheetInputs inputs)

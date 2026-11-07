@@ -1,4 +1,7 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -88,9 +91,22 @@ public sealed class InstalledRoomArtwork
     public WrittenPictureSheet FxOverlay(TilesetDefinition tileset) =>
         FxOverlayPictures.TryGetValue(tileset, out WrittenPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No effect overlay picture sheet is installed for {tileset}.");
 
-    /// <summary>The library background image named <paramref name="name"/>.</summary>
+    /// <summary>
+    /// The image of library background <paramref name="background"/> in a room of <paramref name="tileset"/>: the picture
+    /// <paramref name="door"/> shows when it is one of the background's picture doors, otherwise, for no door, the ordinary one.
+    /// </summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>
-    public RoomBackgroundImage Background(string name) =>
+    public RoomBackgroundImage Background(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
+        Named(RoomBackgroundImage.NameOf(background, door, tileset));
+
+    /// <summary>The image of scrolling sky <paramref name="variant"/>'s rows in a room of <paramref name="tileset"/>.</summary>
+    /// <exception cref="InvalidDataException">No such image is installed.</exception>
+    public RoomBackgroundImage Sky(ScrollingSkyChunkTable variant, TilesetDefinition tileset) =>
+        Named(RoomBackgroundImage.SkyNameOf(variant, tileset));
+
+    /// <summary>The background image installed as <paramref name="name"/>.</summary>
+    /// <exception cref="InvalidDataException">No such image is installed.</exception>
+    private RoomBackgroundImage Named(string name) =>
         Backgrounds.TryGetValue(name, out RoomBackgroundImage? background) ? background
             : throw new InvalidDataException($"No room background image {name} is installed.");
 

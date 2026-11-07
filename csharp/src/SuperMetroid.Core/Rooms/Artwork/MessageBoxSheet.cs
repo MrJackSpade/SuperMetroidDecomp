@@ -10,17 +10,24 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 public sealed class MessageBoxSheet
 {
-    /// <summary>Each form's image, once looked up.</summary>
-    private readonly Dictionary<string, SpriteSheetFrame> pictures = new(StringComparer.Ordinal);
+    /// <summary>Each form's image, by the form.</summary>
+    private readonly Dictionary<ShownMessage, SpriteSheetFrame> pictures = [];
 
-    /// <summary>Keeps <paramref name="tileset"/>'s message box images.</summary>
-    /// <exception cref="InvalidDataException">The sheet is not coloured as the effect overlay's characters are.</exception>
-    public MessageBoxSheet(TilesetDefinition tileset, SpriteSheet sheet)
+    /// <summary>Keeps <paramref name="tileset"/>'s message box images of each of <paramref name="forms"/>.</summary>
+    /// <param name="tileset">The tileset whose rooms show the messages.</param>
+    /// <param name="sheet">The images.</param>
+    /// <param name="forms">Every form the message box can show, each of which the sheet pictures (#1536).</param>
+    /// <exception cref="InvalidDataException">
+    /// The sheet is not coloured as the effect overlay's characters are, or it pictures a form under no frame of its name.
+    /// </exception>
+    public MessageBoxSheet(TilesetDefinition tileset, SpriteSheet sheet, IEnumerable<ShownMessage> forms)
     {
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         if (sheet.Image.Colours != SpriteImageColours.TwoBppBackground)
             throw new InvalidDataException($"{Name} is not coloured as the effect overlay's characters are.");
+        foreach (ShownMessage form in Ensure.NotNull(forms))
+            pictures[form] = sheet.Frame(form.FrameName);
     }
 
     /// <summary>The tileset whose rooms show the messages.</summary>
@@ -32,14 +39,11 @@ public sealed class MessageBoxSheet
     /// <summary>The images.</summary>
     public SpriteSheet Sheet { get; }
 
-    /// <summary>The image of the form named <paramref name="frameName"/>.</summary>
-    /// <exception cref="InvalidDataException">The sheet pictures no such form.</exception>
-    public SpriteSheetFrame Picture(string frameName)
-    {
-        if (!pictures.TryGetValue(frameName, out SpriteSheetFrame? picture))
-            pictures.Add(frameName, picture = Sheet.Frame(frameName));
-        return picture;
-    }
+    /// <summary>The image of form <paramref name="shown"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="shown"/> is not a form the message box can show.</exception>
+    public SpriteSheetFrame Picture(ShownMessage shown) =>
+        pictures.TryGetValue(shown, out SpriteSheetFrame? picture) ? picture
+            : throw new InvalidDataException($"{Name} pictures no message form {shown.FrameName}.");
 
     /// <summary>The installed name of the message boxes of <paramref name="tileset"/>'s rooms.</summary>
     public static string NameOf(TilesetDefinition tileset) => $"Messages.{RoomBlockSheet.NameOf(tileset)}";

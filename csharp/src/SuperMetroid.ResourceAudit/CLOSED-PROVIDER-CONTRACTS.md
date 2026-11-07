@@ -767,3 +767,58 @@ respective rule; changed routing or palette query semantics revoke their rule.
 All auditor checks and Release compilation pass. Final static inventory exits
 zero with all 352 consumer sites retained. No ROM, saves, installed artwork,
 cinematic, palette interpreter or gameplay was run.
+
+## Pre-coloured room pictures and spawned-object sheets - eleven additional original boundaries
+
+The pre-coloured sheets of #1513/#1514 left eleven Core lookups with no adapter (#1536). Each is now covered by a
+reviewed rule whose key domain is either a typed identity the import enumerates or a domain the loader checks at
+load. No lookup was excused.
+
+`room-artwork-complete-retail-selections` covers `InstalledRoomArtwork.Get`, `FloorOf`, `MessageBox`, `FxOverlay`,
+`Background` and `Sky`. A room selects them by the tileset its retail room state's graphics set names
+(`LoadedRoomAssets`), by its library background and the picture door it was entered through, by its scrolling sky's
+variant, and, only in a Ceres room, by its tileset's floor. `RoomBlockSheetFiles.Load` builds the block sheets and
+message boxes for every tileset `RoomBlockUploads.Tilesets` finds in the retail room states, and before it reads any
+sheet it requires, failing with `InvalidDataException`: an effect overlay picture sheet of every such tileset with
+the page of every effect its states run that shows one (`EffectPagesOf`), the turning floor of every Ceres tileset
+(`CeresTilesets`), and every background image a retail state shows (`BackgroundNames`: each library background's
+ordinary picture and the picture of each of its picture doors, and each scrolling sky's rows, in the state's
+tileset). `Background` and `Sky` take the typed background, door, sky variant and tileset instead of a name, so no
+free string reaches the lookup; a constant sky variant must be one a retail state's room main reads. The artwork's
+constructor accepts any dictionaries, so a construction outside the reviewed sources revokes the rule.
+
+`room-floor-complete-animation-frames` covers `RoomFloorSheet.Picture`, which takes the floor animation frame. The
+import pictures every `CeresFloorAnimationFrame` value over each Ceres floor, and the sheet's constructor indexes the
+picture of every value, so loading a floor that lacks one fails. An undefined constant frame remains a finding.
+
+`message-box-complete-shown-forms` covers `MessageBoxSheet.Picture`, which takes the `ShownMessage` form. The form
+moved from the HUD to the rooms module beside the message identity, so the sheet below the message box can name it.
+`GameplayMessageArtwork.Forms` enumerates every form the message box state constructs: each ordinary message, a
+panel once for each glyph button and once unbound, a save confirmation once for each choice. The import pictures
+each form and the loader passes the same forms to the sheet, which indexes the picture of each at load. A constant
+form whose message the message box never shows remains a finding.
+
+`fx-overlay-complete-effect-pages` covers `FxOverlayPagePictures.Page`, the effect overlay's page lookup by
+`RoomFxType`, which replaces the page picture's name. A room's effect page is the type of the effect record it
+loads when that type shows a page; the import pictures, for each tileset, the page of every such effect its retail
+states run, and the loader requires each one. A constant effect that shows no page remains a finding.
+
+`spawned-object-sheet-exact-spawned-pictures` covers `SpawnedObjectSheet.Frame`. Its picture name is computed from
+several identities: the kind and identity of the frame a spawned object shows and the step of each artwork
+sequence that changes it. The generated `SpawnedObjectFrameDefinitions` list what each enemy, each common spawner
+and each sheet-specific owner spawns, and `EncounterFrameDefinitions` the frames each encounter draws itself.
+`EnemySheetFiles` requires each installed sheet to hold exactly the pictures of the frames its owner's spawners
+spawn, in every step its variations record, and the presentation names the picture it draws from those same
+variations. A constant picture must name a frame some spawner's objects show; a constant naming a step's picture
+is not owned and remains a finding. A construction of a sheet outside the reviewed sources revokes the rule.
+
+The rules certify availability of the selected key in the installed sheets, not caller state, timing, placement or
+pixels. A source that builds the installed room artwork or a spawned-object sheet without naming its type is not
+inspected for the construction escape.
+
+`RoomPicturePresentationContractChecks` compiles the reviewed sources with sixteen consumer calls: all sixteen are
+unresolved without the adapter; with it twelve classify and four known invalid constants (sky, floor frame, message,
+pageless effect) remain findings; a forged construction of the installed room artwork revokes its six lookups.
+`SpawnedObjectSheetContractChecks` compiles three calls: a computed picture and an owned constant classify, an
+unowned constant remains a finding, and a forged sheet construction revokes the rule. Both run under `--self-check`
+and `--room-picture-contract-check`.

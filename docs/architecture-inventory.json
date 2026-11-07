@@ -33391,6 +33391,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationOperandDecoding",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAnimationOperandDecoding.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationProgramCodec",
       "kind": "static class",
       "scope": "test",
@@ -33414,6 +33427,32 @@
       ],
       "files": [
         "csharp/test-support/VerificationImporters/SamusAnimationProgramCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationProgramLayout",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAnimationProgramLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationProgramLayout.LaidOutProgram",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAnimationProgramLayout.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -34522,6 +34561,32 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.OperandStep",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.OperandStepKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.Overwrite",
@@ -58034,7 +58099,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram\u003E",
+      "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram, TStep\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -58047,7 +58112,7 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram\u003E.Read",
+      "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram, TStep\u003E.Read",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
@@ -58060,7 +58125,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram\u003E.Successor",
+      "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram, TStep\u003E.Successor",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
@@ -124360,6 +124425,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusAnimationVerticalSpeedTransition",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusAnimationVerticalSpeedTransition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Poses.SamusAnimationWallJumpSelect",
       "kind": "record",
       "scope": "product",
@@ -170363,6 +170441,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Samus.Artwork.SamusOverreadHeldPoseFramesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusOverreadHeldPoseFramesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Samus.Artwork.SamusRenderingFixtureVerification",
       "kind": "static class",
       "scope": "test",
@@ -171970,6 +172061,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Poses/SamusAnimationDelayDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Poses.SamusOperandPlaceReadsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Poses/SamusOperandPlaceReadsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

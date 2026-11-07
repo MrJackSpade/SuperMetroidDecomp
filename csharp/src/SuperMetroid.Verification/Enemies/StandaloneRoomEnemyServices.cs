@@ -116,8 +116,6 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public bool Has(EventNumber eventNumber) => throw Missing("read global event bits");
         /// <summary>Fails when an actor tries to publish an event without an installed service.</summary>
         public void Set(EventNumber eventNumber) => throw Missing("set a global event bit");
-        /// <summary>Fails when an actor tries to clear an event without an installed service.</summary>
-        public void Clear(EventNumber eventNumber) => throw Missing("clear a global event bit");
         /// <summary>Fails when a Zebetite reads or advances the Zebetite count without an installed progress service.</summary>
         public int ZebetitesDestroyed
         {

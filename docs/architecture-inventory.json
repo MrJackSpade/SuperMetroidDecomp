@@ -227,6 +227,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryColorCatalog)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyPaletteSheet)",
       "kind": "class",
       "scope": "product",
@@ -254,19 +267,6 @@
     },
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.WorkRobotPaletteCycle)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryColorCatalog)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -981,6 +981,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTilePage",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerTilePage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTilePageTransfers",
       "kind": "static class",
       "scope": "product",
@@ -989,6 +1002,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerTilePageTransfers.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTilePages",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerTilePages.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -1601,6 +1627,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledArtworkId",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledArtworkId.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.InstalledBackgroundSet",
       "kind": "enum",
       "scope": "product",
@@ -1771,6 +1810,32 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.PictureShadeKeys",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureShadeKeys.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.PictureShadeKeys.extension(SuperMetroid.Core.Assets.PictureShade)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureShadeKeys.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.PictureSheetLayout",
@@ -2776,6 +2841,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Assets.FixedGridShape",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Assets/FixedGridShape.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Assets.GameplayBasePaletteFormat",
@@ -6512,6 +6590,149 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.BodyColors",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.DrainedBodyColors",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.PaletteFade",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.PaletteFrame",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.RearPaint",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.RedOriginAnchors",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.RedOriginColors",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.RevivalPaletteFade",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.InstalledMotherBrainRainbowPalette.SharedBodyChannels",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/InstalledMotherBrainRainbowPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainAttackPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainAttackPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainBodyFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -6549,6 +6770,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainDarkHeadShade",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainDarkHeadShade.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainDeathColorCatalog",
@@ -6642,6 +6876,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainDrainedPaletteDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainDrainedPaletteDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainExplodedDoorPaint",
       "kind": "static class",
       "scope": "product",
@@ -6666,6 +6913,110 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainFinalRoomPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainFinalRoomPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainGlassPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainGlassPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainHealthPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPaletteFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainHealthPaletteFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation.BasePalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation.BasePaletteAnchors",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation.TintPalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPaletteRecognition",
@@ -6694,6 +7045,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainPalettePart",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainPalettePart.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteColours",
       "kind": "record",
       "scope": "product",
@@ -6708,6 +7072,19 @@
     },
     {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteGeometry",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRainbowPaletteGeometry.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteGeometry.RedOrigin",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -6746,6 +7123,84 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeChannel",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeChannel.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeChannel.Rounding",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeChannel.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeProfile",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeProfile.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRearPaintKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRecoveryPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRecoveryPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorFormat",
       "kind": "static class",
       "scope": "product",
@@ -6757,6 +7212,136 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorGeometry",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorGeometry.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.AttackPalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.FinalRoomPalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.GlassPalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.RecoveryLightFade",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.RoomFlash",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.TubePalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentationToolingExtensions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentationToolingExtensions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentationToolingExtensions.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation)",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentationToolingExtensions.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorRecognition",
@@ -6785,6 +7370,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomFlashPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomFlashPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomFlashes",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainRoomFlashes.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSheetPlacement",
       "kind": "record struct",
       "scope": "product",
@@ -6811,6 +7422,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteSheetDefinition",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteSheetDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteSheetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteSheetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSprites",
       "kind": "static class",
       "scope": "product",
@@ -6824,7 +7461,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSprites.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteSheetDefinition)",
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSprites.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteSheetDefinition)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -6845,6 +7482,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainTrailingColor.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.RainbowChannelSelection",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/RainbowChannelSelection.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.RainbowPaletteColorKey",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/RainbowPaletteColorKey.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.Rgb8",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/Rgb8.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -8727,6 +9403,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoArtworkSwapOrdinals",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Torizo/TorizoArtworkSwapOrdinals.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoArtworkSwapOrdinals.extension(SuperMetroid.Core.Bosses.Torizo.TorizoArtworkSwap)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Torizo/TorizoArtworkSwapOrdinals.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.Torizo.TorizoArtworkSwapPageDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -10579,6 +11281,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.AuxiliaryPaint",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/AuxiliaryPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.ChozoAndTubeColorCatalog",
       "kind": "class",
       "scope": "product",
@@ -10839,6 +11554,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryColorCatalog",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyAuxiliaryColorCatalog.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryColorFormat",
       "kind": "static class",
       "scope": "product",
@@ -10863,6 +11591,58 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyAuxiliaryColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryColourEndpoints",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyAuxiliaryColourEndpoints.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryColourFrames",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyAuxiliaryColourFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryPalette",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyAuxiliaryPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyDefinitionFrameDefinitions",
@@ -10947,6 +11727,84 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.FaceBlockGlowPaint",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/FaceBlockGlowPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.FaceBlockGlowPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/FaceBlockGlowPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.GoldenTorizoHealthEndpoint",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/GoldenTorizoHealthEndpoint.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.GoldenTorizoHealthFacing",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/GoldenTorizoHealthFacing.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.GoldenTorizoHealthPaint",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/GoldenTorizoHealthPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.GoldenTorizoHealthPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.MagdollitePaletteCycle",
       "kind": "class",
       "scope": "product",
@@ -10984,6 +11842,149 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperCorpsePaint",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperCorpsePaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperCorpsePaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperCorpsePaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperCorpsePalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperCorpsePalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperDrainPaint",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperDrainPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperDrainPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperDrainPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperDrainShadeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperDrainShadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperDrainShades",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperDrainShades.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperInitialPaint",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperInitialPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperInitialPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperInitialPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperInitialPalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperInitialPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperPaletteOwnership",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SidehopperPaletteOwnership.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperPaletteRecognition",
@@ -11107,6 +12108,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/WreckedShipPoweredPart.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.BossSourceArtwork",
       "kind": "record",
       "scope": "product",
@@ -11118,6 +12132,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.BrinstarRoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/BrinstarRoomEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions",
@@ -11392,6 +12419,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.CeresRoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/CeresRoomEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.ChozoAndTubeColorDocument",
       "kind": "record",
       "scope": "product",
@@ -11613,6 +12653,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTourianCorpses",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTourianCorpses.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.RottingCorpseCells",
       "kind": "class",
       "scope": "product",
@@ -11637,6 +12690,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.CrateriaRoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/CrateriaRoomEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder",
@@ -13598,6 +14664,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffTransferDefinition",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffTransferDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffTransferDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffTransferDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.InstalledEnemyArtwork",
       "kind": "record",
       "scope": "product",
@@ -13695,6 +14787,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.MaridiaRoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/MaridiaRoomEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.MeltingGraphicsSource",
       "kind": "record struct",
       "scope": "product",
@@ -13706,6 +14811,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.NorfairRoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/NorfairRoomEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords",
@@ -13804,7 +14922,46 @@
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/RoomEnemyGraphicsSetLists.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetMember",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/RoomEnemyGraphicsSetMember.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetMembers",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/RoomEnemyGraphicsSetMembers.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSets",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/RoomEnemyGraphicsSets.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec",
@@ -14113,6 +15270,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.TourianRoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/TourianRoomEnemyGraphicsSetDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.WorkRobotPaletteCycleDocument",
       "kind": "record",
       "scope": "product",
@@ -14147,6 +15317,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/WorkRobotPaletteCycleFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.WreckedShipGhostFadeColours",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/WreckedShipGhostFadeColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.WreckedShipGhostFadeColours.extension(SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFade)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/WreckedShipGhostFadeColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.WreckedShipRoomEnemyGraphicsSetDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/WreckedShipRoomEnemyGraphicsSetDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -14868,6 +16077,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.CinematicTypedTextSteps",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CinematicTypedTextSteps.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.CinematicTypedTextSteps.extension(SuperMetroid.Core.Frontend.Intro.Artwork.CinematicTypedTexts)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CinematicTypedTextSteps.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Cinematics.CinematicSpritemapSourceDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -15349,6 +16584,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorSceneId",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingFloorSceneId.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFontAtlasFormat",
       "kind": "static class",
       "scope": "product",
@@ -15399,6 +16647,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoLayer",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingLogoLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoPaletteFade",
@@ -15633,6 +16894,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteReading",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingPaletteReading.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteReading.extension(SuperMetroid.Core.Frontend.Ending.Artwork.EndingPalette)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingPaletteReading.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteRecognition",
@@ -17341,6 +18628,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverBabyPaletteNames",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/GameOver/Artwork/GameOverBabyPaletteNames.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverLargeGlyph",
@@ -19436,6 +20736,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapPaletteCycleFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Map/Artwork/MapPaletteCycleFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSaveMarkerDocument",
@@ -22281,6 +23594,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Pause.ShownEquipmentPageLabels",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/ShownEquipmentPageLabels.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Pause.ShownEquipmentPageLabels.extension(SuperMetroid.Core.Frontend.Pause.ShownEquipmentPage)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/ShownEquipmentPageLabels.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.PauseSheetComposer",
       "kind": "static class",
       "scope": "product",
@@ -22609,6 +23948,45 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleScreenAmbientPaletteFxColorDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleScreenAmbientPaletteFxColorDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleScreenAmbientPaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleScreenAmbientPaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleScreenAmbientPaletteFxProgramOwner",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleScreenAmbientPaletteFxProgramOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks",
       "kind": "static class",
       "scope": "product",
@@ -22817,6 +24195,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.TitleTypedCardSteps",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/TitleTypedCardSteps.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.AnimatedTileImage",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/AnimatedTileImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.AnimatedTileVramDestinationDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -22856,6 +24260,58 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxBlendColors",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxBlendColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxBlendInks",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxBlendInks.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxPairColor",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxPairColor.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxPairMember",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxPairMember.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxPaletteBlendDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -22867,6 +24323,45 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxPaletteBlendParts",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxPaletteBlendParts.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxPaletteBlendRules",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxPaletteBlendRules.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxThirdColor",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxThirdColor.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxColorRecognition",
@@ -23642,6 +25137,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlas",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxAnimatedTileAtlas.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor",
       "kind": "static class",
       "scope": "product",
@@ -23666,6 +25174,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxAnimatedTileAtlasFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasPng",
@@ -23707,6 +25228,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileLoops.extension(SuperMetroid.Core.Fx.WreckedShipTreadmillLoop)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxAnimatedTileLoops.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTilePictureCountDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxAnimatedTilePictureCountDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTilePictures",
       "kind": "static class",
       "scope": "product",
@@ -23720,7 +25267,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTilePictures.extension(SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas)",
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTilePictures.extension(SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlas)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -25902,6 +27449,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.RgbColorPaintArithmetic",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/RgbColorPaintArithmetic.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.RgbColorPaintArithmetic.extension(SuperMetroid.Core.Assets.RgbColor)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/RgbColorPaintArithmetic.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.RoomLevelWordCodec",
@@ -30023,6 +31596,45 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaintDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaintDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaletteDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaletteDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.BeamPaletteSources",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaletteSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.ChainsawBeamColours\u003CTColour\u003E",
       "kind": "class",
       "scope": "product",
@@ -30250,6 +31862,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusColourSets",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusColourSets.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusFullBodyCycleColours",
       "kind": "class",
       "scope": "product",
@@ -30271,6 +31896,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusHurtColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusHurtColorFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusHurtColorFormat.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -30328,6 +31966,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusPaletteFade",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusPaletteFade.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusSuitColorFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusSuitColorFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusVisorColorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -30336,6 +32000,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusVisorColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusVisorColorFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusVisorColorFormat.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -31175,6 +32852,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.LoadedBeamProjectilePrograms",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/LoadedBeamProjectilePrograms.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.PlasmaGrowthShape",
@@ -32938,6 +34628,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusPoseNumbers",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusPoseNumbers.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusProjectileRecordOrder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusProjectileRecordOrder.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec",
       "kind": "static class",
       "scope": "test",
@@ -33029,6 +34745,45 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusShownBodies",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusShownBodies.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusShownBodies.extension(SuperMetroid.Core.Samus.Drawing.SamusShownFrames)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusShownBodies.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusShownBody",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusShownBody.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusSpritemapDefinition",
@@ -37484,19 +39239,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Assets.FixedGridShape",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/FixedGridShape.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Assets.GameplayDisplayFade",
       "kind": "record",
       "scope": "product",
@@ -37715,19 +39457,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.InstalledArtworkId",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/InstalledArtworkId.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Assets.InstalledArtworkUploadSource",
@@ -45667,19 +47396,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainAttackPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainAttackPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainBodyVisualDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -45767,19 +47483,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainDarkHeadShade",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainDarkHeadShade.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainEffectFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -45806,19 +47509,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainFinalRoomPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainFinalRoomPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainGlassArtwork",
       "kind": "static class",
       "scope": "product",
@@ -45830,19 +47520,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainGlassPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainGlassPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainGlassVisualDefinitions",
@@ -45935,111 +47612,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPaletteFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPaletteFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation.BasePalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation.BasePaletteAnchors",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation.TintPalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainPalettePart",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettePart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPaletteFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteFormat.RedOriginLayout",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -46078,331 +47651,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.BodyColors",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.DrainedBodyColors",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.PaletteFade",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.PaletteFrame",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.RearPaint",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.RedOriginAnchors",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.RedOriginColors",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.RevivalPaletteFade",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.SharedBodyChannels",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeChannel",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeChannel.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeChannel.Rounding",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeChannel.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowShadeProfile",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeProfile.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRearPaintKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRecoveryPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRecoveryPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.AttackPalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.FinalRoomPalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.GlassPalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.RecoveryLightFade",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.RoomFlash",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.TubePalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentationToolingExtensions",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentationToolingExtensions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentationToolingExtensions.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation)",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentationToolingExtensions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomFlashPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomFlashPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainShades",
       "kind": "static class",
       "scope": "product",
@@ -46427,19 +47675,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteSheetDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteSheetDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainSpritePage",
@@ -46579,32 +47814,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RainbowPaletteColorKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RainbowPaletteColorKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.Rgb8",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/Rgb8.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RinkaFrameDefinitions",
@@ -47956,19 +49165,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainDrainedPaletteDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainDrainedPaletteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainDroolState",
@@ -49775,19 +50971,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomFlashes",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomFlashes.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomMutation",
@@ -59228,19 +60411,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.AuxiliaryPaint",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/AuxiliaryPaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.BlueBrinstarFaceBlockVisualDefinitions",
       "kind": "static class",
       "scope": "test",
@@ -59621,71 +60791,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryColorCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColorCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryColourEndpoints",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColourEndpoints.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryColourFrames",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColourFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryPalette.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequenceAccess",
@@ -60272,32 +61377,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.FaceBlockGlowPaint",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/FaceBlockGlowPaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.FaceBlockGlowPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/FaceBlockGlowPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.FlyVisualDefinitions",
       "kind": "static class",
       "scope": "test",
@@ -60335,84 +61414,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/FriendlyAnimalVisualDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthEndpoint",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthEndpoint.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthFacing.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthPaint",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.GunshipLiftoffTransferDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffTransferDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.GunshipLiftoffTransferDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffTransferDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -60781,149 +61782,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperCorpsePaint",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperCorpsePaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperCorpsePaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperCorpsePaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperCorpsePalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperCorpsePalette.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperDrainPaint",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperDrainPaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperDrainPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperDrainPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperDrainShadeDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperDrainShadeDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperDrainShades",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperDrainShades.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperInitialPaint",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperInitialPaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperInitialPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperInitialPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperInitialPalette",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperInitialPalette.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.SidehopperPaletteOwnership",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperPaletteOwnership.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.SingleFrameEnemyVisualDefinitions",
       "kind": "static class",
       "scope": "test",
@@ -61128,19 +61986,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/WreckedShipPoweredPart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.YappingMawVisualDefinitions",
@@ -62167,19 +63012,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BrinstarRoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BrinstarRoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Bull.Artwork.BullFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -62723,19 +63555,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.CeresRoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/CeresRoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Choot.Artwork.ChootFrameDefinitions",
@@ -64417,19 +65236,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpses",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianCorpses.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCue",
       "kind": "record struct",
       "scope": "product",
@@ -64597,19 +65403,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.CrateriaRoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/CrateriaRoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Crawlers.Artwork.CrawlerFrameDefinitions",
@@ -69815,6 +70608,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipLiftoffDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Gunship.GunshipLoadScenario",
       "kind": "enum",
       "scope": "product",
@@ -72918,19 +73724,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.MaridiaRoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/MaridiaRoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.MaridiaSnails.Artwork.MaridiaLargeSnailFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -74138,19 +74931,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.NorfairRoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/NorfairRoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Nuclear.Artwork.NuclearWaffleFrameDefinitions",
@@ -77960,7 +78740,7 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition",
-      "kind": "class",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -77969,7 +78749,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinition.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions",
@@ -77982,7 +78762,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitionsAccess",
@@ -78017,19 +78797,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetMember",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetMember.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetMemberAccess",
       "kind": "static class",
       "scope": "test",
@@ -78046,7 +78813,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetMemberAccess.extension(SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetMember)",
+      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetMemberAccess.extension(SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetMember)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -78060,19 +78827,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemyGraphicsSets",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSets.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyHeaders",
@@ -81854,19 +82608,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.TourianRoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/TourianRoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Waver.Artwork.WaverFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -82856,19 +83597,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WreckedShipRoomEnemyGraphicsSetDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WreckedShipRoomEnemyGraphicsSetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.Artwork.YappingMawBodyProjectileFrameDefinitions",
@@ -84123,32 +84851,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTimerTilePage",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTilePage.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Escape.Artwork.EscapeTimerTilePages",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTilePages.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Escape.Artwork.EscapeTimerTilePagesConstants",
@@ -85613,19 +86315,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingFloorSceneId",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingFloorSceneId.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingFontAtlas",
       "kind": "class",
       "scope": "product",
@@ -85669,19 +86358,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingLogoLayer",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingLogoLayer.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingLogoPaletteFadeAccess",
@@ -90901,19 +91577,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapPaletteCycleFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapPaletteCycleFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayoutAccess",
       "kind": "static class",
       "scope": "test",
@@ -94036,7 +94699,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.AnimatedTileImageSources.extension(SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas)",
+      "type": "SuperMetroid.Core.Fx.AnimatedTileImageSources.extension(SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlas)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -94197,17 +94860,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.AnimatedTileImage",
-      "kind": "record struct",
+      "type": "SuperMetroid.Core.Fx.Artwork.CeresHazeTints",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/AnimatedTileImage.cs"
+        "csharp/src/SuperMetroid.Core/Fx/Artwork/CeresHazeTints.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.CrateriaLightningColorDefinitions",
@@ -94764,58 +95427,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.RainbowChannelSelection",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RainbowChannelSelection.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxAnimatedTileAtlas.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlasFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxAnimatedTileAtlasFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxBlendColors",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxBlendColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomFxBlendColorsAccess",
       "kind": "static class",
       "scope": "test",
@@ -94832,7 +95443,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxBlendColorsAccess.extension(SuperMetroid.Core.Fx.Artwork.RoomFxBlendColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxBlendColorsAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxBlendColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -94846,19 +95457,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxBlendInks",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxBlendInks.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomFxBlendShades",
@@ -94885,32 +95483,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPairColor",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPairColor.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPairMember",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPairMember.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlend",
@@ -94942,7 +95514,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendCatalogAccess.extension(SuperMetroid.Core.Fx.Artwork.RoomFxBlendInks)",
+      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendCatalogAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxBlendInks)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -94956,45 +95528,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendParts",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPaletteBlendParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendRules",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPaletteBlendRules.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomFxThirdColor",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxThirdColor.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation",
@@ -96478,6 +97011,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleScreenAmbientPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
@@ -96671,22 +97220,6 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97365,6 +97898,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleScreenAmbientPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxProgramLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.CinematicGlowPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
@@ -97478,22 +98027,6 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxProgramLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98040,19 +98573,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinition",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
@@ -98069,7 +98589,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitionAccess.extension(SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleScreenAmbientPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98083,19 +98603,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitionsConstants",
@@ -98112,19 +98619,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxProgramOwner",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramOwner.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinitionAccess",
@@ -99264,19 +99758,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxAnimatedTileFrameDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxAnimatedTileFrameDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.RoomFxAnimatedTileFrameDefinitionAccess",
       "kind": "static class",
       "scope": "test",
@@ -99293,7 +99774,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFxAnimatedTileFrameDefinitionAccess.extension(SuperMetroid.Core.Fx.RoomFxAnimatedTileFrameDefinition)",
+      "type": "SuperMetroid.Core.Fx.RoomFxAnimatedTileFrameDefinitionAccess.extension(SuperMetroid.Core.Fx.RoomFxAnimatedTileLoop)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -99310,19 +99791,6 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.RoomFxAnimatedTileLoop",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxAnimatedTileLoop.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.RoomFxAnimatedTileLoop.CalculatedFrames",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -103999,14 +104467,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Progression.AreaMapLayout",
+      "type": "SuperMetroid.Core.Progression.AreaMapSize",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Progression/AreaMapLayout.cs"
+        "csharp/src/SuperMetroid.Core/Progression/AreaMapSize.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -104153,6 +104621,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Progression/IGlobalEventFlags.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.IZebetiteProgress",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/IZebetiteProgress.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -115363,32 +115844,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessLayout",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessLayouts",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessLayouts.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessObjectDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -115471,6 +115926,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessRule",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessRule.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationAccessRuleDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationAccessRuleDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.StationActivationEvent",
@@ -118202,6 +118683,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealArea",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealArea.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealCommand",
       "kind": "enum",
       "scope": "product",
@@ -118252,19 +118746,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealMap",
@@ -118592,45 +119073,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.BeamPaintDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaintDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaletteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.BeamPaletteSources",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaletteSources.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.BeamTileAtlasAccess",
@@ -119890,19 +120332,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusHurtColorFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusHurtColorFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusHurtColorVariant",
       "kind": "enum",
       "scope": "product",
@@ -119924,19 +120353,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusOverlaySheetDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusPaletteFade",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusPaletteFade.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -119982,32 +120398,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusSuitColorFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSuitColorFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusVisorColorFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusVisorColorFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.BlockScanCycle",
@@ -120577,19 +120967,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Drawing.SamusShownBody",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusShownBody.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Drawing.SamusShownFrames",
@@ -123233,19 +123610,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions.Common",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions.CrystalFlash",
       "kind": "static class",
       "scope": "product",
@@ -123366,23 +123730,7 @@
         "csharp/test-support/VerificationAccess.Core/Samus/Palettes/SamusPaletteDefinitionsCommonConstants.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitionsCommonConstants.extension(SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions.Common)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Palettes/SamusPaletteDefinitionsCommonConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitionsCrystalFlashConstants",
@@ -123546,22 +123894,6 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteNative.extension(SuperMetroid.Core.Samus.Palettes.SamusChargePaletteDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Palettes/SamusPaletteNative.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Palettes.SamusPaletteNative.extension(SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions.Common)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -125065,19 +125397,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.LoadedBeamProjectilePrograms",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/LoadedBeamProjectilePrograms.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.MiscDustAnimation",
       "kind": "enum",
       "scope": "product",
@@ -125329,19 +125648,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileHeaderLayout",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileHeaderLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileImpactAudio",
@@ -141621,6 +141927,22 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation.Verification/FixtureGraphicsSetMembers.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetRows",
       "kind": "static class",
       "scope": "test",
@@ -146186,7 +146508,20 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Verification.Bosses.ImportedBossLooks.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation)",
+      "type": "SuperMetroid.Verification.Bosses.ImportedBossLooks.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/ImportedBossLooks.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.ImportedBossLooks.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -146200,19 +146535,6 @@
     },
     {
       "type": "SuperMetroid.Verification.Bosses.ImportedBossLooks.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/ImportedBossLooks.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.ImportedBossLooks.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -158315,19 +158637,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.VerifyDeadTourianCorpseLayoutsCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/VerifyDeadTourianCorpseLayoutsCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.VerifyEnemyDefinitionBoundaryCase",
       "kind": "record struct",
       "scope": "test",
@@ -163697,19 +164006,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification.RetailFxCatalogs",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Fx/RoomFxRetailInventoryVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification.RetailFxPathAudit",
       "kind": "record struct",
       "scope": "test",
@@ -165083,6 +165379,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Harness/NullContractsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Harness.OamPriorityComparison",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/OamPriorityComparison.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

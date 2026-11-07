@@ -37,10 +37,10 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertTrue(!CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectHeaderId.RedDoorFacingUp, out _, out _), "a door is no item");
         AssertEqual(63, PermanentCollectibleObjectDefinitions.Items.Count, "three presentations of twenty-one items");
 
-        // The station animations are named by layout instead of the header's list word plus an offset.
-        AssertEqual(StationAnimationList.MapIdle, StationAccessLayouts.Map.Animation, "map station animation");
-        AssertEqual((StationAnimationList?)StationAnimationList.MapAcquired, StationAccessLayouts.Map.AcquiredAnimation, "map station acquired animation");
-        AssertTrue(StationAccessLayouts.Energy.AcquiredAnimation is null, "energy station has one animation");
+        // The station animations are named by access rule instead of the header's list word plus an offset.
+        AssertEqual(StationAnimationList.MapIdle, StationAccessRuleDefinitions.Map.Animation, "map station animation");
+        AssertEqual((StationAnimationList?)StationAnimationList.MapAcquired, StationAccessRuleDefinitions.Map.AcquiredAnimation, "map station acquired animation");
+        AssertTrue(StationAccessRuleDefinitions.Energy.AcquiredAnimation is null, "energy station has one animation");
         AssertEqual(0xad66, StationNativeWords.AnimationLists.Word(StationAnimationList.MapIdle), "map idle list word");
 
         // The deleted RomData catalogs' values.

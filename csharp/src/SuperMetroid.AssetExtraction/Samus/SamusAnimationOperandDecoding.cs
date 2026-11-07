@@ -13,6 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// instruction's operands taken from the bytes after it. The Baby's Hyper Beam freeze and rainbow stop set frames that land
 /// on such places in the programs laid out after a transition's.
 /// </summary>
+[SuperMetroid.Core.EncodingOwner("Samus animation program bytes: a delay byte, or an instruction whose low four bits select its handler")]
 internal static class SamusAnimationOperandDecoding
 {
     /// <summary>
@@ -48,7 +49,7 @@ internal static class SamusAnimationOperandDecoding
     private static SamusOverreadDocument.OperandStep? Decode(IImportCartridgeSource cartridge, int start, int frame)
     {
         int place = start + frame;
-        int Byte(int offset) => cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.SamusAnimationProgramBank | ((place + offset) & ushort.MaxValue));
+        int Byte(int offset) => cartridge.ReadCartridgeByte(SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, place + offset));
         int value = Byte(0);
         if (value < SamusOverreadSourceDefinitions.FirstAnimationInstructionByte)
             return new(Kind.Delay.ToString(), value, null, null, null);
@@ -57,7 +58,7 @@ internal static class SamusAnimationOperandDecoding
                 ? [.. offsets.Select(offset => SamusPoseNumbering.FromNumber(Byte(offset)).ToString())]
                 : null;
         string[] Items() => ItemNames(SamusEquipmentWordCodec.FromSavedEquipmentWord(
-            (ushort)cartridge.ReadCartridgeWord(SamusOverreadSourceDefinitions.SamusAnimationProgramBank | ((place + 1) & ushort.MaxValue))));
+            cartridge.ReadCartridgeWord(SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, place + 1))));
         SamusOverreadDocument.OperandStep? Transition(Kind kind, string[]? items, string[]? poses) =>
             poses is null ? null : new(kind.ToString(), null, null, items, poses);
         return (value & 0xf) switch

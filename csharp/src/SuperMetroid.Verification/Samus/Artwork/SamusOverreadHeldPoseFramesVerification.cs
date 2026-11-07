@@ -6,7 +6,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 

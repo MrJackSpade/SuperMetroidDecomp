@@ -12,6 +12,20 @@ namespace SuperMetroid.Core.Compatibility;
 /// program occupies frames 0-7 and the left-facing drained standing program starts eight frames later, so the original
 /// game plays the left program's frame 3. A target a later program names is shifted back by the distance (the original
 /// game's repeats step back by a count); a restart is absolute and is not.
+/// <para>
+/// The same reading decides what the Baby's Hyper Beam freeze and its rainbow stop do to a Samus the drain has let go of
+/// (#1535). Both set her animation frame without looking at her pose, to the frames the drained crouch's freeze and
+/// stand-up start at, and a crouch, morph or stand transition's program ends long before them, so her next animation step
+/// reads the programs laid out after hers. The left-facing unmorphing transition frozen for the Hyper Beam reaches the
+/// Draygon-held morphing program's transition and becomes the Draygon-held ball; the transitions that reach the instant
+/// and compact morphing programs become the ordinary morph or Spring Ball; the left-facing crouch at the rainbow stop
+/// reaches the left-facing morph's own transition. Those transition poses are never held themselves: their programs run
+/// under the pose that read into them.
+/// </para>
+/// <para>
+/// The service reads whole programs: a frame that lands on the place of an instruction's operand rather than on a step
+/// names no step here, and the animation reports it, where the original game reads the operand as a step of its own.
+/// </para>
 /// </remarks>
 /// <typeparam name="TProgram">
 /// The identity of a program. Samus's programs are named by a pose that animates by each, so the identity keeps its

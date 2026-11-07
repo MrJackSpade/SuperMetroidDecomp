@@ -960,10 +960,26 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.DraygonGrabbedFiringRightPose:
             case SamusPoseId.DraygonGrabbedAimDownRightPose:
             case SamusPoseId.DraygonGrabbedMovingRightPose:
+            case SamusPoseId.DraygonHeldBallLeftPose:
                 // This is the normal dispatcher, which only clears
                 // the vertical solid-collision result. The actual boss grab above
-                // runs its separately installed empty handler instead.
+                // runs its separately installed empty handler instead. The Draygon-held
+                // ball the Hyper Beam freeze installs (#1535) has no Draygon, so it stays put.
                 SamusDraygonGrabbedState.StepMovement(samus);
+                break;
+            case SamusPoseId.GlitchBallRightPose:
+            case SamusPoseId.GlitchBallLeftPose:
+            case SamusPoseId.DraygonHeldStandingUpLeftPose:
+                // The glitch-ball movement type's normal entry only clears the vertical solid-collision
+                // result, and so does the posture transition's for the compact transitions, which skips
+                // their horizontal and vertical movement; nothing lands them, so the landed cleanup never runs.
+                // Both hold Samus where the over-read installed them (#1535).
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
+                break;
+            case SamusPoseId.UnusedKnockbackRightPose:
+            case SamusPoseId.UnusedKnockbackLeftPose:
+                // The glitch-ball knockback's movement type has an empty normal entry: once its knockback
+                // ends, Samus holds still in it (#1535).
                 break;
             case SamusPoseId.AdjacentCodePoseFD:
             case SamusPoseId.AdjacentCodePoseFE:
@@ -989,8 +1005,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.CompactMorphingRightPose:
             case SamusPoseId.DraygonHeldMorphingLeftPose:
             case SamusPoseId.CompactStandingUpRightPose:
-            case SamusPoseId.DraygonHeldStandingUpLeftPose:
-            case SamusPoseId.DraygonHeldBallLeftPose:
             case SamusPoseId.DrainedCrouchingRightPose:
             case SamusPoseId.DrainedCrouchingLeftPose:
             case SamusPoseId.DrainedStandingRightPose:
@@ -1007,14 +1021,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.GrappleCrouchingDownLeftPose:
             case SamusPoseId.GrappleWallContactLeftPose:
             case SamusPoseId.GrappleWallContactRightPose:
-            case SamusPoseId.UnusedKnockbackRightPose:
-            case SamusPoseId.UnusedKnockbackLeftPose:
-            case SamusPoseId.GlitchBallRightPose:
             case SamusPoseId.GlitchBallMorphingRightPose:
             case SamusPoseId.GlitchBallMorphingLeftPose:
             case SamusPoseId.InstantMorphingRightPose:
             case SamusPoseId.InstantMorphingLeftPose:
-            case SamusPoseId.GlitchBallLeftPose:
             case SamusPoseId.CompactAirborneRightPose:
             case SamusPoseId.CompactAirborneLeftPose:
             case SamusPoseId.GrappleAirborneGunExtendedRightPose:

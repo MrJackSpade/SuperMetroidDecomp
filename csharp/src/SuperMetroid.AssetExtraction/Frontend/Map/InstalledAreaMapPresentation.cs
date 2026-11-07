@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
@@ -40,6 +41,7 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         CeresRidleyFloorColors = Ensure.NotNull(sources.CeresRidleyFloorColors);
         EscapeTimerTiles = Ensure.NotNull(sources.EscapeTimerTiles);
         RoomFxAnimatedTiles = Ensure.NotNull(sources.RoomFxAnimatedTiles);
+        RoomFxPaletteBlends = Ensure.NotNull(sources.RoomFxPaletteBlends);
         MotherBrainHealthPalette = Ensure.NotNull(sources.MotherBrainHealthPalette);
         MotherBrainRoomColors = Ensure.NotNull(sources.MotherBrainRoomColors);
     }
@@ -70,6 +72,14 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
     /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
     public static RoomFxAnimatedTileAtlas RoomFxAnimatedTilesOf(IGameplayPresentationContent maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.RoomFxAnimatedTiles
         ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no animated tiles.");
+
+    /// <summary>The room-FX blends, which the import pre-colours the effect overlay pictures with (#1527).</summary>
+    public RoomFxBlendInks RoomFxPaletteBlends { get; }
+
+    /// <summary>The room-FX blends the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static RoomFxBlendInks RoomFxPaletteBlendsOf(IGameplayPresentationContent maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.RoomFxPaletteBlends
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no room-FX blends.");
 
     /// <summary>The escape timer's characters, which only the import reads to compose the escape encounters' sheets (#1513).</summary>
     public EscapeTimerCharacters EscapeTimerTiles { get; }

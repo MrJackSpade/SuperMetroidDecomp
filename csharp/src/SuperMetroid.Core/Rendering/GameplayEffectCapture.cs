@@ -235,11 +235,9 @@ public static class GameplayEffectCapture
     /// </summary>
     public static ColourAddWindowLayer CaptureCeresHaze(bool ridleyIsDead,
         int intensity = CeresHazeRenderDefinitions.MaximumComponent,
-        RoomFxBlendInks? colors = null)
+        CeresHazeTints? tints = null)
     {
-        RgbColor tint = colors is null
-            ? RoomFxPaletteBlendRules.StockCeresHazeTint(ridleyIsDead)
-            : ridleyIsDead ? colors.CeresHazeRed : colors.CeresHazeBlue;
+        RgbColor tint = (tints ?? CeresHazeTints.Stock).For(ridleyIsDead);
         // The fade's strength is relative to the whole haze: below it the bands dim, and the fade-out's first frame
         // shows one step more than whole.
         var steps = new LineColourSteps(CeresHazeRenderDefinitions.RampFirstLine, CeresHazeRenderDefinitions.BandHeight,

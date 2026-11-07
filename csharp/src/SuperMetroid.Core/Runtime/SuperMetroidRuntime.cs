@@ -1013,7 +1013,7 @@ internal sealed class SuperMetroidRuntime
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),
-            Artwork.MapPresentation?.RoomFxPaletteBlends,
+            Artwork.MapPresentation?.CeresHaze,
             PowerBombRenderSnapshot.Capture(Room.LoadedScope.BombProjectiles.PowerBombExplosion),
             MessageBoxLayer.Capture(MessageBox, Room.Scope?.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,

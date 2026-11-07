@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Fx.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>The room FX blend colours per effect (#633).</summary>
 internal sealed record RoomFxPaletteBlendParts

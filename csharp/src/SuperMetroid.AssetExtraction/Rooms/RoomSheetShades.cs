@@ -103,7 +103,7 @@ internal static class RoomSheetShades
     {
         Ensure.NotNull(inputs);
         RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends),
+        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPaletteBlendsOf(inputs.Maps)),
             .. HoldsPhantoon(RoomsOf(tileset)) ? PhantoonSheetShades.PowerOn(inputs.Bosses, standard) : []];
     }
 

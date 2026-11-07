@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Independent third-color red and calculated weather green/blue, preserving edits.</summary>
 internal sealed class RoomFxThirdColor
@@ -23,4 +25,11 @@ internal sealed class RoomFxThirdColor
         int blue = color.Blue;
         blueOverride = RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, color.Red) == blue ? null : blue;
     }
+
+    /// <summary>Combines the retained red channel with edited or calculated weather channels.</summary>
+    internal RgbColor CreateColor() => new(red,
+        greenOverride ?? RoomFxPaletteBlendRules.CalculatedThirdGreen(selection) ??
+            throw new InvalidOperationException("A blend color without a green edit has a calculated green."),
+        blueOverride ?? RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, red) ??
+            throw new InvalidOperationException("A blend color without a blue edit has a calculated blue."));
 }

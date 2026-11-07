@@ -56,7 +56,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         TitleGradient = parts.TitleGradient;
         RoomPaletteFx = parts.RoomPaletteFx;
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
-        RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
+        CeresHaze = parts.CeresHaze;
         PowerBombFixedColors = parts.PowerBombFixedColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
     }
@@ -117,8 +117,8 @@ public class AreaMapPresentation : IGameplayPresentationContent
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
     /// <summary>Selected room-FX effect overlay pages, separate from animated characters and palette-blend colors.</summary>
-    /// <summary>Selected room-FX palette-blend presentation, separate from effect overlay page geometry and animated character bytes.</summary>
-    public RoomFxBlendInks RoomFxPaletteBlends { get; }
+    /// <summary>The Ceres haze's installed tints.</summary>
+    public CeresHazeTints CeresHaze { get; }
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public InstalledPowerBombFixedColors PowerBombFixedColors { get; }
 

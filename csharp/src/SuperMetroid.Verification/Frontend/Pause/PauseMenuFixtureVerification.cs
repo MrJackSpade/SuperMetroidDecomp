@@ -99,7 +99,7 @@ internal static class PauseMenuFixtureVerification
             TitleGradient = stock.TitleGradient,
             RoomPaletteFx = stock.RoomPaletteFx,
             MotherBrainRainbowPalette = stock.MotherBrainRainbowPalette,
-            RoomFxPaletteBlends = stock.RoomFxPaletteBlends,
+            CeresHaze = stock.CeresHaze,
             PowerBombFixedColors = stock.PowerBombFixedColors,
             CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
         };
@@ -116,6 +116,7 @@ internal static class PauseMenuFixtureVerification
             InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes, InstalledAreaMapPresentation.CeresRidleyColorsOf(stock),
             InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(stock), InstalledAreaMapPresentation.EscapeTimerTilesOf(stock),
             InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock),
-            InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(stock), InstalledAreaMapPresentation.MotherBrainRoomColorsOf(stock)));
+            InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(stock), InstalledAreaMapPresentation.MotherBrainRoomColorsOf(stock),
+            InstalledAreaMapPresentation.RoomFxPaletteBlendsOf(stock)));
     }
 }

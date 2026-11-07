@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Which colour of a room-FX blend pair an entry is.</summary>
 public enum RoomFxPairMember

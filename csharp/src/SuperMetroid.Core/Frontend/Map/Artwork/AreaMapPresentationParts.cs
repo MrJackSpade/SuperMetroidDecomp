@@ -103,8 +103,8 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public required MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; init; }
 
-    /// <summary>Selected room-FX palette-blend presentation, separate from effect overlay page geometry and animated character bytes.</summary>
-    public required RoomFxBlendInks RoomFxPaletteBlends { get; init; }
+    /// <summary>The Ceres haze's installed tints.</summary>
+    public required CeresHazeTints CeresHaze { get; init; }
 
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public required InstalledPowerBombFixedColors PowerBombFixedColors { get; init; }

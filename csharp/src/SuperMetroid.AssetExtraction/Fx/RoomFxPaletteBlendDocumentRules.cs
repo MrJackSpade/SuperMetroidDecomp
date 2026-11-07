@@ -21,7 +21,7 @@ public static class RoomFxPaletteBlendDocumentRules
     /// after counter15 was the final written amplitude. Calculate that selected RGB
     /// axis directly instead of retaining two default tint records.
     /// </summary>
-    public static RgbColor StockCeresHaze(CeresHazeColor color) => RoomFxPaletteBlendRules.StockCeresHazeTint(color == CeresHazeColor.Red);
+    public static RgbColor StockCeresHaze(CeresHazeColor color) => CeresHazeTints.Stock.For(color == CeresHazeColor.Red);
 
     /// <summary>The eight named retail blend resources in document order, without stored identities.</summary>
     public static IEnumerable<RoomFxPaletteBlend> Ids

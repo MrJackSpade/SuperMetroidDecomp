@@ -28,12 +28,12 @@ internal static class LookupCeresDefaultTintsVerification
         {
             ushort channelFlags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
             int expected = (channelFlags & channelMask) != 0 ? stopCounter - 1 : 0;
-            var scalar = RoomFxPaletteBlendRules.StockCeresHazeTint(dead);
+            var scalar = CeresHazeTints.Stock.For(dead);
             AssertEqual(expected, channelMask == 0x20 ? scalar.Red : channelMask == 0x40 ? scalar.Green : scalar.Blue,
                 "Scalar tint view uses the same native component");
             AssertEqual(expected, component(RoomFxPaletteBlendDocumentRules.StockCeresHaze(dead ? CeresHazeColor.Red : CeresHazeColor.Blue)), "Original Ceres default channel/amplitude");
             AssertEqual(expected, component(dead ? RoomFxPaletteBlendDocumentRules.StockCeresHazeRed : RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue), "Named default tint alias");
-            AssertEqual(expected, component(dead ? stock.CeresHazeRed : stock.CeresHazeBlue), "Imported default tint channel");
+            AssertEqual(expected, component(stock.CeresHaze.For(dead)), "Imported default tint channel");
         }
     }
 

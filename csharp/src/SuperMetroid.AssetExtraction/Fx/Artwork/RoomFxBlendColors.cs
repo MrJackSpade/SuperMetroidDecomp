@@ -1,14 +1,13 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Loaded artwork inks with calculated components separated from arbitrary edits.</summary>
 /// <remarks>
-/// Native89:AA02+selector supplies primary/secondary/background inks copied by89:AB5E
-/// to the effect overlay's palette 25..27. The remaining24 independent channels specify each theme's
-/// chosen hue/brightness, not samples of time or distance. Index interpolation or
-/// fitted color transforms would merely recite those choices as code. Their specific
-/// artistic-content/nonsense dispositions are in roomFxIndependentInkReview in the
-/// issue1165 inventory;48 uniform/shared channels are calculated independently.
+/// The blend's three colours are the effect overlay's primary, secondary and background inks. Its independent channels
+/// specify each theme's chosen hue and brightness, not samples of time or distance; the uniform and shared channels are
+/// calculated by <see cref="RoomFxPaletteBlendRules"/>.
 /// </remarks>
 internal sealed class RoomFxBlendColors
 {
@@ -26,4 +25,8 @@ internal sealed class RoomFxBlendColors
         this.secondary = new(selection, secondary, RoomFxPairMember.Secondary);
         thirdOverride = RoomFxPaletteBlendRules.CalculatedThirdColor(selection) == third ? null : new(selection, third);
     }
+
+    /// <summary>The three resulting blend colours, in order.</summary>
+    internal IReadOnlyList<RgbColor> Colours() =>
+        [primary.CreateColor(), secondary.CreateColor(), thirdOverride?.CreateColor() ?? RgbColor.Black];
 }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 

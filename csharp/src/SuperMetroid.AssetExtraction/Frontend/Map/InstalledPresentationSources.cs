@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
@@ -33,6 +34,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="RoomFxAnimatedTiles">The animated tiles' installed characters, which room sheets and the Tourian statues' pictures are composed from (#1527).</param>
 /// <param name="MotherBrainHealthPalette">Mother Brain's health-band colours, which her sheets and body layer are pre-coloured from (#1527).</param>
 /// <param name="MotherBrainRoomColors">Mother Brain's room colours, which her room's pictures and sheets are pre-coloured from (#1527).</param>
+/// <param name="RoomFxPaletteBlends">The room-FX blends, which the effect overlay pictures are pre-coloured with (#1527).</param>
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
     GameplayMessageArtwork Messages,
@@ -51,4 +53,5 @@ internal sealed record InstalledPresentationSources(
     EscapeTimerCharacters EscapeTimerTiles,
     RoomFxAnimatedTileAtlas RoomFxAnimatedTiles,
     MotherBrainHealthPalettePresentation MotherBrainHealthPalette,
-    MotherBrainRoomColorPresentation MotherBrainRoomColors);
+    MotherBrainRoomColorPresentation MotherBrainRoomColors,
+    RoomFxBlendInks RoomFxPaletteBlends);

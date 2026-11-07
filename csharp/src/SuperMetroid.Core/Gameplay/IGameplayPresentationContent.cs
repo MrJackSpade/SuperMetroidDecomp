@@ -29,8 +29,8 @@ public interface IGameplayPresentationContent : IAreaMapSource
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
 
-    /// <summary>Selected room-FX palette-blend presentation, separate from effect-overlay tilemap geometry and animated character bytes.</summary>
-    RoomFxBlendInks RoomFxPaletteBlends { get; }
+    /// <summary>The Ceres haze's installed tints.</summary>
+    CeresHazeTints CeresHaze { get; }
 
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     InstalledPowerBombFixedColors PowerBombFixedColors { get; }

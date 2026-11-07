@@ -1,20 +1,14 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.Artwork;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>
-/// The room-FX palette blends' rules: the stock Ceres haze tint and the colour channels blends share or calculate.
+/// The room-FX palette blends' rules: the colour channels blends share or calculate, which the import reads to separate a
+/// blend's edits from its calculated channels.
 /// </summary>
 public static class RoomFxPaletteBlendRules
 {
-    /// <summary>
-    /// The stock Ceres haze tint: blue while Ridley lives, red once he is dead, at the final amplitude the haze fades in
-    /// to, as a colour value without constructing a per-scanline record.
-    /// </summary>
-    internal static RgbColor StockCeresHazeTint(bool ridleyIsDead) =>
-        new(ridleyIsDead ? CeresHazeDefinitions.FadeSteps - 1 : 0, 0,
-            ridleyIsDead ? 0 : CeresHazeDefinitions.FadeSteps - 1);
-
     /// <summary>Requires one of the eight authored nonzero palette blend selectors.</summary>
     private static void ValidateSelector(RoomFxPaletteBlend id)
     {

@@ -53,7 +53,7 @@ public static class GameplayDisplayCapture
                 else AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(fx, FxOverlay(latched)));
             }
             if (live.CeresHaze is { } haze)
-                AddLayer(GameplayEffectCapture.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.RoomFxPaletteBlends));
+                AddLayer(GameplayEffectCapture.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.CeresHazeTints));
             if (latched.MorphBallEyeBeam is { } eye)
                 AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, scrolls.ForegroundPosition));
             if (rainbow is { } beam)

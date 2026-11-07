@@ -132,7 +132,7 @@ internal sealed class BeamCombos
             _ => throw new ArgumentOutOfRangeException(nameof(comboData), comboData, "Undefined combo data."),
         };
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction.ToAimIndex() : 0);
+        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction.ToAimIndex() : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.FrameHold = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)

@@ -9,91 +9,91 @@ internal static class SamusProjectileHeaders
     /// The programs <paramref name="header"/>'s list fields name, in direction order: every list a projectile started
     /// from the header can begin with, whichever direction it is fired in.
     /// </summary>
-    internal static IEnumerable<SamusProjectileProgram> Programs(SamusProjectileHeader header) =>
-        Layout(header).Fields.OfType<SamusProjectileProgram>();
+    internal static IEnumerable<SamusProjectileProgram> Programs(SamusProjectileHeader header) => DirectionPrograms(header);
 
-    /// <summary><paramref name="header"/>'s list fields.</summary>
-    private static ProjectileHeaderLayout Layout(SamusProjectileHeader header) => header switch
+    /// <summary>
+    /// The program a shot from <paramref name="header"/> starts in each firing direction, by aim index; a header whose shots
+    /// start one program whatever their direction holds only that one.
+    /// </summary>
+    private static SamusProjectileProgram[] DirectionPrograms(SamusProjectileHeader header) => header switch
         {
         // Power
-        SamusProjectileHeader.UnchargedPower => new ProjectileHeaderLayout([P.PowerUpFacingRight, P.PowerUpRight, P.PowerRight, P.PowerDownRight, P.PowerDownFacingRight, P.PowerDownFacingRight, P.PowerDownLeft, P.PowerLeft, P.PowerUpLeft, P.PowerUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedPower => [P.PowerUpFacingRight, P.PowerUpRight, P.PowerRight, P.PowerDownRight, P.PowerDownFacingRight, P.PowerDownFacingRight, P.PowerDownLeft, P.PowerLeft, P.PowerUpLeft, P.PowerUpFacingRight],
         // Wave
-        SamusProjectileHeader.UnchargedWave => new ProjectileHeaderLayout([P.WaveUpFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveDownFacingRight, P.WaveDownFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedWave => [P.WaveUpFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveDownFacingRight, P.WaveDownFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveUpFacingRight],
         // Ice
-        SamusProjectileHeader.UnchargedIce => new ProjectileHeaderLayout([P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedIce => [P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight, P.IceUpFacingRight],
         // IceWave
-        SamusProjectileHeader.UnchargedIceWave => new ProjectileHeaderLayout([P.WaveUpFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveDownFacingRight, P.WaveDownFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedIceWave => [P.WaveUpFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveDownFacingRight, P.WaveDownFacingRight, P.WaveUpRight, P.WaveRight, P.WaveDownRight, P.WaveUpFacingRight],
         // Spazer
-        SamusProjectileHeader.UnchargedSpazer => new ProjectileHeaderLayout([P.SpazerUpFacingRight, P.SpazerUpRight, P.SpazerRight, P.SpazerDownRight, P.SpazerDownFacingRight, P.SpazerDownFacingRight, P.SpazerDownLeft, P.SpazerLeft, P.SpazerUpLeft, P.SpazerUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedSpazer => [P.SpazerUpFacingRight, P.SpazerUpRight, P.SpazerRight, P.SpazerDownRight, P.SpazerDownFacingRight, P.SpazerDownFacingRight, P.SpazerDownLeft, P.SpazerLeft, P.SpazerUpLeft, P.SpazerUpFacingRight],
         // SpazerWave
-        SamusProjectileHeader.UnchargedSpazerWave => new ProjectileHeaderLayout([P.SpazerWaveUpFacingRight, P.SpazerWaveUpRight, P.SpazerWaveRight, P.SpazerWaveDownRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownLeft, P.SpazerWaveLeft, P.SpazerWaveUpLeft, P.SpazerWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedSpazerWave => [P.SpazerWaveUpFacingRight, P.SpazerWaveUpRight, P.SpazerWaveRight, P.SpazerWaveDownRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownLeft, P.SpazerWaveLeft, P.SpazerWaveUpLeft, P.SpazerWaveUpFacingRight],
         // SpazerIce
-        SamusProjectileHeader.UnchargedSpazerIce => new ProjectileHeaderLayout([P.SpazerUpFacingRight, P.SpazerUpRight, P.SpazerRight, P.SpazerDownRight, P.SpazerDownFacingRight, P.SpazerDownFacingRight, P.SpazerDownLeft, P.SpazerLeft, P.SpazerUpLeft, P.SpazerUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedSpazerIce => [P.SpazerUpFacingRight, P.SpazerUpRight, P.SpazerRight, P.SpazerDownRight, P.SpazerDownFacingRight, P.SpazerDownFacingRight, P.SpazerDownLeft, P.SpazerLeft, P.SpazerUpLeft, P.SpazerUpFacingRight],
         // SpazerIceWave
-        SamusProjectileHeader.UnchargedSpazerIceWave => new ProjectileHeaderLayout([P.SpazerWaveUpFacingRight, P.SpazerWaveUpRight, P.SpazerWaveRight, P.SpazerWaveDownRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownLeft, P.SpazerWaveLeft, P.SpazerWaveUpLeft, P.SpazerWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedSpazerIceWave => [P.SpazerWaveUpFacingRight, P.SpazerWaveUpRight, P.SpazerWaveRight, P.SpazerWaveDownRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownFacingRight, P.SpazerWaveDownLeft, P.SpazerWaveLeft, P.SpazerWaveUpLeft, P.SpazerWaveUpFacingRight],
         // Plasma
-        SamusProjectileHeader.UnchargedPlasma => new ProjectileHeaderLayout([P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight, P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedPlasma => [P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight, P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight],
         // PlasmaWave
-        SamusProjectileHeader.UnchargedPlasmaWave => new ProjectileHeaderLayout([P.PlasmaWaveUpFacingRight, P.PlasmaWaveUpRight, P.PlasmaWaveRight, P.PlasmaWaveDownRight, P.PlasmaWaveUpFacingRight, P.PlasmaWaveUpFacingRight, P.PlasmaWaveUpRight, P.PlasmaWaveRight, P.PlasmaWaveDownRight, P.PlasmaWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedPlasmaWave => [P.PlasmaWaveUpFacingRight, P.PlasmaWaveUpRight, P.PlasmaWaveRight, P.PlasmaWaveDownRight, P.PlasmaWaveUpFacingRight, P.PlasmaWaveUpFacingRight, P.PlasmaWaveUpRight, P.PlasmaWaveRight, P.PlasmaWaveDownRight, P.PlasmaWaveUpFacingRight],
         // PlasmaIce
-        SamusProjectileHeader.UnchargedPlasmaIce => new ProjectileHeaderLayout([P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight, P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedPlasmaIce => [P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight, P.PlasmaUpFacingRight, P.PlasmaUpRight, P.PlasmaRight, P.PlasmaDownRight, P.PlasmaUpFacingRight],
         // PlasmaIceWave
-        SamusProjectileHeader.UnchargedPlasmaIceWave => new ProjectileHeaderLayout([P.PlasmaIceWaveUpFacingRight, P.PlasmaIceWaveUpRight, P.PlasmaWaveRight, P.PlasmaIceWaveDownRight, P.PlasmaIceWaveUpFacingRight, P.PlasmaIceWaveUpFacingRight, P.PlasmaIceWaveUpRight, P.PlasmaWaveRight, P.PlasmaIceWaveDownRight, P.PlasmaIceWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.UnchargedPlasmaIceWave => [P.PlasmaIceWaveUpFacingRight, P.PlasmaIceWaveUpRight, P.PlasmaWaveRight, P.PlasmaIceWaveDownRight, P.PlasmaIceWaveUpFacingRight, P.PlasmaIceWaveUpFacingRight, P.PlasmaIceWaveUpRight, P.PlasmaWaveRight, P.PlasmaIceWaveDownRight, P.PlasmaIceWaveUpFacingRight],
         // ChargedPower
-        SamusProjectileHeader.ChargedPower => new ProjectileHeaderLayout([P.ChargedPowerUpFacingRight, P.ChargedPowerUpRight, P.ChargedPowerRight, P.ChargedPowerDownRight, P.ChargedPowerDownFacingRight, P.ChargedPowerDownFacingRight, P.ChargedPowerDownLeft, P.ChargedPowerLeft, P.ChargedPowerUpLeft, P.ChargedPowerUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedPower => [P.ChargedPowerUpFacingRight, P.ChargedPowerUpRight, P.ChargedPowerRight, P.ChargedPowerDownRight, P.ChargedPowerDownFacingRight, P.ChargedPowerDownFacingRight, P.ChargedPowerDownLeft, P.ChargedPowerLeft, P.ChargedPowerUpLeft, P.ChargedPowerUpFacingRight],
         // ChargedWave
-        SamusProjectileHeader.ChargedWave => new ProjectileHeaderLayout([P.ChargedWaveUpFacingRight, P.ChargedWaveUpRight, P.ChargedWaveRight, P.ChargedWaveDownRight, P.ChargedWaveDownFacingRight, P.ChargedWaveDownFacingRight, P.ChargedWaveUpRight, P.ChargedWaveRight, P.ChargedWaveDownRight, P.ChargedWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedWave => [P.ChargedWaveUpFacingRight, P.ChargedWaveUpRight, P.ChargedWaveRight, P.ChargedWaveDownRight, P.ChargedWaveDownFacingRight, P.ChargedWaveDownFacingRight, P.ChargedWaveUpRight, P.ChargedWaveRight, P.ChargedWaveDownRight, P.ChargedWaveUpFacingRight],
         // ChargedIce
-        SamusProjectileHeader.ChargedIce => new ProjectileHeaderLayout([P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedIce => [P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight, P.ChargedIceUpFacingRight],
         // ChargedIceWave
-        SamusProjectileHeader.ChargedIceWave => new ProjectileHeaderLayout([P.ChargedIceWaveUpFacingRight, P.ChargedIceWaveUpRight, P.ChargedIceWaveRight, P.ChargedIceWaveDownRight, P.ChargedIceWaveDownFacingRight, P.ChargedIceWaveDownFacingRight, P.ChargedIceWaveUpRight, P.ChargedIceWaveRight, P.ChargedIceWaveDownRight, P.ChargedIceWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedIceWave => [P.ChargedIceWaveUpFacingRight, P.ChargedIceWaveUpRight, P.ChargedIceWaveRight, P.ChargedIceWaveDownRight, P.ChargedIceWaveDownFacingRight, P.ChargedIceWaveDownFacingRight, P.ChargedIceWaveUpRight, P.ChargedIceWaveRight, P.ChargedIceWaveDownRight, P.ChargedIceWaveUpFacingRight],
         // ChargedSpazer
-        SamusProjectileHeader.ChargedSpazer => new ProjectileHeaderLayout([P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedSpazer => [P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight],
         // ChargedSpazerWave
-        SamusProjectileHeader.ChargedSpazerWave => new ProjectileHeaderLayout([P.ChargedSpazerWaveUpFacingRight, P.ChargedSpazerWaveUpRight, P.ChargedSpazerWaveRight, P.ChargedSpazerWaveDownRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownLeft, P.ChargedSpazerWaveLeft, P.ChargedSpazerWaveUpLeft, P.ChargedSpazerWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedSpazerWave => [P.ChargedSpazerWaveUpFacingRight, P.ChargedSpazerWaveUpRight, P.ChargedSpazerWaveRight, P.ChargedSpazerWaveDownRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownLeft, P.ChargedSpazerWaveLeft, P.ChargedSpazerWaveUpLeft, P.ChargedSpazerWaveUpFacingRight],
         // ChargedSpazerIce
-        SamusProjectileHeader.ChargedSpazerIce => new ProjectileHeaderLayout([P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedSpazerIce => [P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpFacingRight, P.ChargedSpazerUpRight, P.ChargedSpazerRight, P.ChargedSpazerDownRight, P.ChargedSpazerUpFacingRight],
         // ChargedSpazerIceWave
-        SamusProjectileHeader.ChargedSpazerIceWave => new ProjectileHeaderLayout([P.ChargedSpazerWaveUpFacingRight, P.ChargedSpazerWaveUpRight, P.ChargedSpazerWaveRight, P.ChargedSpazerWaveDownRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownLeft, P.ChargedSpazerWaveLeft, P.ChargedSpazerWaveUpLeft, P.ChargedSpazerWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedSpazerIceWave => [P.ChargedSpazerWaveUpFacingRight, P.ChargedSpazerWaveUpRight, P.ChargedSpazerWaveRight, P.ChargedSpazerWaveDownRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownFacingRight, P.ChargedSpazerWaveDownLeft, P.ChargedSpazerWaveLeft, P.ChargedSpazerWaveUpLeft, P.ChargedSpazerWaveUpFacingRight],
         // ChargedPlasma
-        SamusProjectileHeader.ChargedPlasma => new ProjectileHeaderLayout([P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedPlasma => [P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight],
         // ChargedPlasmaWave
-        SamusProjectileHeader.ChargedPlasmaWave => new ProjectileHeaderLayout([P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedPlasmaWave => [P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight],
         // ChargedPlasmaIce
-        SamusProjectileHeader.ChargedPlasmaIce => new ProjectileHeaderLayout([P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedPlasmaIce => [P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpFacingRight, P.ChargedPlasmaUpRight, P.ChargedPlasmaRight, P.ChargedPlasmaDownRight, P.ChargedPlasmaUpFacingRight],
         // ChargedPlasmaIceWave
-        SamusProjectileHeader.ChargedPlasmaIceWave => new ProjectileHeaderLayout([P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ChargedPlasmaIceWave => [P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight],
         // Missile
-        SamusProjectileHeader.Missile => new ProjectileHeaderLayout([P.MissileUpFacingRight, P.MissileUpRight, P.MissileRight, P.MissileDownRight, P.MissileDownFacingRight, P.MissileDownFacingRight, P.MissileDownLeft, P.MissileLeft, P.MissileUpLeft, P.MissileUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.Missile => [P.MissileUpFacingRight, P.MissileUpRight, P.MissileRight, P.MissileDownRight, P.MissileDownFacingRight, P.MissileDownFacingRight, P.MissileDownLeft, P.MissileLeft, P.MissileUpLeft, P.MissileUpFacingRight],
         // SuperMissile
-        SamusProjectileHeader.SuperMissile => new ProjectileHeaderLayout([P.SuperMissileUpFacingRight, P.SuperMissileUpRight, P.SuperMissileRight, P.SuperMissileDownRight, P.SuperMissileDownFacingRight, P.SuperMissileDownFacingRight, P.SuperMissileDownLeft, P.SuperMissileLeft, P.SuperMissileUpLeft, P.SuperMissileUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.SuperMissile => [P.SuperMissileUpFacingRight, P.SuperMissileUpRight, P.SuperMissileRight, P.SuperMissileDownRight, P.SuperMissileDownFacingRight, P.SuperMissileDownFacingRight, P.SuperMissileDownLeft, P.SuperMissileLeft, P.SuperMissileUpLeft, P.SuperMissileUpFacingRight],
         // SuperMissileLink
-        SamusProjectileHeader.SuperMissileLink => new ProjectileHeaderLayout([P.SuperMissileLink], 0),
+        SamusProjectileHeader.SuperMissileLink => [P.SuperMissileLink],
         // PowerBomb
-        SamusProjectileHeader.PowerBomb => new ProjectileHeaderLayout([P.PowerBomb], 0),
+        SamusProjectileHeader.PowerBomb => [P.PowerBomb],
         // Bomb
-        SamusProjectileHeader.Bomb => new ProjectileHeaderLayout([P.Bomb], 0),
+        SamusProjectileHeader.Bomb => [P.Bomb],
         // PlasmaSBA
-        SamusProjectileHeader.PlasmaSBA => new ProjectileHeaderLayout([P.PlasmaSBA], 0),
+        SamusProjectileHeader.PlasmaSBA => [P.PlasmaSBA],
         // WaveSBA
-        SamusProjectileHeader.WaveSBA => new ProjectileHeaderLayout([P.WaveSBA], 0),
+        SamusProjectileHeader.WaveSBA => [P.WaveSBA],
         // SpazerSBA
-        SamusProjectileHeader.SpazerSBA => new ProjectileHeaderLayout([P.SpazerUpFacingRight], 0),
+        SamusProjectileHeader.SpazerSBA => [P.SpazerUpFacingRight],
         // SpazerSBATrail
-        SamusProjectileHeader.SpazerSBATrail => new ProjectileHeaderLayout([P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.SpazerSBATrail => [P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight, P.SpazerSBATrailUpFacingRight],
         // ShinesparkEcho
-        SamusProjectileHeader.ShinesparkEcho => new ProjectileHeaderLayout([P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight], 0b0000000000),
+        SamusProjectileHeader.ShinesparkEcho => [P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight],
             _ => throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header."),
         };
 
-    /// <summary>The program <paramref name="header"/>'s list field <paramref name="direction"/> selects, or null for no list.</summary>
-    internal static SamusProjectileProgram? Program(SamusProjectileHeader header, int direction)
+    /// <summary>The program a shot from <paramref name="header"/> fired in aim direction <paramref name="direction"/> starts.</summary>
+    internal static SamusProjectileProgram Program(SamusProjectileHeader header, int direction)
     {
-        ProjectileHeaderLayout layout = Layout(header);
-        if ((uint)direction >= layout.Fields.Length)
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Projectile header {header} keeps {layout.Fields.Length} list fields; no shot reads it in another direction.");
-        return layout.Fields[direction] is { } program ? program
-            : (layout.Empty & 1 << direction) != 0 ? null
-            : throw new InvalidDataException($"Projectile header {header} field {direction} is not a list.");
+        SamusProjectileProgram[] programs = DirectionPrograms(header);
+        if ((uint)direction >= programs.Length)
+            throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Projectile header {header} keeps {programs.Length} direction programs; no shot reads it in another direction.");
+        return programs[direction];
     }
 }

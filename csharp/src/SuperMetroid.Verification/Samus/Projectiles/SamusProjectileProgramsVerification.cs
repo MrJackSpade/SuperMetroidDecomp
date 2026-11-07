@@ -89,12 +89,9 @@ internal static class SamusProjectileProgramsVerification
             {
                 ushort native = Word(header + sizeof(ushort) * (1 + field));
                 string at = $"projectile header $93:{header:X4} field {field}";
-                if (native == 0)
-                    AssertEqual(null, SamusProjectileHeaders.Program(header, field), $"{at}: no list");
-                else if (byEntry.TryGetValue(native, out SamusProjectileProgram program))
-                    AssertEqual(program, SamusProjectileHeaders.Program(header, field), $"{at}: list");
-                else
-                    AssertThrows<InvalidDataException>(() => SamusProjectileHeaders.Program(header, field), $"{at}: a word that is not a list fails");
+                if (!byEntry.TryGetValue(native, out SamusProjectileProgram program))
+                    throw new InvalidDataException($"{at}: native word ${native:X4} is not a list, but every header field the port keeps names one.");
+                AssertEqual(program, SamusProjectileHeaders.Program(header, field), $"{at}: list");
             }
         }
         ushort powerBomb = SamusProjectileHeaderNative.Address(SamusProjectileHeader.PowerBomb);
@@ -137,7 +134,7 @@ internal static class SamusProjectileProgramsVerification
     /// <summary>
     /// Compares every selection the port makes with the cartridge selector word that makes it, a Spazer and Plasma
     /// combination's read past its table included, and every header's own words (its damage, and each list field it
-    /// holds as the entry of the typed program the field selects, zero for none) with the cartridge's.
+    /// holds as the entry of the typed program the field selects) with the cartridge's.
     /// </summary>
     /// <param name="word">Reads the cartridge word at a bank-$93 address.</param>
     /// <param name="label">Names the check in its failures.</param>
@@ -159,7 +156,7 @@ internal static class SamusProjectileProgramsVerification
             int fields = FirstListOnlyHeaders.Contains(header) ? 1 : HeaderListFields;
             for (int field = 0; field < fields; field++, compared++)
                 AssertEqual(word(at + sizeof(ushort) * (1 + field)),
-                    SamusProjectileHeaders.Program(header, field) is { } program ? SamusProjectileProgramAddresses.Entry(program) : (ushort)0,
+                    SamusProjectileProgramAddresses.Entry(SamusProjectileHeaders.Program(header, field)),
                     $"{label}: {header} list field {field}");
         }
         return compared;

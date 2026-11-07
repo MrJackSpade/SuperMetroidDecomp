@@ -37500,19 +37500,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresFloorAnimationFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresFloorAnimationFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresHazeRenderSnapshot",
       "kind": "record struct",
       "scope": "product",
@@ -95015,6 +95002,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Fx.Artwork.FxOverlayPagePictures",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/Artwork/FxOverlayPagePictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteColorDefinitionsAddressAccess",
       "kind": "static class",
       "scope": "test",
@@ -103039,19 +103039,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Hud.ShownMessage",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hud/ShownMessage.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.IdentitySequence\u003CT\u003E",
       "kind": "class",
       "scope": "product",
@@ -106863,6 +106850,19 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Rooms/Backgrounds/BlockCellWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.CeresFloorAnimationFrame",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/CeresFloorAnimationFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -117011,6 +117011,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Scrolling/SkyScrollSection.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.ShownMessage",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/ShownMessage.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -138013,6 +138026,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Enemies.SpawnedObjectSheetClosedContractDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ResourceAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Enemies/SpawnedObjectSheetClosedContractDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Enemies.SpawnedObjectSheetContractChecks",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ResourceAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Enemies/SpawnedObjectSheetContractChecks.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.ResourceAudit.ClosedContracts.Enemies.WorkRobotResourceChecks",
       "kind": "static class",
       "scope": "tool",
@@ -138414,6 +138453,32 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomPictureClosedContractDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ResourceAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomPictureClosedContractDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomPicturePresentationContractChecks",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ResourceAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomPicturePresentationContractChecks.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomRevealClosedContractDefinitions",

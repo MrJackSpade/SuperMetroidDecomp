@@ -30,7 +30,21 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("/// <summary>Excluded from debugger-state serialization.</summary>\nclass P { }", "('debugger')");
         Expect("class P { /* exposed so frame-by-frame debugging is useful */ }", "('debugging')");
         Expect("class P { string Name => \"Debugger watch\"; }", "('Debugger')");
+        // Save RAM, RAM, the sprite and background layers, unsigned and byte citations, disassembly files, routine labels and
+        // natively (#1528).
+        Expect("class P { /// <summary>Copied into SRAM at save.</summary>\nvoid Save() { } }", "('SRAM')");
+        Expect("class P { // the word lives in RAM\n }", "('RAM')");
+        Expect("/// <summary>Draws the OBJ layer.</summary>\nclass P { }", "('OBJ')");
+        Expect("class P { /* scrolls BG2 with the floor */ }", "('BG2')");
+        Expect("class P { /// <summary>The routine at 88:DE43.</summary>\nvoid Run() { } }", "('88:DE43')");
+        Expect("class P { // the timer starts at $1E\n }", "('$1E')");
+        Expect("class P { /// <summary>Matches bank_87.asm.</summary>\nvoid Run() { } }", "('bank_87.asm')");
+        Expect("class P { // as Handle_MapScrollArrows does\n }", "('Handle_MapScrollArrows')");
+        Expect("class P { /* the game natively wraps it */ }", "('natively')");
+        // Routine labels are read only in comments: a string literal's underscore-joined frame name is a presentation key.
+        Expect("class P { string Frame => \"mother_brain_body_initial\"; }");
         // Identifiers are not prose, and a word that only begins the same is not the term.
+        Expect("class P { /// <summary>The ramp, the object and the background fade up; time is 12:30.</summary>\nint Ram => 0; }");
         Expect("class P { bool Debugger => false; int DirectPage => 0; }");
         Expect("/// <summary>The cursor moves directly to the next page; the debug grapple selection stays.</summary>\nclass P { }");
         // Outside Core the rule reads nothing.

@@ -41,7 +41,7 @@ internal sealed class CreditsObjectState
     /// <summary>Whole-pixel credits scroll position the roll's plane is drawn at.</summary>
     public Position16<PlanePixels> ScrollPosition => scroll.Whole;
 
-    /// <summary>Runs one <c>CreditsObject_Process</c> call: scrolls, and takes the next row or finishes on each row boundary.</summary>
+    /// <summary>Runs one credits-object step: scrolls, and takes the next row or finishes on each row boundary.</summary>
     public void Step()
     {
         if (!Enabled)

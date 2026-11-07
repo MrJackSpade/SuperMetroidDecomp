@@ -60,7 +60,7 @@ internal static class CeresDestructionActors
                 flight.HorizontalDelta, flight.WrapX, 0, null, false),
             1 => new(                flight.ActiveFrameBehavior, flight.Program, flight.Position,
                 flight.Colouring, flight.HorizontalDelta, flight.WrapX, 0, null, false),
-            // Parameter zero makes BFA0 replace BFC6 with the BFD9 no-op and use X=$70.
+            // Parameter zero makes the vortex's setup replace its moving callback with the no-op and use X=112.
             2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Colouring,
                 0, false, 0, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),

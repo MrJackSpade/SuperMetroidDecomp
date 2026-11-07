@@ -24,8 +24,8 @@ internal static class IntroEggEffectDefinitions
     /// one for each of f=0..4. All 35 bytes and five animation references
     /// match the original data.
     /// Each record has count one, encoded X=508, Y=252, and attributes
-    /// palette seven, priority three, and a tile. Tiles are $10D+f for f=0..2, then
-    /// $10D+$10*(f-2) for f=3..4: $10D/$10E/$10F/$11D/$12D.
+    /// palette seven, priority three, and a tile. Tiles are 269+f for f=0..2, then
+    /// 269+16*(f-2) for f=3..4: 269/270/271/285/301.
     /// These are authored artwork choices; preserve the five bounded tile
     /// identities and do not infer a sixth frame from adjacent data.
     /// </remarks>

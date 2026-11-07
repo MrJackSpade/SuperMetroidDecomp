@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// The pause screen <c>GameState_13</c> sets up (#1358): the installed artwork and pictures it draws, each in the colours
+/// The pause screen the pause setup builds (#1358): the installed artwork and pictures it draws, each in the colours
 /// the import pre-coloured it in (#1512), its backdrop and its sprite entries. It publishes these; the capture composes
 /// them, so pause owns no display memory.
 /// </summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 /// <remarks>
 /// The Ceres room's main routine owns admission to this sequence, while the outer dispatcher
-/// owns the subsequent states $20 and $21. Keeping this object outside the room state is
+/// owns the subsequent elevator-hold and blackout states. Keeping this object outside the room state is
 /// intentional: the room continues running through both states, but it cannot restart the
 /// departure because its <c>game_state == 8</c> predicate no longer succeeds.
 /// </remarks>
@@ -17,16 +17,16 @@ public sealed class CeresDepartureState
     /// <summary>Current portion of the departure sequence.</summary>
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
-    /// <summary>Live state-$20 countdown seeded to 60 by Samus code two.</summary>
+    /// <summary>Live elevator-hold countdown seeded to 60 by Samus code two.</summary>
     public int HoldFramesRemaining { get; private set; }
 
     /// <summary>
-    /// Master brightness during the state-$21 fade, from fifteen (full) down to zero (black); every step is
+    /// Master brightness during the blackout fade, from fifteen (full) down to zero (black); every step is
     /// guarded by the level above one, so the value never leaves that range.
     /// </summary>
     public int Brightness { get; private set; } = 15;
 
-    /// <summary>Starts state $20 from the room main's one-frame request.</summary>
+    /// <summary>Starts the elevator hold from the room main's one-frame request.</summary>
     /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>
     public void Begin()
     {
@@ -39,7 +39,7 @@ public sealed class CeresDepartureState
     }
 
     /// <summary>
-    /// Applies state <c>$20</c>'s post-gameplay decrement and reports the transition to $21.
+    /// Applies the elevator hold's post-gameplay decrement and reports the transition to the blackout.
     /// </summary>
     /// <returns>Whether the wrapping 16-bit countdown reached zero or signed underflow and entered the fade; the triggering admission frame is not counted.</returns>
     /// <exception cref="InvalidOperationException">The elevator-hold phase is not active.</exception>
@@ -48,7 +48,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.HoldingOnElevator)
             throw new InvalidOperationException("Ceres departure hold is not active.");
 
-        // The game decrements after GameState_8 returns, then accepts both zero and a count run past zero. Begin()
+        // The game decrements after the main gameplay state returns, then accepts both zero and a count run past zero. Begin()
         // always seeds 60 and the hold ends on its expiry, so zero is the reachable result.
         if (--HoldFramesRemaining > 0)
             return false;
@@ -58,7 +58,7 @@ public sealed class CeresDepartureState
     }
 
     /// <summary>
-    /// Applies one state-<c>$21</c> <c>HandleFadeOut</c> call after ordinary gameplay.
+    /// Applies one blackout fade-out call after ordinary gameplay.
     /// </summary>
     /// <returns>Whether brightness one went black and completed this timing owner; the caller owns checkpoint saving and cinematic dispatch.</returns>
     /// <exception cref="InvalidOperationException">The blackout-fade phase is not active.</exception>

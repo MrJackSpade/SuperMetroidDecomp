@@ -59,7 +59,7 @@ public sealed class FileSelectMapNavigation
                 // a direction/Select edge exists, also suppressing a simultaneous confirm.
                 if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
                         ControllerButton.Right | ControllerButton.Select)) != ControllerButton.None) break;
-                // Otherwise B wins over A/Start, and selecting keeps the SRAM area.
+                // Otherwise B wins over A/Start, and selecting keeps the saved area.
                 if (cancel) Phase = FileSelectMapNavigationPhase.OptionsRequested;
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
                 break;

@@ -14,7 +14,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathSequenceStart"/>.</summary>
     internal void DispatchDeathSequenceStart(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // State $13 deliberately completes one final state-eight pass under the
+        // The death sequence's first state deliberately completes one final state-eight pass under the
         // global freeze word, then snapshots the visible palette and makes every
         // target colour set black except Samus's sixteen-color suit set.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
@@ -88,7 +88,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
         if (session.DeathFade.Brightness == 0)
         {
             session.GameplayRuntime.Freeze.GameplayTimeFrozen = false;
-            // The game-over menu runs no gameplay owner: every exit reloads SRAM or
+            // The game-over menu runs no gameplay owner: every exit reloads the save file or
             // soft resets. Releasing the runtime leaves the frame clock with the
             // frontend, which keeps counting it, and the session's random generator, through the menu.
             session.ReleaseRuntime();

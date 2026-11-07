@@ -35,35 +35,35 @@ internal static class CeresFlightActorDefinitions
         HorizontalDelta: 0,
         WrapX: false);
 
-    /// <summary>CinematicSpriteObjectDefs_CeresExplosionLargeAsteroids.
+    /// <summary>The large asteroids of the Ceres explosion.
     /// Its initializer places it at (80,159), palette0800; its callback adds 1/4 pixel and masks X to nine bits;
     /// its animation is the large-asteroid loop. The destruction scene substitutes its own definition and animation.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresLargeAsteroids, CinematicSpriteProgram.CeresLargeAsteroid,
             new(80, 159), CeresSpriteColouring.SpaceObjects, 0, 16384, true);
 
-    /// <summary>CinematicSpriteObjectDefinitions_CeresUnderAttack.
+    /// <summary>The space station under attack.
     /// Its initializer places it at (116,160), palette0C00; its callback adds 1/16 pixel with nine-bit X wrap;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpriteFrameBehavior.CeresUnderAttack, CinematicSpriteProgram.CeresUnderAttack,
             new(116, 160), CeresSpriteColouring.Station, 0, 4096, true);
 
-    /// <summary>CinematicSpriteObjectDefinitions_CeresSmallAsteroids.
+    /// <summary>The small asteroids around Ceres.
     /// Its initializer places it at (128,96), palette0800; its callback adds 1/32 pixel with nine-bit X wrap;
     /// its animation is the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresSmallAsteroid, CinematicSpriteProgram.CeresSmallAsteroid,
             new(128, 96), CeresSpriteColouring.SpaceObjects, 0, 2048, true);
 
-    /// <summary>CinematicSpriteObjectDefinitions_CeresPurpleSpaceVortex, parameter1.
+    /// <summary>The purple space vortex, parameter1.
     /// Its initializer takes the nonzero branch to (224,87), palette0800, preserving the moving callback;
     /// its animation alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
     internal static CeresFlightActorDefinition MovingVortex =>
         new(CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex, CinematicSpriteProgram.CeresVortex,
             new(224, 87), CeresSpriteColouring.SpaceObjects, 0, VortexHorizontalDelta, false);
 
-    /// <summary>CinematicSpriteObjectDefinitions_CeresStars, parameter1.
+    /// <summary>The stars around Ceres, parameter1.
     /// Its initializer takes the nonzero branch: X=-32, Y87, palette0800, timer remains cleared;
     /// it replaces the star-field callback with the drifting one. The definition and animation alias FrontStars.</summary>
     internal static CeresFlightActorDefinition RearStars => FrontStars with

@@ -168,7 +168,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>True after the idle timeout's slow fade reaches the demo state.</summary>
     public bool DemoRequested { get; private set; }
 
-    /// <summary>State $2C's player-cancelled return skips the introductory title cards.</summary>
+    /// <summary>The player-cancelled return from the demo skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
         AudioQueues audio,
         TitleGradientPresentation? titleGradientPresentation = null,
@@ -292,7 +292,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
                 if (Brightness == 0)
                 {
-                    // HandleCinematicsTransitions_1 queues track six before
+                    // The cinematic transition queues track six before
                     // rebuilding the immediate title objects.
                     audio?.QueueMusic(
                         MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));

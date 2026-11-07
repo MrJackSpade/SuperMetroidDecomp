@@ -89,7 +89,7 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>
     /// Implements <c>PlaceIntroTextCaretOffScreen</c>. The retail game keeps
-    /// the same object slot alive between narration pages and visibly moves it to Y=$F8
+    /// the same object slot alive between narration pages and visibly moves it to Y=248
     /// while a gameplay or scientist illustration owns the screen.
     /// </summary>
     public void PlaceCaretOffScreen()
@@ -162,7 +162,7 @@ internal sealed class IntroCinematicObjectSystem
         EyeFrameHold = 1;
     }
 
-    /// <summary>Runs the same post-state-function object order as game state $25.</summary>
+    /// <summary>Runs the same post-state-function object order as the cinematic game state.</summary>
     /// <param name="newlyPressed">This frame's controller rising edges, read by the Japanese subtitles.</param>
     public void Step(ControllerButton newlyPressed)
     {
@@ -219,7 +219,7 @@ internal sealed class IntroCinematicObjectSystem
             return;
         if (narrationInitialMarkerPending)
         {
-            // Each page list opens with Instruction_HandleCreatingSubtitle_PageN.
+            // Each page list opens with the page's subtitle-creating instruction.
             subtitles.BeginPage(narrationPage ?? throw new InvalidDataException(
                 "Installed narration started without an active page identity."));
             narrationInitialMarkerPending = false;
@@ -287,7 +287,7 @@ internal sealed class IntroCinematicObjectSystem
             IntroFinishRequested = true;
             return;
         }
-        // Instruction_SpawnBlinkingMarkers_WaitForInput_PageN first
+        // The page's blinking-markers-and-wait instruction first
         // sets the caret blinking. Japanese pages two to five then wait for the press that
         // shows their second subtitle, whose object selects the page's input wait.
         SetCaretBlinking();
@@ -335,7 +335,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Moves the persistent caret onscreen and restarts its non-blinking sprite list.</summary>
     private void ResetCaret()
     {
-        // RestIntroTextCaret moves the persistent slot back from Y=$F8 before
+        // RestIntroTextCaret moves the persistent slot back from Y=248 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
         Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);
@@ -344,7 +344,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Points the existing caret slot at its blinking list and primes its timer.</summary>
     internal void SetCaretBlinking()
     {
-        // Instruction_SetCaretToBlink starts the existing slot's blinking program and primes timer
+        // The caret-blink instruction starts the existing slot's blinking program and primes timer
         // one, allowing the generic sprite handler to select the first frame now.
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaretBlink);
     }

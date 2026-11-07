@@ -7,7 +7,7 @@ internal static class EndingPostShotDefinitions
     public const int FinalTextMapHeight = 64;
     /// <summary>E48A adds maximum five-bit white; E504 decreases it each frame.</summary>
     public const int WhiteComponent = 31;
-    /// <summary>F604 queues library-one $22 through the max-fifteen sound queue.</summary>
+    /// <summary>The shot queues the charged plasma-wave sound through the max-fifteen sound queue.</summary>
     public static readonly SoundEffectId ShotSound = Library1Sound.ChargedPlasmaWave;
     /// <summary>F604 queues the shot through the max-fifteen entry point.</summary>
     public static SoundRequestPriority ShotSoundLimit { get; } = SoundRequestPriority.Essential;
@@ -21,9 +21,9 @@ internal static class EndingPostShotDefinitions
     public const int OffsetY = -8;
     /// <summary>Func126 initializes the reward turning-floor scale to nine times unity.</summary>
     public const int InitialScale = 2304;
-    /// <summary>Func139 reduces scale by $40 per frame.</summary>
+    /// <summary>The shrink step reduces scale by 64 per frame.</summary>
     public const int ScaleStep = 64;
-    /// <summary>Func139 clamps the completed rotation to $18.</summary>
+    /// <summary>The shrink step clamps the completed rotation to 24.</summary>
     public const int MinimumScale = 24;
     /// <summary>Func139 rotates eight angle units backwards each frame.</summary>
     public const int AngleStep = 8;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <param name="Supply">The reserve energy the three supply digits show.</param>
 internal sealed record ShownReserveDisplay(ReserveTankMode Mode, int Supply)
 {
-    /// <summary>The supply's decimal digits, hundreds first, as <c>Load_EquipmentScreen_ReserveHealth_Tilemap</c> splits it.</summary>
+    /// <summary>The supply's decimal digits, hundreds first, as the equipment screen's reserve display splits it.</summary>
     internal int[] Digits() =>
         [Supply / PauseReserveEnergyDefinitions.Hundred, Supply % PauseReserveEnergyDefinitions.Hundred / PauseReserveEnergyDefinitions.DecimalBase,
             Supply % PauseReserveEnergyDefinitions.DecimalBase];

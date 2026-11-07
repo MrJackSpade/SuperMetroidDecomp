@@ -18,7 +18,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     internal void DispatchReset()
     {
         session.Demo.Reset();
-        // `Vector_RESET_Async` ultimately stores state one and initializes
+        // The soft reset ultimately stores state one and initializes
         // the cinematic function to the opening.
         session.audio.Reset();
         // A soft reset discards every gameplay
@@ -150,7 +150,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 }
                 else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
                 {
-                    // The saved $1F word selects loading directly, without a map.
+                    // The saved new-game loading state selects loading directly, without a map.
                     session.GameState = SuperMetroidGameState.SetUpNewGame;
                     session.display.PublishBlack();
                 }
@@ -192,7 +192,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             // Starting a game publishes the Ceres state and reloads the slot in the same dispatch;
             // the Ceres loader runs on the next update. Gameplay owners are
-            // rebuilt from SRAM, so only the live RNG word survives.
+            // rebuilt from the save file, so only the live RNG word survives.
             session.Close<GameOverMenuState>();
             session.ContinueSavedGame();
             session.ReleaseRuntime();
@@ -208,7 +208,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
         else if (gameOver.TitleRequested)
         {
-            // GameOverMenu_7 invokes SoftReset only after its fade reaches black.
+            // The game-over menu's exit step soft-resets only after its fade reaches black.
             session.Close<GameOverMenuState>();
             session.GameState = SuperMetroidGameState.Reset;
             session.display.PublishBlack();

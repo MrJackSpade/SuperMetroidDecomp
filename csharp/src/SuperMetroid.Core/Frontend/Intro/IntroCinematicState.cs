@@ -17,7 +17,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Opening-cinematic state $1E, beginning with “The last Metroid is in captivity”.
+/// The opening cinematic state, beginning with “The last Metroid is in captivity”.
 /// </summary>
 /// <remarks>
 /// Construction ports the complete graphics setup. The visible state machine
@@ -543,7 +543,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             StepMotherBrainFlashbackSamus();
         }
 
-        // Game state $25 handles cinematic sprites after the active cinematic function and
+        // The cinematic game state handles cinematic sprites after the active cinematic function and
         // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
         // position during this same frame, exactly as the game does.
         if (CurrentFlashbackMotherBrain is not null)
@@ -581,7 +581,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             FlashbackMotherBrainExplosions?.Step(crossfadeCounter.RemainingFrames);
         }
 
-        // Handle_CinematicSpriteObjects runs after the cinematic function, so the
+        // The cinematic sprite handler runs after the cinematic function, so the
         // actors a scene setup spawns take their first step in that same dispatch.
         CurrentBabyDiscovery?.Step(FrameCounterWord(elapsedUpdates), crossfadeCounter.RemainingFrames);
         CurrentScientistCutscene?.Step(crossfadeCounter.RemainingFrames, introCrossfadeCounter.RemainingFrames);
@@ -632,7 +632,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Samus is processed, and drawn ahead of the cinematic objects.
         flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
 
-        // The scene setup replaces the target palette with kPalettes_Intro, decomposes every
+        // The scene setup replaces the target palette with the intro palettes, decomposes every
         // component, clears only the incoming gameplay ranges, and immediately composes.
         paletteFader = new CinematicPaletteFader();
         ClearPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
@@ -658,7 +658,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!crossfadeCounter.IsNegative)
             return;
 
-        // Transition completion sets TM=$15 and clears English words 128..767 to tile
+        // Transition completion selects the visible layers and clears English words 128..767 to tile
         // 47. The top/bottom ornamental rows survive because the loop starts at 128.
         ClearVisibleNarrationText();
         Phase = IntroCinematicPhase.MotherBrainFlashback;
@@ -979,7 +979,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
-            // When knockback ends humanoid knockback it selects pose $29/$2A and restores
+            // When knockback ends humanoid knockback it selects the right or left falling pose and restores
             // normal movement. The following frames therefore execute the ordinary type-6
             // fall until the room's collision reports the original laboratory floor.
             fallingMovement = SamusAerialMovement.StepFalling(
@@ -995,7 +995,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         if (!groundedDemoStepped)
             SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = FrameCounterWord(elapsedUpdates), Random = Random });
 
-        // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
+        // The delay list's pose-transition opcodes publish a prospective pose; they are not ordinary frame
         // delays. The intro-demo handler consumes that publication before the byte following the opcode
         // can ever be misread as another animation duration. This completes landing art's
         // A5 -> 02 transition instead of walking beyond its delay list.
@@ -1019,8 +1019,8 @@ level, samus, FrameCounterWord(elapsedUpdates));
         }
 
         // The intro-demo handler consumes the timer published by Rinka zero on the preceding cinematic-
-        // sprite pass. Keeping this after animation matches SamusNewStateHandler_IntroDemo:
-        // the hit frame finishes its standing animation before command one installs $53/$54.
+        // sprite pass. Keeping this after animation matches the intro demo's Samus state handler:
+        // the hit frame finishes its standing animation before command one installs the knockback pose.
         if (!samus.KnockbackActive &&
             samus.KnockbackTimer != 0 &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
@@ -1205,7 +1205,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// <summary>Builds the portrait page, clears optional Japanese glyphs, and seeds progressive narration and caret state.</summary>
     internal void SetupFirstIllustratedPage()
     {
-        // BlankOut_JapanText_Tiles blanks the Japanese glyphs and ClearCinematicBgObjects($2F) clears the staging map
+        // Blanking the Japanese text blanks its glyphs, and clearing the cinematic background objects to tile 47 clears the staging map
         // under its border; the final page then maps the final line into rows 24-27. The pages' plane shows the blank text rows
         // over the installed final line, drawn with the Japanese glyphs blanked (#1467).
         narrationText.ShowPages();

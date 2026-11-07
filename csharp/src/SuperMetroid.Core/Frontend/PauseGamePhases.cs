@@ -93,7 +93,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??
             throw new InvalidOperationException(
                 "Pause teardown requires live Samus equipment state.");
-        // EquipmentScreenCategory_ButtonResponse mutates the live equipped word,
+        // The equipment screen's category button response mutates the live equipped word,
         // but projectile character data and colours are cached display resources. State
         // Unpausing reapplies the beam's tiles and colours before its frame; omitting that handoff
         // made the new damage/type word immediate while art stayed stale until the

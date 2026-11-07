@@ -35,8 +35,8 @@ internal static class IntroEggParticleActors
     /// i=0..5, each encodes one five-byte sprite entry after
     /// a count word of one. All 42 bytes match the original data:
     /// encoded X=508, Y=252, and sprite attributes
-    /// palette seven, priority three, and a tile, where tile=$105+$10*(i/2)+(i%2). Thus the six tile
-    /// identities are $105/$106, $115/$116, and $125/$126 in three pairs.
+    /// palette seven, priority three, and a tile, where tile=261+16*(i/2)+(i%2). Thus the six tile
+    /// identities are 261/262, 277/278, and 293/294 in three pairs.
     /// The generic sprite reader consumes the count, X, Y, and attribute word
     /// in that order; the bounded selector reaches only these six records.
     /// </remarks>

@@ -44,7 +44,7 @@ internal sealed class IntroEggSlimeDrop
     /// <summary>The frames the drop has fallen, 0 through 255: its gravity-table index.</summary>
     private int FramesFallen => sprite.GeneralTimer / FrameFallenStep;
 
-    /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y $A8, then runs the puddle list in place.</summary>
+    /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y 168, then runs the puddle list in place.</summary>
     public void Step()
     {
         if (!sprite.IsActive)

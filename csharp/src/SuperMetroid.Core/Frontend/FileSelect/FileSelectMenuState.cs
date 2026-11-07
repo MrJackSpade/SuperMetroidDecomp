@@ -94,7 +94,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>True once a selected slot, empty or occupied, finishes its helmet turn and fade-out, requesting the game-options screen.</summary>
     public bool NewGameRequested { get; private set; }
 
-    /// <summary>Selected physical SRAM slot, restricted to A-C once a game is requested; a command row reads as slot C.</summary>
+    /// <summary>Selected save slot, restricted to A-C once a game is requested; a command row reads as slot C.</summary>
     public int SelectedSaveSlot =>
         FileSelectItemRows.TryGetSaveSlot(SelectedItem, out int slot) ? slot : FileSelectLayout.SaveSlotCount - 1;
 
@@ -386,7 +386,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         throw new InvalidDataException($"Invalid file-select main item {SelectedItem}.");
     }
 
-    /// <summary>Moves through main-page entries while skipping Copy and Clear for empty SRAM.</summary>
+    /// <summary>Moves through main-page entries while skipping Copy and Clear when no save exists.</summary>
     private void MoveMainSelection(VerticalDirection direction) =>
         SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, direction);
 
@@ -559,7 +559,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         CopyArrowRotation = (CopyArrowRotation + 1) % FileCopyArrowDefinitions.RotationSteps;
     }
 
-    /// <summary>Accepts Yes or No and mutates checksummed SRAM only after explicit Yes confirmation.</summary>
+    /// <summary>Accepts Yes or No and mutates the checksummed save file only after explicit Yes confirmation.</summary>
     private void StepConfirmation(ControllerButton pressed, FileSelectDataMode mode)
     {
         if ((pressed & (ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
@@ -588,7 +588,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             saves.CopySlot(operationSourceSlot, copyTargetSlot);
             saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
-                ?? throw new InvalidDataException("Copied SRAM slot failed its copied checksums.");
+                ?? throw new InvalidDataException("Copied save slot failed its copied checksums.");
             ShowPage(FileSelectPage.CopyCompleted);
             Phase = FileSelectPhase.CopyCompleted;
         }

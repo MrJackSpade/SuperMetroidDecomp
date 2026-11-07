@@ -116,7 +116,7 @@ public sealed class FileSelectMapAnimations
         /// <summary>Records this tick's scroll-boundary admission and returns it.</summary>
         internal bool Admit(bool visible) => Visible = visible;
 
-        /// <summary>Consumes one menu tick of <paramref name="visual"/>'s cycle, wrapping at its $FF terminator.</summary>
+        /// <summary>Consumes one menu tick of <paramref name="visual"/>'s cycle, wrapping at its end marker.</summary>
         internal void Step(MapArrowVisual visual)
         {
             if (--Timer > 0)

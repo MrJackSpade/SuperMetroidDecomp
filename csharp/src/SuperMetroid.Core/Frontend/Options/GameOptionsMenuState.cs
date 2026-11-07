@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Options;
 
-/// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
+/// <summary>Complete options-menu owner, including both secondary pages.</summary>
 public sealed class GameOptionsMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
@@ -94,7 +94,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     public int SelectedItem { get; private set; }
 
     /// <summary>
-    /// The selected save's loading game state (<c>SRAMMirror_LoadingGameState</c>, loaded by file select).
+    /// The selected save's loading game state, loaded from the save by file select.
     /// A new game's is zero, the opening-cinematic route.
     /// </summary>
     public SaveLoadingGameState LoadingGameState { get; init; }
@@ -200,7 +200,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.FadeOutToIntro:
-                // Index $0C: reaching black selects index four, which
+                // Index 12: reaching black selects index four, which
                 // dispatches the loading game state on the following update.
                 brightness = Math.Max(0, brightness - 1);
                 if (brightness == 0)
@@ -278,7 +278,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         {
             case GameOptionsPrimaryRow.StartGame:
                 // Starting: a save that resumes ordinary gameplay starts at once (index four);
-                // a new game and the cinematic routes fade out first (index $0C).
+                // a new game and the cinematic routes fade out first (index 12).
                 Phase = LoadingGameState == SaveLoadingGameState.MainGame
                     ? GameOptionsPhase.StartGame
                     : GameOptionsPhase.FadeOutToIntro;

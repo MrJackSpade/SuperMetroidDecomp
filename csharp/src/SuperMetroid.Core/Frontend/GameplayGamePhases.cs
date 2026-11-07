@@ -23,10 +23,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
-        // State $20 is only the departure hold. The arrival descent runs in
+        // The Ceres elevator state is only the departure hold. The arrival descent runs in
         // ordinary main gameplay while the elevator's enemy projectiles lock Samus.
         if (session.ceresDeparture.Phase != CeresDeparturePhase.HoldingOnElevator)
-            throw new InvalidOperationException("State $20 requires the Ceres departure hold.");
+            throw new InvalidOperationException("The Ceres elevator state requires the Ceres departure hold.");
         if (session.ceresDeparture.StepHoldAfterGameplay())
             session.GameState = SuperMetroidGameState.BlackoutFromCeres;
     }
@@ -74,7 +74,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausingDarkening"/>.</summary>
     internal void DispatchPausingDarkening(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // State $0C continues running ordinary gameplay while the screen darkens.
+        // The pausing state continues running ordinary gameplay while the screen darkens.
         // This matters for moving enemies/projectiles and is why pause cannot be
         // represented as a desktop-only frozen bitmap.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
@@ -169,7 +169,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.SetDisplayBrightness(Ensure.BetweenInclusive(0, byte.MaxValue, session.ceresDeparture.Brightness));
         if (ceresFadeFinished)
         {
-            // GameState_33 saves the live area-six/station-zero slot only after
+            // The blackout state saves the live area-six/station-zero slot only after
             // the screen is blanked. This is the durable post-Ridley Ceres
             // checkpoint the retail loader later replaces with Zebes arrival.
             AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
@@ -206,7 +206,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.SamusEscapesFromZebes"/>.</summary>
     internal void DispatchSamusEscapesFromZebes(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // State $26 calls the complete state-eight gameplay coroutine before
+        // The Zebes-escape state calls the complete state-eight gameplay coroutine before
         // HandleFadeOut. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
@@ -217,7 +217,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.EscapeFade.Brightness == 0)
         {
             // The liftoff state resets display ownership, stops the escape timer/music,
-            // cancels all three SFX libraries, and publishes state $27. The new
+            // cancels all three SFX libraries, and publishes the ending state. The new
             // state performs its own setup on the following call.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
@@ -274,7 +274,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// <c>GameState_8_MainGameplay</c>: one gameplay frame and the state publications its
+    /// The main gameplay state: one gameplay frame and the state publications its
     /// routines make. The fade-in state calls the same routine before fading in.
     /// </summary>
     private void RunMainGameplayState(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
@@ -323,7 +323,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
         {
-            // Samus_PauseCheck executes during the already-completed
+            // Samus's pause check executes during the already-completed
             // main-gameplay frame. It initializes both fade counters and publishes
             // the pause state; the following dispatcher call consumes the first delay.
             session.screenFade.Reload();
@@ -364,7 +364,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else
         {
-            // CallSomeSamusCode($11) disables palette effects and installs fatal-input and
+            // Samus's death code disables palette effects and installs fatal-input and
             // fatal-draw handlers. Input locking is the shared translated representation;
             // the following named death states own palette and animation side effects.
             samus.Control.LockHandlers();
@@ -385,7 +385,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.GameState = SuperMetroidGameState.TimeUp;
     }
 
-    /// <summary>Consumes a confirmed station save and writes the selected SRAM slot.</summary>
+    /// <summary>Consumes a confirmed station save and writes the selected save slot.</summary>
     private void HandleSaveStationPersistence()
     {
         if (session.Runtime?.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)

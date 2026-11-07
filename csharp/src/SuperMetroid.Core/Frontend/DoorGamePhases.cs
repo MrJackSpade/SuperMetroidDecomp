@@ -56,8 +56,8 @@ internal sealed class DoorGamePhases(FrontendSession session)
             priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         // The door's music step follows both entry cancellation commands, not precedes them.
         session.audio.DoorTransitionSoundsDisabled = true;
-        // State $09 calls state $0A synchronously for ordinary doors; state $0A
-        // publishes state $0B before returning. Consequently neither intermediate
+        // The hit-door state calls the room-loading state synchronously for ordinary doors; the room-loading state
+        // publishes the second loading state before returning. Consequently neither intermediate
         // numeric value owns a separately displayed frame.
         session.GameState = SuperMetroidGameState.LoadingNextRoomB;
     }
@@ -107,8 +107,8 @@ internal sealed class DoorGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Runs this dispatch's state-$09 door function. Returns true when it sets carry, so
-    /// state $0A runs in the same dispatch.
+    /// Runs this dispatch's hit-door function. Returns true when it sets carry, so
+    /// the room-loading state runs in the same dispatch.
     /// </summary>
     private bool StepHitDoorBlockFunction(ControllerButton controllerInput)
     {

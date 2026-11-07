@@ -65,7 +65,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<S
         int filled = save.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
         int tanks = save.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank;
         // Tanks fill the row below ENERGY left to right, then each later row starts one row higher, back where the row
-        // before it started, as Draw_FileSelection_Energy walks the page.
+        // before it started, as the file-select energy draw walks the page.
         int column = layout.EnergyAnchor.X + FileSelectEnergyTankDefinitions.ColumnOffset;
         int row = layout.EnergyAnchor.Y + FileSelectEnergyTankDefinitions.RowOffset;
         int rowRemaining = FileSelectEnergyTankDefinitions.FirstRowCount;

@@ -441,7 +441,7 @@ internal sealed class IntroBabyDiscoveryState
         AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
     }
 
-    /// <summary>Adjusts an 8.8 velocity toward a target by one $20 step without exceeding its limits.</summary>
+    /// <summary>Adjusts an 8.8 velocity toward a target by one 32 step without exceeding its limits.</summary>
     private static SignedEightEight AccelerateToward(
         int position,
         int target,

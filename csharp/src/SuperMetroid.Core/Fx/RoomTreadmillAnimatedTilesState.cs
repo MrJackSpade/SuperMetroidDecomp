@@ -1,32 +1,27 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Treadmill objects selected by LoadFxHeader's area animation bitset, independently
+/// Treadmill objects the room FX record starts, independently
 /// of the additional entrance object spawned by door ASM.
 /// </summary>
 [RoomLifetime]
 public sealed class RoomTreadmillAnimatedTilesState
 {
-    /// <summary>Treadmill animations selected by the current room FX bitset in bit order.</summary>
+    /// <summary>Treadmill animations the current room FX record starts, in the record's order.</summary>
     internal readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
-    /// <summary>Spawns one room's objects from the door-selected FX record in bit order.</summary>
+    /// <summary>Spawns one room's objects from the door-selected FX record in the record's order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    /// <param name="area">The room's area, which selects each bit's object.</param>
-    public RoomTreadmillAnimatedTilesState(RoomFxHeader? fx, DoorDefinition? door, AreaId area)
+    public RoomTreadmillAnimatedTilesState(RoomFxHeader? fx, DoorDefinition? door)
     {
         if (fx?.Select(door) is not { } record) return;
-        RoomFxEffectSlots slots = record.AnimatedTileSlots;
-        for (int bit = 0; bit < RoomFxEffectSlotSet.Count; bit++)
+        foreach (AnimatedTileObject definition in record.AnimatedTiles)
         {
-            if (!slots.Includes(bit)) continue;
-            AnimatedTileObject definition = AreaAnimatedTileObjects.Read(area, bit);
             WreckedShipTreadmillDirection? direction = definition switch
             {
                 AnimatedTileObject.WreckedShipTreadmillRightwards => WreckedShipTreadmillDirection.Rightwards,
@@ -43,7 +38,7 @@ public sealed class RoomTreadmillAnimatedTilesState
                 _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {definition}."),
             };
             // Other animation families retain their own owners. Selection here is by
-            // object identity, not room number or an assumed area-specific bit.
+            // object identity, not room number.
             if (direction is null) continue;
             var animation = new WreckedShipTreadmillAnimatedTilesState();
             animation.Start(direction.Value);

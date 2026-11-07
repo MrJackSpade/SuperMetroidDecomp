@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// Selects the animated-tile object an area's FX bit enables (<see cref="AreaAnimatedTileObjectDefinitions"/>): the shared spikes
-/// for the first two bits, then the area's named effects or the empty object.
+/// for the first two bits, then the area's named effects or the empty object. The import's decode knowledge: the record
+/// codec resolves each record's bits through it, and the decoded record names the objects (#1526).
 /// </summary>
 internal static class AreaAnimatedTileObjects
 {

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -15,6 +16,9 @@ internal static class RoomFxDefinitionsAccess
 
     /// <summary>Each record instance's pointer.</summary>
     private static readonly Dictionary<RoomFxRecordDefinition, ushort> PointersByRecord = IndexPointers();
+
+    /// <summary>Each record instance's header.</summary>
+    private static readonly Dictionary<RoomFxRecordDefinition, RoomFxHeader> HeadersByRecord = IndexHeaders();
 
     /// <summary>Places every record of every compiled header at its bank-$83 pointer.</summary>
     private static SortedDictionary<ushort, IndexedFx> IndexRecords()
@@ -40,6 +44,32 @@ internal static class RoomFxDefinitionsAccess
                 result.Add(fx.Records[index], checked((ushort)(header + index * RoomFxToolingRomData.Record.ByteCount)));
         }
         return result;
+    }
+
+    /// <summary>Maps every record instance of every compiled header to its header.</summary>
+    private static Dictionary<RoomFxRecordDefinition, RoomFxHeader> IndexHeaders()
+    {
+        var result = new Dictionary<RoomFxRecordDefinition, RoomFxHeader>(ReferenceEqualityComparer.Instance);
+        foreach (ushort header in RoomFxSources.Pointers)
+        {
+            RoomFxHeader fx = RoomFxSources.Fx(header);
+            foreach (RoomFxRecordDefinition record in fx.Records)
+                result.Add(record, fx);
+        }
+        return result;
+    }
+
+    /// <summary>The area of the rooms whose header holds a compiled record.</summary>
+    extension(RoomFxRecordDefinition self)
+    {
+        /// <summary>
+        /// The area of the rooms that load this compiled record's header, whose lists its effects are selected from
+        /// (<see cref="RoomFxHeaderAreas"/>).
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The record is not one of the compiled catalog's.</exception>
+        internal AreaId HeaderArea => HeadersByRecord.TryGetValue(self, out RoomFxHeader? fx)
+            ? RoomFxHeaderAreas.Of(fx)
+            : throw new InvalidOperationException("The record is not one of the compiled room-FX catalog's, so no header names its area.");
     }
 
     /// <summary>Resolves compiled headers and records by pointer.</summary>

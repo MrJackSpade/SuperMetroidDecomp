@@ -35,7 +35,7 @@ internal static class SandAnimatedTilesVerification
             }
         }
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        var sand = new RoomSandAnimatedTilesState(RoomFxDefinitions.Suffix(sandFxRecord), null, AreaId.Maridia);
+        var sand = new RoomSandAnimatedTilesState(RoomFxDefinitions.Suffix(sandFxRecord), null);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         var frames = new ArtworkFrameSelections();
         for (int tick = 0; tick < 31; tick++)
@@ -55,7 +55,7 @@ internal static class SandAnimatedTilesVerification
                     "sand frames change only on the updates their durations end");
             }
         }
-        sand = new RoomSandAnimatedTilesState(null, null, AreaId.Maridia);
+        sand = new RoomSandAnimatedTilesState(null, null);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
         var departed = new ArtworkFrameSelections();
         sand.Step(departed);

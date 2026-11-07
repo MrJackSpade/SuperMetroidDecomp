@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Text;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -6,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.TestSupport.CatalogInventories;
@@ -22,13 +24,19 @@ internal static class RoomFxRecordCatalogSource
         SortedDictionary<ushort, RoomFxRecordDefinition> Records,
         SortedDictionary<ushort, ushort[]> Lists);
 
-    /// <summary>Walks every compiled header's records, plus the Mother Brain records her FX entries index after its default.</summary>
+    /// <summary>
+    /// Walks every compiled header's records, plus the Mother Brain records her FX entries index after its default, each
+    /// decoded in the area of the rooms that load its header (<see cref="RoomFxHeaderAreas"/>).
+    /// </summary>
+    /// <exception cref="InvalidDataException">A record shared by headers reads differently in one of them, as one shared
+    /// by headers of areas whose lists select different effects does.</exception>
     internal static RetailRoomFxCapture CaptureRetailRoomFx(ISnesAddressSpace bus)
     {
         var records = new SortedDictionary<ushort, RoomFxRecordDefinition>();
         var lists = new SortedDictionary<ushort, ushort[]>();
         foreach (ushort header in RoomFxSources.Pointers)
         {
+            AreaId area = RoomFxHeaderAreas.Of(RoomFxSources.Fx(header));
             var list = new List<ushort>();
             ushort pointer = header;
             for (int guard = 0; ; guard++)
@@ -37,7 +45,7 @@ internal static class RoomFxRecordCatalogSource
                     throw new InvalidDataException($"Room FX header $83:{header:X4} does not terminate.");
                 if (pointer < 0x8000)
                     throw new InvalidDataException($"Room FX header $83:{header:X4} crossed below the LoROM window.");
-                ushort door = Capture(bus, records, pointer);
+                ushort door = Capture(bus, records, pointer, area);
                 list.Add(pointer);
                 if (door == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                     break;
@@ -49,7 +57,7 @@ internal static class RoomFxRecordCatalogSource
                          MotherBrainFxRecordPointers.DirectRecords.Contains(next);
                          next = unchecked((ushort)(next + RoomFxToolingRomData.Record.ByteCount)))
                     {
-                        Capture(bus, records, next);
+                        Capture(bus, records, next, area);
                         list.Add(next);
                     }
                     break;
@@ -61,14 +69,18 @@ internal static class RoomFxRecordCatalogSource
         return new RetailRoomFxCapture(records, lists);
     }
 
-    /// <summary>Reads the record at <paramref name="pointer"/> into <paramref name="records"/> and returns its door word.</summary>
-    private static ushort Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomFxRecordDefinition> records, ushort pointer)
+    /// <summary>
+    /// Reads the record at <paramref name="pointer"/>, in a room of <paramref name="area"/>, into <paramref name="records"/>
+    /// and returns its door word.
+    /// </summary>
+    private static ushort Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomFxRecordDefinition> records, ushort pointer,
+        AreaId area)
     {
         int source = RoomFxRomDataBanksTooling.RoomDefinitions | pointer;
         ushort door = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
         RoomFxRecordDefinition record = door == RoomFxRomDataRecordTooling.TerminatorDoorPointer
             ? RoomFxRecordCodec.Terminator
-            : RoomFxRecordCodec.Decode(door == 0 ? null : DoorHeaderSources.Door(door),
+            : RoomFxRecordCodec.Decode(door == 0 ? null : DoorHeaderSources.Door(door), area,
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, RoomFxToolingRomData.Record.ByteCount),
                 $"room-FX record $83:{pointer:X4}");
         if (records.TryGetValue(pointer, out RoomFxRecordDefinition? existing))
@@ -131,6 +143,11 @@ internal static class RoomFxRecordCatalogSource
             : string.Join(" | ", set);
     }
 
+    /// <summary>Renders an effect list as the generated catalog spells it: its members in order, in brackets.</summary>
+    private static string Effects<TIdentity>(ImmutableArray<TIdentity> effects)
+        where TIdentity : struct, Enum =>
+        $"[{string.Join(", ", effects.Select(Member))}]";
+
     /// <summary>Renders a surface height as the generated catalog spells it: its pixel row in decimal, or null where the record names none.</summary>
     private static string SurfaceY(int? y) =>
         y is int named ? named.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null";
@@ -143,6 +160,7 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine("// <auto-generated/>");
         source.AppendLine("#nullable enable");
         source.AppendLine("using SuperMetroid.Core.Fx.Artwork;");
+        source.AppendLine("using SuperMetroid.Core.Fx.PaletteFx;");
         source.AppendLine("using SuperMetroid.Core.Rooms.Doors;");
         source.AppendLine();
         source.AppendLine("namespace SuperMetroid.Core.Fx;");
@@ -168,8 +186,8 @@ internal static class RoomFxRecordCatalogSource
                     $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
                     $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
                     $"{Member(record.DefaultLayerBlend)}, {Member(record.EffectLayerBlend)}, " +
-                    $"{Flags(record.LiquidOptions)}, {Flags(record.PaletteFxSlots)}, " +
-                    $"{Flags(record.AnimatedTileSlots)}, {Member(record.PaletteBlend)}),");
+                    $"{Flags(record.LiquidOptions)}, {Effects(record.PaletteEffects)}, " +
+                    $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)}),");
             }
             source.AppendLine("    ]);");
         }

@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>Verification access to <see cref="RoomFxRecordDefinition"/> members production does not use.</summary>
 internal static class RoomFxRecordDefinitionAccess
 {
-    /// <summary>Encodes the typed room-FX record back to its 16 native bytes through the record codec (#1415).</summary>
+    /// <summary>
+    /// Encodes the typed room-FX record back to its 16 native bytes through the record codec (#1415), its effect lists
+    /// through its header's area's lists (#1526).
+    /// </summary>
     extension(RoomFxRecordDefinition self)
     {
         /// <summary>The record's native door word: FFFF for a terminator, zero for a default record, else the door's pointer.</summary>
@@ -28,8 +31,8 @@ internal static class RoomFxRecordDefinitionAccess
             10 => RoomFxRecordEncoding.LayerBlendByte(self.DefaultLayerBlend),
             11 => RoomFxRecordEncoding.LayerBlendByte(self.EffectLayerBlend),
             12 => RoomFxRecordEncoding.LiquidOptionsByte(self.LiquidOptions),
-            13 => RoomFxRecordEncoding.SlotsByte(self.PaletteFxSlots),
-            14 => RoomFxRecordEncoding.SlotsByte(self.AnimatedTileSlots),
+            13 => RoomFxRecordEncoding.PaletteEffectsByte(self.PaletteEffects, self.HeaderArea),
+            14 => RoomFxRecordEncoding.AnimatedTilesByte(self.AnimatedTiles, self.HeaderArea),
             15 => RoomFxRecordEncoding.PaletteBlendByte(self.PaletteBlend),
             _ => throw new ArgumentOutOfRangeException(nameof(offset)),
         };

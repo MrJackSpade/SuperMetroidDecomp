@@ -61,7 +61,7 @@ internal static class RoomBlockUploads
                     uploads.Add(option);
                 foreach (InWorldCollectibleKind kind in CollectiblesPlacedIn(state))
                     uploads.Place(kind);
-                foreach (AnimatedCharacterPlacement frame in AnimatedFrames(inputs, room, state).Where(frame => frame.Set == BgCharacterSet.Tiles))
+                foreach (AnimatedCharacterPlacement frame in AnimatedFrames(inputs, state).Where(frame => frame.Set == BgCharacterSet.Tiles))
                     uploads.AddAnimated(frame);
                 if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
                 {
@@ -148,16 +148,13 @@ internal static class RoomBlockUploads
     /// The frames one state of a room's animations paint over the block characters (#1406): its room effects' animated
     /// tiles and the Tourian statues' pictures.
     /// </summary>
-    private static IEnumerable<AnimatedCharacterPlacement> AnimatedFrames(RoomBlockSheetInputs inputs, RoomHeaderDefinition room,
-        RoomStateSettings state)
+    private static IEnumerable<AnimatedCharacterPlacement> AnimatedFrames(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (RoomFxRecordDefinition record in state.Fx?.Records ?? [])
         {
-            for (int bit = 0; bit < AreaAnimatedTileObjectDefinitions.ObjectsPerArea; bit++)
+            foreach (AnimatedTileObject animatedObject in record.AnimatedTiles)
             {
-                if (!record.AnimatedTileSlots.Includes(bit))
-                    continue;
-                foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, AreaAnimatedTileObjects.Read(room.AreaIndex, bit)))
+                foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, animatedObject))
                     yield return frame;
             }
         }
@@ -310,7 +307,7 @@ internal static class RoomBlockUploads
         LibraryBackgroundProgram? library = state.Background is { } background ? LibraryBackgroundPrograms.Of(background) : null;
         BgArtworkBindings content = library is not null
             ? Replay(inputs, room, tileset, library, DoorVariants(library).First()).Content : Loaded(inputs, tileset);
-        AnimatedCharacterPlacement[] animated = [.. AnimatedFrames(inputs, room, state).Where(frame => frame.Set == BgCharacterSet.Tiles),
+        AnimatedCharacterPlacement[] animated = [.. AnimatedFrames(inputs, state).Where(frame => frame.Set == BgCharacterSet.Tiles),
             .. state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire)
                 ? CrocomireMeltBandFrames(inputs) : []];
         return new BossRoomCharacters(tileset, content,

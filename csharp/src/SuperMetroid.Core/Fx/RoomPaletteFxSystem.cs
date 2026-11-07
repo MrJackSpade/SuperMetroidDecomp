@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Fx;
 /// <remarks>
 /// Room graphics load a useful static palette, but many rooms immediately replace part of
 /// it with programs selected by the active FX record. Landing Site is one of them:
-/// palette-FX bit zero flashes the scrolling-sky horizon's lightning colours. Keeping the
+/// its lightning effect flashes the scrolling-sky horizon's colours. Keeping the
 /// programs, timers, and the colours each object animates here avoids encoding a
 /// screenshot's colors as a room-specific correction.
 /// </remarks>
@@ -80,66 +80,48 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Builds one room's palette-FX objects: exactly the bits selected by the matching
-    /// sixteen-byte FX record.
+    /// Builds one room's palette-FX objects: exactly the palette effects the matching FX record starts.
     /// </summary>
     /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    /// <param name="area">The room's area, which selects each bit's object.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     public static RoomPaletteFxSystem ForRoom(
         PaletteFxSessionState session,
         RoomFxHeader? fx,
         DoorDefinition? door,
-        AreaId area,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
-        ForRecord(session, fx, door, area, equippedItems, areaMiniBossDefeated, null);
+        ForRecord(session, fx, door, equippedItems, areaMiniBossDefeated, null);
 
-    /// <summary>Builds one room's palette-FX objects from the selected or supplied FX record's area-specific bits.</summary>
+    /// <summary>Builds one room's palette-FX objects from the palette effects the selected or supplied FX record starts.</summary>
     /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    /// <param name="area">The room's area, which selects each bit's object.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
     internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxHeader? fx, DoorDefinition? door,
-        AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
         var system = new RoomPaletteFxSystem(session);
-        system.SpawnRecordObjects(fx, door, area, equippedItems, areaMiniBossDefeated, suppliedDefinition);
+        system.SpawnRecordObjects(fx, door, equippedItems, areaMiniBossDefeated, suppliedDefinition);
         return system;
     }
 
-    /// <summary>Spawns the selected or supplied FX record's area-specific palette bits.</summary>
+    /// <summary>Spawns the palette effects the selected or supplied FX record starts, in the record's order.</summary>
     private void SpawnRecordObjects(RoomFxHeader? fx, DoorDefinition? door,
-        AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
-        if (suppliedDefinition is null && fx is null)
-            return;
-        int areaIndex = AreaIds.ToIndex(area);
-
         if ((suppliedDefinition ?? fx?.Select(door)) is not { } record)
             return;
 
-        // Palette FX and animated tiles have separate owners and bitsets.
-        RoomFxEffectSlots paletteFxSlots = record.PaletteFxSlots;
-        if (paletteFxSlots == RoomFxEffectSlots.None)
-            return;
-
-        for (int bit = 0; bit < SlotCount; bit++)
-        {
-            if (!paletteFxSlots.Includes(bit))
-                continue;
-
-            PaletteFxObject definition = RoomPaletteFxSelection.GetAreaDefinition(areaIndex, bit);
+        // Palette FX and animated tiles have separate owners and lists.
+        foreach (PaletteFxObject definition in record.PaletteEffects)
             Spawn(definition, equippedItems, areaMiniBossDefeated);
-        }
     }
 
     /// <summary>Runs one <c>PaletteFXObject_Handler</c> pass in descending slot order during gameplay.</summary>

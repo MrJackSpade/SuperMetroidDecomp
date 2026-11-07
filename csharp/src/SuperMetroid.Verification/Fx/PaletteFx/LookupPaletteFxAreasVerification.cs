@@ -29,22 +29,22 @@ internal static class LookupPaletteFxAreasVerification
             {
                 ushort nativeList = ReadVerificationWord(rom, 0x83ac46 + 2 * area);
                 ushort expected = ReadVerificationWord(rom, 0x830000 | (nativeList + 2 * bit));
-                AssertEqual(expected, PaletteFxObjectAccess.NativeAddress(RoomPaletteFxSelection.GetAreaDefinition(area, bit)),
+                AssertEqual(expected, PaletteFxObjectAccess.NativeAddress(AreaPaletteFxObjects.GetAreaDefinition(area, bit)),
                     "Original palette-FX area/bit dispatch");
             }
             else
             {
                 var failure = AssertThrows<ArgumentOutOfRangeException>(
-                    () => RoomPaletteFxSelection.GetAreaDefinition(area, bit), "Invalid area/bit rejects");
+                    () => AreaPaletteFxObjects.GetAreaDefinition(area, bit), "Invalid area/bit rejects");
                 AssertEqual(area >= 8 ? "areaIndex" : "bitIndex", failure.ParamName,
                     "Area validation retains precedence");
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomPaletteFxSelection.GetAreaDefinition(invalid, 0),
+            AssertThrows<ArgumentOutOfRangeException>(() => AreaPaletteFxObjects.GetAreaDefinition(invalid, 0),
                 "Signed area endpoint rejects");
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomPaletteFxSelection.GetAreaDefinition(0, invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => AreaPaletteFxObjects.GetAreaDefinition(0, invalid),
                 "Signed bit endpoint rejects");
         }
     }

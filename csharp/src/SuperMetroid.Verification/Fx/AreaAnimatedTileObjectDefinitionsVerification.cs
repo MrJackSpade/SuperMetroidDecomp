@@ -14,8 +14,8 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
 {
     /// <summary>
     /// Compares all eight native list pointers and all 64 object selections to the pinned
-    /// cartridge, then executes both production population owners while rejecting every
-    /// read from those immutable bank-$83 sources.
+    /// cartridge, then decodes one record in two areas and executes both production population
+    /// owners on the named objects while rejecting every read from those immutable bank-$83 sources.
     /// </summary>
     internal static void VerifyAreaAnimatedTileObjectDefinitions()
     {
@@ -35,7 +35,10 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
             "selectors are compiled; both production owners reject their ROM sources.");
     }
 
-    /// <summary>Checks sand and treadmill population for one area while guarding immutable bank-$83 sources.</summary>
+    /// <summary>
+    /// Decodes the record's animated-tile bits in <paramref name="area"/> and checks the sand and treadmill population
+    /// of the objects it names while guarding immutable bank-$83 sources.
+    /// </summary>
     private static void VerifyCompiledAreaSelection(
         ISnesAddressSpace rom,
         AreaId area,
@@ -46,9 +49,13 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         // Original compiled default-door FX record with both sand/treadmill bits.
         const ushort fxRecord = 0x9e44;
         AssertEqual(animatedTileBits, rom.ReadCartridgeByte(0x839e52), "Native fixture animation bitset");
+        byte[] native = [.. Enumerable.Range(0, RoomFxToolingRomData.Record.ByteCount)
+            .Select(offset => rom.ReadCartridgeByte(0x839e44 + offset))];
+        var fx = new RoomFxHeader($"$83:{fxRecord:X4} in {area}",
+            [RoomFxRecordCodec.Decode(null, area, native, $"room-FX record $83:{fxRecord:X4}")]);
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
-        var sand = new RoomSandAnimatedTilesState(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
-        var treadmills = new RoomTreadmillAnimatedTilesState(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
+        var sand = new RoomSandAnimatedTilesState(fx, door: null);
+        var treadmills = new RoomTreadmillAnimatedTilesState(fx, door: null);
 
         AssertEqual(expectedSand, sand.Count, $"{area} compiled sand selection");
         AssertEqual(expectedTreadmills, treadmills.Count,

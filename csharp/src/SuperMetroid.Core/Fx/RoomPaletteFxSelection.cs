@@ -1,12 +1,9 @@
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Progression;
-using static SuperMetroid.Core.Fx.RoomPaletteFxDefinitions;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Selects room palette effects (<see cref="RoomPaletteFxDefinitions"/>): each palette-FX object's setup and initial program, and
-/// the object each area's effect bit enables.
+/// Selects each palette-FX object's setup and initial program.
 /// </summary>
 internal static class RoomPaletteFxSelection
 {
@@ -82,51 +79,4 @@ internal static class RoomPaletteFxSelection
         PaletteFxObject.CrateriaEscapeCreBlockPixel => new(PaletteFxSetup.Null, PaletteFxProgram.Crateria400),
         _ => throw new ArgumentOutOfRangeException(nameof(paletteFxObject), paletteFxObject, "Not a palette-FX object."),
     };
-    /// <summary>Selects the palette-FX object enabled by one area's effect bit.</summary>
-    /// <remarks>Direct semantic area/bit dispatch for all eight areas and eight bits.
-    /// Unused selections (including Ceres/debug) select the empty object.
-    /// Validate area before bit, preserving both rejection domains and precedence.
-    /// All 64 selections are independently verified; no selection matrix remains.</remarks>
-    internal static PaletteFxObject GetAreaDefinition(int areaIndex, int bitIndex)
-    {
-        if ((uint)areaIndex >= AreaCount)
-            throw new ArgumentOutOfRangeException(nameof(areaIndex));
-        if ((uint)bitIndex >= DefinitionsPerArea)
-            throw new ArgumentOutOfRangeException(nameof(bitIndex));
-        // The eighth area (beyond the retail areas) selects no object for any bit.
-        if (areaIndex >= AreaIds.RetailCount)
-            return PaletteFxObject.Nothing;
-        return new AreaFxBit(AreaIds.FromIndex(areaIndex, "Palette-FX area"), bitIndex) switch
-        {
-            (AreaId.Crateria, 0) => PaletteFxObject.CrateriaLightning,
-            (AreaId.Crateria, 1) => PaletteFxObject.UpperCrateriaRedFlashing,
-            (AreaId.Crateria, 2) => PaletteFxObject.CrateriaEscapeYellowLightning,
-            (AreaId.Crateria, 3) => PaletteFxObject.OldTourianRedFlashing,
-            (AreaId.Crateria, 4) => PaletteFxObject.OldTourianBackgroundRailingsFlashYellow,
-            (AreaId.Crateria, 5) => PaletteFxObject.OldTourianBackgroundPanelsFlashYellow,
-            (AreaId.Crateria, 6) => PaletteFxObject.CrateriaEscapeCreBlockPixel,
-            (AreaId.Crateria, 7) => PaletteFxObject.BeaconFlashing,
-            (AreaId.Brinstar, 0) => PaletteFxObject.BrinstarBlueBackgroundSpores,
-            (AreaId.Brinstar, 1) => PaletteFxObject.BrinstarRedBackgroundGlow,
-            (AreaId.Brinstar, 2) => PaletteFxObject.BeaconFlashing,
-            (AreaId.Brinstar, 3) => PaletteFxObject.SporeSpawnBlueBackgroundSpores,
-            (AreaId.Norfair, 0) => PaletteFxObject.SamusInHeat,
-            (AreaId.Norfair, 1) => PaletteFxObject.NorfairForegroundAndHeatPhase,
-            (AreaId.Norfair, 2) => PaletteFxObject.NorfairForegroundPalette4,
-            (AreaId.Norfair, 3) => PaletteFxObject.NorfairForegroundPalette5,
-            (AreaId.Norfair, 4) => PaletteFxObject.NorfairForegroundPalette6,
-            (AreaId.WreckedShip, 0) => PaletteFxObject.WreckedShipGreenLights,
-            (AreaId.Maridia, 0) => PaletteFxObject.MaridiaSandPits,
-            (AreaId.Maridia, 1) => PaletteFxObject.MaridiaSandFalls,
-            (AreaId.Maridia, 2) => PaletteFxObject.MaridiaBackgroundWaterfalls,
-            (AreaId.Tourian, 0) => PaletteFxObject.SamusInHeat,
-            (AreaId.Tourian, 1) => PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs,
-            (AreaId.Tourian, 2) => PaletteFxObject.UnusedTourianGlowClone,
-            (AreaId.Tourian, 3) => PaletteFxObject.TourianShutterRedFlashing,
-            (AreaId.Tourian, 4) => PaletteFxObject.TourianBackgroundRedFlashing,
-            (AreaId.Tourian, 5) => PaletteFxObject.TourianGeneralLevelRedFlashing,
-            (AreaId.Tourian, 6) => PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs,
-            _ => PaletteFxObject.Nothing,
-        };
-    }
 }

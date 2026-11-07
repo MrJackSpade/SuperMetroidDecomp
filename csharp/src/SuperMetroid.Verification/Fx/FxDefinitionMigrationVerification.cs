@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
@@ -107,15 +108,18 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
         AssertEqual(LayerBlendingConfiguration.LavaAcidAdditive, climb.EffectLayerBlend, "Climb layer-three blend");
         AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");
-        AssertEqual(RoomFxEffectSlots.Slot3 | RoomFxEffectSlots.Slot4 | RoomFxEffectSlots.Slot5, climb.PaletteFxSlots, "Climb palette-effect slots");
+        AssertEqual("OldTourianRedFlashing, OldTourianBackgroundRailingsFlashYellow, OldTourianBackgroundPanelsFlashYellow",
+            string.Join(", ", climb.PaletteEffects), "Climb palette effects");
+        AssertEqual(AreaId.Crateria, RoomFxHeaderAreas.Of(RoomFxDefinitions.ClimbWhenZebesTimebombSet), "Climb FX area");
         AssertEqual((byte)0x04, RoomFxRecordEncoding.TypeByte(climb.Type), "Climb type byte");
         AssertEqual((byte)0x1e, RoomFxRecordEncoding.LayerBlendByte(climb.EffectLayerBlend), "Climb blend byte");
-        AssertEqual((byte)0x38, RoomFxRecordEncoding.SlotsByte(climb.PaletteFxSlots), "Climb palette-effect byte");
+        AssertEqual((byte)0x38, RoomFxRecordEncoding.PaletteEffectsByte(climb.PaletteEffects, AreaId.Crateria), "Climb palette-effect byte");
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
         AssertEqual(0x34, RoomFxRecordCodec.LayerBlends.Word(LayerBlendingConfiguration.MotherBrainPhaseTwo), "Mother Brain blend byte");
         AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
         AssertEqual("blend-EE", RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
-        AssertEqual((byte)0x80, RoomFxRecordEncoding.SlotsByte(RoomFxEffectSlotSet.Slot(7)), "eighth effect slot");
+        AssertEqual((byte)0x80, RoomFxRecordEncoding.PaletteEffectsByte([PaletteFxObject.BeaconFlashing], AreaId.Crateria),
+            "Crateria's eighth palette effect");
         Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");
     }
 

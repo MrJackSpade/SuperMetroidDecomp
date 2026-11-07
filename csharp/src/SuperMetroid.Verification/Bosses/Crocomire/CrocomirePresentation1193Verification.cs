@@ -116,7 +116,7 @@ internal static class CrocomirePresentation1193Verification
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
                     resumed == AnimatedTileFrames.Frame(AnimatedTileObject.HorizontalSpikes, 0),
                 "Re-enabled spikes resume the pending first frame");
-            var unselected = new RoomSpikeAnimatedTilesState(null, null, AreaId.Norfair);
+            var unselected = new RoomSpikeAnimatedTilesState(null, null);
             var cleared = new ArtworkFrameSelections();
             unselected.Step(cleared);
             AssertTrue(!cleared.TryShown(spikeTiles, out _), "A room without selected spikes builds an empty spike owner");

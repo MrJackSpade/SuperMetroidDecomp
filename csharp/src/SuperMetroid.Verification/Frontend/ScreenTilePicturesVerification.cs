@@ -91,8 +91,8 @@ internal static class ScreenTilePicturesVerification
         int layers = 0;
         void Check(LayeredScene scene, byte[] vram, string name)
         {
-            if (scene.Layers.ToArray().Any(layer => layer is TurningFloorLayer) && sampled.Add(name))
-                layers += AssertFloorsDrawnFromCharacters(scene, vram, name);
+            sampled.Add(name);
+            layers += AssertFloorsDrawnFromCharacters(scene, vram, name);
         }
         var audio = new AudioQueues();
         IntroCinematicState intro = CreateRetailIntroFixture(audio);
@@ -100,20 +100,36 @@ internal static class ScreenTilePicturesVerification
         bool captionPictured = false;
         for (int tick = 0; !intro.CeresFlightFinished; tick++)
         {
-            var shownIntro = intro.ShownVram();
-            LayeredScene introScene = intro.CaptureTranslatedRenderSnapshot();
-            Check(introScene, shownIntro, intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
-                ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}");
-            if (intro.Phase == IntroCinematicPhase.CeresFlight && intro.CurrentCeresFlight?.Phase == IntroCeresFlightPhase.SpaceColonyTitle)
-                captionPictured |= introScene.Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
+            string introName = intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
+                ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}";
+            // A phase is checked once, so its scene is only captured until then, and its memory image only for that check.
+            if (!sampled.Contains(introName))
+            {
+                LayeredScene introScene = intro.CaptureTranslatedRenderSnapshot();
+                if (ShowsFloor(introScene))
+                {
+                    byte[] shownIntro = intro.ShownVram();
+                    Check(introScene, shownIntro, introName);
+                }
+            }
+            if (!captionPictured && intro.Phase == IntroCinematicPhase.CeresFlight && intro.CurrentCeresFlight?.Phase == IntroCeresFlightPhase.SpaceColonyTitle)
+                captionPictured = intro.CaptureTranslatedRenderSnapshot().Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
         }
         CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();
         for (int frame = 0; frame < 5000 && !destruction.Finished; frame++)
         {
-            var shownDestruction = destruction.ShownVram();
-            Check(destruction.CaptureRenderSnapshot(), shownDestruction, $"Ceres destruction {destruction.Phase}");
+            string destructionName = $"Ceres destruction {destruction.Phase}";
+            if (!sampled.Contains(destructionName))
+            {
+                LayeredScene destructionScene = destruction.CaptureRenderSnapshot();
+                if (ShowsFloor(destructionScene))
+                {
+                    byte[] shownDestruction = destruction.ShownVram();
+                    Check(destructionScene, shownDestruction, destructionName);
+                }
+            }
             destruction.Step();
         }
         AssertTrue(destruction.Finished, $"the Ceres destruction finishes within 5000 updates (stopped in {destruction.Phase})");
@@ -123,30 +139,32 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// Each phase of the ending that shows its floor draws it from its tiles, exactly as its characters draw them, for the
-    /// suitless and suited endings; the ending's other backgrounds are pre-assembled pictures (#1467).
+    /// Each phase of the ending that shows its floor draws it from its tiles, exactly as its characters draw them; the
+    /// suited ending stands for the suitless one, which shows the same floors, as the game time changes only the sprites.
+    /// The ending's other backgrounds are pre-assembled pictures (#1467).
     /// </summary>
     internal static void VerifyEndingScreenTilePictures()
     {
         var sampled = new HashSet<string>();
         int layers = 0;
-        foreach (ushort hours in new ushort[] { 2, 10 })
+        // The ending waits on its music queue, which the game drains after every dispatch.
+        var audio = new AudioQueues();
+        EndingCreditsState ending = CreateRetailEndingFixture(audio, 10, 59);
+        for (int tick = 0; ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission; tick++)
         {
-            // The ending waits on its music queue, which the game drains after every dispatch.
-            var audio = new AudioQueues();
-            EndingCreditsState ending = CreateRetailEndingFixture(audio, hours, 59);
-            while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
+            // A phase is checked once, so its scene is only built until then, every few updates.
+            if (tick % PhaseSampleUpdates == 0 && !sampled.Contains($"{ending.Stage.Phase}"))
             {
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-                if (scene.Layers.ToArray().Any(layer => layer is TurningFloorLayer)
-                    && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
+                if (ShowsFloor(scene))
                 {
-                    var shownEnding = ending.ShownVram();
-                    layers += AssertFloorsDrawnFromCharacters(scene, shownEnding, $"ending at {hours} hours, {ending.Stage.Phase}");
+                    sampled.Add($"{ending.Stage.Phase}");
+                    byte[] shownEnding = ending.ShownVram();
+                    layers += AssertFloorsDrawnFromCharacters(scene, shownEnding, $"ending {ending.Stage.Phase}");
                 }
-                ending.Step();
-                audio.AdvanceFrame(default);
             }
+            ending.Step();
+            audio.AdvanceFrame(default);
         }
         Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases draw all {layers} of their floor layers from their tiles, as their characters do.");
     }
@@ -162,8 +180,10 @@ internal static class ScreenTilePicturesVerification
         var sampled = new HashSet<string>();
         for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)
         {
-            FloorScene scene = title.CaptureRenderSnapshot();
-            if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Image.GetHashCode()}"))
+            // Every other update is sampled, and each picture is compared once: the sequence's animation pages each show for
+            // longer than that.
+            FloorScene? scene = tick % TitleSampleUpdates == 0 ? title.CaptureRenderSnapshot() : null;
+            if (scene?.Floor is { } floor && sampled.Add($"{floor.Image.GetHashCode()}"))
             {
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(0, scene)).ToArray();
                 var shownTitle = title.ShownVram();
@@ -178,8 +198,17 @@ internal static class ScreenTilePicturesVerification
         Console.WriteLine($"Screen tile pictures: {sampled.Count} title frames draw their Mode 7 background from its characters' pictures, as its characters do.");
     }
 
+    /// <summary>Whether <paramref name="scene"/> shows a turning floor.</summary>
+    private static bool ShowsFloor(LayeredScene scene) => scene.Layers.ToArray().Any(layer => layer is TurningFloorLayer);
+
     /// <summary>Title updates sampled: the sequence through its zoom, as the GPU's retail frontend check runs it.</summary>
     private const int TitleTicks = 2500;
+
+    /// <summary>Updates between the title's sampled frames.</summary>
+    private const int TitleSampleUpdates = 2;
+
+    /// <summary>Updates between the scenes captured while a phase waits to be checked.</summary>
+    private const int PhaseSampleUpdates = 2;
 
     /// <summary>
     /// The pause screen's map and equipment pages each draw their pictured backgrounds exactly as VRAM's characters draw the
@@ -257,7 +286,9 @@ internal static class ScreenTilePicturesVerification
                 continue;
             layers++;
             string named = $"{name} layer {layers} ({layer.GetType().Name})";
-            RgbaPixel[] pictured = RenderNamed(new LayeredScene(scene.Paint, [layer], DisplayBrightness.Full), named);
+            // The tilemap draws the whole screen, so the grid is compared without the map frame's opening that clips it.
+            DisplayLayer whole = layer is PictureGridLayer windowed ? windowed with { Window = null } : layer;
+            RgbaPixel[] pictured = RenderNamed(new LayeredScene(scene.Paint, [whole], DisplayBrightness.Full), named);
             RgbaPixel[] characters = VramTilemapImage.Draw(tilemap.Rows, tilemap.Size, vram, PauseVramLayout.MapCharacters.Offset,
                 TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, null, scene.Paint.Backdrop);
             AssertSamePixels(pictured, characters, $"{named}: its pictures draw what VRAM's characters draw of the cartridge's tilemap");
@@ -314,14 +345,42 @@ internal static class ScreenTilePicturesVerification
         }
     }
 
-    /// <summary>Runs the screen tile picture checks.</summary>
-    [VerificationCommand("--screen-tile-pictures")]
-    internal static int ScreenTilePicturesCommand()
+    /// <summary>Runs the menu screens' picture checks.</summary>
+    [VerificationCommand("--menu-screen-tile-pictures")]
+    internal static int MenuScreenTilePicturesCommand()
     {
         Suite(nameof(VerifyMenuScreenTilePictures), VerifyMenuScreenTilePictures);
+        return 0;
+    }
+
+    /// <summary>Runs the pause screen's picture checks.</summary>
+    [VerificationCommand("--pause-screen-tile-pictures")]
+    internal static int PauseScreenTilePicturesCommand()
+    {
         Suite(nameof(VerifyPauseScreenTilePictures), VerifyPauseScreenTilePictures);
+        return 0;
+    }
+
+    /// <summary>Runs the cinematics' picture checks.</summary>
+    [VerificationCommand("--cinematic-screen-tile-pictures")]
+    internal static int CinematicScreenTilePicturesCommand()
+    {
         Suite(nameof(VerifyCinematicScreenTilePictures), VerifyCinematicScreenTilePictures);
+        return 0;
+    }
+
+    /// <summary>Runs the ending's picture checks.</summary>
+    [VerificationCommand("--ending-screen-tile-pictures")]
+    internal static int EndingScreenTilePicturesCommand()
+    {
         Suite(nameof(VerifyEndingScreenTilePictures), VerifyEndingScreenTilePictures);
+        return 0;
+    }
+
+    /// <summary>Runs the title sequence's picture checks.</summary>
+    [VerificationCommand("--title-screen-tile-pictures")]
+    internal static int TitleScreenTilePicturesCommand()
+    {
         Suite(nameof(VerifyTitleScreenTilePictures), VerifyTitleScreenTilePictures);
         return 0;
     }

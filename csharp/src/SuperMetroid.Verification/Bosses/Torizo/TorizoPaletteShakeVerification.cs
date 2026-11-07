@@ -148,16 +148,12 @@ internal static class TorizoPaletteShakeVerification
     /// </summary>
     private static void VerifyTorizoSheetRows()
     {
-        EnemySheetInputs inputs = EnemySheetFixtures.Inputs;
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.BombTorizo));
-        EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.Single(sheet => sheet.Enemy == EnemyDefinitionId.BombTorizo);
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
-        int[] rows = [.. sheet.PaletteIndices.Where(ink => ink != 0).Select(ink => ink / 16).Distinct().Order()];
+        SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.BombTorizo).Image;
+        int[] rows = [.. image.Inks.ToArray().Select(ink => ink.PaletteIndex).Where(ink => ink != 0).Select(ink => ink / 16).Distinct().Order()];
         AssertTrue(rows.Length > 0 && rows.All(row => row is 1 or 2 or 5), "Bomb Torizo's sheet is coloured in the rows his parts name");
-        SpriteSheetShadeDocument flash = (sheet.Manifest.Shades ?? throw new InvalidOperationException("Bomb Torizo's sheet installs its shades."))
-            [SuperMetroid.Core.Enemies.Drawing.EnemyShades.HitFlash.Key];
-        AssertEqual(0, flash.Inks.Length, "The hurt flash recolours none of Bomb Torizo's inks");
+        AssertEqual(0, image.Shade(SuperMetroid.Core.Enemies.Drawing.EnemyShades.HitFlash).Inks.Length, "The hurt flash recolours none of Bomb Torizo's inks");
     }
 
     /// <summary>

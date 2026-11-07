@@ -174,33 +174,59 @@ internal static class SheetFrameSources
     }
 
     /// <summary>
-    /// A frame's composition. Installed enemy sheets are registered on the first frame no other sheet holds, since
-    /// composing every graphics set's members takes a while and only enemy draws need them.
+    /// A frame's composition. An installed enemy sheet is registered on the first frame looked up on it, from each
+    /// graphics set that installs it, since composing a set's members takes a while and a check draws few of them.
     /// </summary>
     private static FrameSource? Find(FrameKey key)
     {
         if (sources.Value.TryGetValue(key, out FrameSource? found))
             return found;
-        _ = enemySources.Value;
+        if (!setsInstalling.Value.TryGetValue(key.Sheet, out HashSet<string>? sets))
+            return null;
+        foreach (SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder.Where(drawn => sets.Contains(drawn.Name)))
+            _ = enemySources.GetOrAdd(set.Name, _ => new Lazy<bool>(() => RegisterSet(set))).Value;
         return sources.Value.TryGetValue(key, out found) ? found : null;
     }
 
-    /// <summary>Registers every installed enemy sheet frame with what it was composed from, once.</summary>
-    private static readonly Lazy<bool> enemySources = new(() => SharedFixtureTiming.Load("Fixture: enemy sheet frame sources", () =>
+    /// <summary>The graphics sets that install each enemy and spawned-object sheet, by the sheet's installed name.</summary>
+    private static readonly Lazy<Dictionary<string, HashSet<string>>> setsInstalling = new(() =>
     {
-        SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs inputs =
-            SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
-        foreach (SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder)
+        var result = new Dictionary<string, HashSet<string>>();
+        void Add(string sheet, string set)
+        {
+            if (!result.TryGetValue(sheet, out HashSet<string>? sets))
+                result[sheet] = sets = [];
+            sets.Add(set);
+        }
+        foreach ((SuperMetroid.Core.Enemies.Artwork.EnemySheetKey key, SpriteSheet sheet) in InstalledFixtures.EnemySheets.sheets)
+            Add(sheet.Image.Name, key.Set);
+        foreach ((SuperMetroid.Core.Enemies.Artwork.SpawnedObjectSheetKey key, SuperMetroid.Core.Enemies.Artwork.SpawnedObjectSheet spawned) in InstalledFixtures.EnemySheets.spawned)
+        {
+            foreach (SpriteSheet sheet in spawned.Sheets)
+                Add(sheet.Image.Name, key.Set);
+        }
+        return result;
+    });
+
+    /// <summary>The inputs every graphics set's sheets are composed from.</summary>
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs> enemySheetInputs = new(() =>
+        SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
+
+    /// <summary>Each graphics set whose sheets' frames are registered, once.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<bool>> enemySources = new();
+
+    /// <summary>Registers every installed sheet frame of <paramref name="set"/> with what it was composed from.</summary>
+    private static bool RegisterSet(SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set) =>
+        SharedFixtureTiming.Load($"Fixture: enemy sheet frame sources of {set.Name}", () =>
         {
             SuperMetroid.AssetExtraction.Enemies.GraphicsSetSheetSources setSources =
-                SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.Sources(inputs, set);
+                SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.Sources(enemySheetInputs.Value, set);
             foreach ((SuperMetroid.Core.Enemies.EnemyDefinitionId enemy, SpriteSheetSources composed, _, _, _) in setSources.Enemies)
                 Register(InstalledFixtures.EnemySheets.For(set.Name, enemy), composed);
             foreach ((SuperMetroid.AssetExtraction.Enemies.SpawnedObjectSheetPlan plan, SpriteSheetSources composed, _, _, _) in setSources.Spawned)
                 Register(InstalledFixtures.EnemySheets.Spawned(set.Name, plan.Owner), composed);
-        }
-        return true;
-    }));
+            return true;
+        });
 
     /// <summary>Pairs every installed projectile sheet frame with what it was composed from.</summary>
     private static System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> Build()

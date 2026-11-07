@@ -414,13 +414,14 @@ internal static class EnemySpritemapArtworkVerification
             "both Rinka loops select five distinct OAM frames");
         AssertTrue(RinkaAnimationsConstants.Spritemaps(Enum.GetValues<RinkaProgram>()).ToHashSet().SetEquals(rinkaFrames),
             "every installed Rinka composition is shown by a Rinka program");
+        var differing = new List<string>();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(frame.Bank, frame.Pointer, out var parts),
                 $"installed enemy frame {frame.Name} exists");
             AssertTrue(stock.Enemies.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                 $"installed enemy frame {frame.Name} has a display binding");
-            foreach ((ushort x, ushort y, ushort palette, ushort baseTile) in
+        foreach ((ushort x, ushort y, ushort palette, ushort baseTile) in
                      new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase4[]
                      {
                          new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase4(0x0010, 0x0020, 0, 0),
@@ -450,6 +451,9 @@ internal static class EnemySpritemapArtworkVerification
             // it uploads shows, as Ridley carrying the Ceres Baby, draws through that enemy's own route instead.
             if (FrameOwner(RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer)) is not { } owner)
                 continue;
+            // An enemy no retail room places, as the shootable horizontal shutter, has no production room to draw it in.
+            if (!SpawnedObjectFixtures.Drawn(owner))
+                continue;
             RoomEnemySlot? drawn = null;
             RoomEnemySystem? drawnRoom = null;
             int drawnRow = 0;
@@ -470,17 +474,25 @@ internal static class EnemySpritemapArtworkVerification
                 BaseTileIndex = checked((ushort)drawnBase),
             });
             // A picture the sheet keeps once for several identical frames stands for any of their OAM (#1513).
-            AssertTrue(room.ImageEquals(nativeRoom) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
+            bool stands = room.ImageEquals(nativeRoom) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
                 {
                     RoomEnemySystem redrawn = drawnRoom ?? throw new InvalidOperationException("Verification requires the drawn room.");
                     redrawn.Drawing.AdvanceLayers(new(0, 0), 0, 0);
                     redrawn.Drawing.DrawLayers(sprites, new(0, 0), 0, 0);
-                }, nativeRoom),
-                $"production room draws installed {frame.Name} without visual ROM reads");
+                }, nativeRoom);
+            if (!stands)
+                differing.Add($"{frame.Name} (drawn by {owner}): native {OamRecords(nativeRoom)}, installed {OamRecords(room)}");
         }
+        AssertTrue(differing.Count == 0,
+            $"production room draws every installed frame without visual ROM reads; {differing.Count} differ (x, y, tile, attributes):\n{string.Join("\n", differing)}");
 
         Suite(nameof(VerifyInstalledMotherBrainDrawHook), () => VerifyInstalledMotherBrainDrawHook(rom, stock));
         Suite(nameof(VerifyInstalledRidleySupplementalArtwork), () => VerifyInstalledRidleySupplementalArtwork(rom, stock));
+
+        // The used records of an OAM low table, for a failure message.
+        static string OamRecords(OamBuffer oam) => string.Join(" ",
+            Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>
+                $"({oam.LowTable[record * 4]:X2},{oam.LowTable[(record * 4) + 1]:X2},{oam.LowTable[(record * 4) + 2]:X2},{oam.LowTable[(record * 4) + 3]:X2})"));
 
         // Ridley's scene adds his tail and wings to his body, so his frames are checked through his scene's own route.
         static EnemyDefinitionId? FrameOwner(EnemyFrameId? frame) => frame is not { } shown ? null

@@ -122,11 +122,16 @@ internal static class EncounterArtworkDrawingDefinitions
     /// <summary>The faces of her living brain her leg pages complete; her other living faces are her room's load.</summary>
     private static readonly EnemyFrameId[] MotherBrainAttackFaces = [EnemyFrameId.MotherBrainHead9, EnemyFrameId.MotherBrainHead10];
 
-    /// <summary>Her onion rings and bombs, which her attack pages complete.</summary>
-    private static readonly EnemyProjectileFrameId[] MotherBrainAttackEffects =
+    /// <summary>Her onion rings, whose characters her leg pages complete.</summary>
+    private static readonly EnemyProjectileFrameId[] MotherBrainRings =
     [
         EnemyProjectileFrameId.MotherBrainBlueRing00, EnemyProjectileFrameId.MotherBrainBlueRing01, EnemyProjectileFrameId.MotherBrainBlueRing02,
         EnemyProjectileFrameId.MotherBrainBlueRing03, EnemyProjectileFrameId.MotherBrainBlueRing04, EnemyProjectileFrameId.MotherBrainBlueRing05,
+    ];
+
+    /// <summary>Her bombs, which her attack pages complete.</summary>
+    private static readonly EnemyProjectileFrameId[] MotherBrainAttackEffects =
+    [
         EnemyProjectileFrameId.Projectile86C76eFrame00, EnemyProjectileFrameId.Projectile86C76eFrame01, EnemyProjectileFrameId.Projectile86C76eFrame02,
         EnemyProjectileFrameId.Projectile86C76eFrame03, EnemyProjectileFrameId.Projectile86C76eFrame04, EnemyProjectileFrameId.Projectile86C76eFrame05,
         EnemyProjectileFrameId.Projectile86C76eFrame06, EnemyProjectileFrameId.Projectile86C76eFrame07, EnemyProjectileFrameId.Projectile86C76eFrame08,
@@ -201,7 +206,15 @@ internal static class EncounterArtworkDrawingDefinitions
             CompletedBy = EncounterArtworkSource.MotherBrainBabyMetroid,
         };
 
-    /// <summary>Her onion rings and bombs, which fly from her first attack pages until her death.</summary>
+    /// <summary>Her onion rings, which fly from her first attack pages until her death.</summary>
+    private static readonly EncounterArtworkDrawing MotherBrainRingsDrawn =
+        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(8, 25)])
+        {
+            Projectiles = MotherBrainRings,
+            CompletedBy = EncounterArtworkSource.MotherBrainLegs,
+        };
+
+    /// <summary>Her bombs, which fly from her first attack pages until her death.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainAttacks =
         new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(8, 25)])
         {
@@ -217,7 +230,7 @@ internal static class EncounterArtworkDrawingDefinitions
         new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(8, 25), new(34, 34)])
         {
             Projectiles = [.. MotherBrainEffectFrameDefinitions.ShownProjectileFrames.Select(entry => entry.Value)
-                .Except(MotherBrainAttackEffects).Except(MotherBrainDoorFragments).Except(MotherBrainSubtitle)],
+                .Except(MotherBrainRings).Except(MotherBrainAttackEffects).Except(MotherBrainDoorFragments).Except(MotherBrainSubtitle)],
             CompletedBy = EncounterArtworkSource.RoomLoad,
         };
 
@@ -238,14 +251,14 @@ internal static class EncounterArtworkDrawingDefinitions
         };
 
     /// <summary>
-    /// Mother Brain's red hand beam, which only her second phase fires: she stands to attack once her rise has shown its
-    /// last attack page, and her rainbow beam ends the phase long before the Baby's first page.
+    /// Mother Brain's red hand beam, which only her second phase fires and her attack pages complete: she stands to attack
+    /// once her rise has shown its last attack page, and her rainbow beam ends the phase long before the Baby's first page.
     /// </summary>
     private static readonly EncounterArtworkDrawing MotherBrainHandBeam =
         new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: false, [new(11, 11)])
         {
             Projectiles = [.. MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
-            CompletedBy = EncounterArtworkSource.RoomLoad,
+            CompletedBy = EncounterArtworkSource.MotherBrainAttack,
         };
 
     /// <summary>The dust rising from Mother Brain's death, her corpse's rot and the exploding escape door.</summary>
@@ -274,6 +287,7 @@ internal static class EncounterArtworkDrawingDefinitions
         MotherBrainCorpse,
         MotherBrainBody,
         BabyMetroid,
+        MotherBrainRingsDrawn,
         MotherBrainAttacks,
         MotherBrainEffects,
         MotherBrainDoorFragmentsDrawn,

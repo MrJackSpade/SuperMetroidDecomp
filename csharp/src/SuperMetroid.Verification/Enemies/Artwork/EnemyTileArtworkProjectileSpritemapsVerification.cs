@@ -183,6 +183,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
+                if (IsOnNoSheet(operand))
+                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -230,6 +232,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
+                if (IsOnNoSheet(operand))
+                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -252,6 +256,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
+                if (IsOnNoSheet(operand))
+                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -301,6 +307,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
+                if (IsOnNoSheet(operand))
+                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -332,6 +340,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
+                if (IsOnNoSheet(operand))
+                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand, NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
@@ -439,11 +449,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     EnemyProjectileFrameId shown = EnemyProjectileProgramFrameOperands.Frame(frame.OperandAddress);
                     if (SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.Common.Any(common => common.Objects.Projectiles.Contains(shown)))
                     {
-                        AssertTrue(DrawReferenceProgramFrame(artwork, frame.OperandAddress, bus)
-                                .LowTable.SequenceEqual(DrawSharedFrame(artwork,
-                                    frame.OperandAddress,
-                                    NewEnemyProjectileVisualGuard(bus)).LowTable),
-                            $"shared frame $86:{frame.OperandAddress:X4} runs without visual ROM reads");
+                        OamBuffer sharedReference = DrawReferenceProgramFrame(artwork, frame.OperandAddress, bus);
+                        OamBuffer sharedDrawn = DrawSharedFrame(artwork, frame.OperandAddress, NewEnemyProjectileVisualGuard(bus));
+                        AssertTrue(InstalledStandsFor(sharedReference, sharedDrawn, artwork, frame.OperandAddress, RoomEnemyProjectileKind.MiscDustExplosion),
+                            $"shared frame $86:{frame.OperandAddress:X4} runs without visual ROM reads: " +
+                            $"records (x, y, tile, attributes) native {OamRecords(sharedReference)}, installed {OamRecords(sharedDrawn)}");
                     }
                     else
                     {
@@ -454,8 +464,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                             RoomEnemySystem system = SpawnerSystem(artwork, spawner, shown);
                             OamBuffer reference = DrawReferenceProgramFrameWith(frame.OperandAddress, bus, word(system));
                             OamBuffer drawn = DrawSpawnerFrame(system, frame.OperandAddress, graphics);
-                            AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable) || SharedPictureStandsFor(system, reference)
-                                    || ShowsNothingOnItsSheet(system, spawner, graphics, shown, drawn),
+                            AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable) || SharedPictureStandsFor(system, reference),
                                 $"{spawner}'s frame $86:{frame.OperandAddress:X4} runs without visual ROM reads under {graphics.Owner}: " +
                                 $"records (x, y, tile, attributes) native {OamRecords(reference)}, installed {OamRecords(drawn)}");
                         }
@@ -577,20 +586,26 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 SpriteFrameBufferAccess.Assemble([candidate], parkUnused: false).LowTable.SequenceEqual(reference.LowTable));
         }
 
-        // Whether the frame drew nothing because its spawner's sheet names its picture among those that show nothing (#1513):
-        // a frame whose completing pages never write the characters it reads, as Mother Brain's first onion-ring frame,
-        // reads only another family's artwork there, has none of its own and is drawn as nothing, though the cartridge
-        // still writes its records (#1534).
-        static bool ShowsNothingOnItsSheet(RoomEnemySystem enemies, EnemyDefinitionId spawner, SpriteGraphics graphics,
-            EnemyProjectileFrameId frame, OamBuffer drawn) =>
-            drawn.NextByteOffset == 0
-            && (enemies.Room.Session.Sheets ?? throw new InvalidOperationException("Verification draws from the installed enemy sheets."))
-                .SpawnedShowsNothing(SpawnedObjectFixtures.SetDrawing(spawner), graphics.Owner, EnemySheetDefinitions.ProjectileFrameName(frame));
-
         // The used records of an OAM low table, for a failure message.
         static string OamRecords(OamBuffer oam) => string.Join(" ",
             Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>
                 $"({oam.LowTable[record * 4]:X2},{oam.LowTable[(record * 4) + 1]:X2},{oam.LowTable[(record * 4) + 2]:X2},{oam.LowTable[(record * 4) + 3]:X2})"));
+
+        // A frame on no sheet, so no set loads it (#1513): one showing the empty spritemap draws nothing, and these are never
+        // started: no code spawns the Wrecked Ship Chozo's spike-clearing explosions or Shaktool's attack circles. Any other
+        // frame a spawn table lacks fails loudly in the set load, as a frame the game can draw must be on a sheet.
+        static bool IsOnNoSheet(ushort operand)
+        {
+            EnemyProjectileFrameId frame = EnemyProjectileProgramFrameOperands.Frame(operand);
+            return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames.Contains(frame)
+                || frame is EnemyProjectileFrameId.ChozoTourianDustFrame04 or EnemyProjectileFrameId.ChozoTourianDustFrame05
+                    or EnemyProjectileFrameId.ChozoTourianDustFrame06 or EnemyProjectileFrameId.ChozoTourianDustFrame07
+                    or EnemyProjectileFrameId.ChozoTourianDustFrame08 or EnemyProjectileFrameId.ChozoTourianDustFrame09
+                    or EnemyProjectileFrameId.ShaktoolFrame00 or EnemyProjectileFrameId.ShaktoolFrame01
+                    or EnemyProjectileFrameId.ShaktoolFrame02 or EnemyProjectileFrameId.ShaktoolFrame03
+                    or EnemyProjectileFrameId.ShaktoolFrame04 or EnemyProjectileFrameId.ShaktoolFrame05
+                    or EnemyProjectileFrameId.ShaktoolFrame06 or EnemyProjectileFrameId.ShaktoolFrame07;
+        }
 
         static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)
         {

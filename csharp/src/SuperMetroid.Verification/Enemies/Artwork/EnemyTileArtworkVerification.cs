@@ -224,6 +224,16 @@ internal static class EnemyTileArtworkVerification
         new(nameof(VerifyEnemyFrameArtwork), () => VerifyEnemyFrameArtwork()),
     ];
 
+    /// <summary>Runs only the installed enemy spritemaps' comparison against retail.</summary>
+    [VerificationCommand("--installed-enemy-spritemaps")]
+    internal static int InstalledEnemySpritemapsCommand()
+    {
+        var fixture = new EnemyTileFixture();
+        var (bus, _, stock) = fixture;
+        Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, stock));
+        return 0;
+    }
+
     /// <summary>Runs only the installed Zebetite pulse-colour comparison against retail.</summary>
     [VerificationCommand("--zebetite-colors")]
     internal static int ZebetiteColorsCommand()

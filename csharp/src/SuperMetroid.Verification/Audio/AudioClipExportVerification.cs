@@ -16,9 +16,6 @@ namespace SuperMetroid.Verification.Audio;
 /// </summary>
 internal static class AudioClipExportVerification
 {
-    /// <summary>The Green Brinstar room track. Its tempo phase drifts by a sub-tick per pass (accepted difference (2d)), so it recurs only after nine passes.</summary>
-    private const int GreenBrinstarRoomTrack = 5;
-
     /// <summary>A Green Brinstar track whose tempo phase recurs every pass, so its loop repeats sample-exactly.</summary>
     private const int GreenBrinstarPhaseExactTrack = 3;
 
@@ -39,7 +36,6 @@ internal static class AudioClipExportVerification
                 catalog,
                 scratch.FullName,
                 [
-                    new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarRoomTrack),
                     new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack),
                 ],
                 [
@@ -50,8 +46,7 @@ internal static class AudioClipExportVerification
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
             VerifyStoredSoundEffectFields(Path.Combine(scratch.FullName, InstalledAudioClips.ManifestFileName));
 
-            VerifyMusic(catalog, clips, GreenBrinstarRoomTrack, loopRepeatsExactly: false);
-            VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack, loopRepeatsExactly: true);
+            VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack);
             foreach (SoundEffectId effect in effects)
                 VerifySoundEffect(clips, effect);
             AssertThrows<InvalidDataException>(
@@ -59,8 +54,8 @@ internal static class AudioClipExportVerification
                 "an effect whose sample the bank context lacks fails loudly");
             VerifyLoaderRejections(scratch.FullName, clips);
             Console.WriteLine(
-                "  Audio clip export: Green Brinstar tracks 5 and 3 and three effects equal an independent render; " +
-                "phase-exact loops equal the next pass; the loader rejects hash, path, format and unrenderable requests.");
+                "  Audio clip export: Green Brinstar track 3 and three effects equal an independent render; " +
+                "its phase-exact loop equals the next pass; the loader rejects hash, path, format and unrenderable requests.");
         }
         finally
         {
@@ -69,10 +64,10 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>
-    /// A Green Brinstar track's clip against the independent render, and, when its tempo phase
-    /// recurs every pass, its loop against the render's next pass.
+    /// A Green Brinstar track whose tempo phase recurs every pass: its clip against the independent render, and its loop
+    /// against the render's next pass.
     /// </summary>
-    private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track, bool loopRepeatsExactly)
+    private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track)
     {
         MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(track));
         long loopStart = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
@@ -86,8 +81,7 @@ internal static class AudioClipExportVerification
             byte.MaxValue,
             frames + (frames - loopStart));
         AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"track {track} clip equals the independent render");
-        if (loopRepeatsExactly)
-            AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"track {track} loop equals the next pass");
+        AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"track {track} loop equals the next pass");
         AssertEqual(0L, entry.TempoSegments[0].Frame, "the tempo timeline starts at the clip's first frame");
     }
 

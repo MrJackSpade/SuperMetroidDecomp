@@ -92,8 +92,8 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>The gameplay clock's hours component, saturated by gameplay at 99.</summary>
     public int GameTimeHours { get; init; }
 
-    /// <summary>The startup dispatcher route, carried unchanged including values the dispatcher does not name.</summary>
-    public int LoadingGameState { get; init; } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
+    /// <summary>The startup route the save resumes by.</summary>
+    public SaveLoadingGameState StartupRoute { get; init; } = SaveLoadingGameState.MainGame;
 
     /// <summary>The zero-based load-station index within <see cref="Area"/>.</summary>
     public int SaveStation { get; init; }
@@ -143,7 +143,7 @@ public sealed record SuperMetroidSaveSnapshot
             GameTimeSeconds = context.GameTime?.Seconds ?? 0,
             GameTimeMinutes = context.GameTime?.Minutes ?? 0,
             GameTimeHours = context.GameTime?.Hours ?? 0,
-            LoadingGameState = system.SavedLoadingGameState,
+            StartupRoute = system.SavedStartupRoute,
             SaveStation = context.SaveStation,
             Area = AreaIds.ToIndex(context.Area),
             Progress = system.Progress.Copy(),

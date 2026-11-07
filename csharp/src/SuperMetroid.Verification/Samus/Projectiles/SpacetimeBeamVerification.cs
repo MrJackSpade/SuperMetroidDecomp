@@ -80,7 +80,7 @@ internal static class SpacetimeBeamVerification
         // Progress as the native probe's sentinel-filled tables decode, with the opening cinematic as the loading state.
         var system = new SharedGameState();
         system.Progress.CopyFrom(SentinelProgression().Progress);
-        system.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.OpeningCinematic));
+        system.LoadSavedStartupRoute(SaveLoadingGameState.OpeningCinematic);
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
@@ -95,8 +95,9 @@ internal static class SpacetimeBeamVerification
         SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
-        AssertEqual(0x0880, system.SavedLoadingGameState,
-            "retail frame-one loading_game_state corruption");
+        // The overwrite writes word $0880, which the dispatcher does not name, so it resumes the main game (#1523).
+        AssertEqual(SaveLoadingGameState.MainGame, system.SavedStartupRoute,
+            "retail frame-one loading_game_state corruption resumes the main game");
         AssertEqual((ushort)0x100e, samus.EquippedBeams.ToEquipmentWord(),
             "SpaceTime corruption does not rewrite live equipment");
 
@@ -106,8 +107,8 @@ internal static class SpacetimeBeamVerification
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams.ToEquipmentWord(),
             "save retains invalid SpaceTime equipment");
-        AssertEqual(0x0880, saved.LoadingGameState,
-            "save retains corrupted startup dispatcher word");
+        AssertEqual(SaveLoadingGameState.MainGame, saved.StartupRoute,
+            "save retains the corrupted startup route");
         AssertTrue(saved.Progression.SameAs(system.Progress),
             "save retains the corrupted events, bosses, orbs, items, doors, stations and maps");
 
@@ -160,8 +161,8 @@ internal static class SpacetimeBeamVerification
             byte[] expected = [.. native.Select(value => value ?? ProgressionSentinel)];
             AssertTrue(DecodeSlice(expected).SameAs(state.Progress),
                 $"SpaceTime from {cursor} in slot {slot} leaves every event, boss, orb, item, door, station and map as the original copy does");
-            AssertEqual(LittleEndianBytes.Word(expected[ProgressionSliceLayout.LoadingGameStateOffset], expected[ProgressionSliceLayout.LoadingGameStateOffset + 1]),
-                state.SavedLoadingGameState, $"SpaceTime from {cursor} in slot {slot} leaves the loading state as the original copy does");
+            AssertEqual(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(LittleEndianBytes.Word(expected[ProgressionSliceLayout.LoadingGameStateOffset], expected[ProgressionSliceLayout.LoadingGameStateOffset + 1])),
+                state.SavedStartupRoute, $"SpaceTime from {cursor} in slot {slot} leaves the loading state as the original copy does");
             situations++;
         }
         AssertTrue(reaching > 0, "Some SpaceTime animation positions copy into progression");
@@ -181,7 +182,7 @@ internal static class SpacetimeBeamVerification
     {
         var state = new SharedGameState();
         state.Progress.CopyFrom(DecodeSlice(Enumerable.Repeat(ProgressionSentinel, SpacetimeCopyOracle.ProgressionSliceByteCount).ToArray()));
-        state.LoadSavedLoadingGameState(LittleEndianBytes.Word(ProgressionSentinel, ProgressionSentinel));
+        state.LoadSavedStartupRoute(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(LittleEndianBytes.Word(ProgressionSentinel, ProgressionSentinel)));
         return state;
     }
 
@@ -223,7 +224,7 @@ internal static class SpacetimeBeamVerification
                 CollectedBeams = (SamusBeamFlags)0x100f,
                 EquippedItems = SamusEquipmentFlags.GravitySuit,
                 CollectedItems = SamusEquipmentFlags.GravitySuit,
-                LoadingGameState = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.OpeningCinematic),
+                StartupRoute = SaveLoadingGameState.OpeningCinematic,
             };
             for (int number = 0; number < PersistentProgress.EventCount; number++)
                 snapshot.Progress.Events.Add(number);

@@ -155,7 +155,7 @@ internal static class SamusOverreadServicesReader
                 area => Parse<AreaId>(area.Key, "SpaceTime station area"), area => area.Value),
             Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime map area"), area => area.Value),
-            overwrite.SavedLoadingGameState);
+            overwrite.SavedLoadingGameState is int word ? SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(word) : null);
 
     /// <summary>Every animation position the Chainsaw fuse lands somewhere.</summary>
     private static ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> ChainsawFuseShift(

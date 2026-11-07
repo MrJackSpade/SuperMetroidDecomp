@@ -33,7 +33,7 @@ internal static class AutomaticCheckpointSaver
         Ensure.NotNull(runtime);
         SamusState samus = runtime.Player.Samus
             ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
-        runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(route));
+        runtime.System.LoadSavedStartupRoute(route);
         // Saving first stores the live explored map as Ceres's.
         runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Ceres);
         saves.SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = AreaId.Ceres, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
@@ -60,7 +60,7 @@ internal static class AutomaticCheckpointSaver
         // The gunship sets the ship-landed marker before changing load station 18 to
         // station zero and calling SaveToSram. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
-        runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame));
+        runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
         runtime.System.MarkSaveStationUsed(area: AreaId.Crateria, stationBitIndex: 0);
         // Saving first stores the live explored map as Crateria's.
         runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Crateria);

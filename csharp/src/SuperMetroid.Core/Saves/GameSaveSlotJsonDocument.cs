@@ -64,9 +64,6 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>The checksummed new-file initialization marker, carried unchanged.</summary>
     public required int NewFileMarker { get; init; }
 
-    /// <summary>
-    /// The startup dispatcher route, carried unchanged including values the dispatcher does not name. Older JSON
-    /// saves omitted this translated field and therefore retain the ordinary main-game default.
-    /// </summary>
-    public int LoadingGameState { get; init; } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
+    /// <summary>The startup route the save resumes by; a save without one resumes the main game.</summary>
+    public SaveLoadingGameState StartupRoute { get; init; } = SaveLoadingGameState.MainGame;
 }

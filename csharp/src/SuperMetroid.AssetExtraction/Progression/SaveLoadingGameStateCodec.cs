@@ -1,8 +1,12 @@
-namespace SuperMetroid.Core.Progression;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
+
+namespace SuperMetroid.AssetExtraction.Progression;
 
 /// <summary>
 /// Converts between a save's loading-game-state word (<c>SRAMMirror_LoadingGameState</c>, $7E:D914) and the startup route
-/// $82:EEB4 selects from it after file selection.
+/// $82:EEB4 selects from it after file selection, where the cartridge's save data enters or leaves the port: the SRAM
+/// codec and the SpaceTime Beam overwrite (#1523).
 /// </summary>
 [EncodingOwner("save slot loading-state word")]
 public static class SaveLoadingGameStateCodec

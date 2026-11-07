@@ -141,7 +141,7 @@ public static class GameSaveJsonCodec
         LoadedItemCount = slot.LoadedItemCount,
         DebugMode = slot.DebugFlag,
         NewFileMarker = slot.NewFileMarker,
-        LoadingGameState = slot.LoadingGameState,
+        StartupRoute = slot.StartupRoute,
         Progression = CaptureProgression(slot.Progression),
     };
 
@@ -183,7 +183,7 @@ public static class GameSaveJsonCodec
             LoadedItemCount = slot.LoadedItemCount,
             DebugFlag = slot.DebugMode,
             NewFileMarker = slot.NewFileMarker,
-            LoadingGameState = slot.LoadingGameState,
+            StartupRoute = slot.StartupRoute,
             EquippedItems = slot.Inventory.EquippedItems,
             CollectedItems = slot.Inventory.CollectedItems,
             EquippedBeams = slot.Inventory.EquippedBeams,
@@ -248,7 +248,8 @@ public static class GameSaveJsonCodec
         RequireRange(slot.LoadedItemCount, SaveFieldValue.MaximumValue, expectedSlot, "loadedItemCount");
         RequireRange(slot.DebugMode, SaveFieldValue.MaximumValue, expectedSlot, "cartridgeDebugFlag");
         RequireRange(slot.NewFileMarker, SaveFieldValue.MaximumValue, expectedSlot, "newFileMarker");
-        RequireRange(slot.LoadingGameState, SaveFieldValue.MaximumValue, expectedSlot, "loadingGameState");
+        if (!Enum.IsDefined(slot.StartupRoute))
+            throw new InvalidDataException($"slots[{expectedSlot}].startupRoute names no startup route");
         SaveResourcesJsonDocument resources = slot.Resources;
         foreach ((int value, string property) in new SaveFieldCheck[]
                  {

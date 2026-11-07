@@ -11,17 +11,10 @@ namespace SuperMetroid.Core.Progression;
 public sealed class SharedGameState
 {
     /// <summary>
-    /// Saved frontend dispatcher value, 0 through 65,535: the save field's range. Ordinary gameplay persists state five;
-    /// SpaceTime Beam can overwrite this independently of Samus equipment and checkpoint, so any value a save field holds
-    /// is possible. It is only copied, never counted or compared by sign.
+    /// The startup route the next save keeps. Ordinary gameplay saves the main game; SpaceTime Beam can overwrite it
+    /// independently of Samus's equipment and checkpoint.
     /// </summary>
-    public int SavedLoadingGameState
-    {
-        get;
-        private set => field = SaveFieldValue.IsInRange(value)
-            ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "The saved loading game state is a save field.");
-    } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
+    public SaveLoadingGameState SavedStartupRoute { get; private set; } = SaveLoadingGameState.MainGame;
 
     /// <summary>Creates the shared state over its own random-number generator, with the game's power-on seed.</summary>
     public SharedGameState()
@@ -62,9 +55,10 @@ public sealed class SharedGameState
     /// <summary>The frame the save file found at power-on adds to every rising-liquid and Tourian-statue earthquake rumble's delay.</summary>
     public PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; }
 
-    /// <summary>Restores the saved loading game state from one checksummed save slot or a checkpoint.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is outside a save field's range.</exception>
-    public void LoadSavedLoadingGameState(int value) => SavedLoadingGameState = value;
+    /// <summary>Restores the saved startup route from one checksummed save slot or a checkpoint.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="route"/> is not a defined route.</exception>
+    public void LoadSavedStartupRoute(SaveLoadingGameState route) =>
+        SavedStartupRoute = Enum.IsDefined(route) ? route : throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route.");
 
     /// <summary>
     /// Cumulative item PLM initializations, including repeat visits, 0 through 65,535. The count is saved as one save
@@ -85,13 +79,12 @@ public sealed class SharedGameState
     /// reaches it.
     /// </summary>
     /// <exception cref="ArgumentException">The overwrite decides more flags than a range numbers.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The loading state is not a save field.</exception>
     internal void Overwrite(ProgressionOverwrite overwrite)
     {
         Ensure.NotNull(overwrite);
         Progress.Overwrite(overwrite);
-        if (overwrite.SavedLoadingGameState is { } loadingState)
-            SavedLoadingGameState = loadingState;
+        if (overwrite.SavedStartupRoute is { } route)
+            LoadSavedStartupRoute(route);
     }
 
     /// <summary>The session's shared random-number generator.</summary>

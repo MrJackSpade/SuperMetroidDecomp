@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Saves;
 public static class GameSaveJsonFormat
 {
     /// <summary>
-    /// Schema three lists each area's defeated bosses, used stations and acquired map by area (#1475); the hosts'
-    /// legacy importer upgrades schemas one and two.
+    /// Schema four names each slot's startup route (#1523); schema three listed each area's defeated bosses, used
+    /// stations and acquired map by area (#1475). The hosts' legacy importer upgrades schemas one through three.
     /// </summary>
-    public const int SchemaVersion = 3;
+    public const int SchemaVersion = 4;
 
     /// <summary>Bytes per legacy schema-one import page; never emitted by schemas two and three.</summary>
     public const int PreservationPageByteCount = 256;

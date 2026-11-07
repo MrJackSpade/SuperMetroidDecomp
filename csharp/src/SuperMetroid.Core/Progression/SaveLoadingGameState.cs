@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The startup routes the game selects from a saved loading-state word after file selection; <see cref="SaveLoadingGameStateCodec"/> converts
-/// between them. Any word the dispatcher does not name resumes the main game.
+/// The startup route a save resumes by after file selection: the opening cinematic for a new game, the file-select area
+/// map and saved checkpoint for the main game, or one of the two Ceres checkpoints.
 /// </summary>
 public enum SaveLoadingGameState
 {

@@ -101,7 +101,7 @@ internal static class GameSaveJsonVerification
         AssertEqual(7, restoredSlot.GameTimeHours, "JSON game-time hours");
 
         AssertInvalidJsonSave(
-            json.Replace("\"schemaVersion\": 3", "\"schemaVersion\": 99", StringComparison.Ordinal),
+            json.Replace($"\"schemaVersion\": {GameSaveJsonFormat.SchemaVersion}", "\"schemaVersion\": 99", StringComparison.Ordinal),
             "schemaVersion");
         AssertInvalidJsonSave(
             json.Replace("\"selectedSlot\": 1,", "\"selectedSlot\": 1,\n  \"unknownField\": true,",
@@ -232,7 +232,7 @@ internal static class GameSaveJsonVerification
         {
             DebugFlag = SaveFieldValue.MaximumValue,
             NewFileMarker = 0,
-            LoadingGameState = SaveFieldValue.MaximumValue,
+            StartupRoute = SaveLoadingGameState.CeresDestruction,
         };
         store.SaveSlot(0, snapshot);
         byte[] sram = SaveRamCodec.Encode(store, maps);
@@ -242,7 +242,7 @@ internal static class GameSaveJsonVerification
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "JSON carries the largest item-load count");
         AssertEqual(SaveFieldValue.MaximumValue, slot.DebugMode, "JSON carries the largest debug value");
         AssertEqual(0, slot.NewFileMarker, "JSON carries a zero new-file marker");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.LoadingGameState, "JSON carries an unnamed dispatcher route unchanged");
+        AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
         AssertEqual(SaveFieldValue.MaximumValue, slot.Checkpoint.SaveStation, "JSON carries the largest load station");
         AssertEqual(7, slot.Resources.ReserveMissiles, "JSON carries the reserve-missile count");
 

@@ -119,7 +119,7 @@ internal static class SaveRamCodecVerification
             LoadedItemCount = SaveFieldValue.MaximumValue,
             DebugFlag = SaveFieldValue.MaximumValue,
             NewFileMarker = 0,
-            LoadingGameState = SaveFieldValue.MaximumValue,
+            StartupRoute = SaveLoadingGameState.CeresDestruction,
             SaveStation = SaveFieldValue.MaximumValue,
             Area = SaveFieldValue.MaximumValue,
             GameTimeFrames = SaveFieldValue.MaximumValue,
@@ -136,8 +136,9 @@ internal static class SaveRamCodecVerification
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "the item-load counter decodes its largest value");
         AssertEqual(SaveFieldValue.MaximumValue, slot.DebugFlag, "the debug value decodes its largest value");
         AssertEqual(0, slot.NewFileMarker, "the new-file marker decodes zero");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.LoadingGameState, "an unnamed dispatcher route decodes unchanged");
-        AssertEqual(SaveLoadingGameState.MainGame, slot.StartupRoute, "an unnamed dispatcher route resumes the main game");
+        AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "the startup route round-trips through its SRAM word");
+        AssertEqual(SaveLoadingGameState.MainGame, SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(SaveFieldValue.MaximumValue),
+            "a dispatcher word the cartridge does not name resumes the main game");
         AssertEqual(SaveFieldValue.MaximumValue, slot.SaveStation, "the load station decodes its largest value");
         AssertEqual(SaveFieldValue.MaximumValue, slot.Area, "the checkpoint area decodes its largest value");
         AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeHours, "the clock's hours decode their largest value");
@@ -150,7 +151,6 @@ internal static class SaveRamCodecVerification
         foreach ((string field, SuperMetroidSaveSnapshot outOfRange) in new VerifyWidenedSlotFieldsRoundTripCase[]
                  {
                      new VerifyWidenedSlotFieldsRoundTripCase("item-load counter", extremes with { LoadedItemCount = SaveFieldValue.MaximumValue + 1 }),
-                     new VerifyWidenedSlotFieldsRoundTripCase("dispatcher route", extremes with { LoadingGameState = -1 }),
                      new VerifyWidenedSlotFieldsRoundTripCase("load station", extremes with { SaveStation = SaveFieldValue.MaximumValue + 1 }),
                      new VerifyWidenedSlotFieldsRoundTripCase("clock minutes", extremes with { GameTimeMinutes = -1 }),
                  })
@@ -163,8 +163,8 @@ internal static class SaveRamCodecVerification
     }
 
     /// <summary>
-    /// The progression owner's saved fields: the loaded-item count and the saved dispatcher route accept exactly a save
-    /// field's range, and an area's boss state holds the named flags a save image's boss byte stores; the bits no routine
+    /// The progression owner's saved fields: the loaded-item count accepts exactly a save field's range, the saved startup route
+    /// only a defined route, and an area's boss state holds the named flags a save image's boss byte stores; the bits no routine
     /// tests are not progress (#1475).
     /// </summary>
     internal static void VerifyProgressionSavedFields()
@@ -175,10 +175,8 @@ internal static class SaveRamCodecVerification
             "a loaded-item count past a save field is rejected instead of wrapping");
         AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = -1, "a negative loaded-item count is rejected");
         AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "a rejected count leaves the count unchanged");
-        system.LoadSavedLoadingGameState(SaveFieldValue.MaximumValue);
-        AssertEqual(SaveFieldValue.MaximumValue, system.SavedLoadingGameState, "an unnamed dispatcher route is kept as loaded");
-        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedLoadingGameState(-1),
-            "a dispatcher route outside a save field is rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedStartupRoute((SaveLoadingGameState)(-1)),
+            "an undefined startup route is rejected");
 
         // A save image's boss byte with a bit no routine tests beside two named ones: only the named flags are progress,
         // and typed operations change only the named flags; writing the table back leaves the untested bit clear.

@@ -121,7 +121,7 @@ public static class SaveRamCodec
             GameTimeMinutes: ReadWord(payload, SaveRamLayout.GameTimeMinutesOffset),
             GameTimeHours: ReadWord(payload, SaveRamLayout.GameTimeHoursOffset),
             Progression: DecodeProgression(payload, maps),
-            LoadingGameState: ReadWord(payload, SaveRamLayout.LoadingGameStateOffset),
+            StartupRoute: SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(ReadWord(payload, SaveRamLayout.LoadingGameStateOffset)),
             SaveStation: ReadWord(payload, SaveRamLayout.SaveStationOffset),
             Area: ReadWord(payload, SaveRamLayout.AreaOffset))
         {
@@ -190,7 +190,7 @@ public static class SaveRamCodec
 
         EncodeProgression(snapshot.Progress, payload);
         WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,
-            SaveFieldValue.Encode(snapshot.LoadingGameState, nameof(snapshot.LoadingGameState)));
+            SaveFieldValue.Encode(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Word(snapshot.StartupRoute), nameof(snapshot.StartupRoute)));
         WriteWord(payload, SaveRamLayout.SaveStationOffset, SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation)));
         WriteWord(payload, SaveRamLayout.AreaOffset, SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area)));
         SaveRamMapPacking.Pack(snapshot.Progress, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
@@ -228,7 +228,7 @@ public static class SaveRamCodec
         GameTimeSeconds = slot.GameTimeSeconds,
         GameTimeMinutes = slot.GameTimeMinutes,
         GameTimeHours = slot.GameTimeHours,
-        LoadingGameState = slot.LoadingGameState,
+        StartupRoute = slot.StartupRoute,
         SaveStation = slot.SaveStation,
         Area = slot.Area,
         Progress = slot.Progression.Copy(),

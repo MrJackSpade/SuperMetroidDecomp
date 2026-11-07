@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Progression;
 /// <param name="OpenedDoors">The doors, by room-data number, the copy decides.</param>
 /// <param name="UsedStations">Each area whose used save stations and elevators, by station number, the copy decides.</param>
 /// <param name="AreaMaps">Each area whose map the copy leaves acquired (true) or not (false).</param>
-/// <param name="SavedLoadingGameState">The saved loading state replacing the session's, 0 through 65535, or null when the copy stops before it.</param>
+/// <param name="SavedStartupRoute">The saved startup route replacing the session's, or null when the copy stops before it.</param>
 public sealed record ProgressionOverwrite(
     FlagOverwrite Events,
     IReadOnlyDictionary<AreaId, BossBits> AreaBosses,
@@ -29,4 +29,4 @@ public sealed record ProgressionOverwrite(
     FlagOverwrite OpenedDoors,
     IReadOnlyDictionary<AreaId, FlagOverwrite> UsedStations,
     IReadOnlyDictionary<AreaId, bool> AreaMaps,
-    int? SavedLoadingGameState);
+    SaveLoadingGameState? SavedStartupRoute);

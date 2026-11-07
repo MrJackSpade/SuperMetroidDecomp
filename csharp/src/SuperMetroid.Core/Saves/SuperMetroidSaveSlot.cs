@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="GameTimeMinutes">The game clock's minutes.</param>
 /// <param name="GameTimeHours">The game clock's hours.</param>
 /// <param name="Progression">The persistent progress the save keeps; the slot owns this copy.</param>
-/// <param name="LoadingGameState">The saved startup dispatcher value, carried unchanged.</param>
+/// <param name="StartupRoute">The startup route the save resumes by.</param>
 /// <param name="SaveStation">The load station within <paramref name="Area"/>.</param>
 /// <param name="Area">The checkpoint's area index.</param>
 public sealed record SuperMetroidSaveSlot(
@@ -56,16 +56,10 @@ public sealed record SuperMetroidSaveSlot(
     int GameTimeMinutes,
     int GameTimeHours,
     PersistentProgress Progression,
-    int LoadingGameState,
+    SaveLoadingGameState StartupRoute,
     int SaveStation,
     int Area)
 {
-    /// <summary>
-    /// The startup route the loading state selects for <see cref="LoadingGameState"/>; a value the
-    /// dispatcher does not name resumes the main game.
-    /// </summary>
-    public SaveLoadingGameState StartupRoute => SaveLoadingGameStateCodec.Route(LoadingGameState);
-
     /// <summary>The checksum-backed seven-action controller permutation.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
 
@@ -123,7 +117,7 @@ public sealed record SuperMetroidSaveSlot(
         ApplyTo(samus);
         Ensure.NotNull(system);
         system.Progress.CopyFrom(Progression);
-        system.LoadSavedLoadingGameState(SaveFieldValue.Encode(LoadingGameState, nameof(LoadingGameState)));
+        system.LoadSavedStartupRoute(StartupRoute);
         system.LoadedItemCount = SaveFieldValue.Encode(LoadedItemCount, nameof(LoadedItemCount));
     }
 }

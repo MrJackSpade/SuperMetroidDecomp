@@ -34,7 +34,6 @@ internal static class SaveSlotRetention
         ushort debugFlag = SaveFieldValue.Encode(snapshot.DebugFlag, nameof(snapshot.DebugFlag));
         ushort newFileMarker = SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker));
 
-        ushort loadingGameState = SaveFieldValue.Encode(snapshot.LoadingGameState, nameof(snapshot.LoadingGameState));
         ushort saveStation = SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation));
         ushort area = SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area));
         PersistentProgress progression = ExploredMapStorage.Retained(snapshot.Progress, maps);
@@ -62,7 +61,7 @@ internal static class SaveSlotRetention
             GameTimeMinutes: gameTimeMinutes,
             GameTimeHours: gameTimeHours,
             Progression: progression,
-            LoadingGameState: loadingGameState,
+            StartupRoute: snapshot.StartupRoute,
             SaveStation: saveStation,
             Area: area)
         {

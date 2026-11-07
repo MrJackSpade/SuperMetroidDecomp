@@ -9,7 +9,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// <summary>
 /// The one-way upgrade of older game saves to the schema Core reads: schema one (#1421) carried the cartridge's whole
 /// SRAM image as raw pages, whose remaining fields are read back through <see cref="SaveRamCodec"/>; schema two (#1475)
-/// listed bosses, used stations and acquired maps by the cartridge's table positions, which become lists by area.
+/// listed bosses, used stations and acquired maps by the cartridge's table positions, which become lists by area; schema
+/// three (#1523) kept the cartridge's loading-state word, which becomes the startup route it selects.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -47,19 +48,43 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one and two to the current schema; schemas past two are returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through three to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
             throw new InvalidDataException("Game save must be a JSON object.");
         if (root["schemaVersion"] is not JsonValue version || !version.TryGetValue(out sourceSchemaVersion))
             throw new InvalidDataException("schemaVersion must be an integer");
-        if (sourceSchemaVersion > SchemaTwo) return json;
+        if (sourceSchemaVersion >= GameSaveJsonFormat.SchemaVersion) return json;
         if (sourceSchemaVersion < SchemaTwo)
             UpgradeSchemaOne(root);
-        UpgradeSchemaTwo(root);
+        if (sourceSchemaVersion <= SchemaTwo)
+            UpgradeSchemaTwo(root);
+        UpgradeSchemaThree(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
+    }
+
+    /// <summary>
+    /// Schema three to four (#1523): a slot's <c>loadingGameState</c>, the cartridge's dispatcher word, becomes the
+    /// <c>startupRoute</c> it selects; a word the dispatcher does not name resumes the main game, as the cartridge does.
+    /// A slot without the word resumes the main game.
+    /// </summary>
+    private static void UpgradeSchemaThree(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is not JsonObject slot)
+                continue;
+            if (slot["loadingGameState"] is not JsonNode word)
+                continue;
+            int value = word is JsonValue number && number.TryGetValue(out int parsed) ? parsed
+                : throw new InvalidDataException($"slots[{index}].loadingGameState must be an integer");
+            slot.Remove("loadingGameState");
+            slot["startupRoute"] = JsonNamingPolicy.CamelCase.ConvertName(
+                SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(value).ToString());
+        }
     }
 
     /// <summary>The schema that listed progress as bit positions of the cartridge's tables.</summary>

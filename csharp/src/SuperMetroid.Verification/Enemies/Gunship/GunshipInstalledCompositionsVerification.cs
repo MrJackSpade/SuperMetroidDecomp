@@ -45,7 +45,6 @@ internal static class GunshipInstalledCompositionsVerification
                 $"#1154 {frame.Name} retains native offsets, sizes, tiles, priority and flips");
         }
 
-        Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(installationRoot, stock));
         Console.WriteLine("#1154: all 13 gunship compositions match native OAM. Bundle: " + directory);
     }
 
@@ -54,9 +53,9 @@ internal static class GunshipInstalledCompositionsVerification
     /// destruction handoff. Retain the actual initialized gameplay/HUD owner,
     /// as the reported escape-to-Landing-Site transition does. No replay is needed.
     /// </summary>
-    internal static void VerifyGunshipLandingCompositions(string installationRoot, InstalledEnemyArtwork? enemyArtwork = null)
+    internal static void VerifyGunshipLandingCompositions(GameInstallation installation, InstalledEnemyArtwork? enemyArtwork = null)
     {
-        var installation = new GameInstallation(Path.GetFullPath(installationRoot));
+        // The repository's installation binds the process's shared catalogs; a fresh load would be the check's own cost.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var game = new SuperMetroidGame(new SaveSlotStore());
         BindInstalledArtwork(installation, enemyArtwork)(game, true);
@@ -71,7 +70,7 @@ internal static class GunshipInstalledCompositionsVerification
         while (game.Session.ResumesGameLoadingWait)
             game.StepCaptured(0);
         game.GameplayRuntimeForVerification.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
-        game.GameplayRuntimeForVerification.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresDestruction));
+        game.GameplayRuntimeForVerification.System.LoadSavedStartupRoute(SaveLoadingGameState.CeresDestruction);
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0);
         var scene = game.Session.ScreenAs<CeresDestructionCinematicState>();
@@ -89,13 +88,19 @@ internal static class GunshipInstalledCompositionsVerification
         Console.WriteLine("#1154: reported first Landing Site fade-in draw completes with installed enemy compositions (RAM-only gameplay).");
     }
 
-    /// <summary>Runs extraction and landing presentation checks from the CLI.</summary>
+    /// <summary>Runs the gunship's extracted compositions against the cartridge from the CLI.</summary>
+    [VerificationCommand("--gunship-extracted-compositions")]
+    internal static int GunshipExtractedCompositionsCommand()
+    {
+        Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(RepositoryInstallation.Installation.Root, RepositoryRomPath));
+        return 0;
+    }
+
+    /// <summary>Runs the gunship's first Landing Site draw from the CLI.</summary>
     [VerificationCommand("--gunship-landing-compositions")]
     internal static int GunshipLandingCompositionsCommand()
     {
-        string gunshipInstallation = RepositoryInstallation.Installation.Root;
-        Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipInstallation, RepositoryRomPath));
-        Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(gunshipInstallation));
+        Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(RepositoryInstallation.Installation));
         return 0;
     }
 }

@@ -14,7 +14,7 @@ public static class RoomFxAnimatedTileLoops
     public const int TreadmillFrameByteCount = 32;
 
     /// <summary>The Tourian statue strip's length in bytes.</summary>
-    public const int TourianStatueStripByteCount = TourianStatueTileStripDefinitions.TileCount * TourianStatueTileStripDefinitions.BytesPerTile;
+    public const int TourianStatueStripByteCount = RoomFxAnimatedTileAtlasFormat.StatueTileCount * TourianStatueTileStripDefinitions.BytesPerTile;
 
     /// <summary>The loop of an object the atlas holds.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animatedObject"/> is not one of the simple loops.</exception>
@@ -61,15 +61,18 @@ public static class RoomFxAnimatedTileLoops
         internal IEnumerable<AnimatedTileImage> Images =>
             Enumerable.Range(0, loop.ImageCount).Select(index => new AnimatedTileImage(loop.AnimatedObject, index));
 
-        /// <summary>The picture <paramref name="frame"/> shows: past the last picture, the loop plays its pictures back.</summary>
-        /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of this object's frames.</exception>
-        internal AnimatedTileImage Image(RoomFxAnimatedTileFrameDefinition frame)
+        /// <summary>
+        /// The picture the loop's frame <paramref name="frameIndex"/> shows: past the last picture, the loop plays its
+        /// pictures back.
+        /// </summary>
+        /// <exception cref="InvalidDataException"><paramref name="frameIndex"/> is not one of this object's frames.</exception>
+        internal AnimatedTileImage Image(int frameIndex)
         {
-            if (frame.Object != loop.AnimatedObject || (uint)frame.Index >= (uint)loop.Frames.Count)
+            if ((uint)frameIndex >= (uint)loop.Frames.Count)
                 throw new InvalidDataException(
-                    $"Room-FX object {loop.AnimatedObject} has no artwork frame {frame.Index} of {frame.Object}.");
+                    $"Room-FX object {loop.AnimatedObject} has no artwork frame {frameIndex}.");
             int count = loop.ImageCount;
-            int index = frame.Index < count ? frame.Index : 2 * (count - 1) - frame.Index;
+            int index = frameIndex < count ? frameIndex : 2 * (count - 1) - frameIndex;
             return new(loop.AnimatedObject, index);
         }
     }

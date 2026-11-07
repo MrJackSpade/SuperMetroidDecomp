@@ -12,7 +12,7 @@ public static class RoomFxAnimatedTileAtlasFormat
     /// <summary>Character count of the historical prefix after its eight treadmill characters, before the shared Tourian-statue strip.</summary>
     public const int PreStatueTileCount = LegacyTileCount + TreadmillFrameCount * 2;
     /// <summary>Character count in the contiguous Tourian-statue strip; each statue picture is an overlapping window within it.</summary>
-    public const int StatueTileCount = TourianStatueTileStripDefinitions.TileCount;
+    public const int StatueTileCount = 96;
     /// <summary>Character count of the historical prefix including the statue strip but preceding the spore animation extension.</summary>
     public const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
     /// <summary>Nine 2bpp characters across the three spore pictures.</summary>

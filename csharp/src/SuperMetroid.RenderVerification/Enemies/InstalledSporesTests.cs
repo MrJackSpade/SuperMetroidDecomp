@@ -87,7 +87,7 @@ internal static class InstalledSporesTests
                     Require(capture.Scroll == new Position16<OverlayPixels>(camera.X,
                         unchecked((ushort)(camera.Y + (sbyte)(LittleEndianBytes.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
                     int source = AnimatedTileImageSources.OfCursor(mechanics,
-                        mechanics.Frames[tick / 10 % 3].InstructionPointer);
+                        mechanics.FrameInstructionPointer(tick / 10 % 3));
                     Require(InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock).TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
                     ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
@@ -159,7 +159,7 @@ internal static class InstalledSporesTests
             value => value.AnimatedObject == AnimatedTileObject.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
-            int source = AnimatedTileImageSources.OfCursor(controls, controls.Frames[frame].InstructionPointer);
+            int source = AnimatedTileImageSources.OfCursor(controls, controls.FrameInstructionPointer(frame));
             Require(stock.TryResolve(source, 48, out var bytes), "Spore frame identity is absent.");
             byte[] pinnedArt = File.ReadAllBytes(Path.Combine(Path.GetFullPath(nativeArtworkDirectory),
                 $"AnimatedTiles_Spores_{frame}.bin"));

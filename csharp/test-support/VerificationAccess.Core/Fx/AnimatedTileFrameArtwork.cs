@@ -53,7 +53,7 @@ internal static class AnimatedTileFrameArtwork
         {
             for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             {
-                AnimatedTileImage image = mechanics.Image(mechanics.Frames[frame]);
+                AnimatedTileImage image = mechanics.Image(frame);
                 yield return new(AnimatedTileFrames.Frame(mechanics.AnimatedObject, frame),
                     AnimatedTileImageSources.Of(image), Picture(image, mechanics.FrameByteCount));
             }

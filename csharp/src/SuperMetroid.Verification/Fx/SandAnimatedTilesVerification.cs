@@ -28,7 +28,7 @@ internal static class SandAnimatedTilesVerification
             for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
             {
                 int source = AnimatedTileImageSources.OfCursor(
-                    definition, definition.Frames[frame].InstructionPointer);
+                    definition, definition.FrameInstructionPointer(frame));
                 bus.WriteBytes(source,
                     Enumerable.Repeat((byte)(1 + slot * 4 + frame),
                         definition.FrameByteCount).ToArray());

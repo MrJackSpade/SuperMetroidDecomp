@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.PaletteFx;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Immutable mechanics for the looping title-screen ambient palettes.</summary>
 /// <remarks>

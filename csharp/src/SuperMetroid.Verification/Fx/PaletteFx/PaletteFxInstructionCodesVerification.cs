@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 namespace SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;

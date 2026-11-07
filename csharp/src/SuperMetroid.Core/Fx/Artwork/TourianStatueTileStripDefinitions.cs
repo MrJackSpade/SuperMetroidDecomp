@@ -7,9 +7,6 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public static class TourianStatueTileStripDefinitions
 {
-    /// <summary>The characters in the strip.</summary>
-    public const int TileCount = 96;
-
     /// <summary>The bytes of one two-bit character.</summary>
     public const int BytesPerTile = 16;
 

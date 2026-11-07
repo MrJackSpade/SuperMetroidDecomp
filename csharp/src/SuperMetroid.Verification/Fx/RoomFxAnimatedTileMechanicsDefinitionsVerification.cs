@@ -46,12 +46,13 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         {
             mechanicsWordCount += 3;
 
-            foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
+            for (int index = 0; index < definition.Frames.Count; index++)
             {
+                ushort operand = definition.FrameSourceOperandPointer(index);
                 AssertTrue(!definition.TryReadMechanicsWord(
-                        frame.SourceOperandPointer, out _),
+                        operand, out _),
                     $"object {definition.AnimatedObject} leaves source operand " +
-                    $"$87:{frame.SourceOperandPointer:X4} presentation-owned");
+                    $"$87:{operand:X4} presentation-owned");
                 mechanicsWordCount++;
                 frameCount++;
             }
@@ -109,9 +110,9 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             .Observe(address =>
                 {
                     ushort offset = SnesAddress.FromBusAddress(address).Offset;
-                    return InAnimatedTileBank(address) && definition.Frames.Any(frame =>
-                        offset == frame.SourceOperandPointer ||
-                        offset == unchecked((ushort)(frame.SourceOperandPointer + 1)));
+                    return InAnimatedTileBank(address) && Enumerable.Range(0, definition.Frames.Count).Any(index =>
+                        offset == definition.FrameSourceOperandPointer(index) ||
+                        offset == unchecked((ushort)(definition.FrameSourceOperandPointer(index) + 1)));
                 },
                 _ => presentationRead());
     }
@@ -129,7 +130,8 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             for (int index = 0; index <= definition.Frames.Count; index++)
             {
                 RoomFxAnimatedTileFrameDefinition frame = definition.Frames[index % definition.Frames.Count];
-                expected.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(update, AnimatedTileImageSources.OfCursor(definition, frame.InstructionPointer)));
+                expected.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(update,
+                    AnimatedTileImageSources.OfCursor(definition, definition.FrameInstructionPointer(index % definition.Frames.Count))));
                 update += frame.Duration;
             }
 

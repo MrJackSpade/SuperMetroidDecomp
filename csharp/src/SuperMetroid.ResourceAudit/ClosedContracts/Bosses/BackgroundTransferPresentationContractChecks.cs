@@ -21,6 +21,7 @@ internal static class BackgroundTransferPresentationContractChecks
             using SuperMetroid.Core.Assets;
             using SuperMetroid.AssetExtraction.Enemies;
             using SuperMetroid.AssetExtraction.Fx;
+            using SuperMetroid.AssetExtraction.Fx.Artwork;
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Fx;

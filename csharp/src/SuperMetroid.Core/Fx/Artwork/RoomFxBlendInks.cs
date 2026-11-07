@@ -6,21 +6,21 @@ namespace SuperMetroid.Core.Fx.Artwork;
 public sealed class RoomFxBlendInks
 {
     /// <summary>Three installed inks for the lava selector.</summary>
-    private readonly RoomFxBlendColors lava;
+    internal readonly RoomFxBlendColors lava;
     /// <summary>Three installed inks for Landing Site rain.</summary>
-    private readonly RoomFxBlendColors landingSiteRain;
+    internal readonly RoomFxBlendColors landingSiteRain;
     /// <summary>Three installed inks for Maridia's first water selector.</summary>
-    private readonly RoomFxBlendColors maridiaWaterA;
+    internal readonly RoomFxBlendColors maridiaWaterA;
     /// <summary>Three installed inks shared by the water and acid selector.</summary>
-    private readonly RoomFxBlendColors waterAndAcid;
+    internal readonly RoomFxBlendColors waterAndAcid;
     /// <summary>Three installed inks for the fog selector.</summary>
-    private readonly RoomFxBlendColors fog;
+    internal readonly RoomFxBlendColors fog;
     /// <summary>Three installed inks for Maridia's second water selector.</summary>
-    private readonly RoomFxBlendColors maridiaWaterB;
+    internal readonly RoomFxBlendColors maridiaWaterB;
     /// <summary>Three installed inks for Maridia's third water selector.</summary>
-    private readonly RoomFxBlendColors maridiaWaterC;
+    internal readonly RoomFxBlendColors maridiaWaterC;
     /// <summary>Three installed inks for Maridia's fourth water selector.</summary>
-    private readonly RoomFxBlendColors maridiaWaterD;
+    internal readonly RoomFxBlendColors maridiaWaterD;
 
     /// <summary>Retains each validated room-FX ink and both optional Ceres haze tints.</summary>
     internal RoomFxBlendInks(RoomFxPaletteBlendParts parts)
@@ -42,27 +42,4 @@ public sealed class RoomFxBlendInks
 
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
     public RgbColor CeresHazeRed { get; }
-
-    /// <summary>
-    /// The colours <paramref name="selection"/> loads for the effect overlay's three blend inks, in order (#1512): the import
-    /// pre-colours the effect overlay pictures in each selection's. The empty selection loads only the third, black.
-    /// </summary>
-    internal IReadOnlyList<RgbColor> Inks(RoomFxPaletteBlend selection) => selection == RoomFxPaletteBlend.None
-        ? [RgbColor.Black]
-        : SelectColors(selection).Colours();
-
-    /// <summary>Resolves one authored blend selector to its installed three-color record.</summary>
-    internal RoomFxBlendColors SelectColors(RoomFxPaletteBlend selection) => selection switch
-    {
-        RoomFxPaletteBlend.Lava => lava,
-        RoomFxPaletteBlend.LandingSiteRain => landingSiteRain,
-        RoomFxPaletteBlend.MaridiaWaterA => maridiaWaterA,
-        RoomFxPaletteBlend.WaterAndAcid => waterAndAcid,
-        RoomFxPaletteBlend.Fog => fog,
-        RoomFxPaletteBlend.MaridiaWaterB => maridiaWaterB,
-        RoomFxPaletteBlend.MaridiaWaterC => maridiaWaterC,
-        RoomFxPaletteBlend.MaridiaWaterD => maridiaWaterD,
-        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend {selection} is not an authored retail selection."),
-        _ => throw new InvalidDataException($"Room-FX palette blend {selection} is not an authored retail selection."),
-    };
 }

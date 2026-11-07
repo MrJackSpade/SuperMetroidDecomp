@@ -1,6 +1,5 @@
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Input;
 using System.Globalization;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

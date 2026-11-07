@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;

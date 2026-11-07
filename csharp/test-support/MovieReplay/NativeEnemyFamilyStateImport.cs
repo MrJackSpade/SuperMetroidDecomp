@@ -60,7 +60,6 @@ using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.World;
 namespace SuperMetroid.TestSupport.MovieReplay;
 

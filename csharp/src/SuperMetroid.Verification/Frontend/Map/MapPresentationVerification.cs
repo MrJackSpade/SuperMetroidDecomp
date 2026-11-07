@@ -57,7 +57,6 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusSuitColorsVerificatio
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
-using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Frontend.Map.WorldMapLabelsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Frontend.Pause;
@@ -89,7 +88,6 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -673,11 +671,4 @@ internal static class MapPresentationVerification
         new(nameof(VerifyFrontendPresentationAssets), () => VerifyFrontendPresentationAssets()),
     ];
 
-    /// <summary>Runs every suite of the map presentation and installed-content family in this process.</summary>
-    [VerificationCommand("--map-presentation")]
-    internal static int MapPresentationCommand()
-    {
-        RunSuitesSerially(MapPresentationSuites());
-        return 0;
-    }
 }

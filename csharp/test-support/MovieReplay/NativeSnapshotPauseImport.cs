@@ -2,7 +2,6 @@ using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Progression;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;

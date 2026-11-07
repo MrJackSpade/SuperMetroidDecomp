@@ -15,6 +15,6 @@ public static class AppearanceInputTokens
     /// <summary>What an animation's spelling begins with, before its name.</summary>
     internal const string AnimationPrefix = "animation ";
 
-    /// <summary>What an encounter look's spelling begins with, before its artwork sequence and step.</summary>
+    /// <summary>What an encounter look's spelling begins with, before its encounter and the look's name.</summary>
     internal const string EncounterLookPrefix = "look ";
 }

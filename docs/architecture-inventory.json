@@ -26618,19 +26618,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.AreaDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Installation/BossBodySheetFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.FrameDocument",
       "kind": "record",
       "scope": "product",
@@ -62551,6 +62538,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyPartDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyPartDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyParts",
       "kind": "class",
       "scope": "product",
@@ -62562,19 +62562,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyRectangle",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/BossBodyRectangle.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodySheet",
@@ -62632,14 +62619,14 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.BossBodies.ShownBossBodyPiece",
+      "type": "SuperMetroid.Core.Enemies.BossBodies.ShownBossBodyPart",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/ShownBossBodyPiece.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/ShownBossBodyPart.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -145332,6 +145319,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/BossBodyEnclosedCellsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.BossBodyLayeredPartsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/BossBodyLayeredPartsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

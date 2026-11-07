@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Standalone Sidehopper target paints.
 /// Reviewed categorical paints and material composition: ink numbers select painted pixel classes, not a measured lighting value. The shifted fifteen-color auxiliary copy has a separate disposition.</summary>

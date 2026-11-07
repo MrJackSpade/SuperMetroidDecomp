@@ -1,5 +1,6 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// The corpse target and the drain's last stage share corpse paint. Slot5 is white; slots8..15

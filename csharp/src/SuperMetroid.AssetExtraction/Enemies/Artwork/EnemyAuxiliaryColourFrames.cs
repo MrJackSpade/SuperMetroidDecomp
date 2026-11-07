@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// The Golden Torizo body/belly health palettes interpolate RGB5 endpoints

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Who owns a Sidehopper palette's colors: the reviewed stock paint, calculated shades of independent paints, or the supplied colors.</summary>
 internal enum SidehopperPaletteOwnership

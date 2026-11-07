@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Which of Golden Torizo's health palettes a colour belongs to: the front-facing armour or the shaded rear.</summary>
 internal enum GoldenTorizoHealthFacing

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.SidehopperInitialPaintDefinitions;
+using static SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperInitialPaintDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Paints the standalone Sidehopper palette from its reviewed inks and derived midtones.</summary>
 internal static class SidehopperInitialPaint

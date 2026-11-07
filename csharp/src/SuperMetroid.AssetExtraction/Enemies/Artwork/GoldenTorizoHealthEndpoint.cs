@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>One end of Golden Torizo's health-paint interpolation.</summary>
 internal enum GoldenTorizoHealthEndpoint

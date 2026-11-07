@@ -29,6 +29,7 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
         WorkRobotPaletteCycle = parts.WorkRobotPaletteCycle;
         ChozoAndTubeColors = parts.ChozoAndTubeColors;
         DachoraColors = parts.DachoraColors;
+        AuxiliaryColors = parts.AuxiliaryColors;
         Spritemaps = parts.Spritemaps;
         ExtendedFrames = parts.ExtendedFrames;
         GunshipLiftoff = parts.GunshipLiftoff;
@@ -86,6 +87,9 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
 
     /// <summary>Editable Dachora normal, speed and shine colours.</summary>
     public DachoraColorCatalog? DachoraColors { get; }
+
+    /// <summary>Editable face-block glow, dead Sidehopper drain and Golden Torizo health colours.</summary>
+    public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; }
 
     /// <summary>Finds the installed tile sheet of <paramref name="enemy"/>.</summary>
     internal bool TryGetSheet(EnemyDefinitionId enemy, [NotNullWhen(true)] out RoomCharacterAtlas? sheet) =>

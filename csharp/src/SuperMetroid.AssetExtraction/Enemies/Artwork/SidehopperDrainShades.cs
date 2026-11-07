@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.SidehopperDrainShadeDefinitions;
+using static SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperDrainShadeDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Places the Sidehopper drain image's intermediate shades between their body and detail endpoints.</summary>
 internal static class SidehopperDrainShades

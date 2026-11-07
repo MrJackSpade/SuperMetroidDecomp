@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthPaintDefinitions;
+using static SuperMetroid.AssetExtraction.Enemies.Artwork.GoldenTorizoHealthPaintDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Paints Golden Torizo's health bands between its low-health and golden endpoints, front and rear.</summary>
 internal static class GoldenTorizoHealthPaint

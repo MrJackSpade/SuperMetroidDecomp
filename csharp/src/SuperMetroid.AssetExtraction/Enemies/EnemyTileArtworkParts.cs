@@ -43,10 +43,9 @@ public sealed record EnemyTileArtworkParts
     /// <summary>Auxiliary colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; init; } = null;
 
-    /// <summary>The extended frame displays and colour catalogs gameplay reads.</summary>
+    /// <summary>The extended frame displays gameplay reads.</summary>
     internal EnemyGameplayArtworkParts Gameplay => new()
     {
         ExtendedFrameDisplays = ExtendedFrames?.Displays,
-        AuxiliaryColors = AuxiliaryColors,
     };
 }

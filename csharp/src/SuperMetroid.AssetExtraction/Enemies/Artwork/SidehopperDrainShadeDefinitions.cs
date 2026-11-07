@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Exact RGB5 shade relationships in the final Sidehopper drain image.</summary>
 internal static class SidehopperDrainShadeDefinitions

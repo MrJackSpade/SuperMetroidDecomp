@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Reviewed eye/mouth glow composition, copied to inks9..12 by E893-E8AA.
 /// Six selected intensity roles specify this painted glow; timers, Morph gate and blue-face artwork are excluded.</summary>

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.FaceBlockGlowPaintDefinitions;
+using static SuperMetroid.AssetExtraction.Enemies.Artwork.FaceBlockGlowPaintDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Paints the face block's eye and mouth glow as it rises and falls through its light depths.</summary>
 internal static class FaceBlockGlowPaint

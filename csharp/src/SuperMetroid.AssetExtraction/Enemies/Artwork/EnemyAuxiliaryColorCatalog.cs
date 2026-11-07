@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed RGB5 animation frames independent of stock storage and enemy mechanics.</summary>
 public sealed class EnemyAuxiliaryColorCatalog

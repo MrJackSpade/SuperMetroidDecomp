@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Standalone shared-corpse target paints.
 /// The six categorical inks, shade ratios and rounding specify this chosen corpse painting; ink numbers are not sampled physical quantities. Its shifted fifteen-color auxiliary image has an independent disposition.</summary>

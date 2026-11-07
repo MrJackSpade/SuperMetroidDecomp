@@ -1,5 +1,6 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// The drain's first stage and the live target share the initial Sidehopper palette. The drain

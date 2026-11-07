@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.SidehopperCorpsePaintDefinitions;
+using static SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperCorpsePaintDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Paints the standalone shared-corpse palette from its authored inks and derived limb and body shades.</summary>
 internal static class SidehopperCorpsePaint

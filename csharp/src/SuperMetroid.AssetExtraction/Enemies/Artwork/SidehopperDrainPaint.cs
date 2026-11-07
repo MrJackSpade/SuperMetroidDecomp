@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.SidehopperDrainPaintDefinitions;
+using static SuperMetroid.AssetExtraction.Enemies.Artwork.SidehopperDrainPaintDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Paints the seven shifted Sidehopper drain images: the alive images fading toward their endpoints, then the corpse.</summary>
 internal static class SidehopperDrainPaint

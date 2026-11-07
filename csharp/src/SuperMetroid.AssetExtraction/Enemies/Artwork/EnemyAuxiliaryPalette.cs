@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Four distinct RGB5 animation sources; values are identities, not composable bits.</summary>
 public enum EnemyAuxiliaryPalette

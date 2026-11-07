@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Which calculated paint progression an auxiliary enemy palette family follows.</summary>
 internal enum AuxiliaryPaint

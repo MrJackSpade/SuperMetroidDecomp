@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>The installed auxiliary enemy colour frames: which family a palette names, how a colour resolves, and their identity.</summary>
 internal static class EnemyAuxiliaryColors

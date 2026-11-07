@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Exact Golden Torizo health paint composition. Reviewed categorical endpoint
 /// channels and material lighting specify this painted transition; health thresholds, mechanics, timing and pixels are excluded.</summary>

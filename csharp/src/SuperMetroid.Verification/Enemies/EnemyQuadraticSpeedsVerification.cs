@@ -75,19 +75,19 @@ internal static class EnemyQuadraticSpeedsVerification
         var maw = new YappingMawEnemyState(new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0]);
         int mawAdditions = 0;
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
-        for (int record = 0; record < EnemyQuadraticSpeedDefinitions.RowCount; record++)
-        foreach (bool negative in new[] { false, true })
+        for (int row = 0; row < EnemyQuadraticSpeedDefinitions.RowCount; row++)
+        foreach (EnemySpeedSign sign in signs)
         {
-            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, record)
-                .Toward(negative ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row).Toward(sign);
             maw.Extension = SignedSixteenSixteen.FromRaw(unchecked((int)start));
-            maw.QuadraticSpeedRecord = record;
-            maw.QuadraticSpeedNegative = negative;
+            maw.QuadraticSpeedRow = row;
+            maw.QuadraticSpeedSign = sign;
             mawAdditions++;
             uint expected = unchecked(start + (uint)speed);
             addMaw(maw);
             AssertEqual(expected, unchecked((uint)maw.Extension.RawValue), "Yapping Maw real split-word integration");
-            AssertEqual(new VerifyCompiledQuadraticEnemySpeedsCase(record + 1, negative), new VerifyCompiledQuadraticEnemySpeedsCase(maw.QuadraticSpeedRecord, maw.QuadraticSpeedNegative), "Yapping Maw record advance");
+            AssertEqual(row + 1, maw.QuadraticSpeedRow, "Yapping Maw row advance");
+            AssertEqual(sign, maw.QuadraticSpeedSign, "Yapping Maw speed sign held across the addition");
         }
         Console.WriteLine("Compiled quadratic speeds: all 95 rows and their coarse speeds match both cartridge copies.");
         Console.WriteLine("Projectile quadratic copy: 570 real Polyp integrations match, including subpixel carry/wrap, without a loaded bus.");

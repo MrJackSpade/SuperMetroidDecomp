@@ -88,6 +88,8 @@ internal static class Layer3PlaneVerification
         AssertTrue(plane[..(FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns)].All(word => word == FxOverlayPlaneConstants.ClearedCell.PackedWord),
             "the rows the HUD's images cover stay cleared above the effect");
 
+        // The surface is placed on the screen as a frame places it, from the camera at the room's origin (#1546).
+        water.PrimeViewport(Position16<RoomPixels>.Zero);
         RoomFxOverlayRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual(0x0080, shown.NamedSurface, "the published effect carries the constructed liquid level");
         FxOverlayPage shownPage = FxOverlayFixtures.PageFromPlaneWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);

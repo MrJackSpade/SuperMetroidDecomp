@@ -44,11 +44,19 @@ internal static class RoomVisualLayoutsVerification
             AssertTrue(error.Message.Contains("lacks level", StringComparison.Ordinal),
                 "unknown installed room level fails without ROM fallback");
         }
+        // Each level's cartridge words are decompressed once, for its own check and for every state that loads it.
+        var decompressed = new Dictionary<int, byte[]>();
+        byte[] NativeLevel(int source)
+        {
+            if (!decompressed.TryGetValue(source, out byte[]? native))
+                decompressed[source] = native = RomDataReader.Decompress(bus, source);
+            return native;
+        }
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels)
         {
             RoomLevelArtwork layout = stock.Get(level);
             InstalledRoomLevel terrain = levelStreams.Get(level);
-            byte[] native = RomDataReader.Decompress(bus, RoomLevelSourceDefinitions.Addresses[level]);
+            byte[] native = NativeLevel(RoomLevelSourceDefinitions.Addresses[level]);
             int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
             int count = layerBytes / 2;
             int backgroundOffset = 2 + layerBytes + count;
@@ -57,22 +65,20 @@ internal static class RoomVisualLayoutsVerification
             AssertEqual(count / width, layout.Size.Y,
                 $"room level {level} visual allocation height");
             AssertEqual(layout.Size, terrain.Size, $"room level {level} terrain grid size");
+            string levelName = $"room level {level}";
             for (int index = 0; index < count; index++)
             {
                 ushort foreground = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(2 + index * 2));
                 RoomBlockAppearance background = RoomLevelWordCodec.DecodeAppearance(index * 2 < backgroundBytes
                     ? BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(backgroundOffset + index * 2))
                     : (ushort)0);
-                AssertEqual(RoomLevelWordCodec.Decode(foreground), terrain.Foreground[index],
-                    $"room level {level} installed terrain {index}");
-                AssertEqual(new RoomBlockBehavior(native[2 + layerBytes + index]), terrain.Behaviors[index],
-                    $"room level {level} installed behaviour {index}");
-                AssertEqual(background, terrain.Background[index],
-                    $"room level {level} installed background {index}");
-                AssertEqual(RoomLevelWordCodec.DecodeAppearance(foreground), layout.Foreground.Span[index],
-                    $"room level {level} foreground appearance {index}");
-                AssertEqual(background, layout.Background.Span[index],
-                    $"room level {level} background appearance {index}");
+                AssertBlockEqual(RoomLevelWordCodec.Decode(foreground), terrain.Foreground[index], levelName, "installed terrain", index);
+                AssertBlockEqual(new RoomBlockBehavior(native[2 + layerBytes + index]), terrain.Behaviors[index],
+                    levelName, "installed behaviour", index);
+                AssertBlockEqual(background, terrain.Background[index], levelName, "installed background", index);
+                AssertBlockEqual(RoomLevelWordCodec.DecodeAppearance(foreground), layout.Foreground.Span[index],
+                    levelName, "foreground appearance", index);
+                AssertBlockEqual(background, layout.Background.Span[index], levelName, "background appearance", index);
             }
 
             // Past the grid: every level word the decompressed level reaches, the last possibly half the fill,
@@ -104,19 +110,22 @@ internal static class RoomVisualLayoutsVerification
         foreach (RoomHeaderDefinition header in RetailRoomHeaders.All)
         {
             SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header);
+            ushort headerPointer = header.Pointer;
             foreach (ushort statePointer in RoomStateSelection.GetStatePointers(header))
             {
+                string stateName = $"room ${headerPointer:X4} state ${statePointer:X4}";
                 room = room with { State = RoomStateDefinitions.Get(statePointer) };
                 int source = RoomLevelSourceDefinitions.Addresses[room.State.Level];
-                byte[] native = RomDataReader.Decompress(bus, source);
+                byte[] native = NativeLevel(source);
                 int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
                 int blockCount = layerBytes / 2;
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
                 RoomLevelData loaded = LoadFixtureRoomAssets(room,
                     visualLayouts: stock, levelStreams: levelStreams).LevelData;
-                AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
-                    $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");
+                AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y, $"{stateName} physical allocation");
+                // The plane's shown blocks are built once per state, not once per block read.
+                RoomBlockAppearance[] shownBackground = loaded.BackgroundPlane.Blocks;
                 for (int blockIndex = 0; blockIndex < blockCount; blockIndex++)
                 {
                     RoomCollisionBlock block = loaded.GetCollisionBlockByIndex(blockIndex);
@@ -127,12 +136,10 @@ internal static class RoomVisualLayoutsVerification
                         ? BinaryPrimitives.ReadUInt16LittleEndian(
                             native.AsSpan(bg2Offset + blockIndex * 2))
                         : FillWord;
-                    AssertEqual(RoomLevelWordCodec.Decode(nativeWord), block.Terrain,
-                        $"room ${header.Pointer:X4} state ${statePointer:X4} terrain {blockIndex}");
-                    AssertEqual(new RoomBlockBehavior(nativeBts), block.Behavior,
-                        $"room ${header.Pointer:X4} state ${statePointer:X4} behaviour {blockIndex}");
-                    AssertEqual(RoomLevelWordCodec.DecodeAppearance(nativeBg2Word), loaded.BackgroundPlane.Blocks[blockIndex],
-                        $"room ${header.Pointer:X4} state ${statePointer:X4} background {blockIndex}");
+                    AssertBlockEqual(RoomLevelWordCodec.Decode(nativeWord), block.Terrain, stateName, "terrain", blockIndex);
+                    AssertBlockEqual(new RoomBlockBehavior(nativeBts), block.Behavior, stateName, "behaviour", blockIndex);
+                    AssertBlockEqual(RoomLevelWordCodec.DecodeAppearance(nativeBg2Word), shownBackground[blockIndex],
+                        stateName, "background", blockIndex);
                     if (block.CollisionType == RoomCollisionType.Slope) slopeBlocks++;
                     if (block.CollisionType is RoomCollisionType.SpikeAir or
                         RoomCollisionType.SpikeBlock) spikeBlocks++;
@@ -173,6 +180,17 @@ internal static class RoomVisualLayoutsVerification
         }
         Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailLevels.Count} levels decode to the installed terrain and " +
             $"{stateCount} guarded state loads keep it (including slopes and spikes), and the installed appearances are the native ones.");
+    }
+
+    /// <summary>
+    /// Asserts block <paramref name="index"/>'s <paramref name="property"/> in <paramref name="where"/> is
+    /// <paramref name="expected"/>, building the failure's context only for a mismatch, since every block of every level
+    /// and state is compared.
+    /// </summary>
+    private static void AssertBlockEqual<T>(T expected, T actual, string where, string property, int index)
+    {
+        if (!EqualityComparer<T>.Default.Equals(expected, actual))
+            AssertEqual(expected, actual, $"{where} {property} {index}");
     }
 
     /// <summary>The cartridge's level-space fill word, which the import decodes as the game's edge-solid block.</summary>

@@ -11,6 +11,6 @@ internal static class RoomLevelDataDisplayAccess
         /// What the foreground shows at <paramref name="blockIndex"/>: the block and its mirroring, which name the picture
         /// the room draws there.
         /// </summary>
-        internal RoomBlockAppearance DisplayedAppearance(int blockIndex) => level.ForegroundPlane.Blocks[blockIndex];
+        internal RoomBlockAppearance DisplayedAppearance(int blockIndex) => level.ForegroundPlane.BlockAt(blockIndex);
     }
 }

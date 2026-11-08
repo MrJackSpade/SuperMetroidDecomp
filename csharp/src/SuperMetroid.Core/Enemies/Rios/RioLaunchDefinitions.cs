@@ -14,10 +14,13 @@ public static class RioLaunchDefinitions
     /// <summary>Lower Norfair Rio horizontal magnitude.</summary>
     public const int LowerNorfairXVelocity = 256;
 
-    /// <summary>The faster of the two adjacent Norfair Rio downward velocities, chosen when RNG bit two is clear.</summary>
+    /// <summary>The faster of the Norfair Rio's two downward launch velocities, chosen when <see cref="SlowLaunchBit"/> is clear.</summary>
     internal const int NorfairFastYVelocity = 1792;
-    /// <summary>The slower Norfair Rio downward velocity, chosen when RNG bit two is set.</summary>
+    /// <summary>The slower Norfair Rio downward launch velocity, chosen when <see cref="SlowLaunchBit"/> is set.</summary>
     internal const int NorfairSlowYVelocity = 1472;
+
+    /// <summary>The random bit, bit two, that sends a diving Norfair Rio down at its slower launch velocity.</summary>
+    internal static readonly RandomSampleField SlowLaunchBit = new(2, 1);
 
     /// <summary>
     /// One of the two random bits, bit zero, of which at least one must be set for a Norfair or Lower Norfair Rio to

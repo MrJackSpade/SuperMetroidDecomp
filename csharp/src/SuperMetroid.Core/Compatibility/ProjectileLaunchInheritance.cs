@@ -42,11 +42,11 @@ public sealed class ProjectileLaunchInheritance
     /// <summary>The first whole-pixel place in the velocity cycle that reads as negative.</summary>
     private const int FirstNegativeVelocityWhole = VelocityWholeCycle / 2;
 
-    /// <summary>A quarter of the inherited velocity's range, in velocity steps: the rising quarter's shift.</summary>
-    private const int QuarterVelocityRange = VelocityWholeCycle * VelocityFractionSteps / 4;
+    /// <summary>A quarter of the inherited velocity's range, 64 pixels an update: the rising quarter's shift.</summary>
+    private static readonly SignedEightEight QuarterVelocityRange = SignedEightEight.FromParts(VelocityWholeCycle / 4, 0);
 
-    /// <summary>The right shift that divides an inherited velocity by four, rounding toward negative infinity.</summary>
-    private const int QuarterShift = 2;
+    /// <summary>The share of the inherited velocity an upward shot adds.</summary>
+    private const int RisingShareDivisor = 4;
 
     /// <summary>The four recorded distances: leftward, rightward, upward, downward.</summary>
     private readonly SignedSixteenSixteen[] _distances = new SignedSixteenSixteen[4];
@@ -80,18 +80,22 @@ public sealed class ProjectileLaunchInheritance
     public SignedEightEight InheritedVelocity(VerticalDirection direction) => InheritedVelocity(Place(direction));
 
     /// <summary>
-    /// The share of the upward inherited velocity an upward shot adds, in 8.8 steps: nothing while the upward distance
-    /// has no whole pixel in its cycle, otherwise a quarter of the inherited velocity, rounded down and always taken
-    /// rising, so a quarter of a downward-reading velocity is moved a quarter-range further up.
+    /// The share of the upward inherited velocity an upward shot adds: nothing while the upward distance has no whole
+    /// pixel in its cycle, otherwise a quarter of the inherited velocity, rounded down and always taken rising, so a
+    /// quarter of a downward-reading velocity is moved a quarter-range further up. A quarter lies within a quarter-range
+    /// either way, so moving one up stays inside the velocity's range.
     /// </summary>
-    public int RisingLaunchShare()
+    public SignedEightEight RisingLaunchVelocity()
     {
         if (WholePixelsInCycle(Distance(VerticalDirection.Up)) == 0)
-            return 0;
-        int inherited = InheritedVelocity(VerticalDirection.Up).SignedRawValue;
-        int quarter = inherited >> QuarterShift;
-        return inherited < 0 ? quarter : quarter - QuarterVelocityRange;
+            return SignedEightEight.Zero;
+        SignedEightEight inherited = InheritedVelocity(VerticalDirection.Up);
+        SignedEightEight quarter = inherited.DividedRoundingDown(RisingShareDivisor);
+        return inherited.IsNegative ? quarter : quarter - QuarterVelocityRange;
     }
+
+    /// <summary><see cref="RisingLaunchVelocity"/> in 256ths of a pixel an update, for the launch that still adds raw speeds.</summary>
+    public int RisingLaunchShare() => RisingLaunchVelocity().SignedRawValue;
 
     /// <summary>
     /// The inherited velocity of the distance at <paramref name="place"/>: its whole pixels within their 256-pixel cycle,
@@ -102,13 +106,13 @@ public sealed class ProjectileLaunchInheritance
         int whole = WholePixelsInCycle(_distances[place]);
         int precedingFraction = place == 0 ? CameraYSubspeed : _distances[place - 1].Fraction;
         int fraction = precedingFraction / (FractionSteps / VelocityFractionSteps);
-        return SignedEightEight.FromSignedRaw(whole * VelocityFractionSteps + fraction);
+        return SignedEightEight.FromParts(whole, fraction);
     }
 
     /// <summary>The whole pixels of <paramref name="distance"/> within the velocity's 256-pixel cycle, -128 through 127.</summary>
     private static int WholePixelsInCycle(SignedSixteenSixteen distance)
     {
-        int place = distance.WholeWord % VelocityWholeCycle;
+        int place = (distance.WholePixels % VelocityWholeCycle + VelocityWholeCycle) % VelocityWholeCycle;
         return place >= FirstNegativeVelocityWhole ? place - VelocityWholeCycle : place;
     }
 

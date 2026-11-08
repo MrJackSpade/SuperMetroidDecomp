@@ -69,6 +69,12 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// </summary>
     public int UnitsTo(RotationAngle other) => NormalizeRaw(other.RawValue - RawValue).RawValue;
 
+    /// <summary>
+    /// The turn from <paramref name="origin"/> to this angle the shorter way round, in 1/256ths of a table unit, -32768
+    /// through 32767: negative when this angle lies behind the origin, as a heading compares itself with its target.
+    /// </summary>
+    public int TurnFrom(RotationAngle origin) => CoordinateAxis.Difference(RawValue, origin.RawValue);
+
     /// <summary>Adds whole sine-table units while retaining the fractional low byte.</summary>
     public RotationAngle AddTableUnits(int delta) => AddRaw(delta << 8);
 

@@ -144,7 +144,7 @@ internal sealed class MotherBrainRainbowAndDeath
             step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse ||
             step.EscapeMusicTrackQueued || step.EarthquakeTimerRefreshed)
         {
-            _earthquake.EarthquakeType = Ensure.BetweenInclusive(0, ushort.MaxValue, sequence.State.EarthquakeType);
+            _earthquake.EarthquakeType = sequence.State.EarthquakeType;
             _earthquake.EarthquakeTimer = sequence.State.EarthquakeTimer;
         }
     }
@@ -157,8 +157,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         MotherBrainProjectileStarts.Initialize(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphics: default);
         projectile.StartAnimation(new MiscDustProjectileAnimation(program));
-        // The initializer keeps the body-relative offset in the velocity words.
-        projectile.Velocity = new EightEightVector<RoomPixels>(request.Offset.X, request.Offset.Y);
+        projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
+        projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         _projectileAttacks.RunMotherBrainDeathExplosion(projectile);
     }
 
@@ -369,7 +369,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
     }
 
-    /// <summary>Spawns a rainbow explosion; the signed offsets remain in velocity words.</summary>
+    /// <summary>Spawns a rainbow explosion that follows Samus at the requested offset.</summary>
     internal void SpawnMotherBrainRainbowExplosion(
         Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
@@ -382,7 +382,8 @@ internal sealed class MotherBrainRainbowAndDeath
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
             graphics: default);
-        projectile.Velocity = new EightEightVector<RoomPixels>(request.Offset.X, request.Offset.Y);
+        projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
+        projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         projectile.Graphics = default;
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }

@@ -213,12 +213,9 @@ internal sealed class MotherBrainProjectiles
         int acceleration;
         if (bombState.Bounces == 0)
         {
-            // Only the initial fall applies two units of horizontal drag: the speed loses two
-            // units, stopping at zero, and keeps its direction. The speed is at most 32768
-            // units, so the reduced speed always fits a signed 8.8 velocity.
-            int velocity = bomb.Velocity.X.SignedRawValue;
-            int slowed = Math.Max(0, Math.Abs(velocity) - 2);
-            bomb.Velocity = bomb.Velocity.WithX(SignedEightEight.FromSignedRaw(velocity < 0 ? -slowed : slowed));
+            // Only the initial fall applies its horizontal drag: the speed loses it, stopping at rest, and keeps its
+            // direction.
+            bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.SlowedBy(MotherBrainBombBounceDefinitions.FallDrag));
             acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
         }
         else
@@ -288,10 +285,8 @@ internal sealed class MotherBrainProjectiles
             return false;
 
         bomb.Position = bomb.Position.WithWholeY(208);
-        int bounceSpeed = bomb.StateOf<MotherBrainBombState>().BounceSpeed;
-        bomb.Velocity = new(SignedEightEight.FromSignedRaw(bomb.Velocity.X.SignedRawValue < 0
-            ? -bounceSpeed
-            : bounceSpeed), SignedEightEight.FromSignedRaw(-512));
+        SignedEightEight bounceSpeed = bomb.StateOf<MotherBrainBombState>().BounceSpeed;
+        bomb.Velocity = new(bounceSpeed.AlongDirectionOf(bomb.Velocity.X), SignedEightEight.FromSignedRaw(-512));
         return true;
     }
 
@@ -340,19 +335,16 @@ internal sealed class MotherBrainProjectiles
     internal void RunMotherBrainDeathExplosion(RoomEnemyProjectileSlot projectile)
     {
         var body = _motherBrainEncounter.MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + projectile.Velocity.X.RawValue), CoordinateAxis.Wrap(body.Position.Y.Whole + projectile.Velocity.Y.RawValue)));
+        projectile.Position = projectile.Position.WithWhole(body.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
     }
 
     /// <summary>Updates a door fragment's fall and expiration after the room collapse.</summary>
     internal void RunMotherBrainDoorFragment(RoomEnemyProjectileSlot fragment)
     {
-        // The speed loses the drag, stopping at zero, and keeps its direction; a speed of at most
-        // 32768 units less the drag always fits a signed 8.8 velocity.
-        int velocity = fragment.Velocity.X.SignedRawValue;
-        int speed = Math.Max(0, Math.Abs(velocity) - MotherBrainDeathDefinitions.DoorFragmentDrag);
-        fragment.Velocity = fragment.Velocity.WithX(SignedEightEight.FromSignedRaw(velocity < 0 ? -speed : speed));
+        // The speed loses the drag, stopping at rest, and keeps its direction.
+        fragment.Velocity = fragment.Velocity.WithX(fragment.Velocity.X.SlowedBy(MotherBrainDeathDefinitions.DoorFragmentDrag));
         // A fragment falls for its lifetime of 32 updates at most, so its gravity adds at most four pixels an update.
-        fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + SignedEightEight.FromSignedRaw(MotherBrainDeathDefinitions.DoorFragmentGravity));
+        fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + MotherBrainDeathDefinitions.DoorFragmentGravity);
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime expires when it passes zero.
         MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
@@ -425,7 +417,8 @@ internal sealed class MotherBrainProjectiles
         // top four bits choose one of sixteen authored shard animation lists.
         int angle = MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate());
         shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle + 64)));
-        shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle) * 4));
+        // A cosine sample lies within one pixel either way, so four times one stays within four.
+        shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(4 * Trigonometry.SignedNegativeCosineWord(angle)));
         int animationIndex = angle >> 4;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
@@ -516,7 +509,7 @@ internal sealed class MotherBrainProjectiles
         beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
         beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
             scatterSpeed,
-            scatterAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+            scatterAngle.TurnedBy(ByteAngle.QuarterTurn)));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
         if (IsMotherBrainHandBeamOutsideArena(beam))
@@ -846,6 +839,6 @@ internal sealed class MotherBrainProjectiles
     {
         SamusState target = samus ?? throw new InvalidOperationException(
             "Mother Brain rainbow explosion requires the live Samus actor.");
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(target.Position.X.Whole + projectile.Velocity.X.RawValue), CoordinateAxis.Wrap(target.Position.Y.Whole + projectile.Velocity.Y.RawValue)));
+        projectile.Position = projectile.Position.WithWhole(target.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
     }
 }

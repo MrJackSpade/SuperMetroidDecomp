@@ -567,14 +567,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.ArcCounter--;
                 AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-                    EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ArcCounter)).Positive);
+                    EnemyQuadraticSpeeds.Row(state.ArcCounter).Positive);
             }
             return;
         }
 
         state.ArcCounter++;
         AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-            EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ArcCounter)).Negative);
+            EnemyQuadraticSpeeds.Row(state.ArcCounter).Negative);
         bool returnedToSpawnY = direction == HorizontalDirection.Left
             ? CoordinateAxis.Difference(slot.Position.Y.Whole, state.SpawnPosition.Y) < 0
             : CoordinateAxis.Difference(state.SpawnPosition.Y, slot.Position.Y.Whole) >= 0;

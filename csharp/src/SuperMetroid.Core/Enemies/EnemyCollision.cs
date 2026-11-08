@@ -202,7 +202,7 @@ internal sealed class EnemyCollision
                 // turns the slot into an explosion, so retain the incoming type instead of
                 // accidentally asking the vulnerability table about the visual effect.
                 SamusProjectileType projectileType = projectile.Type;
-                int projectileDamage = Ensure.BetweenInclusive(0, ushort.MaxValue, projectile.Damage);
+                int projectileDamage = Ensure.AtLeastZero(projectile.Damage);
                 SamusProjectileDirection projectileDirection = projectile.Direction;
                 SamusProjectileFamily family = projectile.Type.Family;
                 if (!projectile.HasEnemyCollisionPayload)
@@ -952,7 +952,7 @@ internal sealed class EnemyCollision
     {
         // The suit's damage division quarters the source header's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
-        int damage = SamusSuitDamage.Reduce(Ensure.BetweenInclusive(0, ushort.MaxValue, damageBeforeSuit), samus.EquippedItems);
+        int damage = SamusSuitDamage.Reduce(damageBeforeSuit, samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;

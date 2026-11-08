@@ -25,11 +25,7 @@ public sealed class FirefleaEnemyState
     public SignedSixteenSixteen AngularSpeed { get; internal set; }
 
     /// <summary>The movement radius in pixels, 8 through 64, from its spawn settings.</summary>
-    public int Radius
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int Radius { get; internal set; }
 
     /// <summary>
     /// The circle angle, wrapping around the turn. Main AI uses its table index as the eight-bit circle angle.

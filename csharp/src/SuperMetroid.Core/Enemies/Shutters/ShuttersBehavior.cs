@@ -258,7 +258,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
-        int radius = Ensure.BetweenInclusive(0, ushort.MaxValue, 8 + state.GrowthLevel * 8);
+        int radius = 8 + state.GrowthLevel * 8;
         InstallGrowingShutterProgram(slot, state, program, radius);
     }
 

@@ -20,9 +20,5 @@ public sealed class MultiviolaEnemyState
     public ByteAngle Heading { get; internal set; }
 
     /// <summary>The flight speed, from its spawn settings, multiplied with the heading's sine and cosine.</summary>
-    public int Speed
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    public int Speed { get; internal set; }
 }

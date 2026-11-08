@@ -116,10 +116,13 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowNextRotHalf(state);
     }
 
+    /// <summary>The rotting corpse's downward acceleration per update, one 256th of a pixel per update.</summary>
+    private static readonly SignedEightEight DeadTorizoRotGravity = SignedEightEight.FromSignedRaw(1);
+
     /// <summary>Advances the corpse's fall and runs one rot call of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue + 1));
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoRotGravity);
         MoveWithEightEightVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step((row, operation) => state.Rows.MoveRow(row, operation), _ => FinishDeadTorizoCorpseRow(state));

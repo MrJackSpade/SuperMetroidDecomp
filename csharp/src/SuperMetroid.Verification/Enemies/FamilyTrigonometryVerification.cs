@@ -40,8 +40,8 @@ internal static class FamilyTrigonometryVerification
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
         Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
         var bullMove = new Action<RoomEnemySlot, BullEnemyState>(BullBehavior.MoveBull);
-        var mawX = new Func<ushort, ushort, int>((angle, length) => YappingMawBehavior.CalculateYappingMawX(new ByteAngle(unchecked((byte)angle)), length));
-        var mawY = new Func<ushort, ushort, int>((angle, length) => YappingMawBehavior.CalculateYappingMawY(new ByteAngle(unchecked((byte)angle)), length));
+        var mawX = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawX(new ByteAngle(unchecked((byte)angle)), length)));
+        var mawY = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawY(new ByteAngle(unchecked((byte)angle)), length)));
         Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
 
         ushort MawReference(int angle, int length)

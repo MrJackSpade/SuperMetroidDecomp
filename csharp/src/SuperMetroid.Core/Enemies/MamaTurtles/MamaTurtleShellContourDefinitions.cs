@@ -11,7 +11,7 @@ internal static class MamaTurtleShellContourDefinitions
     internal const int HalfWidth = 24;
 
     /// <summary>Vertical shell contour: 24 samples per side of the parent origin.</summary>
-    internal static ReadOnlySpan<short> Offsets =>
+    internal static ReadOnlySpan<int> Offsets =>
     [
         -16, -16, -16, -16, -15, -15, -15, -15,
         -15, -14, -13, -13, -12, -11, -10, -9,

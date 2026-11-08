@@ -251,7 +251,7 @@ internal sealed class EyeDoorBehavior
         Position16<RoomBlocks> block)
     {
         MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
-        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(Ensure.BetweenInclusive(0, ushort.MaxValue, placementIndex));
+        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
         // Stores only the list pointer, keeping the definition's one-update timer.
@@ -279,10 +279,8 @@ internal sealed class EyeDoorBehavior
 
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
         int angle = shot.Heading.RawValue;
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(projectile.Velocity.X.RawValue +
-            ReadEyeDoorAcceleration(angle)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue +
-            ReadEyeDoorAcceleration(angle - 64)));
+        projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X + ReadEyeDoorAcceleration(angle));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ReadEyeDoorAcceleration(angle - 64));
 
         SharedGameState system = _eyeDoorProjectileSystem ??
             throw new InvalidOperationException("A live eye-door projectile has no door-bit owner.");
@@ -306,15 +304,18 @@ internal sealed class EyeDoorBehavior
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + 12));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + EyeDoorSweatGravity);
     }
 
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
-    internal static int ReadEyeDoorAcceleration(int tableIndex)
+    internal static SignedEightEight ReadEyeDoorAcceleration(int tableIndex)
     {
         int sample = Trigonometry.SignedSine(ByteAngle.Wrapped(tableIndex));
-        return sample >> 4;
+        return SignedEightEight.FromSignedRaw(sample >> 4);
     }
+
+    /// <summary>A falling sweat drop's downward acceleration per update, in 256ths of a pixel per update.</summary>
+    private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromSignedRaw(12);
 
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
@@ -395,11 +396,11 @@ internal sealed class EyeDoorBehavior
         {
             // The far face of the blocking block: the last pixel of its sixteen, plus one.
             int face = CoordinateAxis.Wrap((edge | 15) + 1 + radius);
-            return Ensure.BetweenInclusive(0, ushort.MaxValue, face <= current ? face : current);
+            return face <= current ? face : current;
         }
         // The near face of the blocking block: its first pixel.
         int near = CoordinateAxis.Wrap((edge & ~15) - radius);
-        return Ensure.BetweenInclusive(0, ushort.MaxValue, near >= current ? near : current);
+        return near >= current ? near : current;
     }
 
     /// <summary>Advances vertical subpixels or snaps to the first solid leading edge.</summary>

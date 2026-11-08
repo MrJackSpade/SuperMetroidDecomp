@@ -68,7 +68,7 @@ public sealed class DeadSidehopperEnemyState
     public int PreRotDelayCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, LargestPreRotDelayCount, value);
     }
 
     /// <summary>The largest pre-rot count; the next call counts zero.</summary>

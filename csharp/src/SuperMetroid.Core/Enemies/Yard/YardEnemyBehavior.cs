@@ -282,7 +282,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The count stays within one through four, so the game's signed word comparison is an ordinary one.
             state.ConsecutiveTurnCounter++;
-            if (state.ConsecutiveTurnCounter >= 4)
+            if (state.ConsecutiveTurnCounter >= YardEnemyState.MissedProbesBeforeFalling)
             {
                 DropYard(slot, state);
                 return;

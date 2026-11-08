@@ -141,7 +141,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every iteration multiplies two low bytes,
         // adds the 16-bit product with wraparound, then compares by the result's sign.
         // The curve saturates at 255 once its 23 stored bytes are exhausted.
-        for (int guard = 0; guard < ushort.MaxValue; guard++)
+        for (int guard = 0; guard < BoyonEnemyState.LargestSpeedTableIndex; guard++)
         {
             state.Speed = MultiplyBoyonCurveEntry(state);
             state.AccumulateBounceDistance(state.Speed);
@@ -169,7 +169,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Taking the high byte discards the product's fractional byte. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's high byte.
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + (EightEight.WholeOf(state.Speed)));
-        if (EnemyMath.IsNegative16(state.SpeedTableIndex - state.InitialBounceSpeedTableIndex))
+        if (WrappingCounter.IsBehind(state.SpeedTableIndex, state.InitialBounceSpeedTableIndex))
             return;
 
         state.BounceMovement = BoyonBounceMovement.Rising;
@@ -197,7 +197,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemySlot slot, SamusState samus)
     {
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
-        return EnemyMath.IsNegative16(distance - slot.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
+        return CoordinateAxis.Precedes(distance, slot.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
     }
 
     /// <summary>Starts the idle or bounce animation and restarts its instruction and auxiliary timers.</summary>

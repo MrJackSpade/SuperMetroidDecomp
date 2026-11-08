@@ -200,11 +200,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         int travelDistance = hold == PowampHold.Grappled
             ? balloon.State.BalloonGrappleTravelDistance
             : PowampUngrappledTravelDistance;
-        int targetY = CoordinateAxis.Wrap(balloon.State.BalloonSpawn.Y - travelDistance);
 
         // CMP target,body followed by BMI means "continue while body is still below the
         // target". A room collision completes the rise regardless of its Y coordinate.
-        bool reachedTarget = !EnemyMath.IsNegative16(targetY - body.Position.Y.Whole);
+        bool reachedTarget = !CoordinateAxis.Precedes(balloon.State.BalloonSpawn.Y - travelDistance, body.Position.Y.Whole);
         if (collided || reachedTarget)
         {
             if (IsPowampCentered(state.WiggleIndex))
@@ -290,8 +289,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
-        int spawnY = balloon.State.BalloonSpawn.Y;
-        if (!EnemyMath.IsNegative16(body.Position.Y.Whole - spawnY))
+        if (!CoordinateAxis.Precedes(body.Position.Y.Whole, balloon.State.BalloonSpawn.Y))
         {
             body.Position = body.Position.WithWholeY(balloon.State.BalloonSpawn.Y);
             state.Function = PowampEnemyFunction.DeflatedResting;
@@ -612,16 +610,15 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int direction = spike.StateOf<PowampSpikeState>().Direction;
 
-        spike.Velocity = spike.Velocity.WithX(SignedEightEight.Wrapped(
-            spike.Velocity.X.SignedRawValue + PowampMotion.SpikeXAcceleration(direction)));
+        EightEightVector<RoomPixels> acceleration = PowampMotion.SpikeAcceleration(direction);
+        spike.Velocity = spike.Velocity.WithX(spike.Velocity.X + acceleration.X);
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Horizontal))
         {
             BeginPowampSpikeDeletion(spike);
             return;
         }
 
-        spike.Velocity = spike.Velocity.WithY(SignedEightEight.Wrapped(
-            spike.Velocity.Y.SignedRawValue + PowampMotion.SpikeYAcceleration(direction)));
+        spike.Velocity = spike.Velocity.WithY(spike.Velocity.Y + acceleration.Y);
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Vertical))
             BeginPowampSpikeDeletion(spike);
     }

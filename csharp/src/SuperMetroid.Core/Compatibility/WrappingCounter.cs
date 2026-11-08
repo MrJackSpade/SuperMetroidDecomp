@@ -23,6 +23,9 @@ namespace SuperMetroid.Core.Compatibility;
 [EncodingOwner("wrapping and saturating word counters")]
 public static class WrappingCounter
 {
+    /// <summary>The largest count a wrapping word holds: a count stepped past it continues from zero.</summary>
+    public const int LargestWordCount = ushort.MaxValue;
+
     /// <summary>
     /// Takes one away from a timer held as a plain count, 0 through 65535: a count at zero wraps to 65535. The step's
     /// tests are the owner's expiry rule.
@@ -51,6 +54,22 @@ public static class WrappingCounter
     /// <param name="step">The step, 0 through 65535.</param>
     public static int AddWord(int value, int step) =>
         (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue;
+
+    /// <summary>
+    /// Takes <paramref name="step"/> from a count of 0 through 65535: a count stepped below zero continues from the top
+    /// (for example a speed decelerated past zero, which then reads as below zero, <see cref="ReadsBelowZero"/>).
+    /// </summary>
+    /// <param name="value">The count, 0 through 65535.</param>
+    /// <param name="step">The step, 0 through 65535.</param>
+    public static int SubtractWord(int value, int step) =>
+        (Ensure.BetweenInclusive(0, ushort.MaxValue, value) - Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue;
+
+    /// <summary>
+    /// Whether a count of 0 through 65535 reads as having run below zero, as the game tests a count by its sign: a
+    /// count stepped below zero continues from the top, so every count of 32768 or more reads as below zero.
+    /// </summary>
+    /// <param name="value">The count, 0 through 65535.</param>
+    public static bool ReadsBelowZero(int value) => Ensure.BetweenInclusive(0, ushort.MaxValue, value) > short.MaxValue;
 
     /// <summary>
     /// Whether <paramref name="value"/> is behind <paramref name="limit"/> as the game compares two counts: by the sign

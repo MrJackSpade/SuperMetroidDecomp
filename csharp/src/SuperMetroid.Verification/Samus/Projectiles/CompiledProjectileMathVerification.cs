@@ -30,7 +30,7 @@ internal static class CompiledProjectileMathVerification
         var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new ByteAngle(babyAngle)).RawValue);
         var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle).RawValue);
         var fly = new Func<int, int>(FliesBehavior.ReadSignedSineCosine);
-        var eye = new Func<int, int>(EyeDoorBehavior.ReadEyeDoorAcceleration);
+        var eye = new Func<int, int>(index => EyeDoorBehavior.ReadEyeDoorAcceleration(index).SignedRawValue);
         var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new ByteAngle(angle)));
         var shaktool = new Func<int, int>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new ByteAngle(unchecked((byte)angle)), radius));

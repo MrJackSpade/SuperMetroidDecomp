@@ -65,7 +65,7 @@ internal static class MamaTurtleShellContourVerification
             }
             else
             {
-                short offset = MamaTurtleShell.GetOffset(difference);
+                int offset = MamaTurtleShell.GetOffset(difference);
                 AssertEqual(unchecked((ushort)-offset), mama.Radius.Y,
                     $"sleeping Mama production radius at difference {difference}");
                 AssertTrue(mama.Properties.HasAny(EnemyProperties.SolidToSamus),

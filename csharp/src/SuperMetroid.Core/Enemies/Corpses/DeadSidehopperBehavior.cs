@@ -263,11 +263,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         // Upward motion accelerates by 32 in signed 8.8; falling motion accelerates by
         // 128. The sign test is performed before the addition in the game.
-        int acceleration = state.Velocity.Y.SignedRawValue < 0
-            ? 32
-            : 128;
-        state.Velocity = state.Velocity.WithY(
-            SignedEightEight.Wrapped(state.Velocity.Y.RawValue + acceleration));
+        SignedEightEight acceleration = SignedEightEight.FromSignedRaw(state.Velocity.Y.IsNegative ? 32 : 128);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
         if (beforeTerrainBoundary)
         {
             MoveDeadSidehopperAxisDirect(

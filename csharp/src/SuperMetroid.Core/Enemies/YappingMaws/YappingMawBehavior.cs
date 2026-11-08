@@ -230,10 +230,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MirroredBend = state.CurlAngle.TableIndex >= RotationAngle.HalfTurn.TableIndex;
 
         state.Baseline = new Offset16<RoomPixels>(
-            CoordinateAxis.AsSigned(CalculateYappingMawX(ByteAngle.HalfTurn, Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius))),
-            CoordinateAxis.AsSigned(CalculateYappingMawY(
-                ByteAngle.HalfTurn,
-                Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius / 2))));
+            CalculateYappingMawX(ByteAngle.HalfTurn, state.SegmentRadius),
+            CalculateYappingMawY(ByteAngle.HalfTurn, state.SegmentRadius / 2));
 
         // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
         int direction = Bearing.Wrapped(state.AimAngle.RawValue + 16).RawValue / 32;
@@ -255,9 +253,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The function only runs while the curl's whole part is in [0, YappingMawMaximumCurl]: setup starts it at zero,
         // the clamp below caps it, and the update that carries it negative leaves this function. In that range a
-        // quarter of the signed whole part equals the game's two logical right shifts of the word; the checked
-        // conversion fails loudly if that range is ever violated.
-        int bendStep = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Extension.WholePixels / 4);
+        // quarter of the signed whole part equals the game's two logical right shifts of the word; the check fails
+        // loudly if that range is ever violated.
+        int bendStep = Ensure.BetweenInclusive(0, YappingMawMaximumCurl, state.Extension.WholePixels) / 4;
         // The bend corrects the eight offsets in one chain, link by link and X before Y: an offset whose correction
         // wraps it past the last pixel of its word moves the next offset in the chain one pixel further.
         int wrappedIntoNext = 0;
@@ -268,12 +266,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? ByteAngle.HalfTurn.AddTableUnits(multiple)
                 : ByteAngle.HalfTurn.AddTableUnits(-multiple);
 
-            int rawX = CoordinateAxis.Wrap(
-                CalculateYappingMawX(linkAngle, Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius)) - state.Baseline.X);
-            int rawY = CoordinateAxis.Wrap(
-                CalculateYappingMawY(
-                    linkAngle,
-                    Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius / 2)) - state.Baseline.Y);
+            int rawX = CoordinateAxis.Wrap(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
+            int rawY = CoordinateAxis.Wrap(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
 
             // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
             // Passing raw Y here is an attractive cleanup and is wrong; the game's
@@ -360,16 +354,17 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // wrapped; records whether this one wraps in turn.
         int Corrected(int offset, int correction)
         {
-            int sum = Ensure.BetweenInclusive(0, ushort.MaxValue, offset) + Ensure.BetweenInclusive(0, ushort.MaxValue, correction) + wrappedIntoNext;
-            wrappedIntoNext = sum > ushort.MaxValue ? 1 : 0;
-            return CoordinateAxis.Wrap(sum);
+            int sum = offset + correction + wrappedIntoNext;
+            int wrapped = CoordinateAxis.Wrap(sum);
+            wrappedIntoNext = wrapped != sum ? 1 : 0;
+            return wrapped;
         }
     }
 
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.QuadraticSpeedRow)).Toward(state.QuadraticSpeedSign));
+        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(state.QuadraticSpeedRow).Toward(state.QuadraticSpeedSign));
         state.QuadraticSpeedRow++;
     }
 
@@ -553,26 +548,24 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
     {
-        int deltaX = CoordinateAxis.Wrap(samus.X - origin.X);
-        int absoluteX = EnemyMath.WrappedMagnitude(deltaX);
+        int deltaX = CoordinateAxis.Difference(samus.X, origin.X);
+        int absoluteX = Math.Abs(deltaX);
+        // The farthest difference's magnitude, 32768, is compared as the game's signed word reads it.
         if (CoordinateAxis.Difference(absoluteX, 255) >= 0)
             return new YappingMawTarget(absoluteX, default);
 
-        int deltaY = CoordinateAxis.Wrap(samus.Y - origin.Y);
-        int absoluteY = EnemyMath.WrappedMagnitude(deltaY);
+        int deltaY = CoordinateAxis.Difference(samus.Y, origin.Y);
+        int absoluteY = Math.Abs(deltaY);
         if (CoordinateAxis.Difference(absoluteY, 255) >= 0)
             return new YappingMawTarget(absoluteY, default);
 
-        ByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.AsSigned(absoluteX), CoordinateAxis.AsSigned(absoluteY))).ToMirroredTableAngle();
-        int distance = CoordinateAxis.Wrap(
-            EnemyMath.WrappedMagnitude(CoordinateAxis.Wrap(EnemyMath.ReadEightBitNegativeSineProduct(
-                positiveQuadrantAngle,
-                absoluteX))) +
-            EnemyMath.WrappedMagnitude(CoordinateAxis.Wrap(EnemyMath.ReadEightBitCosineProduct(
-                positiveQuadrantAngle,
-                absoluteY))));
-        return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(CoordinateAxis.AsSigned(deltaX), CoordinateAxis.AsSigned(deltaY))));
+        // Both magnitudes are below 255 here, so each eight-bit product is below 255 pixels and their sum below 510:
+        // neither the products' magnitudes nor their sum reach the word's sign.
+        ByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTableAngle();
+        int distance =
+            Math.Abs(EnemyMath.ReadEightBitNegativeSineProduct(positiveQuadrantAngle, absoluteX)) +
+            Math.Abs(EnemyMath.ReadEightBitCosineProduct(positiveQuadrantAngle, absoluteY));
+        return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(deltaX, deltaY)));
     }
 
     /// <summary>X is the Y helper with a minus-64 angle adjustment.</summary>
@@ -581,7 +574,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Computes the link offsets exactly, including the high-byte sine approximation and the unusual
-    /// negative-product construction. Only length's low byte reaches the multiplier.
+    /// negative-product construction (<see cref="NegativeLinkOffset"/>). Only length's place within 256 reaches the
+    /// multiplier. The offset is signed, -256 through 510; its consumers wrap it onto the room's axis.
     /// </summary>
     internal static int CalculateYappingMawY(ByteAngle angle, int length)
     {
@@ -589,17 +583,27 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             ByteAngle.Wrapped(-angle.RawValue));
         bool negative = signedSample < 0;
         int magnitude = negative ? -signedSample : signedSample;
-        // The eight-bit multiplier takes only the length's place within 256.
-        int product = CoordinateAxis.Wrap(UnsignedEightEight.Whole(magnitude) * (Ensure.BetweenInclusive(0, ushort.MaxValue, length) % LengthMultiplierSpan));
+        // The eight-bit multiplier takes only the length's place within 256. A sample's whole part and that place are
+        // each below 256, so the product stays below 65536.
+        int product = UnsignedEightEight.Whole(magnitude) * (Ensure.AtLeastZero(length) % LengthMultiplierSpan);
         if (product == 0)
             return 0;
 
         if (!negative)
-            return CoordinateAxis.Wrap(2 * UnsignedEightEight.Whole(product));
+            return 2 * UnsignedEightEight.Whole(product);
 
         int negatedProduct = CoordinateAxis.Wrap(-product);
-        return EnemyMath.FillHighByte(2 * UnsignedEightEight.Whole(negatedProduct));
+        return NegativeLinkOffset(2 * UnsignedEightEight.Whole(negatedProduct));
     }
+
+    /// <summary>
+    /// The negative link offset a doubled negated product stands for: the game keeps only the doubled product's place
+    /// within 256 and fills the rest with ones, so the offset lies 256 below that place, -256 through -1, and a doubled
+    /// product of 256 or more continues from -256.
+    /// </summary>
+    /// <param name="doubledNegatedProduct">The negated product's whole part, doubled, zero or more.</param>
+    private static int NegativeLinkOffset(int doubledNegatedProduct) =>
+        Ensure.AtLeastZero(doubledNegatedProduct) % LengthMultiplierSpan - LengthMultiplierSpan;
 
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>
     internal static void AddYappingMawBombReactions(EnemySharedReactions table)

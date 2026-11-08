@@ -17,8 +17,11 @@ public static class BoyonBounceCurve
     /// </remarks>
     public static int Sample(int index) => index < StoredSampleCount
         ? index * (index + 1) / 2
-        : byte.MaxValue;
+        : SaturatedSample;
 
-    /// <summary>The sample at <paramref name="index"/> scaled by <paramref name="multiplier"/>, 0 through 255; the product is 0 through 65025.</summary>
-    public static int Multiply(int index, int multiplier) => Sample(index) * Ensure.BetweenInclusive(0, byte.MaxValue, multiplier);
+    /// <summary>
+    /// The sample at <paramref name="index"/> scaled by <paramref name="multiplier"/>, 0 through
+    /// <see cref="BoyonSpeedDefinitions.LargestMultiplier"/>; the product is 0 through <see cref="BoyonSpeedDefinitions.LargestScaledSample"/>.
+    /// </summary>
+    public static int Multiply(int index, int multiplier) => Sample(index) * Ensure.BetweenInclusive(0, LargestMultiplier, multiplier);
 }

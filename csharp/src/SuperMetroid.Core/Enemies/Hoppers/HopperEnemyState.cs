@@ -19,7 +19,7 @@ public sealed class HopperEnemyState
     public int YSpeedTableIndex
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, EnemyQuadraticSpeedDefinitions.RowCount - 1, value);
     }
 
     /// <summary>Signed whole-pixel horizontal velocity; the fractional word is always zero. Only three or its negation is stored.</summary>
@@ -29,11 +29,7 @@ public sealed class HopperEnemyState
     /// The record step, 3 for small hops or 4 for big hops, subtracted while moving away from the attachment surface
     /// and added while returning.
     /// </summary>
-    public int YSpeedTableIndexDelta
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int YSpeedTableIndexDelta { get; internal set; }
 
     /// <summary>Installed landed or jumping animation: where the typed program (#641) resumes.</summary>
     internal AnimationProgramCursor<HopperProgram> Program { get; set; }

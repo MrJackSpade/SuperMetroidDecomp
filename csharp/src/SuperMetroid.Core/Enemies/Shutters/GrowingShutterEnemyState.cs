@@ -38,11 +38,7 @@ public sealed class GrowingShutterEnemyState
     public int ActivationTimer { get; internal set; }
 
     /// <summary>The proximity-mode distance in pixels: the shutter activates once Samus is horizontally within it.</summary>
-    public int ActivationDistance
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int ActivationDistance { get; internal set; }
 
     /// <summary>
     /// The origin of the section grown at <paramref name="level"/>, indexed by growth level: level 0 is the spawn position

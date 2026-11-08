@@ -50,11 +50,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// impact removes 4096 and may leave it below zero, which ends the bounces, and rising stores zero once it would go
     /// below zero. It therefore stays within -3712 through 16384.
     /// </summary>
-    public int YSpeedTableIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value);
-    }
+    public int YSpeedTableIndex { get; internal set; }
 
     /// <summary>Attack cooldown, initialized to 128 and expiring when it steps below zero.</summary>
     public int AttackCooldown { get; internal set; }

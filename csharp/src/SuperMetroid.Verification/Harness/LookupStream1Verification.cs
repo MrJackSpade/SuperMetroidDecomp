@@ -1177,8 +1177,8 @@ internal static class LookupStream1Verification
         }
         for (int direction = 0; direction < 8; direction++)
         {
-            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeXAcceleration(direction), "Powamp native spike X acceleration");
-            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeYAcceleration(direction), "Powamp native spike Y acceleration");
+            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeAcceleration(direction).X.SignedRawValue, "Powamp native spike X acceleration");
+            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeAcceleration(direction).Y.SignedRawValue, "Powamp native spike Y acceleration");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
@@ -1187,8 +1187,7 @@ internal static class LookupStream1Verification
                 AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeXAcceleration(invalid), "Powamp X direction domain");
-            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeYAcceleration(invalid), "Powamp Y direction domain");
+            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration(invalid), "Powamp spike direction domain");
         }
     }
 

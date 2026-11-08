@@ -9,7 +9,7 @@ internal static class MamaTurtleShell
     /// Returns the signed vertical contour offset for a parent-minus-actor X
     /// difference whose magnitude is below twenty-four pixels.
     /// </summary>
-    internal static short GetOffset(int parentMinusActorX)
+    internal static int GetOffset(int parentMinusActorX)
     {
         int distance = Math.Abs(parentMinusActorX);
         if (distance >= HalfWidth)

@@ -40,11 +40,7 @@ public sealed class KiHunterEnemyState
     /// cref="DetachedSpeedReset"/> at each arc and lowered by 384 per update, landing on 256 when the step would go
     /// below zero, so it stays from zero to 24,319.
     /// </summary>
-    public int DetachedSpeedIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int DetachedSpeedIndex { get; internal set; }
 
     /// <summary>
     /// A body's swoop origin: its room position when the swoop begins, from which the dive's ellipse hangs. Only the Y
@@ -64,28 +60,20 @@ public sealed class KiHunterEnemyState
     public int DetachedSpeedAccumulator
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
     }
 
     /// <summary>
     /// A body's animation-change angle, in whole table units of the swoop angle: 240 for a leftward swoop or 144 for a
     /// rightward one. Passing it installs the swoop animation.
     /// </summary>
-    public int AnimationChangeAngle
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int AnimationChangeAngle { get; internal set; }
 
     /// <summary>
     /// A body's swoop angle, in whole table units: 128 or 255 when a swoop begins, stepped by the whole angular
     /// velocity, and ending the swoop at 256 or below 128, so it stays from zero to 257.
     /// </summary>
-    public int SwoopAngle
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int SwoopAngle { get; internal set; }
 
     /// <summary>
     /// A detached wing's arc angle, which wraps over the whole turn: seeded below zero for each arc and advanced by an

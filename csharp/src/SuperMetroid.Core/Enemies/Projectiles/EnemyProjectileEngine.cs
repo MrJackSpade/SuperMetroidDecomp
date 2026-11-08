@@ -678,7 +678,7 @@ internal sealed class EnemyProjectileEngine
             return null;
         }
 
-        int damage = SamusSuitDamage.Reduce(Ensure.BetweenInclusive(0, ushort.MaxValue, projectile.Damage), samus.EquippedItems);
+        int damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
@@ -957,13 +957,19 @@ internal sealed class EnemyProjectileEngine
         }
     }
 
+    /// <summary>A Skree or Metaree particle's downward acceleration per update, in 256ths of a pixel per update.</summary>
+    private static readonly SignedEightEight SkreeParticleGravity = SignedEightEight.FromSignedRaw(80);
+
+    /// <summary>A falling Ceres tile's downward acceleration per update, in 256ths of a pixel per update.</summary>
+    private static readonly SignedEightEight CeresFallingTileGravity = SignedEightEight.FromSignedRaw(16);
+
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>
     internal static void AddMetalSkreeParticleFrameBehavior(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
         {
             context.Projectile.Position = context.Projectile.Position.Advance(context.Projectile.Velocity.ToSixteenSixteen());
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(SignedEightEight.Wrapped(context.Projectile.Velocity.Y.RawValue + 80));
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(context.Projectile.Velocity.Y + SkreeParticleGravity);
             if (CoordinateAxis.Wrap(context.Projectile.Position.X.Whole - context.Camera.X) >= 256 ||
                 CoordinateAxis.Wrap(context.Projectile.Position.Y.Whole - context.Camera.Y) >= 256)
             {
@@ -977,7 +983,7 @@ internal sealed class EnemyProjectileEngine
     {
         table.AddFrameBehavior(context =>
         {
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(SignedEightEight.Wrapped(context.Projectile.Velocity.Y.RawValue + 16));
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(context.Projectile.Velocity.Y + CeresFallingTileGravity);
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;

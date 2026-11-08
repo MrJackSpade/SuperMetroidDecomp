@@ -15,17 +15,23 @@ public sealed class EtecoonEnemyState
     /// <summary>The current behaviour's wrapping countdown, in updates.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
+    /// <summary>The teaching hops counted before the count empties.</summary>
+    internal const int TeachingHopsPerLesson = 4;
+
     /// <summary>The main-AI behaviour.</summary>
     public EtecoonAiFunction? Function { get; internal set; }
 
     /// <summary>The authored route it takes after its first landing.</summary>
     public EtecoonRoute Route { get; internal set; }
 
-    /// <summary>The updates an earthquake still suspends the Etecoon for, 0 through 255 (parameter two's high byte).</summary>
+    /// <summary>
+    /// The updates an earthquake still suspends the Etecoon for: an earthquake starts
+    /// <see cref="EtecoonQuakeDefinitions.QuakePauseFrames"/>, and every retail Etecoon's spawn settings start none.
+    /// </summary>
     public int QuakePauseFrames
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, EtecoonQuakeDefinitions.QuakePauseFrames, value);
     }
 
     /// <summary>
@@ -39,11 +45,14 @@ public sealed class EtecoonEnemyState
     /// </remarks>
     public bool HeadingRight { get; internal set; }
 
-    /// <summary>Teaching hops taken since the count was last emptied, 0 through 255, starting from the spawn settings.</summary>
+    /// <summary>
+    /// Teaching hops taken since the count was last emptied, starting from the spawn settings (none in every retail
+    /// Etecoon): the count empties on reaching <see cref="TeachingHopsPerLesson"/>.
+    /// </summary>
     public int TeachingHops
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, EtecoonEnemyState.TeachingHopsPerLesson, value);
     }
 
     /// <summary>Takes a heading, which also empties the teaching-hop count.</summary>

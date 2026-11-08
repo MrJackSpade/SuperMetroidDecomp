@@ -209,7 +209,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             return;
 
-        bool samusIsRight = !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - head.Position.X.Whole));
+        bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightIdle
             : MagdolliteProgram.LeftIdle;
@@ -256,7 +256,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsRight = samus is not null &&
-            !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - head.Position.X.Whole));
+            !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightEmerge
             : MagdolliteProgram.LeftEmerge;
@@ -274,7 +274,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsRight = samus is not null &&
-            !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - head.Position.X.Whole));
+            !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightIdle
             : MagdolliteProgram.LeftIdle;
@@ -309,17 +309,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
         state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);
 
-        int upwardDistance = CoordinateAxis.Wrap(-state.RiseDisplacement.Y);
+        int upwardDistance = -state.RiseDisplacement.Y;
         MagdollitePhaseDefinition phase = MagdolliteRise.Phase(state.BodyPhase);
-        bool roseMaximum = !EnemyMath.IsNegative16(
-            upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
-        bool rosePastSamus = samus is not null && EnemyMath.IsNegative16(CoordinateAxis.Wrap(
-            body.Position.Y.Whole - phase.OverlayYOffset - samus.Position.Y.Whole));
+        bool roseMaximum = !CoordinateAxis.Precedes(upwardDistance, MagdollitePhaseDefinitions.MaximumRise);
+        bool rosePastSamus = samus is not null &&
+            CoordinateAxis.Precedes(body.Position.Y.Whole - phase.OverlayYOffset, samus.Position.Y.Whole);
         // At full height whether the arm grows its last segment depends on the slot it occupies
         // (MagdolliteApexGrowth); the Samus test compares with the phase's own threshold.
         bool growsAPhase = roseMaximum
             ? _room.Overreads.MagdolliteApexGrowth.GrowsFinalSegment(body.SlotIndex)
-            : !EnemyMath.IsNegative16(upwardDistance - phase.DistanceThreshold);
+            : !CoordinateAxis.Precedes(upwardDistance, phase.DistanceThreshold);
 
         if (roseMaximum || rosePastSamus)
         {
@@ -358,9 +357,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int downwardDistanceRemaining = CoordinateAxis.Wrap(-state.RiseDisplacement.Y);
+        int downwardDistanceRemaining = -state.RiseDisplacement.Y;
         int threshold = MagdolliteRise.Phase(state.BodyPhase - 1).DistanceThreshold;
-        if (!EnemyMath.IsNegative16(downwardDistanceRemaining - threshold))
+        if (!CoordinateAxis.Precedes(downwardDistanceRemaining, threshold))
             return;
 
         state.BodyPhase--;
@@ -414,7 +413,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (bodyState.BodyReachedApex)
         {
             bool samusIsRight = samus is not null &&
-                !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - overlay.Position.X.Whole));
+                !CoordinateAxis.Precedes(samus.Position.X.Whole, overlay.Position.X.Whole);
             state.DesiredProgram = samusIsRight
                 ? MagdolliteProgram.RightThrow
                 : MagdolliteProgram.LeftThrow;
@@ -464,7 +463,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
         int radius = CoordinateAxis.Wrap(head.Position.Y.Whole - overlay.Position.Y.Whole + 2);
-        head.Radius = head.Radius.WithY(EnemyMath.IsNegative16(radius - 8) ? 8 : radius);
+        head.Radius = head.Radius.WithY(CoordinateAxis.Precedes(radius, 8) ? 8 : radius);
     }
 
     /// <summary>
@@ -549,10 +548,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case MagdolliteCueKind.PlaySoundIfOnScreen:
             {
-                bool offScreen = EnemyMath.IsNegative16(slot.Position.X.Whole - camera.X) ||
-                    EnemyMath.IsNegative16(camera.X + 256 - slot.Position.X.Whole) ||
-                    EnemyMath.IsNegative16(slot.Position.Y.Whole - camera.Y) ||
-                    EnemyMath.IsNegative16(camera.Y + 256 - slot.Position.Y.Whole);
+                bool offScreen = CoordinateAxis.Precedes(slot.Position.X.Whole, camera.X) ||
+                    CoordinateAxis.Precedes(camera.X + 256, slot.Position.X.Whole) ||
+                    CoordinateAxis.Precedes(slot.Position.Y.Whole, camera.Y) ||
+                    CoordinateAxis.Precedes(camera.Y + 256, slot.Position.Y.Whole);
                 if (!offScreen)
                     _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Magdollite, cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound."), priority: SoundRequestPriority.Normal);
                 break;

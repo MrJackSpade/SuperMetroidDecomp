@@ -249,7 +249,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
-        int verticalDisplacement = EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.YSpeedTableIndex)).Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        int verticalDisplacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
         // Every movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.

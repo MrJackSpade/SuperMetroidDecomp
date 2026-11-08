@@ -12,6 +12,6 @@ public sealed class RoomEnemyPopulationDefinition(string name, RoomEnemyPopulati
     public string Name { get; } = Ensure.NotNull(name);
     /// <summary>The placements in order; the order controls initialization and slot allocation.</summary>
     public ReadOnlyMemory<RoomEnemyPopulationRecord> Records => placements;
-    /// <summary>The kills, 0 through 255, that clear the room when the population is not empty; an empty load does not publish it.</summary>
-    public int DeathQuota { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, deathQuota);
+    /// <summary>The kills that clear the room when the population is not empty; an empty load does not publish it.</summary>
+    public int DeathQuota { get; } = Ensure.AtLeastZero(deathQuota);
 }

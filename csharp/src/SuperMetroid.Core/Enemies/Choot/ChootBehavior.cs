@@ -75,12 +75,9 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Choot proximity AI requires the active Samus actor.");
 
-        // GetSignedYMinusX treats the wrapped word as signed before taking its magnitude.
-        // In particular, -32768 remains -32768 after negation; ordinary Math.Abs(short) would
-        // throw and a wider subtraction would disagree near the world-coordinate seam.
-        int distance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
-        if (EnemyMath.IsNegative16(distance))
-            distance = CoordinateAxis.Wrap(-distance);
+        // The distance is the magnitude of the wrapped signed difference, up to 32768, and the farthest one reads as
+        // negative in the game's signed comparison with the activation distance.
+        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
         if (CoordinateAxis.Difference(distance, ChootActivationDistance) >= 0)
             return;
 

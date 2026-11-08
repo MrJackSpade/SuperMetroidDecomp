@@ -131,13 +131,13 @@ public sealed class RoomEnemySlot
     public int FrameCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
     }
     /// <summary>The definition's hurt duration, 0 through 255, copied into the slot when it is populated.</summary>
     public int HurtAiTime
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
 
     /// <summary>The frames a hurt flash runs before any extension: the hurt duration, or four when it is zero.</summary>

@@ -561,7 +561,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Four teaching hops are counted. Then clears only the count, keeping the
         // heading used by the airborne states. The count is cleared on reaching four, so it never leaves 0 through 4.
         state.TeachingHops++;
-        bool fewerThanFourTeachingJumps = state.TeachingHops < 4;
+        bool fewerThanFourTeachingJumps = state.TeachingHops < EtecoonEnemyState.TeachingHopsPerLesson;
         if (!fewerThanFourTeachingJumps)
         {
             // The route counter is cleared once complete before testing route two.

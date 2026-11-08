@@ -63,6 +63,6 @@ public sealed class MetroidEnemyState
     public int IceDamageToFreeze
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
 }

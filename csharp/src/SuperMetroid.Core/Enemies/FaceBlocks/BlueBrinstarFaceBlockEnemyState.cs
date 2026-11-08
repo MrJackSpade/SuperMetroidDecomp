@@ -16,13 +16,9 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     /// <summary>
     /// Samus's signed horizontal distance in room pixels from the face block, -32768 through 32767, written only after
     /// Samus passes the vertical range test; negative when Samus is to the left. The room-coordinate subtraction wraps
-    /// at the word boundary, so the setter accepts either the signed distance or its wrapped word.
+    /// across the room's wrapping axis (<see cref="CoordinateAxis.Difference"/>).
     /// </summary>
-    public int LastHorizontalDelta
-    {
-        get;
-        internal set => field = CoordinateAxis.AsSigned(value);
-    }
+    public int LastHorizontalDelta { get; internal set; }
 
     /// <summary>
     /// Whether the face looks right (parameter two's bit zero). Activation needs Samus on the side opposite the one

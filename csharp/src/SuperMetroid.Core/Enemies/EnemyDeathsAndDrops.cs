@@ -287,7 +287,9 @@ internal sealed class EnemyDeathsAndDrops
     /// Exact byte-accumulator translation of the random drop selection. Minor drops are renormalized into
     /// the budget left after enabled super/PB chances; the two major drops retain their raw
     /// table probabilities. All additions which occurred in eight-bit accumulator mode are
-    /// explicitly wrapped here.
+    /// explicitly wrapped here. The drops Samus can use are offered in the chance table's column order (the minor
+    /// columns first, then the two major ones), and the first whose accumulated chance reaches the random draw is
+    /// chosen; the draw is read before anything else, as the game reads it.
     /// </summary>
     internal EnemyPickupKind SelectRandomEnemyDrop(RoomEnemyProjectileSlot projectile)
     {
@@ -303,7 +305,7 @@ internal sealed class EnemyDeathsAndDrops
         }
         while (random == 0);
 
-        int majorAdjustedBudget = byte.MaxValue;
+        int majorAdjustedBudget = FullWeightBudget;
         int accumulated = 0;
         int combinedEnergy = samus.Health + samus.ReserveEnergy;
         if (combinedEnergy < 30)
@@ -314,82 +316,78 @@ internal sealed class EnemyDeathsAndDrops
         // hysteresis/grace period, not an omitted assignment.
 
         int pooledMinorWeight;
-        int enabledMask;
+        var offered = new HashSet<EnemyPickupKind>();
         if (_room.Session.CriticalEnergyDropBias)
         {
             pooledMinorWeight = WithinWeightPool(table.SmallEnergy + table.BigEnergy);
-            enabledMask = EnemyDropMasks.Energy;
+            offered.Add(EnemyPickupKind.SmallEnergy);
+            offered.Add(EnemyPickupKind.BigEnergy);
         }
         else
         {
             pooledMinorWeight = table.Nothing;
-            enabledMask = EnemyDropMasks.Nothing;
+            offered.Add(EnemyPickupKind.NoDrop);
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
                 pooledMinorWeight = WithinWeightPool(
                     pooledMinorWeight + table.SmallEnergy + table.BigEnergy);
-                enabledMask |= EnemyDropMasks.Energy;
+                offered.Add(EnemyPickupKind.SmallEnergy);
+                offered.Add(EnemyPickupKind.BigEnergy);
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
                 pooledMinorWeight = WithinWeightPool(pooledMinorWeight + table.Missile);
-                enabledMask |= EnemyDropMasks.Missile;
+                offered.Add(EnemyPickupKind.Missile);
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
                 majorAdjustedBudget = WithinWeightPool(
                     majorAdjustedBudget - table.SuperMissile);
-                enabledMask |= EnemyDropMasks.SuperMissile;
+                offered.Add(EnemyPickupKind.SuperMissile);
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
                 majorAdjustedBudget = WithinWeightPool(
                     majorAdjustedBudget - table.PowerBomb);
-                enabledMask |= EnemyDropMasks.PowerBomb;
+                offered.Add(EnemyPickupKind.PowerBomb);
             }
         }
 
-        int accumulatorIndex = 0;
-        if (pooledMinorWeight != 0)
+        // With no pooled minor weight the minor columns are passed over and the major columns are offered alone.
+        int column = pooledMinorWeight != 0 ? 0 : MinorDropColumnCount;
+        for (; column < MinorDropColumnCount; column++)
         {
-            for (; accumulatorIndex < 4; accumulatorIndex++)
-            {
-                bool enabled = (enabledMask & 1) != 0;
-                enabledMask >>= 1;
-                if (!enabled)
-                    continue;
-
-                // The multiply result is sixteen bits and division truncates toward
-                // zero. Inputs are bytes, so ordinary integer arithmetic is identical.
-                accumulated = CoordinateAxis.Wrap(accumulated +
-                    majorAdjustedBudget * table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex)) / pooledMinorWeight);
-                if (accumulated >= random)
-                    return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
-            }
-        }
-        else
-        {
-            // The assembly jumps directly to major index four after shifting away all four
-            // minor availability bits when their pooled divisor is zero.
-            enabledMask >>= 4;
-            accumulatorIndex = 4;
-        }
-
-        for (; accumulatorIndex < 6; accumulatorIndex++)
-        {
-            bool enabled = (enabledMask & 1) != 0;
-            enabledMask >>= 1;
-            if (!enabled)
+            EnemyPickupKind kind = EnemyDropTables.ForProbabilityColumn(column);
+            if (!offered.Contains(kind))
                 continue;
 
-            accumulated = CoordinateAxis.Wrap(accumulated + table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex)));
+            // The multiply result is sixteen bits and division truncates toward
+            // zero. Inputs are bytes, so ordinary integer arithmetic is identical.
+            accumulated = CoordinateAxis.Wrap(accumulated + majorAdjustedBudget * table.Of(kind) / pooledMinorWeight);
             if (accumulated >= random)
-                return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
+                return kind;
+        }
+
+        for (; column < EnemyDropSelectionDefinitions.ProbabilityColumns.Length; column++)
+        {
+            EnemyPickupKind kind = EnemyDropTables.ForProbabilityColumn(column);
+            if (!offered.Contains(kind))
+                continue;
+
+            accumulated = CoordinateAxis.Wrap(accumulated + table.Of(kind));
+            if (accumulated >= random)
+                return kind;
         }
 
         return EnemyPickupKind.NoDrop;
     }
+
+    /// <summary>The chance table's minor drop columns (both energies, missile and nothing), offered before the major ones.</summary>
+    private const int MinorDropColumnCount = 4;
+
+    /// <summary>The whole weight budget the drop chances share, before the enabled major drops take their part.</summary>
+    private const int FullWeightBudget = WeightPoolSpan - 1;
 
     /// <summary>
     /// Uses an explicit boss chance table, a saved enemy header's, or none. A death explosion from a cleared enemy slot

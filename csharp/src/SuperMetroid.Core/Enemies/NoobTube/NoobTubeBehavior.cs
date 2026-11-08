@@ -258,7 +258,7 @@ internal sealed class NoobTubeBehavior
             crack.ShownX = projectile.Position.X.Whole;
         projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
             ? NoobTubeDebrisDefinitions.HiddenXPosition
-            : Ensure.BetweenInclusive(0, ushort.MaxValue, crack.ShownX));
+            : crack.ShownX);
     }
 
     /// <summary>Drops the detached crack at its fixed fall speed.</summary>
@@ -337,7 +337,7 @@ internal sealed class NoobTubeBehavior
                 // Odd frames show the first pose at the shard's column; even frames the reflected pose, mirrored across the tube.
                 int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
                 projectile.Position = projectile.Position.WithWholeX(oddFrame
-                    ? Ensure.BetweenInclusive(0, ushort.MaxValue, column)
+                    ? column
                     : CoordinateAxis.Wrap(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
                 ShardAnimation(projectile).ShowsReflectedPose = !oddFrame;
                 break;

@@ -14,7 +14,7 @@ internal static class NorfairLavaJumperOwnedStateVerification
     internal static void VerifyNorfairLavaJumperOwnedState()
     {
         var gravity = new NorfairLavaJumpingEnemyState { YVelocity = SignedEightEight.FromSignedRaw(-20) };
-        gravity.ApplyGravity(56);
+        gravity.ApplyGravity(SignedEightEight.FromSignedRaw(56));
         AssertEqual(36, gravity.YVelocity.SignedRawValue, "gravity carries the velocity through zero");
 
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));

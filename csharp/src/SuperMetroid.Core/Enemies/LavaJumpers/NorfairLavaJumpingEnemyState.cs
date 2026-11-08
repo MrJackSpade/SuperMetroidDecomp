@@ -34,8 +34,7 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>Whether population parameter-one bit 15 selects the visual follower half rather than the jumping parent.</summary>
     public bool IsFollower { get; internal set; }
 
-    /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity's word, wrapping as the game's addition does.</summary>
+    /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity, wrapping as the game's addition does.</summary>
     /// <param name="gravity">The 8.8 gravity step.</param>
-    internal void ApplyGravity(int gravity) =>
-        YVelocity = SignedEightEight.Wrapped(YVelocity.RawValue + gravity);
+    internal void ApplyGravity(SignedEightEight gravity) => YVelocity += gravity;
 }

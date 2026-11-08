@@ -32,7 +32,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>8.8 velocity increment applied after each moving frame.</summary>
-    private const int NorfairLavaJumpingEnemyGravity = 56;
+    private static readonly SignedEightEight NorfairLavaJumpingEnemyGravity = SignedEightEight.FromSignedRaw(56);
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
     private static readonly int NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024).RawValue;
 

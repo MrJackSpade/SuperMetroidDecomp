@@ -196,7 +196,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
     /// <summary>Signed eight-eight acceleration added to a bug's vertical velocity each unobstructed airborne frame.</summary>
-    private const int KagoBugGravity = 224;
+    private static readonly SignedEightEight KagoBugGravity = SignedEightEight.FromSignedRaw(224);
     /// <summary>Signed eight-eight horizontal jump speed, negated for leftward launches.</summary>
     private const int KagoBugHorizontalSpeed = 512;
     /// <summary>Horizontal parent separation that enables the bug to block Samus's projectiles.</summary>
@@ -297,7 +297,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + KagoBugGravity));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoBugGravity);
         if (projectile.Velocity.Y.SignedRawValue >= 0)
             BeginKagoBugFall(projectile);
     }
@@ -323,7 +323,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + KagoBugGravity));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoBugGravity);
     }
 
     /// <summary>Switches an airborne bug to the falling list when rising ends or a wall interrupts it.</summary>

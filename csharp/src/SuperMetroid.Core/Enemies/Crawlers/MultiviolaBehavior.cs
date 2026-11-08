@@ -98,7 +98,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
     {
-        int magnitude = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Speed);
+        int magnitude = state.Speed;
         int xProduct = EnemyMath.ReadAbsoluteCosineProduct(state.Heading, magnitude);
         int yProduct = EnemyMath.ReadAbsoluteSineProduct(state.Heading, magnitude);
         state.Velocity = new FixedVector<RoomPixels>(

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
@@ -112,7 +113,7 @@ internal static class LookupTourianProgramVerification
                     break;
                 case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
                     AssertEqual(definition.BossArea, (AreaId)LittleEndianBytes.HighByte(operand), $"{at}: boss area");
-                    AssertEqual(definition.DefeatedBossBits, (BossBits)LittleEndianBytes.LowByte(operand), $"{at}: boss bits");
+                    AssertEqual(definition.DefeatedBossBits, ProgressionTableCodec.DecodeBossMask(LittleEndianBytes.LowByte(operand), at), $"{at}: boss bits");
                     steps.Add(Cue(TourianStatueTileCueKind.GoToIfBossDefeated,
                         Label(labels, Word(rom, instruction.Cursor + 4), at)));
                     break;

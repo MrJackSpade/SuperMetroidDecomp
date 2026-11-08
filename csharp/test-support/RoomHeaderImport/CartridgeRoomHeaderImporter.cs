@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core;
+﻿using SuperMetroid.AssetExtraction.Progression;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -38,7 +39,7 @@ public static class CartridgeRoomHeaderImporter
                     cursor = unchecked((ushort)(cursor + 1));
                     break;
                 case RoomStateSelectorCode.BossIsDead:
-                    match = selection.IsBossDead((BossBits)cartridge.ReadCartridgeByte(0x8f0000 | cursor));
+                    match = selection.IsBossDead(ProgressionTableCodec.DecodeBossMask(cartridge.ReadCartridgeByte(0x8f0000 | cursor), "native room selector boss mask"));
                     cursor = unchecked((ushort)(cursor + 1));
                     break;
                 case RoomStateSelectorCode.MainAreaBossIsDead:

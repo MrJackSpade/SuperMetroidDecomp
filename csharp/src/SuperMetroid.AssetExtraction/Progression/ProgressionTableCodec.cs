@@ -191,14 +191,7 @@ public static class ProgressionTableCodec
         Ensure.LengthEqual(table, AreaBossByteCount);
         table.Clear();
         for (int index = 0; index < AreaIds.RetailCount; index++)
-        {
-            BossBits bosses = progress.DefeatedBosses(AreaIds.At(index));
-            for (int bit = 0; bit < BossFlagBits.Length; bit++)
-            {
-                if (bosses.HasFlag(BossFlagBits[bit]))
-                    table[index] |= (byte)(1 << bit);
-            }
-        }
+            table[index] = EncodeBossMask(progress.DefeatedBosses(AreaIds.At(index)));
     }
 
     /// <summary>The defeated bosses of each area <paramref name="copied"/>, the area-boss table's leading bytes, covers.</summary>
@@ -206,16 +199,57 @@ public static class ProgressionTableCodec
     {
         var areas = new Dictionary<AreaId, BossBits>();
         for (int index = 0; index < Math.Min(copied.Length, AreaIds.RetailCount); index++)
-        {
-            BossBits bosses = BossBits.None;
-            for (int bit = 0; bit < BossFlagBits.Length; bit++)
-            {
-                if (IsBitSet(copied.Slice(index, 1), bit))
-                    bosses |= BossFlagBits[bit];
-            }
-            areas.Add(AreaIds.At(index), bosses);
-        }
+            areas.Add(AreaIds.At(index), StoredBosses(copied[index]));
         return areas;
+    }
+
+    /// <summary>
+    /// The bosses an area's stored boss byte records. Bits no routine tests stand for nothing and are not kept, so
+    /// re-encoding the byte writes them as zero.
+    /// </summary>
+    /// <param name="value">An area's boss byte, as the table or a copy of it holds it.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
+    public static BossBits StoredBosses(int value)
+    {
+        _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        BossBits bosses = BossBits.None;
+        for (int bit = 0; bit < BossFlagBits.Length; bit++)
+        {
+            if ((value & (1 << bit)) != 0)
+                bosses |= BossFlagBits[bit];
+        }
+        return bosses;
+    }
+
+    /// <summary>
+    /// The bosses a boss mask names: the operand by which a room-state selector, a room object or an animated-tile list
+    /// tests or sets an area's boss byte. Unlike a stored byte, a mask names only bosses the game tests.
+    /// </summary>
+    /// <param name="value">The mask byte.</param>
+    /// <param name="context">The mask's owner, named in the error.</param>
+    /// <exception cref="InvalidDataException">The mask sets a bit that names no boss, or is not a byte.</exception>
+    public static BossBits DecodeBossMask(int value, string context)
+    {
+        if (value is < 0 or > byte.MaxValue)
+            throw new InvalidDataException($"{context}: boss mask {value} is not a byte.");
+        int unnamed = value & ~((1 << BossFlagBits.Length) - 1);
+        if (unnamed != 0)
+            throw new InvalidDataException($"{context}: boss mask ${value:X2} sets bits ${unnamed:X2}, which name no boss.");
+        return StoredBosses(value);
+    }
+
+    /// <summary>The boss byte that records <paramref name="bosses"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> holds a value that names no boss.</exception>
+    public static byte EncodeBossMask(BossBits bosses)
+    {
+        ProvenBossBits.Validate(bosses, "Encoded boss mask");
+        int value = 0;
+        for (int bit = 0; bit < BossFlagBits.Length; bit++)
+        {
+            if ((bosses & BossFlagBits[bit]) != BossBits.None)
+                value |= 1 << bit;
+        }
+        return checked((byte)value);
     }
 
     /// <summary>Each area's used stations as the used-station table stores them.</summary>

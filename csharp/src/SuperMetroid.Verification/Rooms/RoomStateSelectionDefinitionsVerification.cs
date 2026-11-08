@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
@@ -99,7 +100,7 @@ internal static class RoomStateSelectionDefinitionsVerification
                 var storedEvents = new NumberedFlagSet(PersistentProgress.EventCount);
                 for (int number = 0; number < events.Length * 8; number++)
                     storedEvents.Set(number, (events[number / 8] & (1 << (number % 8))) != 0);
-                var context = new RoomStateSelectionContext(storedEvents, (BossBits)bosses, morph, powerBombs);
+                var context = new RoomStateSelectionContext(storedEvents, ProgressionTableCodec.StoredBosses(bosses), morph, powerBombs);
                 AssertEqual(expected, RoomStateSelection.Select(RoomHeaderDefinitions.Get(room), context).Pointer,
                     $"Room {room:X4} native first-match/default selection");
                 AssertEqual(expected, SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(room), context).State.Pointer,

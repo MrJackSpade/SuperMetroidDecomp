@@ -4,13 +4,12 @@ namespace SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Choot state the species owns: the ascent index's apex underflow and the cleared record.</summary>
+/// <summary>Checks the Choot state the species owns: the ascent index's apex underflow.</summary>
 internal static class ChootOwnedStateVerification
 {
     /// <summary>
     /// Initializes a two-loop Choot and confirms its ascent starts at an even record index, the jump reaches its apex
-    /// on the update that takes the index below zero (the cartridge's signed underflow of its 8.8 cursor), and a
-    /// kill empties the values kept in the common record.
+    /// on the update that takes the index below zero (the cartridge's signed underflow of its 8.8 cursor).
     /// </summary>
     internal static void VerifyChootOwnedState()
     {
@@ -36,14 +35,7 @@ internal static class ChootOwnedStateVerification
         AssertEqual(initial / 2 + 1, jumpingUpdates, "the apex is the update that takes the index below zero");
         AssertEqual(-2, state.YSpeedTableIndex, "the index stays below zero through the fall");
         AssertEqual(0, state.FallingPatternFrame, "the fall starts at its first frame");
-
-        slot.Clear();
-        AssertEqual(null, state.Function, "a kill empties the function");
-        AssertEqual(0, state.YSpeedTableIndex, "a kill empties the ascent index");
-        AssertEqual<ChootFallingPath?>(null, state.FallingPath, "a kill empties the falling pattern");
-        AssertEqual(0, state.FallingPatternYDistance, "a kill empties the loop advance");
-        AssertEqual(initial, state.InitialYSpeedTableIndex, "the slot's saved ascent outlives the kill");
-        Console.WriteLine("Choot owned state: the apex underflow and the cleared record match.");
+        Console.WriteLine("Choot owned state: the apex underflow matches.");
     }
 
     /// <summary>Runs the focused Choot owned-state check.</summary>

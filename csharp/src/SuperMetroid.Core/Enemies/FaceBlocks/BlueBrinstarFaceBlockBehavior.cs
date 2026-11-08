@@ -61,7 +61,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The neutral animation is a one-frame neutral map followed by the common sleep. All
         // authored directional lists use the same neutral map as their first frame.

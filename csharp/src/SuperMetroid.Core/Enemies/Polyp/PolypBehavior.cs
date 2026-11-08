@@ -47,7 +47,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = PolypEnemyFunction.WaitingForSamus,
             CooldownTimer = 0,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // Every Polyp initializer writes 17 to the shared seed. In Volcano the fourth
         // actor therefore leaves this exact value for the first gameplay frame; treating it

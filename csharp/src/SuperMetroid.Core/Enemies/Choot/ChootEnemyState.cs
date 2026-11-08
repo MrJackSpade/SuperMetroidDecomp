@@ -2,18 +2,16 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
-/// The state of one Choot. The function, ascent index, falling cursor, loop counter, pattern and its loop advance
-/// are values the game keeps in the enemy's common record, so they are emptied with that record when the enemy
-/// is killed (<see cref="ClearWithRecord"/>). The rest are the Choot's own too: setup writes the spawn and falling
-/// positions and the starting ascent index, activation writes the jump delay and the apex writes the falling origin,
-/// each before it is read, so nothing a previous Choot in the slot left reaches a new one.
+/// The state of one Choot. Every value is the Choot's own: setup writes the spawn and falling positions and the
+/// starting ascent index, activation writes the jump delay and the apex writes the falling origin, each before it is
+/// read, so nothing a previous Choot in the slot left reaches a new one.
 /// </summary>
 public sealed class ChootEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<ChootProgram> Program { get; set; }
 
-    /// <summary>The behaviour selected by Choot's main AI dispatcher; none once a kill has emptied the record.</summary>
+    /// <summary>The behaviour selected by Choot's main AI dispatcher.</summary>
     public ChootEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -28,7 +26,7 @@ public sealed class ChootEnemyState
     /// <summary>Loop counter initialized to parameter one's low byte minus one, expiring when it decrements below zero.</summary>
     public int FallingPatternLoopCounter { get; internal set; }
 
-    /// <summary>The authored falling path the Choot follows after its apex; none once a kill has emptied the record.</summary>
+    /// <summary>The authored falling path the Choot follows after its apex.</summary>
     internal ChootFallingPath? FallingPath { get; set; }
 
     /// <summary>Whole-pixel Y origin advance applied between falling-pattern loops, the pattern's authored 28 to 32 pixels.</summary>
@@ -51,15 +49,4 @@ public sealed class ChootEnemyState
     /// below zero, so a population delay of zero launches on the first preparation frame.
     /// </summary>
     public int JumpDelayTimer { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        YSpeedTableIndex = 0;
-        FallingPatternFrame = 0;
-        FallingPatternLoopCounter = 0;
-        FallingPath = null;
-        FallingPatternYDistance = 0;
-    }
 }

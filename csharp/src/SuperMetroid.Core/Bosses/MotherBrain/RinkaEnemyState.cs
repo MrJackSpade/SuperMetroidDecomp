@@ -2,18 +2,15 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>
-/// The state of a Rinka. The values the game keeps in the enemy's common record are emptied with it when the enemy
-/// is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of a Rinka.</summary>
 public sealed class RinkaEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes, in place of the instruction pointer.</summary>
     internal AnimationProgramCursor<RinkaProgram> Program { get; set; }
 
     /// <summary>
-    /// Routine dispatched by main AI, changed by initialization, the fire step, aim
-    /// completion, or the special death tail; none once a kill has emptied the record.
+    /// Routine dispatched by main AI, changed by initialization, the fire step, aim completion, or the special death
+    /// tail.
     /// </summary>
     public RinkaEnemyFunction? Function { get; internal set; }
 
@@ -32,13 +29,4 @@ public sealed class RinkaEnemyState
 
     /// <summary>Updates left before flight or before a special respawn, counted down past zero.</summary>
     public int DelayTimer { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        Velocity = default;
-        SpawnResourceToken = 0;
-        DelayTimer = 0;
-    }
 }

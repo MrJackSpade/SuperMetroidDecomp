@@ -36,52 +36,23 @@ public sealed class RoomEnemySlot
     internal IEnemyEntity? Entity { get; private set; }
 
     /// <summary>
-    /// Each species' state installed in this slot, keyed by state type. Like the slot's other state it outlives the
-    /// occupant: a reaction tail that runs after common damage killed the enemy still reads it, until the next occupant of
-    /// that species replaces it or the room loads.
+    /// The species states the current occupant owns (#1543). Its species installs them as it initializes, and the place
+    /// starts an empty set whenever its occupant leaves: a new occupant is bound, or the occupant is deleted or killed. No
+    /// state outlives its occupant; a reaction that runs on after a killing hit reaches the struck occupant's set through
+    /// its hit context.
     /// </summary>
-    private readonly Dictionary<string, object> _speciesStates = new(StringComparer.Ordinal);
+    internal EnemyOccupantStates OccupantStates { get; private set; } = new();
 
-    /// <summary>
-    /// For each installed species state that keeps values the game stores in this record's common words, the
-    /// operation that empties those values, keyed like the states. <see cref="Clear"/> runs them: emptying the record
-    /// empties those values, while the state itself outlives the occupant.
-    /// </summary>
-    private readonly Dictionary<string, Action> _clearWithRecord = new(StringComparer.Ordinal);
-
-    /// <summary>The slot's species state, which its species installs before reading it.</summary>
-    /// <exception cref="InvalidOperationException">The slot holds no <typeparamref name="T"/>.</exception>
+    /// <summary>The occupant's species state, which its species installs before reading it.</summary>
+    /// <exception cref="InvalidOperationException">The occupant holds no <typeparamref name="T"/>.</exception>
     internal T RequireSpeciesState<T>() where T : class =>
-        SpeciesState<T>() ?? throw new InvalidOperationException($"Enemy slot {SlotIndex} has no initialized {typeof(T).Name}.");
+        SpeciesState<T>() ?? throw new InvalidOperationException($"Enemy slot {SlotIndex} has no {typeof(T).Name} for its occupant.");
 
-    /// <summary>The <typeparamref name="T"/> state last installed in this slot this room, or null.</summary>
-    internal T? SpeciesState<T>() where T : class =>
-        _speciesStates.TryGetValue(StateKey<T>(), out object? state) ? (T)state : null;
+    /// <summary>The occupant's <typeparamref name="T"/> state, or null when the place holds no occupant with one.</summary>
+    internal T? SpeciesState<T>() where T : class => OccupantStates.Find<T>();
 
-    /// <summary>Installs or, with null, removes this slot's <typeparamref name="T"/> state.</summary>
-    internal void SetSpeciesState<T>(T? state) where T : class
-    {
-        _clearWithRecord.Remove(StateKey<T>());
-        if (state is null)
-            _speciesStates.Remove(StateKey<T>());
-        else
-            _speciesStates[StateKey<T>()] = state;
-    }
-
-    /// <summary>
-    /// Installs this slot's <typeparamref name="T"/> state together with <paramref name="clearWithRecord"/>, which
-    /// empties the values the state keeps in place of this record's common words whenever <see cref="Clear"/> empties
-    /// the record.
-    /// </summary>
-    internal void SetSpeciesState<T>(T state, Action clearWithRecord) where T : class
-    {
-        _speciesStates[StateKey<T>()] = Ensure.NotNull(state);
-        _clearWithRecord[StateKey<T>()] = Ensure.NotNull(clearWithRecord);
-    }
-
-
-    /// <summary>The storage key of a state type.</summary>
-    private static string StateKey<T>() => typeof(T).FullName ?? throw new InvalidOperationException("A state type has no name.");
+    /// <summary>Installs or replaces the occupant's <typeparamref name="T"/> state.</summary>
+    internal void SetSpeciesState<T>(T state) where T : class => OccupantStates.Install(state);
 
     /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
@@ -93,14 +64,19 @@ public sealed class RoomEnemySlot
     {
         DefinitionId = definitionId;
         Definition = definition;
+        OccupantStates = new();
         Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
     }
 
-    /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other state.</summary>
+    /// <summary>
+    /// Empties the slot's identity and drops its occupant's species states, as the deleted-property path does, leaving
+    /// the place's other values.
+    /// </summary>
     internal void Unbind()
     {
         DefinitionId = EnemyDefinitionId.None;
         Entity = null;
+        OccupantStates = new();
     }
     /// <summary>The population entry the occupant was spawned from, kept unchanged while its live state moves on.</summary>
     public RoomEnemySpawnSnapshot Spawn { get; internal set; }
@@ -172,7 +148,7 @@ public sealed class RoomEnemySlot
     /// </summary>
     public Offset16<RoomPixels> DrawOffset { get; internal set; }
 
-    /// <summary>Empties the slot when its occupant is removed: identity, live state and the species values kept with it.</summary>
+    /// <summary>Empties the slot when its occupant is killed: its identity, its species states and the place's live values.</summary>
     internal void Clear()
     {
         Unbind();
@@ -197,7 +173,5 @@ public sealed class RoomEnemySlot
         InvincibilityTimer = 0;
         HurtAiTime = 0;
         DrawOffset = Offset16<RoomPixels>.Zero;
-        foreach (Action clearWithRecord in _clearWithRecord.Values)
-            clearWithRecord();
     }
 }

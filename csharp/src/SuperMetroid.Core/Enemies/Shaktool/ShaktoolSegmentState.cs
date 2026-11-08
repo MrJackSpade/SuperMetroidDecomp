@@ -1,12 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>
-/// The state of one of Shaktool's seven linked segments. Every value here is one the game keeps in the
-/// segment's common enemy record, so it is emptied with that record when the segment is killed
-/// (<see cref="ClearWithRecord"/>); the rest of the chain still reads the emptied values for the remainder of that
-/// update.
-/// </summary>
+/// <summary>The state of one of Shaktool's seven linked segments.</summary>
 public sealed class ShaktoolSegmentState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
@@ -33,7 +28,10 @@ public sealed class ShaktoolSegmentState
     /// from 0 through 62459. Reaching 61440 starts the chain straightening, which stops the accumulation.
     /// </summary>
     public int CurlProgress { get; internal set; }
-    /// <summary>The segment motion run by Shaktool's main AI; collision-response animations temporarily replace it with the idle attack motion, and none once a kill has emptied the record.</summary>
+    /// <summary>
+    /// The segment motion run by Shaktool's main AI; collision-response animations temporarily replace it with the idle
+    /// attack motion.
+    /// </summary>
     public ShaktoolFrameBehavior? FrameBehavior { get; internal set; }
     /// <summary>The chain's reversal, straightening and orbit-direction flags, written to every segment together.</summary>
     internal ShaktoolMotionFlags MotionFlags { get; set; }
@@ -44,16 +42,5 @@ public sealed class ShaktoolSegmentState
         OrientationBucket = 0;
         OrientationReversed = false;
         CurlProgress = 0;
-    }
-
-    /// <summary>Empties every value, when a kill empties the segment's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        TargetAngle = RotationAngle.Zero;
-        OrbitAngle = RotationAngle.Zero;
-        AngularVelocity = 0;
-        ResetOrientation();
-        FrameBehavior = null;
-        MotionFlags = 0;
     }
 }

@@ -1,10 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>
-/// The state of Oum, with its ten family-extra values. The values the game keeps in the enemy's common record are
-/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of Oum, with its ten family-extra values.</summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
@@ -45,7 +42,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }
 
-    /// <summary>Outer behavior function; none once a kill has emptied the record.</summary>
+    /// <summary>Outer behavior function.</summary>
     public MaridiaLargeSnailEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -68,17 +65,6 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>Remaining landing impacts before Oum is settled.</summary>
     public int RemainingBounces { get; internal set; }
 
-    /// <summary>Falling/rising half of the quadratic bounce; none once a kill has emptied the record.</summary>
+    /// <summary>Falling/rising half of the quadratic bounce.</summary>
     public MaridiaLargeSnailBounceFunction? BounceFunction { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        YSpeedTableIndex = 0;
-        AttackCooldown = 0;
-        MovingLeft = false;
-        RemainingBounces = 0;
-        BounceFunction = null;
-    }
 }

@@ -1,12 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>
-/// The state of Draygon's eye actor. Its function and look angle are values the game keeps in the eye's common
-/// record, so they are emptied with the record when the eye is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of Draygon's eye actor.</summary>
 internal sealed class DraygonEyeState
 {
-    /// <summary>The eye's function; none once a kill has emptied the record.</summary>
+    /// <summary>The eye's function.</summary>
     public DraygonEyeFunction? Function { get; internal set; }
 
     /// <summary>The bearing toward Samus the eye last looked along, 0 through 255.</summary>
@@ -14,12 +11,5 @@ internal sealed class DraygonEyeState
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
-
-    /// <summary>Empties the values the game keeps in the eye's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        LookAngle = 0;
     }
 }

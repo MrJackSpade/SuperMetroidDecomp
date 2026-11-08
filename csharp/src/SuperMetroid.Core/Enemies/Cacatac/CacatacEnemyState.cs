@@ -2,19 +2,14 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The state of a Cacatac: its patrol velocities, direction and function, plus its two patrol bounds. The values the
-/// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
-/// cref="ClearWithRecord"/>).
+/// The state of a Cacatac: its patrol velocities, direction and function, plus its two patrol bounds.
 /// </summary>
 public sealed class CacatacEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<CacatacProgram> Program { get; set; }
 
-    /// <summary>
-    /// Signed 16.16 room-pixel displacement added to X on every rightward patrol update. A kill empties its whole
-    /// pixels with the common record; its fraction lives outside the record and outlives the kill.
-    /// </summary>
+    /// <summary>Signed 16.16 room-pixel displacement added to X on every rightward patrol update.</summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
@@ -26,7 +21,7 @@ public sealed class CacatacEnemyState
     /// <summary>The patrol direction; zero is left, one is right, two initially stops.</summary>
     public CacatacDirection Direction { get; internal set; }
 
-    /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current behaviour.</summary>
     public CacatacEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -47,13 +42,4 @@ public sealed class CacatacEnemyState
     /// Boolean discriminator rather than a guessed flags enum.
     /// </summary>
     public bool UpsideUp { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        RightVelocity = RightVelocity.WithWholePixels(0);
-        LeftVelocity = SignedSixteenSixteen.Zero;
-        Direction = default;
-        Function = null;
-    }
 }

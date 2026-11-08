@@ -1,10 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
-/// <summary>
-/// The state of an Owtch, with its three extended words. The values the game keeps in
-/// the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of an Owtch, with its three extended words.</summary>
 public sealed class OwtchEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
@@ -63,13 +60,4 @@ public sealed class OwtchEnemyState
     /// difference.
     /// </summary>
     public Position16<RoomPixels> MaximumPosition { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        RightVelocity = SignedSixteenSixteen.Zero;
-        LeftVelocity = SignedSixteenSixteen.Zero;
-        Behavior = default;
-        BurialDepth = 0;
-    }
 }

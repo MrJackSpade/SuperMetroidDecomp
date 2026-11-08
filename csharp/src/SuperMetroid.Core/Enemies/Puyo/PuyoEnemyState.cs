@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
-/// <summary>
-/// The state of one Puyo. The vertical speed index, hop cooldown, both functions and the hop being made are
-/// values the game keeps in the enemy's common record, so they are emptied with that record when the enemy is
-/// killed (<see cref="ClearWithRecord"/>); the rest outlive the kill.
-/// </summary>
+/// <summary>The state of one Puyo.</summary>
 public sealed class PuyoEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
@@ -21,15 +17,15 @@ public sealed class PuyoEnemyState
     /// <summary>Grounded-frame countdown copied from population parameter one.</summary>
     public int HopCooldownTimer { get; internal set; }
 
-    /// <summary>Whether the Puyo is grounded or airborne; none once a kill has emptied the record.</summary>
+    /// <summary>Whether the Puyo is grounded or airborne.</summary>
     public PuyoEnemyFunction? Function { get; internal set; }
 
-    /// <summary>The current hop's airborne behaviour; none until the first hop, and once a kill has emptied the record.</summary>
+    /// <summary>The current hop's airborne behaviour.</summary>
     public PuyoAirborneFunction? AirborneFunction { get; internal set; }
 
     /// <summary>
-    /// The hop being made, whose definition drives the airborne motion; it is kept when a collision changes
-    /// <see cref="HopType"/>, and a kill empties it back to the small ordinary hop.
+    /// The hop being made, whose definition drives the airborne motion; it is kept when a collision changes <see
+    /// cref="HopType"/>.
     /// </summary>
     public PuyoHopType CurrentHop { get; internal set; }
 
@@ -73,15 +69,5 @@ public sealed class PuyoEnemyState
             return;
         Falling = true;
         YSpeedTableIndex = 0;
-    }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
-    internal void ClearWithRecord()
-    {
-        YSpeedTableIndex = 0;
-        HopCooldownTimer = 0;
-        Function = null;
-        AirborneFunction = null;
-        CurrentHop = PuyoHopType.NormalSmall;
     }
 }

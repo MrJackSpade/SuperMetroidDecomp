@@ -1,19 +1,13 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
-/// <summary>
-/// The state of a Boulder, with its otherwise anonymous words. The values the
-/// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
-/// cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of a Boulder, with its otherwise anonymous words.</summary>
 public sealed class BoulderEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BoulderProgram> Program { get; set; }
 
-    /// <summary>
-    /// Current indirect AI target; none once a kill has emptied the record.
-    /// </summary>
+    /// <summary>Current indirect AI target.</summary>
     public BoulderAiFunction? Function { get; internal set; }
 
     /// <summary>
@@ -43,7 +37,7 @@ public sealed class BoulderEnemyState
     /// <summary>The bounces left; the impact that takes it from zero to minus one ends the bounce phase.</summary>
     public int BounceCounter { get; internal set; }
 
-    /// <summary>How the boulder rolls, as its population entry names it; emptied with the record to rolling right.</summary>
+    /// <summary>How the boulder rolls, as its population entry names it.</summary>
     public BoulderRoll Roll { get; internal set; }
 
     /// <summary>
@@ -66,14 +60,4 @@ public sealed class BoulderEnemyState
     public Position16<RoomPixels> InitialPosition { get; internal set; }
     /// <summary>True when parameter two's high byte is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence.</summary>
     public bool StartsRollingWithoutBounce { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        TravelSpeedAccumulator = 0;
-        BounceSpeedAccumulator = 0;
-        BounceCounter = 0;
-        Roll = BoulderRoll.Right;
-    }
 }

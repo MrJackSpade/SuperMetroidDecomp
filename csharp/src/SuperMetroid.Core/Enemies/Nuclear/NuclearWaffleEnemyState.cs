@@ -5,27 +5,18 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// The state of the Nuclear Waffle, with its projectile and sprite-object links. The seven articulated body links
-/// alternate between the two shared pools, exactly as the original actor does. Its behaviour and wait are
-/// values the game keeps in the enemy's common record, so a kill empties them with that record
-/// (<see cref="ClearWithRecord"/>).
+/// alternate between the two shared pools, exactly as the original actor does.
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
     /// <summary>Where the body's typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<NuclearWaffleProgram> Program { get; set; }
 
-    /// <summary>The current waiting or sweeping behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current waiting or sweeping behaviour.</summary>
     public NuclearWaffleEnemyFunction? Function { get; internal set; }
 
     /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
     public int WaitingTimer { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour and no wait.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        WaitingTimer = 0;
-    }
 
     /// <summary>
     /// Orbit radius in room pixels, from the spawn settings. Every link and the head sit on

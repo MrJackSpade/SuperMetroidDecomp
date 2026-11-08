@@ -4,13 +4,13 @@ namespace SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Puyo state the species owns: the airborne index's two sign-bit restarts and the cleared record.</summary>
+/// <summary>Checks the Puyo state the species owns: the airborne index's two sign-bit restarts.</summary>
 internal static class PuyoOwnedStateVerification
 {
     /// <summary>
     /// Confirms a rising step landing on zero keeps rising, one that passes below zero restarts the fall at zero (the
     /// apex), a falling step that reaches $8000 restarts the fall at zero as the cartridge's sign test does, an
-    /// ordinary falling step accumulates, and a kill empties the values kept in the common record.
+    /// ordinary falling step accumulates, and a fresh Puyo has no airborne behaviour.
     /// </summary>
     internal static void VerifyPuyoOwnedState()
     {
@@ -36,13 +36,7 @@ internal static class PuyoOwnedStateVerification
         PuyoEnemyState state = enemies.PuyoStates[0]
             ?? throw new InvalidOperationException("The initialized Puyo has no state.");
         AssertEqual(null, state.AirborneFunction, "a fresh Puyo has no airborne behaviour");
-        state.CurrentHop = PuyoHopType.Giant;
-        state.YSpeedTableIndex = 0x1234;
-        slot.Clear();
-        AssertEqual(new PuyoOwnedStateVerifyPuyoOwnedStateCase(PuyoHopType.NormalSmall, 0, 0), new PuyoOwnedStateVerifyPuyoOwnedStateCase(state.CurrentHop, state.YSpeedTableIndex, checked((ushort)state.HopCooldownTimer)),
-            "a kill empties the current hop, speed index and cooldown");
-        AssertEqual(null, state.Function, "a kill empties the function");
-        Console.WriteLine("Puyo owned state: the apex, the overlong-fall restart and the cleared record match.");
+        Console.WriteLine("Puyo owned state: the apex and the overlong-fall restart match.");
     }
 
     /// <summary>Runs the focused Puyo owned-state check.</summary>

@@ -62,14 +62,7 @@ internal static class DeadCorpseCounterVerification
         state.PreRotDelayCounter = DeadTourianCorpseEnemyState.LargestPreRotDelayCount;
         state.CountPreRotDelayCall();
         AssertEqual(0, state.PreRotDelayCounter, "the largest count wraps to zero");
-
-        state.Function = DeadTourianCorpseFunction.PreRotDelay;
-        state.PreRotDelayCounter = 5;
-        slot.SetSpeciesState(state, state.ClearWithRecord);
-        slot.Clear();
-        AssertEqual(0, state.PreRotDelayCounter, "emptying the corpse's record empties its count");
-        AssertEqual(null, state.Function, "emptying the corpse's record empties its function");
-        Console.WriteLine("  Dead Tourian pre-rot delay: the named count operation wraps from 65535 to 0, and an emptied record empties it.");
+        Console.WriteLine("  Dead Tourian pre-rot delay: the named count operation wraps from 65535 to 0.");
     }
 
     /// <summary>Runs the corpse pre-rot counter checks; no cartridge is needed.</summary>

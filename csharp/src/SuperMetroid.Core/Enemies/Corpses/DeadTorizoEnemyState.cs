@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// Dead Torizo's corpse state: its function and velocity, rot schedule, the rot step each half of its rows
-/// shows, contact delay and sand-heap progress. The function and velocity are values the game keeps in the enemy's common record, emptied
-/// with it when the corpse is killed (<see cref="ClearWithRecord"/>).
+/// Dead Torizo's corpse state: its function and velocity, rot schedule, the rot step each half of its rows shows,
+/// contact delay and sand-heap progress.
 /// </summary>
 public sealed class DeadTorizoEnemyState
 {
@@ -50,16 +49,9 @@ public sealed class DeadTorizoEnemyState
     /// <summary>Host diagnostic count of dust effects requested by completed entries, one request per completed-entry hook invocation.</summary>
     public uint DustSpawnCount { get; internal set; }
 
-    /// <summary>The corpse function; none once a kill has emptied the record.</summary>
+    /// <summary>The corpse function.</summary>
     internal DeadTorizoFunction? Function { get; set; }
 
     /// <summary>Signed 8.8 velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        Velocity = default;
-    }
 }

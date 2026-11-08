@@ -2,10 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The state of one Magdollite part, with its extension words. Extension words are named here instead of
-/// reproducing the original's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
-/// The values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
-/// cref="ClearWithRecord"/>).
+/// The state of one Magdollite part, with its extension words. Extension words are named here instead of reproducing
+/// the original's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
 /// </summary>
 public sealed class MagdolliteEnemyState
 {
@@ -20,7 +18,7 @@ public sealed class MagdolliteEnemyState
 
     /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
     public MagdollitePart Part { get; }
-    /// <summary>The current AI function pointer; none once a kill has emptied the record.</summary>
+    /// <summary>The current AI function pointer.</summary>
     public MagdolliteEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -82,13 +80,4 @@ public sealed class MagdolliteEnemyState
     public bool BodyWakeRequested { get; internal set; }
     /// <summary>Whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        BodyPhase = 0;
-        ThrowsRight = false;
-        RiseDisplacement = Offset16<RoomPixels>.Zero;
-    }
 }

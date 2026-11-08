@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
-/// <summary>
-/// The state of one Fune or Namihe, the two species that share this actor. The function, wake distance, variant,
-/// cooldown and its time are values the game keeps in the enemy's common record, so they are emptied with that
-/// record when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one Fune or Namihe, the two species that share this actor.</summary>
 public sealed class FuneNamiheEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
@@ -17,13 +13,13 @@ public sealed class FuneNamiheEnemyState
     /// <summary>Whether the right-facing animations are selected, from population parameter one's facing bits.</summary>
     public bool FacingRight { get; internal set; }
 
-    /// <summary>The waiting or spitting behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The waiting or spitting behaviour.</summary>
     public FuneNamiheEnemyFunction? Function { get; internal set; }
 
     /// <summary>Strict vertical wake distance in pixels used only by Namihe, from the spawn settings.</summary>
     public int YProximity { get; internal set; }
 
-    /// <summary>Whether it behaves as a Fune or a Namihe, from the spawn settings; an emptied record reads as Fune.</summary>
+    /// <summary>Whether it behaves as a Fune or a Namihe, from the spawn settings.</summary>
     public FuneNamiheVariant Variant { get; internal set; }
 
     /// <summary>
@@ -38,17 +34,4 @@ public sealed class FuneNamiheEnemyState
 
     /// <summary>Whether it behaves as a Namihe.</summary>
     public bool IsNamihe => Variant == FuneNamiheVariant.Namihe;
-
-    /// <summary>
-    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record. The
-    /// animation selection is left as it is: nothing selects an animation for an emptied record.
-    /// </summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        YProximity = 0;
-        Variant = FuneNamiheVariant.Fune;
-        CooldownTimer = 0;
-        CooldownTime = 0;
-    }
 }

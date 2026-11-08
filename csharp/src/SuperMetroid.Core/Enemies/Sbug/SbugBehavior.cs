@@ -48,7 +48,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledProgram = null,
             Function = SbugEnemyFunction.WaitForSamus,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The forward velocity uses the game-derived unsigned quarter-circle magnitudes and lets
         // the shared helper apply signs later from the original angle. The side velocities instead use the signed,

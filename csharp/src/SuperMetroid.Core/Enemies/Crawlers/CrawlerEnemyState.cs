@@ -2,9 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The shared wall-crawler state used by Zoomer, Zeela, Sova, Viola, Sciser, Zero, and their variants. The attached
-/// velocity and behaviour are values the game keeps in the enemy's common record, so a kill empties them with
-/// that record (<see cref="ClearWithRecord"/>); the fields after them model the crawler's parallel tables.
+/// The shared wall-crawler state used by Zoomer, Zeela, Sova, Viola, Sciser, Zero, and their variants.
 /// </summary>
 public sealed class CrawlerEnemyState
 {
@@ -18,23 +16,13 @@ public sealed class CrawlerEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The current crawling or falling behaviour; animation commands install the surface-specific one. None once a
-    /// kill has emptied the record.
+    /// The current crawling or falling behaviour; animation commands install the surface-specific one.
     /// </summary>
     public CrawlerEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Empties the values the game keeps in the enemy's common record: no velocity and no behaviour.</summary>
-    internal void ClearWithRecord()
-    {
-        Velocity = default;
-        Function = null;
-        TakesDefaultSpeedOnLanding = false;
-        SurfaceFamily = CrawlerAnimationFamily.Shared;
-    }
-
     /// <summary>
     /// Whether the crawler was placed without a crawl speed, so it keeps its velocity until its first landing and takes
-    /// the default speed then. A kill empties it.
+    /// the default speed then.
     /// </summary>
     public bool TakesDefaultSpeedOnLanding { get; internal set; }
 

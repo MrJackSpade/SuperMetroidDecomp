@@ -84,7 +84,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new BotwoonEnemyState();
         AttachBotwoon(head, state);
-        head.SetSpeciesState(state, state.ClearWithRecord);
+        head.SetSpeciesState(state);
         // The initializer installs the hidden program: the head starts hidden in its hole.
         state.HeadProgram = BotwoonHeadProgram.Hidden;
         state.HeadAnimationPosition = 0;

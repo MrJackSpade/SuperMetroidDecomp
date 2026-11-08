@@ -113,7 +113,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         _ship = new GunshipPieces(slot, _slotTable.ListedAfter(slot, 1), _slotTable.ListedAfter(slot, 2));
         var part = new GunshipPartState();
-        slot.SetSpeciesState(part, part.ClearWithRecord);
+        slot.SetSpeciesState(part);
         slot.Properties = slot.Properties.With(
             EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -143,7 +143,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     internal void InitializeGunshipBottom(RoomEnemySlot slot)
     {
         var part = new GunshipPartState();
-        slot.SetSpeciesState(part, part.ClearWithRecord);
+        slot.SetSpeciesState(part);
         slot.Properties = slot.Properties.With(
             EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
         slot.FrameHold = WrappingCountdown.Start(1);

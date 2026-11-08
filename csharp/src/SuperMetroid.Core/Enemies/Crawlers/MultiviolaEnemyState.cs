@@ -2,9 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The state of the Multiviola. Retail recomputes its velocity from the population angle and speed every active
-/// frame, with two deliberately imperfect reflection negations. The velocity is a value the game keeps in the
-/// enemy's common record, so a kill empties it with that record (<see cref="ClearWithRecord"/>).
+/// The state of the Multiviola. Retail recomputes its velocity from the population angle and speed every active frame,
+/// with two deliberately imperfect reflection negations.
 /// </summary>
 public sealed class MultiviolaEnemyState
 {
@@ -25,13 +24,5 @@ public sealed class MultiviolaEnemyState
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record: no velocity, heading or speed.</summary>
-    internal void ClearWithRecord()
-    {
-        Velocity = FixedVector<RoomPixels>.Zero;
-        Heading = default;
-        Speed = 0;
     }
 }

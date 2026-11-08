@@ -557,8 +557,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveKiHunterShotAfterCommon(RoomEnemySlot body)
     {
         RoomEnemySlot wings = GetKiHunterWings(body);
-        KiHunterEnemyState bodyState = body.RequireSpeciesState<KiHunterEnemyState>();
-        KiHunterEnemyState wingState = wings.RequireSpeciesState<KiHunterEnemyState>();
         if (body.Health == 0)
         {
             // The routine assigns exactly the deletion property, stripping processing and any other
@@ -567,10 +565,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
+        KiHunterEnemyState bodyState = body.RequireSpeciesState<KiHunterEnemyState>();
         if (body.Health <= wings.SpawnSettings<KiHunterWingsSpawnSettings>().DetachHealth)
         {
             if (!bodyState.HasLostWings)
             {
+                // A body that has not lost its wings still has them in place.
+                KiHunterEnemyState wingState = wings.RequireSpeciesState<KiHunterEnemyState>();
                 bodyState.HasLostWings = true;
                 bodyState.Function = KiHunterEnemyFunction.FallingAfterWingLoss;
                 bodyState.Velocity = bodyState.Velocity.WithY(SignedSixteenSixteen.FromParts(1, 0));
@@ -677,8 +678,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             ? KiHunterProgram.WingsRight
             : KiHunterProgram.WingsLeft;
         RoomEnemySlot wings = GetKiHunterWings(body);
-        KiHunterEnemyState wingState = wings.RequireSpeciesState<KiHunterEnemyState>();
-        if (wingState.Function == KiHunterEnemyFunction.FollowBody)
+        if (WingsInPlace(wings) is { Function: KiHunterEnemyFunction.FollowBody } wingState)
             InstallKiHunterInstruction(wings, wingState, wingProgram);
         return movingRight
             ? KiHunterProgram.FlyingRight
@@ -711,17 +711,23 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? KiHunterProgram.FlyingRight
                 : KiHunterProgram.FlyingLeft);
         RoomEnemySlot wings = GetKiHunterWings(body);
-        KiHunterEnemyState wingState = wings.RequireSpeciesState<KiHunterEnemyState>();
-        if (wingState.Function == KiHunterEnemyFunction.FollowBody)
+        if (WingsInPlace(wings) is { Function: KiHunterEnemyFunction.FollowBody } wingState)
         {
             InstallKiHunterInstruction(
                 wings,
-                wings.RequireSpeciesState<KiHunterEnemyState>(),
+                wingState,
                 movingRight
                     ? KiHunterProgram.WingsRight
                     : KiHunterProgram.WingsLeft);
         }
     }
+
+    /// <summary>
+    /// The state of a body's wings while they hold their place, or null once they are gone: a wingless Ki-Hunter's
+    /// wings are deleted as they are set up, and detached wings are deleted where they land. A body whose wings are
+    /// gone has none to keep in step with its flight.
+    /// </summary>
+    private static KiHunterEnemyState? WingsInPlace(RoomEnemySlot wings) => wings.SpeciesState<KiHunterEnemyState>();
 
     /// <summary>
     /// Returns the next physical slot, the alias used by every body-to-wing access in
@@ -740,8 +746,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // dead body's physical slot and accesses the next slot to delete its wings. Once the
         // typed state has established this slot as a body, a cleared definition word is
         // therefore valid until the callback finishes; revalidating only the mutable header
-        // converts the ordinary fatal-shot path into a host exception.
-        bool initializedBody = body.SpeciesState<KiHunterEnemyState>() is { IsWing: false };
+        // converts the ordinary fatal-shot path into a host exception. A place the room set up as a body stays one.
+        bool initializedBody = _wingsOfBody.IsPlaced(body);
         if (!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody)
             throw new InvalidDataException($"Enemy slot {body.SlotIndex} is not a Ki-Hunter body.");
 
@@ -762,7 +768,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // stays the wing's after deletion clears its identity. Every retail Ki-Hunter room places
         // the wing right after its body and nothing in those rooms places another enemy in a freed
         // slot, so a slot that now holds a different enemy is refused rather than written as the wing.
-        bool established = wings.SpeciesState<KiHunterEnemyState>() is not null;
+        bool established = _bodyOfWings.IsPlaced(wings);
         if (wings.DefinitionId != expected &&
             !(established && wings.DefinitionId == EnemyDefinitionId.None))
         {
@@ -788,7 +794,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
         var state = new KiHunterEnemyState(slot);
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         return state;
     }
 

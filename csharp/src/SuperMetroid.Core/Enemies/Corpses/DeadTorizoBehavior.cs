@@ -67,7 +67,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = DeadTorizoFunction.Wait,
             Velocity = new(default, new SignedEightEight(8)),
         };
-        slot.SetSpeciesState(DeadTorizo, DeadTorizo.ClearWithRecord);
+        slot.SetSpeciesState(DeadTorizo);
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>

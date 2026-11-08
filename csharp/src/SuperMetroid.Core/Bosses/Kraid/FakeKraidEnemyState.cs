@@ -3,9 +3,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The state of Fake Kraid. “Mini-Kraid” is the name used by
-/// the item-drop and projectile routines; both names refer to the same enemy definition. The values the game keeps
-/// in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// The state of Fake Kraid. “Mini-Kraid” is the name used by the item-drop and projectile routines; both names refer to
+/// the same enemy definition.
 /// </summary>
 public sealed class FakeKraidEnemyState
 {
@@ -43,13 +42,4 @@ public sealed class FakeKraidEnemyState
 
     /// <summary>Number of spit projectiles successfully allocated by this actor.</summary>
     public int SpawnedSpitCount { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        WalkDelta = 0;
-        FacingDelta = 0;
-        WalkStepTimer = 0;
-        SpitDecisionTimer = 0;
-    }
 }

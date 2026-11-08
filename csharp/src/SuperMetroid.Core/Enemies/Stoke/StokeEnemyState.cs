@@ -1,10 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
-/// <summary>
-/// The state of one Stoke: its walking speeds, facing and behaviour. Every value here is one the game keeps in
-/// the enemy's common record, so it is emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one Stoke: its walking speeds, facing and behaviour.</summary>
 public sealed class StokeEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
@@ -19,15 +16,6 @@ public sealed class StokeEnemyState
     /// <summary>Facing latch changed by animation cues, one update after a turn request; initialized from population parameter 1.</summary>
     public StokeDirection Direction { get; internal set; }
 
-    /// <summary>The current walking or attacking behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current walking or attacking behaviour.</summary>
     public StokeAiFunction? Function { get; internal set; }
-
-    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        RightVelocity = SignedSixteenSixteen.Zero;
-        LeftVelocity = SignedSixteenSixteen.Zero;
-        Direction = StokeDirection.Left;
-        Function = null;
-    }
 }

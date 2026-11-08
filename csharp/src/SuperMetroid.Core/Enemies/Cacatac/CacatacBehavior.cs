@@ -79,7 +79,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             LeftPatrolLimit = spawn - travel,
             UpsideUp = upsideUp,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
     }
 

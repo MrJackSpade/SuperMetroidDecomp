@@ -56,7 +56,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool isKamer = slot.DefinitionId == EnemyDefinitionId.Kamer2;
         var state = new PlatformEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         state.IsSuspensorPlatform = isKamer;
         // Main AI dispatches the complete word through a two-entry table, so a value outside it is corrupt room

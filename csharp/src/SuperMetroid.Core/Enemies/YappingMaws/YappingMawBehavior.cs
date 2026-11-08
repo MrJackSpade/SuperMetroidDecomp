@@ -437,8 +437,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs after common shot AI. Ice releases a living Maw's captive;
-    /// death additionally destroys all four body eprojs and the root sprite-object slot.
+    /// Runs after common shot AI on the Maw the hit struck. Ice releases a living Maw's captive; death additionally
+    /// destroys all four body eprojs and the root sprite-object slot, which the killed Maw's state still names.
     /// </summary>
     private static void ResolveYappingMawShotAfterCommon(
         RoomEnemySlot slot,
@@ -602,7 +602,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.YappingMaw &&
                                                        c.SelectedShotAi == EnemyReaction.YappingMawShot)
         {
-            AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
+            AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
         });
     }
 
@@ -628,7 +628,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.YappingMaw &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.YappingMawShot)
         {
-            AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
+            AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
         });
     }
 

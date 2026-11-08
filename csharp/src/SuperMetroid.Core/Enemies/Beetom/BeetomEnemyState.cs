@@ -3,10 +3,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
-/// The state of one Beetom. The arc's speed index, the function, both countdowns and the last controller input are
-/// values the game keeps in the enemy's common record, so they are emptied with that record when the enemy is
-/// killed (<see cref="ClearWithRecord"/>). Its facing is inherited from the previous Beetom in its slot
-/// (<see cref="SlotInheritance{TOccupant}"/>).
+/// The state of one Beetom. Its facing is inherited from the previous Beetom in its slot (<see
+/// cref="SlotInheritance{TOccupant}"/>).
 /// </summary>
 public sealed class BeetomEnemyState
 {
@@ -30,7 +28,7 @@ public sealed class BeetomEnemyState
     /// raises it up to the maximum, so it never leaves that range.
     /// </summary>
     public int YSpeedTableIndex { get; internal set; }
-    /// <summary>The per-update behaviour, including separate decision and setup updates; none once a kill has emptied the record.</summary>
+    /// <summary>The per-update behaviour, including separate decision and setup updates.</summary>
     public BeetomEnemyFunction? Function { get; internal set; }
     /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
     public int FunctionTimer { get; internal set; }
@@ -71,17 +69,4 @@ public sealed class BeetomEnemyState
     /// <param name="step">The arc's falling step, one to five records.</param>
     internal void StepFallingSpeed(int step) =>
         YSpeedTableIndex = Math.Min(MaximumYSpeedTableIndex, YSpeedTableIndex + step);
-
-    /// <summary>
-    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: no
-    /// function, a zero speed index and countdowns, and no previous input.
-    /// </summary>
-    internal void ClearWithRecord()
-    {
-        YSpeedTableIndex = 0;
-        Function = null;
-        FunctionTimer = 0;
-        ButtonCounter = 0;
-        PreviousController1Input = ControllerButton.None;
-    }
 }

@@ -82,7 +82,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
             primarySlot.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
-            primarySlot.SetSpeciesState(primary, primary.ClearWithRecord);
+            primarySlot.SetSpeciesState(primary);
             return enemies;
         }
 

@@ -5,12 +5,11 @@ namespace SuperMetroid.Verification.Enemies.Nuclear;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Nuclear Waffle state the species owns: its initial wait and the cleared record.</summary>
+/// <summary>Checks the Nuclear Waffle state the species owns: its initial wait.</summary>
 internal static class NuclearWaffleOwnedStateVerification
 {
     /// <summary>
-    /// Initializes a Nuclear Waffle and confirms it starts waiting for its population wait, then confirms a kill
-    /// empties the behaviour and the wait kept in the common record while the sweep it owns outlives the kill.
+    /// Initializes a Nuclear Waffle and confirms it starts waiting for its population wait.
     /// </summary>
     internal static void VerifyNuclearWaffleOwnedState()
     {
@@ -24,12 +23,7 @@ internal static class NuclearWaffleOwnedStateVerification
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertEqual<NuclearWaffleEnemyFunction?>(NuclearWaffleEnemyFunction.Waiting, state.Function, "a new Nuclear Waffle waits");
         AssertEqual(6, state.WaitingTimer, "the wait starts at the population's reset value");
-
-        slot.Clear();
-        AssertEqual<NuclearWaffleEnemyFunction?>(null, state.Function, "a kill empties the behaviour");
-        AssertEqual(0, state.WaitingTimer, "a kill empties the wait");
-        AssertTrue(state.SweepsForward, "the sweep direction outlives the kill");
-        Console.WriteLine("Nuclear Waffle owned state: the initial wait and the cleared record match.");
+        Console.WriteLine("Nuclear Waffle owned state: the initial wait matches.");
     }
 
     /// <summary>Runs the focused Nuclear Waffle owned-state check.</summary>

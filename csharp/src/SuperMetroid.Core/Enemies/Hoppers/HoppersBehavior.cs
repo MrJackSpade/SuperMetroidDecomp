@@ -84,7 +84,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             UpsideDown = slot.SpawnSettings<HopperSpawnSettings>().Mounting == HopperMounting.Ceiling,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         SetHopperProgram(slot, state, ReadHopperProgram(state, SurfaceOf(state), HopperPhase.Landed));
 

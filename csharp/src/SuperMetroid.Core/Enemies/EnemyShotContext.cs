@@ -35,6 +35,13 @@ internal readonly record struct EnemyShotContext(
     internal bool Froze { get; init; }
 
     /// <summary>
+    /// The species states of the occupant the shot struck, taken as the pass finds the overlap (#1543). A killing hit
+    /// removes the occupant from its place before <see cref="EnemyShotReaction.AfterCommon"/> runs; a tail that still
+    /// acts on the killed enemy reaches its states here.
+    /// </summary>
+    internal required EnemyOccupantStates StruckOccupant { get; init; }
+
+    /// <summary>
     /// The rule for marking the projectile as collided: a non-plasma shot, or any shot when the enemy
     /// blocks plasma.
     /// </summary>

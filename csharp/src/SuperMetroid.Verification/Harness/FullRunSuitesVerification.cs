@@ -15,6 +15,8 @@ using static SuperMetroid.Verification.Audio.AudioVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidDeathExplosionSoundVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVictimVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteShotShareVerification;
+using static SuperMetroid.Verification.Enemies.EnemyOccupantStatesVerification;
+using static SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidInheritedFractionsVerification;
@@ -845,6 +847,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFollowUpAfterStruckPart), () => VerifyFollowUpAfterStruckPart()),
         new(nameof(VerifyBabyMetroidVictim), () => VerifyBabyMetroidVictim()),
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
+        new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
+        new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
         new(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze()),

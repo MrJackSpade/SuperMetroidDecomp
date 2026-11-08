@@ -67,7 +67,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeBoulder(RoomEnemySlot slot)
     {
         var state = new BoulderEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         state.BounceSpeedAccumulator = 0;
         state.TravelSpeedAccumulator = 0;

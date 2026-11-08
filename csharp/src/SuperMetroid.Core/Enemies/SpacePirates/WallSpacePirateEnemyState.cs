@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The state of a wall Pirate; the jump endpoints and angular step are the Pirate's own state, which nothing else
-/// reads. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed
-/// (<see cref="ClearWithRecord"/>).
+/// reads.
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
@@ -12,8 +11,8 @@ public sealed class WallSpacePirateEnemyState
     internal AnimationProgramCursor<WallSpacePirateProgram> Program { get; set; }
 
     /// <summary>
-    /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and
-    /// landing lists advance; none once a kill has emptied the record.
+    /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and landing lists
+    /// advance.
     /// </summary>
     public WallSpacePirateFunction? Function { get; internal set; }
 
@@ -54,14 +53,4 @@ public sealed class WallSpacePirateEnemyState
     public int JumpAngleDelta { get; internal set; }
     /// <summary>Host diagnostic count of successfully allocated lasers since this enemy state was initialized; shared projectile-pool exhaustion does not increment it.</summary>
     public int SpawnedLaserCount { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        WallJumpDestination = Position16<RoomPixels>.Zero;
-        ClimbDirection = default;
-        WallJumpArcCenter = Position16<RoomPixels>.Zero;
-        WallJumpArcAngle = RotationAngle.FromTableIndex(0);
-    }
 }

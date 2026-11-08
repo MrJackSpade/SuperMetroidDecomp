@@ -12,7 +12,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted when each Dragon, Evir and Magdollite part is placed, which keeps the recipients it is given; its follow-up after the
 /// common touch, shot or power-bomb reaction reaches them, once per hit (#1542). The recipients are places, so a
-/// recipient that has died or been deleted is still the one reached.
+/// recipient that has died or been deleted is still the one reached. The arms and spit of an Evir whose body such a
+/// follow-up deleted live on, following that body's last facing and animation where it was deleted (#1543).
 /// Evidence: the follow-ups at <c>$A2:E7DA</c> and <c>$A8:8B16</c> write the records one and two slots after the
 /// struck enemy's slot without testing which part was struck, and the power-bomb sweep at <c>$A0:A306</c> skips no
 /// intangible enemy. In every retail Dragon and Evir population the trailing parts lie within the enemy slots: the last

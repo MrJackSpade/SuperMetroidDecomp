@@ -18,7 +18,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeAtomic(RoomEnemySlot slot)
     {
         var state = new AtomicEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

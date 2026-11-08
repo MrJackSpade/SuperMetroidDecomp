@@ -2,17 +2,13 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>
-/// The state of one Ceres door. Its function, drawing hand-off and destruction counters are values the game keeps
-/// in the enemy's common record, so they are emptied with the record when the door is killed
-/// (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one Ceres door.</summary>
 internal sealed class CeresDoorEnemyState
 {
-    /// <summary>The main-AI function; none once a kill has emptied the record.</summary>
+    /// <summary>The main-AI function.</summary>
     public CeresDoorFunction? Function { get; internal set; }
 
-    /// <summary>Where the door's typed program resumes, set when the door initializes; a kill leaves it in place.</summary>
+    /// <summary>Where the door's typed program resumes, set when the door initializes.</summary>
     internal AnimationProgramCursor<CeresDoorProgram> Program { get; set; }
 
     /// <summary>
@@ -42,15 +38,5 @@ internal sealed class CeresDoorEnemyState
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        HandsDrawingToRidley = false;
-        RumbleCallsLeft = 0;
-        ExplosionIntervalLeft = 0;
-        ExplosionPositionIndex = 0;
     }
 }

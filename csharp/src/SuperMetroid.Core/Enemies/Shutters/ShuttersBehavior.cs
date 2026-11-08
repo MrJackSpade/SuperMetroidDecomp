@@ -63,7 +63,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             ActivationTimer = settings.ActivationWait,
             ActivationDistance = settings.ActivationDistance,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The initializer selects its first function from the way it grows and what it waits for.
         bool growsUp = settings.Growth switch
@@ -281,7 +281,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeHorizontalShutter(RoomEnemySlot slot)
     {
         var state = new HorizontalShutterEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
         state.PrimaryDirection = settings.PrimaryDirection;
@@ -611,7 +611,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                        c.SelectedShotAi == EnemyReaction.DestroyableVerticalShutterShot)
         {
-            AfterCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
+            AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
         });
     }
 
@@ -716,7 +716,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.DestroyableVerticalShutterShot)
         {
-            AfterCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
+            AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
         });
 
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
@@ -758,7 +758,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         var state = new VerticalShutterEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
         state.PrimaryDirection = settings.PrimaryDirection;
@@ -973,9 +973,27 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ReactVerticalShutter(
         RoomEnemySlot slot,
-        Position16<RoomPixels> camera)
+        Position16<RoomPixels> camera) =>
+        ReactVerticalShutter(slot, slot.RequireSpeciesState<VerticalShutterEnemyState>(), camera, destroyed: false);
+
+    /// <summary>
+    /// Runs a destroyable shutter's reaction after the common damage of a shot or bomb. The hit that destroys it still sets
+    /// it off, as a shutter at rest whose killed place lies at the room's top-left corner
+    /// (<see cref="DestroyedShutterReaction"/>).
+    /// </summary>
+    private void ReactDestroyableShutterAfterCommon(RoomEnemySlot slot, EnemyOccupantStates struck) =>
+        ReactVerticalShutter(slot, struck.Require<VerticalShutterEnemyState>(), _shutterCamera, destroyed: slot.Health == 0);
+
+    /// <summary>
+    /// Decides whether a reaction may start the shutter in <paramref name="slot"/>, whose state is
+    /// <paramref name="state"/>; a shutter the reaction's hit <paramref name="destroyed"/> reacts as one at rest.
+    /// </summary>
+    private void ReactVerticalShutter(
+        RoomEnemySlot slot,
+        VerticalShutterEnemyState state,
+        Position16<RoomPixels> camera,
+        bool destroyed)
     {
-        VerticalShutterEnemyState state = slot.RequireSpeciesState<VerticalShutterEnemyState>();
         if (state.TriggerMode is not (ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction))
         {
             QueueShutterActivationSoundIfOnScreen(slot, camera);
@@ -989,8 +1007,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ShotActivated = true;
         }
 
-        if (state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown)
+        if (DestroyedShutterReaction.FindsMoving(
+                state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown,
+                destroyed))
+        {
             return;
+        }
 
         state.Function = state.ReactionDirection == ShutterHeading.LeftOrUp
             ? VerticalShutterFunction.MovingUp

@@ -30,7 +30,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeBull(RoomEnemySlot slot)
     {
         BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -218,28 +218,32 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Advance(slot, BullAnimations.Programs, BullFrameDefinitions.ShownFrames.Of,
             static (BullEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
-    /// <summary>Applies Bull's immune-hit recoil after common bomb damage handling.</summary>
+    /// <summary>
+    /// Applies Bull's immune-hit recoil after common bomb damage handling. Only a hit that leaves the Bull's health alone
+    /// kicks it, so a killed Bull has no reaction.
+    /// </summary>
     internal EnemyBombReaction BombReaction { get; } =
         new(c => c.Enemy.DefinitionId == EnemyDefinitionId.Bull && c.SelectedShotAi == EnemyReaction.BullShot)
         {
             AfterCommon = c =>
             {
-                BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
                 if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, bullState, SamusBombProjectileSlot.Direction);
+                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), SamusBombProjectileSlot.Direction);
             },
         };
 
-    /// <summary>Applies recoil after a frozen or undamaging accepted projectile hit.</summary>
+    /// <summary>
+    /// Applies recoil after a frozen or undamaging accepted projectile hit. Only such a hit kicks the Bull, so a killed
+    /// Bull has no reaction.
+    /// </summary>
     internal EnemyShotReaction ShotReaction { get; } =
         new(enemy => enemy.DefinitionId == EnemyDefinitionId.Bull &&
                      EnemyCollision.ShotAi(enemy) == EnemyReaction.BullShot)
         {
             AfterCommon = c =>
             {
-                BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, bullState, c.ProjectileDirection);
+                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), c.ProjectileDirection);
             },
         };
 }

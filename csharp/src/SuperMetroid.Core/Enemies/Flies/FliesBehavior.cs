@@ -34,7 +34,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             Angle = RotationAngle.Zero,
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);

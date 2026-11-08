@@ -46,7 +46,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeKago(RoomEnemySlot slot)
     {
         var state = new KagoEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // Kago's population word already carries the other authored property bits. The
         // initializer sets only the animation-script property so the common animation interpreter animates the shell.

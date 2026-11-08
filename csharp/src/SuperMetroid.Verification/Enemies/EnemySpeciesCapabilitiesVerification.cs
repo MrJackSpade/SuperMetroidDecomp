@@ -190,7 +190,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             }
 
             var doorState = new CeresDoorEnemyState();
-            slot.SetSpeciesState(doorState, doorState.ClearWithRecord);
+            slot.SetSpeciesState(doorState);
             foreach (bool handed in new[] { false, true })
             {
                 doorState.HandsDrawingToRidley = handed;

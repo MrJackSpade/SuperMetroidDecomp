@@ -81,7 +81,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsNamihe)
             state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
 
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         InstallFuneNamiheAnimationScript(slot, state);
     }
 

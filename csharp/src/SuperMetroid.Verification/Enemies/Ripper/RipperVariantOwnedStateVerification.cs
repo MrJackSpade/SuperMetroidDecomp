@@ -4,12 +4,12 @@ namespace SuperMetroid.Verification.Enemies.Ripper;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the GRipper and Ripper II state the variants own: the 16.16 velocity from the speed record and the cleared record.</summary>
+/// <summary>Checks the GRipper and Ripper II state the variants own: the 16.16 velocity from the speed record.</summary>
 internal static class RipperVariantOwnedStateVerification
 {
     /// <summary>
     /// A Ripper II initialized toward negative speed holds its record's negative half as one 16.16 velocity, a reversal
-    /// loads the positive half, and a kill empties the velocity and record.
+    /// loads the positive half.
     /// </summary>
     internal static void VerifyRipperVariantOwnedState()
     {
@@ -30,10 +30,7 @@ internal static class RipperVariantOwnedStateVerification
         AssertEqual(negative, state.XVelocity, "the negative half is loaded");
         RipperBehavior.ReverseRipperVariant(slot, RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight);
         AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");
-
-        slot.Clear();
-        AssertEqual(new VerifyRipperVariantOwnedStateCase(SignedSixteenSixteen.Zero, default), new VerifyRipperVariantOwnedStateCase(state.XVelocity, state.Speeds), "a kill empties the velocity and speed row");
-        Console.WriteLine("Ripper variant owned state: the record's velocity halves, the reversal and the cleared record match.");
+        Console.WriteLine("Ripper variant owned state: the record's velocity halves and the reversal match.");
     }
 
     /// <summary>Runs the focused Ripper variant owned-state check.</summary>

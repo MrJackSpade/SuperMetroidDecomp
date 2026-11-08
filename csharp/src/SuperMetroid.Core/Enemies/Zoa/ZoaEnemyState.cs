@@ -2,9 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
-/// The state of a Zoa, with its launch speed stage. The values the game keeps in the enemy's
-/// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). “Shooting” is the original
-/// name for the creature launching itself horizontally; it does not create a separate enemy projectile.
+/// The state of a Zoa, with its launch speed stage. “Shooting” is the original name for the creature launching itself
+/// horizontally; it does not create a separate enemy projectile.
 /// </summary>
 public sealed class ZoaEnemyState
 {
@@ -25,7 +24,7 @@ public sealed class ZoaEnemyState
 
     /// <summary>
     /// The current AI behaviour, initialized to wait and transitioned through rise, horizontal launch, and offscreen
-    /// return to wait; none once a kill has emptied the record.
+    /// return to wait.
     /// </summary>
     public ZoaEnemyFunction? Function { get; internal set; }
 
@@ -34,13 +33,4 @@ public sealed class ZoaEnemyState
 
     /// <summary>Where Zoa's typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<ZoaProgram> Program { get; set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        SpawnPosition = Position16<RoomPixels>.Zero;
-        AnimationScriptTableIndex = default;
-        PreviousAnimationScriptTableIndex = default;
-        Function = null;
-    }
 }

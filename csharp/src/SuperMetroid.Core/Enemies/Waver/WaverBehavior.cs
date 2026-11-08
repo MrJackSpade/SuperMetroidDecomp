@@ -59,7 +59,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             SpinFinished = false,
             RequestedAnimation = WaverPrograms.Steady(facing),
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The initializer first installs the left steady animation and then asks for the spawn's facing. Only
         // right-facing spawns therefore change it; left-facing spawns ask for the installed one and keep it.

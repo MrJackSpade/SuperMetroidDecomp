@@ -3,10 +3,9 @@ namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
 /// The state of a Bull. Speed and acceleration stay the exact values the game keeps, because a deceleration that
-/// overshoots leaves a wrapped value that the next update reads by its sign; they change only through
-/// <see cref="Accelerate"/> and <see cref="Decelerate"/>. The values the game keeps in the enemy's common record are
-/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). The shot-reaction guard is inherited from
-/// the previous Bull in its slot (<see cref="SlotInheritance{TOccupant}"/>).
+/// overshoots leaves a wrapped value that the next update reads by its sign; they change only through <see
+/// cref="Accelerate"/> and <see cref="Decelerate"/>. The shot-reaction guard is inherited from the previous Bull in its
+/// slot (<see cref="SlotInheritance{TOccupant}"/>).
 /// </summary>
 public sealed class BullEnemyState
 {
@@ -27,10 +26,7 @@ public sealed class BullEnemyState
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BullProgram> Program { get; set; }
 
-    /// <summary>
-    /// The current delay, target, acceleration, or deceleration dispatcher pointer; none once a kill has
-    /// emptied the record.
-    /// </summary>
+    /// <summary>The current delay, target, acceleration, or deceleration dispatcher pointer.</summary>
     public BullEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -135,15 +131,4 @@ public sealed class BullEnemyState
     /// starting at zero first wraps to its largest count.
     /// </summary>
     public WrappingCountdown ShotReactionDisableTimer { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        Acceleration = 0;
-        AccelerationDelta = 0;
-        Speed = 0;
-        ActivationTimer = 0;
-        AccelerationIntervalTimer = 0;
-    }
 }

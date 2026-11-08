@@ -69,7 +69,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // graphics-set palette and carry between channels.
         state.Fade.Darken();
         ShowFade(slot, state);
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
     }
 
     /// <summary>Shows the ghost in the shade its fading colours are in (#1512).</summary>

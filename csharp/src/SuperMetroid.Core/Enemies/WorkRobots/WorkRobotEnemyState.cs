@@ -2,9 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The state of Work Robot: the laser velocity is a signed 8.8 value and the falling speed a signed 16.16
-/// value. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed
-/// (<see cref="ClearWithRecord"/>).
+/// The state of Work Robot: the laser velocity is a signed 8.8 value and the falling speed a signed 16.16 value.
 /// </summary>
 public sealed class WorkRobotEnemyState
 {
@@ -34,13 +32,4 @@ public sealed class WorkRobotEnemyState
     /// update, which gravity accumulates with the game's carry and wraparound.
     /// </summary>
     public SignedSixteenSixteen FallVelocity { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        LaserVelocity = default;
-        LaserCooldown = WrappingCountdown.Start(0);
-        BackupPosition = Position16<RoomPixels>.Zero;
-        FallVelocity = SignedSixteenSixteen.Zero;
-    }
 }

@@ -1,10 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>
-/// The state of an Etecoon. The values the game keeps in the enemy's common record are emptied with it when the
-/// enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of an Etecoon.</summary>
 public sealed class EtecoonEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
@@ -18,13 +15,10 @@ public sealed class EtecoonEnemyState
     /// <summary>The current behaviour's wrapping countdown, in updates.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
-    /// <summary>The main-AI behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The main-AI behaviour.</summary>
     public EtecoonAiFunction? Function { get; internal set; }
 
-    /// <summary>
-    /// The authored route it takes after its first landing. A kill empties the record, which leaves the first route,
-    /// <see cref="EtecoonRoute.RunLeftToTeachingStart"/>, as the game's emptied record does.
-    /// </summary>
+    /// <summary>The authored route it takes after its first landing.</summary>
     public EtecoonRoute Route { get; internal set; }
 
     /// <summary>The updates an earthquake still suspends the Etecoon for, 0 through 255 (parameter two's high byte).</summary>
@@ -66,17 +60,5 @@ public sealed class EtecoonEnemyState
         TeachingHops = settings.TeachingHops;
         Route = settings.Route;
         QuakePauseFrames = settings.QuakePauseFrames;
-    }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Velocity = FixedVector<RoomPixels>.Zero;
-        FunctionTimer = WrappingCountdown.Start(0);
-        Function = null;
-        Route = EtecoonRoute.RunLeftToTeachingStart;
-        QuakePauseFrames = 0;
-        HeadingRight = false;
-        TeachingHops = 0;
     }
 }

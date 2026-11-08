@@ -45,7 +45,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             AttackReady = false,
             Function = SkreeEnemyFunction.Idling,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.SkreeIdling);
     }
 

@@ -45,7 +45,7 @@ internal static class HopperHopArcVerification
                 YSpeedTableIndex = start,
                 YSpeedTableIndexDelta = step,
             };
-            slot.SetSpeciesState(state, state.ClearWithRecord);
+            slot.SetSpeciesState(state);
 
             enemies.HoppersBehavior.RunHoppersMainAi(slot, frame);
 

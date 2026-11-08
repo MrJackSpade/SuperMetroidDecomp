@@ -178,7 +178,7 @@ internal static class DraygonStateQuantitiesVerification
         };
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
         var eyeState = new DraygonEyeState();
-        state.Eye.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
+        state.Eye.SetSpeciesState(eyeState);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })

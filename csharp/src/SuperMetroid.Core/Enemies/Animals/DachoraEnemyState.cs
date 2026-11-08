@@ -3,12 +3,11 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The state of a Dachora body or echo. The speed, the phase countdown, the echo pacing countdown, the vertical
-/// acceleration and the echo lifetime are separate values. The game keeps the speed's whole pixels and the
-/// countdowns in one place, and the acceleration's fraction and the lifetime in another, but no meaning ever reads what
-/// another left: a body's countdown always runs out at zero before its speed is next read, so its run and its shinespark
-/// both start from rest (<see cref="StartBlinking"/>, <see cref="StartCharging"/>); the echo pacing countdown and the
-/// lifetime belong to echoes, which have no speed or acceleration. The values the game keeps in the enemy's common
-/// record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// acceleration and the echo lifetime are separate values. The game keeps the speed's whole pixels and the countdowns
+/// in one place, and the acceleration's fraction and the lifetime in another, but no meaning ever reads what another
+/// left: a body's countdown always runs out at zero before its speed is next read, so its run and its shinespark both
+/// start from rest (<see cref="StartBlinking"/>, <see cref="StartCharging"/>); the echo pacing countdown and the
+/// lifetime belong to echoes, which have no speed or acceleration.
 /// </summary>
 public sealed class DachoraEnemyState
 {
@@ -126,22 +125,9 @@ public sealed class DachoraEnemyState
             _paletteCycle = 0;
     }
 
-    /// <summary>The main-AI behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The main-AI behaviour.</summary>
     public DachoraAiFunction? Function { get; internal set; }
 
     /// <summary>Whether the Dachora faces right (parameter one is nonzero); a wall or the ceiling turns it.</summary>
     public bool FacingRight { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        FacingRight = false;
-        Speed = SignedSixteenSixteen.Zero;
-        PhaseTimer = 0;
-        EchoPositionTimer = 0;
-        VerticalAcceleration = SignedSixteenSixteen.Zero;
-        EchoLifetime = 0;
-        _paletteCycle = 0;
-        Function = null;
-    }
 }

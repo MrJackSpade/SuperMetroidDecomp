@@ -505,7 +505,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
     private static void Bind(RoomEnemySlot slot, CrawlerEnemyState state) =>
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
     /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
     internal static int Shift8AddMagnitude(SignedEightEight velocity, int wholePixels)

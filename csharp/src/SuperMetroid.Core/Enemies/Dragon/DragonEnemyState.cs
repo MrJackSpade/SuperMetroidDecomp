@@ -2,10 +2,9 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// The state of one Dragon body or cosmetic wing. The game reuses one record word first as the body's motion
-/// timer and then as its three-shot counter; here each role has its own countdown, since every phase starts its own
-/// before reading it. The facing, countdowns, function and wing selection are values the game keeps in the
-/// enemy's common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// The state of one Dragon body or cosmetic wing. The game reuses one record word first as the body's motion timer and
+/// then as its three-shot counter; here each role has its own countdown, since every phase starts its own before
+/// reading it.
 /// </summary>
 public sealed class DragonEnemyState
 {
@@ -24,7 +23,7 @@ public sealed class DragonEnemyState
     /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
     public int AttackCounter { get; internal set; }
 
-    /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current behaviour.</summary>
     public DragonEnemyFunction? Function { get; internal set; }
 
     /// <summary>The animation main AI asks for.</summary>
@@ -41,14 +40,4 @@ public sealed class DragonEnemyState
 
     /// <summary>Set by the attack animation's finishing cue.</summary>
     public bool AnimationFinished { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
-    internal void ClearWithRecord()
-    {
-        IsWing = false;
-        FacingLeft = false;
-        FunctionTimer = 0;
-        AttackCounter = 0;
-        Function = null;
-    }
 }

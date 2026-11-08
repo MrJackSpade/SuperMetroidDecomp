@@ -24,6 +24,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemySlotTable _slotTable;
     /// <summary>The chain and neighbours each segment found when it was placed.</summary>
     private readonly EnemyPartLinks<ShaktoolChainPlaces> _chains = new();
+    /// <summary>The segment a hit last killed, whose remains the rest of its chain reads for the rest of that update.</summary>
+    private readonly KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState> _killedSegment = new();
     /// <summary>Runs common contact behavior for the segment hitboxes.</summary>
     private readonly EnemyCollision _collision;
 
@@ -49,7 +51,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         ShaktoolSpawnSettings settings = slot.SpawnSettings<ShaktoolSpawnSettings>();
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The population entry names the chain's initial motion; the chain then writes its flags to every segment
         // together.
@@ -135,11 +137,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot previous = _chains.Of(slot).Previous
             ?? throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
-        // The segment placement reads the preceding physical record, without
-        // testing its header. A lethal shot clears the head and marks the group
-        // deleted, but EnemyMain still visits later entries in this frame's
-        // prebuilt active list. Their final orbit uses the cleared coordinates.
-
+        // The segment placement reads the preceding segment's place without testing it. A lethal shot clears the
+        // struck segment and deletes the chain, but the later segments still run this update; their final orbit uses
+        // the cleared coordinates.
         slot.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToByteAngle()));
     }
 
@@ -326,7 +326,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Swaps two segment orbit angles after rotating each by half a turn.</summary>
-    private static void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
+    private void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
     {
         ShaktoolSegmentState leftState = RequireShaktoolState(left);
         ShaktoolSegmentState rightState = RequireShaktoolState(right);
@@ -382,10 +382,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot[] group = _chains.Of(anySegment).Chain;
         for (int index = 0; index < group.Length; index++)
         {
-            // Group helpers also run during the remainder of the lethal frame.
-            // The segment's state survives common-slot clearing with its record
-            // values emptied; a cleared header is not a missing record.
-            if (group[index].SpeciesState<ShaktoolSegmentState>() is null)
+            // Group helpers also run during the remainder of the lethal update, reaching the killed segment's remains.
+            if (group[index].SpeciesState<ShaktoolSegmentState>() is null && _killedSegment.RemainsAt(group[index]) is null)
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at slot {group[0].SlotIndex} is missing segment {index}.");
@@ -399,12 +397,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         _chains.Of(slot).Next ?? throw new InvalidDataException(
             $"Shaktool center slot {slot.SlotIndex} has no following segment.");
 
-    /// <summary>Requires an initialized extension for the given physical segment slot.</summary>
-    private static ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
-        slot.SpeciesState<ShaktoolSegmentState>() is { } state
-            ? state
-            : throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
+    /// <summary>
+    /// The state of the segment in <paramref name="slot"/>: its own, or, for the segment a hit killed this update, the
+    /// emptied remains the rest of its chain reads in its place (<see cref="KilledShaktoolSegment{TPlace, TSegment}"/>).
+    /// </summary>
+    private ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
+        slot.SpeciesState<ShaktoolSegmentState>() ?? _killedSegment.RemainsAt(slot) ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
     internal ShaktoolProgram? ApplyShaktoolCue(RoomEnemySlot slot, ShaktoolSegmentState state, ShaktoolCue cue)
@@ -476,16 +475,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(ByteAngle.Wrapped(fullTableIndex - 64))).RawValue;
 
     /// <summary>
-    /// Implements Shaktool's fatal-shot tail, including its read
-    /// of the owner index after common death has cleared the struck enemy's state.
+    /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the seven enemies from the room's
+    /// first, which initialization requires to be the chain's own segments.
     /// </summary>
     private void ResolveShaktoolShotAfterCommon(RoomEnemySlot struckSegment)
     {
         if (struckSegment.Health != 0)
             return;
         // The generic death clears the entire common slot, which empties the segment's owner to the first enemy.
-        // Initialization requires the chain to start there, so the seven enemies from it are the chain's own segments.
-        _ = RequireShaktoolState(struckSegment);
+        _killedSegment.RecordKill(struckSegment);
         foreach (RoomEnemySlot segment in _chains.Of(struckSegment).Chain)
             segment.Properties = EnemyProperties.Deleted;
     }

@@ -2,17 +2,15 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>
-/// The state of one Skultera (spelled <c>Skulltera</c> in the upstream symbols; the enemy header and the game's
-/// visible name use <c>Skultera</c>). The function, both swimming speeds and the oscillation angle are values the
-/// game keeps in the enemy's common record, so they are emptied with that record when the enemy is killed
-/// (<see cref="ClearWithRecord"/>); the rest outlive the kill.
+/// The state of one Skultera (spelled <c>Skulltera</c> in the upstream symbols; the enemy header and the game's visible
+/// name use <c>Skultera</c>).
 /// </summary>
 public sealed class SkulteraEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<SkulteraProgram> Program { get; set; }
 
-    /// <summary>The swimming or turning behaviour dispatched by main AI; none once a kill has emptied the record.</summary>
+    /// <summary>The swimming or turning behaviour dispatched by main AI.</summary>
     public SkulteraEnemyFunction? Function { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per swimming update to the right, from the positive half of the population's linear-speed record.</summary>
@@ -44,13 +42,4 @@ public sealed class SkulteraEnemyState
 
     /// <summary>Advances the oscillation phase by <see cref="AngleDelta"/>, wrapping after a full turn.</summary>
     internal void AdvanceAngle() => Angle = Angle.AddTableUnits(AngleDelta);
-
-    /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        RightVelocity = SignedSixteenSixteen.Zero;
-        LeftVelocity = SignedSixteenSixteen.Zero;
-        Angle = RotationAngle.Zero;
-    }
 }

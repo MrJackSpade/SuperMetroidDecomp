@@ -78,7 +78,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
-            top.SetSpeciesState(part, part.ClearWithRecord);
+            top.SetSpeciesState(part);
             for (int index = 0; index < GunshipTakeoffDefinitions.EngineReadyingDuration; index++)
                 enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(top);
             AssertTrue(enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "readying the engines shows the takeoff look");

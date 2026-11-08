@@ -57,7 +57,7 @@ internal sealed class CrocomireFight
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
         var state = new CrocomireEnemyState(slot);
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         _access.Crocomire = state;
         // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
         _access.CrocomireDeath = new CrocomireDeathState();
@@ -119,7 +119,7 @@ internal sealed class CrocomireFight
         CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, WrappingCountdown.Start(1));
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
-        slot.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
+        slot.SetSpeciesState(tongueState);
         slot.Shading = state.Body.Shading;
     }
 

@@ -5,10 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>
-/// The state of the Shitroid, with its extended enemy state. The values the game keeps in the enemy's common record
-/// are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of the Shitroid, with its extended enemy state.</summary>
 public sealed class ShitroidEnemyState
 {
     /// <summary>Creates the state for the Shitroid's slot.</summary>
@@ -20,9 +17,7 @@ public sealed class ShitroidEnemyState
     /// <summary>Where the Shitroid's program resumes (#641).</summary>
     internal AnimationProgramCursor<ShitroidProgram> Cursor { get; set; }
 
-    /// <summary>
-    /// Gets the current Shitroid AI function pointer; none once a kill has emptied the record.
-    /// </summary>
+    /// <summary>Gets the current Shitroid AI function pointer.</summary>
     public ShitroidAiFunction? Function { get; internal set; }
 
     /// <summary>Signed 8.8 velocity: X, Y.</summary>
@@ -89,16 +84,4 @@ public sealed class ShitroidEnemyState
     /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on.
     /// </summary>
     public bool ReactsToSamus { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        ReactsToSamus = false;
-        Function = null;
-        Velocity = default;
-        PalettePhase = 0;
-        PaletteTimer = 0;
-        PaletteDelay = 0;
-        StateTimer = 0;
-    }
 }

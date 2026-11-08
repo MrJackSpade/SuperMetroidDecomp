@@ -55,7 +55,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             MinimumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.TravelDistance), 0),
             MaximumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.TravelDistance), 0),
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         SetOwtchProgram(slot, state, InitialProgram(settings.InitialBehavior));
 
         // State two is the game's special initially-buried form. It moves only the

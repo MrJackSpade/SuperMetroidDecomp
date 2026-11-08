@@ -10,7 +10,7 @@ internal static class MamaTurtleOwnedStateVerification
     /// <summary>
     /// Confirms the hover add carries the fraction into the whole pixels and caps at three, a wall reversal negates
     /// the velocity exactly and the acceleration without its final increment (so negating -1 + 15/16 gives
-    /// -1 + 1/16), and a kill empties only the record's whole horizontal pixels.
+    /// -1 + 1/16), and a Mama Turtle is refused anywhere but the first place.
     /// </summary>
     internal static void VerifyMamaTurtleOwnedState()
     {
@@ -32,19 +32,13 @@ internal static class MamaTurtleOwnedStateVerification
         AssertEqual(SignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "the carry-in wraps a -1 whole-pixel reversal to zero");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x1000), state.XAcceleration, "the carried reversal skips the acceleration's final increment");
 
-        state.Function = MamaTurtleAiFunction.Hovering;
-        state.ClearWithRecord();
-        AssertEqual(SignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "a kill empties the whole horizontal pixels");
-        AssertEqual(SignedSixteenSixteen.FromParts(1, 0x2000), state.Velocity.Y, "the vertical velocity outlives the kill");
-        AssertEqual(null, state.Function, "a kill empties the function");
-
         // Her fall and contact box read the first slot's values, so a Mama anywhere else is refused (#1500).
         var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot misplaced = enemies.SlotTable.Slots[1];
         misplaced.Bind(EnemyDefinitionId.MamaTurtle, misplaced.Definition);
         AssertThrows<InvalidDataException>(() => enemies.MamaTurtleBehavior.InitializeMamaTurtle(misplaced),
             "a Mama Turtle after the first slot is refused");
-        Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk, cleared record and first-slot placement match.");
+        Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk and first-slot placement match.");
     }
 
     /// <summary>Runs the focused Mama Turtle owned-state check.</summary>

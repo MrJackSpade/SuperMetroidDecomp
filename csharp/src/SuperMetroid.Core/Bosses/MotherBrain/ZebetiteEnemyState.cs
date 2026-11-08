@@ -4,10 +4,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>
-/// The state of one half of Tourian's Zebetite barrier. The values the game keeps in the enemy's common record are
-/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one half of Tourian's Zebetite barrier.</summary>
 public sealed class ZebetiteEnemyState
 {
     /// <summary>
@@ -19,10 +16,7 @@ public sealed class ZebetiteEnemyState
         IsSecondaryHalf = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half == ZebetiteHalf.Linked;
     }
 
-    /// <summary>
-    /// The indirect main-AI entry, independent for each physical half; none once a kill has emptied the
-    /// record.
-    /// </summary>
+    /// <summary>The indirect main-AI entry, independent for each physical half.</summary>
     public ZebetiteAiFunction? Function { get; internal set; }
 
     /// <summary>
@@ -51,14 +45,4 @@ public sealed class ZebetiteEnemyState
 
     /// <summary>Whether this is the linked bottom half (nonzero parameter one); it skips primary palette cycling and dies without advancing the Zebetite count or respawning.</summary>
     public bool IsSecondaryHalf { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        Generation = 0;
-        GenerationFlags = default;
-        LinkedHalf = null;
-        IsSecondaryHalf = false;
-    }
 }

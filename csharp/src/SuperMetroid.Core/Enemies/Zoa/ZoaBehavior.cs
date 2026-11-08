@@ -56,7 +56,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             ShotSpeedStage = 0,
             SpawnPosition = slot.Position.Whole,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.

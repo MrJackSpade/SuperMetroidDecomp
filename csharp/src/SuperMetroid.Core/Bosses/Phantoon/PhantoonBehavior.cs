@@ -84,7 +84,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         StartPhantoonPart(body, PhantoonPartProgram.InvulnerableBody);
         bodyState.StartPart();
-        body.SetSpeciesState(bodyState, bodyState.ClearWithRecord);
+        body.SetSpeciesState(bodyState);
         bodyState.Function = PhantoonAiFunction.SpawnStartingFlames;
         ResetPhantoonMouthControls(Combat.Phantoon);
     }
@@ -99,20 +99,20 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Eye = part;
             StartPhantoonPart(part, PhantoonPartProgram.EyeClosed);
             state.EyeState.StartPart();
-            part.SetSpeciesState(state.EyeState, state.EyeState.ClearWithRecord);
+            part.SetSpeciesState(state.EyeState);
         }
         else if (part.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
         {
             state.Tentacles = part;
             StartPhantoonPart(part, PhantoonPartProgram.Tentacles);
-            part.SetSpeciesState(state.TentaclesState, state.TentaclesState.ClearWithRecord);
+            part.SetSpeciesState(state.TentaclesState);
         }
         else if (part.DefinitionId == EnemyDefinitionId.PhantoonMouth)
         {
             state.Mouth = part;
             StartPhantoonPart(part, PhantoonPartProgram.MouthInitial);
             state.MouthState.StartPart();
-            part.SetSpeciesState(state.MouthState, state.MouthState.ClearWithRecord);
+            part.SetSpeciesState(state.MouthState);
         }
         else
         {

@@ -2,18 +2,15 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
-/// The state of one Evir actor (also called Mini-Draygon in older source annotations). The game builds each
-/// creature from three consecutive enemies: body, arms, and a reusable aimed projectile; each holds one of these.
-/// The facing, function, movement countdown and regeneration offset are values the game keeps in the enemy's
-/// common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>);
-/// the rest outlive the kill.
+/// The state of one Evir actor (also called Mini-Draygon in older source annotations). The game builds each creature
+/// from three consecutive enemies: body, arms, and a reusable aimed projectile; each holds one of these.
 /// </summary>
 public sealed class EvirEnemyState
 {
     /// <summary>The side the body faces; the arms and spit copy their body's facing when they position themselves.</summary>
     public EvirFacing Facing { get; internal set; }
 
-    /// <summary>The per-update behaviour this actor runs; none once a kill has emptied the actor's record.</summary>
+    /// <summary>The per-update behaviour this actor runs.</summary>
     public EvirAiFunction? Function { get; internal set; }
 
     /// <summary>
@@ -46,17 +43,4 @@ public sealed class EvirEnemyState
     public bool InFlight { get; internal set; }
     /// <summary>Whether the projectile is growing back at the mouth: set when distant flight ends and cleared by the regeneration animation's last step.</summary>
     public bool Regenerating { get; internal set; }
-
-    /// <summary>
-    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: the
-    /// facing reads as left, there is no function, and the countdown and regeneration offset are zero. The body's
-    /// arms and spit, already scheduled for the update in which it dies, read its facing after this.
-    /// </summary>
-    internal void ClearWithRecord()
-    {
-        Facing = EvirFacing.Left;
-        Function = null;
-        MovementTimer = 0;
-        RegenerationOffset = Offset16<RoomPixels>.Zero;
-    }
 }

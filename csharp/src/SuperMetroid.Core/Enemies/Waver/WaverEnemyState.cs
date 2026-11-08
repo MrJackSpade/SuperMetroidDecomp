@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Waver;
 
-/// <summary>
-/// The state of one Waver: its horizontal velocity, wave phase and animation selection. Every value here is one the
-/// game keeps in the enemy's common record, so it is emptied with that record when the enemy is killed
-/// (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one Waver: its horizontal velocity, wave phase and animation selection.</summary>
 public sealed class WaverEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
@@ -34,14 +30,4 @@ public sealed class WaverEnemyState
 
     /// <summary>Reflects the wave phase by half a turn, as a vertical collision does.</summary>
     internal void ReflectWave() => Angle = Angle.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn);
-
-    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        XVelocity = SignedSixteenSixteen.Zero;
-        InstalledAnimation = WaverProgram.SteadyFacingLeft;
-        Angle = RotationAngle.Zero;
-        SpinFinished = false;
-        RequestedAnimation = WaverProgram.SteadyFacingLeft;
-    }
 }

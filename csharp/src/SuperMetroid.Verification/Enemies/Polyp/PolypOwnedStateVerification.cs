@@ -4,12 +4,11 @@ namespace SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Polyp state the species owns: its initial behaviour and the cleared record.</summary>
+/// <summary>Checks the Polyp state the species owns: its initial behaviour.</summary>
 internal static class PolypOwnedStateVerification
 {
     /// <summary>
-    /// Initializes a Polyp and confirms it starts waiting for Samus with no cooldown, then confirms a kill empties the
-    /// behaviour and the cooldown kept in the common record.
+    /// Initializes a Polyp and confirms it starts waiting for Samus with no cooldown.
     /// </summary>
     internal static void VerifyPolypOwnedState()
     {
@@ -21,13 +20,7 @@ internal static class PolypOwnedStateVerification
         PolypEnemyState state = slot.RequireSpeciesState<PolypEnemyState>();
         AssertEqual<PolypEnemyFunction?>(PolypEnemyFunction.WaitingForSamus, state.Function, "a new Polyp waits for Samus");
         AssertEqual(0, state.CooldownTimer, "a new Polyp has no cooldown");
-
-        state.Function = PolypEnemyFunction.Cooldown;
-        state.CooldownTimer = 5;
-        slot.Clear();
-        AssertEqual<PolypEnemyFunction?>(null, state.Function, "a kill empties the behaviour");
-        AssertEqual(0, state.CooldownTimer, "a kill empties the cooldown");
-        Console.WriteLine("Polyp owned state: the initial behaviour and the cleared record match.");
+        Console.WriteLine("Polyp owned state: the initial behaviour matches.");
     }
 
     /// <summary>Runs the focused Polyp owned-state check.</summary>

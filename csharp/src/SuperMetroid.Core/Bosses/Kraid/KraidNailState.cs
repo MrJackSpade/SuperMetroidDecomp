@@ -17,11 +17,4 @@ public sealed class KraidNailState : KraidPartState
 
     /// <summary>A fingernail's signed 16.16 velocity in pixels per update.</summary>
     public FixedVector<RoomPixels> NailVelocity { get; internal set; }
-
-    /// <inheritdoc/>
-    internal override void ClearWithRecord()
-    {
-        base.ClearWithRecord();
-        NailVelocity = default;
-    }
 }

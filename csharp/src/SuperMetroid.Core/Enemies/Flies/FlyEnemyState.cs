@@ -1,10 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Flies;
 
-/// <summary>
-/// The state of one Mellow, Mella or Memu. Every value here is one the game keeps in the enemy's common record,
-/// so it is emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one Mellow, Mella or Memu.</summary>
 public sealed class FlyEnemyState
 {
     /// <summary>Where the fly's typed flight loop (#641) resumes.</summary>
@@ -25,20 +22,10 @@ public sealed class FlyEnemyState
     /// <summary>The circular flight's phase, advanced sixteen table units per circling update and wrapping after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
 
-    /// <summary>The current circling, attacking or retreating behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current circling, attacking or retreating behaviour.</summary>
     public FlyEnemyFunction? Function { get; internal set; }
 
     /// <summary>One circling update's phase advance: sixteen table units one way or the other, wrapping after a full turn.</summary>
     /// <param name="clockwise">Whether the fly circles clockwise.</param>
     internal void AdvanceCircle(bool clockwise) => Angle = Angle.AddTableUnits(clockwise ? 16 : -16);
-
-    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        RetreatTimer = 0;
-        Velocity = new EightEightVector<RoomPixels>(0, 0);
-        TargetHeight = Position16<RoomPixels>.Zero;
-        Angle = RotationAngle.Zero;
-        Function = null;
-    }
 }

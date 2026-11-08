@@ -3,10 +3,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// The state of an Sbug, with its parallel extension arrays. The names follow the behavior the Sbug's
-/// routines establish rather than anonymous variable labels. The values the
-/// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
-/// cref="ClearWithRecord"/>).
+/// The state of an Sbug, with its parallel extension arrays. The names follow the behavior the Sbug's routines
+/// establish rather than anonymous variable labels.
 /// </summary>
 public sealed class SbugEnemyState
 {
@@ -19,7 +17,7 @@ public sealed class SbugEnemyState
     /// <summary>The long lifetime used only by behavior four.</summary>
     public WrappingCountdown StraightMovementTimer { get; internal set; }
 
-    /// <summary>The current AI behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current AI behaviour.</summary>
     public SbugEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -88,13 +86,4 @@ public sealed class SbugEnemyState
 
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<SbugProgram> Program { get; set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        StraightMovementTimer = WrappingCountdown.Start(0);
-        Function = null;
-        CustomHeading = RotationAngle.FromTableIndex(0);
-        MovementTimer = 0;
-    }
 }

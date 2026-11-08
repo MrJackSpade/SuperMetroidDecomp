@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
-/// <summary>
-/// The state of one Alcoon. The function, the velocity and the spawn Y are values the game keeps in the enemy's
-/// common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>); the
-/// rest outlive the kill.
-/// </summary>
+/// <summary>The state of one Alcoon.</summary>
 public sealed class AlcoonEnemyState
 {
     /// <summary>The motion per step; see <see cref="Velocity"/>.</summary>
@@ -14,7 +10,7 @@ public sealed class AlcoonEnemyState
     /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<AlcoonProgram> Program { get; set; }
 
-    /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current behaviour.</summary>
     public AlcoonEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -49,15 +45,4 @@ public sealed class AlcoonEnemyState
 
     /// <summary>Number of four-step walking cycles remaining before another fire volley.</summary>
     public int StepCounter { get; internal set; }
-
-    /// <summary>
-    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: no
-    /// function, no velocity, and a zero spawn Y with the spawn X kept.
-    /// </summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        _velocity = FixedVector<RoomPixels>.Zero;
-        SpawnPosition = SpawnPosition.WithY(0);
-    }
 }

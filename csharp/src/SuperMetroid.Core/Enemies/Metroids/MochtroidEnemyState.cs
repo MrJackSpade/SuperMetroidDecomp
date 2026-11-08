@@ -2,9 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of a Mochtroid, with its three parallel extension-array words, so the attachment clock
-/// and 16.16 steering are easy to inspect. The values the game keeps in the enemy's common record are emptied with
-/// it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// The state of a Mochtroid, with its three parallel extension-array words, so the attachment clock and 16.16 steering
+/// are easy to inspect.
 /// </summary>
 public sealed class MochtroidEnemyState
 {
@@ -37,12 +36,4 @@ public sealed class MochtroidEnemyState
     /// <summary>Whether the count has reached <paramref name="period"/>, compared as the game's signed word difference.</summary>
     /// <param name="period">The damage period in attached updates.</param>
     internal bool HasReachedDamagePeriod(int period) => !WrappingCounter.IsBehind(AttachmentDamageTimer, period);
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Velocity = FixedVector<RoomPixels>.Zero;
-        ShakeTimer = 0;
-        MovementMode = default;
-    }
 }

@@ -31,7 +31,7 @@ internal static class GunshipMotionDefinitionsVerification
             enemies.GunshipBehavior.InitializeGunshipTop(top);
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             var part = new GunshipPartState();
-            top.SetSpeciesState(part, part.ClearWithRecord);
+            top.SetSpeciesState(part);
             part.LandingBrakeStep = frame;
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
@@ -61,7 +61,7 @@ internal static class GunshipMotionDefinitionsVerification
             // The top hull finds the bottom hull and pad listed after it as production places it.
             enemies.GunshipBehavior.InitializeGunshipTop(top);
             var part = new GunshipPartState();
-            top.SetSpeciesState(part, part.ClearWithRecord);
+            top.SetSpeciesState(part);
             part.BobPhase = phase;
             part.BobTimer = 1;
             top.Position = top.Position.WithWholeY(0x2000);

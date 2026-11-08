@@ -19,12 +19,4 @@ public sealed class KraidLintState : KraidPartState
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
-
-    /// <inheritdoc/>
-    internal override void ClearWithRecord()
-    {
-        base.ClearWithRecord();
-        LintXOffset = 0;
-        LintTravel = 0;
-    }
 }

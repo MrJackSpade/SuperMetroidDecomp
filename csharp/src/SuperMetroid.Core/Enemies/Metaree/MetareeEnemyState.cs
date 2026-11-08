@@ -3,10 +3,7 @@ using SuperMetroid.Core.Enemies.Skree;
 
 namespace SuperMetroid.Core.Enemies.Metaree;
 
-/// <summary>
-/// The state of one Metaree. Every value here is one the game keeps in the enemy's common record, so it is
-/// emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one Metaree.</summary>
 public sealed class MetareeEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
@@ -15,7 +12,7 @@ public sealed class MetareeEnemyState
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
     public int BurrowTimer { get; internal set; }
 
-    /// <summary>The idle, preparing, diving or burrowing behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The idle, preparing, diving or burrowing behaviour.</summary>
     public MetareeEnemyFunction? Function { get; internal set; }
 
     /// <summary>Animation phase requested by AI.</summary>
@@ -33,15 +30,4 @@ public sealed class MetareeEnemyState
     /// the original game's enormous dive.
     /// </summary>
     public int YVelocity { get; internal set; }
-
-    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        BurrowTimer = 0;
-        Function = null;
-        RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling;
-        InstalledAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling;
-        AttackReady = false;
-        YVelocity = 0;
-    }
 }

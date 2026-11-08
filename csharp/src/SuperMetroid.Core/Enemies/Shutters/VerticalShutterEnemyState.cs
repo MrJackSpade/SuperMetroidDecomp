@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
 /// The state of a vertical shutter: its behaviour, speeds, endpoints, rest lengths, trigger and rider carry, each a
-/// value of its own. The values the game keeps in the
-/// enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// value of its own.
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
@@ -12,8 +11,7 @@ public sealed class VerticalShutterEnemyState
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
-    /// The dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform;
-    /// none once a kill has emptied the record.
+    /// The dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform.
     /// </summary>
     public VerticalShutterFunction? Function { get; internal set; }
 
@@ -57,13 +55,4 @@ public sealed class VerticalShutterEnemyState
     public Position16<RoomPixels> LowerEndpoint { get; internal set; }
     /// <summary>The end the next reaction heads for, initially the primary heading; it turns after each reaction.</summary>
     public ShutterHeading ReactionDirection { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        FunctionTimer = WrappingCountdown.Start(0);
-        DownVelocity = SignedSixteenSixteen.Zero;
-        UpVelocity = SignedSixteenSixteen.Zero;
-    }
 }

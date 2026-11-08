@@ -1,23 +1,23 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
-/// <summary>Six authored spawn records used by gunship liftoff dust.</summary>
+/// <summary>The gunship's liftoff dust clouds.</summary>
 public static class GunshipDustDefinitions
 {
     /// <summary>Dust is eighty pixels below Samus.</summary>
     public const int YOffset = 80;
 
     /// <summary>
-    /// The X offsets and animations of
-    /// the gunship's liftoff dust clouds. Even parameters 0/2/4 select
-    /// right-side clouds; 6/8/A select left-side clouds, each starting its typed program (#641).
+    /// The six dust clouds the gunship raises as its engines fire, in the order it spawns them: the inner, middle and
+    /// outer clouds right of Samus, then the same three on her left, each with its horizontal offset from Samus and the
+    /// typed program (#641) it starts.
     /// </summary>
-    internal static readonly Dictionary<int, GunshipDustPlacement> Placements = new()
-    {
-        [0] = new GunshipDustPlacement(64, GunshipDustProgram.RightInner),
-        [2] = new GunshipDustPlacement(72, GunshipDustProgram.RightMiddle),
-        [4] = new GunshipDustPlacement(80, GunshipDustProgram.RightOuter),
-        [6] = new GunshipDustPlacement(-64, GunshipDustProgram.LeftInner),
-        [8] = new GunshipDustPlacement(-72, GunshipDustProgram.LeftMiddle),
-        [10] = new GunshipDustPlacement(-80, GunshipDustProgram.LeftOuter),
-    };
+    internal static IReadOnlyList<GunshipDustPlacement> LiftoffClouds { get; } =
+    [
+        new GunshipDustPlacement(64, GunshipDustProgram.RightInner),
+        new GunshipDustPlacement(72, GunshipDustProgram.RightMiddle),
+        new GunshipDustPlacement(80, GunshipDustProgram.RightOuter),
+        new GunshipDustPlacement(-64, GunshipDustProgram.LeftInner),
+        new GunshipDustPlacement(-72, GunshipDustProgram.LeftMiddle),
+        new GunshipDustPlacement(-80, GunshipDustProgram.LeftOuter),
+    ];
 }

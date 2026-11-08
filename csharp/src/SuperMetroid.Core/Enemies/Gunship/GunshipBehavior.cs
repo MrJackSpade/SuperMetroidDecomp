@@ -554,10 +554,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (Part(bottom).RumbleFrame == 64)
         {
             // The six calls happen after the frame counter reaches
-            // exactly 64. Descending projectile allocation means parameter A occupies the
+            // exactly 64. Descending projectile allocation means the last cloud, the outer left one, occupies the
             // highest surviving slot, matching the ordinary scheduler.
-            for (int parameter = 0; parameter <= 10; parameter += 2)
-                _projectiles.SpawnGunshipLiftoffDustCloud(parameter, samus);
+            foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
+                _projectiles.SpawnGunshipLiftoffDustCloud(cloud, samus);
         }
         if (Part(bottom).RumbleFrame >= 128)
         {

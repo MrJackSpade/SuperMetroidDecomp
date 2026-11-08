@@ -19,7 +19,7 @@ public sealed class SamusAtmosphericEffectSlot
         if (type == SamusAtmosphericEffectType.Inactive)
             throw new ArgumentOutOfRangeException(nameof(type), type, "An effect slot is emptied, not started as inactive.");
         Type = type;
-        AnimationFrame = Ensure.BetweenInclusive(0, byte.MaxValue, animationFrame);
+        AnimationFrame = Ensure.AtLeastZero(animationFrame);
     }
 
     /// <summary>Advances to the effect's next animation frame.</summary>

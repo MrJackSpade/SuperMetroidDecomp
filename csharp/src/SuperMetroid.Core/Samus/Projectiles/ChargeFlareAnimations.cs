@@ -10,7 +10,7 @@ internal static class ChargeFlareAnimations
     /// continues from the first, and one rewound below the first continues from the last, so a rewind past a program's
     /// start reads the delays below the programs.
     /// </summary>
-    private const int FramePlaces = 65536;
+    internal const int FramePlaces = 65536;
 
     /// <summary>
     /// The flare frames a draw selects its picture from: the draw takes a frame's place within a cycle of 256, so a frame

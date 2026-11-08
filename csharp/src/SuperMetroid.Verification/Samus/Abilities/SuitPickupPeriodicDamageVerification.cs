@@ -41,8 +41,7 @@ internal static class SuitPickupPeriodicDamageVerification
         samus.SubunitHealth = 0;
         // `$84:88F3` equips the suit before the message box and the pickup routine.
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
-        samus.LiquidPhysics.PeriodicSubDamage = 0;
-        samus.LiquidPhysics.PeriodicDamage = 0;
+        samus.LiquidPhysics.PendingPeriodicDamage = default;
         runtime.SuitPickup.Begin(samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
 
         // Reference ledger: the same producer calls, consumed once by the $90:E9CE port
@@ -70,14 +69,14 @@ internal static class SuitPickupPeriodicDamageVerification
                 $"the empty suit beta skips $90:E9CE on pickup frame {pickupFrames}");
             AssertEqual(subunitBefore, samus.SubunitHealth,
                 $"no sub-unit damage lands on pickup frame {pickupFrames}");
-            AssertEqual(reference.LiquidPhysics.PeriodicSubDamage, samus.LiquidPhysics.PeriodicSubDamage,
+            AssertEqual(reference.LiquidPhysics.PendingPeriodicDamage.Fraction, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
                 $"fractional periodic damage stays pending on pickup frame {pickupFrames}");
-            AssertEqual(reference.LiquidPhysics.PeriodicDamage, samus.LiquidPhysics.PeriodicDamage,
+            AssertEqual(reference.LiquidPhysics.PendingPeriodicDamage.Whole, samus.LiquidPhysics.PendingPeriodicDamage.Whole,
                 $"whole periodic damage stays pending on pickup frame {pickupFrames}");
         }
 
         AssertTrue(pickupFrames > 0, "the transformation spans gameplay frames");
-        AssertTrue(reference.LiquidPhysics.PeriodicDamage > 0, "the pickup accumulated whole units of damage");
+        AssertTrue(reference.LiquidPhysics.PendingPeriodicDamage.Whole > 0, "the pickup accumulated whole units of damage");
         // The frame whose HDMA pass restores the normal handlers runs ordinary beta, which
         // applies everything pending at once, halved for the now-equipped Varia Suit.
         reference.LiquidPhysics.ApplyPeriodicDamage(reference, timeIsFrozen: false);
@@ -86,8 +85,8 @@ internal static class SuitPickupPeriodicDamageVerification
             "the first ordinary beta applies all pickup-time damage, halved by Varia");
         AssertEqual(reference.SubunitHealth, samus.SubunitHealth,
             "the first ordinary beta applies the halved fractional damage");
-        AssertEqual(0, samus.LiquidPhysics.PeriodicSubDamage, "$90:E9CE clears the fractional word");
-        AssertEqual(0, samus.LiquidPhysics.PeriodicDamage, "$90:E9CE clears the whole word");
+        AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Fraction, "$90:E9CE clears the fractional word");
+        AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Whole, "$90:E9CE clears the whole word");
         Console.WriteLine($"  Suit pickup periodic damage: {pickupFrames} pickup frames keep energy; the deferred damage lands afterwards.");
     }
 

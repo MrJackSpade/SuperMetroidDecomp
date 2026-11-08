@@ -142,7 +142,7 @@ internal sealed class SamusPresentation
         samus.LiquidPhysics.PrepareAnimationFrame(
             samus,
             step.Random,
-            Ensure.BetweenInclusive(0, ushort.MaxValue, step.FrameCounter),
+            step.FrameCounter,
             step.BeginLiquidSoundRequestFrame,
             step.BossPresent);
 

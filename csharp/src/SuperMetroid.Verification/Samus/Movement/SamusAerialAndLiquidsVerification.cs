@@ -1106,12 +1106,12 @@ internal static void VerifySamusAtmosphericEffects()
     samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
     AssertTrue(samus.LiquidPhysics.AtmosphericEffects.Slots.All(slot => slot.Type == SamusAtmosphericEffectType.LavaSurfaceDamage),
         "partial lava submersion fills four surface-spray slots");
-    AssertEqual(0x8000, samus.LiquidPhysics.PeriodicSubDamage,
+    AssertEqual(0x8000, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
         "lava fractional damage accumulates from ROM");
     samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
     AssertEqual(98, samus.Health, "fractional lava subtraction borrows one energy");
     AssertEqual(0x8000, samus.SubunitHealth, "fractional energy retains wrapped half");
-    AssertEqual(0, samus.LiquidPhysics.PeriodicSubDamage,
+    AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
         "periodic consumer clears fractional accumulator");
     VerifyPeriodicDamageFractionalBorrow();
 

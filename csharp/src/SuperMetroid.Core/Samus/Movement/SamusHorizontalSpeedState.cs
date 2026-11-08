@@ -44,14 +44,14 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// The step of the Speed Booster or Screw Attack colour cycle shown next, counted from the shown suit's first
-    /// entry: 0 through 5, or 6 in fixtures that read past the list. The two cycles share it, so Speed Booster can
-    /// inherit a Screw Attack step past its own list's end; Crystal Flash publishes its bubble step into it. Reset when
-    /// Speed Booster momentum begins or cancels.
+    /// entry: 0 through 5. The two cycles share it, so Speed Booster can inherit a Screw Attack step past its own
+    /// list's end; the Screw Attack cycle wraps to zero after its sixth step and the Speed Booster cycle holds its last,
+    /// so no step passes five, and the setter rejects any other. Reset when Speed Booster momentum begins or cancels.
     /// </summary>
     public int CyclePaletteStep
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1, value);
     }
 
     /// <summary>Seeded to one on the first boosted running frame.</summary>
@@ -65,12 +65,13 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// SamusEchoesSFXFlag: set before the echo sound's start request,
-    /// consumed after boost ends, or cleared silently by quicksand. 0 through 65535.
+    /// consumed after boost ends, or cleared silently by quicksand: one while set, zero while clear, and the setter rejects
+    /// any other value.
     /// </summary>
     public int EchoSoundFlag
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, 1, value);
     }
 
     /// <summary>Consumes speed stage four's normal-priority echo sound request.</summary>
@@ -122,14 +123,18 @@ public sealed class SamusHorizontalSpeedState
     public UnsignedSixteenSixteen TotalSpeed { get; internal set; }
 
     /// <summary>
-    /// Speed divisor, 0 through 65535: total speed is halved this many times, capped at four
-    /// halvings however large the divisor is. It doubles as the dry-room animation delay.
+    /// Speed divisor, 0 through <see cref="LargestSpeedDivisor"/>: total speed is halved this many times, capped at four
+    /// halvings. It doubles as the dry-room animation delay. Each Draygon goop stuck to Samus adds one, a sixth is
+    /// refused, and the Baby Metroid's drain stores two, so the setter rejects any other value.
     /// </summary>
     public int SpeedDivisor
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, LargestSpeedDivisor, value);
     }
+
+    /// <summary>The largest speed divisor: five Draygon goops stuck to Samus, the most the goop's attach step allows.</summary>
+    public const int LargestSpeedDivisor = 5;
 
     /// <summary>
     /// Acceleration mode: accelerating speeds up, while turning and decelerating both take the
@@ -462,13 +467,13 @@ public sealed class SamusHorizontalSpeedState
     /// Captures the speed-echo position for ordinary active boost.
     /// The gameplay clock, not the frame counter, selects the four-frame sampling phase.
     /// </summary>
-    /// <param name="gameTimeFrames">The gameplay clock's frame count, 0 to 65535; only its four-frame phase is read and nothing stores it.</param>
+    /// <param name="gameTimeFrames">The gameplay clock's frames within its second, zero or more; only its four-frame phase is read and nothing stores it.</param>
     /// <param name="position">Samus's whole-pixel room position sampled into the next echo slot.</param>
     public bool CaptureSpeedEchoPosition(
         int gameTimeFrames,
         Position16<RoomPixels> position)
     {
-        Ensure.BetweenInclusive(0, ushort.MaxValue, gameTimeFrames);
+        Ensure.AtLeastZero(gameTimeFrames);
         if (!IsActivelySpeedBoosting ||
             SpeedEchoesDeparting ||
             (gameTimeFrames & 3) != 0)

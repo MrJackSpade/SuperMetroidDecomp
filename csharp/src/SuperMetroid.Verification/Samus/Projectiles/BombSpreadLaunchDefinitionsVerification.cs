@@ -22,7 +22,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
         var samus=new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
-        for(int hold=0;hold<=ushort.MaxValue;hold++)
+        for(int hold=0;hold<=MorphBallBombDefinitions.DownChargeTimeoutUpdates;hold++)
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
             samus.ProjectileFlareCounter=MorphBallBombDefinitions.RequiredChargeFrames;

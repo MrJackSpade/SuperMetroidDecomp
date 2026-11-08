@@ -21,11 +21,13 @@ public static class MorphBallBombDefinitions
     public const int RequiredChargeFrames = 60;
 
     /// <summary>
-    /// The updates of held Down a bomb spread charges for within each <see cref="DownChargeTimeoutCycle"/> of the
-    /// timeout counter; reaching it forces release while Down remains held (the game tests bits six and seven).
+    /// The updates of held Down a bomb spread charges for; reaching it forces release while Down remains held.
     /// </summary>
     public const int DownChargeTimeoutUpdates = 192;
 
-    /// <summary>The span of the timeout counter the timeout reads a position within.</summary>
-    public const int DownChargeTimeoutCycle = 256;
+    /// <summary>
+    /// The updates of held Down that add one whole pixel to a bomb spread's upward launch speed: zero through three
+    /// pixels over the <see cref="DownChargeTimeoutUpdates"/>.
+    /// </summary>
+    public const int DownChargeUpdatesPerLaunchPixel = 64;
 }

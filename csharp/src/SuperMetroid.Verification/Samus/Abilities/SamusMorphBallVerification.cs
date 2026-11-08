@@ -126,7 +126,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0),
         Pose = SamusPoseId.FallingAimDownLeftPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
-        BombSpreadChargeTimeoutCounter = 0x1234,
+        BombSpreadChargeTimeoutCounter = 52,
         ProjectileFlareCounter = 0x003c,
     };
     SamusPoseMetadata.RefreshCollisionRadii(fallingMorph);

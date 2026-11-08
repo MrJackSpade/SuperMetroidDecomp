@@ -661,7 +661,7 @@ false);
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
-        samus.HorizontalSpeed.CaptureSpeedEchoPosition(Ensure.BetweenInclusive(0, ushort.MaxValue, frame.GameTimeFrames), samus.Position.Whole);
+        samus.HorizontalSpeed.CaptureSpeedEchoPosition(frame.GameTimeFrames, samus.Position.Whole);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;

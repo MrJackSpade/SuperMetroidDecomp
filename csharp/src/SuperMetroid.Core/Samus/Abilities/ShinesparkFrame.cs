@@ -29,7 +29,7 @@ public sealed record ShinesparkFrame
     public SamusProjectileSystem? Projectiles { get; init; } = null;
 
     /// <summary>
-    /// Gameplay-clock frame count, 0 through 65535 as the clock wraps it, used by echo sampling independently of
+    /// The gameplay clock's frames within its second, used by echo sampling independently of
     /// the frame counter's collision parity.
     /// </summary>
     public int GameTimeFrames { get; init; } = 0;

@@ -97,13 +97,15 @@ public sealed class SamusState
 
     /// <summary>
     /// The animation frame shown: the number of the step of the pose's animation program the animation is on, which is
-    /// also the frame number of the pose's artwork.
+    /// also the frame number of the pose's artwork. It is zero or more and never runs away: every frame the animation
+    /// reaches names a step of the pose's program or of the program laid out after it, and reading a frame that names no
+    /// step fails (<see cref="AnimationStep"/>); the setter rejects a negative frame.
     /// </summary>
     [IntegerQuantity("frame index within the current pose animation")]
     public int AnimationFrame
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.AtLeastZero(value);
     }
 
     /// <summary>
@@ -114,9 +116,10 @@ public sealed class SamusState
 
     /// <summary>
     /// Delay, in updates, added to each animation frame for speed and liquid physics: zero, two or three, or the
-    /// <see cref="XSpeedDivisor"/> on dry ground; 0 through 65535.
+    /// <see cref="XSpeedDivisor"/> on dry ground, so 0 through
+    /// <see cref="SamusHorizontalSpeedState.LargestSpeedDivisor"/>; the setter rejects any other value.
     /// </summary>
-    public int AnimationFrameBuffer { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int AnimationFrameBuffer { get; internal set => field = Ensure.BetweenInclusive(0, SamusHorizontalSpeedState.LargestSpeedDivisor, value); }
 
     /// <summary>
     /// Exact fixed-point horizontal speeds used by ordinary grounded
@@ -300,9 +303,14 @@ public sealed class SamusState
     /// The projectile flare counter. Values at least 60 mean the charge
     /// beam is fully charged; spin and wall-jump movement use that producer-owned word to
     /// publish contact-damage index four without owning the projectile charge lifecycle. It mirrors the projectile
-    /// charge's flare counter, 0 through 65535.
+    /// charge's flare counter, 0 through <see cref="Projectiles.BeamChargeDefinitions.HyperBeamFlareCounter"/>; the setter
+    /// rejects any other value.
     /// </summary>
-    public int ProjectileFlareCounter { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int ProjectileFlareCounter
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, Projectiles.BeamChargeDefinitions.HyperBeamFlareCounter, value);
+    }
 
     /// <summary>
     /// The shared bomb-spread charge timeout. The game clears this
@@ -312,14 +320,14 @@ public sealed class SamusState
     /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
     /// </summary>
     /// <remarks>
-    /// Updates of Down held while a spread is charged, 0 through 65535; the setter rejects values outside that range.
-    /// Its only advance stops once bits six and seven are both set, so it never passes 65535 and never wraps; the
-    /// clears and the snapshot import are its other producers.
+    /// Updates of Down held while a spread is charged, 0 through
+    /// <see cref="Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates"/>: its only advance stops on reaching
+    /// that count and its other producers clear it, so the setter rejects any other value.
     /// </remarks>
     public int BombSpreadChargeTimeoutCounter
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, value);
     }
 
     /// <summary>
@@ -388,11 +396,12 @@ public sealed class SamusState
     /// <remarks>
     /// This word belongs to Samus rather than the shinespark child state. Keeping it here
     /// preserves the game's intentional sharing between unrelated damage, palette,
-    /// and special-movement producers. Its value is 0 through 65535:
-    /// gameplay keeps it below sixty, and a value at or above 32768 advances with the game's
-    /// 16-bit wrap (<see cref="Palettes.SamusHurtFlashPalette"/>) until the signed sixty test ends it.
+    /// and special-movement producers. Its value is 0 through 60: its producers store zero, one or eight, and the
+    /// hurt-flash palette advances it by one and clears it on reaching sixty
+    /// (<see cref="Palettes.SamusHurtFlashPalette.EndingCall"/>), so it never passes that; the setter rejects any other
+    /// value.
     /// </remarks>
-    public int HurtFlashCounter { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int HurtFlashCounter { get; set => field = Ensure.BetweenInclusive(0, Palettes.SamusHurtFlashPalette.EndingCall, value); }
 
     /// <summary>
     /// <c>ResumeChargingBeamSFXFlag</c>. Hurt-flash recovery sets one at counter forty

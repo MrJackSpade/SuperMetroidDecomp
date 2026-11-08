@@ -9,4 +9,9 @@ public static class BeamChargeDefinitions
     public const int FullyChargedCounter = 60;
     /// <summary>Flare-counter clamp at which the charge handler begins testing special beam attacks.</summary>
     public const int SpecialAttackCounter = 120;
+    /// <summary>
+    /// The flare counter a Hyper Beam shot stores: past every charge threshold, so the Hyper Beam always reads as fully
+    /// charged and never advances it; the largest value the counter holds.
+    /// </summary>
+    public const int HyperBeamFlareCounter = 32768;
 }

@@ -6,19 +6,22 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class BeamChargeState
 {
 
-    /// <summary>0 through 65535; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
+    /// <summary>
+    /// 60 frames arms a charged shot and 120 is the SBA clamp; the charge advances no further, and a Hyper Beam shot
+    /// stores <see cref="BeamChargeDefinitions.HyperBeamFlareCounter"/>, the setter's upper bound.
+    /// </summary>
     [IntegerQuantity("updates the charge flare has shown")]
     public int FlareCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, BeamChargeDefinitions.HyperBeamFlareCounter, value);
     }
 
-    /// <summary>0 through 65535; sampled before the current charge-input update.</summary>
+    /// <summary>The <see cref="FlareCounter"/> sampled before the current charge-input update.</summary>
     public int PreviousBeamChargeCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, BeamChargeDefinitions.HyperBeamFlareCounter, value);
     }
 
     /// <summary>
@@ -53,7 +56,8 @@ internal sealed class BeamChargeState
     internal int FlareFrame(int component) => FlareFrames[component];
 
     /// <summary>Sets flare <paramref name="component"/>'s animation frame.</summary>
-    internal void SetFlareFrame(int component, int frame) => FlareFrames[component] = Ensure.BetweenInclusive(0, ushort.MaxValue, frame);
+    internal void SetFlareFrame(int component, int frame) =>
+        FlareFrames[component] = Ensure.BetweenInclusive(0, ChargeFlareAnimations.FramePlaces - 1, frame);
 
     /// <summary>Restarts flare <paramref name="component"/>'s countdown to its next frame.</summary>
     internal void StartFlareTimer(int component, int frames) => FlareTimers[component] = WrappingCountdown.Start(frames);

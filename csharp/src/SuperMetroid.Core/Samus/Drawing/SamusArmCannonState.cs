@@ -27,12 +27,18 @@ public sealed class SamusArmCannonState
     /// <summary>Whether an opening or closing is still under way.</summary>
     public bool IsTransitioning { get; internal set; }
 
-    /// <summary>The cover frame, 0 through 65535; zero is invisible, one and two transition, three fully open.</summary>
+    /// <summary>
+    /// The cover frame, 0 through 4; zero is invisible, one and two transition, three fully open, and a closing starts
+    /// from four, which the same update steps to three. The setter rejects any other value.
+    /// </summary>
     public int Frame
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, ClosingStartFrame, value);
     }
+
+    /// <summary>The frame a closing starts from, past the fully open frame: the cover's largest frame.</summary>
+    private const int ClosingStartFrame = 4;
 
     /// <summary>
     /// The updates the HUD selection has held still, 0 through 2: a change restarts it at one and it saturates at two,
@@ -140,7 +146,7 @@ public sealed class SamusArmCannonState
 
         // Closing begins from synthetic frame four; the same call then advances it to
         // visible frame three.
-        Frame = opens ? 0 : 4;
+        Frame = opens ? 0 : ClosingStartFrame;
         IsOpen = opens;
         IsTransitioning = true;
         return true;

@@ -432,10 +432,10 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0x2000, boostedJump.Kinematics.YSpeed.Fraction,
         "boosted jump wraps fractional addition without carrying");
 
-    // $90:E4E6 caps a nonsensically large divisor at four. Extra run speed is added before
-    // that shift; 2.0 + 2.0 therefore becomes 0.4000 when divisor $1234 is stored.
+    // $90:E4E6 caps the divisor at four halvings. Extra run speed is added before
+    // that shift; 2.0 + 2.0 therefore becomes 0.4000 when the largest divisor, five, is stored.
     speed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0);
-    speed.SpeedDivisor = 0x1234;
+    speed.SpeedDivisor = SamusHorizontalSpeedState.LargestSpeedDivisor;
     AssertEqual(0x00004000u, speed.CalculateTotalSpeed(0x00020000), "total speed divisor caps at four");
     AssertEqual(0x4000, speed.TotalSpeed.Fraction, "total subspeed publication");
 

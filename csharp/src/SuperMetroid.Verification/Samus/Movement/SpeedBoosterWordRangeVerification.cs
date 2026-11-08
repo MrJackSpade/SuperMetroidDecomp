@@ -51,8 +51,8 @@ internal static class SpeedBoosterWordRangeVerification
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(0, byte.MaxValue + 1),
             "the cadence never exceeds 255");
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(-1, 0), "the stage is never negative");
-        AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedDivisor = ushort.MaxValue + 1,
-            "the divisor never holds more than sixteen bits");
+        AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedDivisor = SamusHorizontalSpeedState.LargestSpeedDivisor + 1,
+            "no more goop sticks to Samus than five");
         AssertThrows<ArgumentOutOfRangeException>(() => range.DecelerationMultiplier = byte.MaxValue + 1,
             "the multiplier never holds more than eight bits");
 

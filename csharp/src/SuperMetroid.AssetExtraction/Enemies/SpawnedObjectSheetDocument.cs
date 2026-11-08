@@ -16,6 +16,14 @@ internal sealed record SpawnedObjectSheetDocument
     /// </summary>
     public required Dictionary<string, List<string>> CommonPictures { get; init; }
 
+    /// <summary>
+    /// For each picture the owner's set composed from other places than the installed sheet holding it records, by picture
+    /// name, where the set composed its colours from (#1544); absent for none. A picture held once is sourced as its first
+    /// holder composed it, and another set's colours may lie elsewhere in its colour table.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, SuperMetroid.AssetExtraction.Artwork.InstalledFrameSource>? FrameSources { get; init; }
+
     /// <summary>The palette row its frames were coloured in.</summary>
     public required int Palette { get; init; }
 

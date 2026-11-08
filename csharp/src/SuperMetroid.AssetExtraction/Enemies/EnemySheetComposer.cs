@@ -125,6 +125,9 @@ internal static class EnemySheetComposer
                     {
                         Sheet = own,
                         CommonPictures = commonPictures,
+                        FrameSources = share.Sources.Count == 0 ? null
+                            : share.Sources.OrderBy(source => source.Key, StringComparer.Ordinal)
+                                .ToDictionary(source => source.Key, source => source.Value, StringComparer.Ordinal),
                         Palette = plan.Palette,
                         Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                         Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],

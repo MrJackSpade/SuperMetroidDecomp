@@ -50,6 +50,13 @@ internal static class InstalledArtworkContentIdentity
                 {
                     content.AppendName("picture", picture);
                     content.AppendName("held on", frame.Sheet.Name);
+                    // Where the set composed a picture held once from, where that differs from its sheet's record (#1544).
+                    if (InstalledPictureColours.FrameSourceOf(frame) is { } source)
+                    {
+                        content.Append("composed palette bits", source.PaletteBits);
+                        content.Append("composed from", System.Runtime.InteropServices.MemoryMarshal.AsBytes(source.SheetInks.AsSpan()));
+                        content.Append("composed as", System.Runtime.InteropServices.MemoryMarshal.AsBytes(source.Inks.AsSpan()));
+                    }
                 }
                 foreach (string picture in spawned.empty.Order(StringComparer.Ordinal))
                     content.AppendName("shows nothing", picture);

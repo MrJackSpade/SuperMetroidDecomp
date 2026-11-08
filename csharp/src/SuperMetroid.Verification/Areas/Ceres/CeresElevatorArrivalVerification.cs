@@ -75,7 +75,10 @@ internal static class CeresElevatorArrivalVerification
     /// <summary>
     /// Checks the concealer's cleared colour against the cartridge (#1512): a new game's set-up stores zero into one sprite
     /// colour before the arrival spawns ($82:812D <c>LDA #$0000</c>, $82:8130 <c>STA.L</c> into the colour buffer), and
-    /// every arrival draw's picture carries the concealer's shade, which shows exactly that sprite colour black.
+    /// every arrival draw's picture carries the concealer's shade, which shows exactly that sprite colour black. Each draw
+    /// is held to what its own picture shows: the shade recolours, of the picture's colours, exactly those composed as that
+    /// sprite colour, and the concealer's draw shows it. A sheet holding the pad apart from the concealer, as the common art
+    /// held once holds it (#1544), has no colour of the concealer's for the shade to recolour.
     /// </summary>
     private static void VerifyConcealerShade(ISnesAddressSpace rom, CeresElevatorArrivalState arrival)
     {
@@ -91,16 +94,48 @@ internal static class CeresElevatorArrivalVerification
             Position16<RoomPixels>.Zero);
         frame.FinalizeFrame();
         VerificationAssertions.AssertTrue(frame.Draws.Length > 0, "the arrival draws while it runs");
+        bool showsCleared = false;
         foreach (SpriteDraw draw in frame.Draws)
         {
-            SpriteImage sheet = ((ImageSpriteDraw)draw).Image.Sheet;
+            SpriteSheetFrame picture = ((ImageSpriteDraw)draw).Image;
+            SpriteImage sheet = picture.Sheet;
+            // The colours the draw's picture shows, and of them those its holder composed as the cleared colour; the
+            // sheet's other colours belong to the other pictures it holds (#1544).
+            HashSet<int> shown = ShownColours(picture);
+            int[] cleared = [.. shown.Where(colour => ComposedIndexOf(picture, colour) == spriteColour).Order()];
+            showsCleared |= cleared.Length > 0;
             ShadeInks inks = sheet.Shade(CeresElevatorShades.ConcealerCleared);
-            // The shade names the sheet's own colours; the import composed each as a palette index (#1544).
-            int[] composed = [.. inks.Inks.Select(ink => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexOf(sheet, ink))];
-            VerificationAssertions.AssertTrue(composed.SequenceEqual([spriteColour]) && inks.Colours.SequenceEqual([RgbColor.Black]),
-                $"the concealer's shade shows the cartridge's cleared sprite colour {spriteColour} black on {sheet.Name}: it recolours composed "
-                + $"places [{string.Join(", ", composed)}] to [{string.Join(", ", inks.Colours)}]");
+            int[] entries = [.. Enumerable.Range(0, inks.Inks.Length).Where(entry => shown.Contains(inks.Inks[entry]))];
+            int[] recoloured = [.. entries.Select(entry => inks.Inks[entry]).Order()];
+            RgbColor[] colours = [.. entries.Select(entry => inks.Colours[entry])];
+            VerificationAssertions.AssertTrue(recoloured.SequenceEqual(cleared) && colours.All(colour => colour == RgbColor.Black),
+                $"the concealer's shade shows exactly the cartridge's cleared sprite colour {spriteColour} of {draw} black: of its picture's colours "
+                + $"composed as [{string.Join(", ", shown.Order().Select(colour => ComposedIndexOf(picture, colour)))}] it recolours composed "
+                + $"[{string.Join(", ", entries.Select(entry => ComposedIndexOf(picture, inks.Inks[entry])))}] to [{string.Join(", ", colours)}]");
         }
+        VerificationAssertions.AssertTrue(showsCleared,
+            $"an arrival draw shows the cartridge's cleared sprite colour {spriteColour}, the concealer's solid pixels");
+    }
+
+    /// <summary>The composed palette index the colour <paramref name="colour"/> of <paramref name="picture"/>'s sheet came from, as the picture's holder composed it.</summary>
+    private static int ComposedIndexOf(SpriteSheetFrame picture, int colour) =>
+        SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexOf(picture, colour);
+
+    /// <summary>The places among its sheet's colours of the colours <paramref name="picture"/>'s pixels show.</summary>
+    private static HashSet<int> ShownColours(SpriteSheetFrame picture)
+    {
+        ReadOnlySpan<SpriteImageInk> inks = picture.Sheet.Inks;
+        int width = picture.Sheet.Size.X;
+        var shown = new HashSet<int>();
+        for (int row = 0; row < picture.Size.Y; row++)
+        {
+            foreach (SpriteImageInk ink in inks.Slice((picture.Corner.Y + row) * width + picture.Corner.X, picture.Size.X))
+            {
+                if (ink.Colour is int colour)
+                    shown.Add(colour);
+            }
+        }
+        return shown;
     }
 
     /// <summary>The colour buffer's first sprite colour.</summary>

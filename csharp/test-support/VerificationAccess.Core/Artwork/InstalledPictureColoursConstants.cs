@@ -22,20 +22,56 @@ internal static class InstalledPictureColoursConstants
     /// The native colour <paramref name="colour"/> of <paramref name="picture"/> shows when a draw ORs sprite row
     /// <paramref name="drawRow"/> into its parts, as a frontend draw's colouring does (#1512).
     /// </summary>
-    public static int CartridgeColourOf(SpriteImage picture, int colour, int drawRow)
+    public static int CartridgeColourOf(SpriteImage picture, int colour, int drawRow) =>
+        CartridgeColourOf(picture, InstalledPictureColours.SetsOf(Ensure.NotNull(picture)), colour, drawRow);
+
+    /// <summary>
+    /// The native colour the colour <paramref name="colour"/> of <paramref name="frame"/>'s sheet shows in a draw of the frame
+    /// ORing sprite row <paramref name="drawRow"/> into its parts, where the frame's holder composed it (#1544): a picture held
+    /// once on a common sheet is sourced as its first holder composed it, and another holder's colours may lie elsewhere.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The sheet has no such colour.</exception>
+    /// <exception cref="InvalidOperationException">The frame's sheet was not loaded from an installed sheet manifest.</exception>
+    public static int CartridgeColourOf(SpriteSheetFrame frame, int colour, int drawRow) =>
+        CartridgeColourOf(Ensure.NotNull(frame).Sheet, SourcesOf(frame), colour, drawRow);
+
+    /// <summary>The composed palette index the colour <paramref name="colour"/> of <paramref name="frame"/>'s sheet came from, where the frame's holder composed it (#1544).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The sheet has no such colour.</exception>
+    public static int ComposedIndexOf(SpriteSheetFrame frame, int colour)
     {
-        Ensure.NotNull(picture);
-        int ink = ComposedIndexOf(picture, colour);
-        SpriteImageColours palette = InstalledPictureColours.SetsOf(picture).Palette;
-        return palette switch
+        ImmutableArray<int> inks = SourcesOf(Ensure.NotNull(frame)).Inks;
+        return inks[Ensure.BetweenInclusive(0, inks.Length - 1, colour)];
+    }
+
+    /// <summary>
+    /// Where the colours <paramref name="frame"/> shows came from, for the holder drawing it (#1544): its sheet's record, with
+    /// each colour the frame's own record names sourced as the holder composed it. The sheet's other colours, which the frame
+    /// does not show, keep the sheet's indices and say nothing of the frame.
+    /// </summary>
+    private static InstalledPictureColourSources SourcesOf(SpriteSheetFrame frame)
+    {
+        InstalledPictureColourSources sheet = InstalledPictureColours.SetsOf(frame.Sheet);
+        if (InstalledPictureColours.FrameSourceOf(frame) is not { } source)
+            return sheet;
+        ImmutableArray<int>.Builder inks = sheet.Inks.ToBuilder();
+        for (int colour = 0; colour < source.SheetInks.Length; colour++)
+            inks[sheet.Inks.IndexOf(source.SheetInks[colour])] = source.Inks[colour];
+        return sheet with { PaletteBits = source.PaletteBits, Inks = inks.ToImmutable() };
+    }
+
+    /// <summary>The native colour <paramref name="colour"/> of <paramref name="picture"/> shows, coloured from <paramref name="sources"/>.</summary>
+    private static int CartridgeColourOf(SpriteImage picture, InstalledPictureColourSources sources, int colour, int drawRow)
+    {
+        int ink = sources.Inks[Ensure.BetweenInclusive(0, sources.Inks.Length - 1, colour)];
+        return sources.Palette switch
         {
             // A sprite ink is its part's own row and colour, drawn from that row with the sheet's palette bits ORed in.
             SpriteImageColours.Sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
-                + ((ink / GameplayColourPositionDefinitions.SetColours) | InstalledPictureColours.PaletteBitsOf(picture) | drawRow) * GameplayColourPositionDefinitions.SetColours
+                + ((ink / GameplayColourPositionDefinitions.SetColours) | sources.PaletteBits | drawRow) * GameplayColourPositionDefinitions.SetColours
                 + ink % GameplayColourPositionDefinitions.SetColours,
             SpriteImageColours.FullPalette => GameplayColourPositionDefinitions.BackgroundSetsFirst + ink,
             SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => BackgroundColourOf(picture, ink),
-            _ => throw new InvalidDataException($"Image {picture.Name} names an unknown colouring {palette}."),
+            _ => throw new InvalidDataException($"Image {picture.Name} names an unknown colouring {sources.Palette}."),
         };
     }
 

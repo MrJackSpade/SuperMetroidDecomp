@@ -22,9 +22,9 @@ public sealed class MagdolliteEnemyState
     public MagdolliteEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset. The game keeps
-    /// twice the phase, the byte offset into the nine-entry rise tables, in the record word the hand uses for <see
-    /// cref="ThrowsRight"/>.
+    /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset from the nine
+    /// <see cref="MagdolliteRise.Phase"/> records. It steps by one as the arm rises past each phase's threshold and
+    /// back as it sinks.
     /// </summary>
     public int BodyPhase
     {

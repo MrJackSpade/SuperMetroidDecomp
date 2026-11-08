@@ -88,8 +88,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetHopperProgram(slot, state, ReadHopperProgram(state, SurfaceOf(state), HopperPhase.Landed));
 
-        // Both physics rows currently contain the same constants, but the header-dependent
-        // byte offset and two independent calculations are part of the authored contract.
+        // Every Hopper definition authors the same small and big hop heights and speed steps, so the definition
+        // selects nothing here; the two hop sizes' starting speeds are still calculated independently.
         state.SmallHopInitialYSpeedTableIndex = CalculateInitialHopperYSpeedTableIndex(
             jumpHeight: 4096,
             tableIndexDelta: 3);

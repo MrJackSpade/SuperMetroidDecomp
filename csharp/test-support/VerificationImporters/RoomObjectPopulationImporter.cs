@@ -34,10 +34,10 @@ internal static class RoomObjectPopulationImporter
                     $"PLM population $8F:{pointer:X4} record {index} names unlabelled header $84:{headerWord:X4} " +
                     $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
             var metadata = new RoomObjectHeaderDefinition(header);
-            byte[] scroll = header == RoomObjectHeaderId.ScrollTrigger ? Scroll(argument) : [];
-            RoomScrollProgram? retailScroll = header == RoomObjectHeaderId.ScrollTrigger ? RetailScrollProgram(argument, scroll) : null;
+            RoomScrollWrite[]? scroll = header == RoomObjectHeaderId.ScrollTrigger ? Scroll(argument) : null;
+            RoomScrollProgram? retailScroll = scroll is null ? null : RetailScrollProgram(argument, scroll);
             records.Add(new RoomObjectPlacement(metadata,
-                new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument), retailScroll is null ? scroll : [],
+                new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument), retailScroll is null ? scroll : null,
                 DraygonCannonObjects.IsDraygonCannonHeader(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
             {
                 CompiledScrollProgram = retailScroll,
@@ -51,28 +51,31 @@ internal static class RoomObjectPopulationImporter
         byte Byte(byte bank, ushort offset) => cartridge.ReadCartridgeByte(((int)new SnesAddress(bank, offset)));
         ushort Word(byte bank, ushort offset) =>
             LittleEndianBytes.Word(Byte(bank, offset), Byte(bank, unchecked((ushort)(offset + 1))));
-        // A trigger whose argument is where a retail scroll program is stored, and which finds that program's pairs there,
-        // runs that retail program, as the compiled populations bind it; pairs stored anywhere else are a constructed
+        // A trigger whose argument is where a retail scroll program is stored, and which finds that program's writes there,
+        // runs that retail program, as the compiled populations bind it; writes stored anywhere else are a constructed
         // program the trigger carries itself.
-        static RoomScrollProgram? RetailScrollProgram(ushort argument, byte[] pairs)
+        static RoomScrollProgram? RetailScrollProgram(ushort argument, RoomScrollWrite[] writes)
         {
             foreach ((RoomScrollProgram program, ushort address) in RoomScrollProgramNative.Addresses)
             {
-                if (address == argument && RoomObjectScrollProgramDefinitions.Get(address).Span.SequenceEqual(pairs))
+                if (address == argument && RoomObjectScrollProgramDefinitions.Programs[program].SequenceEqual(writes))
                     return program;
             }
             return null;
         }
-        byte[] Scroll(ushort argument)
+        // The stored program is index/state byte pairs ended by a byte with its sign bit set; the import decodes that
+        // terminator into the end of the write list.
+        RoomScrollWrite[] Scroll(ushort argument)
         {
-            var pairs = new List<byte>();
+            var writes = new List<RoomScrollWrite>();
+            int cursor = 0;
             for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
             {
-                byte cell = Byte(0x8f, unchecked((ushort)(argument + pairs.Count)));
-                pairs.Add(cell);
+                byte cell = Byte(0x8f, unchecked((ushort)(argument + cursor++)));
                 if ((cell & 0x80) != 0)
-                    return pairs.ToArray();
-                pairs.Add(Byte(0x8f, unchecked((ushort)(argument + pairs.Count))));
+                    return [.. writes];
+                byte state = Byte(0x8f, unchecked((ushort)(argument + cursor++)));
+                writes.Add(new RoomScrollWrite(cell, RoomScrollStates.FromAuthoredByte(state, $"scroll program $8F:{argument:X4}")));
             }
             throw new InvalidDataException($"Imported scroll program $8F:{argument:X4} has no bounded negative terminator.");
         }

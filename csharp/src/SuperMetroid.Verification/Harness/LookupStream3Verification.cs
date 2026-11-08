@@ -1805,7 +1805,7 @@ internal static class LookupStream3Verification
     {
         for (int kind = 0; kind < 6; kind++)
         {
-            EnemyPickupAnimationDefinition animation = EnemyPickups.Animation((EnemyPickupKind)kind);
+            EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(EnemyPickupNativeWords.Selectors.Decode(kind, "enemy pickup selector"));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind)),
                 animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0, "stream 3 pickup kind dispatch");
         }
@@ -1815,7 +1815,7 @@ internal static class LookupStream3Verification
                     SuperMetroid.AssetExtraction.CartridgeTables.EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion"))),
                 "stream 3 death variant dispatch");
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => EnemyPickups.Animation((EnemyPickupKind)invalid),
+            AssertThrows<InvalidDataException>(() => EnemyPickups.Animation(EnemyPickupNativeWords.Selectors.Decode(invalid, "enemy pickup selector")),
                 "stream 3 invalid pickup kind");
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
             AssertThrows<InvalidDataException>(

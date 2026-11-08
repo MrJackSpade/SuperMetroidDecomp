@@ -1,13 +1,12 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Values returned by the random drop selection. These are deliberately the
-/// values the pickup stores, halved; the table order is not the visual order of
-/// the five pickup instruction lists.
+/// What the random drop selection chooses for a defeated enemy: nothing yet, one of the five pickups, or no drop.
+/// Its values are arbitrary.
 /// </summary>
 public enum EnemyPickupKind
 {
-    /// <summary>Zero sentinel used before a valid drop-table result; direct initialization treats it as dormant.</summary>
+    /// <summary>No pickup chosen yet; direct initialization treats it as dormant.</summary>
     None = 0,
 
     /// <summary>Small energy pickup restoring five energy before reserve overflow handling.</summary>

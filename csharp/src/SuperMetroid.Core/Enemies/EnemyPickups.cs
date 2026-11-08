@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Finds an enemy drop's pickup-table entry.</summary>
+/// <summary>Finds an enemy drop's pickup animation.</summary>
 internal static class EnemyPickups
 {
-    /// <summary>The pickup-table offset and drop program of <paramref name="kind"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="kind"/> is not in the pickup table.</exception>
+    /// <summary>The drop program of <paramref name="kind"/>, none for <see cref="EnemyPickupKind.None"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="kind"/> has no pickup animation.</exception>
     internal static EnemyPickupAnimationDefinition Animation(EnemyPickupKind kind) =>
         EnemyPickupDefinitions.Animations.TryGetValue(kind, out EnemyPickupAnimationDefinition animation)
             ? animation
-            : throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry.");
+            : throw new InvalidDataException($"Enemy pickup kind {kind} has no pickup animation.");
 }

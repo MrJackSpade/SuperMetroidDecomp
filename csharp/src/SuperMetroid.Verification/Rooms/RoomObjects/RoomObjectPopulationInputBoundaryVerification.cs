@@ -27,19 +27,18 @@ internal static class RoomObjectPopulationInputBoundaryVerification
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
     internal static void VerifyObjectPopulationInputBoundary()
     {
-        byte[] pairs = [1, (byte)RoomScrollState.Green, 0x80];
+        RoomScrollWrite[] writes = [new(1, RoomScrollState.Green)];
         var trigger = new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.ScrollTrigger),
-            new(3, 3), null, pairs);
+            new(3, 3), null, writes);
         var extension = new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.RightwardsScrollExtension),
             new(4, 3), null);
-        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = new byte[] { 0x80 } };
+        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = Array.Empty<RoomScrollWrite>() };
         RoomObjectPlacement[] records = [trigger, extension, second];
         var population = new RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
-        pairs[0] = 49;
-        pairs[1] = 0;
+        writes[0] = new(49, RoomScrollState.RedBoundary);
         records[0] = second;
-        AssertEqual((byte)1, population.Placements.Span[0].ScrollProgram.Span[0],
-            "decoded population owns its scroll pairs independently of caller mutation");
+        AssertEqual(new RoomScrollWrite(1, RoomScrollState.Green), population.Placements.Span[0].ScrollProgram![0],
+            "decoded population owns its scroll writes independently of caller mutation");
         AssertEqual(3, population.Placements.Span[0].Block.X,
             "decoded population owns its record ordering independently of caller mutation");
 
@@ -58,24 +57,25 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
         roomObjects.Step(level, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
-        AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
+        AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to sleep after its last write");
 
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [trigger with { ScrollProgram = new byte[] { 0, 2 } }]), "unterminated decoded pairs are rejected before allocation");
+            [trigger with { ScrollProgram = [new(RoomScrollGrid.StorageByteCount, RoomScrollState.Blue)] }]),
+            "a decoded write past the scroll grid is rejected before allocation");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [trigger with { ScrollProgram = new byte[] { 0, 3, 0x80 } }]), "invalid decoded scroll states are rejected");
+            [trigger with { ScrollProgram = [new(0, (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             Enumerable.Repeat(second, RoomObjectPopulationFormat.MaximumParserIterations)),
             "typed records cannot evade the native bounded terminator limit");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [extension with { ScrollProgram = new byte[] { 0x80 } }]), "an extension cannot own a resident scroll program");
+            [extension with { ScrollProgram = Array.Empty<RoomScrollWrite>() }]), "an extension cannot own a resident scroll program");
 
         int count = 0;
         foreach (ushort pointer in RoomObjectPopulationDefinitions.Pointers)
             count += RoomObjectPopulationDefinitions.Get(pointer).Placements.Length;
         AssertEqual(RoomObjectPopulationDefinitions.RetailRecordCount, count,
             "every compiled population converts to the typed contract before gameplay");
-        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
+        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable writes, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
     }
 
     /// <summary>Runs the focused compiled-population conversion and scroll execution check.</summary>

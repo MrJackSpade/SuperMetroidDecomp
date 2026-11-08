@@ -13,11 +13,27 @@ public sealed class SamusProjectileSlot
     [IntegerQuantity("ordinal of the slot in the projectile table")]
     public int SlotIndex { get; }
 
-    /// <summary>Damage doubles as the producer's free-slot sentinel.</summary>
+    /// <summary>The damage of the projectile holding the slot; zero while the slot is free.</summary>
+    private int _damage;
+
+    /// <summary>
+    /// Whether a projectile holds the slot: from the update a projectile takes it with its damage until the slot is
+    /// cleared. The firing routines and the Super Missile's link take the lowest slot no projectile holds.
+    /// </summary>
+    public bool IsOccupied { get; private set; }
+
+    /// <summary>
+    /// The damage the projectile holding the slot deals, 1 through 65535, or zero while the slot is free. Every
+    /// projectile takes its slot with its damage, so setting it marks the slot occupied.
+    /// </summary>
     public int Damage
     {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get => _damage;
+        internal set
+        {
+            _damage = Ensure.BetweenInclusive(1, ushort.MaxValue, value);
+            IsOccupied = true;
+        }
     }
 
     /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
@@ -95,7 +111,7 @@ public sealed class SamusProjectileSlot
     /// <summary>Clears the per-projectile state deletion clears; trail and Spazer phase state survive reuse.</summary>
     internal void ClearFields()
     {
-        Damage = 0;
+        Vacate();
         Type = SamusProjectileType.None;
         Direction = default;
         IsSpent = false;
@@ -124,12 +140,19 @@ public sealed class SamusProjectileSlot
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Type = SamusProjectileType.None;
-        Damage = 0;
+        Vacate();
         Cursor = null;
         FrameHold = WrappingCountdown.Start(0);
         ClearKindState();
         Sprite = null;
         FrameBehavior = SamusProjectileFrameBehavior.None;
+    }
+
+    /// <summary>Frees the slot: no projectile holds it, and it carries no damage.</summary>
+    private void Vacate()
+    {
+        _damage = 0;
+        IsOccupied = false;
     }
 
     /// <summary>Clears the state each projectile kind keeps: missile ignition and link, particle angles and speeds, the Chainsaw fuse.</summary>

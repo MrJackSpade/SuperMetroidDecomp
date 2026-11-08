@@ -356,7 +356,7 @@ internal sealed class ProjectileMotion
         SamusState samus,
         SamusProjectileSlot owner)
     {
-        SamusProjectileSlot? link = _slotTable.Slots.FirstOrDefault(candidate => candidate.Damage == 0);
+        SamusProjectileSlot? link = _slotTable.Slots.FirstOrDefault(candidate => !candidate.IsOccupied);
         if (link is null)
             return;
 

@@ -19,8 +19,8 @@ internal sealed class ProjectileSlotTable
 
     /// <summary>The shot slots by ordinal.</summary>
     internal IReadOnlyList<SamusProjectileSlot> Slots => _slots;
-    /// <summary>The lowest shot slot with no damage, which the firing routines take as free, or -1 when all are live.</summary>
-    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => slot.Damage == 0);
+    /// <summary>The lowest shot slot no projectile holds, which the firing routines take, or -1 when all are held.</summary>
+    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => !slot.IsOccupied);
 
     /// <summary>The shot slots in update order, highest ordinal first.</summary>
     internal IEnumerable<SamusProjectileSlot> InUpdateOrder

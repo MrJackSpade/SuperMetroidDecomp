@@ -4,7 +4,6 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;

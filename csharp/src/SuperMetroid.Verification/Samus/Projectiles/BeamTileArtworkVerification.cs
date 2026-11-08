@@ -18,7 +18,6 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Checks extracted beam PNGs and palettes through the projectile queue and runtime NMI path.</summary>
 internal static class BeamTileArtworkVerification

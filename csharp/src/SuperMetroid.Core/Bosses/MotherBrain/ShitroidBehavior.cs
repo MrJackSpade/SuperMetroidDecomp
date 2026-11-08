@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -30,7 +31,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Provides scratch state, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Locates the physical slot-one Sidehopper victim beside Shitroid's slot zero.</summary>
+    /// <summary>The room's enemies, among which the Baby Metroid's victim is placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>Controls whether the normal membrane palette can advance during the Zebetite sequence.</summary>
@@ -53,7 +54,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
-    /// <summary>Single slot-zero actor's private velocity, palette, and cutscene state.</summary>
+    /// <summary>The room's one Baby Metroid's private velocity, palette, and cutscene state.</summary>
     internal ShitroidEnemyState? Shitroid { get; private set; }
     /// <summary>Camera used by the offscreen acceleration and wall sequence.</summary>
     private Position16<RoomPixels> _shitroidCamera;
@@ -72,11 +73,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets the Shitroid up when the room spawns it.</summary>
     internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)
     {
-        if (slot.SlotIndex != 0)
-        {
-            throw new InvalidDataException(
-                $"Shitroid requires the first enemy slot, not slot {slot.SlotIndex}.");
-        }
         if (Shitroid is not null)
             throw new InvalidDataException("A room population contains more than one Shitroid.");
 
@@ -671,7 +667,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
-        SamusProjectileSlot slotZeroProjectile)
+        SamusProjectileSlot firstShot)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
         if (!state.ReactsToSamus)
@@ -679,8 +675,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         BreakReleasedShitroidFollow(state);
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-            CoordinateAxis.Difference(slotZeroProjectile.Position.X.Whole, slot.Position.X.Whole),
-            CoordinateAxis.Difference(slotZeroProjectile.Position.Y.Whole, slot.Position.Y.Whole)));
+            CoordinateAxis.Difference(firstShot.Position.X.Whole, slot.Position.X.Whole),
+            CoordinateAxis.Difference(firstShot.Position.Y.Whole, slot.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
         // The recoil strength is eight times the damage, capped at 240; no beam, missile or bomb deals the 8192
         // damage whose multiple would pass a sixteen-bit quantity.
@@ -747,13 +743,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Requires the Sidehopper victim in the physical enemy slot immediately after Shitroid.</summary>
+    /// <summary>Requires the Baby Metroid's victim: the enemy placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
     internal RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
     {
-        int victimIndex = slot.SlotIndex + 1;
-        if ((uint)victimIndex >= _slotTable.Slots.Count || _slotTable.Slots[victimIndex].DefinitionId == EnemyDefinitionId.None)
-            throw new InvalidDataException("Shitroid's physical slot-one victim is missing.");
-        return _slotTable.Slots[victimIndex];
+        RoomEnemySlot victim = BabyMetroidVictim.Of(_slotTable.Slots, slot.SlotIndex);
+        if (victim.DefinitionId == EnemyDefinitionId.None)
+            throw new InvalidDataException("The Baby Metroid's victim, the enemy placed after it, is missing.");
+        return victim;
     }
 
     /// <summary>Rejects missing state or dispatch from an enemy slot other than the initialized Baby Metroid.</summary>
@@ -773,15 +769,16 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts the state timer down and reports whether it ran past zero.</summary>
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state) => --state.StateTimer < 0;
 
-    /// <summary>Uses bomb damage for recoil strength but ordinary slot zero for its direction, without health loss.</summary>
+    /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
     internal void AddShitroidBombReactions(EnemySharedReactions table)
     {
-        // The Shitroid's shot handler reads damage from the selected physical projectile slot, but always reads aim coordinates from
-        // ordinary slot zero. For a bomb collision that means the bomb's damage controls recoil strength while
-        // whatever stale/live shot occupies slot zero controls direction. It never enters vulnerability damage.
+        // The Baby's shot handler reads damage from the projectile that hit it, but always aims its recoil from Samus's
+        // first shot (SamusProjectileSystem.FirstShot). For a bomb collision that means the bomb's damage controls
+        // recoil strength while whatever live or left-over shot is first controls direction. It never enters
+        // vulnerability damage.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                   c.SelectedShotAi == EnemyReaction.ShitroidShot,
-            c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.Slots[0]));
+            c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.FirstShot));
     }
 
     /// <summary>Ports Shitroid's initialization AI.</summary>
@@ -858,11 +855,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.ShitroidShot)
         {
             // Like Dead Torizo, Shitroid receives the projectile prelude but never creates an impact or
-            // enters vulnerability damage. Its own callback converts shot strength and slot-zero aim into recoil.
+            // enters vulnerability damage. Its own callback converts shot strength and the first shot's aim into recoil.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                ResolveShitroidShot(c.Enemy, c.Projectile.Damage, c.Projectiles.Slots[0]);
+                ResolveShitroidShot(c.Enemy, c.Projectile.Damage, c.Projectiles.FirstShot);
                 return true;
             },
         });

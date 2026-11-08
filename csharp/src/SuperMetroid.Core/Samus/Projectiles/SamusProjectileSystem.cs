@@ -126,6 +126,12 @@ public sealed class SamusProjectileSystem
     /// <summary>The shot slots by ordinal.</summary>
     public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable.Slots;
 
+    /// <summary>
+    /// Samus's first shot: the shot with the lowest ordinal, live or left over from an earlier shot. Some enemies aim
+    /// their reaction to any hit from where it is, not from the projectile that hit them.
+    /// </summary>
+    public SamusProjectileSlot FirstShot => SlotTable.Slots[0];
+
     /// <summary>The most recent charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep
     {

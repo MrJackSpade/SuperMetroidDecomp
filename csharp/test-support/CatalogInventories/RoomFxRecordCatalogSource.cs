@@ -189,7 +189,8 @@ internal static class RoomFxRecordCatalogSource
                     $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
                     $"{Member(record.DefaultLayerBlend)}, {Member(record.EffectLayerBlend)}, " +
                     $"{Flags(record.LiquidOptions)}, {Effects(record.PaletteEffects)}, " +
-                    $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)}),");
+                    $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)})" +
+                    (record.AnimatesVisor ? " { AnimatesVisor = true }," : ","));
             }
             source.AppendLine("    ]);");
         }

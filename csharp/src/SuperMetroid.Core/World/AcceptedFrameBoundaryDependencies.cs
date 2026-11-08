@@ -53,9 +53,6 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Suit pickup.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 
-    /// <summary>The session's room fixed colour, which the frame's blends use.</summary>
-    public required RoomFxSession RoomFx { get; init; }
-
 
 
     /// <summary>Xray.</summary>

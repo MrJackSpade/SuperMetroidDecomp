@@ -30,7 +30,7 @@ public static class GameplayDisplayCapture
         if (!doorOwnsDisplay && latched.Phantoon is { } phantoon)
             layers[0] = CapturePhantoonBlending(phantoon, basis);
         if (!doorOwnsDisplay && latched.Scene.FxType == RoomFxType.Fireflea)
-            layers[0] = CaptureFirefleaDarkness(latched.FixedColors.Shared, basis);
+            layers[0] = CaptureFirefleaDarkness(FirefleaTint(latched), basis);
         if (!doorOwnsDisplay)
         {
             // The rainbow beam's blend hides the effect overlay. Its fixed
@@ -172,23 +172,28 @@ public static class GameplayDisplayCapture
         if (beam is not { Active: true } active) return beam;
         return active with
         {
-            Color = frame.Latched.FixedColors.RainbowBeam
-                ?? throw new InvalidOperationException("An active rainbow beam has no latched fixed color."),
+            Color = frame.Latched.Tints.RainbowBeam
+                ?? throw new InvalidOperationException("An active rainbow beam has no latched colour."),
         };
     }
 
     /// <summary>The power bomb's live window inputs drawn in the colour the accepted frame latched.</summary>
     internal static PowerBombRenderSnapshot PowerBomb(GameplayDisplayFrame frame)
     {
-        return frame.FrameEnd.PowerBomb with { FixedColor = frame.Latched.FixedColors.PowerBomb };
+        return frame.FrameEnd.PowerBomb with { FixedColor = frame.Latched.Tints.PowerBomb };
     }
 
     /// <summary>The suit pickup's live light beam drawn in the colour the accepted frame latched, or null while inactive.</summary>
     internal static SamusSuitPickupFlash? SuitPickup(GameplayDisplayFrame frame)
     {
         if (frame.FrameEnd.SuitPickupBeam is not { } beam) return null;
-        return new(beam, frame.Latched.FixedColors.SuitPickup);
+        return new(beam, frame.Latched.Tints.SuitPickup);
     }
+
+    /// <summary>The shade Fireflea darkness latched for a frame whose room effect is Fireflea darkness.</summary>
+    /// <exception cref="InvalidOperationException">The frame latched no Fireflea shade.</exception>
+    private static RgbColor FirefleaTint(GameplayDisplayLatch latched) =>
+        latched.Tints.Fireflea ?? throw new InvalidOperationException("A Fireflea room's frame latched no Fireflea shade.");
 
     /// <summary>Adds signed quake displacement to a 16-bit layer scroll with sixteen-bit wrapping.</summary>
     private static int Add(int scroll, int shake) => CoordinateAxis.Wrap(scroll + shake);
@@ -309,13 +314,16 @@ public static class GameplayDisplayCapture
         // nothing.
         bool roomDarkens = scene.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
-        RgbColor fixedColor = latched.FixedColors.Shared;
-        int red = fixedColor.FadeLevels.Red, green = fixedColor.FadeLevels.Green, blue = fixedColor.FadeLevels.Blue;
-        if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
-            red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
-        // Phase five deletes the per-line effect object but its blend bits have already been
-        // published for this pass. Only its fixed color is cleared immediately.
-        if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) red = green = blue = 0;
+        // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
+        // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
+        int level = mode switch
+        {
+            XrayRoomBlendMode.RevealBlocks => XrayWindowRenderDefinitions.RevealTintLevel,
+            XrayRoomBlendMode.Fireflea => Math.Max(FirefleaTint(latched).FadeLevels.Red, XrayWindowRenderDefinitions.RevealTintLevel),
+            XrayRoomBlendMode.PreserveBackgrounds => 0,
+            _ => throw new InvalidOperationException($"Undefined X-ray room blend {mode}."),
+        };
+        if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) level = 0;
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
         FramePaint paint = settingUp ? basis.Paint
             : basis.Paint.WithBackdrop(restoring ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
@@ -329,7 +337,7 @@ public static class GameplayDisplayCapture
             Blended = XrayRoomDisplayRules.Blended(mode),
             Operation = XrayRoomDisplayRules.Operation(mode, roomDarkens),
             Halved = XrayRoomDisplayRules.Halves(mode) && overlayBehind is not null,
-            Colour = new FadeLevelColour(red, green, blue).ToColour(),
+            Colour = new FadeLevelColour(level, level, level).ToColour(),
         }, overlayBehind);
         return new(paint, new DisplayLayer[] { layer, Hud(latched) }, basis.Brightness);
     }

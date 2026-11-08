@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// palette-handler calls and the visor shade shown next.
 /// </summary>
 /// <remarks>
-/// This is intentionally not a generic color tween. In rooms whose default layer-blending configuration animates
-/// the visor, the routine rotates only Samus's visor colour through the last three of the six visor shades. The
+/// This is intentionally not a generic color tween. In rooms whose FX record states that the room animates the visor
+/// (<see cref="RoomFxRecordDefinition.AnimatesVisor"/>), the routine rotates only Samus's visor colour through the last three of the six visor shades. The
 /// countdown and the shade are only ever set by this type: the reset installs countdown one at the cycle's first shade,
 /// and every expiry reloads the countdown to the frame delay and moves through the cycle's three shades. The countdown
 /// therefore holds one through the frame delay between calls and never decrements from zero, which is why the
@@ -35,10 +35,13 @@ public sealed class SamusVisorPaletteState
     /// <summary>
     /// Advances one palette-handler call and optionally shows the next shade as Samus's visor colour.
     /// </summary>
+    /// <param name="colours">Samus's shown colours.</param>
+    /// <param name="specialSamusPaletteType">The special palette that owns Samus's colours, if any.</param>
+    /// <param name="roomAnimatesVisor">Whether the room animates the visor (<see cref="RoomFxOverlayState.AnimatesVisor"/>).</param>
     public SamusVisorPaletteStepResult Update(
         SamusColours colours,
         SamusSpecialPaletteType specialSamusPaletteType,
-        LayerBlendingConfiguration layerBlendingDefaultConfig)
+        bool roomAnimatesVisor)
     {
         Ensure.NotNull(colours);
 
@@ -50,9 +53,9 @@ public sealed class SamusVisorPaletteState
         }
 
         // Every other room resets the animation on every call. Besides disabling the animation,
-        // this primes an immediate color write on the first call after entering a backdrop-
-        // blending room: countdown one expires before the shade is consulted.
-        if (!layerBlendingDefaultConfig.AnimatesVisor())
+        // this primes an immediate color write on the first call after entering a room that
+        // animates the visor: countdown one expires before the shade is consulted.
+        if (!roomAnimatesVisor)
         {
             Timer = ResetTimer;
             NextShade = SamusPaletteDefinitions.Visor.CycleFirstShade;

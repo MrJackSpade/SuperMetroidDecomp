@@ -562,11 +562,6 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(SamusBeamCombination.Plasma, SamusBeamCombinations.Of(SamusBeamFlags.Charge | SamusBeamFlags.Plasma),
         "equipped beams select their combination, ignoring Charge");
 
-    AssertTrue(LayerBlendingConfiguration.VisorBackdrop2A.AnimatesVisor(),
-        "layer blending enum selects visor backdrop handler");
-    AssertTrue(!((LayerBlendingConfiguration)0x1234).AnimatesVisor(),
-        "unnamed layer blending value stays outside typed handler");
-
     AreaId[] retailAreas =
     [
         AreaId.Crateria,

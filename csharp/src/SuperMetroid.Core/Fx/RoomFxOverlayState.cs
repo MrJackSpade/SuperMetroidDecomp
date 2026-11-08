@@ -22,14 +22,23 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
 
-    /// <summary>The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</summary>
+    /// <summary>The Fireflea state, which outlives each room.</summary>
     private readonly RoomFxSession _session;
 
     /// <summary>The Fireflea FX state. It lives for the session, so a room load does not reset it.</summary>
     public FirefleaFxState Fireflea => _session.Fireflea;
 
-    /// <summary>The room's fixed colour. It is session-lived, so it keeps the last writer's colour across rooms.</summary>
-    public RoomFixedColor FixedColors => _session.FixedColors;
+    /// <summary>
+    /// The shade Fireflea darkness subtracts from this room (<see cref="FirefleaFxState.Tint"/>), or null when the room's
+    /// effect is not Fireflea darkness. No other room shows it.
+    /// </summary>
+    public RgbColor? FirefleaTint => Type == RoomFxType.Fireflea ? Fireflea.Tint : null;
+
+    /// <summary>
+    /// Whether the room's last applied FX record animates Samus's visor (<see cref="RoomFxRecordDefinition.AnimatesVisor"/>):
+    /// selected when the room loads, cleared for a room with no record, and replaced when a fight applies another record.
+    /// </summary>
+    public bool AnimatesVisor { get; private set; }
 
     /// <summary>The effect whose authored page the room's effect overlay plane shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? EffectPageType { get; private set; }
@@ -175,7 +184,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public RoomFxEarthquakeRequest? EarthquakeRequest { get; private set; }
 
     /// <summary>Builds one room's effect-overlay FX from the current door's FX record.</summary>
-    /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
+    /// <param name="session">The Fireflea state, which outlives each room.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>
@@ -189,7 +198,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         ForRecord(session, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its record directly.</summary>
-    /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
+    /// <param name="session">The Fireflea state, which outlives each room.</param>
     /// <param name="source">The FX record's source.</param>
     internal static RoomFxOverlayState ForRecord(RoomFxSession session, RoomFxLoadSource source)
     {
@@ -218,6 +227,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         Type = definition.Type;
         LayerBlendConfiguration = definition.EffectLayerBlend;
+        AnimatesVisor = definition.AnimatesVisor;
         animatedTiles.Load(Type);
         PaletteBlend = definition.PaletteBlend;
 
@@ -332,7 +342,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (Type == RoomFxType.Fireflea)
         {
             LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
-            Fireflea.Step(FixedColors, frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
+            Fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
             return;
         }
         if (!IsRenderable || frame.TimeIsFrozen)
@@ -449,6 +459,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
         LayerBlendConfiguration = definition.EffectLayerBlend;
+        AnimatesVisor = definition.AnimatesVisor;
         PaletteBlend = definition.PaletteBlend;
         return definition.DefaultLayerBlend;
     }
@@ -759,7 +770,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>Creates one room's effect state, with no FX record selected, over the session's carried state.</summary>
-    /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
+    /// <param name="session">The Fireflea state, which outlives each room.</param>
     public RoomFxOverlayState(RoomFxSession session)
     {
         _session = Ensure.NotNull(session);

@@ -194,11 +194,13 @@ public sealed class SamusProjectileSystem
     /// handlers afterward unless glow expiry returns the normal-suit restoration action.
     /// That action models the restore branch, bypassing special handlers for one frame.
     /// </remarks>
+    /// <param name="colours">Samus's shown colours.</param>
+    /// <param name="samus">Samus.</param>
+    /// <param name="roomAnimatesVisor">Whether the room animates Samus's visor (<see cref="RoomFxOverlayState.AnimatesVisor"/>).</param>
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
         SamusColours colours,
         SamusState samus,
-        LayerBlendingConfiguration layerBlendingDefaultConfig =
-            LayerBlendingConfiguration.NormalGameplay)
+        bool roomAnimatesVisor = false)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
@@ -239,7 +241,7 @@ public sealed class SamusProjectileSystem
             LastVisorPaletteStep = samus.VisorPalette.Update(
                 colours,
                 samus.Xray.SpecialPaletteKind,
-                layerBlendingDefaultConfig);
+                roomAnimatesVisor);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.Inactive);
             return LastBeamChargePaletteStep;

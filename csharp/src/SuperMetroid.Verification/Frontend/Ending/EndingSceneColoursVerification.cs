@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>
 /// Checks that each ending scene shows its own colours (#1544): a scene's whole screen of colours starts it, so nothing an
 /// earlier scene showed shows in it, while the scene's own loads, fades and effects stay; cleared palette effects stop
-/// showing their records.
+/// showing their records; each actor shows only the effects authored for it.
 /// </summary>
 internal static class EndingSceneColoursVerification
 {
@@ -47,7 +47,28 @@ internal static class EndingSceneColoursVerification
         colours.Load(EndingColourLoad.PostCredits, black);
         AssertTrue(colours.Shading.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.PostCredits)]),
             "the post-credits scenes keep nothing of the scenes before them");
-        Console.WriteLine("  Ending scene colours: each scene shows its own colours, loads and effects within a scene, cleared effects end.");
+
+        // Each actor shows only the colour effects authored for it (#1544): the animals' escape pod, which once shared the
+        // planet's colour group, shows none of the planet's fade, glow or fade-out, and no actor shows the gunship's record.
+        var actors = new EndingColours();
+        actors.Load(EndingColourLoad.Explosion, explosion);
+        actors.Fade(EndingFade.ExplodingPlanet, 5);
+        actors.Flash(EndingFlash.PlanetGlow, null);
+        PictureShade planetFadeOut = PaletteFxShades.Of(PaletteFxColours.ZoomedOutExplodingZebes, new PaletteFxFrame(0));
+        actors.PaletteFx(PaletteFxColours.ZoomedOutExplodingZebes, new PaletteFxFrame(0), null);
+        actors.PaletteFx(PaletteFxColours.GunshipEmergingFromExplosion, new PaletteFxFrame(0), null);
+        PictureShade pod = EndingShades.Drawn(EndingSpriteColouring.AnimalEscape);
+        PictureShade planet = EndingShades.Drawn(EndingSpriteColouring.ExplodingPlanet);
+        PictureShade explosionColours = EndingShades.Loaded(EndingColourLoad.Explosion);
+        AssertTrue(actors.Drawn(pod).Shades.SequenceEqual([pod, EndingShades.Under(pod, explosionColours)]),
+            "the escape pod shows its scene's colours and none of the planet's effects");
+        AssertTrue(actors.Drawn(planet).Shades.SequenceEqual([planet, EndingShades.Under(planet, explosionColours),
+                EndingShades.Under(planet, EndingShades.Faded(EndingFade.ExplodingPlanet, 5)),
+                EndingShades.Under(planet, EndingShades.Flashed(EndingFlash.PlanetGlow)), EndingShades.Under(planet, planetFadeOut)]),
+            "the planet shows its fade, its glow's flash and its fade-out, in the order shown");
+        AssertTrue(actors.Shading.Shades.Contains(gunshipRecord), "the backgrounds still show the gunship's record");
+        Console.WriteLine("  Ending scene colours: each scene shows its own colours, loads and effects within a scene, cleared effects end, "
+            + "each actor shows only its own effects.");
     }
 
     /// <summary>Runs the ending scene colour checks.</summary>

@@ -98,7 +98,6 @@ internal static class EndingScreenInks
         [PaletteFxColours.GunshipEmergingFromExplosion] = new(5 * GroupColours, 6 * GroupColours),
         [PaletteFxColours.ZebesPlanetAfterglow] = new(SpriteFirst + 6 * GroupColours + 1, SpriteFirst + 7 * GroupColours),
         [PaletteFxColours.ZoomedOutExplodingZebes] = new(SpriteFirst + 7 * GroupColours, ScreenColourCount),
-        [PaletteFxColours.GunshipGlow] = new(ScreenColourCount - 1, ScreenColourCount),
         [PaletteFxColours.PostCreditsSuperMetroidIcon] = new(SpriteFirst + 7 * GroupColours, ScreenColourCount),
     };
 

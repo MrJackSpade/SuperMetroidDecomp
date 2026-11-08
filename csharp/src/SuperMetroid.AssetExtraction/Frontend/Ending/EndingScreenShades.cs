@@ -14,8 +14,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The shades the import pre-colours the ending's sheets in (#1512), over the screen's colours: each colour load, each fade
 /// level of each faded group, each flash, each logo crossfade step and each palette-effect record the ending's objects show.
 /// Each ending sheet takes the part of each that falls on its inks: a picture its background colours, a floor all of them,
-/// and a sprite sheet its own-palette parts' sprite colours and, under each actor colouring, its colouring's group over the
-/// palette-inheriting parts' inks.
+/// and a sprite sheet, under each actor colouring and only for the effects authored for its actors (#1544), its colouring's
+/// group over the palette-inheriting parts' inks and its own-palette parts' groups over their own inks.
 /// </summary>
 internal static class EndingScreenShades
 {
@@ -88,20 +88,26 @@ internal static class EndingScreenShades
         [.. Ensure.NotNull(screen).Select(shade => Within(shade, 0, EndingScreenInks.SpriteFirst, 0))];
 
     /// <summary>
-    /// A sprite sheet's shades from <paramref name="screen"/> (#1513): each colouring's drawn shade, its own sprite set's
-    /// colours over every set its frames are pictured in, as <paramref name="pictures"/> records them; the part of each
-    /// screen shade on the sprite colours, except the sets some colouring's shade shows in another set's colours; and under
-    /// each colouring, the part of each screen shade on its set, over every set its frames are pictured in.
+    /// A sprite sheet's shades from <paramref name="screen"/> (#1513, #1544): each colouring's drawn shade, its own sprite
+    /// set's colours over every set its frames are pictured in, as <paramref name="pictures"/> records them; and under each
+    /// colouring, each screen shade authored for its actors (<see cref="EndingColourOwners"/>): the part on the colouring's
+    /// set over every set its frames are pictured in, and the part on each set its frames' own-palette parts keep, as
+    /// <paramref name="ownSets"/> gives them. No actor's pictures are pre-coloured in a shade authored for another.
     /// </summary>
     /// <param name="screen">The ending's screen shades.</param>
     /// <param name="sprites">The sheet's sprite colours.</param>
     /// <param name="pictures">The sets each colouring's frames are pictured in.</param>
+    /// <param name="ownSets">The sets the own-palette parts of each colouring's frames keep.</param>
+    /// <exception cref="InvalidDataException">
+    /// A screen shade is of no colour effect the ending shows, or two parts of one shade give one ink different colours.
+    /// </exception>
     internal static IReadOnlyList<SheetShade> Sprites(IReadOnlyList<SheetShade> screen, IReadOnlyList<RgbColor> sprites,
-        ColouringPictures<EndingSpriteColouring> pictures)
+        ColouringPictures<EndingSpriteColouring> pictures, Func<EndingSpriteColouring, SortedSet<int>> ownSets)
     {
         Ensure.NotNull(screen);
         Ensure.NotNull(sprites);
         Ensure.NotNull(pictures);
+        Ensure.NotNull(ownSets);
         var shades = new List<SheetShade>();
         EndingSpriteColouring[] colourings = Enum.GetValues<EndingSpriteColouring>();
         foreach (EndingSpriteColouring colouring in colourings)
@@ -112,25 +118,39 @@ internal static class EndingScreenShades
         }
         foreach (SheetShade shade in screen)
         {
-            shades.Add(Outside(Within(shade, EndingScreenInks.SpriteFirst, EndingScreenInks.ScreenColourCount, -EndingScreenInks.SpriteFirst),
-                pictures.Remapped));
             foreach (EndingSpriteColouring colouring in colourings)
             {
+                if (!EndingColourOwners.Shows(colouring, shade.Shade))
+                    continue;
                 int first = EndingScreenInks.SpriteFirst + EndingScreenInks.SpriteSet(colouring) * EndingScreenInks.GroupColours;
-                SheetShade[] parts = [.. pictures.SetsOf(colouring).Select(pictured =>
-                    Within(shade, first, first + EndingScreenInks.GroupColours, pictured * EndingScreenInks.GroupColours - first))];
-                shades.Add(new SheetShade(EndingShades.Under(EndingShades.Drawn(colouring), shade.Shade),
-                    [.. parts.SelectMany(part => part.Inks)], [.. parts.SelectMany(part => part.Colours)]));
+                IEnumerable<SheetShade> inherited = pictures.SetsOf(colouring).Select(pictured =>
+                    Within(shade, first, first + EndingScreenInks.GroupColours, pictured * EndingScreenInks.GroupColours - first));
+                IEnumerable<SheetShade> own = ownSets(colouring).Select(kept =>
+                {
+                    int keptFirst = EndingScreenInks.SpriteFirst + kept * EndingScreenInks.GroupColours;
+                    return Within(shade, keptFirst, keptFirst + EndingScreenInks.GroupColours, -EndingScreenInks.SpriteFirst);
+                });
+                shades.Add(Merged(EndingShades.Under(EndingShades.Drawn(colouring), shade.Shade), [.. inherited, .. own]));
             }
         }
         return shades;
     }
 
-    /// <summary><paramref name="shade"/> without the inks of the sprite sets <paramref name="sets"/> holds.</summary>
-    private static SheetShade Outside(SheetShade shade, SortedSet<int> sets)
+    /// <summary>The shade <paramref name="shade"/> recolouring every ink of <paramref name="parts"/>, each once, in rising order.</summary>
+    /// <exception cref="InvalidDataException">Two parts give one ink different colours.</exception>
+    private static SheetShade Merged(PictureShade shade, SheetShade[] parts)
     {
-        int[] kept = [.. Enumerable.Range(0, shade.Inks.Length).Where(index => !sets.Contains(shade.Inks[index] / EndingScreenInks.GroupColours))];
-        return new SheetShade(shade.Shade, [.. kept.Select(index => shade.Inks[index])], [.. kept.Select(index => shade.Colours[index])]);
+        var colours = new SortedDictionary<int, RgbColor>();
+        foreach (SheetShade part in parts)
+        {
+            for (int index = 0; index < part.Inks.Length; index++)
+            {
+                if (colours.TryGetValue(part.Inks[index], out RgbColor earlier) && earlier != part.Colours[index])
+                    throw new InvalidDataException($"Shade {shade.Key} gives ink {part.Inks[index]} two colours.");
+                colours[part.Inks[index]] = part.Colours[index];
+            }
+        }
+        return new SheetShade(shade, [.. colours.Keys], [.. colours.Values]);
     }
 
     /// <summary>The colour each flash shows.</summary>

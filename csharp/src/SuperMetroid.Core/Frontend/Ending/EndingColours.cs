@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// flash, logo crossfade step and palette-effect record the scene has shown since, in the order shown. A scene's colours
 /// are its own: a scene starts in its whole screen of colours, and nothing an earlier scene showed shows in it; a palette
 /// effect's records stop showing when the effects are cleared. Every picture and floor the ending draws is shaded in
-/// them; an actor's palette-inheriting parts in each of them under its colouring. Which colours each covers is the import's.
+/// them; an actor's pictures only in those authored for it (#1544), under its colouring. Which colours each covers is the
+/// import's.
 /// </summary>
 internal sealed class EndingColours
 {
@@ -76,20 +77,23 @@ internal sealed class EndingColours
     internal PictureShading Shading => new([.. shown], []);
 
     /// <summary>
-    /// The shading an actor's frame shows when its palette-inheriting parts draw in the colouring whose drawn shade is
-    /// <paramref name="drawn"/>: that shade, then each shade shown, over the frame's own-palette parts and under the
-    /// colouring over its inheriting parts, in order.
+    /// The shading an actor's frame shows when it draws in the colouring whose drawn shade is <paramref name="drawn"/>
+    /// (#1544): that shade, then each shade shown that is authored for that colouring's actors
+    /// (<see cref="EndingColourOwners"/>), under the colouring, in order. A shade authored for another actor is not shown on
+    /// the frame, even where the two once shared a colour group.
     /// </summary>
+    /// <exception cref="InvalidDataException">The shade is no ending actor colouring's drawn shade, or a shade shown is of no colour effect the ending shows.</exception>
     internal PictureShading Drawn(PictureShade drawn)
     {
-        ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>(1 + 2 * shown.Count);
+        EndingSpriteColouring colouring = EndingColourOwners.ColouringOf(drawn);
+        ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>(1 + shown.Count);
         shades.Add(drawn);
         foreach (PictureShade screen in shown)
         {
-            shades.Add(screen);
-            shades.Add(EndingShades.Under(drawn, screen));
+            if (EndingColourOwners.Shows(colouring, screen))
+                shades.Add(EndingShades.Under(drawn, screen));
         }
-        return new PictureShading(shades.MoveToImmutable(), []);
+        return new PictureShading(shades.ToImmutable(), []);
     }
 
     /// <summary>Whether <paramref name="load"/> is a scene's whole screen of colours, which starts that scene.</summary>

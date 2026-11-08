@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
 /// The shades the import pre-colours the ending's sheets in (#1512): each colour load, each level of each faded group,
-/// each flash and each logo crossfade step, over every ending picture and floor, and each of those under each colouring
-/// an actor draws in, over its palette-inheriting parts. Which inks each recolours, and to what, is the import's.
+/// each flash and each logo crossfade step, over every ending picture and floor, and each of those authored for an actor
+/// (#1544) under the colouring it draws in, over its pictures. Which inks each recolours, and to what, is the import's.
 /// </summary>
 public static class EndingShades
 {
@@ -31,8 +31,9 @@ public static class EndingShades
     public static PictureShade Drawn(EndingSpriteColouring colouring) => new($"EndingDrawn{colouring}", 0);
 
     /// <summary>
-    /// What a screen shade <paramref name="shown"/> gives the palette-inheriting parts of an actor drawn in
-    /// <paramref name="drawn"/>: the colours it shows in that colouring's colours, over the parts' inks.
+    /// What a screen shade <paramref name="shown"/> authored for the actors drawn in <paramref name="drawn"/> gives their
+    /// pictures (#1544): the colours it shows in that colouring's colours over their palette-inheriting parts' inks, and
+    /// over their own-palette parts' inks in those parts' own colours.
     /// </summary>
     public static PictureShade Under(PictureShade drawn, PictureShade shown) => new($"{drawn.Effect}.{shown.Effect}", shown.Step);
 }

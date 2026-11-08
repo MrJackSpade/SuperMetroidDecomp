@@ -5,8 +5,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>
 /// Where a sheet pictures the frames each colouring draws (#1513): every frame is pictured once, its palette-inheriting
 /// parts in the sprite set of its standard colouring, so each colouring's drawn shade shows the colouring's colours over
-/// the inks of every set its frames are pictured in. A set some colouring's shade shows in another set's colours is
-/// remapped; no frame drawn in that colouring may keep its own colours in that set.
+/// the inks of every set its frames are pictured in. No frame drawn in a colouring may keep its own colours in a set that
+/// colouring's drawn shade recolours.
 /// </summary>
 /// <typeparam name="TColouring">The screen's colouring domain.</typeparam>
 internal sealed class ColouringPictures<TColouring>
@@ -15,15 +15,8 @@ internal sealed class ColouringPictures<TColouring>
     /// <summary>The sets each colouring's frames are pictured in.</summary>
     private readonly Dictionary<TColouring, SortedSet<int>> pictured;
 
-    /// <summary>Keeps the sets each colouring's frames are pictured in, and the sets some colouring remaps.</summary>
-    private ColouringPictures(Dictionary<TColouring, SortedSet<int>> pictured, SortedSet<int> remapped)
-    {
-        this.pictured = pictured;
-        Remapped = remapped;
-    }
-
-    /// <summary>The sets some colouring's drawn shade shows in another set's colours.</summary>
-    internal SortedSet<int> Remapped { get; }
+    /// <summary>Keeps the sets each colouring's frames are pictured in.</summary>
+    private ColouringPictures(Dictionary<TColouring, SortedSet<int>> pictured) => this.pictured = pictured;
 
     /// <summary>The sets the frames drawn in <paramref name="colouring"/> are pictured in, in rising order; none when no frame is.</summary>
     internal SortedSet<int> SetsOf(TColouring colouring) => pictured.TryGetValue(colouring, out SortedSet<int>? sets) ? sets : [];
@@ -41,7 +34,6 @@ internal sealed class ColouringPictures<TColouring>
         Ensure.NotNull(frames);
         Ensure.NotNull(setOf);
         var pictured = new Dictionary<TColouring, SortedSet<int>>();
-        var remapped = new SortedSet<int>();
         foreach (ColouredFrame<TColouring> frame in frames)
         {
             int set = setOf(frame.Colourings[0]);
@@ -55,8 +47,6 @@ internal sealed class ColouringPictures<TColouring>
                     pictured.Add(colouring, sets);
                 }
                 sets.Add(set);
-                if (setOf(colouring) != set)
-                    remapped.Add(set);
             }
         }
         foreach (ColouredFrame<TColouring> frame in frames)
@@ -73,6 +63,6 @@ internal sealed class ColouringPictures<TColouring>
                 }
             }
         }
-        return new ColouringPictures<TColouring>(pictured, remapped);
+        return new ColouringPictures<TColouring>(pictured);
     }
 }

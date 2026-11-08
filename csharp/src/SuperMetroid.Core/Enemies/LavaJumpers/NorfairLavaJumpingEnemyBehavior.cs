@@ -116,8 +116,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             case NorfairLavaJumpingEnemyFunction.FallBackIntoLava:
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
 
-                // The low screen-row nibble is the retail lava-entry sentinel. Once the
-                // actor reaches a screen's last block row it snaps to its exact population origin, restores
+                // Reaching a screen's last block row is how the jumper knows it is back in the lava. Once the
+                // actor reaches that row it snaps to its exact population origin, restores
                 // the hidden list, and sleeps off-screen until the next jump begins.
                 if (RoomGridConversions.BlockRowWithinScreen(slot.Position.Y.Whole) == 15)
                 {

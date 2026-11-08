@@ -355,7 +355,7 @@ internal sealed class EyeDoorBehavior
         shot.Heading = new ByteAngle(EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).RawValue);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.AddTableUnits(-64))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.AddTableUnits(-EnemyByteAngleDefinitions.QuarterTurn))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>

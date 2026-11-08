@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <summary>Chooses a Norfair Rio's downward launch.</summary>
 public static class RioLaunches
 {
-    /// <summary>RNG bit two selects one of two adjacent downward velocities.</summary>
+    /// <summary>The fast or slow downward launch <paramref name="random"/> picks.</summary>
     public static int NorfairYVelocity(int random) =>
-        (random & 4) == 0 ? RioLaunchDefinitions.NorfairFastYVelocity : RioLaunchDefinitions.NorfairSlowYVelocity;
+        RioLaunchDefinitions.SlowLaunchBit.IsSetIn(random) ? RioLaunchDefinitions.NorfairSlowYVelocity : RioLaunchDefinitions.NorfairFastYVelocity;
 }

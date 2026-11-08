@@ -223,8 +223,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.Extension = SignedSixteenSixteen.Zero;
-        state.QuadraticSpeedRecord = 0;
-        state.QuadraticSpeedNegative = false;
+        state.QuadraticSpeedRow = 0;
+        state.QuadraticSpeedSign = EnemySpeedSign.Positive;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTableAngle().ToAngle();
         state.MirroredBend = state.CurlAngle.TableIndex >= RotationAngle.HalfTurn.TableIndex;
@@ -302,11 +302,17 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.Extension.WholePixels >= YappingMawMaximumCurl)
             {
                 state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawMaximumCurl), 0);
-                // The turn-around adds four bytes after the ordinary eight-byte record advance: the same record's
-                // negative half, or the next record's positive half from a negative one.
-                if (state.QuadraticSpeedNegative)
-                    state.QuadraticSpeedRecord++;
-                state.QuadraticSpeedNegative = !state.QuadraticSpeedNegative;
+                // The turn-around steps half a row further than the update's own advance: from a positive speed to
+                // the same row's negative speed, or from a negative speed on to the next row's positive one.
+                if (state.QuadraticSpeedSign == EnemySpeedSign.Negative)
+                {
+                    state.QuadraticSpeedRow++;
+                    state.QuadraticSpeedSign = EnemySpeedSign.Positive;
+                }
+                else
+                {
+                    state.QuadraticSpeedSign = EnemySpeedSign.Negative;
+                }
             }
 
             if (state.HasGrabbedSamus)
@@ -317,9 +323,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.RetractedDelay;
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
 
-        // The six retracted lists are not an eight-way table. Straight-ish sectors share a
-        // list, while the vertical sectors at byte offsets four and twelve have dedicated
-        // art. Preserve parameter-zero's early-return quirk: on its shared-list branches it
+        // The six retracted lists are not one per aim. The right and left sectors have
+        // dedicated art, while every other sector shares its attack direction's list. Preserve parameter-zero's early-return quirk: on its shared-list branches it
         // skips the final held-Samus placement on this one transition frame.
         bool skipHeldPlacement = false;
         if (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Up)
@@ -364,8 +369,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.QuadraticSpeedRecord)).Toward(state.QuadraticSpeedNegative ? EnemySpeedSign.Negative : EnemySpeedSign.Positive));
-        state.QuadraticSpeedRecord++;
+        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.QuadraticSpeedRow)).Toward(state.QuadraticSpeedSign));
+        state.QuadraticSpeedRow++;
     }
 
     /// <summary>Waits after retraction, including decrement-underflow expiration on frame 65.</summary>

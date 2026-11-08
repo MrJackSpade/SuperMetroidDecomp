@@ -70,11 +70,17 @@ public sealed class YappingMawEnemyState
     /// </summary>
     public SignedSixteenSixteen Extension { get; internal set; }
 
-    /// <summary>Record index into the quadratically increasing common enemy speeds (variable D holds the byte offset).</summary>
-    public int QuadraticSpeedRecord { get; internal set; }
+    /// <summary>
+    /// The row of the quadratically increasing common enemy speeds the next curl update adds: each update moves one
+    /// row on, so the curl accelerates out and, after the turn-around, back.
+    /// </summary>
+    public int QuadraticSpeedRow { get; internal set; }
 
-    /// <summary>Whether the negative half of the record is read (variable D's extra four bytes at the turn-around clamp).</summary>
-    public bool QuadraticSpeedNegative { get; internal set; }
+    /// <summary>
+    /// Which of the row's two speeds the curl adds: the positive one while the tongue extends, the negative one after
+    /// the turn-around clamp.
+    /// </summary>
+    internal EnemySpeedSign QuadraticSpeedSign { get; set; }
 
     /// <summary>Variable E: 64-frame hold after the tongue fully retracts.</summary>
     public int RetractedDelayTimer { get; internal set; }

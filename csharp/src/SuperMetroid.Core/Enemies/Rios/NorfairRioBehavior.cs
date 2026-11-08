@@ -109,8 +109,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                // (random >> 1) & 2 selects one of two adjacent signed 8.8 Y speeds; that
-                // expression is already the byte offset into the word table.
+                // The same random number picks the dive's fast or slow downward launch.
                 state.Velocity = new EightEightVector<RoomPixels>(
                     new SignedEightEight(RioLaunchDefinitions.NorfairXVelocity),
                     new SignedEightEight(RioLaunches.NorfairYVelocity(random)));

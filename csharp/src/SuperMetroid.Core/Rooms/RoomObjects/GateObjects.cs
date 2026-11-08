@@ -167,7 +167,7 @@ internal sealed class GateObjects : IRoomObjectFamilySource
             DownwardGateProjectileOperation.Spawn, DownwardGateProjectileKind.Moving, slot.BlockIndex));
 
     /// <summary>
-    /// Wakes the gate projectile whose variable E holds this PLM's block, so it slides back up.
+    /// Wakes the gate projectile spawned for this gate's cell, so it slides back up.
     /// </summary>
     internal void WakeGateProjectile(RoomObjectSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(

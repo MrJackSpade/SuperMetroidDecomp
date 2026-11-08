@@ -24,10 +24,6 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Quarter-turn sine-table offset used for the horizontal cosine magnitude.</summary>
-    private const int MultiviolaCosineOffset = 64;
-    /// <summary>Half-turn sine-table offset used for the vertical magnitude.</summary>
-    private const int MultiviolaSineOffset = 128;
     /// <summary>Angle bits toggled after collision with a vertical surface.</summary>
     private const int MultiviolaHorizontalReflection = 64;
     /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
@@ -67,7 +63,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         // direction vector that can simply be negated after collision.
         CalculateMultiviolaVelocityMagnitudes(state);
 
-        if (!HeadingAngle(state).AddTableUnits(MultiviolaCosineOffset).IsInSecondHalf)
+        // The products are magnitudes; the signs of the heading's cosine and sine give each axis its direction.
+        if (!EnemyMath.CosineIsNegative(state.Heading))
         {
             NegateWithoutFractionCarry(ref state, axis: Axis.Horizontal);
         }
@@ -85,16 +82,13 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!HeadingAngle(state).AddTableUnits(MultiviolaSineOffset).IsInSecondHalf)
+        if (!EnemyMath.SineIsNegative(state.Heading))
             NegateWithoutFractionCarry(ref state, axis: Axis.Vertical);
 
         int verticalDisplacement = state.Velocity.Y.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
             state.Heading = Reflected(state.Heading, MultiviolaVerticalReflection);
     }
-
-    /// <summary>The heading the sign tests and sine products read.</summary>
-    private static ByteAngle HeadingAngle(MultiviolaEnemyState state) => state.Heading;
 
     /// <summary>The heading with the reflection's angle bits toggled.</summary>
     private static ByteAngle Reflected(ByteAngle heading, int reflection) => new(heading.RawValue ^ reflection);
@@ -105,14 +99,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
     {
         int magnitude = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Speed);
-        int xProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            state.Heading,
-            magnitude,
-            MultiviolaCosineOffset);
-        int yProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            state.Heading,
-            magnitude,
-            MultiviolaSineOffset);
+        int xProduct = EnemyMath.ReadAbsoluteCosineProduct(state.Heading, magnitude);
+        int yProduct = EnemyMath.ReadAbsoluteSineProduct(state.Heading, magnitude);
         state.Velocity = new FixedVector<RoomPixels>(
             SignedSixteenSixteen.FromRaw(xProduct), SignedSixteenSixteen.FromRaw(yProduct));
     }

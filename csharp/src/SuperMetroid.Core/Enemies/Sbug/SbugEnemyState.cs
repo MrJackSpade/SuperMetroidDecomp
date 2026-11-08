@@ -69,14 +69,14 @@ public sealed class SbugEnemyState
     /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
     public SignedSixteenSixteen CustomYVelocity { get; internal set; }
 
-    /// <summary>Spawn-computed facing, 0 through 7 counter-clockwise from right, for the spawn heading; selects the forward loop.</summary>
-    public int ForwardFacing { get; internal set; }
-    /// <summary>Spawn-computed facing, 0 through 7, for the spawn heading less an eighth of a turn; used by the left zigzag leg.</summary>
-    public int LeftFacing { get; internal set; }
-    /// <summary>Spawn-computed facing, 0 through 7, for the spawn heading plus an eighth of a turn; used by the right zigzag leg.</summary>
-    public int RightFacing { get; internal set; }
-    /// <summary>Facing, 0 through 7, for the custom heading; a reversal folds it into the first four facings as the game does.</summary>
-    public int CustomFacing { get; internal set; }
+    /// <summary>Spawn-computed facing for the spawn heading; selects the forward loop.</summary>
+    public SbugFacing ForwardFacing { get; internal set; }
+    /// <summary>Spawn-computed facing for the spawn heading less an eighth of a turn; used by the left zigzag leg.</summary>
+    public SbugFacing LeftFacing { get; internal set; }
+    /// <summary>Spawn-computed facing for the spawn heading plus an eighth of a turn; used by the right zigzag leg.</summary>
+    public SbugFacing RightFacing { get; internal set; }
+    /// <summary>Facing for the custom heading; a reversal folds it into the four facings from right to up-left, as the game does.</summary>
+    public SbugFacing CustomFacing { get; internal set; }
 
     /// <summary>The loop most recently requested by direction-selection code.</summary>
     internal SbugProgram? RequestedProgram { get; set; }

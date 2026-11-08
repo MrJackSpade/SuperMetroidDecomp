@@ -251,8 +251,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (EtecoonIsWithinY(slot, samus, EtecoonNearbyDistance) &&
                 EtecoonIsWithinX(slot, samus, EtecoonNearbyDistance))
             {
-                int direction = DetermineEtecoonDirectionToSamus(slot, samus);
-                if (direction < 5)
+                if (!SamusIsToEtecoonsLeft(slot, samus))
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookRightAtSamusAndRunLeft);
                     state.Head(side: HorizontalDirection.Left);
@@ -723,20 +722,19 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int distance) =>
         CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole) < distance;
 
-    /// <summary>Ports <c>DetermineDirectionOfSamusFromEnemy</c> for the facing branch.</summary>
-    private static int DetermineEtecoonDirectionToSamus(
+    /// <summary>
+    /// Whether the eight-way direction from the Etecoon to Samus points left: straight left, up-left or down-left.
+    /// Samus is straight left or right while she is within <see cref="EtecoonDirectionBand"/> vertically, and
+    /// otherwise straight above or below, which is not left, while she is within it horizontally.
+    /// </summary>
+    private static bool SamusIsToEtecoonsLeft(
         RoomEnemySlot slot,
         SamusState samus)
     {
         int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
         int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole);
-        if (Math.Abs(deltaY) < EtecoonDirectionBand)
-            return deltaX < 0 ? 7 : 2;
-        if (Math.Abs(deltaX) < EtecoonDirectionBand)
-            return deltaY < 0 ? 0 : 4;
-        if (deltaX < 0)
-            return deltaY < 0 ? 8 : 6;
-        return deltaY < 0 ? 1 : 3;
+        bool straightAboveOrBelow = Math.Abs(deltaY) >= EtecoonDirectionBand && Math.Abs(deltaX) < EtecoonDirectionBand;
+        return deltaX < 0 && !straightAboveOrBelow;
     }
 
     /// <summary>Restarts an authored Etecoon animation at timer one.</summary>

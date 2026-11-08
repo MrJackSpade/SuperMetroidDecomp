@@ -91,17 +91,20 @@ internal static class IntroSpriteSheetComposer
     {
         Ensure.NotNull(intro);
         // The intro's actors draw in each colouring and cross-fade level as shades of the sheet (#1512).
-        RgbColor[] sprites = [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours];
+        RgbColor[] sprites = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.SpriteColours];
         return Compose(families, IntroObjectPage.Of(intro), (family, _) => IntroSheetInks.SpriteSet(IntroFamilyColourings.Of(family)),
             sprites, IntroSheetShades.Sprites(sprites));
     }
 
-    /// <summary>What the Ceres flight sheet of <paramref name="flight"/> composes: the poses its actors show, each in its colouring (#1513).</summary>
-    internal static SpriteSheetSources CeresFlightSources(CeresFlightArtwork flight)
+    /// <summary>
+    /// What the Ceres flight sheet of <paramref name="flight"/> composes: the poses its actors show, each in its colouring
+    /// (#1513), in the flight's colours <paramref name="colours"/>.
+    /// </summary>
+    internal static SpriteSheetSources CeresFlightSources(CeresFlightArtwork flight, CeresFlightPalette colours)
     {
         Ensure.NotNull(flight);
         CeresFlightCharacters characters = CeresFlightCharacters.Of(flight);
-        return CeresSources(FlightFamilies(flight), CeresSceneActors.Flight(), characters.ObjectPage, characters.Palette);
+        return CeresSources(FlightFamilies(flight), CeresSceneActors.Flight(), characters.ObjectPage, Ensure.NotNull(colours));
     }
 
     /// <summary>
@@ -129,7 +132,7 @@ internal static class IntroSpriteSheetComposer
         Dictionary<CinematicSpritePose, CeresSpriteColouring> colourings, byte[] characters)
     {
         SpriteArtwork page = CeresDestructionObjectPage.Of(characters);
-        return CeresSources(families, colourings, page, CeresFlightCharacters.Of(intro.CeresFlight).Palette);
+        return CeresSources(families, colourings, page, ImportIntroCinematicArtwork.Imported(intro).FlightPalette);
     }
 
     /// <summary>The frames the Ceres destruction scene's sheet holds: the poses its actors show before the reveal (#1513).</summary>

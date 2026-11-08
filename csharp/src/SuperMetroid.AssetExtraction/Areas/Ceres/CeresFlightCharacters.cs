@@ -1,5 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
@@ -9,35 +11,29 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
 /// The installed approach to Ceres as the import pipeline reads it (#1409): its Mode 7 floor characters as chunky 8-bit
-/// pixels and its OBJ characters as SNES 4-bpp planar bytes, which the flight sheets compose from, beside the maps, palette
-/// and compositions the game binds.
+/// pixels and its OBJ characters as SNES 4-bpp planar bytes, which the flight sheets compose from, beside the maps and
+/// compositions. Its colours are a palette document only the import reads (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>);
+/// the game keeps their backdrop, which the opening's backdrop document names (#1544).
 /// </summary>
 public sealed class CeresFlightCharacters : CeresFlightArtwork
 {
-    /// <summary>Retains compiled characters and selected palette, OAM, and actor resources.</summary>
+    /// <summary>Retains compiled characters and selected backdrop, OAM, and actor resources.</summary>
     /// <param name="floorCharacters">The chunky Mode 7 floor characters.</param>
     /// <param name="floorMaps">Front 768 map bytes followed by rear 768 map bytes.</param>
     /// <param name="objectCharacters">The planar 4-bpp OBJ characters.</param>
-    /// <param name="palette">The approach palette.</param>
+    /// <param name="backdrop">The colour the Ceres scenes show behind every layer.</param>
     /// <param name="sprites">The approach's OAM compositions.</param>
     /// <param name="actors">The rear-view actors' placements.</param>
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
-        byte[] objectCharacters, CeresFlightPalette palette,
+        byte[] objectCharacters, RgbColor backdrop,
         CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
-        : base(palette.Backdrop, actors)
+        : base(backdrop, actors)
     {
         FloorCharacters = floorCharacters;
         FloorMaps = floorMaps;
         ObjectCharacters = objectCharacters;
-        Palette = palette;
         Sprites = sprites;
     }
-
-    /// <summary>
-    /// The approach's selected 256 colours, separate from the PNGs' transport palettes, which the import pre-colours the
-    /// Ceres scenes' pictures and actors in (#1512).
-    /// </summary>
-    public CeresFlightPalette Palette { get; }
 
     /// <summary>Selected six-frame compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction scene's sheets.</summary>
     public CeresFlightSpritePresentation Sprites { get; }
@@ -55,22 +51,22 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.CeresFlightObjects),
         ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount]);
 
-    /// <summary>Identity of all selected approach maps, characters, colors, compositions and placements.</summary>
+    /// <summary>Identity of all selected approach maps, characters, backdrop, compositions and placements.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
     {
         content.Append("mode7-characters", FloorCharacters.Span);
         content.Append("mode7-maps", FloorMaps.Span);
         content.Append("object-characters", ObjectCharacters.Span);
-        content.Append("palette", ScreenColourImage.Words(Palette.BackgroundColours.AsSpan(), Palette.SpriteColours.AsSpan()));
+        content.AppendColors("backdrop", [Backdrop]);
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
         content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));
     });
 
-    /// <summary>Compiles the six selected Ceres approach resources into native character, map, palette, and actor presentation data.</summary>
+    /// <summary>Compiles the selected Ceres approach resources into native character, map, and actor presentation data.</summary>
     /// <param name="floorPng">128-by-128 indexed PNG with 256 palette entries, supplying 256 chunky 8-bpp characters.</param>
     /// <param name="mapJson">Version-one document containing both ordered 768-byte front/rear map slices.</param>
     /// <param name="objectPng">256-by-128 indexed PNG with sixteen palette entries, supplying 512 planar 4-bpp characters.</param>
-    /// <param name="palette">The approach's 256 selected colours, read from the installed palette document.</param>
+    /// <param name="backdrop">The colour the Ceres scenes show behind every layer, read from the opening's backdrop document.</param>
     /// <param name="spritesJson">Document containing the six required named OAM compositions.</param>
     /// <param name="actorsJson">Document containing the five required ordered rear-view actor identities and initial coordinates.</param>
     /// <returns>A catalog owning newly compiled transfer bytes and loaded presentation resources.</returns>
@@ -78,12 +74,11 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     /// <exception cref="ArgumentNullException">Any resource stream is null.</exception>
     /// <exception cref="InvalidDataException">A resource has an invalid format, dimensions, palette size, schema, map index, actor identity, composition, or compiled transfer length.</exception>
     public static CeresFlightCharacters Read(Stream floorPng, Stream mapJson,
-        Stream objectPng, CeresFlightPalette palette, Stream spritesJson, Stream actorsJson)
+        Stream objectPng, RgbColor backdrop, Stream spritesJson, Stream actorsJson)
     {
         Ensure.NotNull(floorPng);
         Ensure.NotNull(mapJson);
         Ensure.NotNull(objectPng);
-        Ensure.NotNull(palette);
         Ensure.NotNull(spritesJson);
         Ensure.NotNull(actorsJson);
         IndexedPngImage floorImage = IndexedPng.Read(floorPng,
@@ -101,7 +96,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
             objectCharacters.Length != CeresFlightArtworkFileFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
         return new CeresFlightCharacters(characters, map, objectCharacters,
-            palette,
+            backdrop,
             CeresFlightSpritePresentation.Load(spritesJson),
             CeresFlightActorLayoutFile.Read(actorsJson));
     }

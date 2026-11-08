@@ -1699,19 +1699,17 @@ internal static class LookupStream5Verification
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFileFormat.FloorFileName),
             Open(CeresFlightArtworkFileFormat.MapFileName), Open(CeresFlightArtworkFileFormat.ObjectFileName),
-            CeresFlightPaletteFile.Read(Open(CeresFlightPaletteFormat.FileName)), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
-        byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
-        for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresCinematicSourceDefinitions.FlightPalette + index);
+            stock.Backdrop, Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         string expectedHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
         {
             content.Append("mode7-characters", catalog.FloorCharacters.Span);
             content.Append("mode7-maps", catalog.FloorMaps.Span);
             content.Append("object-characters", catalog.ObjectCharacters.Span);
-            content.Append("palette", nativeBytes);
+            content.AppendColors("backdrop", [stock.Backdrop]);
             content.Append("sprites", Convert.FromHexString(catalog.Sprites.ContentIdentity));
             content.Append("actors", Convert.FromHexString(catalog.Actors.ContentIdentity));
         });
-        AssertEqual(expectedHash, catalog.ContentIdentity, "Ceres flight canonical hash retains original palette byte framing");
+        AssertEqual(expectedHash, catalog.ContentIdentity, "Ceres flight canonical hash covers its backdrop; its colours are the import's alone (#1544)");
         Console.WriteLine($"Ceres flight palette:256 native colors,actual CGRAM,byte serialization and catalog identity pass; {independent} independent color inputs remain required.");
 
         MemoryStream Open(string name) => new(files[name], writable: false);

@@ -65,7 +65,7 @@ internal static class CeresCinematicPictureSheetComposer
         int width = Math.Max(captionWidth, PlanetCells * CharacterPixels);
         int captionHeight = japaneseRows * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)(captionHeight + PlanetCells * CharacterPixels))));
-        RgbColor[] colours = ScreenPaletteColours.FlightColours(ceresFlight)[..ImageColourGroup.HalfColours].ToArray();
+        RgbColor[] colours = ScreenPaletteColours.FlightColours(intro)[..ImageColourGroup.HalfColours].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         // The caption's glyphs side by side, then the katakana caption beside them, then the planet below.
         var glyphGroups = new ImageColourGroups[glyphs.Length];

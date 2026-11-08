@@ -82,10 +82,11 @@ Within either platform's application-data root:
   tile-reference maps, room-backdrop character PNG and RGB5 palette file, and
   their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
-- `game/room-palettes/`: stock RGB5 base room colors and their manifest.
+- `game/room-palettes/`: stock RGB5 base room colors and their manifest, which only the import reads to pre-colour
+  the room sheets.
 - `game/gameplay-palettes/gameplay-base-palettes.json`: the 256-color initial CGRAM
-  image and 16 common sprite colors restored on room entry. Edit it in place; running the extractor again
-  restores the original.
+  image and 16 common sprite colors restored on room entry, which only the import reads to pre-colour the sheets
+  showing them. Edit it and reinstall; running the extractor again restores the original.
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
   gameplay sprite sheet, edited in place.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest, which the block sheets are
@@ -249,10 +250,11 @@ pixels or scene timing. These pages are reloaded after debugger-state restoratio
 32x32 schema. The initial narration page applies only before the first illustrated
 page begins; restoring a later debugger state preserves its live typewriter text.
 `intro-narration-palette.json` in the same directory contains the opening scene's
-256 native-precision RGB5 colors. Edit it in place to change
-the colors without changing narration timing or scene transitions. A restored
-initial card rebinds the selected colors; an in-progress fade retains its live
-accumulators and uses the selected palette at the next scene target.
+256 native-precision RGB5 colors, which only the import reads to pre-colour the opening's
+sheets; edit it and reinstall to recolor them without changing narration timing or scene
+transitions. `intro-backdrops.json` holds the colours the opening shows where nothing is
+drawn: the narration's `opening` backdrop and the Ceres scenes' `ceresFlight` backdrop. The
+game reads these colours and neither palette document; edit them in place, each channel 0–31.
 `intro-final-text-divider.json` contains the 32-by-4 ordered BG3 tile references
 beneath the illustrated text pages. Edit it in place to change
 tile positions, palette selections, priority, or flips. Live text, caret
@@ -277,13 +279,13 @@ explosion timing, and the page-two handoff remain compiled behavior.
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and
 `ceres-flight-mode7-maps.json` (32x24 front and rear views), plus
-`ceres-flight-palette.json` (all 256 native-precision RGB5 colors) and
+`ceres-flight-palette.json` (all 256 native-precision RGB5 colors, read only by the import) and
 `ceres-flight-sprites.json` (the six star, asteroid, station, and vortex OAM frames).
 The sprite JSON exposes offsets, tile references, priority, flips, and optional
 palette selections; it does not change actor paths or frame timing. Edit these files in
 place. The two Mode-7 maps share one character
 sheet and palette; the game's camera, scale, rotation, actor movement and letter timing
-remain code. Palette edits also rebind after loading a debugger state.
+remain code. Palette edits take effect when the import recolours the sheets.
 `ceres-flight-actors.json` exposes the five rear-view actors' initial 16-bit
 screen X/Y positions, in large-asteroid, station, small-asteroid, vortex, and
 rear-stars order. Their stock values come from the pinned cartridge's initializer
@@ -762,10 +764,10 @@ bands (144 colors), including the hurt-flash band; the others contain sixteen
 colors. Changes affect the corresponding live CGRAM writes, while damage
 thresholds, eye-fade steps, and death timing stay in engine code. RGB5/shape
 validation applies on load.
-Base room colors are separately extracted into `game/room-palettes/*.json`.
-Edit a file in place to replace its 128 RGB5 colors, keeping
-`version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to
-load the edit; running the extractor again restores the originals. Palette-FX scripts may animate or replace these base
+Base room colors are separately extracted into `game/room-palettes/*.json`, which only the import reads.
+Edit a file to replace its 128 RGB5 colors, keeping
+`version: 1` and each `red`, `green`, and `blue` component in 0..31, then reinstall so the
+import recolours the room sheets; running the extractor again restores the originals. Palette-FX scripts may animate or replace these base
 colors later in the room; this file does not edit those effects or their timing.
 
 Visual 16x16 blocks are composed at installation from `game/room-blocks/*.json`. Each

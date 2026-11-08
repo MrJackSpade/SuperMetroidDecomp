@@ -65,22 +65,16 @@ internal static class WrittenPictureSheetComposer
     /// <exception cref="InvalidDataException">Two writers of the sheet show different colours, or a writer is undefined.</exception>
     private static RgbColor[] WritersColours(TileWordWriter[] writers, RgbColor[] standard)
     {
-        RgbColor[]? shared = null;
-        TileWordWriter first = default;
-        foreach (TileWordWriter writer in writers)
+        // A sheet no writer writes on pictures nothing, in its room's standard colours.
+        if (writers.Length == 0)
+            return standard;
+        RgbColor[] shared = ColoursOf(writers[0], standard);
+        foreach (TileWordWriter writer in writers.Skip(1))
         {
-            RgbColor[] own = ColoursOf(writer, standard);
-            if (shared is null)
-            {
-                shared = own;
-                first = writer;
-            }
-            else if (!shared.AsSpan().SequenceEqual(own))
-            {
-                throw new InvalidDataException($"The pictures {first} and {writer} write share a sheet but show different colours.");
-            }
+            if (!shared.AsSpan().SequenceEqual(ColoursOf(writer, standard)))
+                throw new InvalidDataException($"The pictures {writers[0]} and {writer} write share a sheet but show different colours.");
         }
-        return shared ?? standard;
+        return shared;
     }
 
     /// <summary>

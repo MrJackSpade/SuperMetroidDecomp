@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
@@ -27,7 +29,8 @@ internal static class ScreenPaletteColours
             : throw new ArgumentOutOfRangeException(nameof(palette), palette, "Not a whole ending screen's colours.");
     }
 
-    /// <summary>The Ceres flight's palette.</summary>
-    internal static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtwork flight) =>
-        CeresFlightCharacters.Of(flight).Palette.Colours.AsSpan();
+    /// <summary>The Ceres flight's colours, which only the import's read of the opening <paramref name="intro"/> holds (#1544).</summary>
+    /// <exception cref="InvalidDataException">The opening was not read for the import.</exception>
+    internal static ReadOnlySpan<RgbColor> FlightColours(IntroCinematicArtwork intro) =>
+        ImportIntroCinematicArtwork.Imported(intro).FlightPalette.Colours.AsSpan();
 }

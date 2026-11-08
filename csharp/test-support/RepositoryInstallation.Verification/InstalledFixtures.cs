@@ -89,7 +89,7 @@ internal static class InstalledFixtures
     private static readonly Lazy<InstalledSamusBodyArtwork> samusBody = Shared<InstalledSamusBodyArtwork>("Samus body", () => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
     /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
-    private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () => RepositoryInstallation.Installation.LoadIntroCinematicArt());
+    private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () => SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(RepositoryInstallation.Installation.IntroCinematicDirectory));
 
     /// <summary>The installed ending Mode 7 floors, loaded once for every ending fixture, as a host binds its content (#1532).</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.Ending.Artwork.EndingFloorArtwork> endingFloors =

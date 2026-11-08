@@ -150,17 +150,20 @@ internal static class FrontendFloorSheetComposer
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
     internal static ComposedSpriteSheet Ceres(IntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
-        Ceres(Ensure.NotNull(intro).CeresFlight, IntroCinematicSourceArtwork.Of(intro).CeresDestructionMaps, paletteFx);
+        Ceres(Ensure.NotNull(intro).CeresFlight, IntroCinematicSourceArtwork.Of(intro).CeresDestructionMaps,
+            ImportIntroCinematicArtwork.Imported(intro).FlightPalette, paletteFx);
 
     /// <summary>
-    /// The Ceres cinematics' floor in each shot from the flight's installed artwork and the destruction's maps, with the
-    /// engine flicker's shades coloured from <paramref name="paletteFx"/>.
+    /// The Ceres cinematics' floor in each shot from the flight's installed artwork and the destruction's maps, coloured
+    /// in the flight's colours <paramref name="colours"/>, with the engine flicker's shades coloured from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(CeresFlightArtwork flight, CeresDestructionMaps destruction, IPaletteFxColorSource paletteFx)
+    internal static ComposedSpriteSheet Ceres(CeresFlightArtwork flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
+        IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(flight);
         Ensure.NotNull(destruction);
+        Ensure.NotNull(colours);
         Ensure.NotNull(paletteFx);
         ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(flight).FloorCharacters.Span;
         if (characters.Length < CeresFlightArtworkFileFormat.FloorByteCount)
@@ -187,7 +190,7 @@ internal static class FrontendFloorSheetComposer
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.Station), station, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.Explosion), explosion, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ZebesApproach), zebes, pixels),
-        ], ScreenPaletteColours.FlightColours(flight));
+        ], colours.Colours.AsSpan());
         // The floor shows each record the gunship engine's flicker shows over the engine's colour (#1512).
         return floor with { Manifest = floor.Manifest with { Shades = SheetShade.Documents(CeresSheetInks.EngineShades(paletteFx)) } };
 

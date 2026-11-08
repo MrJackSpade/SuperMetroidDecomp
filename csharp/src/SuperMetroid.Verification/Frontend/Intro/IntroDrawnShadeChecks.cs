@@ -21,7 +21,7 @@ internal static class IntroDrawnShadeChecks
     internal static int InstalledRow(PictureShade drawn)
     {
         int row = DrawnShadeRows.Row(drawn);
-        ImmutableArray<RgbColor> sprites = IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).Palette.SpriteColours;
+        ImmutableArray<RgbColor> sprites = ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).Palette.SpriteColours;
         SpriteImage image = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroSprites).Image;
         ShadeInks inks = image.Shade(drawn);
         AssertTrue(!inks.Inks.IsEmpty && Enumerable.Range(0, inks.Inks.Length).All(entry =>

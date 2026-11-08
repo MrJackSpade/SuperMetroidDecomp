@@ -25,7 +25,7 @@ public static class RidleyShades
     /// <summary>Ceres Ridley's colours in health band <paramref name="band"/>, zero through two.</summary>
     public static PictureShade Health(int band) => new("ridley-health", band);
 
-    /// <summary>The colours his retreat shares between his sprites and the room.</summary>
+    /// <summary>The colours his retreat loads into the room's first tiles.</summary>
     public static PictureShade RetreatShared { get; } = new("ridley-retreat-shared", 0);
 
     /// <summary>The room's colours as he retreats.</summary>

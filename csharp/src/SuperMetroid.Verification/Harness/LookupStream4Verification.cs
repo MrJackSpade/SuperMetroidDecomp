@@ -2672,13 +2672,13 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[BossShadeColours.Sprites]);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
-            BossShadeColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, BossShadeColours.Sprites);
+            // Ridley's sprites keep their own colours through the retreat (#1544): only the room's colours change.
             for (int color = 0; color < 256; color++)
             {
-                int sharedColor = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                int sharedColor = color is >= 33 and < 41 ? color - 33 : -1;
                 ushort expected = sharedColor >= 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + sharedColor * 2))
                     : color is >= 81 and < 96 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram[color], "Exact retreat BG/OBJ copies");
+                AssertEqual(expected, cgram[color], "Exact retreat room colours");
             }
         }
         foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
@@ -2726,14 +2726,13 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, zoomStock, new RgbColor[BossShadeColours.Sprites]);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
-            BossShadeColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, BossShadeColours.Sprites);
             for (int color = 0; color < 256; color++)
             {
-                int shared = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                int shared = color is >= 33 and < 41 ? color - 33 : -1;
                 ushort expected = color is >= 81 and < 96
                     ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2))
                     : shared >= 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + shared * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram[color], "Retreat near-black source and exact BG/OBJ destinations");
+                AssertEqual(expected, cgram[color], "Retreat near-black source and exact room destinations");
             }
         }
         foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })

@@ -69,7 +69,7 @@ internal static class RidleySheetShades
 
     /// <summary>
     /// The shades of Ceres Ridley's sprites: the door's, container's and Baby's start colours, his cleared own row, his
-    /// eye and body fades, his health bands, the colours his retreat shares, and the Baby's shades.
+    /// eye and body fades, his health bands, and the Baby's shades.
     /// </summary>
     internal static IReadOnlyList<SheetShade> CeresSprites(CeresRidleyColorCatalog ceres)
     {
@@ -78,7 +78,6 @@ internal static class RidleySheetShades
         {
             SheetShade.Run(RidleyShades.CeresStart, StartFirstInk, Colours(CeresRidleyColorFormat.StartColorCount, ceres.selection.Start.Resolve)),
             SheetShade.Run(RidleyShades.CeresHidden, OwnRow + 1, new RgbColor[Group - 1]),
-            SheetShade.Run(RidleyShades.RetreatShared, OwnRow + 1, Colours(CeresRidleyColorFormat.RetreatSharedColorCount, ceres.ResolveRetreatShared)),
         };
         for (int shade = 0; shade < CeresRidleyColorFormat.EyeFadeShadeCount; shade++)
         {

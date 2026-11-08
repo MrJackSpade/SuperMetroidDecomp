@@ -314,17 +314,16 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (ElevatorPlatformDraws.TryDescribe(draw, out var elevator))
         {
-            Position16<RoomBlocks> elevatorCursor = origin;
             for (int run = 0; run < elevator.RunCount; run++)
             {
+                Position16<RoomBlocks> strip = origin + elevator.Start(run);
                 for (int cell = 0; cell < elevator.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = elevator.BlockAt(run, cell);
                     RoomBlockAppearance visual = ElevatorPlatformVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, elevatorCursor + new Offset16<RoomBlocks>(cell, 0), physical, visual);
+                    DrawTerrainAt(level, draw, strip + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
-                elevatorCursor = origin + new Offset16<RoomBlocks>(elevator.NextX(run), elevator.NextY(run));
             }
             return;
         }
@@ -385,17 +384,16 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (ChozoStatueDraws.TryDescribe(draw, out var chozoStatue))
         {
-            Position16<RoomBlocks> chozo = origin;
             for (int run = 0; run < chozoStatue.RunCount; run++)
             {
+                Position16<RoomBlocks> strip = origin + chozoStatue.Start(run);
                 for (int cell = 0; cell < chozoStatue.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = chozoStatue.BlockAt(run, cell);
                     RoomBlockAppearance visual = ChozoStatueVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, chozo + new Offset16<RoomBlocks>(cell, 0), physical, visual);
+                    DrawTerrainAt(level, draw, strip + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
-                chozo = origin + new Offset16<RoomBlocks>(chozoStatue.NextX(run), chozoStatue.NextY(run));
             }
             return;
         }

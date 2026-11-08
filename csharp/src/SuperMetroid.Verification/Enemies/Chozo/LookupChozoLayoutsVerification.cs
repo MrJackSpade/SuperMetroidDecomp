@@ -64,8 +64,7 @@ internal static class LookupChozoLayoutsVerification
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Chozo layout run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Chozo layout X bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Chozo layout offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Chozo layout start bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Chozo layout block run bounds");
                 }
             }
@@ -91,7 +90,9 @@ internal static class LookupChozoLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "Chozo layout native direction");
                     AssertEqual(count, shape.BlockCount(run), "Chozo layout native calculated count");
-                    AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Chozo layout native calculated continuation");
+                    // The cartridge ends each run with the next run's start, and the last with no offset.
+                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "Chozo layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];

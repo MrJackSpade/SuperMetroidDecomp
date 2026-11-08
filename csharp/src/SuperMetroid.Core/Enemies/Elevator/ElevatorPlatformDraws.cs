@@ -18,10 +18,8 @@ internal static class ElevatorPlatformDraws
         internal int RunCount => Strips.Length;
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
         internal int BlockCount(int run) => Strip(run).Cells.Length;
-        /// <summary>Gets the next strip's absolute horizontal offset from the PLM origin.</summary>
-        internal int NextX(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Next.X);
-        /// <summary>Gets the next strip's absolute vertical offset from the PLM origin.</summary>
-        internal int NextY(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Next.Y);
+        /// <summary>Where a strip starts, in blocks from the PLM origin.</summary>
+        internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
         /// <summary>Gets a solid platform block.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)
         {

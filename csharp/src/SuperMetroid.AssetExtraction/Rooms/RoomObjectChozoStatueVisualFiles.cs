@@ -64,8 +64,7 @@ public static class RoomObjectChozoStatueVisualFiles
     {
         bool found = ChozoStatueDraws.TryDescribe(request, out ChozoStatueDraws.Draw draw);
         list = found
-            ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
-                RoomObjectDrawListExport.Horizontal, draw.NextX, draw.NextY)
+            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start)
             : default;
         return found;
     }

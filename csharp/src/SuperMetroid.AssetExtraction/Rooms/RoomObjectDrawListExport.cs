@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -38,6 +39,26 @@ internal static class RoomObjectDrawListExport
             runs[run] = new(direction(run), blocks, new(nextX(run), nextY(run)));
         }
         return new(draw, runs);
+    }
+
+    /// <summary>
+    /// Builds the draw list of a draw of horizontal strips, each placed where it starts (#1546): each run's continuation
+    /// is the next strip's start, and the last run's is the zero offset that ends a cartridge draw list.
+    /// </summary>
+    /// <param name="draw">The draw the list exports.</param>
+    /// <param name="stripCount">The number of strips the draw writes.</param>
+    /// <param name="blockCount">The number of blocks in a strip.</param>
+    /// <param name="blockAt">The terrain at a cell of a strip.</param>
+    /// <param name="start">Where a strip starts, in blocks from the draw's origin.</param>
+    /// <exception cref="InvalidDataException">The draw has no strip, or its first strip does not start at its origin.</exception>
+    internal static DrawList Strips(RoomObjectDraw draw, int stripCount, Func<int, int> blockCount, Func<int, int, RoomTerrainBlock> blockAt,
+        Func<int, Offset16<RoomBlocks>> start)
+    {
+        if (stripCount < 1 || start(0) != Offset16<RoomBlocks>.Zero)
+            throw new InvalidDataException($"Draw {draw} does not start its first strip at its origin.");
+        return Runs(draw, stripCount, blockCount, blockAt, Horizontal,
+            strip => strip + 1 < stripCount ? start(strip + 1).X : 0,
+            strip => strip + 1 < stripCount ? start(strip + 1).Y : 0);
     }
 
     /// <summary>Builds the draw list of a draw that writes one run and ends there.</summary>

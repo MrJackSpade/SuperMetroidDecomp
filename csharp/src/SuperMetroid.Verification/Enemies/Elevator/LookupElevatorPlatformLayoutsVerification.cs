@@ -70,8 +70,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "ElevatorPlatform layout run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "ElevatorPlatform layout X bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "ElevatorPlatform layout offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "ElevatorPlatform layout start bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "ElevatorPlatform layout word run bounds");
                 }
             }
@@ -96,7 +95,9 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "ElevatorPlatform layout native direction");
                     AssertEqual(count, shape.BlockCount(run), "ElevatorPlatform layout native calculated count");
-                    AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "ElevatorPlatform layout native calculated continuation");
+                    // The cartridge ends each strip with the next strip's start, and the last with no offset.
+                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "ElevatorPlatform layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];

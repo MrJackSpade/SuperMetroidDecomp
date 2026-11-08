@@ -111,8 +111,10 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
             bool frameDependent = (direction & FrameDependentDirectionFlag) != 0;
             int offsetsStart = descriptor + (frameDependent ? FrameDependentHeaderBytes : SingleDirectionHeaderBytes);
             int frames = Math.Max(0, (drawingData.Length - offsetsStart) / DisplacementBytes);
-            var placement = new SamusArmCannonPlacement(drawingData[descriptor + DrawingModeByte], direction & DirectionBits,
-                frameDependent ? drawingData[descriptor + LaterDirectionByte] & DirectionBits : null,
+            // The drawing-mode byte's low four bits choose whether and when the cover draws; each direction byte names an aim.
+            var placement = new SamusArmCannonPlacement(SamusArmCannonState.DrawOrderOf(drawingData[descriptor + DrawingModeByte]),
+                SamusProjectileDirectionCodec.FromAimIndex(direction & DirectionBits),
+                frameDependent ? SamusProjectileDirectionCodec.FromAimIndex(drawingData[descriptor + LaterDirectionByte] & DirectionBits) : null,
                 Enumerable.Range(0, frames).Select(frame => offsetsStart + frame * DisplacementBytes).Select(at => Offset16<RoomPixels>.Of(
                     unchecked((sbyte)drawingData[at]), unchecked((sbyte)drawingData[at + 1]))));
             placements.Add(descriptor, placement);

@@ -255,9 +255,11 @@ internal sealed class BeamFiring
         // muzzle check's -1 speed can carry back into the same whole pixel.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
 
-        int direction = samus.PendingTransitionShot?.Direction ?? SamusPoseMetadata.ReadShotDirection(samus);
+        SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
+            ? transitionShot.Aim
+            : SamusPoseMetadata.ReadAimDirection(samus);
 
-        if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
+        if (direction is not { } aim)
         {
             // A pose that cannot shoot fires nothing. A transition shot is never refused by the game, which would fire it
             // with its low nibble as the aim and its muzzle read past the origin tables, but no retail transition hands one
@@ -265,7 +267,7 @@ internal sealed class BeamFiring
             // moonwalk pose's shot direction is one of the ten aims (#1506).
             if (samus.PendingTransitionShot is not null)
                 throw new InvalidOperationException(
-                    $"A transition shot in direction {direction} names no aim; no retail transition hands one over.");
+                    "A transition shot names no aim; no retail transition hands one over.");
             _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }

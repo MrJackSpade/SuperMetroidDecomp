@@ -610,11 +610,9 @@ internal static void VerifyMovedSamusCameraTracking()
     AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, 0, 0, CameraDistanceMode.NormalTracking).FacesLeft,
         "a front-view pose takes the right-facing target");
 
-    // The scrollers are room-header bytes: the whole byte range is kept, anything outside it is rejected.
-    AssertEqual(byte.MaxValue, new VerticalCameraContext(SamusVerticalDirection.None, byte.MaxValue, byte.MaxValue).DownScroller,
-        "the largest down-scroller is kept");
-    AssertThrows<ArgumentOutOfRangeException>(() => _ = new VerticalCameraContext(SamusVerticalDirection.None, byte.MaxValue + 1, 0),
-        "an up-scroller above a byte is rejected");
+    // The scrollers are distances: a negative one is rejected.
+    AssertThrows<ArgumentOutOfRangeException>(() => _ = new VerticalCameraContext(SamusVerticalDirection.None, -1, 0),
+        "a negative up-scroller is rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => _ = new VerticalCameraContext(SamusVerticalDirection.None, 0, -1),
         "a negative down-scroller is rejected");
 

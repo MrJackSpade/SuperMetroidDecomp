@@ -16,7 +16,7 @@ internal static class SamusStandaloneSpeedsVerification
         }
         var actual = new SamusHorizontalSpeedState();
         var reference = new SamusHorizontalSpeedState();
-        var calculate = new Func<SpeedTableEntry, uint>(reference.CalculateBaseSpeed);
+        var calculate = new Func<SpeedTableEntry, uint>(entry => reference.CalculateBaseSpeed(entry).RawValue);
         var guard = NewSlopeHeightNoReadBus();
         int cases = 0;
         foreach (int address in new[] { 0x909f25, 0x909f31, 0x909f3d, 0x909f49 })

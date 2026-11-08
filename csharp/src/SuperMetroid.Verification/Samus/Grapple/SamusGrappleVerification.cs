@@ -371,7 +371,7 @@ spikeLevel, spikeSamus, ControllerButton.X);
             $"firing spike BTS ${behavior:X2} connection flag");
         AssertEqual(expectedCancellation, spikeReaction.Phase == GrapplePhase.CancelPending,
             $"firing spike BTS ${behavior:X2} cancellation flag");
-        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
+        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
             $"firing spike BTS ${behavior:X2} periodic damage");
     }
 
@@ -840,7 +840,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
         AssertTrue(spikeBlockContact.TerrainCollided,
             $"solid grapple spike BTS ${behavior:X2} remains collision");
-        AssertEqual(expectedDamage, spikeBlockSamus.LiquidPhysics.PeriodicDamage,
+        AssertEqual(expectedDamage, spikeBlockSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
             $"solid grapple spike BTS ${behavior:X2} damage table");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x003c,
             spikeBlockSamus.InvincibilityTimer.RawValue,
@@ -879,7 +879,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
         AssertTrue(!spikeAirContact.TerrainCollided,
             $"grapple spike-air BTS ${behavior:X2} remains noncollision");
-        AssertEqual(expectedDamage, spikeAirSamus.LiquidPhysics.PeriodicDamage,
+        AssertEqual(expectedDamage, spikeAirSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
             $"grapple spike-air BTS ${behavior:X2} damage table");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x003c,
             spikeAirSamus.InvincibilityTimer.RawValue,

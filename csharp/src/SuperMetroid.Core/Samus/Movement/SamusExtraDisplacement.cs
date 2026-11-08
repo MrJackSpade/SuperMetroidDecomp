@@ -16,12 +16,12 @@ internal static class SamusExtraDisplacement
     /// arithmetic. The vertical move does this after choosing up/down from the separate Y-direction
     /// word, so a strong external value may reverse the actual collision scan direction.
     /// </summary>
-    public static int AddToVerticalSpeedDisplacement(
+    public static SignedSixteenSixteen AddToVerticalSpeedDisplacement(
         SamusKinematicsState kinematics,
-        int ownDisplacement)
+        SignedSixteenSixteen ownDisplacement)
     {
         Ensure.NotNull(kinematics);
-        return unchecked(ownDisplacement + kinematics.ExtraDisplacement.Y.RawValue);
+        return ownDisplacement + kinematics.ExtraDisplacement.Y;
     }
 
     /// <summary>
@@ -33,41 +33,42 @@ internal static class SamusExtraDisplacement
     /// exactly as written. With no external value, total X speed plus one keeps Samus on a
     /// descending slope unless the preceding X scan already aligned her Y position.
     /// </remarks>
-    public static int CalculateNoSpeedVerticalDisplacement(
+    public static SignedSixteenSixteen CalculateNoSpeedVerticalDisplacement(
         SamusKinematicsState kinematics,
         SamusHorizontalSpeedState horizontalSpeed)
     {
         Ensure.NotNull(kinematics);
         Ensure.NotNull(horizontalSpeed);
 
-        int extra = kinematics.ExtraDisplacement.Y.RawValue;
-        if (extra != 0)
+        SignedSixteenSixteen extra = kinematics.ExtraDisplacement.Y;
+        if (!extra.IsZero)
             return AddPositiveDownwardBias(extra);
 
         if (kinematics.PositionAdjustedBySlope)
-            return 1 << 16;
+            return OnePixel;
 
-        uint total = (SixteenSixteen.FromWhole((uint)horizontalSpeed.TotalSpeed.Whole)) |
-            (uint)horizontalSpeed.TotalSpeed.Fraction;
-        return unchecked((int)(total + (1u << 16)));
+        return horizontalSpeed.TotalSpeed.AsDisplacement() + OnePixel;
     }
+
+    /// <summary>One whole pixel downward: the grounded bias and the slope-adjusted probe.</summary>
+    private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromParts(1, 0);
 
     /// <summary>
     /// Computes the transition vertical movement, used by jump-transition frames that accept external Y movement
     /// but deliberately skip ordinary gravity. Null means both producer words were zero and
     /// the game returned without invoking collision at all.
     /// </summary>
-    public static int? CalculateExtraOnlyVerticalDisplacement(
+    public static SignedSixteenSixteen? CalculateExtraOnlyVerticalDisplacement(
         SamusKinematicsState kinematics)
     {
         Ensure.NotNull(kinematics);
-        int extra = kinematics.ExtraDisplacement.Y.RawValue;
-        return extra == 0 ? null : AddPositiveDownwardBias(extra);
+        SignedSixteenSixteen extra = kinematics.ExtraDisplacement.Y;
+        return extra.IsZero ? null : AddPositiveDownwardBias(extra);
     }
 
     /// <summary>Adds one whole pixel only to nonnegative external Y displacement before the grounded or extra-only collision scan.</summary>
-    private static int AddPositiveDownwardBias(int displacement) =>
-        displacement < 0
+    private static SignedSixteenSixteen AddPositiveDownwardBias(SignedSixteenSixteen displacement) =>
+        displacement.IsNegative
             ? displacement
-            : unchecked(displacement + (1 << 16));
+            : displacement + OnePixel;
 }

@@ -33,7 +33,7 @@ internal static class PauseMomentumVerification
             speed.HasRunningMomentum = momentum;
             speed.SpeedBoostCounter = counter;
             speed.ReconcilePauseSpeedBoosterState(equipped);
-            AssertEqual(0x00014000u, speed.BaseFixed, "unpause preserves numeric base speed");
+            AssertEqual(0x00014000u, speed.BaseSpeed.RawValue, "unpause preserves numeric base speed");
             AssertEqual(2, speed.ExtraRunSpeed.Whole, "unpause leaves extra whole speed for the next movement update");
             AssertEqual(0x8000, speed.ExtraRunSpeed.Fraction, "unpause leaves extra fractional speed for the next movement update");
             AssertTrue(speed.HasRunningMomentum == (equipped && momentum), "unpause reconciles momentum to Speed Booster equipment");

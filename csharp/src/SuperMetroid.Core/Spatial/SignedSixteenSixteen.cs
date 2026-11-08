@@ -50,6 +50,28 @@ public readonly record struct SignedSixteenSixteen
     public static SignedSixteenSixteen operator -(SignedSixteenSixteen left, SignedSixteenSixteen right) =>
         new(unchecked(left.RawValue - right.RawValue));
 
+    /// <summary>The displacement reversed: whole and fraction negated together, wrapping at 32 bits.</summary>
+    public static SignedSixteenSixteen operator -(SignedSixteenSixteen value) => new(unchecked(-value.RawValue));
+
+    /// <summary>Whether the displacement points backward along its axis: its whole pixels are negative.</summary>
+    public bool IsNegative => RawValue < 0;
+
+    /// <summary>Whether the displacement is no movement at all: zero whole pixels and zero fraction.</summary>
+    public bool IsZero => RawValue == 0;
+
+    /// <summary>
+    /// The displacement with its whole pixels clamped to <paramref name="minimumWhole"/> through
+    /// <paramref name="maximumWhole"/>, keeping its fraction, as the game clamps only the whole word of a move.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsClamped(int minimumWhole, int maximumWhole) =>
+        FromParts(Math.Clamp(WholePixels, minimumWhole, maximumWhole), Fraction);
+
+    /// <summary>
+    /// The displacement's distance regardless of direction, as the game hands a mover's collision probe an unsigned
+    /// magnitude: the negation of a backward displacement, kept as a speed's words.
+    /// </summary>
+    public UnsignedSixteenSixteen Magnitude() => UnsignedSixteenSixteen.FromDisplacement(IsNegative ? -this : this);
+
     /// <summary>
     /// The displacement reversed by negating its whole pixels and its fraction each on their own, as several enemies
     /// reverse one: the fraction's borrow never reaches the whole pixels. It equals the true reversal when the fraction is

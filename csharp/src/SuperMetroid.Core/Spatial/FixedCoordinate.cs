@@ -74,4 +74,12 @@ public readonly record struct FixedCoordinate
     /// </summary>
     public FixedCoordinate MovedBy(SignedEightEight velocity) => MovedBy(velocity.ToSixteenSixteenDelta());
 
+    /// <summary>
+    /// The displacement from <paramref name="from"/> to <paramref name="to"/> around the wrapping coordinate range: their
+    /// difference in 65536ths of a pixel, wrapped to 32 bits, so moving <paramref name="from"/> by it lands on
+    /// <paramref name="to"/>.
+    /// </summary>
+    public static SignedSixteenSixteen operator -(FixedCoordinate to, FixedCoordinate from) =>
+        SignedSixteenSixteen.FromRaw(unchecked((int)(to.Subpixels - from.Subpixels)));
+
 }

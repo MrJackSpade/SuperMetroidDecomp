@@ -90,7 +90,7 @@ public static class SamusPostureMovement
         // into a crouch; Samus's pose handling samples and stores the shine before normal crouching clears
         // that momentum. The old exception at this seam prevented that route.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
+        var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -98,7 +98,7 @@ public static class SamusPostureMovement
         // Uses the external-Y replacement when present. Otherwise it couples
         // the downward floor probe to the total X speed calculated by the horizontal pass;
         // this matters for a Speed-Booster slide through the crouching transition.
-        int verticalDisplacement = SamusExtraDisplacement
+        SignedSixteenSixteen verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (frameCounter & 1) == 0 });
         return new GroundedMovementResult(horizontal, vertical);

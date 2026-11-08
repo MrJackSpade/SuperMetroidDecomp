@@ -15,7 +15,7 @@ public sealed record SamusAnimationStep
     public int FrameCounter
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        init => field = Ensure.BetweenInclusive(0, Compatibility.FrameClock.CounterPeriod - 1, value);
     }
 
     /// <summary>The session's random-number word, which Samus's liquid effects draw air bubbles from.</summary>

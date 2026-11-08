@@ -911,9 +911,9 @@ internal static class PaletteFxInstructionCodesVerification
             }
         }
 
-        AssertEqual(0x0004, samus.LiquidPhysics.PeriodicDamage,
+        AssertEqual(0x0004, samus.LiquidPhysics.PendingPeriodicDamage.Whole,
             "retail Norfair heat owner carries quarter-units into whole damage");
-        AssertEqual(0x4000, samus.LiquidPhysics.PeriodicSubDamage,
+        AssertEqual(0x4000, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
             "retail Norfair heat owner retains exact 16.16 fractional carry");
         AssertEqual(1, paletteFxSession.PreviousSamusInHeatPaletteIndex,
             "shared heat owner consumes $F785 phase on following frame");

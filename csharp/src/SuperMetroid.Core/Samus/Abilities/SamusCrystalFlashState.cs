@@ -39,7 +39,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Mirrors another owner's write, 0 through 65535, to the shared ammo-countdown word; other values are rejected.</summary>
     internal void SetSharedAmmoCounter(int value) =>
-        AmmoDecrementTimer = WrappingCountdown.FromRaw(Ensure.BetweenInclusive(0, ushort.MaxValue, value));
+        AmmoDecrementTimer = WrappingCountdown.FromRaw(value);
 
     /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;

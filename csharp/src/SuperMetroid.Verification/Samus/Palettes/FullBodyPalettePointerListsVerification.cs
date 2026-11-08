@@ -131,13 +131,6 @@ internal static class FullBodyPalettePointerListsVerification
         AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalettePointer(0, 1, out _),
             "active shinespark does not catalogue an unaligned phase offset");
 
-        var adjacentScrew = new SamusHorizontalSpeedState { CyclePaletteStep = 6 };
-        var adjacentScrewColors = new SamusColours();
-        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(adjacentScrewColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
-            "non-catalog Screw Attack phase retains native adjacent-data read");
-        AssertPaletteColors(rom, adjacentScrewColors, 0x9ea0,
-            "Screw Attack step six reads the adjacent Varia list");
-
         var adjacentBoost = new SamusHorizontalSpeedState
         {
             SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),

@@ -126,7 +126,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0),
         Pose = SamusPoseId.FallingAimDownLeftPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
-        BombSpreadChargeTimeoutCounter = 0x1234,
+        BombSpreadChargeTimeoutCounter = 52,
         ProjectileFlareCounter = 0x003c,
     };
     SamusPoseMetadata.RefreshCollisionRadii(fallingMorph);
@@ -264,8 +264,8 @@ empty, samus, frameCounter: 1);
         frameCounter: 0);
     AssertEqual(boostedFall.Kinematics.Position.X.RawValue, opposedDirectionFall.Kinematics.Position.X.RawValue,
         "Left+Right falling ball follows its pose direction instead of cancelling motion");
-    AssertEqual(boostedFall.HorizontalSpeed.BaseFixed,
-        opposedDirectionFall.HorizontalSpeed.BaseFixed,
+    AssertEqual(boostedFall.HorizontalSpeed.BaseSpeed.RawValue,
+        opposedDirectionFall.HorizontalSpeed.BaseSpeed.RawValue,
         "Left+Right falling ball retains the same native acceleration as Left-only");
 
     var boostedSpring = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -382,7 +382,7 @@ floor, samus, controllerInput: 0, frameCounter: 0);
     samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     AssertTrue(!SamusPosturePoseTransitions.ApplyMorphBallLanding(samus), "hard landing launches first rebound");
-    AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "first rebound retains horizontal momentum");
+    AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "first rebound retains horizontal momentum");
     AssertEqual(SamusBallBounceState.FirstRebound, samus.MorphBallBounceState, "first rebound state");
     AssertEqual(1, samus.Kinematics.YSpeed.Whole, "first rebound whole speed from ROM");
     AssertEqual(0, samus.Kinematics.YSpeed.Fraction, "first rebound subspeed matches pinned NTSC ROM");
@@ -394,14 +394,14 @@ floor, samus, controllerInput: 0, frameCounter: 0);
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
     AssertTrue(!SamusPosturePoseTransitions.ApplyMorphBallLanding(samus), "first-bounce collision launches second rebound");
-    AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "second rebound retains horizontal momentum");
+    AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "second rebound retains horizontal momentum");
     AssertEqual(SamusBallBounceState.SecondRebound, samus.MorphBallBounceState, "second rebound state");
     AssertEqual(0, samus.Kinematics.YSpeed.Whole, "second rebound decrements whole constant");
 
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(1);
     AssertTrue(SamusPosturePoseTransitions.ApplyMorphBallLanding(samus), "second-bounce collision grounds ball");
-    AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "final ball landing clears both base-speed words");
+    AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "final ball landing clears both base-speed words");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
     AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "grounding clears bounce state");
@@ -577,7 +577,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             ? springEquipped ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound
             : SamusBallBounceState.None, impact.MorphBallBounceState,
             "signed threshold preserves the selected bounce family");
-        AssertEqual(rebounds ? 0x00018000u : 0u, impact.HorizontalSpeed.BaseFixed,
+        AssertEqual(rebounds ? 0x00018000u : 0u, impact.HorizontalSpeed.BaseSpeed.RawValue,
             "Only settled ball landing clears both base-speed words");
         AssertEqual(rebounds ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating, impact.HorizontalSpeed.AccelerationMode,
             "Both ball families share settled-landing acceleration cleanup");

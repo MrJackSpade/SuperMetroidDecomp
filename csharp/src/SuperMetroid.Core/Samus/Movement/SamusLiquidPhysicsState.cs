@@ -80,20 +80,20 @@ public sealed class SamusLiquidPhysicsState
     public RoomFxType FxType { get; set; }
 
     /// <summary>
-    /// The water surface's room Y, 0 through 32767, or none when the room has no water surface; movement routines then
+    /// The water surface's room Y, a line of the room, zero or more, or none when the room has no water surface; movement routines then
     /// consult <see cref="LavaAcidSurfaceY"/> instead.
     /// </summary>
     public int? WaterSurfaceY
     {
         get;
-        set => field = value is int surface ? Ensure.BetweenInclusive(0, short.MaxValue, surface) : null;
+        set => field = value is int surface ? Ensure.AtLeastZero(surface) : null;
     }
 
-    /// <summary>The lava or acid surface's room Y, 0 through 32767, or none when the room has no lava or acid surface.</summary>
+    /// <summary>The lava or acid surface's room Y, a line of the room, zero or more, or none when the room has no lava or acid surface.</summary>
     public int? LavaAcidSurfaceY
     {
         get;
-        set => field = value is int surface ? Ensure.BetweenInclusive(0, short.MaxValue, surface) : null;
+        set => field = value is int surface ? Ensure.AtLeastZero(surface) : null;
     }
 
     /// <summary>
@@ -149,19 +149,12 @@ public sealed class SamusLiquidPhysicsState
     public void QueueMovementSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
         QueueSound(soundEffect, priority);
 
-    /// <summary>The fractional half of pending periodic damage, 0 through 65535.</summary>
-    public int PeriodicSubDamage
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>The whole-energy half of pending periodic damage, 0 through 65535.</summary>
-    public int PeriodicDamage
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>
+    /// The periodic damage this update has accumulated and not yet applied, in energy and its 65536ths: liquids, spikes,
+    /// heat and enemies add to it and <see cref="ApplyPeriodicDamage"/> applies and clears it on the same update, so it
+    /// holds no more than one update's contributions.
+    /// </summary>
+    public UnsignedSixteenSixteen PendingPeriodicDamage { get; internal set; }
 
     /// <summary>Logical room pair consumed by area/room-specific footstep graphics.</summary>
     public RoomIdentity RoomIdentity { get; set; }
@@ -217,8 +210,7 @@ public sealed class SamusLiquidPhysicsState
         LavaAcidSurfaceY = null;
         LiquidOptions = RoomLiquidOptions.None;
         LiquidPhysicsType = SamusLiquidMedium.Air;
-        PeriodicSubDamage = 0;
-        PeriodicDamage = 0;
+        PendingPeriodicDamage = default;
         _soundRequests.Clear();
         AtmosphericEffects.Clear();
     }
@@ -295,7 +287,7 @@ public sealed class SamusLiquidPhysicsState
     {
         Ensure.NotNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
-            return Ensure.BetweenInclusive(0, ushort.MaxValue, samus.XSpeedDivisor);
+            return samus.XSpeedDivisor;
 
         int bottomMinusOne = CoordinateAxis.Wrap(
             samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
@@ -304,7 +296,7 @@ public sealed class SamusLiquidPhysicsState
         {
             SamusLiquidMedium.Water => 3,
             SamusLiquidMedium.LavaOrAcid => 2,
-            SamusLiquidMedium.Air => Ensure.BetweenInclusive(0, ushort.MaxValue, samus.XSpeedDivisor),
+            SamusLiquidMedium.Air => samus.XSpeedDivisor,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
     }
@@ -396,7 +388,7 @@ public sealed class SamusLiquidPhysicsState
             SamusLiquidDamageRate damageRate = fxKind == RoomFxType.Lava
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
-            AccumulatePeriodicDamage(Ensure.BetweenInclusive(0, ushort.MaxValue, damageRate.SubDamage), Ensure.BetweenInclusive(0, ushort.MaxValue, damageRate.WholeDamage));
+            AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
             if ((frameCounter & 7) == 0 && samus.Health >= 71)
                 QueueSound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
@@ -412,7 +404,7 @@ public sealed class SamusLiquidPhysicsState
 
         // Publishes the X-speed divisor and clears the remembered medium. Only
         // water (bit zero set) owns an exit splash; lava/acid simply clears the remembered medium.
-        samus.AnimationFrameBuffer = Ensure.BetweenInclusive(0, ushort.MaxValue, samus.XSpeedDivisor);
+        samus.AnimationFrameBuffer = samus.XSpeedDivisor;
         bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
         LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)
@@ -618,13 +610,12 @@ public sealed class SamusLiquidPhysicsState
         Ensure.NotNull(samus);
         if (timeIsFrozen)
         {
-            PeriodicSubDamage = 0;
-            PeriodicDamage = 0;
+            PendingPeriodicDamage = default;
             return;
         }
 
-        int appliedSubDamage = Ensure.BetweenInclusive(0, ushort.MaxValue, PeriodicSubDamage);
-        int appliedDamage = Ensure.BetweenInclusive(0, ushort.MaxValue, PeriodicDamage);
+        int appliedSubDamage = PendingPeriodicDamage.Fraction;
+        int appliedDamage = PendingPeriodicDamage.Whole;
         int divisorShift = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
@@ -649,8 +640,7 @@ public sealed class SamusLiquidPhysicsState
 
         samus.TakeFractionalEnergyDamage(appliedSubDamage, appliedDamage);
 
-        PeriodicSubDamage = 0;
-        PeriodicDamage = 0;
+        PendingPeriodicDamage = default;
     }
 
     /// <summary>The whole damage points a suit's division reads within a cycle of 256; higher points drop out.</summary>
@@ -664,16 +654,12 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     /// <remarks>
     /// Liquid, block and enemy damage all accumulate here as one 16.16 amount, so no producer drops a fraction that
-    /// passes a whole point of energy: it moves the whole damage by one. Each damage word is 0 through 65535, and the
-    /// whole damage wraps at its word.
+    /// passes a whole point of energy: it moves the whole damage by one. The fractional damage is 0 through 65535
+    /// 65536ths of energy and the whole damage zero or more; one update's contributions stay far below the largest damage
+    /// <see cref="ApplyPeriodicDamage"/> applies.
     /// </remarks>
-    public void AccumulatePeriodicDamage(int subDamage, int wholeDamage)
-    {
-        UnsignedSixteenSixteen total = new UnsignedSixteenSixteen(PeriodicDamage, PeriodicSubDamage) +
-            new UnsignedSixteenSixteen(wholeDamage, subDamage);
-        PeriodicSubDamage = total.Fraction;
-        PeriodicDamage = total.Whole;
-    }
+    public void AccumulatePeriodicDamage(int subDamage, int wholeDamage) =>
+        PendingPeriodicDamage += new UnsignedSixteenSixteen(wholeDamage, subDamage);
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>
     internal void SpawnWaterSplash(

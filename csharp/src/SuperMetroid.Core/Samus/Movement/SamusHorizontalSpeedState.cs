@@ -44,14 +44,14 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// The step of the Speed Booster or Screw Attack colour cycle shown next, counted from the shown suit's first
-    /// entry: 0 through 5, or 6 in fixtures that read past the list. The two cycles share it, so Speed Booster can
-    /// inherit a Screw Attack step past its own list's end; Crystal Flash publishes its bubble step into it. Reset when
-    /// Speed Booster momentum begins or cancels.
+    /// entry: 0 through 5. The two cycles share it, so Speed Booster can inherit a Screw Attack step past its own
+    /// list's end; the Screw Attack cycle wraps to zero after its sixth step and the Speed Booster cycle holds its last,
+    /// so no step passes five, and the setter rejects any other. Reset when Speed Booster momentum begins or cancels.
     /// </summary>
     public int CyclePaletteStep
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1, value);
     }
 
     /// <summary>Seeded to one on the first boosted running frame.</summary>
@@ -65,12 +65,13 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// SamusEchoesSFXFlag: set before the echo sound's start request,
-    /// consumed after boost ends, or cleared silently by quicksand. 0 through 65535.
+    /// consumed after boost ends, or cleared silently by quicksand: one while set, zero while clear, and the setter rejects
+    /// any other value.
     /// </summary>
     public int EchoSoundFlag
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, 1, value);
     }
 
     /// <summary>Consumes speed stage four's normal-priority echo sound request.</summary>
@@ -122,14 +123,18 @@ public sealed class SamusHorizontalSpeedState
     public UnsignedSixteenSixteen TotalSpeed { get; internal set; }
 
     /// <summary>
-    /// Speed divisor, 0 through 65535: total speed is halved this many times, capped at four
-    /// halvings however large the divisor is. It doubles as the dry-room animation delay.
+    /// Speed divisor, 0 through <see cref="LargestSpeedDivisor"/>: total speed is halved this many times, capped at four
+    /// halvings. It doubles as the dry-room animation delay. Each Draygon goop stuck to Samus adds one, a sixth is
+    /// refused, and the Baby Metroid's drain stores two, so the setter rejects any other value.
     /// </summary>
     public int SpeedDivisor
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, LargestSpeedDivisor, value);
     }
+
+    /// <summary>The largest speed divisor: five Draygon goops stuck to Samus, the most the goop's attach step allows.</summary>
+    public const int LargestSpeedDivisor = 5;
 
     /// <summary>
     /// Acceleration mode: accelerating speeds up, while turning and decelerating both take the
@@ -462,13 +467,13 @@ public sealed class SamusHorizontalSpeedState
     /// Captures the speed-echo position for ordinary active boost.
     /// The gameplay clock, not the frame counter, selects the four-frame sampling phase.
     /// </summary>
-    /// <param name="gameTimeFrames">The gameplay clock's frame count, 0 to 65535; only its four-frame phase is read and nothing stores it.</param>
+    /// <param name="gameTimeFrames">The gameplay clock's frames within its second, zero or more; only its four-frame phase is read and nothing stores it.</param>
     /// <param name="position">Samus's whole-pixel room position sampled into the next echo slot.</param>
     public bool CaptureSpeedEchoPosition(
         int gameTimeFrames,
         Position16<RoomPixels> position)
     {
-        Ensure.BetweenInclusive(0, ushort.MaxValue, gameTimeFrames);
+        Ensure.AtLeastZero(gameTimeFrames);
         if (!IsActivelySpeedBoosting ||
             SpeedEchoesDeparting ||
             (gameTimeFrames & 3) != 0)
@@ -516,11 +521,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Adds the 16.16 extra-run increment while retaining separate whole and fractional words.</summary>
-    private void AddExtraRunAcceleration()
-    {
-        uint accelerated = unchecked(ExtraRunSpeed.RawValue + SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration);
-        ExtraRunSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
-    }
+    private void AddExtraRunAcceleration() => ExtraRunSpeed += SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration;
 
     /// <summary>Enables Speed Booster contact damage only at the fully charged counter's high-byte state.</summary>
     private void PublishBoostContactDamage()
@@ -625,9 +626,9 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void ApplyDeceleratingInputFallback(bool selectedMomentumCommand, SamusFacingDirection facingDirection)
     {
-        if (selectedMomentumCommand && BaseFixed != 0)
+        if (selectedMomentumCommand && HasBaseSpeed)
         {
-            SetBaseFixed(unchecked(BaseFixed + ExtraRunSpeed.RawValue));
+            BaseSpeed += ExtraRunSpeed;
             ExtraRunSpeed = default;
             AccelerationMode = SamusAccelerationMode.Decelerating;
         }
@@ -725,7 +726,7 @@ public sealed class SamusHorizontalSpeedState
     /// Calculates the horizontal base speed and returns its unsigned
     /// 16.16 result. It mutates the modeled speed words exactly once.
     /// </summary>
-    public uint CalculateBaseSpeed(SamusMovementType movementType)
+    public UnsignedSixteenSixteen CalculateBaseSpeed(SamusMovementType movementType)
     {
         SpeedTableEntry entry = ReadEntry(movementType);
         return CalculateBaseSpeed(entry);
@@ -735,16 +736,16 @@ public sealed class SamusHorizontalSpeedState
     /// Executes the speed calculation against a standalone record. Bomb jumps use their own standalone record
     /// instead of the movement-type-indexed normal table.
     /// </summary>
-    public uint CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
+    public UnsignedSixteenSixteen CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
         CalculateBaseSpeed(SamusHorizontalMotion.Standalone(record));
 
     /// <summary>Applies the table's acceleration or deceleration using split-word arithmetic and updates base speed.</summary>
-    internal uint CalculateBaseSpeed(SpeedTableEntry entry)
+    internal UnsignedSixteenSixteen CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
         if (AccelerationMode != SamusAccelerationMode.Accelerating)
         {
-            SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
+            BaseSpeed -= ScaledDeceleration(entry);
 
             // The sign test reads only the high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
@@ -756,22 +757,23 @@ public sealed class SamusHorizontalSpeedState
         }
         else
         {
-            SetBaseFixed(unchecked(BaseFixed + (uint)entry.Acceleration.RawValue));
+            BaseSpeed += entry.Acceleration;
 
             // Does not use a normal unsigned 32-bit >= comparison. Preserve its
             // signed word-subtraction quirk, including the fact that exact equality does
             // not count as greater and therefore is left untouched.
+            UnsignedSixteenSixteen maximum = UnsignedSixteenSixteen.FromDisplacement(entry.MaximumSpeed);
             if (IsGreaterThanQuirked(
                     BaseSpeed.Whole,
                     BaseSpeed.Fraction,
-                    entry.MaximumSpeed.WholeWord,
-                    entry.MaximumSpeed.Fraction))
+                    maximum.Whole,
+                    maximum.Fraction))
             {
-                SetBaseFixed(unchecked((uint)entry.MaximumSpeed.RawValue));
+                BaseSpeed = maximum;
             }
         }
 
-        return BaseFixed;
+        return BaseSpeed;
     }
 
     /// <summary>
@@ -791,7 +793,7 @@ public sealed class SamusHorizontalSpeedState
             // This is byte-for-byte the same asymmetric multiplier calculation used by
             // the deceleration-allowed routine. The distinction between the two
             // entry points is the bit test above and their carry result, not the subtract.
-            SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
+            BaseSpeed -= ScaledDeceleration(entry);
             if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
                 BaseSpeed = default;
@@ -799,63 +801,56 @@ public sealed class SamusHorizontalSpeedState
             }
 
             // Every path through the deceleration-disallowed routine exits with carry clear.
-            return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: false);
+            return new AerialBaseSpeedResult(BaseSpeed, ReachedMaximum: false);
         }
 
-        SetBaseFixed(unchecked(BaseFixed + (uint)entry.Acceleration.RawValue));
+        BaseSpeed += entry.Acceleration;
 
         // The comparisons are signed 16-bit. Exact equality in both halves is
         // deliberately *not* considered a cap: the routine reports no cap in that case.
-        int maximumWhole = entry.MaximumSpeed.WholeWord;
-        int maximumFraction = entry.MaximumSpeed.Fraction;
-        bool exceedsMaximum = SamusSpeedMagnitude.Exceeds(BaseSpeed.Whole, maximumWhole) ||
-            (BaseSpeed.Whole == maximumWhole &&
-             SamusSpeedMagnitude.Exceeds(BaseSpeed.Fraction, maximumFraction));
+        UnsignedSixteenSixteen maximum = UnsignedSixteenSixteen.FromDisplacement(entry.MaximumSpeed);
+        bool exceedsMaximum = SamusSpeedMagnitude.Exceeds(BaseSpeed.Whole, maximum.Whole) ||
+            (BaseSpeed.Whole == maximum.Whole &&
+             SamusSpeedMagnitude.Exceeds(BaseSpeed.Fraction, maximum.Fraction));
         if (exceedsMaximum)
         {
-            SetBaseFixed(unchecked((uint)entry.MaximumSpeed.RawValue));
-            return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: true);
+            BaseSpeed = maximum;
+            return new AerialBaseSpeedResult(BaseSpeed, ReachedMaximum: true);
         }
 
-        return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: false);
+        return new AerialBaseSpeedResult(BaseSpeed, ReachedMaximum: false);
     }
 
     /// <summary>
     /// Calculates the total horizontal speed: add extra run speed, shift by
     /// min(divisor, 4), and publish the total-speed pair used by animation/collision.
     /// </summary>
-    public uint CalculateTotalSpeed(uint baseSpeed)
+    public UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
     {
-        uint total = unchecked(baseSpeed + ExtraRunSpeed.RawValue);
-        int shift = Math.Min(SpeedDivisor, 4);
-        total >>= shift;
-        TotalSpeed = UnsignedSixteenSixteen.FromRaw(total);
-        return total;
+        TotalSpeed = (baseSpeed + ExtraRunSpeed).Halved(Math.Min(SpeedDivisor, LargestSpeedHalvings));
+        return TotalSpeed;
     }
+
+    /// <summary>The most times a speed divisor halves the total speed, however large the divisor.</summary>
+    private const int LargestSpeedHalvings = 4;
 
     /// <summary>
     /// Calculates the non-collision portion of a rightward displacement,
     /// including the ±15-pixel whole-word clamp.
     /// </summary>
-    public int CalculateRightDisplacement(uint baseSpeed, int extraDisplacement = 0) =>
-        ClampDisplacement(unchecked((int)CalculateTotalSpeed(baseSpeed) + extraDisplacement));
+    public SignedSixteenSixteen CalculateRightDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement = default) =>
+        ClampDisplacement(CalculateTotalSpeed(baseSpeed).AsDisplacement() + extraDisplacement);
 
     /// <summary>
     /// Calculates the non-collision portion of a leftward displacement.
     /// Left is <c>extra displacement - total speed</c>, not merely
     /// a sign bit attached to the rightward result.
     /// </summary>
-    public int CalculateLeftDisplacement(uint baseSpeed, int extraDisplacement = 0) =>
-        ClampDisplacement(unchecked(extraDisplacement - (int)CalculateTotalSpeed(baseSpeed)));
+    public SignedSixteenSixteen CalculateLeftDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement = default) =>
+        ClampDisplacement(extraDisplacement - CalculateTotalSpeed(baseSpeed).AsDisplacement());
 
-    /// <summary>Current base speed as the high-word/low-word unsigned 16.16 pair.</summary>
-    public uint BaseFixed => BaseSpeed.RawValue;
-
-    /// <summary>Publishes a 16.16 result to the separate base-speed whole and fractional words.</summary>
-    private void SetBaseFixed(uint value)
-    {
-        BaseSpeed = UnsignedSixteenSixteen.FromRaw(value);
-    }
+    /// <summary>Whether Samus has any base speed: either its whole pixels or its fraction is nonzero.</summary>
+    public bool HasBaseSpeed => BaseSpeed != default;
 
     /// <summary>
     /// The deceleration one frame removes. Without a multiplier it is the table's value; with
@@ -869,7 +864,7 @@ public sealed class SamusHorizontalSpeedState
         if (DecelerationMultiplier == 0)
             return entry.Deceleration;
 
-        int wholeProduct = DecelerationMultiplier * entry.Deceleration.WholeWord;
+        int wholeProduct = DecelerationMultiplier * UnsignedSixteenSixteen.FromDisplacement(entry.Deceleration).Whole;
         int fractionProduct = DecelerationMultiplier * EightEight.WholeOf(entry.Deceleration.Fraction);
         return SignedSixteenSixteen.FromParts(
             CoordinateAxis.AsSigned(EightEight.WholeOf(wholeProduct)),
@@ -890,11 +885,10 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
-    private static int ClampDisplacement(int displacement)
-    {
-        SignedSixteenSixteen requested = SignedSixteenSixteen.FromRaw(displacement);
-        int high = Math.Clamp(requested.WholePixels, -15, 15);
-        return SignedSixteenSixteen.FromParts(high, requested.Fraction).RawValue;
-    }
+    private static SignedSixteenSixteen ClampDisplacement(SignedSixteenSixteen displacement) =>
+        displacement.WithWholePixelsClamped(-LargestWholeDisplacement, LargestWholeDisplacement);
+
+    /// <summary>The most whole pixels Samus's speed moves her in one update, either way.</summary>
+    private const int LargestWholeDisplacement = 15;
 
 }

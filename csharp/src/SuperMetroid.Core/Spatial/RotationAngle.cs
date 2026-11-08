@@ -80,6 +80,24 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public int Sector(int sectors) =>
         TableIndex * Ensure.BetweenInclusive(1, TableUnitsPerTurn, sectors) / TableUnitsPerTurn;
 
+    /// <summary>The angle turned on by <paramref name="turn"/>, continuing around the circle past a full turn.</summary>
+    public static RotationAngle operator +(RotationAngle angle, RotationAngle turn) => angle.AddRaw(turn.RawValue);
+
+    /// <summary>The angle turned back by <paramref name="turn"/>, continuing around the circle below zero.</summary>
+    public static RotationAngle operator -(RotationAngle angle, RotationAngle turn) => angle.AddRaw(-turn.RawValue);
+
+    /// <summary>Whether <paramref name="left"/> lies earlier in the turn from <see cref="Zero"/> than <paramref name="right"/>.</summary>
+    public static bool operator <(RotationAngle left, RotationAngle right) => left.CompareTo(right) < 0;
+
+    /// <summary>Whether <paramref name="left"/> lies later in the turn from <see cref="Zero"/> than <paramref name="right"/>.</summary>
+    public static bool operator >(RotationAngle left, RotationAngle right) => left.CompareTo(right) > 0;
+
+    /// <summary>Whether <paramref name="left"/> lies no later in the turn from <see cref="Zero"/> than <paramref name="right"/>.</summary>
+    public static bool operator <=(RotationAngle left, RotationAngle right) => left.CompareTo(right) <= 0;
+
+    /// <summary>Whether <paramref name="left"/> lies no earlier in the turn from <see cref="Zero"/> than <paramref name="right"/>.</summary>
+    public static bool operator >=(RotationAngle left, RotationAngle right) => left.CompareTo(right) >= 0;
+
     /// <inheritdoc />
     public int CompareTo(RotationAngle other) => RawValue.CompareTo(other.RawValue);
 

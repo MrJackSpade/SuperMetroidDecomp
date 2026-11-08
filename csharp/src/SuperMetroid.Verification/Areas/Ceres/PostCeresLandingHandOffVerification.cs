@@ -39,7 +39,7 @@ internal static class PostCeresLandingHandOffVerification
         // $82:8057 InitializeSamus clears Samus RAM ($0A02 on) but not the inventory below it.
         SamusState landed = runtime.Player.IntroducedSamus;
         AssertEqual(new PostCeresLandingHandOffVerifyPostCeresLandingHandOffCase(0u, 0, 0),
-            new PostCeresLandingHandOffVerifyPostCeresLandingHandOffCase(landed.HorizontalSpeed.BaseFixed, landed.HorizontalSpeed.ExtraRunSpeed.Whole, landed.HorizontalSpeed.ExtraRunSpeed.Fraction),
+            new PostCeresLandingHandOffVerifyPostCeresLandingHandOffCase(landed.HorizontalSpeed.BaseSpeed.RawValue, landed.HorizontalSpeed.ExtraRunSpeed.Whole, landed.HorizontalSpeed.ExtraRunSpeed.Fraction),
             "station load clears the escape's running speeds");
         AssertEqual(new VerifyPostCeresLandingHandOffCase(7, 10), new VerifyPostCeresLandingHandOffCase(landed.Missiles, landed.MaxMissiles),
             "station load keeps the inventory below Samus RAM");

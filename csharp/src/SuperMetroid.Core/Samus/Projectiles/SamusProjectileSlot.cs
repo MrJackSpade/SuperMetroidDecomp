@@ -63,11 +63,11 @@ public sealed class SamusProjectileSlot
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the projectile shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
-    /// <summary>Current animation frame index.</summary>
+    /// <summary>The animation frame the projectile's current record shows, zero or more.</summary>
     public int AnimationFrame
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
     /// <summary>Countdown controlling projectile-trail emission.</summary>
     public WrappingCountdown TrailTimer { get; internal set; }

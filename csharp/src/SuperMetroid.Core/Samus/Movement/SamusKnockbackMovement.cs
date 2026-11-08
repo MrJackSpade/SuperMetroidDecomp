@@ -237,7 +237,7 @@ level, targetPose, frameCounter, roomObjects))
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         // The special handler does not replace the pose's speed-table index.
         // Morphed bodies retain their own movement type throughout hurt movement.
-        uint baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
+        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == KnockbackHorizontalDirection.Left, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback uses the ordinary left/right wrapper, whose collision branch
@@ -439,7 +439,7 @@ level, targetPose, frameCounter, roomObjects))
     {
         // Gives nonzero external Y priority over its normal total-X-plus-one
         // slope-following probe. This down-knockback path consumes the exact same helper.
-        int requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
+        SignedSixteenSixteen requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (frameCounter & 1) == 0 });

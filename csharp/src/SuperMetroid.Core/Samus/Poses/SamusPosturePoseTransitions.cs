@@ -497,10 +497,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
             // Folds run momentum into base speed with one 16-bit carry,
             // clears the extra words, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
-            uint combined = unchecked(samus.HorizontalSpeed.BaseFixed +
-                SixteenSixteen.Compose(samus.HorizontalSpeed.ExtraRunSpeed.Whole,
-                    samus.HorizontalSpeed.ExtraRunSpeed.Fraction));
-            samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.FromRaw(combined);
+            samus.HorizontalSpeed.BaseSpeed += samus.HorizontalSpeed.ExtraRunSpeed;
             // Cancels the speed boost between the 16.16 fold and the
             // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
             samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);

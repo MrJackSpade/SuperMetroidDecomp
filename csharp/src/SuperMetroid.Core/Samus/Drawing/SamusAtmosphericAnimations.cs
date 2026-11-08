@@ -8,7 +8,7 @@ internal static class SamusAtmosphericAnimations
     /// <summary>Each effect's frame domain.</summary>
     internal static int FrameCount(SamusAtmosphericEffectType type) => type switch
     {
-        SamusAtmosphericEffectType.DivingSplash => Ensure.BetweenInclusive(0, byte.MaxValue, RetainedDivingSplashTimers.Length),
+        SamusAtmosphericEffectType.DivingSplash => RetainedDivingSplashTimers.Length,
         SamusAtmosphericEffectType.Bubbles => 8,
         SamusAtmosphericEffectType.FootstepSplash or SamusAtmosphericEffectType.AlternateFootstepSplash or
             SamusAtmosphericEffectType.LavaSurfaceDamage or SamusAtmosphericEffectType.Dust or

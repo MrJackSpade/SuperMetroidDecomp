@@ -480,8 +480,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         if ((controllerInput & ControllerButton.Down) != ControllerButton.None &&
-            samus.BombSpreadChargeTimeoutCounter % MorphBallBombDefinitions.DownChargeTimeoutCycle <
-                MorphBallBombDefinitions.DownChargeTimeoutUpdates)
+            samus.BombSpreadChargeTimeoutCounter < MorphBallBombDefinitions.DownChargeTimeoutUpdates)
         {
             samus.BombSpreadChargeTimeoutCounter++;
             return BombSpreadAdmission.Charging;
@@ -495,7 +494,7 @@ public sealed class SamusBombProjectileSystem
     internal void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
-            (samus.BombSpreadChargeTimeoutCounter >> 6) & 3;
+            samus.BombSpreadChargeTimeoutCounter / MorphBallBombDefinitions.DownChargeUpdatesPerLaunchPixel;
         for (int index = 0; index < SlotCount; index++)
         {
             SamusBombProjectileSlot slot = _slots[index];

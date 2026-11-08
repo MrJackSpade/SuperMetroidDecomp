@@ -69,7 +69,7 @@ internal static class SpikeDamageBoostVerification
         {
             runtime.StepFrame(frame < 3 ? ControllerButton.Left | ControllerButton.A : ControllerButton.A);
             AssertEqual(expected[frame], new SpikeDamageBoostExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
-                samus.Pose, samus.HorizontalSpeed.BaseFixed), $"morphed spike release frame {frame}");
+                samus.Pose, samus.HorizontalSpeed.BaseSpeed.RawValue), $"morphed spike release frame {frame}");
             AssertEqual(83, samus.Health, "spike contact damage");
             AssertEqual(9 - frame, samus.KnockbackTimer, "spike hurt timer");
         }
@@ -89,7 +89,7 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(5, 0);
-        samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseFixed);
+        samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseSpeed);
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
         samus.KnockbackTimer = 0;
@@ -98,7 +98,7 @@ internal static class SpikeDamageBoostVerification
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
         AssertEqual(0x00534000u, samus.Kinematics.Position.X.RawValue, "expired hurt floor probe keeps X");
         AssertEqual(0x00ebffffu, samus.Kinematics.Position.Y.RawValue, "expired hurt floor alignment");
-        AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "landing clears residual hurt momentum");
+        AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "landing clears residual hurt momentum");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "landing clears vertical direction");
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
@@ -132,7 +132,7 @@ internal static class SpikeDamageBoostVerification
             runtime.StepFrame(ControllerWordCodec.FromJoypadWord(expectedFrame.Input, "spike fixture frame"));
             AssertEqual(new VerifyMorphedSpikeReleaseCase(expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
                 new VerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
-                    samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed.Whole),
+                    samus.HorizontalSpeed.BaseSpeed.RawValue, samus.HorizontalSpeed.ExtraRunSpeed.Whole),
                 "native carried-speed hurt fallback trajectory");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "hurt fallback cancels momentum flag");
         }

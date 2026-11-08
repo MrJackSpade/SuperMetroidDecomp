@@ -60,7 +60,7 @@ internal static class SamusBallBounceDefinitionsVerification
                         : spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound;
                 AssertEqual(published, samus.MorphBallBounceState, "Native ball family/phase publication");
                 AssertEqual(rebound ? pose : groundedPose, samus.Pose, "Rebound retains airborne pose until grounded");
-                AssertEqual(rebound ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseFixed,
+                AssertEqual(rebound ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseSpeed.RawValue,
                     "Both ball families clear horizontal base momentum on final landing");
                 AssertEqual(rebound ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
                     "Both ball families clear horizontal acceleration on final landing");

@@ -32,7 +32,7 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects? roomObjects,
         bool waveBeam = false)
     {
-        slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X.SignedRawValue));
+        slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
 
         if (waveBeam)
         {
@@ -56,10 +56,7 @@ internal sealed class ProjectileTerrainCollision
         // the sole exception: its firing setup writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the game's counterintuitive right-edge initial horizontal probe.
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Direction == SamusProjectileDirection.Left
-            ? -1
-            : 0));
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(0));
+        slot.Velocity = new(slot.Direction == SamusProjectileDirection.Left ? LeftScanVelocity : default, default);
 
         SamusProjectileDirection direction = slot.Direction;
         bool collided = false;
@@ -116,7 +113,7 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects? roomObjects,
         bool waveBeam = false)
     {
-        slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
+        slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());
 
         if (waveBeam)
         {
@@ -134,7 +131,7 @@ internal sealed class ProjectileTerrainCollision
     {
         int topBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) >> 4;
         int bottomBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) >> 4;
-        int targetX = slot.Velocity.X.SignedRawValue < 0
+        int targetX = slot.Velocity.X.IsNegative
             ? CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X)
             : CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
         int blockX = targetX >> 4;
@@ -170,7 +167,7 @@ internal sealed class ProjectileTerrainCollision
     {
         int leftBlock = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
         int rightBlock = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
-        int targetY = slot.Velocity.Y.SignedRawValue < 0
+        int targetY = slot.Velocity.Y.IsNegative
             ? CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)
             : CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int blockY = targetY >> 4;
@@ -507,12 +504,10 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// Block collision overlaps two scratch bytes so an 8.8 velocity word becomes a signed 16.16 delta by
-    /// shifting it left eight. Advancing by it as one wrapped 32-bit quantity is exactly
-    /// equivalent to its low-word add followed by the sign-word add.
+    /// The horizontal velocity a shot fired straight left starts its first block scan with: the smallest leftward
+    /// velocity, 1/256 pixel per update, so the scan samples the left radius.
     /// </summary>
-    internal static SignedSixteenSixteen EightEightDelta(int velocity) =>
-        SignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
+    private static readonly SignedEightEight LeftScanVelocity = SignedEightEight.FromSignedRaw(-1);
 
     /// <summary>
     /// Kills a beam as block collision does: the
@@ -532,14 +527,14 @@ internal sealed class ProjectileTerrainCollision
         // replaces the animation. Diagonals adjust both axes in their respective signs.
         int direction = slot.Direction.ToAimIndex();
         if (direction is 1 or 2 or 3)
-            slot.Position += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(slot.Radius.X), 0);
+            slot.Position += new Offset16<RoomPixels>(slot.Radius.X, 0);
         else if (direction is 6 or 7 or 8)
-            slot.Position -= new Offset16<RoomPixels>(CoordinateAxis.AsSigned(slot.Radius.X), 0);
+            slot.Position -= new Offset16<RoomPixels>(slot.Radius.X, 0);
 
         if (direction is 0 or 1 or 8 or 9)
-            slot.Position -= new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(slot.Radius.Y));
+            slot.Position -= new Offset16<RoomPixels>(0, slot.Radius.Y);
         else if (direction is 3 or 4 or 5 or 6)
-            slot.Position += new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(slot.Radius.Y));
+            slot.Position += new Offset16<RoomPixels>(0, slot.Radius.Y);
 
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
@@ -596,7 +591,7 @@ internal sealed class ProjectileTerrainCollision
         int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int remaining = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
         int span = remaining;
-        int targetX = CoordinateAxis.Wrap(slot.Velocity.X.SignedRawValue < 0
+        int targetX = CoordinateAxis.Wrap(slot.Velocity.X.IsNegative
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
         // The game's sign test reads the original coordinate's high-byte sign, not bit 7
         // of its pixel offset. Testing the latter disables Wave reactions throughout
@@ -647,7 +642,7 @@ internal sealed class ProjectileTerrainCollision
         int remaining = CoordinateAxis.Wrap(right - (left & ~15)) >> 4;
         if (remaining >= 16) return;
         int span = remaining;
-        int targetY = CoordinateAxis.Wrap(slot.Velocity.Y.SignedRawValue < 0
+        int targetY = CoordinateAxis.Wrap(slot.Velocity.Y.IsNegative
             ? slot.Position.Y.Whole - slot.Radius.Y
             : slot.Position.Y.Whole + slot.Radius.Y - 1);
         int centerScreenX = EightEight.WholeOf(slot.Position.X.Whole);

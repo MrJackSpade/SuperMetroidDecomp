@@ -318,7 +318,7 @@ public sealed class ScrollBoundaryCamera
             // If the next cell is also red, discard the fractional screen position and stay
             // on this cell's left edge instead of allowing the viewport to enter it.
             int rightBoundary = NextScreenStart(Position.X.Whole);
-            int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholeWord + 2);
+            int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + 2);
             if (candidate >= rightBoundary)
             {
                 SetWholeX(rightBoundary);
@@ -340,7 +340,7 @@ public sealed class ScrollBoundaryCamera
         // toward the current cell's left edge. If the candidate itself lands in red, round
         // up to the next screen boundary. The comparison is signed.
         int leftBoundary = ScreenStart(Position.X.Whole);
-        int leftCandidate = CoordinateAxis.Wrap(proposed - Speed.X.WholeWord - 2);
+        int leftCandidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - 2);
         if (CoordinateAxis.Difference(leftCandidate, leftBoundary) < 0)
         {
             SetWholeX(leftBoundary);
@@ -386,7 +386,7 @@ public sealed class ScrollBoundaryCamera
             // A red current cell pushes downward toward its bottom boundary. As in the X
             // routine, a second red cell beyond the candidate causes screen-edge rounding.
             int bottomBoundary = NextScreenStart(Position.Y.Whole);
-            int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholeWord + 2);
+            int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + 2);
             if (candidate >= bottomBoundary)
             {
                 SetWholeY(bottomBoundary);
@@ -412,7 +412,7 @@ public sealed class ScrollBoundaryCamera
         if (topBoundary >= Position.Y.Whole)
             return;
 
-        int upwardCandidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholeWord - 2);
+        int upwardCandidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - 2);
         if (CoordinateAxis.Difference(upwardCandidate, topBoundary) < 0)
         {
             SetWholeY(topBoundary);
@@ -454,7 +454,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = ScreenStart(Position.X.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed - Speed.X.WholeWord - 2);
+        int candidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - 2);
         if (CoordinateAxis.Difference(candidate, boundary) < 0)
             candidate = boundary;
         SetWholeX(candidate);
@@ -482,7 +482,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.X.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholeWord + 2);
+        int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + 2);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeX(candidate);
@@ -524,7 +524,7 @@ public sealed class ScrollBoundaryCamera
 
         if (beyondRoomBottom || blockedBelow)
         {
-            int candidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholeWord - 2);
+            int candidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - 2);
             if (CoordinateAxis.Difference(candidate, boundary) < 0)
                 candidate = boundary;
             SetWholeY(candidate);
@@ -552,7 +552,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.Y.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholeWord + 2);
+        int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + 2);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeY(candidate);
@@ -582,11 +582,14 @@ public sealed class ScrollBoundaryCamera
         FixedCoordinate previous,
         FixedCoordinate current)
     {
-        uint distance = CoordinateAxis.Difference(current.Whole, previous.Whole) >= 0
-            ? unchecked(current.RawValue - previous.RawValue + 65536u)
-            : unchecked(previous.RawValue - current.RawValue + 65536u);
-        return SignedSixteenSixteen.FromRaw(unchecked((int)distance));
+        SignedSixteenSixteen distance = CoordinateAxis.Difference(current.Whole, previous.Whole) >= 0
+            ? current - previous
+            : previous - current;
+        return distance + OnePixel;
     }
+
+    /// <summary>The whole pixel the distance moved gains.</summary>
+    private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromParts(1, 0);
 
     /// <summary>Writes only the horizontal integer camera word, preserving its fraction and vertical axis.</summary>
     private void SetWholeX(int x) => Position = Position.WithX(Position.X.WithWhole(x));

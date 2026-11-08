@@ -38,8 +38,52 @@ public readonly record struct UnsignedSixteenSixteen
     public static UnsignedSixteenSixteen operator +(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
         FromRaw(unchecked(left.RawValue + right.RawValue));
 
+    /// <summary>
+    /// Subtracts two values: a fraction that drops below zero borrows one from the whole part, and the whole part wraps
+    /// at its word, so a speed slowed past zero holds a whole word of 32768 or more, which the game's sign tests read as
+    /// having passed zero.
+    /// </summary>
+    public static UnsignedSixteenSixteen operator -(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
+        FromRaw(unchecked(left.RawValue - right.RawValue));
+
+    /// <summary>
+    /// Adds a signed change, as the game's speed arithmetic adds a signed 16.16 acceleration to an unsigned speed: the
+    /// sum carries and wraps exactly as the two words' 32-bit addition does.
+    /// </summary>
+    public static UnsignedSixteenSixteen operator +(UnsignedSixteenSixteen speed, SignedSixteenSixteen change) =>
+        FromRaw(unchecked(speed.RawValue + (uint)change.RawValue));
+
+    /// <summary>
+    /// Subtracts a signed change, as the game's speed arithmetic subtracts a signed 16.16 deceleration from an unsigned
+    /// speed: the difference borrows and wraps exactly as the two words' 32-bit subtraction does.
+    /// </summary>
+    public static UnsignedSixteenSixteen operator -(UnsignedSixteenSixteen speed, SignedSixteenSixteen change) =>
+        FromRaw(unchecked(speed.RawValue - (uint)change.RawValue));
+
+    /// <summary>
+    /// The value halved <paramref name="halvings"/> times, 0 through 16: each halving moves the lowest whole bit into
+    /// the top of the fraction and drops the fraction's lowest bit.
+    /// </summary>
+    public UnsignedSixteenSixteen Halved(int halvings) => FromRaw(RawValue >> Ensure.BetweenInclusive(0, 16, halvings));
+
+    /// <summary>
+    /// The speed as a displacement along its positive direction, as the game moves by a speed word pair: the same
+    /// whole and fraction, the whole read as signed, so a speed whose whole word is 32768 or more moves backward.
+    /// </summary>
+    public SignedSixteenSixteen AsDisplacement() => SignedSixteenSixteen.FromRaw(unchecked((int)RawValue));
+
+    /// <summary>
+    /// The displacement's whole and fraction kept as a speed, as the game stores a signed result in a speed's words:
+    /// a negative whole becomes a whole word of 32768 or more.
+    /// </summary>
+    public static UnsignedSixteenSixteen FromDisplacement(SignedSixteenSixteen displacement) =>
+        FromRaw(unchecked((uint)displacement.RawValue));
+
     /// <summary>This speed with its whole word replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
+
+    /// <summary>This speed with its fraction word replaced.</summary>
+    public UnsignedSixteenSixteen WithFraction(int fraction) => new(Whole, fraction);
 
     /// <summary>
     /// The cartridge's cap test: each word is compared with the cap's word on its own, and both differences must have

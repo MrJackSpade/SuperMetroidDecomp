@@ -46,7 +46,7 @@ public static class XrayScopeDefinitions
     /// <summary>How the X-ray scope's cone widens.</summary>
     public static class Window
     {
-        /// <summary>Per-frame 16.16 angular-width growth applied while widening.</summary>
-        public const uint WideningStep = 2048u;
+        /// <summary>Per-frame angular-width growth applied while widening: 2048/65536 of a table unit.</summary>
+        public static readonly SignedSixteenSixteen WideningStep = SignedSixteenSixteen.FromParts(0, 2048);
     }
 }

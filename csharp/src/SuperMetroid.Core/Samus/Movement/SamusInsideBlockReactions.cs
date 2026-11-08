@@ -96,7 +96,7 @@ public static class SamusInsideBlockReactions
                             // replaces the speed's whole pixels and fraction with the limit's.
                             if (EightEight.WholeOf(body.VerticalSpeedFixed) > EightEight.WholeOf(limit.RawValue))
                             {
-                                body.YSpeed = new UnsignedSixteenSixteen(limit.WholeWord, limit.Fraction);
+                                body.YSpeed = UnsignedSixteenSixteen.FromDisplacement(limit);
                             }
                             SetExtra(physics.MovingDisplacement);
                             break;

@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </remarks>
 public static class SamusHurtFlashPalette
 {
+    /// <summary>The hurt-flash count at which the flash ends and the count is cleared: its largest value.</summary>
+    public const int EndingCall = 60;
+
     /// <summary>
     /// Advances one hurt-flash call, optionally showing the flash's or the restored suit's shade as the suit's colours
     /// (#1512) and publishing the exact recovery sound side effects.
@@ -80,7 +83,7 @@ public static class SamusHurtFlashPalette
         if (counterAfter == 40)
             RecoverInterruptedSound(samus, controllerInput);
 
-        if (counterAfter >= 60)
+        if (counterAfter >= EndingCall)
         {
             samus.HurtFlashCounter = 0;
         }

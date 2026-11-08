@@ -54,7 +54,7 @@ public static class SamusGrappleSwing
         int absoluteVelocity = Math.Abs(grapple.AngularVelocity);
         int doubledVelocity = absoluteVelocity * 2;
         int cosine = ReadSignedSine(
-            grapple.Angle.AddRaw(RotationAngle.QuarterTurn.RawValue).TableIndex);
+            (grapple.Angle + RotationAngle.QuarterTurn).TableIndex);
 
         uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
         samus.Kinematics.YSpeed = UnsignedSixteenSixteen.FromRaw(verticalFixed);
@@ -114,8 +114,8 @@ public static class SamusGrappleSwing
         // The branch accepts pumping only through the lower half of the circle:
         // angle 16384..49151. At exactly 32768 a motionless pendulum gets the game's
         // +/-256 kick before the normal +/-12 input acceleration is added.
-        bool inPumpArc = grapple.Angle.RawValue >= RotationAngle.QuarterTurn.RawValue &&
-            grapple.Angle.RawValue < RotationAngle.ThreeQuarterTurn.RawValue;
+        bool inPumpArc = grapple.Angle >= RotationAngle.QuarterTurn &&
+            grapple.Angle < RotationAngle.ThreeQuarterTurn;
         if (!inPumpArc)
         {
             grapple.DirectionInputAcceleration = 0;
@@ -278,7 +278,7 @@ public static class SamusGrappleSwing
         // The swing adds the small correction when the velocity and the angle lean opposite ways: a negative velocity
         // with an angle in the first half-turn, or a non-negative one with an angle in the second, so the test turns
         // over at the 0/65535 angle seam.
-        if ((velocity < 0) != (grapple.Angle.RawValue >= RotationAngle.HalfTurn.RawValue))
+        if ((velocity < 0) != (grapple.Angle >= RotationAngle.HalfTurn))
             velocity += grapple.VelocityCorrection;
 
         grapple.AngularVelocity = Math.Clamp(
@@ -353,8 +353,7 @@ public static class SamusGrappleSwing
                 // A collision restores the last safe whole angle byte and forces the
                 // fractional half value 128. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
-                grapple.Angle = RotationAngle.FromRaw(
-                    RotationAngle.FromTableIndex(lastSafeAngleByte).AddRaw(128).RawValue);
+                grapple.Angle = RotationAngle.FromTableIndex(lastSafeAngleByte, fraction: 128);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&

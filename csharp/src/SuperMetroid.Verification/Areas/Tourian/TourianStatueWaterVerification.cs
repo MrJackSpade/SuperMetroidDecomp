@@ -79,17 +79,17 @@ internal static class TourianStatueWaterVerification
         runtime.RoomFxOverlay.SetLiquidMotion(targetYPosition: 0xb4,
             packedYVelocity: 0x0100, timer: 1);
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.NamedSurface, "Water motion first arms its native wait");
+        AssertEqual(0xb0, runtime.RoomFxOverlay.NamedSurface, "Water motion first arms its native wait");
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.NamedSurface, "Water wait expires before movement");
+        AssertEqual(0xb0, runtime.RoomFxOverlay.NamedSurface, "Water wait expires before movement");
         game.Step(0);
-        AssertEqual((ushort)0xb1, runtime.RoomFxOverlay.NamedSurface, "Special water follows the native one-pixel velocity");
+        AssertEqual(0xb1, runtime.RoomFxOverlay.NamedSurface, "Special water follows the native one-pixel velocity");
         AssertEqual(0xb1, samus.LiquidPhysics.WaterSurfaceY, "The moved water surface reaches live Samus physics");
         AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomFxOverlay.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
         runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-        AssertEqual((ushort)0xb1, runtime.RoomFxOverlay.NamedSurface, "Frozen HDMA retains the current water surface");
+        AssertEqual(0xb1, runtime.RoomFxOverlay.NamedSurface, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;
     }

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 

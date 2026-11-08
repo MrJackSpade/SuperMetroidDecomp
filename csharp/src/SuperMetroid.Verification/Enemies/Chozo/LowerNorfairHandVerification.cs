@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -101,7 +102,7 @@ internal static class LowerNorfairHandVerification
         // handler updates the surface registers, then the following NMI displays them.
         runtime.StepFrame(0);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomFxOverlay.")).NamedSurface,
+        AssertEqual(0x2d2, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomFxOverlay.")).NamedSurface,
             "final drained height reaches display without a room transition");
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
         runtime.StepFrame(0);

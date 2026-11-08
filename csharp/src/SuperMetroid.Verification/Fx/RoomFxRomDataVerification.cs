@@ -15,7 +15,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
 

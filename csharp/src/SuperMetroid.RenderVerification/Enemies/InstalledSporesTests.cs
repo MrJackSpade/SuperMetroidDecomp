@@ -203,7 +203,7 @@ internal static class InstalledSporesTests
                 {
                     FxOverlay = FxOverlayFixtures.PageFromVram(vram.Bytes, colors, 0x4000),
                 }),
-                new(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
+                new(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind, Position16<OverlayPixels>.Zero, null));
             var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors, oam, 1, 0), [layer], 15);
             RgbaPixel[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only

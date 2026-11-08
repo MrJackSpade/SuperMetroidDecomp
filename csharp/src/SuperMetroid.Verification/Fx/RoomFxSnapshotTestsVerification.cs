@@ -57,7 +57,7 @@ internal static class RoomFxSnapshotTestsVerification
             (BlendOperation)255, ScrollBands.Uniform(0), ScrollBands.Uniform(0)), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], 15));
         AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomFxOverlay(
-            new(RoomFxType.Water, null, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture rejects water that describes no blend");
+            new(RoomFxType.Water, null, Position16<OverlayPixels>.Zero, null), plane), "capture rejects water that describes no blend");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");
     }
 }

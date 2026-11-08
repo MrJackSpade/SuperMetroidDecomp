@@ -89,7 +89,7 @@ internal static class Layer3PlaneVerification
             "the rows the HUD's images cover stay cleared above the effect");
 
         RoomFxOverlayRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
-        AssertEqual((ushort)0x0080, shown.NamedSurface, "the published effect carries the constructed liquid level");
+        AssertEqual(0x0080, shown.NamedSurface, "the published effect carries the constructed liquid level");
         FxOverlayPage shownPage = FxOverlayFixtures.PageFromPlaneWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
         OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, shownPage)
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");

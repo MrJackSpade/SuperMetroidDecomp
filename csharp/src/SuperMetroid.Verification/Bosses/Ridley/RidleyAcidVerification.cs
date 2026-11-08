@@ -56,7 +56,7 @@ internal static class RidleyAcidVerification
         state.FadeStep = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
-        AssertEqual((ushort)440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
+        AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.YVelocity.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer.RawValue, "native reveal writes rise delay once");
         for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
@@ -65,7 +65,7 @@ internal static class RidleyAcidVerification
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = 0;
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
-        AssertEqual((ushort)528, fx.NamedTargetSurface, "native death roar writes acid drain target");
+        AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.YVelocity.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer.RawValue, "native death writes drain delay once");
         for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });

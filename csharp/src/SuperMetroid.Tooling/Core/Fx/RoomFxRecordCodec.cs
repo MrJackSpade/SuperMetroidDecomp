@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Spatial;

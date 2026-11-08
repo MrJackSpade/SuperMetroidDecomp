@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -30,31 +31,20 @@ internal static class GrappleConnectionDefinitionsVerification
         // Combine two adjacent retail bytes into a bank-$9B reference word.
         ushort Word(int address) => LittleEndianBytes.Word(GrappleConnectionDefinitionsRomByte(rom, address), GrappleConnectionDefinitionsRomByte(rom, address + 1));
         var guard = NewGrappleConnectionReadGuard(rom);
-        // All three table bases and every serialized direction byte, including native
-        // reads into the next authored table. Other addresses fail explicitly.
+        // Each policy's ten-row table, one row per firing direction at its aim index; firing admits only these ten
+        // directions, so no connection reads another policy's rows.
         int compiled = 0;
-        // The three tables lie one after another, so a direction past a table's ten reads on into the next's records.
         foreach ((GrappleConnectionTable kind, int table) in new[] { (GrappleConnectionTable.Default, 0x9bc3c6),
                      (GrappleConnectionTable.MovingVertically, 0x9bc3ee), (GrappleConnectionTable.Crouching, 0x9bc416) })
-        for (int direction = 0; direction <= byte.MaxValue; direction++)
+        foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
         {
-            int address = table + direction * 4;
-            bool authored = address < 0x9bc43e;
-            if (authored)
-            {
-                var connection = GrappleConnections.ResolveConnection(kind, direction);
-                AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Functions.Word(connection.Function), SamusGrappleConnectionNative.Handlers.Word(connection.Handler)),
-                    "Both native connection words");
-                compiled++;
-            }
-            else
-            {
-                AssertThrows<InvalidDataException>(
-                    () => GrappleConnections.ResolveConnection(kind, direction),
-                    "A direction past the compiled records fails instead of reading adjacent ROM");
-            }
+            int address = table + direction.ToAimIndex() * 4;
+            var connection = GrappleConnections.ResolveConnection(kind, direction);
+            AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Functions.Word(connection.Function), SamusGrappleConnectionNative.Handlers.Word(connection.Handler)),
+                "Both native connection words");
+            compiled++;
         }
-        AssertEqual(60, compiled, "Default 30 + vertical 20 + crouching 10 authored reads");
+        AssertEqual(30, compiled, "Ten rows in each of the three policies");
         Suite(nameof(VerifyGrappleConnectionDispatch), () => VerifyGrappleConnectionDispatch(rom));
         Suite(nameof(VerifyGrappleSpecialConnections), () => VerifyGrappleSpecialConnections(rom));
         Suite(nameof(VerifyGrappleCancellationAndDrop), () => VerifyGrappleCancellationAndDrop(rom));

@@ -955,7 +955,7 @@ public static class SamusGrappleMovement
             : sourceMovementType == SamusMovementType.Crouching
                 ? GrappleConnectionTable.Crouching
                 : GrappleConnectionTable.Default;
-        var connection = GrappleConnections.ResolveConnection(connectionTable, grapple.FireDirection.ToAimIndex());
+        var connection = GrappleConnections.ResolveConnection(connectionTable, grapple.FireDirection);
         GrappleConnectionFunction nextFunction = connection.Function;
         GrappleConnectionHandler handler = connection.Handler;
 

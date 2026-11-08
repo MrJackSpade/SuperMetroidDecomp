@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The codec between <see cref="SamusProjectileDirection"/> and the cartridge's ten-way aim index, which numbers the
 /// aim directions clockwise from up (facing right) through down to up (facing left). Core keeps the index because
 /// pose-definition byte three stores it among turning and no-fire restriction bytes and adjacent-code over-reads, the
-/// installed arm-cannon artwork and flare placements select their rows by it, the grapple tables extend past it into
-/// adjacent rows, and a projectile's direction word holds it in its low nibble. This is the one place a direction
+/// installed arm-cannon artwork and flare placements select their rows by it, and a projectile's direction word holds
+/// it in its low nibble. This is the one place a direction
 /// becomes its index or an index its direction.
 /// </summary>
 [EncodingOwner("projectile aim index")]

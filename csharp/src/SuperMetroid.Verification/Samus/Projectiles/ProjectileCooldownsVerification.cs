@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -12,7 +11,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -24,7 +22,6 @@ internal static class ProjectileCooldownsVerification
     internal static void VerifyProjectileCooldowns()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var bus = NewProjectileCooldownReadGuard(retail);
         // Every combination's three cooldowns are the bytes the fire routines read: the authored cells for retail
         // combinations, and for Spazer and Plasma the bytes past the rows the installed service decoded (#1506).
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
@@ -99,16 +96,7 @@ internal static class ProjectileCooldownsVerification
             AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Slots[0].Type.BeamCombination.TableIndex),
                 shared.CooldownTimer.RawValue, "A special attack waits its combination's charged-shot cooldown, the row its first particle selects");
         }
-        Console.WriteLine("Projectile cooldowns: 48 combination cooldown bytes, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
-    }
-
-    /// <summary>Blocks migrated cooldown bytes during actual projectile firing.</summary>
-    private static MutableCartridgeReadGuard NewProjectileCooldownReadGuard(ISnesAddressSpace source)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= 0x90c254 and < 0x90c28f,
-            address => $"Compiled cooldown read ROM ${address:X6}.");
-        return guard;
+        Console.WriteLine("Projectile cooldowns: 48 combination cooldown bytes, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass.");
     }
 
     /// <summary>Runs the projectile cooldown producer and cadence checks.</summary>

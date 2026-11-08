@@ -47,7 +47,7 @@ internal static class TourianStatueWaterVerification
         game.GameState = SuperMetroidGameState.MainGameplay;
         for (int frame = 0; frame < 3; frame++) game.Step(0);
         AssertEqual(RoomFxType.TourianEntranceStatue, samus.LiquidPhysics.FxType, "Samus retains native special FX identity");
-        AssertEqual((int?)0xb0, samus.LiquidPhysics.WaterSurfaceY, "Water physics receives the visible surface");
+        AssertEqual(0xb0, samus.LiquidPhysics.WaterSurfaceY, "Water physics receives the visible surface");
         samus.Position = samus.Position.WithWholeY(190);
         samus.LiquidPhysics.InitializeRememberedMedium(samus);
         AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType,
@@ -84,7 +84,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.Surface.Y, "Water wait expires before movement");
         game.Step(0);
         AssertEqual((ushort)0xb1, runtime.RoomFxOverlay.Surface.Y, "Special water follows the native one-pixel velocity");
-        AssertEqual((int?)0xb1, samus.LiquidPhysics.WaterSurfaceY, "The moved water surface reaches live Samus physics");
+        AssertEqual(0xb1, samus.LiquidPhysics.WaterSurfaceY, "The moved water surface reaches live Samus physics");
         AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomFxOverlay.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");

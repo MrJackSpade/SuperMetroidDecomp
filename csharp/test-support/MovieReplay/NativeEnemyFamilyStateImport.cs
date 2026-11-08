@@ -275,7 +275,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             ushort pipeBugFunction = pipeBugRecord.IsBrinstar ? words.F : words.A;
             pipeBugRecord.Function = pipeBugFunction == 0 ? null : PipeBugsNativeWords.PipeBugEnemyFunctions.Decode(pipeBugFunction, "recorded PipeBugEnemyFunction");
-            pipeBugRecord.BrinstarFliesLeft = pipeBugRecord.IsBrinstar && EnemyMath.IsNegative16(words.A);
+            pipeBugRecord.BrinstarFliesLeft = pipeBugRecord.IsBrinstar && CoordinateAxis.AsSigned(words.A) < 0;
         }
         if (slot.SpeciesState<MagdolliteEnemyState>() is { } magdolliteRecord)
         {

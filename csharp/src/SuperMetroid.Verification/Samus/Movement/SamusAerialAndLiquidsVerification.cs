@@ -853,9 +853,9 @@ internal static void VerifySamusLiquidPhysics()
     // Pose-change animation samples Y+radius-1. Continuous FX animation samples the full
     // bottom boundary and updates remembered `$0AD2`; prove both edges independently.
     sample.EquippedItems = 0;
-    sample.XSpeedDivisor = 7;
+    sample.XSpeedDivisor = SamusHorizontalSpeedState.LargestSpeedDivisor;
     sample.LiquidPhysics.ConfigureWater(surfaceY: 111);
-    AssertEqual(7, sample.LiquidPhysics.DeterminePoseChangeAnimationBuffer(sample),
+    AssertEqual(SamusHorizontalSpeedState.LargestSpeedDivisor, sample.LiquidPhysics.DeterminePoseChangeAnimationBuffer(sample),
         "pose-change surface equality uses speed divisor");
     sample.LiquidPhysics.ConfigureWater(surfaceY: 110);
     AssertEqual(3, sample.LiquidPhysics.DeterminePoseChangeAnimationBuffer(sample),

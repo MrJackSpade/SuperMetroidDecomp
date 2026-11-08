@@ -159,7 +159,7 @@ internal static class DraygonStateQuantitiesVerification
         for (int index = 0; index < expected.Count; index++)
             AssertEqual(expected[index], state.SwoopYPositions[index], $"swoop path sample {index}");
         AssertEqual(state.Body.Position.Y.Whole, state.SwoopYPositions[expected.Count], "the path ends at the body's height");
-        uint velocity = SixteenSixteen.FromWhole((uint)EnemyMath.WrappedMagnitude(unchecked(resetX - 200))) / (uint)expected.Count;
+        uint velocity = SixteenSixteen.FromWhole((uint)Math.Abs(CoordinateAxis.AsSigned(unchecked(resetX - 200)))) / (uint)expected.Count;
         AssertEqual(velocity, state.SwoopVelocity.RawValue, "swoop horizontal speed");
     }
 

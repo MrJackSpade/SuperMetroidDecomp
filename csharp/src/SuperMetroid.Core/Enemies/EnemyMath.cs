@@ -73,14 +73,6 @@ internal static class EnemyMath
         velocity.ToSixteenSixteenDelta().RawValue;
 
     /// <summary>
-    /// Returns the game's modular absolute value of one signed 16-bit difference.
-    /// Value 0x8000 intentionally remains 0x8000: the game's negation wraps, just like this
-    /// unchecked host operation. Alcoon, Beetom, Work Robot, Polyp, and Namihe all consume
-    /// this exact distance convention. <paramref name="value"/> is a word, 0 through 65535.
-    /// </summary>
-    internal static int WrappedMagnitude(int value) => Math.Abs(CoordinateAxis.AsSigned(value));
-
-    /// <summary>
     /// Implements the shared proximity helpers' strict <c>magnitude &lt; limit</c>
     /// test. Equality is outside, and subtraction happens in wrapped 16-bit world space.
     /// </summary>
@@ -196,10 +188,4 @@ internal static class EnemyMath
     /// takes only its place within 256, so a radius of 256 or more continues from zero.
     /// </summary>
     private static int RadiusMultiplierOperand(int radius) => Ensure.AtLeastZero(radius) % ByteSpan;
-
-    /// <summary>
-    /// Whether a computed coordinate difference, speed or count reads as negative, as the game's sign tests read one:
-    /// wrapped onto 0 through 65535, it lies in the upper half.
-    /// </summary>
-    internal static bool IsNegative16(int value) => CoordinateAxis.AsSigned(value) < 0;
 }

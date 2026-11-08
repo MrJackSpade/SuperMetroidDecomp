@@ -62,7 +62,7 @@ public static class WrappingCounter
     /// <param name="value">The count, 0 through 65535.</param>
     /// <param name="step">The step, 0 through 65535.</param>
     public static int SubtractWord(int value, int step) =>
-        (Ensure.BetweenInclusive(0, ushort.MaxValue, value) - Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue;
+        AddWord(value, (ushort.MaxValue + 1 - Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue);
 
     /// <summary>
     /// Whether a count of 0 through 65535 reads as having run below zero, as the game tests a count by its sign: a

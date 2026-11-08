@@ -25,10 +25,10 @@ internal static class GunshipMotionDefinitions
     internal const int SlowDescentY = 768;
 
     /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>: four and a half pixels per call.</summary>
-    internal static readonly SignedSixteenSixteen FastDescentSpeed = SignedSixteenSixteen.FromParts(4, 32768);
+    internal static readonly SignedSixteenSixteen FastDescentSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(72);
 
     /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>: two and a half pixels per call.</summary>
-    internal static readonly SignedSixteenSixteen SlowDescentSpeed = SignedSixteenSixteen.FromParts(2, 32768);
+    internal static readonly SignedSixteenSixteen SlowDescentSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(40);
 
     /// <summary>The landed top hull's Y, where the descent clamps.</summary>
     internal const int LandedTopY = 1119;

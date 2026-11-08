@@ -18,7 +18,7 @@ public sealed class BoulderEnemyState
     /// <summary>
     /// The largest bounce clock: the quadratic table rejects the record past it before another increment.
     /// </summary>
-    internal const int LargestBounceSpeedAccumulator = EightEight.FromWhole(EnemyQuadraticSpeedDefinitions.RowCount);
+    internal static readonly int LargestBounceSpeedAccumulator = EightEight.FromWhole(EnemyQuadraticSpeedDefinitions.RowCount);
 
     /// <summary>
     /// The travel acceleration clock in 256ths of a quadratic-speed record: advanced by 32 or 64 per update and capped

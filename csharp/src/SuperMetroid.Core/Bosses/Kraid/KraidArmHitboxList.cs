@@ -3,36 +3,36 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>The sixteen ordered rectangle lists Kraid's arm components collide with.</summary>
 internal enum KraidArmHitboxList
 {
-    /// <summary>Kraid arm hitbox 0.</summary>
+    /// <summary>The first of the seven shapes the outer articulated components advance through.</summary>
     Articulated0,
-    /// <summary>Kraid arm hitbox 1.</summary>
+    /// <summary>The second articulated shape.</summary>
     Articulated1,
-    /// <summary>Kraid arm hitbox 2.</summary>
+    /// <summary>The third articulated shape.</summary>
     Articulated2,
-    /// <summary>Kraid arm hitbox 3.</summary>
+    /// <summary>The fourth articulated shape.</summary>
     Articulated3,
-    /// <summary>Kraid arm hitbox 4.</summary>
+    /// <summary>The fifth articulated shape.</summary>
     Articulated4,
-    /// <summary>Kraid arm hitbox 5.</summary>
+    /// <summary>The sixth articulated shape.</summary>
     Articulated5,
-    /// <summary>Kraid arm hitbox 6.</summary>
+    /// <summary>The seventh and last articulated shape.</summary>
     Articulated6,
-    /// <summary>Kraid arm hitbox 8.</summary>
+    /// <summary>The connecting components' second shape.</summary>
     ConnectorSecond,
-    /// <summary>Kraid arm hitbox 9.</summary>
+    /// <summary>The connecting components' third shape.</summary>
     ConnectorThird,
-    /// <summary>Kraid arm hitbox: a.</summary>
+    /// <summary>The connecting components' final shape.</summary>
     ConnectorFinal,
-    /// <summary>Kraid arm hitbox: f.</summary>
+    /// <summary>The connecting components' initial shape.</summary>
     ConnectorInitial,
-    /// <summary>Kraid arm hitbox 10.</summary>
+    /// <summary>The body component's final shape.</summary>
     BodyFinal,
-    /// <summary>Kraid arm hitbox 11.</summary>
+    /// <summary>The body component's middle shape.</summary>
     BodyMiddle,
-    /// <summary>Kraid arm hitbox 12.</summary>
+    /// <summary>The body component's initial shape.</summary>
     BodyInitial,
-    /// <summary>the first dying/preparing-to-lunge list.</summary>
+    /// <summary>The first dying/preparing-to-lunge list.</summary>
     FinalPoseFirst,
-    /// <summary>the second dying/preparing-to-lunge list.</summary>
+    /// <summary>The second dying/preparing-to-lunge list.</summary>
     FinalPoseSecond,
 }

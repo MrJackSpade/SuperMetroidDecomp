@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One leg of the Baby Metroid's ceiling-to-Samus route.
 /// </summary>
 /// <param name="Target">The waypoint the Baby steers toward.</param>
-/// <param name="AccelerationDivisorIndex">Index 0 through 15 into the gradual-acceleration divisor table.</param>
+/// <param name="AccelerationDivisor">What the gradual acceleration divides the remaining distance by, 1 through 16.</param>
 /// <param name="MovementFunction">The steering routine, which selects the wrong-way correction.</param>
 /// <param name="EndsWithLatchOntoSamus">
 /// Whether reaching this waypoint ends the route and installs the latch-onto-Samus function,
@@ -12,6 +12,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </param>
 internal readonly record struct BabyMetroidRouteRecord(
     Position16<RoomPixels> Target,
-    int AccelerationDivisorIndex,
+    int AccelerationDivisor,
     BabyMetroidRouteMovementFunction MovementFunction,
     bool EndsWithLatchOntoSamus);

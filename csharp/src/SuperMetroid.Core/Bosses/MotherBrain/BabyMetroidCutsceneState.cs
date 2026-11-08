@@ -407,22 +407,11 @@ public sealed class BabyMetroidCutsceneState
                 HealthBasedPaletteEnabled = true;
                 ambientCrySoundQueued = (randomNumber & 4095) >= 4000;
 
-                // The route is eight overlapping records. The fixed targets, divisor
-                // indexes, and callback identities are compiled mechanics definitions;
-                // sprite/instruction presentation remains separately backed.
+                // The route is eight overlapping records. The fixed targets, divisors, and callback identities are
+                // compiled mechanics definitions; sprite/instruction presentation remains separately backed.
                 BabyMetroidRouteRecord record = BabyMetroidRoute.GetRecord(RouteLeg);
                 Position16<RoomPixels> target = record.Target;
-                int divisorIndex = record.AccelerationDivisorIndex;
-
-                // The divisor table counts 16 down to 1; every retail route record uses index zero,
-                // but implementing all legal indices costs nothing and catches malformed
-                // data before a divide-by-zero or an invented fallback can hide it.
-                if (divisorIndex > 15)
-                {
-                    throw new InvalidDataException(
-                        $"Baby route leg {RouteLeg} has invalid divisor index {divisorIndex}.");
-                }
-                int accelerationDivisor = 16 - divisorIndex;
+                int accelerationDivisor = record.AccelerationDivisor;
                 int wrongWayExtra = BabyMetroidRoute.GetWrongWayOffScreenXSpeed(
                     record.MovementFunction);
 

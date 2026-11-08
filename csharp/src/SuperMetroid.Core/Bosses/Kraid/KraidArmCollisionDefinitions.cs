@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -31,39 +32,6 @@ internal static class KraidArmCollisionDefinitions
         [new(-39, 10), new(-38, 0), new(-42, 9), new(-42, -2)],
     ];
 
-    /// <summary>Ordered physical rectangles; callbacks are calculated separately from the index.</summary>
-    internal static readonly EnemyHitboxRectangle[] Geometry =
-    [
-        new(-13, -11, -3, -5),
-        new(-9, -5, 1, 2),
-        new(-16, -5, 1, 2),
-        new(-9, -2, 1, 7),
-        new(-12, 3, -6, 12),
-        new(-6, -1, 1, 14),
-        new(-3, -2, 6, 9),
-        new(2, 7, 11, 11),
-        new(-1, -4, 14, 4),
-        new(-3, -7, 6, 2),
-        new(4, -12, 10, -1),
-        new(-15, -5, 2, 4),
-        new(-11, 2, -4, 10),
-        new(-6, -3, 3, 5),
-        new(-4, -2, 3, 13),
-        new(-12, -12, -3, -3),
-        new(-6, -6, 3, 2),
-        new(-45, -9, 4, 8),
-        new(-28, -17, -12, 0),
-        new(-42, -23, -28, -6),
-        new(-22, -25, -8, -5),
-        new(-35, -35, -19, -17),
-        new(-64, -48, -32, -16),
-        new(-64, -4, 0, 4),
-    ];
-
-    /// <summary>Twenty-four rectangles selected by the compiled arm frame families.</summary>
-    internal const int RectangleCount = 24;
-    /// <summary>First compiled rectangle of the first background arm frame, using normal background touch.</summary>
-    internal const int FirstBackgroundRectangle = 17;
 
     /// <summary>The seven articulated shapes components 0 and 3 advance through.</summary>
     internal static readonly KraidArmHitboxList[] ArticulatedShapes =
@@ -103,24 +71,28 @@ internal static class KraidArmCollisionDefinitions
         [EnemyFrameId.KraidArm21] = 11,
     };
 
-    /// <summary>Each compiled hitbox list and its slice of the rectangle geometry: first rectangle and count.</summary>
-    internal static readonly KraidHitboxListDefinition[] HitboxListSlices =
-    [
-        new(KraidArmHitboxList.Articulated0, 0, 2),
-        new(KraidArmHitboxList.Articulated1, 2, 1),
-        new(KraidArmHitboxList.Articulated2, 3, 2),
-        new(KraidArmHitboxList.Articulated3, 5, 1),
-        new(KraidArmHitboxList.Articulated4, 6, 2),
-        new(KraidArmHitboxList.Articulated5, 8, 1),
-        new(KraidArmHitboxList.Articulated6, 9, 2),
-        new(KraidArmHitboxList.ConnectorSecond, 11, 1),
-        new(KraidArmHitboxList.ConnectorThird, 12, 2),
-        new(KraidArmHitboxList.ConnectorFinal, 14, 1),
-        new(KraidArmHitboxList.ConnectorInitial, 15, 2),
-        new(KraidArmHitboxList.BodyFinal, 17, 1),
-        new(KraidArmHitboxList.BodyMiddle, 18, 2),
-        new(KraidArmHitboxList.BodyInitial, 20, 2),
-        new(KraidArmHitboxList.FinalPoseFirst, 22, 1),
-        new(KraidArmHitboxList.FinalPoseSecond, 23, 1),
-    ];
+    /// <summary>
+    /// Each hitbox list's touch reaction and its rectangles in collision order. The articulated and connecting lists
+    /// touch as the arm; the body lists and both dying/lunge lists touch as the background (independently reviewed for
+    /// #1165 against every selected rectangle).
+    /// </summary>
+    internal static readonly Dictionary<KraidArmHitboxList, KraidHitboxListDefinition> HitboxListShapes = new()
+    {
+        [KraidArmHitboxList.Articulated0] = new(EnemyReaction.KraidArmTouch, [new(-13, -11, -3, -5), new(-9, -5, 1, 2)]),
+        [KraidArmHitboxList.Articulated1] = new(EnemyReaction.KraidArmTouch, [new(-16, -5, 1, 2)]),
+        [KraidArmHitboxList.Articulated2] = new(EnemyReaction.KraidArmTouch, [new(-9, -2, 1, 7), new(-12, 3, -6, 12)]),
+        [KraidArmHitboxList.Articulated3] = new(EnemyReaction.KraidArmTouch, [new(-6, -1, 1, 14)]),
+        [KraidArmHitboxList.Articulated4] = new(EnemyReaction.KraidArmTouch, [new(-3, -2, 6, 9), new(2, 7, 11, 11)]),
+        [KraidArmHitboxList.Articulated5] = new(EnemyReaction.KraidArmTouch, [new(-1, -4, 14, 4)]),
+        [KraidArmHitboxList.Articulated6] = new(EnemyReaction.KraidArmTouch, [new(-3, -7, 6, 2), new(4, -12, 10, -1)]),
+        [KraidArmHitboxList.ConnectorSecond] = new(EnemyReaction.KraidArmTouch, [new(-15, -5, 2, 4)]),
+        [KraidArmHitboxList.ConnectorThird] = new(EnemyReaction.KraidArmTouch, [new(-11, 2, -4, 10), new(-6, -3, 3, 5)]),
+        [KraidArmHitboxList.ConnectorFinal] = new(EnemyReaction.KraidArmTouch, [new(-4, -2, 3, 13)]),
+        [KraidArmHitboxList.ConnectorInitial] = new(EnemyReaction.KraidArmTouch, [new(-12, -12, -3, -3), new(-6, -6, 3, 2)]),
+        [KraidArmHitboxList.BodyFinal] = new(EnemyReaction.KraidBackgroundTouch, [new(-45, -9, 4, 8)]),
+        [KraidArmHitboxList.BodyMiddle] = new(EnemyReaction.KraidBackgroundTouch, [new(-28, -17, -12, 0), new(-42, -23, -28, -6)]),
+        [KraidArmHitboxList.BodyInitial] = new(EnemyReaction.KraidBackgroundTouch, [new(-22, -25, -8, -5), new(-35, -35, -19, -17)]),
+        [KraidArmHitboxList.FinalPoseFirst] = new(EnemyReaction.KraidBackgroundTouch, [new(-64, -48, -32, -16)]),
+        [KraidArmHitboxList.FinalPoseSecond] = new(EnemyReaction.KraidBackgroundTouch, [new(-64, -4, 0, 4)]),
+    };
 }

@@ -1,5 +1,6 @@
 
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -13,18 +14,33 @@ internal static class KraidArmCollisionDefinitionsAccess
     /// <summary>Bank $A7, holding Kraid's arm frames and hitbox lists.</summary>
     private const byte NativeBank = 0xa7;
 
-    /// <summary>Each hitbox list's bank-$A7 address, in <see cref="KraidArmHitboxList"/> order.</summary>
-    private static readonly ushort[] HitboxListAddresses =
-        [0x92d1, 0x92eb, 0x92f9, 0x9313, 0x9321, 0x933b, 0x9349, 0x9371, 0x937f, 0x9399, 0x93f7, 0x9411, 0x941f, 0x9439, 0x946f, 0x947d];
+    /// <summary>Each hitbox list's bank-$A7 address.</summary>
+    private static readonly NativeWordIdentities<KraidArmHitboxList> HitboxListAddresses = new(new Dictionary<KraidArmHitboxList, ushort>
+    {
+        [KraidArmHitboxList.Articulated0] = 0x92d1,
+        [KraidArmHitboxList.Articulated1] = 0x92eb,
+        [KraidArmHitboxList.Articulated2] = 0x92f9,
+        [KraidArmHitboxList.Articulated3] = 0x9313,
+        [KraidArmHitboxList.Articulated4] = 0x9321,
+        [KraidArmHitboxList.Articulated5] = 0x933b,
+        [KraidArmHitboxList.Articulated6] = 0x9349,
+        [KraidArmHitboxList.ConnectorSecond] = 0x9371,
+        [KraidArmHitboxList.ConnectorThird] = 0x937f,
+        [KraidArmHitboxList.ConnectorFinal] = 0x9399,
+        [KraidArmHitboxList.ConnectorInitial] = 0x93f7,
+        [KraidArmHitboxList.BodyFinal] = 0x9411,
+        [KraidArmHitboxList.BodyMiddle] = 0x941f,
+        [KraidArmHitboxList.BodyInitial] = 0x9439,
+        [KraidArmHitboxList.FinalPoseFirst] = 0x946f,
+        [KraidArmHitboxList.FinalPoseSecond] = 0x947d,
+    });
 
     /// <summary>The bank-$A7 address of hitbox list <paramref name="list"/>.</summary>
-    internal static ushort AddressOf(KraidArmHitboxList list) => HitboxListAddresses[(int)list];
+    internal static ushort AddressOf(KraidArmHitboxList list) => HitboxListAddresses.Word(list);
 
     /// <summary>The hitbox list stored at bank-$A7 address <paramref name="pointer"/>.</summary>
     internal static KraidArmHitboxList HitboxListAt(ushort pointer) =>
-        Array.IndexOf(HitboxListAddresses, pointer) is var index and >= 0
-            ? (KraidArmHitboxList)index
-            : throw new InvalidDataException($"Kraid-arm hitbox list $A7:{pointer:X4} is not compiled.");
+        HitboxListAddresses.Decode(pointer, "compiled Kraid-arm hitbox list");
 
     /// <summary>Reads Kraid arm collision by native address.</summary>
     extension(KraidArmCollision)

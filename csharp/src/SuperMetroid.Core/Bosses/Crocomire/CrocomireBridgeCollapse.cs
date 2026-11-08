@@ -49,7 +49,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
 
         CrocomireBridgeCollapseStarted = true;
-        state.DeathSequenceIndex = CrocomireDeathPhase.CrumbleBridgeAndSink;
+        state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.BridgeCollapsed);
         body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
@@ -204,7 +204,7 @@ internal sealed class CrocomireBridgeCollapse
             state.DeathPhaseDelay--;
             return;
         }
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
         state.VerticalSpeed = EightEight.FromWhole(CrocomireBehavior.MaximumSinkSpeedWhole);
     }
 
@@ -218,7 +218,7 @@ internal sealed class CrocomireBridgeCollapse
 
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 280) >= 0)
         {
-            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+            state.DeathPhase = state.DeathPhase.Next();
             state.DeathPhaseDelay = 48;
             // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
             state.VerticalAcceleration = 0;
@@ -260,7 +260,7 @@ internal sealed class CrocomireBridgeCollapse
         RoomEnemySlot body = state.Body;
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 218) < 0)
         {
-            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+            state.DeathPhase = state.DeathPhase.Next();
             return;
         }
 
@@ -303,11 +303,11 @@ internal sealed class CrocomireBridgeCollapse
         SelectCrocomireRisingInstruction(state);
         _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireSink(state);
-        if (state.DeathSequenceIndex != CrocomireDeathPhase.WaitForSamusAtWall)
+        if (state.DeathPhase != CrocomireDeathPhase.WaitForSamusAtWall)
             return;
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
-        state.DeathSequenceIndex = CrocomireDeathPhase.RiverSkeletonDetour;
+        state.DeathPhase = CrocomireDeathPhase.RiverSkeletonDetour;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFlowingDownRiver);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
         _room.Services.RoomScroll.Write(5, RoomScrollState.Blue);

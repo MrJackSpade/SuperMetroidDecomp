@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class CeresRidleyEyeFadeDefinitions
 {
 
-    /// <summary>Number of palette-producing entries before the terminator.</summary>
+    /// <summary>Number of palette-producing steps in the fade.</summary>
     public const int PaletteStepCount = 64;
 }

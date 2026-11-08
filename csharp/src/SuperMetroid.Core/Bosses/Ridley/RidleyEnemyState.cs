@@ -176,7 +176,7 @@ public sealed class RidleyEnemyState
     public int BabyVerticalVelocity { get; internal set; }
     /// <summary>Gets whether Ceres's getaway transform currently owns the Ridley/Baby presentation.</summary>
     public bool GetawayActive { get; internal set; }
-    /// <summary>Gets whether the Ceres getaway table reached its terminator and released the active transform.</summary>
+    /// <summary>Gets whether the Ceres getaway's motion has ended, its curve having passed its last frame, and released the active transform.</summary>
     public bool GetawayFinished { get; internal set; }
     /// <summary>Gets the frame of Ceres's getaway motion the next update shows, advanced by one each update.</summary>
     public int GetawayFrameIndex { get; internal set; }

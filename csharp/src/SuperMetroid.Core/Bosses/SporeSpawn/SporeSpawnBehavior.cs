@@ -710,8 +710,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunSporeSpawnSporeFrameBehavior(RoomEnemyProjectileSlot spore)
     {
         SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
-        Offset16<RoomPixels> movement =
-            SporeSpawnProjectiles.MovementAt(drift.PathStep * 2);
+        Offset16<RoomPixels> movement = SporeSpawnProjectiles.DriftAt(drift.PathStep);
         int xDelta = movement.X;
         if (drift.Mirrored)
             xDelta = -xDelta;

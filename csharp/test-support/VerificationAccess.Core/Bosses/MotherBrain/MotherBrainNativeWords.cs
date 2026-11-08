@@ -21,6 +21,23 @@ internal static class MotherBrainNativeWords
         [MotherBrainNeckMovement.Raise] = 8,
     });
 
+    /// <summary>The attack dispatcher's index naming each <see cref="MotherBrainAttackPhase"/>.</summary>
+    internal static readonly NativeWordIdentities<MotherBrainAttackPhase> AttackPhases = new(new Dictionary<MotherBrainAttackPhase, ushort>
+    {
+        [MotherBrainAttackPhase.ChooseAttack] = 0,
+        [MotherBrainAttackPhase.Cooldown] = 1,
+        [MotherBrainAttackPhase.EndAttack] = 2,
+    });
+
+    /// <summary>The hand-beam dispatcher's index naming each <see cref="MotherBrainHandBeamPhase"/>.</summary>
+    internal static readonly NativeWordIdentities<MotherBrainHandBeamPhase> HandBeamPhases = new(new Dictionary<MotherBrainHandBeamPhase, ushort>
+    {
+        [MotherBrainHandBeamPhase.BackUp] = 0,
+        [MotherBrainHandBeamPhase.WaitForBombs] = 1,
+        [MotherBrainHandBeamPhase.Firing] = 2,
+        [MotherBrainHandBeamPhase.Finish] = 3,
+    });
+
     /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainBodyFunction"/>.</summary>
     internal static readonly NativeWordIdentities<MotherBrainBodyFunction> MotherBrainBodyFunctions = new(new Dictionary<MotherBrainBodyFunction, ushort>
     {

@@ -21,10 +21,10 @@ internal sealed class NorfairRidleyMovement
         RoomEnemySlot slot,
         RidleyEnemyState state,
         Position16<RoomPixels> target,
-        int divisorIndex,
+        int divisor,
         int reversalBoost = 0)
     {
-        int divisor = RidleyInertia.Divisor(divisorIndex);
+        divisor = RidleyInertia.Divisor(divisor);
 
         state.Velocity = new EightEightVector<RoomPixels>(
             AccelerateNorfairRidleyAxis(

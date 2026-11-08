@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's fight-AI function, held in body variable C. Each member names the entry of the
-/// 21-entry table it ports; the slot stores the member, not the table offset.
+/// Crocomire's fight-AI function: what his fight does each time his body program's fight cue fires. Its values are
+/// arbitrary; nothing reads or orders them.
 /// </summary>
 public enum CrocomireFightFunction
 {
     /// <summary>Restarts the initial animation with timer one.</summary>
-    ResetAnimation = 0,
-    /// <summary>Installs the forward-step list and returns the fight index to sleeping.</summary>
+    ResetAnimation,
+    /// <summary>Installs the forward-step list and returns the fight to sleeping.</summary>
     StepForward,
     /// <summary>Wakes into the first-damage wait when Samus is within 224 horizontal pixels.</summary>
     Sleeping,
@@ -46,8 +46,8 @@ public enum CrocomireFightFunction
     MoveClawsUnused,
     /// <summary>Unused: adjusts attack flags and installs a forward step before the moving-claws branch.</summary>
     StepForwardVariantUnused,
-    /// <summary>Unused: consumes claw-contact cycles or restores the saved fight index from the projectile counter.</summary>
+    /// <summary>Unused: consumes claw-contact cycles or restores the saved fight function.</summary>
     MovingClawsUnused,
-    /// <summary>The entry one past the table: the unused move-until-Samus branch selects it, and the original game would read the data after the table as a routine. The port rejects it.</summary>
+    /// <summary>A function the original game never wrote: the unused move-until-Samus branch selects it, and the original game would run whatever follows its functions as one. The port rejects it.</summary>
     UnwrittenTableEntry,
 }

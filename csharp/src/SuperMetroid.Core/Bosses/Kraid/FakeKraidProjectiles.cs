@@ -16,14 +16,12 @@ internal static class FakeKraidProjectiles
         return new(CoordinateAxis.AsSigned(movingRight ? horizontal : -horizontal), FakeKraidProjectileDefinitions.SpitRise);
     }
 
-    /// <summary>Selects a fixed body launch position.
-    /// The spit step selects one of three independent spike timers by
-    /// row; the managed boundary takes the row directly.
-    /// The spike initializer adds this signed integer offset with16-bit wrap, independently of
-    /// animation and facing.</summary>
-    internal static int SpikeYOffset(int row) => (uint)row < (uint)FakeKraidProjectileDefinitions.Rows.Length
-        ? FakeKraidProjectileDefinitions.SpikeYOffsets.TryGetValue(FakeKraidProjectileDefinitions.Rows[row], out int offset)
+    /// <summary>
+    /// The vertical launch offset of body port <paramref name="row"/>. The spike initializer adds this signed offset to
+    /// the body's Y with 16-bit wrap, independently of animation and facing.
+    /// </summary>
+    internal static int SpikeYOffset(FakeKraidSpikeRow row) =>
+        FakeKraidProjectileDefinitions.SpikeYOffsets.TryGetValue(row, out int offset)
             ? offset
-            : throw new InvalidDataException($"Fake Kraid spike row {FakeKraidProjectileDefinitions.Rows[row]} is not a body launch port.")
-        : throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port.");
+            : throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port.");
 }

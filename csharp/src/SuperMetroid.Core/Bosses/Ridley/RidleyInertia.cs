@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>The acceleration divisors Ceres and Norfair Ridley seek their targets with.</summary>
 public static class RidleyInertia
 {
-    /// <summary>The divisor at inertia index <paramref name="index"/>, zero through fifteen.</summary>
-    public static int Divisor(int index) => (uint)index < (uint)RidleyInertiaDefinitions.Divisors.Length
-        ? RidleyInertiaDefinitions.Divisors[index]
-        : throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>Accepts <paramref name="divisor"/> when it is one Ridley seeks with.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="divisor"/> is outside <see cref="RidleyInertiaDefinitions.SmallestDivisor"/> through <see cref="RidleyInertiaDefinitions.LargestDivisor"/>.</exception>
+    public static int Divisor(int divisor) =>
+        Ensure.BetweenInclusive(RidleyInertiaDefinitions.SmallestDivisor, RidleyInertiaDefinitions.LargestDivisor, divisor);
 }

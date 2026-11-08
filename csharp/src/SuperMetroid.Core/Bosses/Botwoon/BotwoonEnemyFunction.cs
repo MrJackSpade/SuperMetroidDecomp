@@ -11,7 +11,7 @@ public enum BotwoonEnemyFunction
     InitialDelay = 1,
     /// <summary>Moves toward the target hole, detects crossing, and chooses an authored path or stationary spit action.</summary>
     ChooseNextAction,
-    /// <summary>Advances an authored movement path and body history until its terminator selects direct hole movement.</summary>
+    /// <summary>Advances an authored movement path and body history until the path ends and selects direct hole movement.</summary>
     FollowAuthoredPath,
     /// <summary>Holds position for the aimed spit animation/cooldown, then chooses another path and inside-hole state.</summary>
     SpitWhileHidden,

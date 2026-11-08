@@ -76,7 +76,7 @@ internal sealed class NorfairRidleyDeath
         RidleyEnemyState state)
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
-            RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
+            RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
             return;
 

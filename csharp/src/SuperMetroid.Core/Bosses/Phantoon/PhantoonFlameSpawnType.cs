@@ -1,17 +1,14 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>
-/// High byte of the destroyable-flame spawn parameter: the even jump-table offset
-/// of the flame's initializer. The low byte is the type-specific index.
-/// </summary>
+/// <summary>Which kind of destroyable flame Phantoon spawns; the spawn also names the flame's direction, or its column and fall delay. Its values are arbitrary.</summary>
 public enum PhantoonFlameSpawnType
 {
     /// <summary>A casual flame that falls from Phantoon and bounces.</summary>
-    Casual = 0,
+    Casual,
     /// <summary>An enraged wave flame, indexed by direction.</summary>
-    Enraged = 2,
+    Enraged,
     /// <summary>A rain flame, indexed by packed column and fall delay.</summary>
-    Rain = 4,
+    Rain,
     /// <summary>A spiral flame, indexed by direction 0-7.</summary>
-    Spiral = 6,
+    Spiral,
 }

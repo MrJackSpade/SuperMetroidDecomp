@@ -12,18 +12,16 @@ internal static class KraidArmCallbackMappingsVerification
 {
     /// <summary>Checks the touch callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false,
-            KraidArmCollision.TouchReaction));
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false));
     /// <summary>Checks the shot callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true,
-            KraidArmCollision.ShotReaction));
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true));
 
     /// <summary>
     /// Compares the 24 compiled rectangles' typed reactions with the reactions the import decodes from the corresponding
     /// ROM hitbox callback fields.
     /// </summary>
-    private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, EnemyReaction> calculate)
+    private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot)
     {
         var selectedLists = new SortedSet<ushort>();
         foreach (ushort frame in NativeKraidArmPhysicalFrames(rom))
@@ -45,7 +43,6 @@ internal static class KraidArmCallbackMappingsVerification
                 AssertEqual(actual[index], box, "Arm rectangle enumeration order");
                 EnemyReaction? expected = EnemyReactionAccess.Of(0xa7,
                     ReadKraidArmInstructionWord(rom, (ushort)(pointer + 2 + 12 * index + (shot ? 10 : 8))), shot);
-                AssertEqual(expected, (EnemyReaction?)calculate(rectangle), "Original arm reaction field");
                 AssertEqual(expected, (EnemyReaction?)(shot ? box.Shot : box.Touch), "Arm reaction through rectangle view");
                 index++;
                 rectangle++;
@@ -57,7 +54,5 @@ internal static class KraidArmCallbackMappingsVerification
             AssertThrows<IndexOutOfRangeException>(() => _ = actual[count], "Past arm rectangle index");
         }
         AssertEqual(24, rectangle, "All native arm callback records");
-        AssertThrows<ArgumentOutOfRangeException>(() => calculate(-1), "Negative callback record");
-        AssertThrows<ArgumentOutOfRangeException>(() => calculate(24), "Past callback record");
     }
 }

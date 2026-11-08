@@ -1,15 +1,16 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's death phases (variable A), in the order of the death dispatcher's table. The
-/// slot stores the member, not the table's even byte offset.
-/// Keeping this table separate from the executor makes the authored sequence readable
+/// Crocomire's death phases, declared in the order the death sequence runs them: a phase that finishes hands over to
+/// the next declared phase (<see cref="CrocomireDeathPhases.Next"/>). That order is the only thing read from the
+/// values, which are otherwise arbitrary.
+/// Keeping the phases separate from the executor makes the authored sequence readable
 /// without mixing identity declarations into the state-transition implementation.
 /// </summary>
 public enum CrocomireDeathPhase
 {
-    /// <summary>Zero: the fight and bridge checks run; the death sequence has not begun.</summary>
-    Fighting = 0,
+    /// <summary>The fight and bridge checks run; the death sequence has not begun. A new body starts here.</summary>
+    Fighting,
     /// <summary>Bridge crumbles while Crocomire sinks into the acid.</summary>
     CrumbleBridgeAndSink,
     /// <summary>First submerged pause.</summary>

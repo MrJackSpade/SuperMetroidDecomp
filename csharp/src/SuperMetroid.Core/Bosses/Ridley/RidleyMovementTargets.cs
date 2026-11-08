@@ -42,18 +42,18 @@ public static class RidleyMovementTargets
         _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
     };
 
-    /// <summary>Hover divisor index first rises by four, then by two per health stage.</summary>
-    public static int HoverDivisorIndexes(int stage)
+    /// <summary>The hover divisor: twelve at full health, falling by four at the first stage and by two at each later one.</summary>
+    public static int HoverDivisor(int stage)
     {
         ValidateStage(stage);
-        return 4 + 2 * stage + 2 * Math.Min(stage, 1);
+        return RidleyInertiaDefinitions.LargestDivisor - (4 + 2 * stage + 2 * Math.Min(stage, 1));
     }
 
-    /// <summary>Grab divisor indexes double-plus-one until the final cap of ten.</summary>
-    public static int GrabDivisorIndexes(int stage)
+    /// <summary>The grab divisor: fifteen at full health, then 13 and 9, falling no lower than six.</summary>
+    public static int GrabDivisor(int stage)
     {
         ValidateStage(stage);
-        return Math.Min(10, (1 << (stage + 1)) - 1);
+        return RidleyInertiaDefinitions.LargestDivisor - Math.Min(10, (1 << (stage + 1)) - 1);
     }
 
     /// <summary>Limits health-stage selection to the four entries represented by the movement tables.</summary>

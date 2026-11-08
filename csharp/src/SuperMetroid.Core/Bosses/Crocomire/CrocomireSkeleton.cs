@@ -47,7 +47,7 @@ internal sealed class CrocomireSkeleton
         if (CoordinateAxis.Difference(body.Position.X.Whole, 480) < 0)
         {
             body.Position = body.Position.WithWhole(new(480, 54));
-            state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
+            state.DeathPhase = CrocomireDeathPhase.WaitForSamusAtWall;
         }
         else
         {
@@ -81,7 +81,7 @@ internal sealed class CrocomireSkeleton
         death.RumbleDelta = 1;
         state.FightFlags = 0;
         body.Radius = body.Radius.WithY(56);
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>Shakes the arena wall before the skeleton's break-through and advances its authored delay.</summary>
@@ -95,7 +95,7 @@ internal sealed class CrocomireSkeleton
             state.Body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
             if (state.Tongue is { } spikedTongue)
                 spikedTongue.Shading = state.Body.Shading;
-            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+            state.DeathPhase = state.DeathPhase.Next();
             return;
         }
 
@@ -154,7 +154,7 @@ internal sealed class CrocomireSkeleton
             projectile.Clear();
         SpawnCrocomireSpikeWallPieces();
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.SpikeWallBreak);
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>Holds the broken-wall pose before launching the skeleton arc.</summary>
@@ -174,7 +174,7 @@ internal sealed class CrocomireSkeleton
             return;
         state.SkeletonVelocity = state.SkeletonVelocity.WithFraction(0);
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFalling);
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>Moves the skeleton through its airborne arc after the wall break.</summary>
@@ -192,7 +192,7 @@ internal sealed class CrocomireSkeleton
         if (state.Tongue is { } tongue)
             tongue.Shading = state.Body.Shading;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
@@ -220,7 +220,7 @@ internal sealed class CrocomireSkeleton
             yBase: 96,
             yMask: 63);
         _access.RequireCrocomireDeath().ItemDropRequested = true;
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>Restores arena scroll and camera tracking after the skeleton sequence.</summary>
@@ -229,7 +229,7 @@ internal sealed class CrocomireSkeleton
         for (int index = 0; index < 4; index++)
             _room.Services.RoomScroll.Write(index, RoomScrollState.Blue);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>Marks Crocomire's boss encounter complete and releases the death-scene presentation.</summary>
@@ -241,7 +241,7 @@ internal sealed class CrocomireSkeleton
         _access.RequireCrocomireDeath().BossBitSet = true;
         _access.SpawnCrocomireDust(state, -16);
         _access.SpawnCrocomireDust(state, 16);
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>

@@ -51,10 +51,10 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source, 12, new EightEightVector<RoomPixels>(0x0180, -0x0200)),
             "real Fake Kraid spit producer allocates its projectile");
         state.FacingDelta = -4;
-        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, 0),
+        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, FakeKraidSpikeRow.Top),
             "real Fake Kraid left-spike producer allocates its projectile");
         state.FacingDelta = 4;
-        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, 1),
+        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, FakeKraidSpikeRow.Middle),
             "real Fake Kraid right-spike producer allocates its projectile");
 
         var cases = new[]

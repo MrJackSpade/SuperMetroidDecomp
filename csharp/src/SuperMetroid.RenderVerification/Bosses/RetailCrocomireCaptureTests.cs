@@ -60,32 +60,32 @@ internal static class RetailCrocomireCaptureTests
         int samples = 0;
         for (int tick = 0; tick < 20000; tick++)
         {
-            if (boss.DeathSequenceIndex == CrocomireDeathPhase.WaitForSamusAtWall)
+            if (boss.DeathPhase == CrocomireDeathPhase.WaitForSamusAtWall)
                 samus.Position = samus.Position.WithWholeX(CrocomireCaptureFixture.ReturnSamusX);
             runtime.StepFrame(0);
-            bool shouldMelt = boss.DeathSequenceIndex is CrocomireDeathPhase.DissolveFirstImage or CrocomireDeathPhase.DissolveSecondImage;
+            bool shouldMelt = boss.DeathPhase is CrocomireDeathPhase.DissolveFirstImage or CrocomireDeathPhase.DissolveSecondImage;
             if ((death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive != shouldMelt)
-                throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {(int)boss.DeathSequenceIndex:X2}.");
-            bool changed = phases.Add(boss.DeathSequenceIndex);
+                throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {boss.DeathPhase}.");
+            bool changed = phases.Add(boss.DeathPhase);
             // The melt shows its stretch once some gameplay line of his body layer scrolls differently from the first (#1468).
             bool nonuniform = shouldMelt && Enumerable.Range(ScreenGeometry.GameplayHudHeightPixels, BackgroundLineScrolls.GameplayLines)
                 .Select(line => ScrollShapeLines.StretchScroll(BossLineScrolls.Of(death.MeltDistortion), line)).Distinct().Count() > 1;
             bool firstDistortion = nonuniform && !distorted;
             distorted |= nonuniform;
-            complete = boss.DeathSequenceIndex == CrocomireDeathPhase.InertCorpse;
+            complete = boss.DeathPhase == CrocomireDeathPhase.InertCorpse;
             if (changed || firstDistortion || tick % 16 == 0 || complete)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 samples++;
                 var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: Crocomire tick={tick}, phase={(int)boss.DeathSequenceIndex:X2}");
+                    $"{device.Kind}: Crocomire tick={tick}, phase={boss.DeathPhase}");
             }
             if (complete) break;
         }
         if (!complete || !distorted || !phases.Contains(CrocomireDeathPhase.DissolveFirstImage) ||
             !phases.Contains(CrocomireDeathPhase.DissolveSecondImage) || !phases.Contains(CrocomireDeathPhase.BreakSpikeWall))
-            throw new InvalidOperationException($"Crocomire fixture incomplete: phase={(int)boss.DeathSequenceIndex:X2}, distortion={distorted}.");
+            throw new InvalidOperationException($"Crocomire fixture incomplete: phase={boss.DeathPhase}, distortion={distorted}.");
         Console.WriteLine($"{device.Kind}: {samples} exact Crocomire death samples across {phases.Count} phases, both dissolves, scanline distortion and skeleton completion; {latchedScrollChanges} fight frames displayed the preceding main loop's BG2 scroll.");
     }
 }

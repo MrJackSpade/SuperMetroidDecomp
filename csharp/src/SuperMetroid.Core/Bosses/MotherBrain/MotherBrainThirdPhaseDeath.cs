@@ -319,7 +319,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         // Body flickering runs every AI call, independently of the seventeen-call
         // palette cadence. Counter values 0..15 copy blackening palettes; value 16
-        // is the null terminator and completes the transition without a copy.
+        // is past the last palette and completes the transition without a copy.
         BodyFlickerCallCount++;
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);

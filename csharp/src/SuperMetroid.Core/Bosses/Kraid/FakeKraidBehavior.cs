@@ -113,10 +113,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int seedDelay = (random & 3) + 2;
         state.WalkStepTimer = seedDelay;
         state.SpitDecisionTimer = seedDelay;
-        state.SpikeTimers[0] = seedDelay + 64;
-        state.SpikeTimers[1] = seedDelay + 96;
-        state.SpikeTimers[2] = seedDelay + 48;
-        state.SpikeTimerIndex = 0;
+        state.SpikeTimers[FakeKraidSpikeRow.Top] = seedDelay + 64;
+        state.SpikeTimers[FakeKraidSpikeRow.Middle] = seedDelay + 96;
+        state.SpikeTimers[FakeKraidSpikeRow.Bottom] = seedDelay + 48;
+        state.NextSpikeRow = FakeKraidSpikeRow.Top;
 
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -138,20 +138,20 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeKraidEnemyState state,
         Position16<RoomPixels> camera)
     {
-        // Main AI stores the next selector before acting on the old value.
-        int timerIndex = state.SpikeTimerIndex;
-        state.SpikeTimerIndex = timerIndex >= state.SpikeTimers.Length - 1 ? 0 : timerIndex + 1;
-        int timer = state.SpikeTimers[timerIndex];
+        // Main AI moves on to the next port's clock before acting on this one.
+        FakeKraidSpikeRow row = state.NextSpikeRow;
+        state.NextSpikeRow = EnumOrder.NextWrapping(row);
+        int timer = state.SpikeTimers[row];
         if (timer != 0)
         {
-            state.SpikeTimers[timerIndex] = timer - 1;
+            state.SpikeTimers[row] = timer - 1;
             return;
         }
 
         // The reload keeps the random word's low six bits: sixteen to seventy-nine frames.
-        state.SpikeTimers[timerIndex] =
+        state.SpikeTimers[row] =
             ReadFakeKraidRandomNumber() % SpikeReloadRandomSpread + MinimumSpikeReloadFrames;
-        if (SpawnFakeKraidSpike(slot, state, timerIndex) &&
+        if (SpawnFakeKraidSpike(slot, state, row) &&
             FakeKraidOriginIsOnScreen(slot, camera))
         {
             RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidSpikeLaunch);
@@ -268,7 +268,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool SpawnFakeKraidSpike(
         RoomEnemySlot source,
         FakeKraidEnemyState state,
-        int row)
+        FakeKraidSpikeRow row)
     {
         RoomEnemyProjectileKind kind = state.FacingDelta < 0
             ? RoomEnemyProjectileKind.FakeKraidSpikeLeft

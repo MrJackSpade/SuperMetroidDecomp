@@ -1,18 +1,15 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The Mother Brain bomb's per-bounce Y acceleration selected by its bounce stage.
-/// Stage zero uses the ordinary fall gravity of 7; each later bounce's gravity grows by sixteen
-/// times the bounce number, capped at 64 per bounce (16, 32, 64, 112, 176, 240, 304, 368); the
-/// stage after the eighth bounce is the zero expiry sentinel.
+/// The Mother Brain bomb's Y acceleration while it falls and bounces. Before its first bounce it falls at the ordinary
+/// gravity of 7; each later bounce's gravity grows by sixteen times the bounce number, capped at 64 per bounce. The bomb
+/// expires once it lands from its last bounce.
 /// </summary>
 internal static class MotherBrainBombBounceDefinitions
 {
-    /// <summary>Stages zero through nine, including the expiry sentinel.</summary>
-    internal const int StageCount = 10;
-    /// <summary>The ordinary fall gravity, also used before the first bounce.</summary>
+    /// <summary>The ordinary fall gravity, used before the first bounce.</summary>
     internal const int FallAcceleration = 7;
 
-    /// <summary>The acceleration of stages zero through eight, then zero for expiry at stage nine.</summary>
-    internal static readonly int[] YAccelerations = [FallAcceleration, 16, 32, 64, 112, 176, 240, 304, 368, 0];
+    /// <summary>The gravity after each bounce, from the first to the eighth and last.</summary>
+    internal static readonly int[] BounceAccelerations = [16, 32, 64, 112, 176, 240, 304, 368];
 }

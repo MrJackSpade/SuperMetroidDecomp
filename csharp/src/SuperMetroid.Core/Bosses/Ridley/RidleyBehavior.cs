@@ -146,7 +146,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyAiFunction.NorfairEnterArena:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(64, 256), divisorIndex: 14);
+                NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(64, 256), divisor: 2);
                 if (CeresRidleyFlight.IsWithinRidleyRectangle(slot, new(64, 256), new(8, 8)))
                 {
                     state.FightMode = RidleyFightMode.Fighting;

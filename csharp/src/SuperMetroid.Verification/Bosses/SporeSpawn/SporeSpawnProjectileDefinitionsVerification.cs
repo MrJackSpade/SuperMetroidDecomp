@@ -21,14 +21,15 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 SporeSpawnProjectiles.SpawnerX(index),
                 $"Spore Spawn emitter X {index}");
         }
-        for (int offset = 0; offset < 256; offset++)
+        // The cartridge keeps the drift as one byte stream, each step's X then its Y.
+        AssertEqual(128, SporeSpawnProjectiles.DriftStepCount, "Spore Spawn drift steps");
+        for (int step = 0; step < SporeSpawnProjectiles.DriftStepCount; step++)
         {
-            Offset16<RoomPixels> delta =
-                SporeSpawnProjectiles.MovementAt(unchecked((byte)offset));
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset)), delta.X,
-                $"Spore Spawn movement X {offset:X2}");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff))),
-                delta.Y, $"Spore Spawn movement Y {offset:X2}");
+            Offset16<RoomPixels> delta = SporeSpawnProjectiles.DriftAt(step);
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + 2 * step)), delta.X,
+                $"Spore Spawn drift X {step}");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + 2 * step + 1)),
+                delta.Y, $"Spore Spawn drift Y {step}");
         }
 
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);

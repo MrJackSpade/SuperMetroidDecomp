@@ -69,7 +69,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         }
 
         foreach (short facingDelta in new short[] { -4, 4 })
-        for (int row = 0; row < 3; row++)
+        foreach (FakeKraidSpikeRow row in Enum.GetValues<FakeKraidSpikeRow>())
         {
             var enemies = NewFakeKraidProjectileSystem();
             var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
@@ -101,19 +101,17 @@ internal static class FakeKraidProjectileDefinitionsVerification
             "Fake Kraid projectile definitions: four spit launches, three spike rows, both facings and every real physical spawn pass with both source tables forbidden.");
     }
 
-    /// <summary>Compares all three signed native spike Y offsets and rejects unsupported rows.</summary>
+    /// <summary>Compares all three signed native spike Y offsets, which the cartridge lists top, middle, bottom.</summary>
     internal static void VerifyFakeKraidSpikeRowSelection(ISnesAddressSpace rom)
     {
-        for (int row = 0; row < 3; row++)
+        FakeKraidSpikeRow[] nativeOrder = [FakeKraidSpikeRow.Top, FakeKraidSpikeRow.Middle, FakeKraidSpikeRow.Bottom];
+        for (int index = 0; index < nativeOrder.Length; index++)
         {
-            int address = 0x869e7d + row * 2;
+            int address = 0x869e7d + index * 2;
             short expected = unchecked((short)(LittleEndianBytes.Word(FakeKraidSpikeRowSelectionRomByte(rom, address), FakeKraidSpikeRowSelectionRomByte(rom, address + 1))));
-            AssertEqual(expected, FakeKraidProjectiles.SpikeYOffset(row),
-                $"Fake Kraid original signed launch port {row}");
+            AssertEqual(expected, FakeKraidProjectiles.SpikeYOffset(nativeOrder[index]),
+                $"Fake Kraid original signed launch port {nativeOrder[index]}");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 3, 4, 0x10000, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => FakeKraidProjectiles.SpikeYOffset(invalid),
-                "Fake Kraid unsupported launch port is rejected without masking");
     }
 
     /// <summary>Reads one native spike offset byte for the independent placement reference.</summary>

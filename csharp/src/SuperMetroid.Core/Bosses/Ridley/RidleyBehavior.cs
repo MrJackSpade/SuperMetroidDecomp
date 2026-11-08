@@ -287,7 +287,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyAiFunction.NorfairCarryMoveToAnchor:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 0);
+                NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 16);
                 if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
                 {
                     state.Function = RidleyAiFunction.NorfairCarryRise;
@@ -305,7 +305,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     state.FunctionTimer = 64;
                 }
                 else
-                    NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target.WithY(256), 0);
+                    NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target.WithY(256), 16);
                 return;
 
             case RidleyAiFunction.NorfairCarryRelease:
@@ -318,7 +318,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 else
                 {
                     NorfairRidleyMovement.MoveNorfairRidleyToward(
-                        slot, state, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.FacingDirection), 224), 0);
+                        slot, state, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.FacingDirection), 224), 16);
                 }
                 return;
 

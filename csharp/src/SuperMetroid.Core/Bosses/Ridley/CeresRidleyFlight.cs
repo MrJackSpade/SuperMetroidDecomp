@@ -170,7 +170,7 @@ internal sealed class CeresRidleyFlight
         int verticalVelocity = state.Velocity.Y.SignedRawValue;
         int magnitude = Math.Max(128, Math.Abs(verticalVelocity));
         state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(verticalVelocity < 0 ? -magnitude : magnitude));
-        AccelerateRidleyToward(slot, state, new(slot.Position.X.Whole, 88), 0);
+        AccelerateRidleyToward(slot, state, new(slot.Position.X.Whole, 88), 16);
 
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
@@ -214,7 +214,7 @@ internal sealed class CeresRidleyFlight
         int random = _room.Random.Read();
         int jitter = BossRandomRolls.InLowerHalf(random) ? random & 7 : -(random & 7);
         Position16<RoomPixels> target = JitteredFireballTarget(state.FireballBasePosition, jitter);
-        AccelerateRidleyToward(slot, state, target, 0);
+        AccelerateRidleyToward(slot, state, target, 16);
         if (--state.FunctionTimer < 0)
         {
             state.HoverCounter = 0;
@@ -234,7 +234,7 @@ internal sealed class CeresRidleyFlight
         Position16<RoomPixels> target = CoordinateAxis.Difference(samus.Position.Y.Whole, 132) < 0
             ? samus.Position.Whole.WithY(64)
             : samus.Position.Whole - new Offset16<RoomPixels>(0, 68);
-        AccelerateRidleyToward(slot, state, target, 13);
+        AccelerateRidleyToward(slot, state, target, 3);
         bool reached = IsWithinRidleyRectangle(slot, target, new(2, 2));
         state.FunctionTimer--;
         if (reached || state.FunctionTimer < 0)
@@ -249,7 +249,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        AccelerateRidleyToward(slot, state, new(192, 80), 1);
+        AccelerateRidleyToward(slot, state, new(192, 80), 15);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 96) < 0)
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
@@ -315,7 +315,7 @@ internal sealed class CeresRidleyFlight
     {
         // Shared Ridley function steers toward (192,128). Ceres uses this only for
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
-        AccelerateRidleyToward(slot, state, new(192, 128), 1);
+        AccelerateRidleyToward(slot, state, new(192, 128), 15);
         if (CoordinateAxis.Difference(slot.Position.X.Whole, 192) >= 0)
             state.Function = RidleyAiFunction.CeresFakeRetreatRising;
     }
@@ -329,7 +329,7 @@ internal sealed class CeresRidleyFlight
         // anchor. Crossing that line starts the Baby's independent falling function and a
         // 21-underflow wait before Ridley changes to the retrieval pose.
         state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
-        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 1);
+        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 32) < 0)
         {
             state.BabyFunction = CeresBabyFunction.Drop;
@@ -343,7 +343,7 @@ internal sealed class CeresRidleyFlight
     {
         // The Baby grab flies Ridley's hand toward the falling Baby. The collision compares
         // two radius-four rectangles centered on the hand and Baby points.
-        AccelerateRidleyToward(slot, state, state.BabyPosition.Whole - CeresRidleyHandToBaby, 12);
+        AccelerateRidleyToward(slot, state, state.BabyPosition.Whole - CeresRidleyHandToBaby, 4);
 
         Offset16<RoomPixels> fromHand = state.BabyPosition.Whole - (slot.Position.Whole + CeresRidleyBabyScene.CeresBabyFeetAnchor);
         if (Math.Abs(fromHand.X) >= 8 || Math.Abs(fromHand.Y) >= 8)
@@ -362,7 +362,7 @@ internal sealed class CeresRidleyFlight
         // The retreat accelerates toward the off-screen point. The signed test
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and the delay falls through into its first tick.
-        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 1);
+        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole + 128) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;

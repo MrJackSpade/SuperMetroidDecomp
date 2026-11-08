@@ -83,8 +83,25 @@ internal static class DebuggerObjectGraphSerializer
         /// <summary>Next positive ID reserved for a reference object.</summary>
         private int nextReferenceId = 1;
 
-        /// <summary>Emits a marker, type identity, and payload for a new or previously seen value.</summary>
+        /// <summary>
+        /// Writes <paramref name="value"/>; a type the graph cannot hold fails naming each object on the way to it, innermost
+        /// first, so the failure says where in the graph it lies.
+        /// </summary>
+        /// <exception cref="NotSupportedException">The graph holds a value of a type it cannot represent.</exception>
         public void Write(object? value)
+        {
+            try
+            {
+                WriteCore(value);
+            }
+            catch (NotSupportedException unsupported)
+            {
+                throw new NotSupportedException($"{unsupported.Message} <- {value?.GetType().FullName}", unsupported);
+            }
+        }
+
+        /// <summary>Writes <paramref name="value"/>: its marker, then its reference, bound path or contents.</summary>
+        private void WriteCore(object? value)
         {
             if (value is null)
             {

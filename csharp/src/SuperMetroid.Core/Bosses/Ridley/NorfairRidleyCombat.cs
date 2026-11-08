@@ -436,7 +436,7 @@ internal sealed class NorfairRidleyCombat
                 : CoordinateAxis.Wrap(slot.Position.Y.Whole - 64));
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
         state.FunctionTimer = 32;
-        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 0);
+        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 16);
         NorfairRidleyMovement.TickRidleyFunctionTimer(state);
     }
 

@@ -864,7 +864,7 @@ public sealed class SamusHorizontalSpeedState
         if (DecelerationMultiplier == 0)
             return entry.Deceleration;
 
-        int wholeProduct = DecelerationMultiplier * entry.Deceleration.WholeWord;
+        int wholeProduct = DecelerationMultiplier * UnsignedSixteenSixteen.FromDisplacement(entry.Deceleration).Whole;
         int fractionProduct = DecelerationMultiplier * EightEight.WholeOf(entry.Deceleration.Fraction);
         return SignedSixteenSixteen.FromParts(
             CoordinateAxis.AsSigned(EightEight.WholeOf(wholeProduct)),

@@ -129,11 +129,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     public int TourianEntranceStatueVerticalOffset { get; internal set; }
 
-    /// <summary>
-    /// The statues' shared animation state, set and cleared by the statue tile programs and the descent;
-    /// <see cref="TourianStatueAnimationState.None"/> is the room-load state.
-    /// </summary>
-    public TourianStatueAnimationState TourianEntranceStatueAnimationState { get; internal set; }
+    /// <summary>The statues' shared animation state, set and cleared by the statue tile programs and the descent.</summary>
+    public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
 
     /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
@@ -184,7 +181,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
         if (projectile.FrameBehavior == EnemyProjectileFrameBehavior.TourianStatueRevealFollow &&
-            TourianEntranceStatueAnimationState == TourianStatueAnimationState.None)
+            TourianEntranceStatueAnimation.AtRest)
         {
             TourianEntranceStatueFinished = true;
         }

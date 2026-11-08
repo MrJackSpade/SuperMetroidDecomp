@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal interface ITourianStatueActors
 {
     /// <summary>Which statues are animating, whether a release is in progress, and whether all four have released.</summary>
-    TourianStatueAnimationState AnimationState { get; set; }
+    TourianStatueAnimation Animation { get; }
 
     /// <summary>The statue's vertical offset as it sinks.</summary>
     int VerticalOffset { get; set; }

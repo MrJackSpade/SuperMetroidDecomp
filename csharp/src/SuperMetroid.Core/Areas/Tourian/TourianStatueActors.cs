@@ -8,11 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
 {
     /// <inheritdoc/>
-    public TourianStatueAnimationState AnimationState
-    {
-        get => statue.TourianEntranceStatueAnimationState;
-        set => statue.TourianEntranceStatueAnimationState = value;
-    }
+    public TourianStatueAnimation Animation => statue.TourianEntranceStatueAnimation;
 
     /// <inheritdoc/>
     public int VerticalOffset

@@ -23,8 +23,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The bytes of statue artwork each shown frame shows.</summary>
     public required int FrameByteCount { get; init; }
 
-    /// <summary>The statue's own flag in the shared statue animation state.</summary>
-    public required TourianStatueAnimationState AnimatingFlag { get; init; }
+    /// <summary>The statue this program animates, as the shared statue animation state names it.</summary>
+    public required TourianGreyStatues Statue { get; init; }
 
     /// <summary>The event set once this statue has turned grey, and tested to skip straight to the grey picture.</summary>
     public required EventNumber GreyEvent { get; init; }

@@ -212,19 +212,19 @@ public sealed class TourianStatueSequence
             switch (cue.Kind)
             {
                 case TourianStatueTileCueKind.MarkAnimating:
-                    statue.AnimationState |= definition.AnimatingFlag;
+                    statue.Animation.Animating |= definition.Statue;
                     return null;
                 case TourianStatueTileCueKind.GoToIfGrey:
                     return _system.HasEvent(definition.GreyEvent) ? branch : null;
                 case TourianStatueTileCueKind.GoToIfBossDefeated:
                     return _system.HasAnyBossBits(definition.BossArea, definition.DefeatedBossBits) ? branch : null;
                 case TourianStatueTileCueKind.ClearAnimating:
-                    statue.AnimationState &= ~definition.AnimatingFlag;
+                    statue.Animation.Animating &= ~definition.Statue;
                     return null;
                 case TourianStatueTileCueKind.GoToIfReleaseInProgress:
-                    return (statue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != TourianStatueAnimationState.None ? branch : null;
+                    return statue.Animation.ReleaseInProgress ? branch : null;
                 case TourianStatueTileCueKind.ClaimRelease:
-                    statue.AnimationState |= TourianStatueAnimationState.ReleaseInProgress;
+                    statue.Animation.ReleaseInProgress = true;
                     return null;
                 case TourianStatueTileCueKind.ClearThreeColors:
                     // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
@@ -243,7 +243,8 @@ public sealed class TourianStatueSequence
                     _system.SetEvent(definition.GreyEvent);
                     return null;
                 case TourianStatueTileCueKind.FinishRelease:
-                    statue.AnimationState &= ~(TourianStatueAnimationState.ReleaseInProgress | definition.AnimatingFlag);
+                    statue.Animation.ReleaseInProgress = false;
+                    statue.Animation.Animating &= ~definition.Statue;
                     return null;
                 case TourianStatueTileCueKind.ApplyGreyColors:
                     _enemies.TourianStatue.ShowStatueLook(definition.GreyShade);
@@ -265,8 +266,8 @@ public sealed class TourianStatueSequence
         {
             if (!_system.HasEvent(EventNumber.PhantoonStatueGrey) || !_system.HasEvent(EventNumber.RidleyStatueGrey)
                 || !_system.HasEvent(EventNumber.DraygonStatueGrey) || !_system.HasEvent(EventNumber.KraidStatueGrey)) return;
-            _enemies.TourianStatue.AnimationState |= TourianStatueAnimationState.AllReleased;
-            if ((_enemies.TourianStatue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != TourianStatueAnimationState.None) return;
+            _enemies.TourianStatue.Animation.AllReleased = true;
+            if (_enemies.TourianStatue.Animation.ReleaseInProgress) return;
             delay = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }

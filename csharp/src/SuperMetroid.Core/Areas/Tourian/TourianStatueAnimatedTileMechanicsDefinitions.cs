@@ -26,7 +26,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         {
             AnimatedObject = AnimatedTileObject.TourianStatuePhantoon,
             FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
-            AnimatingFlag = TourianStatueAnimationState.PhantoonAnimating,
+            Statue = TourianGreyStatues.Phantoon,
             GreyEvent = EventNumber.PhantoonStatueGrey,
             FirstFrameDuration = 6,
             BossArea = AreaId.WreckedShip,
@@ -40,7 +40,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         {
             AnimatedObject = AnimatedTileObject.TourianStatueRidley,
             FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
-            AnimatingFlag = TourianStatueAnimationState.RidleyAnimating,
+            Statue = TourianGreyStatues.Ridley,
             GreyEvent = EventNumber.RidleyStatueGrey,
             FirstFrameDuration = 10,
             BossArea = AreaId.Norfair,
@@ -54,7 +54,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         {
             AnimatedObject = AnimatedTileObject.TourianStatueKraid,
             FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
-            AnimatingFlag = TourianStatueAnimationState.KraidAnimating,
+            Statue = TourianGreyStatues.Kraid,
             GreyEvent = EventNumber.KraidStatueGrey,
             FirstFrameDuration = 4,
             BossArea = AreaId.Brinstar,
@@ -68,7 +68,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         {
             AnimatedObject = AnimatedTileObject.TourianStatueDraygon,
             FrameByteCount = TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
-            AnimatingFlag = TourianStatueAnimationState.DraygonAnimating,
+            Statue = TourianGreyStatues.Draygon,
             GreyEvent = EventNumber.DraygonStatueGrey,
             FirstFrameDuration = 8,
             BossArea = AreaId.Maridia,

@@ -34,9 +34,6 @@ internal sealed class RoomObjectSlotTable
         }
     }
 
-    /// <summary>The slot a spawn takes while every slot is free: the first slot in processing order.</summary>
-    internal RoomObjectSlot FirstInProcessingOrder => _slots[^1];
-
     /// <summary>Whether every slot is occupied, so every spawn fails.</summary>
     internal bool IsFull => ActiveCount == Capacity;
 

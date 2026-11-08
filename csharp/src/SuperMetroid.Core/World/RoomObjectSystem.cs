@@ -148,7 +148,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         BombTorizoHand = new BombTorizoHandObjects(services.Samus, SlotTable);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies, Sounds);
         Gates = new GateObjects(services.Samus, room.Level, SlotTable, Sounds);
-        MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, SlotTable, Sounds);
+        MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
         Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds);
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);

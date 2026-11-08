@@ -20,8 +20,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RinkaEntity(this, slot, common);
 
-    /// <summary>Locates special Rinkas whose spawn choice was deferred during door loading.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Applies normal Samus contact damage before the Rinka-specific death tail.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Indicates when door loading must defer camera-sensitive spawn selection.</summary>
@@ -31,10 +29,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs the ordinary Rinka's respawn placeholder after death.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Connects Rinka AI to enemy slots, collision, frame context, and death effects.</summary>
-    internal RinkaBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops)
+    /// <summary>Connects Rinka AI to collision, frame context, and death effects.</summary>
+    internal RinkaBehavior(EnemyCollision collision, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops)
     {
-        _slotTable = slotTable;
         _collision = collision;
         _frameContext = frameContext;
         _projectiles = projectiles;
@@ -87,10 +84,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Camera coordinates used by the spawn and flight windows.</summary>
     private Position16<RoomPixels> _rinkaCamera;
     /// <summary>
-    /// Special Rinka slots awaiting the door loader's camera for spawn selection, in the
-    /// ascending order the room's enemy setup uses.
+    /// Special Rinkas awaiting the door loader's camera for spawn selection, in the
+    /// order the room's enemy setup reaches them.
     /// </summary>
-    private readonly List<int> _deferredRinkaSpawnSlots = new();
+    private readonly List<RoomEnemySlot> _deferredRinkaSpawnSlots = new();
 
     /// <summary>
     /// Captures camera coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
@@ -123,7 +120,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             // while the door transition is still scrolling, so that choice waits for the camera
             // of the update in which the loader reaches this slot.
             if (_frameContext.DeferLoaderTimeCameraReads)
-                _deferredRinkaSpawnSlots.Add(slot.SlotIndex);
+                _deferredRinkaSpawnSlots.Add(slot);
             else
                 ReserveSpecialRinkaSpawn(slot, state);
             slot.Properties = slot.Properties.With(
@@ -194,14 +191,14 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(loaderInitializedSlot);
-        while (_deferredRinkaSpawnSlots.Count != 0 && loaderInitializedSlot(_deferredRinkaSpawnSlots[0]))
+        while (_deferredRinkaSpawnSlots.Count != 0 && loaderInitializedSlot(_deferredRinkaSpawnSlots[0].SlotIndex))
         {
-            int slotIndex = _deferredRinkaSpawnSlots[0];
+            RoomEnemySlot rinka = _deferredRinkaSpawnSlots[0];
             _deferredRinkaSpawnSlots.RemoveAt(0);
-            RinkaEnemyState state = _slotTable.Slots[slotIndex].SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
-                $"Deferred Rinka spawn slot {slotIndex} no longer holds a Rinka.");
+            RinkaEnemyState state = rinka.SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
+                $"Deferred Rinka spawn slot {rinka.SlotIndex} no longer holds a Rinka.");
             SetRinkaCamera(camera);
-            ReserveSpecialRinkaSpawn(_slotTable.Slots[slotIndex], state);
+            ReserveSpecialRinkaSpawn(rinka, state);
         }
     }
 
@@ -565,13 +562,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 
-        int slotIndex = slot.SlotIndex;
         slot.Clear();
 
         // Clearing the enemy record leaves its spawn data in place, which the respawn cue rebuilds
         // the Rinka from; a special Rinka that does not respawn keeps it as every cleared record does.
         slot.Spawn = survivingSpawnSnapshot;
-        _slotTable.Slots[slotIndex].SetSpeciesState<RinkaEnemyState>(null);
+        slot.SetSpeciesState<RinkaEnemyState>(null);
         if (respawns)
         {
             _deathsAndDrops.InstallRespawnPlaceholder(slot);

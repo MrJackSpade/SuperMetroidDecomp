@@ -15,17 +15,14 @@ internal sealed class MotherBrainGlassObjects
     private readonly IAreaBossFlagReader? _bosses;
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
-    /// <summary>Physical PLM slots used to retain the glass argument across deletion.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds glass instruction handling to the room's PLM slots, event services, and sound queue.</summary>
-    internal MotherBrainGlassObjects(IAreaBossFlagReader? bosses, IGlobalEventFlags? events, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
+    internal MotherBrainGlassObjects(IAreaBossFlagReader? bosses, IGlobalEventFlags? events, RoomObjectSoundQueue sounds)
     {
         _bosses = bosses;
         _events = events;
-        _slotTable = slotTable;
         _sounds = sounds;
     }
     /// <summary>Only pre-instruction accepted from the installed Mother Brain glass header.</summary>
@@ -46,20 +43,18 @@ internal sealed class MotherBrainGlassObjects
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
         _motherBrainGlassProjectileRequests;
 
-    /// <summary>Runs the glass setup against the slot room population gave it, the first in processing order.</summary>
+    /// <summary>Runs the glass setup against the slot room population gave it.</summary>
     internal void SetupMotherBrainGlassSlot(
         RoomLevelData level,
         RoomObjectPopulationRecord record,
         RoomObjectSlot slot)
     {
-        bool firstSpawned = ReferenceEquals(slot, _slotTable.FirstInProcessingOrder);
-        if (record.RecordIndex != 0 || !firstSpawned ||
+        if (record.RecordIndex != 0 ||
             record.Block != new Position16<RoomBlocks>(9, 5))
         {
             throw new InvalidDataException(
                 $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
-                $"first spawned={firstSpawned}, block=({record.Block.X},{record.Block.Y}), " +
-                $"argument={record.Argument}.");
+                $"block=({record.Block.X},{record.Block.Y}), argument={record.Argument}.");
         }
 
         slot.StartAnimation(new MotherBrainGlassObjectAnimation());

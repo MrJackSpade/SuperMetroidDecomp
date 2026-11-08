@@ -27,14 +27,13 @@ public sealed class FakeKraidEnemyState
     public int SpitDecisionTimer { get; internal set; }
 
     /// <summary>
-    /// Three independent spike clocks. Main AI
-    /// visits exactly one clock per frame in the order 0, 1, 2, 0..., counting a running clock down to zero
-    /// without wrapping and reloading it when it is found at zero.
+    /// Each body port's independent spike clock. Main AI visits exactly one clock per frame, top, middle, bottom, then
+    /// top again, counting a running clock down to zero without wrapping and reloading it when it is found at zero.
     /// </summary>
-    public int[] SpikeTimers { get; } = new int[3];
+    internal Dictionary<FakeKraidSpikeRow, int> SpikeTimers { get; } = [];
 
-    /// <summary>Index 0-2 of the spike clock visited this frame.</summary>
-    public int SpikeTimerIndex { get; internal set; }
+    /// <summary>The body port whose spike clock main AI visits on the next frame.</summary>
+    internal FakeKraidSpikeRow NextSpikeRow { get; set; }
 
 
     /// <summary>Number of spike projectiles successfully allocated by this actor.</summary>

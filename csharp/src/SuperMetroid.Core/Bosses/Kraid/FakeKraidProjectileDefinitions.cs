@@ -12,9 +12,6 @@ internal static class FakeKraidProjectileDefinitions
     /// <summary>Both spit shots start upward at five pixels per frame.</summary>
     internal const int SpitRise = -5 * 256;
 
-    /// <summary>The body launch rows in the order the authored row selector counts them.</summary>
-    internal static readonly FakeKraidSpikeRow[] Rows = [FakeKraidSpikeRow.Top, FakeKraidSpikeRow.Middle, FakeKraidSpikeRow.Bottom];
-
     /// <summary>
     /// The fixed body launch offsets: the top, middle and bottom ports are 2 pixels above, 12 below
     /// and 24 below body Y. This is port selection, not an interpolated motion curve.

@@ -1,12 +1,15 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Mutually exclusive body-spike ports selected by the three timers.</summary>
+/// <summary>
+/// Fake Kraid's three body-spike ports, each launching from its own spike clock. Main AI visits the clocks in the
+/// declared order, one per frame, wrapping from the last to the first; nothing else reads the values.
+/// </summary>
 internal enum FakeKraidSpikeRow
 {
-    /// <summary>Top timer at byte offset0; launch offset word at86:9E7D.</summary>
+    /// <summary>The top port, visited first.</summary>
     Top,
-    /// <summary>Middle timer at byte offset2; launch offset word at86:9E7F.</summary>
+    /// <summary>The middle port, visited after the top.</summary>
     Middle,
-    /// <summary>Bottom timer at byte offset4; launch offset word at86:9E81.</summary>
+    /// <summary>The bottom port, visited after the middle.</summary>
     Bottom,
 }

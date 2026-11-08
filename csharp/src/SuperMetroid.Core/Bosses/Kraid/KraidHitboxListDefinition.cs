@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>One compiled Kraid arm hitbox list and the rectangles it covers.</summary>
-/// <param name="List">The hitbox list.</param>
-/// <param name="First">Its first rectangle in the shared geometry.</param>
-/// <param name="Count">How many rectangles it holds.</param>
-internal readonly record struct KraidHitboxListDefinition(KraidArmHitboxList List, int First, int Count);
+/// <summary>One Kraid arm hitbox list: how Samus touching it reacts, and its rectangles.</summary>
+/// <param name="Touch">The reaction to Samus touching any of its rectangles.</param>
+/// <param name="Rectangles">Its rectangles in collision order; the first overlapping one wins.</param>
+internal readonly record struct KraidHitboxListDefinition(EnemyReaction Touch, ImmutableArray<EnemyHitboxRectangle> Rectangles);

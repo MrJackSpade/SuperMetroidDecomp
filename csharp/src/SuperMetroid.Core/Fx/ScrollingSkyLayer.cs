@@ -24,7 +24,7 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> B
     /// </summary>
     /// <param name="worldY">A world row, 0 through 65535.</param>
     public int OffsetAt(int worldY) =>
-        BandsShown && BandAt(worldY) is >= 0 and var band ? BandOffsets[ScrollingSkyBands.GetSection(band).DataSlot] : 0;
+        BandsShown && BandAt(worldY) is { } band ? BandOffsets[ScrollingSkyBands.GetSection(band).DataSlot] : 0;
 
     /// <summary>
     /// The world row after <paramref name="worldY"/> where the band covering it ends: the next band's top, the end of the
@@ -33,13 +33,13 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> B
     /// <param name="worldY">A world row, 0 through 65535.</param>
     public static int NextBandRow(int worldY) => BandAt(worldY) switch
     {
-        < 0 => worldY < ScrollingSkyBands.GetSection(0).TopPosition ? ScrollingSkyBands.GetSection(0).TopPosition : WorldRows,
-        var band when band + 1 < ScrollingSkyBandDefinitions.SectionCount => ScrollingSkyBands.GetSection(band + 1).TopPosition,
+        null => worldY < ScrollingSkyBands.GetSection(0).TopPosition ? ScrollingSkyBands.GetSection(0).TopPosition : WorldRows,
+        { } band when band + 1 < ScrollingSkyBandDefinitions.SectionCount => ScrollingSkyBands.GetSection(band + 1).TopPosition,
         _ => ScrollingSkyBandDefinitions.WorldEndPosition,
     };
 
-    /// <summary>The band covering a world position, or -1 below the sky's bands.</summary>
-    private static int BandAt(int worldY)
+    /// <summary>The band covering a world position, or null outside the sky's bands.</summary>
+    private static int? BandAt(int worldY)
     {
         for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
         {
@@ -49,6 +49,6 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> B
             if (worldY >= ScrollingSkyBands.GetSection(index).TopPosition && worldY < nextTop)
                 return index;
         }
-        return -1;
+        return null;
     }
 }

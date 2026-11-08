@@ -84,17 +84,9 @@ internal static class CeresDestructionSceneDefinitions
         internal static RotationAngle ApproachAngle => RotationAngle.FromTableIndex(32);
     }
 
-    /// <summary>The scene's reserved actor slots, the explosions' palette and the approach's starting scroll.</summary>
+    /// <summary>The approach's starting scroll.</summary>
     internal static class Sprites
     {
-        /// <summary>The large asteroid's slot, the first one allocated.</summary>
-        internal const int AsteroidSlot = 15;
-        /// <summary>The small asteroids' reserved slot.</summary>
-        internal const int SmallAsteroidSlot = 1;
-        /// <summary>The vortex's reserved slot.</summary>
-        internal const int VortexSlot = 0;
-        /// <summary>The slot of the invisible actor that spawns the explosions.</summary>
-        internal const int SpawnerSlot = 14;
         /// <summary>The Zebes approach's starting horizontal scroll, in pixels.</summary>
         internal const int ZebesInitialBackgroundX = 128;
     }

@@ -81,10 +81,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Live asteroid, blast, planet, star, and title objects in update order.</summary>
     internal readonly List<IntroDiscoverySprite> actors = [];
     /// <summary>
-    /// Sprite slot ownership for Ceres actors when explosions reuse freed slots. A spawning explosion looks a free slot
-    /// up by number and a deleted actor frees its entry by actor, so the few entries are kept as pairs.
+    /// The small asteroids and the vortex, which the Ceres scene draws after every other actor, so the large asteroid and
+    /// the blasts overlap them.
     /// </summary>
-    private readonly List<CeresActorSlot> ceresActorSlots = [];
+    private readonly List<IntroDiscoverySprite> ceresActorsDrawnLast = [];
     /// <summary>Runs the final station blast through the ordinary power-bomb color curve.</summary>
     private readonly SamusPowerBombExplosionState stationExplosion = new();
     /// <summary>Engine-flicker palette program created at the Zebes reveal boundary.</summary>
@@ -435,10 +435,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             }
             actors.Add(CreateActor(definition));
         }
-        ceresActorSlots.Clear();
-        ceresActorSlots.Add(new CeresActorSlot(actors[0], CeresDestructionSceneDefinitions.Sprites.AsteroidSlot));
-        ceresActorSlots.Add(new CeresActorSlot(actors[1], CeresDestructionSceneDefinitions.Sprites.SmallAsteroidSlot));
-        ceresActorSlots.Add(new CeresActorSlot(actors[2], CeresDestructionSceneDefinitions.Sprites.VortexSlot));
+        ceresActorsDrawnLast.Clear();
+        ceresActorsDrawnLast.Add(actors[1]);
+        ceresActorsDrawnLast.Add(actors[2]);
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
@@ -609,7 +608,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             actor.Step();
             if (!actor.IsActive)
             {
-                ceresActorSlots.RemoveAll(entry => entry.Actor == actor);
+                ceresActorsDrawnLast.Remove(actor);
                 actors.RemoveAt(index);
             }
         }
@@ -641,7 +640,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.InstallFrameBehavior(
             CeresExplosionDefinitions.StationBlastActor.FrameBehavior);
-        _ = TryAddCeresActor(cinematicExplosion);
+        actors.Add(cinematicExplosion);
 
         LoadFinalExplosionMaps();
     }
@@ -664,28 +663,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // GeneralTimer is a different counter used by decrement-and-goto steps; using
         // it here would make all five blasts appear immediately despite distinct delays.
         actor.DelayFirstInstruction(placement.DelayFrames);
-        _ = TryAddCeresActor(actor);
-    }
-
-    /// <summary>Allocates the highest free sprite slot, preserving the spawner's reserved slot until deletion.</summary>
-    private bool TryAddCeresActor(IntroDiscoverySprite actor)
-    {
-        // Allocation searches the highest free slot. The invisible spawner
-        // owns its slot until its final spawn instruction and deletion have run.
-        for (int slot = CeresDestructionSceneDefinitions.Sprites.AsteroidSlot; slot >= 0; slot--)
-        {
-            if (slot == CeresDestructionSceneDefinitions.Sprites.SpawnerSlot &&
-                explosionSpawnerFrame <= CeresExplosionDefinitions.SpawnerFinalFrame)
-                continue;
-            if (ceresActorSlots.Exists(entry => entry.Slot == slot)) continue;
-            ceresActorSlots.Add(new CeresActorSlot(actor, slot));
-            actors.Add(actor);
-            return true;
-        }
-        // Allocation reports failure when all slots are occupied. These cinematic
-        // callers intentionally do not branch on it: this is the game's capacity
-        // behavior, not an unsupported instruction or swallowed runtime failure.
-        return false;
+        actors.Add(actor);
     }
 
     /// <summary>Applies the fleeing gunship's X subvelocity and signed Y velocity to an explosion sprite.</summary>
@@ -875,24 +853,21 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         ? PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, record))
         : PictureShading.Standard;
 
-    /// <summary>One Ceres actor's sprite slot.</summary>
-    /// <param name="Actor">The actor holding the slot.</param>
-    /// <param name="Slot">The slot it holds.</param>
-    private sealed record CeresActorSlot(IntroDiscoverySprite Actor, int Slot);
-
     /// <summary>Captures the active station blast's added colour as a render layer, over the whole screen.</summary>
     private ColourAddWindowLayer? CaptureStationExplosion() =>
         GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(stationExplosion),
             cameraPosition: Position16<RoomPixels>.Zero, firstLine: 0);
 
-    /// <summary>Places live actors as sprite entries, retaining slot order when Ceres explosions recycle slots.</summary>
+    /// <summary>
+    /// Places live actors as sprite entries in the order they spawned, the Ceres scene's small asteroids and vortex after
+    /// every other actor.
+    /// </summary>
     private void PrepareRenderSprites()
     {
         objects.BeginFrame();
-        // Same-priority sprite overlap is decided by drawing order. Allocation order is
-        // not stable slot order after an earlier explosion dies and its slot is reused.
+        // Same-priority sprite overlap is decided by drawing order.
         IEnumerable<IntroDiscoverySprite> drawActors = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
-            ? actors.OrderByDescending(actor => ceresActorSlots.First(entry => entry.Actor == actor).Slot) : actors;
+            ? actors.Where(actor => !ceresActorsDrawnLast.Contains(actor)).Concat(actors.Where(ceresActorsDrawnLast.Contains)) : actors;
         foreach (IntroDiscoverySprite actor in drawActors)
             actor.Draw(objects, installedArt: Sprites);
         objects.FinishFrame();

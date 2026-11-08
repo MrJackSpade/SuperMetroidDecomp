@@ -28,4 +28,11 @@ public sealed record RoomFxRecordDefinition(
     RoomLiquidOptions LiquidOptions,
     ImmutableArray<PaletteFxObject> PaletteEffects,
     ImmutableArray<AnimatedTileObject> AnimatedTiles,
-    RoomFxPaletteBlend PaletteBlend);
+    RoomFxPaletteBlend PaletteBlend)
+{
+    /// <summary>
+    /// Whether the room this record applies to animates Samus's visor, cycling it through its steady glow while X-ray is
+    /// off. The import reads it from the record's room blend; most rooms leave the visor still.
+    /// </summary>
+    public bool AnimatesVisor { get; init; }
+}

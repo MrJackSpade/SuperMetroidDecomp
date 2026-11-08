@@ -95,10 +95,9 @@ internal static class RoomScopeVerification
             !ReferenceEquals(source.CeresElevatorShaft, destination.CeresElevatorShaft) &&
             !destination.MaridiaElevatube.IsActive && !destination.CeresElevatorShaft.IsActive,
             "the destination builds its own room mains, inactive in a room that does not select them");
-        VerificationAssertions.AssertTrue(ReferenceEquals(source.FxOverlay.FixedColors, destination.FxOverlay.FixedColors) &&
-            ReferenceEquals(source.FxOverlay.Fireflea, destination.FxOverlay.Fireflea) &&
-            ReferenceEquals(runtime.RoomFx.FixedColors, destination.FxOverlay.FixedColors),
-            "the COLDATA shadows and Fireflea state are the session's, shared by both rooms");
+        VerificationAssertions.AssertTrue(ReferenceEquals(source.FxOverlay.Fireflea, destination.FxOverlay.Fireflea) &&
+            ReferenceEquals(runtime.RoomFx.Fireflea, destination.FxOverlay.Fireflea),
+            "the Fireflea state is the session's, shared by both rooms");
         VerificationAssertions.AssertEqual(heatPhase, runtime.PaletteFxSession.SamusInHeatPaletteIndex,
             "the palette-FX heat phase survives the load on the session");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&

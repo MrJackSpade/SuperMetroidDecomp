@@ -48,8 +48,6 @@ internal sealed class AcceptedFrameBoundary
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus's per-frame graphics for frame boundary transfers.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies the room's fixed colour.</summary>
-    private readonly RoomFxSession _roomFx;
     /// <summary>The HUD whose images each frame boundary latches.</summary>
     private readonly HudState _hud;
     /// <summary>
@@ -78,7 +76,6 @@ internal sealed class AcceptedFrameBoundary
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomFx = dependencies.RoomFx;
         _hud = dependencies.Hud;
         _suitPickup = dependencies.SuitPickup;
         _xray = dependencies.Xray;
@@ -148,7 +145,7 @@ internal sealed class AcceptedFrameBoundary
             Ensure.BetweenInclusive(short.MinValue, short.MaxValue, _room.TourianStatues?.DisplayedVerticalOffset ?? 0),
             scene,
             CaptureBossBackgrounds(),
-            CaptureFixedColors(),
+            CaptureTints(),
             // The reveal and the room's planes are drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
             CaptureRoomBackgrounds(),
@@ -321,13 +318,14 @@ internal sealed class AcceptedFrameBoundary
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
         _hudPictures is { } shown && ReferenceEquals(shown.Sheet, sheet) ? shown : _hudPictures = new HudPictures(sheet);
 
-    /// <summary>The fixed colours effects chose during the previous main loop.</summary>
-    private GameplayLatchedFixedColors CaptureFixedColors()
+    /// <summary>The tints effects chose during the previous main loop, each from its own effect.</summary>
+    private GameplayLatchedTints CaptureTints()
     {
         // Before the first room exists there is no explosion; its colour is black.
         RgbColor powerBomb = _room.BombProjectiles?.PowerBombExplosion.FixedColor ?? RgbColor.Black;
         return new(
-            _roomFx.FixedColors.Color,
+            // Before the first room there is no room effect, so no Fireflea darkness.
+            _room.FxOverlay?.FirefleaTint,
             powerBomb,
             _suitPickup.FixedColor,
             Displays?.MotherBrain?.RainbowBeam.Color);

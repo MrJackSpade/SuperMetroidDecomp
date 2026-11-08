@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The scene one shown (or loading) frame shows (#1407): the camera's layer scrolls and room shake, the layers
-/// shown, the Ceres perspective floor, the room's and the bosses' backgrounds, the blends' fixed colours and the
+/// shown, the Ceres perspective floor, the room's and the bosses' backgrounds, the effects' tints and the
 /// effects' latched state. Gameplay latches it before Samus's graphics are copied, so a change the main loop makes
 /// shows from the next shown frame. An update without a frame boundary leaves the previous latch in place. Arrays are owned copies;
 /// simulation cannot change them.
@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </param>
 /// <param name="Scene">The room's effect-overlay characters, blending, sky and X-ray context.</param>
 /// <param name="Bosses">The bodies bosses draw as the background.</param>
-/// <param name="FixedColors">The fixed colours the frame's blends use.</param>
+/// <param name="Tints">The tints the frame's effects blend with, each published by its own effect.</param>
 /// <param name="XrayReveal">
 /// The X-ray reveal background shows while X-ray is active, drawn from the room's block pictures (#1392).
 /// </param>
@@ -47,7 +47,7 @@ public sealed record GameplayDisplayLatch(
     int TourianStatueVerticalOffset,
     GameplayLatchedScene Scene,
     GameplayLatchedBossBackgrounds Bosses,
-    GameplayLatchedFixedColors FixedColors,
+    GameplayLatchedTints Tints,
     XrayRevealPlane? XrayReveal,
     RoomBackgrounds? Rooms,
     FxOverlayPlane? FxOverlay = null,

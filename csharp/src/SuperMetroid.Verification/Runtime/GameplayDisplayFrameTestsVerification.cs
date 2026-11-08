@@ -109,7 +109,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
             "Mother Brain's hidden background");
-        AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.FixedColors.RainbowBeam,
+        AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.Tints.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
         runtime.Enemies.MotherBrainEncounter.MotherBrain = null;
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
@@ -137,28 +137,32 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
-    /// <summary>COLDATA shadows publish at the accepted NMI while the same effect's window table is read live.</summary>
+    /// <summary>Each effect's tint publishes at the accepted frame while the same effect's window table is read live.</summary>
     private static void VerifyFixedColorTiming(SuperMetroidRuntime runtime)
     {
-        // Fireflea darkness: FX selector and the shared COLDATA shadows.
+        // Fireflea darkness: the effect and the shade it publishes. From the first flash shade (level zero), a step at darkness
+        // offset six shades level eighteen and one at offset two level six.
         RoomFxType originalFx = runtime.RoomFxOverlay.Type;
-        RoomFixedColor fixedColor = runtime.RoomFxOverlay.FixedColors;
+        FirefleaFxState fireflea = runtime.RoomFx.Fireflea;
         runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
-        fixedColor.Color = new RgbColor(74, 74, 74);
+        fireflea.Initialize();
+        fireflea.Step(frozen: false, darkness: 6);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
-            "Fireflea blend selector waits for the NMI");
+            "Fireflea darkness waits for the accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(9, darkness.Blend.Colour.FadeLevels.Red, "Fireflea's fixed colour publishes with its blend");
-        fixedColor.Color = fixedColor.Color.FadeLevels.WithRed(4).ToColour();
-        AssertEqual(9, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
-            "a fixed colour chosen in the main loop waits for the next accepted frame");
+        AssertEqual(18, darkness.Blend.Colour.FadeLevels.Red, "Fireflea's shade publishes with its blend");
+        fireflea.Step(frozen: false, darkness: 2);
+        AssertEqual(18, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
+            "a shade chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(4, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
-            "the next accepted frame publishes the chosen fixed colour");
+        AssertEqual(6, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
+            "the next accepted frame publishes the chosen shade");
         runtime.RoomFxOverlay.Type = originalFx;
-        fixedColor.Color = RgbColor.Black;
+        fireflea.Initialize();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
+        AssertEqual<RgbColor?>(null, runtime.PublishDisplayFrame().Latched.Tints.Fireflea,
+            "a room whose effect is not Fireflea darkness publishes no Fireflea shade");
 
         // Power bomb: the window table is built during the main loop and read live; the
         // pre-instruction's COLDATA write reaches the screen at the following NMI.
@@ -184,7 +188,7 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
-        RgbColor suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
+        RgbColor suitBefore = runtime.PublishDisplayFrame().Latched.Tints.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
         AssertEqual(suitBefore.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.FadeLevels.Red, "suit COLDATA waits for the NMI");

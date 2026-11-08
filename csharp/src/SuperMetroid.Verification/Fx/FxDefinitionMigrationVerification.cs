@@ -39,8 +39,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(2, ConveyorBlockDefinitions.RightwardCarry, "rightward conveyor carry");
         AssertEqual(-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
-        // The Fireflea shades are the high bytes of the former shade words.
-        AssertEqual(0xc2, FirefleaShades.DarknessShade(12), "darkness level past the ramp");
+        // The Fireflea shades are fade levels: the high bytes of the former shade words, below their channel bits.
+        AssertEqual(2, FirefleaShades.DarknessShade(12), "darkness level past the ramp");
         AssertEqual(25, FirefleaShades.DarknessShade(10), "last ramp darkness level");
         AssertEqual(6, FirefleaShades.FlashingShade(6), "brightest flash level");
 

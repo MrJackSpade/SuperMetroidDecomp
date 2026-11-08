@@ -74,10 +74,20 @@ internal static class RoomFxRecordCodec
             LiquidOptions(native[RoomFxRomDataRecordTooling.LiquidOptionsOffset]),
             PaletteEffects(area, native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset]),
             AnimatedTiles(area, native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset]),
-            RoomFxRecordWords.PaletteBlends.Decode(native[RoomFxRomDataRecordTooling.PaletteBlendOffset], $"{context} palette blend"));
+            RoomFxRecordWords.PaletteBlends.Decode(native[RoomFxRomDataRecordTooling.PaletteBlendOffset], $"{context} palette blend"))
+        {
+            AnimatesVisor = AnimatesVisor(native[RoomFxRomDataRecordTooling.DefaultLayerBlendConfigurationOffset]),
+        };
 
         static ushort Word(ReadOnlySpan<byte> bytes, int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);
     }
+
+    /// <summary>
+    /// Whether a record whose default layer-blend byte is <paramref name="defaultLayerBlend"/> animates Samus's visor: the
+    /// room-FX loader stores that byte as the room's default blend ($89:AB40, cleared to 2 before each room at $88:8386),
+    /// and the visor palette handler animates the visor only while it is $28 or $2A ($91:D849).
+    /// </summary>
+    internal static bool AnimatesVisor(byte defaultLayerBlend) => defaultLayerBlend is 0x28 or 0x2a;
 
     /// <summary>The height word a record holds where it names no surface height.</summary>
     internal const ushort UnnamedSurfaceWord = ushort.MaxValue;

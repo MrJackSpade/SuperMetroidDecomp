@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The Fireflea room effect's state: the flash clock its setup initializes and its per-frame behaviour steps, and
-/// the darkness level the dying Firefleas advance. The game keeps these for the session;
+/// the darkness level the dying Firefleas advance, and the shade it publishes (<see cref="Tint"/>), which a Fireflea
+/// room's load restarts from its first flash. The game keeps these for the session;
 /// the room FX state owns them for the session, so a room load does not reset them.
 /// </summary>
 public sealed class FirefleaFxState
@@ -20,21 +21,27 @@ public sealed class FirefleaFxState
     /// <summary>The darkness level published from the enemy-owned death counter, an even darkness-table byte offset 0 through 12.</summary>
     public int Darkness { get; private set; }
 
-    /// <summary>Seeds the initial flash duration, first shade index, and undarkened room state.</summary>
+    /// <summary>
+    /// The shade Fireflea darkness subtracts from the room, grey on the game's fade scale: the flashing shade plus the
+    /// darkness level, as the last unfrozen step chose it. A frozen step keeps it.
+    /// </summary>
+    public RgbColor Tint { get; private set; } = Shade(0, 0);
+
+    /// <summary>Seeds the initial flash duration, first shade index, and undarkened room state, and shows its shade.</summary>
     internal void Initialize()
     {
         Timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
         Index = 0;
         Darkness = 0;
+        Tint = Shade(Index, Darkness);
     }
 
     /// <summary>
-    /// Samples enemy-owned darkness, advances the flash clock unless frozen, and writes the shared fixed colour using
-    /// 16-bit shade addition, including the seventh offset value.
+    /// Samples enemy-owned darkness, and unless frozen advances the flash clock and chooses the room's
+    /// <see cref="Tint"/> from the flashing shade and the darkness level, including the level past the ramp.
     /// </summary>
-    internal void Step(RoomFixedColor fixedColor, bool frozen, int darkness)
+    internal void Step(bool frozen, int darkness)
     {
-        Ensure.NotNull(fixedColor);
         Darkness = darkness;
         if (frozen) return;
         CountdownStep step = Timer.Decrement();
@@ -53,10 +60,16 @@ public sealed class FirefleaFxState
         }
         Timer = timer;
 
-        int shade = FirefleaShades.FlashingShade(index) + FirefleaShades.DarknessShade(darkness);
-        // Each of the game's three writes carries the shade as its grey level, wrapping within the levels. Past the darkness ramp the
-        // shade's upper bits only select channels the other writes set to the same value.
-        int intensity = shade % (FadeLevelColour.FullLevel + 1);
-        fixedColor.Color = new FadeLevelColour(intensity, intensity, intensity).ToColour();
+        Tint = Shade(index, darkness);
+    }
+
+    /// <summary>
+    /// The grey of the flashing shade at <paramref name="index"/> deepened by the darkness at <paramref name="darkness"/>:
+    /// the two fade levels add, and their sum never passes the scale's full level.
+    /// </summary>
+    private static RgbColor Shade(int index, int darkness)
+    {
+        int level = FirefleaShades.FlashingShade(index) + FirefleaShades.DarknessShade(darkness);
+        return new FadeLevelColour(level, level, level).ToColour();
     }
 }

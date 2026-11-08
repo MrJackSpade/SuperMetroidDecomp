@@ -97,7 +97,7 @@ public static class RoomFxDefinitions
     /// <summary>The ParlorDefault room FX.</summary>
     public static RoomFxHeader ParlorDefault { get; } = new(nameof(ParlorDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog) { AnimatesVisor = true },
     ]);
 
     /// <summary>The CrateriaPowerBombs room FX.</summary>
@@ -205,7 +205,7 @@ public static class RoomFxDefinitions
     /// <summary>The ElevToBlueBrinstarDefault room FX.</summary>
     public static RoomFxHeader ElevToBlueBrinstarDefault { get; } = new(nameof(ElevToBlueBrinstarDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDead room FX.</summary>
@@ -235,13 +235,13 @@ public static class RoomFxDefinitions
     /// <summary>The FinalMissileBombwayDefault room FX.</summary>
     public static RoomFxHeader FinalMissileBombwayDefault { get; } = new(nameof(FinalMissileBombwayDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog) { AnimatesVisor = true },
     ]);
 
     /// <summary>The FinalMissileDefault room FX.</summary>
     public static RoomFxHeader FinalMissileDefault { get; } = new(nameof(FinalMissileDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog) { AnimatesVisor = true },
     ]);
 
     /// <summary>The VariousRooms8381F4 room FX.</summary>
@@ -337,19 +337,19 @@ public static class RoomFxDefinitions
     /// <summary>The MorphBallDefault room FX.</summary>
     public static RoomFxHeader MorphBallDefault { get; } = new(nameof(MorphBallDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The ConstructionZoneDefault room FX.</summary>
     public static RoomFxHeader ConstructionZoneDefault { get; } = new(nameof(ConstructionZoneDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The BlueBrinstarETankDefault room FX.</summary>
     public static RoomFxHeader BlueBrinstarETankDefault { get; } = new(nameof(BlueBrinstarETankDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The NoobBridge room FX.</summary>
@@ -553,7 +553,7 @@ public static class RoomFxDefinitions
     /// <summary>The WarehouseEntrance room FX.</summary>
     public static RoomFxHeader WarehouseEntrance { get; } = new(nameof(WarehouseEntrance),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The VariaSuit room FX.</summary>
@@ -1134,7 +1134,7 @@ public static class RoomFxDefinitions
     /// <summary>The BowlingAlleyDefault room FX.</summary>
     public static RoomFxHeader BowlingAlleyDefault { get; } = new(nameof(BowlingAlleyDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The WreckedShipEntranceDefault room FX.</summary>
@@ -1182,7 +1182,7 @@ public static class RoomFxDefinitions
     /// <summary>The BasementDefault room FX.</summary>
     public static RoomFxHeader BasementDefault { get; } = new(nameof(BasementDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The WreckedShipMapDefault room FX.</summary>
@@ -1230,13 +1230,13 @@ public static class RoomFxDefinitions
     /// <summary>The WestTunnel room FX.</summary>
     public static RoomFxHeader WestTunnel { get; } = new(nameof(WestTunnel),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The EastTunnel room FX.</summary>
     public static RoomFxHeader EastTunnel { get; } = new(nameof(EastTunnel),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The MainStreet room FX.</summary>
@@ -1314,13 +1314,13 @@ public static class RoomFxDefinitions
     /// <summary>The PlasmaTutorial room FX.</summary>
     public static RoomFxHeader PlasmaTutorial { get; } = new(nameof(PlasmaTutorial),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA) { AnimatesVisor = true },
     ]);
 
     /// <summary>The Plasma room FX.</summary>
     public static RoomFxHeader Plasma { get; } = new(nameof(Plasma),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA) { AnimatesVisor = true },
     ]);
 
     /// <summary>The ThreadTheNeedle room FX.</summary>
@@ -1344,7 +1344,7 @@ public static class RoomFxDefinitions
     /// <summary>The Kassiuz room FX.</summary>
     public static RoomFxHeader Kassiuz { get; } = new(nameof(Kassiuz),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA) { AnimatesVisor = true },
     ]);
 
     /// <summary>The MaridiaMap room FX.</summary>
@@ -1406,7 +1406,7 @@ public static class RoomFxDefinitions
     /// <summary>The EastAqueductQuicksandWestAqueductQuicksand room FX.</summary>
     public static RoomFxHeader EastAqueductQuicksandWestAqueductQuicksand { get; } = new(nameof(EastAqueductQuicksandWestAqueductQuicksand),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The Aqueduct room FX.</summary>
@@ -1490,7 +1490,7 @@ public static class RoomFxDefinitions
     /// <summary>The PlasmaBeachQuicksandBotwoonQuicksand room FX.</summary>
     public static RoomFxHeader PlasmaBeachQuicksandBotwoonQuicksand { get; } = new(nameof(PlasmaBeachQuicksandBotwoonQuicksand),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
     ]);
 
     /// <summary>The Shaktool room FX.</summary>

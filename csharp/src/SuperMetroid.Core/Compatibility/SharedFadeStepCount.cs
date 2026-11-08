@@ -1,0 +1,41 @@
+namespace SuperMetroid.Core.Compatibility;
+
+/// <summary>
+/// The step count every gradual fade in the game shares (#1544): a door's fade out and in, Samus's death fade, the escape's
+/// time-up whiteout, Kraid's backdrop fades and the Torizos' body fades each read it as their current step, advance it
+/// after each step and reset it when they complete. None resets it when it starts, except Kraid, whose room-background
+/// redraw clears it before his fades.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Gameplay behaviour reproduced: a fade starts at whatever step the last fade left, so a fade that stops part-way
+/// shortens the next. A Torizo's wake-up fade takes sixteen steps on a fade of twelve: it completes on its fifteenth and
+/// starts again on its sixteenth, leaving the count at one. The Torizo's own death fade starts there and so completes in
+/// its fourteen steps; Samus's death fade during the fight starts there too and completes one update sooner, as does a
+/// death fade after a Kraid backdrop fade her death cut short. When the death fade completes decides when the game-over
+/// screen appears and takes input; when a door's fade completes decides when the door transition moves on.
+/// </para>
+/// <para>
+/// Consulted and advanced once per update by the running fade's owner: the door transition's fade phases, the death and
+/// time-up phases, Kraid's backdrop fade functions and the Torizos' fade instructions; reset by the fade that completes and
+/// by Kraid's background redraw. Owned by the session's <c>EnemySession</c>, so the count outlives every room. Evidence:
+/// the original gradual colour change routines, which all read, advance and clear one shared step count and none clears it
+/// at its start; the Torizo programs' sixteen-step wake-up and fourteen-step death fade, which only complete in fourteen
+/// steps from the count the wake-up leaves.
+/// </para>
+/// </remarks>
+[CompatibilityService("every gradual fade counts its steps on one shared count, starting where the last fade left it, so a fade left part-way shortens the next: the Torizos' death fades and Samus's death fade among them")]
+public sealed class SharedFadeStepCount
+{
+    /// <summary>
+    /// The current step: zero once a fade completes, then one more per step taken. Every fade resets it once it passes the
+    /// fade's length plus one, so it never exceeds the longest fade's length plus two.
+    /// </summary>
+    public int Step { get; private set; }
+
+    /// <summary>Moves to the next step after a step is taken.</summary>
+    public void Advance() => Step++;
+
+    /// <summary>Restarts the count, as a fade that completes and Kraid's background redraw do.</summary>
+    public void Reset() => Step = 0;
+}

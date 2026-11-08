@@ -375,13 +375,13 @@ internal sealed class GameplayGamePhases(FrontendSession session)
 
     /// <summary>
     /// The escape countdown expired. The whole gameplay display, Samus and the HUD among it, fades to white through the
-    /// shared numerator in the time-up state's gradual change (#1512).
+    /// shared fade step count in the time-up state's gradual change (#1512).
     /// </summary>
     private void BeginTimeUp()
     {
         SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
         runtime.FadeOut.Begin(TimeUpDefinitions.WhiteColor, TimeUpDefinitions.WhiteOutDenominator,
-            runtime.EnemySession.GradualColorChange, GameplayFadeSpares.Nothing);
+            runtime.EnemySession.FadeStepCount, GameplayFadeSpares.Nothing);
         session.GameState = SuperMetroidGameState.TimeUp;
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -109,11 +110,11 @@ internal sealed class TorizoColours
     /// <exception cref="InvalidOperationException">
     /// No fade target is named, or the counter skipped a value since the fade's last step.
     /// </exception>
-    internal void Step(GradualColorChangeCounter counter)
+    internal void Step(SharedFadeStepCount counter)
     {
         Ensure.NotNull(counter);
         TorizoLook to = target ?? throw new InvalidOperationException("A Torizo's fade steps once its program names its colours.");
-        int value = counter.Numerator;
+        int value = counter.Step;
         if (value > TorizoPaletteDefinitions.FadeDenominator + 1)
         {
             counter.Reset();

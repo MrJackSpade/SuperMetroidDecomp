@@ -45,15 +45,15 @@ internal sealed class KraidBackground
         if (_access.Kraid is null)
             throw new InvalidOperationException("Kraid's backdrop fades once Kraid is loaded.");
         KraidBackdropColours backdrop = _access.Backdrop;
-        int step = _presentation.GradualColorChange.Numerator;
+        int step = _presentation.FadeStepCount.Step;
         if (step <= KraidBackgroundDefinitions.BackdropFadeLastStep)
         {
             backdrop.Step(fade, step);
-            _presentation.GradualColorChange.Advance();
+            _presentation.FadeStepCount.Advance();
             return false;
         }
         backdrop.Complete(fade);
-        _presentation.GradualColorChange.Reset();
+        _presentation.FadeStepCount.Reset();
         return true;
     }
 

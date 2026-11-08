@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Assets;
@@ -72,10 +73,10 @@ internal sealed class EnemyPresentation
     internal void ShowLook(EncounterLook look) => Looks.Show(look);
 
     /// <summary>
-    /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
-    /// fades advance this one counter, as the game's fades all advance one shared counter.
+    /// The session's shared fade step count, a compatibility service (#1544): enemies' fades and the runtime's door, death
+    /// and time-up fades all count their steps on it, so a fade left part-way shortens the next.
     /// </summary>
-    public GradualColorChangeCounter GradualColorChange => _room.Session.GradualColorChange;
+    public SharedFadeStepCount FadeStepCount => _room.Session.FadeStepCount;
 
     /// <summary>
     /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's

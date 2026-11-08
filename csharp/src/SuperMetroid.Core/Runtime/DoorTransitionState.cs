@@ -65,7 +65,7 @@ internal sealed class DoorTransitionState
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
         destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
         sourceSamus = runtime.Player.Samus.Position;
-        FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.EnemySession.GradualColorChange);
+        FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.EnemySession.FadeStepCount);
         // Between two common rooms the fade keeps the HUD's item and minimap backgrounds lit as well.
         runtime.DoorFade.FadeOut(FadeSteps, commonRooms: !sourceIsolated && !destinationIsolated);
         Phase = DoorTransitionPhase.WaitForSoundQueues;
@@ -215,7 +215,7 @@ internal sealed class DoorTransitionState
                     samus.SelectedHudItem = SuperMetroid.Core.Samus.HudItem.Beam;
                     samus.AutoCancelHudItemIndex = SuperMetroid.Core.Samus.HudItem.Beam;
                 }
-                FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.EnemySession.GradualColorChange);
+                FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.EnemySession.FadeStepCount);
                 runtime.DoorFade.FadeIn(FadeSteps);
                 Phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
                 break;

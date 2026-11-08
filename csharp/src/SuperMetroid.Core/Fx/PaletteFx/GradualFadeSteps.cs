@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Compatibility;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The steps of one gradual colour change on the shared step counter (#1512): the door fades, Kraid's backdrop fades and
+/// The steps of one gradual colour change on the shared step count (#1512, <see cref="SharedFadeStepCount"/>): the door fades, Kraid's backdrop fades and
 /// the Torizos' body fades take a step each update, reading the shared counter and advancing it, and the fade that
 /// completes resets it under any other running in the same updates. What the steps show is the
 /// <see cref="GradualColourFade"/> they make; the steps decide only when the fade completes.
@@ -12,12 +13,12 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 internal sealed class GradualFadeSteps
 {
     /// <summary>The shared step counter this fade reads and advances.</summary>
-    private readonly GradualColorChangeCounter counter;
+    private readonly SharedFadeStepCount counter;
 
     /// <summary>Starts a fade of length <paramref name="denominator"/> on <paramref name="counter"/>.</summary>
     /// <param name="denominator">The fade's length, one through 65534; step denominator plus one reaches the far colour.</param>
     /// <param name="counter">The shared step counter.</param>
-    internal GradualFadeSteps(int denominator, GradualColorChangeCounter counter)
+    internal GradualFadeSteps(int denominator, SharedFadeStepCount counter)
     {
         this.counter = Ensure.NotNull(counter);
         Denominator = Ensure.BetweenInclusive(1, ushort.MaxValue - 1, denominator);
@@ -36,7 +37,7 @@ internal sealed class GradualFadeSteps
     /// <returns>Whether the fade completed on this call, taking no step.</returns>
     internal bool Step()
     {
-        int step = counter.Numerator;
+        int step = counter.Step;
         if (step > Denominator + 1)
         {
             counter.Reset();

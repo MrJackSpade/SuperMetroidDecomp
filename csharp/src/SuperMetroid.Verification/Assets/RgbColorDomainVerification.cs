@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -65,7 +66,7 @@ internal static class RgbColorDomainVerification
 
         // A production fade toward a colour shows its exact target once it completes (native $82:DA02 ramp), whatever
         // colour it started from (#1512).
-        var fade = new GradualFadeSteps(denominator: 6, new GradualColorChangeCounter());
+        var fade = new GradualFadeSteps(denominator: 6, new SharedFadeStepCount());
         for (int step = 0; step < 16 && !fade.Step(); step++) { }
         AssertTrue(cgram.Colors.ToArray().All(colour => fade.Toward(RgbColor.White).Apply(colour) == RgbColor.White),
             "typed gradual fade shows its exact target");

@@ -16,11 +16,7 @@ public sealed class NinjaSpacePirateEnemyState
     /// The peak spin-jump speed derived at initialization, in 1/256 pixel per update: 32 for each 1/8-pixel
     /// acceleration step whose running distance first covers the requested half-span, from 32 to 1,440.
     /// </summary>
-    public int CalculatedSpinJumpSpeed
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int CalculatedSpinJumpSpeed { get; internal set; }
 
     /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateProgram ActiveProgram { get; set; }

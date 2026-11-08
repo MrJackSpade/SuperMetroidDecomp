@@ -165,7 +165,8 @@ internal static class EnemyMath
     {
         int tableIndex = angle.AddTableUnits(angleOffset).HalfWaveIndex;
         int sample = Trigonometry.UnsignedHalfWave(tableIndex);
-        uint product = (uint)sample * (uint)magnitude;
+        // A product that would not fit the multiplication's 32-bit result fails instead of wrapping.
+        uint product = checked((uint)sample * (uint)Ensure.AtLeastZero(magnitude));
         return unchecked((int)product);
     }
 
@@ -191,17 +192,10 @@ internal static class EnemyMath
     private const int ByteSpan = 256;
 
     /// <summary>
-    /// The negative eight-bit result <paramref name="value"/>'s low part, 0 through 255, stands for, held in a
-    /// sixteen-bit quantity: 65280 plus that part, as the game fills the upper half with ones (#1412).
-    /// </summary>
-    /// <param name="value">The result, zero or more; only its place within <see cref="ByteSpan"/> is kept.</param>
-    internal static int FillHighByte(int value) => (ByteSpan - 1) * ByteSpan + Ensure.AtLeastZero(value) % ByteSpan;
-
-    /// <summary>
-    /// The eight-bit multiplier operand a radius, 0 through 65535, supplies: the eight-bit sine multiplication
+    /// The eight-bit multiplier operand a radius, zero or more, supplies: the eight-bit sine multiplication
     /// takes only its place within 256, so a radius of 256 or more continues from zero.
     /// </summary>
-    private static int RadiusMultiplierOperand(int radius) => Ensure.BetweenInclusive(0, ushort.MaxValue, radius) % ByteSpan;
+    private static int RadiusMultiplierOperand(int radius) => Ensure.AtLeastZero(radius) % ByteSpan;
 
     /// <summary>
     /// Whether a computed coordinate difference, speed or count reads as negative, as the game's sign tests read one:

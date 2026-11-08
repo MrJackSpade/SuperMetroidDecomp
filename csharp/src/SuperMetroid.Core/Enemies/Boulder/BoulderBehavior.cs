@@ -295,7 +295,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the actor vertically by a quadratic table speed toward <paramref name="direction"/>, wrapping within the coordinate range.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, accumulator))).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        int displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(accumulator)).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement)));
     }
 

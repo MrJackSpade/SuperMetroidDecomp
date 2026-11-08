@@ -119,7 +119,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.Y.Whole,
                         slot.Position.Y.Whole,
-                        Ensure.BetweenInclusive(0, ushort.MaxValue, state.YProximity)))
+                        state.YProximity))
                 {
                     return;
                 }

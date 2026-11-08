@@ -251,7 +251,7 @@ internal sealed class EyeDoorBehavior
         Position16<RoomBlocks> block)
     {
         MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
-        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(Ensure.BetweenInclusive(0, ushort.MaxValue, placementIndex));
+        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
         // Stores only the list pointer, keeping the definition's one-update timer.
@@ -396,11 +396,11 @@ internal sealed class EyeDoorBehavior
         {
             // The far face of the blocking block: the last pixel of its sixteen, plus one.
             int face = CoordinateAxis.Wrap((edge | 15) + 1 + radius);
-            return Ensure.BetweenInclusive(0, ushort.MaxValue, face <= current ? face : current);
+            return face <= current ? face : current;
         }
         // The near face of the blocking block: its first pixel.
         int near = CoordinateAxis.Wrap((edge & ~15) - radius);
-        return Ensure.BetweenInclusive(0, ushort.MaxValue, near >= current ? near : current);
+        return near >= current ? near : current;
     }
 
     /// <summary>Advances vertical subpixels or snaps to the first solid leading edge.</summary>

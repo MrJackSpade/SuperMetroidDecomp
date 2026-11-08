@@ -320,7 +320,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// only the angle's position within one turn.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(NuclearWaffleEnemyState state, int angle) =>
-        state.Origin + EnemyMath.CircleOffset(ByteAngle.Wrapped(angle), Ensure.BetweenInclusive(0, ushort.MaxValue, state.OrbitRadius));
+        state.Origin + EnemyMath.CircleOffset(ByteAngle.Wrapped(angle), state.OrbitRadius);
 
     /// <summary>Advances the signed 16.16 sweep angle by the angular speed, carrying from its fraction.</summary>
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state) =>

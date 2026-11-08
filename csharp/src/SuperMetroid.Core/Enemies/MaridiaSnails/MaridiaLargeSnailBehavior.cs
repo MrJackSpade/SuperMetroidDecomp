@@ -255,7 +255,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 if (!_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, EightEight.WholeOf(state.YSpeedTableIndex))).Positive))
+                        EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.YSpeedTableIndex)).Positive))
                 {
                     return;
                 }
@@ -279,7 +279,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
                 // The rising half reads the negative member of the same quadratic row. The record is not
                 // negative here, so its whole part is the row the game's sign-clearing AND selects.
-                int tableIndex = Ensure.BetweenInclusive(0, ushort.MaxValue, EightEight.WholeOf(state.YSpeedTableIndex));
+                int tableIndex = EightEight.WholeOf(state.YSpeedTableIndex);
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,

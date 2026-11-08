@@ -43,7 +43,7 @@ public sealed class KiHunterEnemyState
     public int DetachedSpeedIndex
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, EightEight.FromWhole(EnemyQuadraticSpeedDefinitions.RowCount) - 1, value);
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public sealed class KiHunterEnemyState
     public int DetachedSpeedAccumulator
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public sealed class KiHunterEnemyState
     public int AnimationChangeAngle
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, RotationAngle.TableUnitsPerTurn - 1, value);
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public sealed class KiHunterEnemyState
     public int SwoopAngle
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, RotationAngle.TableUnitsPerTurn + 1, value);
     }
 
     /// <summary>

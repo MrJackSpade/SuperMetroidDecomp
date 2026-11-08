@@ -292,7 +292,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             ? state.AngularVelocity.WholePixels < state.MaximumAngularVelocity
             : state.AngularVelocity.WholePixels >= state.MaximumAngularVelocity;
         if (pastCap)
-            state.AngularVelocity = state.AngularVelocity.WithWholePixels(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, state.MaximumAngularVelocity));
+            state.AngularVelocity = state.AngularVelocity.WithWholePixels(state.MaximumAngularVelocity);
 
         state.SwoopAngle += state.AngularVelocity.WholePixels;
         if ((!leftArc && state.SwoopAngle >= RotationAngle.TableUnitsPerTurn) ||

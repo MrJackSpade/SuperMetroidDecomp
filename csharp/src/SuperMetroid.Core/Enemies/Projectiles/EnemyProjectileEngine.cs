@@ -678,7 +678,7 @@ internal sealed class EnemyProjectileEngine
             return null;
         }
 
-        int damage = SamusSuitDamage.Reduce(Ensure.BetweenInclusive(0, ushort.MaxValue, projectile.Damage), samus.EquippedItems);
+        int damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;

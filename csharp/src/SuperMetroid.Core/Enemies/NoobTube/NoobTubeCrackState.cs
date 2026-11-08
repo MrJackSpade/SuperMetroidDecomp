@@ -6,9 +6,5 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 internal sealed class NoobTubeCrackState : EnemyProjectileState
 {
     /// <summary>The column the crack last showed at; zero until its first flicker records it.</summary>
-    internal int ShownX
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    internal int ShownX { get; set; }
 }

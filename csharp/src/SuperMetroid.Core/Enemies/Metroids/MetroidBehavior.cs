@@ -458,7 +458,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.Enemy.FrozenTimer == 0)
                 {
                     SamusProjectileSlot recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
-                    ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.BetweenInclusive(0, ushort.MaxValue, c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
+                    ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
                 }
             });
     }
@@ -538,7 +538,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Custom Metroid shot AI does not call normal shot AI. Preserve the collision prelude, then apply recoil/ice
         // or attached power-bomb escape without inventing vulnerability-based health damage.
         c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.BetweenInclusive(0, ushort.MaxValue, c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Slots).Position.Whole, c.Samus);
+        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Slots).Position.Whole, c.Samus);
         return true;
     }
 

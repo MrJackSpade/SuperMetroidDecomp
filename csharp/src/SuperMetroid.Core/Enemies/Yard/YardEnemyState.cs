@@ -22,6 +22,9 @@ public sealed class YardEnemyState
     /// <summary>The hidden-shell animation for the current orientation; none, the empty-behaviour sentinel, suppresses the look-at hiding transition.</summary>
     internal YardProgram? HidingProgram { get; set; }
 
+    /// <summary>The missing-surface probes in a row that drop Yard.</summary>
+    internal const int MissedProbesBeforeFalling = 4;
+
     /// <summary>
     /// Consecutive missing-surface probe count, 0 through 4, reset on surface contact and landing; the fourth failure
     /// drops Yard instead of installing another outside-corner turn.
@@ -29,7 +32,7 @@ public sealed class YardEnemyState
     public int ConsecutiveTurnCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, MissedProbesBeforeFalling, value);
     }
 
     /// <summary>

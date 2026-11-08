@@ -42,13 +42,13 @@ public sealed class RoomEnemyProjectileSlot
     public int Damage
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
     /// <summary>Gets the invincibility timer written to Samus on a damaging collision; definition initialization uses ninety-six frames.</summary>
     public int InvincibilityFrames
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
     /// <summary>
     /// Whether the projectile is drawn in front of or behind Samus. Its definition sets the starting depth; Torizo's
@@ -63,13 +63,13 @@ public sealed class RoomEnemyProjectileSlot
     public int GeneralTimer
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
     }
     /// <summary>Gets Ridley's afterburn-chain counter; continuation decrements only its low byte and stops on signed underflow.</summary>
     public int RemainingAfterburns
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
     }
     /// <summary>The kind of the next directional afterburn the chain spawns.</summary>
     internal RoomEnemyProjectileKind NextAfterburnKind { get; set; }

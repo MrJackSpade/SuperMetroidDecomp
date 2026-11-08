@@ -22,19 +22,11 @@ public sealed class RipperEnemyState
     /// GRipper's exclusive left patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
     /// patrol compares it by the sign of the wrapped difference.
     /// </summary>
-    public int MinimumXPosition
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int MinimumXPosition { get; internal set; }
 
     /// <summary>
     /// GRipper's inclusive right patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
     /// patrol compares it by the sign of the wrapped difference.
     /// </summary>
-    public int MaximumXPosition
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int MaximumXPosition { get; internal set; }
 }

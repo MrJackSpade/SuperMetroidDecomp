@@ -31,11 +31,10 @@ public sealed class SbugEnemyState
     internal void FaceCustomHeading(RotationAngle heading) => CustomHeading = heading;
 
     /// <summary>
-    /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn (0 through 255), wrapping around the
-    /// turn.
+    /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn, wrapping around the turn.
     /// </summary>
     internal void TurnCustomHeading(int tableUnits) =>
-        CustomHeading = CustomHeading.AddTableUnits(Ensure.BetweenInclusive(0, byte.MaxValue, tableUnits));
+        CustomHeading = CustomHeading.AddTableUnits(tableUnits);
 
     /// <summary>The 32-frame segment/wait countdown.</summary>
     public int MovementTimer { get; internal set; }

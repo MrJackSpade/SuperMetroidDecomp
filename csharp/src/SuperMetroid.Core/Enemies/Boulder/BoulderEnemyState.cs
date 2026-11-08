@@ -11,6 +11,16 @@ public sealed class BoulderEnemyState
     public BoulderAiFunction? Function { get; internal set; }
 
     /// <summary>
+    /// The largest travel clock: its larger cap.
+    /// </summary>
+    internal const int LargestTravelSpeedAccumulator = 20480;
+
+    /// <summary>
+    /// The largest bounce clock: the quadratic table rejects the record past it before another increment.
+    /// </summary>
+    internal const int LargestBounceSpeedAccumulator = EightEight.FromWhole(EnemyQuadraticSpeedDefinitions.RowCount);
+
+    /// <summary>
     /// The travel acceleration clock in 256ths of a quadratic-speed record: advanced by 32 or 64 per update and capped
     /// at 20480 or 16384, so it stays within 0 through 20480; its whole part selects the quadratic speed record. It
     /// drives horizontal travel while bouncing and rolling, and also the ground-following fall while rolling, so it is
@@ -19,7 +29,7 @@ public sealed class BoulderEnemyState
     public int TravelSpeedAccumulator
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, LargestTravelSpeedAccumulator, value);
     }
 
     /// <summary>
@@ -31,7 +41,7 @@ public sealed class BoulderEnemyState
     public int BounceSpeedAccumulator
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, LargestBounceSpeedAccumulator, value);
     }
 
     /// <summary>The bounces left; the impact that takes it from zero to minus one ends the bounce phase.</summary>

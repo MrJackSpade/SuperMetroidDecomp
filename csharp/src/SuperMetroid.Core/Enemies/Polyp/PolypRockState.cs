@@ -16,9 +16,5 @@ internal sealed class PolypRockState(int speedIndex) : EnemyProjectileState
     /// The rock's vertical speed as a position on the quadratic speed table: it falls by two each update while the
     /// rock rises and grows by two, up to a cap, while it falls.
     /// </summary>
-    internal int SpeedIndex
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value);
-    } = speedIndex;
+    internal int SpeedIndex { get; set; } = speedIndex;
 }

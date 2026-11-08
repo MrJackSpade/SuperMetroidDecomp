@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
@@ -19,6 +20,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal EnemyAnimationFixture Inner { get; }
         /// <summary>Body slot whose instruction pointer and OAM frame are exercised.</summary>
         internal RoomEnemySlot Body => Inner.Actor;
+        /// <summary>Whether the body's current frame's finished picture shows nothing, so that it draws nothing (#1538).</summary>
+        internal bool BodyFrameShowsNothing => Inner.FrameShowsNothing(Body);
         /// <summary>Third-form body state bound to the fixture's encounter.</summary>
         internal MotherBrainEnemyState State { get; }
         /// <summary>The BG2 scroll placing the body after each production step that has taken BG2 over (#1356).</summary>
@@ -81,6 +84,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         private BossBodySheets Sheets => bodies.Sheets;
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
+        /// <summary>Runs the fixture's production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>
+        internal void DrawInto(SpriteFrameBuffer frame) => Inner.DrawInto(frame);
         /// <summary>Attaches a fresh body showing nothing, as her phase-two transition reveals it, before checking fresh publication.</summary>
         internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.MotherBrain));
     }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -77,8 +79,15 @@ internal static class XraySetupVerification
         AssertTrue(expected.SequenceEqual(Shown().Blocks.ToArray()), "the shown reveal is built from the foreground the room shows and its overlays");
         AssertTrue(expected.Contains(Marker(2)), "the reveal copies the level data the frame shows");
         AssertTrue(!expected.Any(block => block == Marker(0) || block == Marker(1)), "no earlier frame's foreground reaches the reveal");
-        AssertTrue(expected.All(block => block is null || block == Marker(2) || block.Value.Definition < CommonRoomElementBlocks),
-            "every revealed block is the shown foreground block as the level shows it, or a reveal or overlay metatile");
+        // An uncollected item that shows its own picture overlays that picture's block (#1538), which lies past the common
+        // room elements like the markers do.
+        HashSet<int> itemPictures = [.. runtime.RoomObjects.CollectibleObjects.Collectibles
+            .Where(item => item.ItemBit is { } bit && !runtime.System.HasCollectedItemBit(bit) && CollectibleObjects.ShowsOwnPicture(item.Kind))
+            .Select(item => CollectibleCellPictures.DefinitionOf(new CollectiblePicture(item.Kind, 0)))];
+        RevealedBlock? stray = expected.FirstOrDefault(block => block is not null && block != Marker(2) &&
+            block.Value.Definition >= CommonRoomElementBlocks && !itemPictures.Contains(block.Value.Definition));
+        AssertTrue(stray is null,
+            $"every revealed block is the shown foreground block as the level shows it, a reveal or overlay metatile, or an uncollected item's own picture (first other: {stray}, at {Array.IndexOf(expected, stray)})");
         AssertEqual(XrayRevealMap.OriginOf(scroll.ForegroundPosition, scroll.ForegroundOffset), Shown().Origin,
             "the reveal lies over the room's own blocks");
         ShowEverywhere(3);

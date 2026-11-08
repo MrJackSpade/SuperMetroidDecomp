@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -85,6 +86,24 @@ internal static class BossDisplayBindingsDocumentsVerification
                 frame.Bank == PhantoonBg2FrameDefinitionsConstants.Bank && PhantoonBg2FrameDefinitionsConstants.IsFrame(frame.Pointer)).ToArray());
             yield return new FamiliesResult(EnemyDefinitionId.DraygonBody, all.Where(frame => frame.Bank == DraygonBg2FrameToolingDefinitions.Bank &&
                 frame.Name.StartsWith("draygon_", StringComparison.Ordinal)).ToArray());
+        }
+
+        /// <summary>
+        /// The part that draws <paramref name="frame"/>: <paramref name="body"/> when its sheet holds the frame (a boss whose
+        /// parts share one behaviour lists its frames for every part) or when no part's sheet holds it, which draws only on
+        /// the body's background layer; otherwise the one part whose sheet holds it.
+        /// </summary>
+        internal static EnemyDefinitionId DrawnBy(EnemyDefinitionId body, EnemyFrameId frame)
+        {
+            EnemyDefinitionId[] owners = [.. EnemyDefinitionFrameDefinitions.Frames.Where(entry => entry.Value.Contains(frame)).Select(entry => entry.Key)];
+            if (owners.Contains(body))
+                return body;
+            return owners.Length switch
+            {
+                0 => body,
+                1 => owners[0],
+                _ => throw new InvalidDataException($"Boss frame {frame} is held by several parts' sheets: {string.Join(", ", owners)}."),
+            };
         }
 
         /// <summary>Gives each BG2 frame distinctive tiles, authored by their tilemap entries.</summary>

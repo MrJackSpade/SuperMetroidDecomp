@@ -24,6 +24,16 @@ using SuperMetroid.Core.Rooms.Artwork;
 /// <summary>Checks stock boss display roots and installed BG2 bindings against cartridge artwork.</summary>
 internal static class BossDisplayBindingsStockVerification
 {
+    /// <summary>A native frame's BG2 writes as the documents the BG2 check reads.</summary>
+    private static EnemyBg2WriteDocument[] Documents(IEnumerable<EnemyBg2TilemapWrite> writes) =>
+    [
+        .. writes.Select(write => new EnemyBg2WriteDocument
+        {
+            X = write.FirstCell % EnemyBg2FrameLayout.TilemapWidth, Y = write.FirstCell / EnemyBg2FrameLayout.TilemapWidth,
+            Tiles = RoomBackgroundTilemapCellWords.Cells(write.Tiles.Span),
+        }),
+    ];
+
     /// <summary>
     /// Import-only oracle for the declared native roots. It never passes its ROM
     /// source to the production draw/collision/instruction paths.
@@ -36,10 +46,14 @@ internal static class BossDisplayBindingsStockVerification
         var nativeLists = new HashSet<int>();
         foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
         {
-            var fixture = new BossDisplayFixture(definition, installed);
+            // Each frame is drawn by the part of the boss that shows it, whose sheet holds its picture.
+            var partFixtures = new Dictionary<EnemyDefinitionId, BossDisplayFixture>();
             foreach (EnemySpritemapDefinition frame in family)
             {
                 frames++;
+                EnemyDefinitionId part = BossDisplayDocuments.DrawnBy(definition, frame.Frame);
+                if (!partFixtures.TryGetValue(part, out BossDisplayFixture? fixture))
+                    partFixtures.Add(part, fixture = new BossDisplayFixture(part, installed));
                 var native = ReadBossDisplayOracle(source, frame, nativeLists);
                 AssertTrue((installed.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).TryGetDisplay(frame.Bank, frame.Pointer, out var actual), "stock root is installed");
                 AssertEqual(native.Oam.Length, actual.Length, frame.Name + " exact OAM component count");
@@ -69,9 +83,8 @@ internal static class BossDisplayBindingsStockVerification
                 AssertEqual(expectedOam.NextByteOffset, rendered.NextByteOffset, "stock packed sprite count");
                 AssertTrue(expectedOam.ImageEquals(rendered),
                     "stock packed OAM matches independently decoded native records");
-                AssertBossBg2(fixture, native.Bg2.Select(write => new EnemyBg2WriteDocument
-                { X = write.FirstCell % EnemyBg2FrameLayout.TilemapWidth, Y = write.FirstCell / EnemyBg2FrameLayout.TilemapWidth,
-                    Tiles = RoomBackgroundTilemapCellWords.Cells(write.Tiles.Span) }).ToArray());
+                AssertBossBg2(fixture, Documents(native.Bg2),
+                    PicturedWith(frame) is { } filling ? Documents(ReadBossDisplayOracle(source, filling, nativeLists).Bg2) : [], frame.Name);
             }
         }
         Console.WriteLine($"PASS stock boss import: {frames} native roots, {parts} sprites, {runs} BG2 runs/{tiles} words, " +

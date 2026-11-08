@@ -52,9 +52,12 @@ internal static class BossBodySheetFixtures
             BossBodyOwner.MotherBrain => stock with { MotherBrainBodyBg2Frames = bosses.MotherBrainBodyBg2Frames },
             _ => throw new InvalidOperationException($"Undefined boss body owner {owner}."),
         };
-        IReadOnlyList<ComposedBossBodySheet> sheets = BossBodySheetComposer.Compose(inputs.Value with { Bosses = frames });
+        // Only this boss's frames differ from the installation's, so only its sheet is composed; the rest are installed.
+        ComposedBossBodySheet sheet = BossBodySheetComposer.Compose(inputs.Value with { Bosses = frames }, owner);
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"), "boss-bodies-" + Guid.NewGuid().ToString("N"));
-        BossBodySheetFiles.Write(sheets, directory, SupportedCartridge.Sha256);
-        return new BossBodyArtworkFixture(frames, BossBodySheetFiles.Load(directory));
+        BossBodySheetFiles.Write([sheet], directory, SupportedCartridge.Sha256);
+        BossBodySheet own = BossBodySheetFiles.LoadEach(directory).Single();
+        return new BossBodyArtworkFixture(frames, new BossBodySheets(Enum.GetValues<BossBodyOwner>()
+            .Select(boss => boss == owner ? own : InstalledFixtures.BossBodySheets.Of(boss))));
     }
 }

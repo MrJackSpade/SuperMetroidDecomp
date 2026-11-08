@@ -54,11 +54,11 @@ internal static class ProjectileQuakeVerification
             ushort x = unchecked((ushort)(position + dx)), y = unchecked((ushort)(position + dy));
             var expected = new OamBuffer();
             expected.BeginFrame();
-            // Independent native $86:83D6 origin culling and spritemap dispatch. The sprite list places every part at its
-            // signed position and leaves clipping at the screen edges to the backend; native OAM instead parks a part that
-            // crosses the top or bottom edge at Y=$F0, so the oracle places the native parts without that clip.
-            if (((x + 128) & 0xfe00) == 0 && ((y + 128) & 0xfe00) == 0)
-                ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), expected, new NativeEnemySpritemapDraw
+            // Independent native $86:83D6 spritemap dispatch. The sprite list places every part at its signed position
+            // and leaves clipping at the screen edges to the display (#1520), so the oracle places every native part
+            // without the cartridge's origin culling, which hid an object whose origin lay off screen even where its
+            // parts showed, or its parking of a part that crosses the top or bottom edge at Y=$F0.
+            ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), expected, new NativeEnemySpritemapDraw
                 {
                     Bank = 0x8d, Pointer = nativeSpritemap, Origin = new(x, y),
                     PaletteBits = SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(actor.Graphics.PaletteRowIn(enemies)),

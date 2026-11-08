@@ -19,8 +19,8 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>Frames the second subtitle holds a page's input wait.</summary>
     public const int SecondSubtitleHoldFrames = 60;
 
-    /// <summary>The page whose subtitle is showing; meaningful while <see cref="stage"/> is not <see cref="SubtitleStage.None"/>.</summary>
-    private IntroNarrationPageId page;
+    /// <summary>The page whose subtitle is showing, or null while <see cref="stage"/> is <see cref="SubtitleStage.None"/>.</summary>
+    private IntroNarrationPageId? page;
     /// <summary>What the showing subtitle does next, or <see cref="SubtitleStage.None"/> when no subtitle is showing.</summary>
     private SubtitleStage stage;
     /// <summary>Frames left before the showing subtitle takes its next step.</summary>
@@ -94,10 +94,14 @@ internal sealed class IntroJapaneseSubtitles
                 return;
             case SubtitleStage.FinishFirstSubtitle:
                 stage = SubtitleStage.None;
+                page = null;
                 return;
             case SubtitleStage.StartInputWait:
+                IntroNarrationPageId waitingPage = page
+                    ?? throw new InvalidOperationException("A subtitle starting an input wait has no page.");
                 stage = SubtitleStage.None;
-                startInputWait(page);
+                page = null;
+                startInputWait(waitingPage);
                 return;
             case SubtitleStage.None:
                 throw new InvalidOperationException("The intro advanced a subtitle that is not showing.");

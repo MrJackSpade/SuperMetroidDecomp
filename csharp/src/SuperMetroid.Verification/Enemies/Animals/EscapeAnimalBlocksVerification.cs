@@ -64,7 +64,8 @@ internal static class EscapeAnimalBlocksVerification
     internal static int EscapeAnimalsCommand(string[] args)
     {
         Suite(nameof(VerifyEscapeAnimalBlocks), () => VerifyEscapeAnimalBlocks(args[1]));
-        Suite(nameof(VerifyEscapeRoomEffects), () => VerifyEscapeRoomEffects(args[1]));
+        foreach (FullRunSuitesVerification.RegisteredSuite suite in EscapeRoomEffectsSuites())
+            Suite(suite.Name, suite.Body);
         return 0;
     }
 }

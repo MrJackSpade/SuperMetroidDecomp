@@ -45,14 +45,13 @@ internal static class MotherBrainBodyPresentationVerification
         {
             baseline.SetFrame(frame.Pointer, fresh: true);
             baseline.ClearBg2();
-            OamBuffer original = baseline.Draw();
-            AssertBodyOam(original, stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies);
+            AssertBodyOam(baseline.DrawInto, stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies, () => baseline.BodyFrameShowsNothing, frame.Name);
             AssertBodyBg2(baseline.Bg2Words, stockBg2, frame.Name);
 
             baseline.SetFrame(frame.Pointer, fresh: false);
             baseline.MarkBg2();
             ushort[] retained = baseline.Bg2Words;
-            AssertBodyOam(baseline.Draw(), stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies);
+            AssertBodyOam(baseline.DrawInto, stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies, () => baseline.BodyFrameShowsNothing, frame.Name);
             AssertTrue(retained.SequenceEqual(baseline.Bg2Words),
                 "repeat OAM draws do not rewrite BG2 without the native new-frame bit");
         }
@@ -90,16 +89,21 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyExtendedFrameDocument BodyOam()
         {
             EnemyExtendedFrameDocument document = author.ExtendedDocument();
-            int index = 0;
+            var retail = InstalledFixtures.EnemyArtwork.Enemies.ExtendedFrames
+                ?? throw new InvalidOperationException("The installation holds the retail extended frames.");
             foreach (NativeEnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
             {
-                SpriteVisualPart part = document.Frames[frame.Name][0].Parts[0] with
-                { OffsetX = 2, OffsetY = 3, Size = 16, TileColumn = index % 16, TileRow = index / 16,
-                    Palette = 1, Priority = 2, FlipX = false, FlipY = false };
+                // A frame the cartridge draws limbs for shows its first retail limb's character, which inks pixels under her
+                // graphics set, so its picture shows something (#1538); placement and attributes are the fixture's own. A
+                // frame with no retail limb keeps the fixture document's character.
+                SpriteVisualPart authored = document.Frames[frame.Name][0].Parts[0];
+                if (retail.TryGetDisplay(frame.Bank, frame.Pointer, out var shown) && shown.Length > 0 && shown.Span[0].Parts.Length > 0)
+                    authored = authored with { TileColumn = shown.Span[0].Parts[0].Character % 16, TileRow = shown.Span[0].Parts[0].Character / 16 };
+                SpriteVisualPart part = authored with
+                { OffsetX = 2, OffsetY = 3, Size = 16, Palette = 1, Priority = 2, FlipX = false, FlipY = false };
                 document.Frames[frame.Name] =
                 [ new() { OffsetX = 0, OffsetY = 0, Parts = [part] },
                   new() { OffsetX = 6, OffsetY = 5, Parts = [part with { Size = 8 }] } ];
-                index++;
             }
             return document;
         }
@@ -114,9 +118,27 @@ internal static class MotherBrainBodyPresentationVerification
         };
     }
 
-    /// <summary>Checks each authored limb's OAM position, tile, palette, flip, size, and drawing order.</summary>
-    internal static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body, RoomEnemySystem enemies)
+    /// <summary>
+    /// Checks that <paramref name="draw"/> stands for each authored limb's OAM position, tile, palette, flip, size, and
+    /// drawing order. A sheet lays out identical pictures once (#1513), so a draw of a picture several frames share stands
+    /// for any of those frames' OAM.
+    /// </summary>
+    /// <param name="draw">Publishes the body's frame into a sprite frame, once.</param>
+    /// <param name="authored">The frame's authored limbs, in drawing order.</param>
+    /// <param name="body">The body's slot, whose position, tile base and palette row place the limbs.</param>
+    /// <param name="enemies">The room's enemy system, which places the body's artwork.</param>
+    /// <param name="pictureShowsNothing">
+    /// Whether the frame's finished picture shows nothing, so that it draws nothing (#1538); asked only of a frame with limbs.
+    /// </param>
+    /// <param name="context">Names the frame in a failure message.</param>
+    internal static void AssertBodyOam(Action<SpriteFrameBuffer> draw, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body, RoomEnemySystem enemies,
+        Func<bool> pictureShowsNothing, string context)
     {
+        if (authored.Length == 0 || pictureShowsNothing())
+        {
+            AssertEqual(0, SpriteFrameBuffer.DrawnOam(draw).NextByteOffset, $"a frame whose picture shows nothing draws nothing: {context}");
+            return;
+        }
         var expected = new byte[authored.Length * 4];
         byte high = 0;
         for (int index = 0; index < authored.Length; index++)
@@ -133,9 +155,20 @@ internal static class MotherBrainBodyPresentationVerification
             expected[index * 4 + 2] = (byte)tile; expected[index * 4 + 3] = LittleEndianBytes.HighByte(tile);
             high |= (byte)(((LittleEndianBytes.HighByte(unchecked((ushort)x)) & 1) | (part.Size == 16 ? 2 : 0)) << (index * 2));
         }
-        AssertEqual(expected.Length, actual.NextByteOffset, "body emits exactly the authored limb count");
-        AssertTrue(expected.SequenceEqual(actual.LowTable[..expected.Length]), "body limb position/tile/palette/flip/order match authored art");
-        AssertEqual(high, actual.HighTable[0], "body limb sizes and high X bits match authored art");
+        var native = new OamBuffer();
+        native.BeginFrame();
+        expected.CopyTo(native.LowTableBytes, 0);
+        native.HighTableBytes[0] = high;
+        native.NextByteOffset = expected.Length;
+        if (SpriteFrameBufferAccess.DrawnStandsFor(draw, native))
+            return;
+        // Only on failure: draw once more as the sheet's first composition of each picture, to say where it departs.
+        OamBuffer drawn = SpriteFrameBuffer.DrawnOam(draw);
+        int differs = Enumerable.Range(0, OamBuffer.LowTableByteCount).FirstOrDefault(index => native.LowTable[index] != drawn.LowTable[index], -1);
+        AssertTrue(false, $"body limbs stand for the authored art's count, position, tile, palette, flip, size and order: {context}; " +
+            $"{authored.Length} limbs authored, {drawn.NextByteOffset / 4} drawn; " +
+            (differs < 0 ? "low tables agree, high tables differ"
+                : $"first difference at limb {differs / 4} byte {differs % 4}: authored ${native.LowTable[differs]:X2}, drawn ${drawn.LowTable[differs]:X2}"));
     }
 
     /// <summary>Checks the exact BG2 tilemap words, each authored cell's tile encoded through the codec, and destinations written for a selected body pose.</summary>

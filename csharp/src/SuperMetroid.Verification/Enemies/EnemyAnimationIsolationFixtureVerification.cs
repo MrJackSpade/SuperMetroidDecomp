@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -28,6 +30,17 @@ internal static class EnemyAnimationIsolationFixtureVerification
     {
         /// <summary>Y coordinate where solid blocks begin in the synthetic room.</summary>
         internal const int FloorY = 224;
+
+        /// <summary>The enemy session the fixture's room runs in, which holds the installed sheets its enemies draw from.</summary>
+        private readonly EnemySession session;
+
+        /// <summary>
+        /// Whether <paramref name="slot"/>'s current frame's finished picture shows nothing, so that it draws nothing (#1538)
+        /// where the cartridge writes its transparent sprites.
+        /// </summary>
+        internal bool FrameShowsNothing(RoomEnemySlot slot) =>
+            slot.Frame is { } frame && (session.Sheets ?? throw new InvalidOperationException("The fixture's enemy sheets are not bound."))
+                .For(Enemies.GraphicsSet.LoadedSet, slot.DefinitionId).ShowsNothing(EnemySheetDefinitions.FrameName(frame));
         /// <summary>RAM-only bus that cannot supply cartridge instructions.</summary>
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
@@ -56,7 +69,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             const int roomBlocks = 32;
             const int floorRow = FloorY / 16;
             Level = CreateSolidRowsRoom(new(roomBlocks, roomBlocks), floorRow, roomBlocks - floorRow);
-            Enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+            session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+            Enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.VerificationServices().NextRandom = NextRandom;
             Enemies.VerificationServices().ReadRandom = () => RandomWord;
@@ -99,6 +113,17 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 7);
             Enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
+        }
+
+        /// <summary>Runs the same drawing as <see cref="Draw"/> once, publishing into <paramref name="frame"/>.</summary>
+        internal void DrawInto(SpriteFrameBuffer frame)
+        {
+            Enemies.Room.EnsureLoaded();
+            Enemies.Drawing.AdvanceLayers(new(0, 0), 0, 7);
+            Enemies.Drawing.DrawLayers(frame, new(0, 0), 0, 7);
+            Enemies.SpriteObjects.DrawRoomSpriteObjects(frame, Position16<RoomPixels>.Zero);
+            Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
+            Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);
         }
         /// <summary>Advances the fixture's deterministic RNG.</summary>
         private ushort NextRandom()

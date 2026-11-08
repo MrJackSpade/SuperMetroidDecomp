@@ -81,7 +81,8 @@ internal static class SpriteFrameBufferAccess
             chosen.Add(match);
             parts += match.Frame.Parts.Length;
         }
-        return Assemble(chosen, parkUnused: false).LowTable.SequenceEqual(native.LowTable);
+        OamBuffer assembled = Assemble(chosen, parkUnused: false);
+        return assembled.LowTable.SequenceEqual(native.LowTable) && assembled.HighTable.SequenceEqual(native.HighTable);
     }
 
     /// <summary>

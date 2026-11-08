@@ -960,6 +960,7 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Enemies.Artwork.GraphicsSetCharacterLayoutVerification.VerifyGraphicsSetCharacterLayout),
         .. EnemyTileArtworkSuites(),
         .. SuperMetroid.Verification.Rooms.RoomCharacterInstallationVerification.RoomArtworkInstallationSuites(),
+        .. SuperMetroid.Verification.Bosses.BossDisplayBindingsVerification.BossDisplaySuites(),
         new(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors()),
         new(nameof(VerifySpacePirateCollisionDefinitions), () => VerifySpacePirateCollisionDefinitions()),
         new(nameof(VerifyRidleyCollisionDefinitions), () => VerifyRidleyCollisionDefinitions()),

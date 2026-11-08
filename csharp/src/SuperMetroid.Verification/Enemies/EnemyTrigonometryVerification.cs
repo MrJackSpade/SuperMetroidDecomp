@@ -656,9 +656,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCompiledEnemySine), () => VerifyCompiledEnemySine()),
     ];
 
-    /// <summary>Runs the compiled enemy math and projectile suites serially in registry order.</summary>
-    internal static void VerifyCompiledEnemyTrigonometry() => RunSuitesSerially(CompiledEnemyTrigonometrySuites());
-
     /// <summary>Checks byte and unsigned sine products, phase shifts, truncation, and Sbug vectors against retail tables.</summary>
     private static void VerifyCompiledEnemySine()
     {
@@ -783,11 +780,11 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled tide: all 65,536 phases in four option combinations preserve exact offset, phase advance and small-tide precedence without a bus.");
     }
 
-    /// <summary>Runs the registered compiled enemy trigonometry family.</summary>
+    /// <summary>Runs the registered compiled enemy trigonometry family, each part a suite of its own, in registry order.</summary>
     [VerificationCommand("--compiled-enemy-sine")]
     internal static int CompiledEnemySineCommand()
     {
-        Suite(nameof(VerifyCompiledEnemyTrigonometry), () => VerifyCompiledEnemyTrigonometry());
+        RunSuitesSerially(CompiledEnemyTrigonometrySuites());
         return 0;
     }
 

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
@@ -53,7 +54,10 @@ internal static class PauseScreenPublicationVerification
     private static void AssertPublished(PauseMenuState pause, string page)
     {
         PauseScreen screen = pause.screen;
-        FramePaint memory = pause.CaptureRenderSnapshot().Paint;
+        LayeredScene scene = pause.CaptureRenderSnapshot();
+        FramePaint memory = scene.Paint;
+        // The page's markers, cursors and labels are the scene's sprite layer (#1514), not draws in the paint.
+        ImmutableArray<SpriteDraw> painted = scene.Layers.ToArray().OfType<SpritesLayer>().Single().Draws;
         byte[] vram = pause.ShownVram();
         BackgroundTile[] frame = pause.ShownBg2Tiles;
         AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, pause.ShownBg1Tiles, $"{page} BG1");
@@ -67,7 +71,8 @@ internal static class PauseScreenPublicationVerification
                 .SequenceEqual(screen.Characters[tilemapsEnd..(GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort))]),
             $"{page} draws its bound characters");
         AssertEqual(screen.Artwork.Backdrops.Pause, memory.Backdrop, $"{page} shows its own backdrop");
-        AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(memory.SpriteDraws, screen.Objects.Draws), $"{page} draws its own sprite entries");
+        AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(painted, screen.Objects.Draws),
+            $"{page} draws its own sprite entries ({PaintedSpriteEntries.FirstDifference(painted, screen.Objects.Draws)})");
     }
 
     /// <summary>

@@ -48,7 +48,15 @@ internal static class BossBodySheetComposer
         // Each boss's sheet composes on its own (#1530), into its owner's place, so the order stays the owners'.
         BossBodyOwner[] owners = Enum.GetValues<BossBodyOwner>();
         var sheets = new ComposedBossBodySheet[owners.Length];
-        Parallel.For(0, owners.Length, index => sheets[index] = Compose(inputs, owners[index]));
+        try
+        {
+            Parallel.For(0, owners.Length, index => sheets[index] = Compose(inputs, owners[index]));
+        }
+        catch (AggregateException failure) when (failure.InnerExceptions.Count == 1)
+        {
+            // One boss's failure surfaces as itself, with its own stack, as this method documents; several stay together.
+            System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(failure.InnerExceptions[0]).Throw();
+        }
         return sheets;
     }
 
@@ -56,7 +64,7 @@ internal static class BossBodySheetComposer
     /// Composes <paramref name="owner"/>'s sheet over the first room state, in room order, that shows the boss: the
     /// characters every frame reads there, as the tile word sheets were composed before (#1392).
     /// </summary>
-    private static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
+    internal static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
     {
         EnemyDefinitionId enemy = Enemies[owner];
         BossRoomCharacters? characters = null;

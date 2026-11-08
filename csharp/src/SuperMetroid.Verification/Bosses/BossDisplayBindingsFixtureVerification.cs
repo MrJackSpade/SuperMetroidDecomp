@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -38,8 +40,22 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>The tilemap entry each cell of the boss's body layer shows now, from the frames its artwork installs (#1466).</summary>
         internal ushort[] Bg2Words => BossBodyWords.Of(Enemies.Presentation.RequireBossBody().Publish(), BodyOwner, bodies.Frames);
 
+        /// <summary>The frames the boss's body layer shows now, in draw order, for a failure message.</summary>
+        internal string ShownFrames => string.Join(", ", Enemies.Presentation.RequireBossBody().Publish().Frames.Select(frame => frame.Name));
+
         /// <summary>The fixture's boss frames and the body sheets composed from them, which its bosses draw from.</summary>
         private readonly BossBodyArtworkFixture bodies;
+
+        /// <summary>The enemy session the fixture's room runs in, which holds the installed sheets its enemies draw from.</summary>
+        private readonly EnemySession session;
+
+        /// <summary>
+        /// Whether the actor's current frame's finished picture shows nothing, so that it draws nothing (#1538) where the
+        /// cartridge writes its transparent sprites.
+        /// </summary>
+        internal bool ActorFrameShowsNothing =>
+            Actor.Frame is { } frame && (session.Sheets ?? throw new InvalidOperationException("The fixture's enemy sheets are not bound."))
+                .For(Enemies.GraphicsSet.LoadedSet, Actor.DefinitionId).ShowsNothing(EnemySheetDefinitions.FrameName(frame));
 
         /// <summary>The body sheets composed from the fixture's boss frames.</summary>
         private BossBodySheets Sheets => bodies.Sheets;
@@ -50,7 +66,8 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BossDisplayFixture(EnemyDefinitionId definition, InstalledEnemyArtwork artwork, int slot = 0)
         {
             _slot = slot;
-            Enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+            session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+            Enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
                 TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, 
             };
@@ -107,6 +124,13 @@ internal static class BossDisplayBindingsFixtureVerification
             var result = new OamBuffer(); result.BeginFrame();
             Enemies.Drawing.DrawLayersAsOam(result, new(0, 0), 0, 0);
             return result;
+        }
+
+        /// <summary>Runs the production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>
+        internal void DrawInto(SpriteFrameBuffer frame)
+        {
+            Enemies.Drawing.AdvanceLayers(new(0, 0), 0, 0);
+            Enemies.Drawing.DrawLayers(frame, new(0, 0), 0, 0);
         }
 
 

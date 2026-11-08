@@ -52,8 +52,12 @@ public static class BossBodySheetFiles
     }
 
     /// <summary>Loads every boss's body sheet from the installed files.</summary>
+    /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid, or a boss has no sheet.</exception>
+    public static BossBodySheets Load(string directory) => new(LoadEach(directory));
+
+    /// <summary>Loads the body sheet of each boss the files hold, which may be fewer than every boss.</summary>
     /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid.</exception>
-    public static BossBodySheets Load(string directory)
+    internal static IReadOnlyList<BossBodySheet> LoadEach(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, ManifestFileName);
@@ -62,7 +66,7 @@ public static class BossBodySheetFiles
         if (manifest.Version != ManifestVersion || manifest.Sheets is null)
             throw new InvalidDataException($"Boss body manifest {manifestPath} is not revision {ManifestVersion}.");
         SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName, manifest.Sheets.Count);
-        return new BossBodySheets(manifest.Sheets.Select(entry =>
+        return [.. manifest.Sheets.Select(entry =>
         {
             BossBodyOwner owner = Enum.TryParse(entry.Key, out BossBodyOwner parsed) && Enum.IsDefined(parsed) ? parsed
                 : throw new InvalidDataException($"Boss body manifest {manifestPath} names unknown boss {entry.Key}.");
@@ -71,7 +75,7 @@ public static class BossBodySheetFiles
             return new BossBodySheet(owner, sheet,
                 (document.Frames ?? throw new InvalidDataException($"Boss body manifest {manifestPath} lists no frames for {owner}."))
                     .Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath)));
-        }));
+        })];
     }
 
     /// <summary>The manifest entry of <paramref name="frame"/>.</summary>

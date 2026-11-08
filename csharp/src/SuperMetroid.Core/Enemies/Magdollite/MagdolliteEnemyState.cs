@@ -26,11 +26,7 @@ public sealed class MagdolliteEnemyState
     /// <see cref="MagdolliteRise.Phase"/> records. It steps by one as the arm rises past each phase's threshold and
     /// back as it sinks.
     /// </summary>
-    public int BodyPhase
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, MagdollitePhaseDefinitions.Phases.Length - 1, value);
-    }
+    public int BodyPhase { get; internal set; }
 
     /// <summary>Whether the hand throws its lava rightward, chosen from Samus's side at the apex.</summary>
     public bool ThrowsRight { get; internal set; }

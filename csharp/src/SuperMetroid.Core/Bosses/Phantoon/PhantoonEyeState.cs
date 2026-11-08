@@ -12,9 +12,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </remarks>
 public sealed class PhantoonEyeState
 {
-    /// <summary>The eye's death-mosaic block size (<see cref="DeathMosaicSize"/>).</summary>
-    private int _deathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
-
     /// <summary>The eye's updates before it opens.</summary>
     public int ClosedTimer { get; internal set; }
 
@@ -30,9 +27,9 @@ public sealed class PhantoonEyeState
     /// <summary>The eye's death-mosaic block size in screen pixels while the mosaic grows.</summary>
     public int DeathMosaicSize
     {
-        get => _deathMosaicSize;
-        internal set => _deathMosaicSize = Ensure.BetweenInclusive(PhantoonDeathDefinitions.InitialMosaicSize, PhantoonDeathDefinitions.FinalMosaicSize, value);
-    }
+        get;
+        internal set => field = Ensure.BetweenInclusive(PhantoonDeathDefinitions.InitialMosaicSize, PhantoonDeathDefinitions.FinalMosaicSize, value);
+    } = PhantoonDeathDefinitions.InitialMosaicSize;
 
     /// <summary>Whether the eye's death mosaic has finished growing and the fade-out runs.</summary>
     public bool DeathMosaicFinished { get; internal set; }

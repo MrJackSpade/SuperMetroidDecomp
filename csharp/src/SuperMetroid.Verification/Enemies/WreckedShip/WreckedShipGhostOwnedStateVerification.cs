@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
 namespace SuperMetroid.Verification.Enemies.WreckedShip;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks the Wrecked Ship ghost state the species owns: the range of its flicker offset.</summary>
 internal static class WreckedShipGhostOwnedStateVerification

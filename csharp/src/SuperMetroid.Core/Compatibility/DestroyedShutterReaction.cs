@@ -17,6 +17,6 @@ public static class DestroyedShutterReaction
 {
     /// <summary>Whether a shutter's reaction finds it already moving: never the shutter its own hit destroyed.</summary>
     /// <param name="moving">Whether the shutter was moving when the hit struck it.</param>
-    /// <param name="destroyed">Whether the hit destroyed the shutter.</param>
-    public static bool FindsMoving(bool moving, bool destroyed) => moving && !destroyed;
+    /// <param name="healthAfterHit">The shutter's health after the hit's damage; zero when the hit destroyed it.</param>
+    public static bool FindsMoving(bool moving, int healthAfterHit) => moving && healthAfterHit != 0;
 }

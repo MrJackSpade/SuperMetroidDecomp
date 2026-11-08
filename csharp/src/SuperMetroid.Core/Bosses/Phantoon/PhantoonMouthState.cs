@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </remarks>
 public sealed class PhantoonMouthState
 {
-    /// <summary>The mouth's remaining casual flames (<see cref="CasualFlameCount"/>).</summary>
-    private int _casualFlameCount;
-
     /// <summary>The mouth's casual-flame pattern, 0 through 3.</summary>
     public int CasualFlamePattern { get; internal set => field = Ensure.AtLeastZero(value); }
 
@@ -25,8 +22,8 @@ public sealed class PhantoonMouthState
     /// </summary>
     public int CasualFlameCount
     {
-        get => _casualFlameCount;
-        internal set => _casualFlameCount = Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, short.MaxValue, value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, short.MaxValue, value);
     }
 
     /// <summary>The mouth's wave amplitude.</summary>

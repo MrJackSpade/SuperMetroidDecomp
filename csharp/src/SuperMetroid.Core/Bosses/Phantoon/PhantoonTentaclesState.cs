@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </remarks>
 public sealed class PhantoonTentaclesState
 {
-    /// <summary>The tentacles' swoop target X position (<see cref="SwoopTargetX"/>).</summary>
-    private int _swoopTargetX;
-
     /// <summary>Whether the tentacles have taken the shot that makes Phantoon swoop when its eye closes.</summary>
     public bool SwoopRequested { get; internal set; }
 
@@ -23,7 +20,7 @@ public sealed class PhantoonTentaclesState
     public EightEightVector<RoomPixels> SwoopVelocity { get; internal set; }
 
     /// <summary>The tentacles' swoop target X position, which sweeps out to its turn and back.</summary>
-    public int SwoopTargetX { get => _swoopTargetX; internal set => _swoopTargetX = Ensure.BetweenInclusive(0, short.MaxValue, value); }
+    public int SwoopTargetX { get; internal set => field = Ensure.BetweenInclusive(0, short.MaxValue, value); }
 
     /// <summary>Whether the tentacles' swoop target has reached its turn and is counting back toward zero.</summary>
     public bool SwoopReturning { get; internal set; }

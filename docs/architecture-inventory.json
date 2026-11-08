@@ -58053,6 +58053,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.DestroyedShutterReaction",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/DestroyedShutterReaction.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.DoorTransitionFrameCounting",
       "kind": "class",
       "scope": "product",
@@ -58246,6 +58259,58 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.KilledEvirBodyFacing",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KilledEvirBodyFacing.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.KilledFingernailStops",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KilledFingernailStops.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.KilledGametHoldsFormation",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KilledGametHoldsFormation.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.KilledShaktoolSegment\u003CTPlace, TSegment\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KilledShaktoolSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.KraidMouthHitBound",
@@ -68158,6 +68223,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyOccupantStates",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyOccupantStates.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyOrdnanceVulnerability",
@@ -103878,19 +103956,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/IntegerQuantityAttribute.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.IntendedDuplicateAttribute",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/IntendedDuplicateAttribute.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -144063,19 +144128,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Areas.Ceres.CeresDoorRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresDoorRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Areas.Ceres.CeresElevatorArrivalNativeListAddresses",
       "kind": "static class",
       "scope": "test",
@@ -144269,19 +144321,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Areas.Ceres.CeresSteamRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresSteamRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Areas.Ceres.LookupCeresDefaultTintsVerification",
@@ -145974,19 +146013,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Bosses.Botwoon.BotwoonRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Botwoon/BotwoonRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification",
       "kind": "static class",
       "scope": "test",
@@ -146325,19 +146351,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireRumbleDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -146346,6 +146359,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireRumbleDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireSeparateValuesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireSeparateValuesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -146780,19 +146806,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Bosses.Draygon.DraygonRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Bosses.Draygon.DraygonScrollingSpeedCapVerification",
       "kind": "static class",
       "scope": "test",
@@ -147165,19 +147178,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Kraid/FakeKraidProjectileProgramMappingsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.Kraid.FakeKraidRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Kraid/FakeKraidRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -147677,19 +147677,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Bosses.Kraid.KraidRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Bosses.Kraid.KraidReportedCollisionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -148062,19 +148049,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyMetroidWrongWaySpeedVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.MotherBrain.BabyTurtleRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyTurtleRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -148465,19 +148439,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainFakeDeathVisualsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFallingTubeRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainFallingTubeRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -149068,19 +149029,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Bosses.MotherBrain.RinkaRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/RinkaRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Bosses.MotherBrain.RunRinkaProgramResult",
       "kind": "record struct",
       "scope": "test",
@@ -149118,19 +149066,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.MotherBrain.ShitroidRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/ShitroidRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Bosses.MotherBrain.SineSample",
@@ -149219,19 +149154,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/ZebetiteDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/ZebetiteRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -149466,19 +149388,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonPositionVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -149804,19 +149713,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyExplosionDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.Ridley.RidleyExplosionFragmentRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyExplosionFragmentRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -150901,14 +150797,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Animals.DachoraRecordStateVerification",
+      "type": "SuperMetroid.Verification.Enemies.Animals.DachoraPhaseCountdownsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraRecordStateVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraPhaseCountdownsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -151055,19 +150951,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Animals.EtecoonRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Animals.InitializerCase",
@@ -152370,19 +152253,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Boulder.BoulderRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Boulder/BoulderRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Boulder.VerifyBoulderReboundClockCase",
       "kind": "record struct",
       "scope": "test",
@@ -152474,19 +152344,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Boyon.BoyonRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Boyon/BoyonRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Boyon.BoyonSpeedDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -152563,19 +152420,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Bull.BullRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Bull/BullRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Bull.BullShotReactionGuardVerification",
@@ -152721,19 +152565,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Cacatac.CacatacRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Cacatac/CacatacRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Choot.ChootAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -152872,19 +152703,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatueObjectDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Chozo.ChozoStatueRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatueRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -153163,19 +152981,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadSidehopperRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTorizoAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -153265,19 +153070,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTorizoRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTourianAnimationsVerification",
@@ -154294,6 +154086,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.EnemyOccupantStatesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/EnemyOccupantStatesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.EnemyPickupDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -154788,19 +154593,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Fireflea.FirefleaRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Fireflea/FirefleaRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Fireflea.VerifyFirefleaVerticalExtentsWrapCase",
       "kind": "record struct",
       "scope": "test",
@@ -155152,19 +154944,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Gunship.GunshipRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Hibashi.HibashiAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -155293,19 +155072,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Hoppers.HopperRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Hoppers.VerifyHopperHopArcRecordCase",
@@ -155516,19 +155282,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.KiHunters.KiHunterRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.KiHunters.KiHunterSpitAudioVerification",
       "kind": "static class",
       "scope": "test",
@@ -155568,6 +155321,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/KilledEnemyCompatibilityVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Kzan.KzanAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -155605,19 +155371,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Kzan.KzanRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Kzan/KzanRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumpDefinitionsVerification",
@@ -155836,19 +155589,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Magdollite/MagdollitePhaseDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Magdollite.MagdolliteRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Magdollite/MagdolliteRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -156075,19 +155815,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/MaridiaSnails/MaridiaLargeSnailRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.MaridiaSnails.VerifyMaridiaLargeSnailBounceRecordCase",
       "kind": "record struct",
       "scope": "test",
@@ -156138,19 +155865,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Metaree.MetareeDiveSpeedVerifyMetareeDiveSpeedCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Metaree/MetareeDiveSpeedVerifyMetareeDiveSpeedCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Metaree.VerifyMetareeDiveSpeedCase",
@@ -156296,19 +156010,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Metroids.MetroidRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Metroids.MochtroidAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -156372,19 +156073,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Metroids.MochtroidRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MochtroidRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification",
@@ -156476,19 +156164,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.MorphBallEye.MorphBallEyeRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/MorphBallEye/MorphBallEyeRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.MorphBallEye.VerifyMorphBallEyeBehaviorCase",
@@ -156712,14 +156387,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Owtch.OwtchRecordStateVerification",
+      "type": "SuperMetroid.Verification.Enemies.Owtch.OwtchRecordLayoutVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Owtch/OwtchRecordStateVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Owtch/OwtchRecordLayoutVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -156798,19 +156473,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugBehaviorVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -157349,19 +157011,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Puyo.PuyoOwnedStateVerifyPuyoOwnedStateCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoOwnedStateVerifyPuyoOwnedStateCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Puyo.VerifyPuyoOwnedStateCase",
       "kind": "record struct",
       "scope": "test",
@@ -157635,19 +157284,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Rios.VerifyRioOwnedStateCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Rios/VerifyRioOwnedStateCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Ripper.RipperAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -157726,19 +157362,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Ripper.VerifyRipperVariantOwnedStateCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Ripper/VerifyRipperVariantOwnedStateCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.RoomEnemyLoadContractsVerification",
       "kind": "static class",
       "scope": "test",
@@ -157789,19 +157412,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Sbug.SbugRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Sbug/SbugRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Shaktool.ShaktoolAnimationsVerification",
@@ -157986,27 +157596,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Shutters.GrowingShutterRecordStateVerification",
+      "type": "SuperMetroid.Verification.Enemies.Shutters.GrowingShutterSectionOriginsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Shutters.HorizontalShutterRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Shutters/HorizontalShutterRecordStateVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterSectionOriginsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -158129,19 +157726,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Shutters.VerticalShutterRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Shutters/VerticalShutterRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Skree.SkreeMetareeAnimationDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -158241,19 +157825,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeParticleBehaviorVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Skree.SkreeRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -158475,19 +158046,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/NinjaSpacePiratePaletteArtworkVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/NinjaSpacePirateRecordStateVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -158727,19 +158285,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.SpacePirates.WallSpacePirateRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/WallSpacePirateRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Sparks.SparkAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -158842,19 +158387,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Sparks.VerifySparkTimerCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Sparks/VerifySparkTimerCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Spike.CarriedFrame",
@@ -159455,19 +158987,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotVisualsVerification",
       "kind": "static class",
       "scope": "test",
@@ -159884,19 +159403,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Yard.YardRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Yard/YardRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Yard.YardSurfaceLossVerification",
       "kind": "static class",
       "scope": "test",
@@ -160012,19 +159518,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Zoa.ZoaRecordStateVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Zoa/ZoaRecordStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification",

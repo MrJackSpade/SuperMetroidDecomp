@@ -974,7 +974,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ReactVerticalShutter(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(slot, slot.RequireSpeciesState<VerticalShutterEnemyState>(), camera, destroyed: false);
+        ReactVerticalShutter(slot, slot.RequireSpeciesState<VerticalShutterEnemyState>(), camera, healthAfterHit: null);
 
     /// <summary>
     /// Runs a destroyable shutter's reaction after the common damage of a shot or bomb. The hit that destroys it still sets
@@ -982,17 +982,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (<see cref="DestroyedShutterReaction"/>).
     /// </summary>
     private void ReactDestroyableShutterAfterCommon(RoomEnemySlot slot, EnemyOccupantStates struck) =>
-        ReactVerticalShutter(slot, struck.Require<VerticalShutterEnemyState>(), _shutterCamera, destroyed: slot.Health == 0);
+        ReactVerticalShutter(slot, struck.Require<VerticalShutterEnemyState>(), _shutterCamera, healthAfterHit: slot.Health);
 
     /// <summary>
     /// Decides whether a reaction may start the shutter in <paramref name="slot"/>, whose state is
-    /// <paramref name="state"/>; a shutter the reaction's hit <paramref name="destroyed"/> reacts as one at rest.
+    /// <paramref name="state"/>. A destroyable shutter's reaction after a hit's damage carries the shutter's
+    /// <paramref name="healthAfterHit"/>, null for any other reaction; one the hit destroyed reacts as one at rest.
     /// </summary>
     private void ReactVerticalShutter(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
         Position16<RoomPixels> camera,
-        bool destroyed)
+        int? healthAfterHit)
     {
         if (state.TriggerMode is not (ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction))
         {
@@ -1007,9 +1008,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ShotActivated = true;
         }
 
-        if (DestroyedShutterReaction.FindsMoving(
-                state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown,
-                destroyed))
+        bool moving = state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown;
+        if (healthAfterHit is { } health ? DestroyedShutterReaction.FindsMoving(moving, health) : moving)
         {
             return;
         }

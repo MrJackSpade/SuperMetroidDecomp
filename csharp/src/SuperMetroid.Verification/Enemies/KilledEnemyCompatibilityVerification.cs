@@ -19,9 +19,9 @@ internal static class KilledEnemyCompatibilityVerification
         AssertEqual(5, KilledFingernailStops.SiblingSpeed(5, stopped: 0, siblingKilled: false), "a living sibling gives its last speed");
         AssertEqual(0, KilledFingernailStops.SiblingSpeed(5, stopped: 0, siblingKilled: true), "a killed sibling gives a stopped nail's");
 
-        AssertTrue(DestroyedShutterReaction.FindsMoving(moving: true, destroyed: false), "a moving shutter the hit left is found moving");
-        AssertTrue(!DestroyedShutterReaction.FindsMoving(moving: true, destroyed: true), "the shutter the hit destroyed is found at rest");
-        AssertTrue(!DestroyedShutterReaction.FindsMoving(moving: false, destroyed: false), "a shutter at rest is found at rest");
+        AssertTrue(DestroyedShutterReaction.FindsMoving(moving: true, healthAfterHit: 20), "a moving shutter the hit left is found moving");
+        AssertTrue(!DestroyedShutterReaction.FindsMoving(moving: true, healthAfterHit: 0), "the shutter the hit destroyed is found at rest");
+        AssertTrue(!DestroyedShutterReaction.FindsMoving(moving: false, healthAfterHit: 20), "a shutter at rest is found at rest");
 
         AssertTrue(KilledGametHoldsFormation.Waits("waiting", static _ => true), "a living member waiting counts as waiting");
         AssertTrue(!KilledGametHoldsFormation.Waits("rising", static _ => false), "a living member that is not waiting holds the formation");

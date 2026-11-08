@@ -25,12 +25,6 @@ public sealed class CrocomireEnemyState
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();
 
-    /// <summary>The saturating count of mouth hits (<see cref="HitCount"/>).</summary>
-    private int _hitCount;
-
-    /// <summary>The queued step count (<see cref="StepCounter"/>).</summary>
-    private int _stepCounter;
-
     /// <summary>Physical body record owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>Where the body's typed program resumes; it replaces the instruction pointer.</summary>
@@ -66,8 +60,8 @@ public sealed class CrocomireEnemyState
     /// <summary>The saturating count of mouth hits, 0..<see cref="CrocomireMouthHits.MaximumCount"/>.</summary>
     public int HitCount
     {
-        get => _hitCount;
-        internal set => _hitCount = Ensure.BetweenInclusive(0, CrocomireMouthHits.MaximumCount, value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, CrocomireMouthHits.MaximumCount, value);
     }
 
     /// <summary>The fight-AI function, run when the body program's fight-AI cue fires rather than once per main-AI frame.</summary>
@@ -81,8 +75,8 @@ public sealed class CrocomireEnemyState
     /// </summary>
     public int StepCounter
     {
-        get => _stepCounter;
-        internal set => _stepCounter = Ensure.BetweenInclusive(0, MaximumStepCount, value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, MaximumStepCount, value);
     }
 
     /// <summary>The largest queued step count the fight AI's signed comparisons read as the original game does.</summary>

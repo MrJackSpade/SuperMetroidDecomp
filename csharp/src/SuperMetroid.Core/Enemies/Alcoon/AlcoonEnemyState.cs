@@ -4,9 +4,6 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// <summary>The state of one Alcoon.</summary>
 public sealed class AlcoonEnemyState
 {
-    /// <summary>The motion per step; see <see cref="Velocity"/>.</summary>
-    private FixedVector<RoomPixels> _velocity;
-
     /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<AlcoonProgram> Program { get; set; }
 
@@ -20,13 +17,13 @@ public sealed class AlcoonEnemyState
     /// </summary>
     public FixedVector<RoomPixels> Velocity
     {
-        get => _velocity;
+        get;
         internal set
         {
             if (value.X.Fraction != 0)
                 throw new InvalidOperationException(
                     $"Alcoon has no horizontal subvelocity; X fraction ${value.X.Fraction:X4} cannot be stored.");
-            _velocity = value;
+            field = value;
         }
     }
 

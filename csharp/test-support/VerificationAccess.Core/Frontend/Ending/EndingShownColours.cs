@@ -18,13 +18,28 @@ internal static class EndingShownColours
     /// <summary>The colours <paramref name="ending"/>'s pictures show now.</summary>
     /// <exception cref="InvalidOperationException">The ending's palette-effect colours are not bound.</exception>
     /// <exception cref="KeyNotFoundException">The screen names a shade the import installs on no ending sheet.</exception>
-    internal static RgbColor[] Of(EndingCreditsState ending)
+    internal static RgbColor[] Of(EndingCreditsState ending) => Of(ending, InstalledShades(ending));
+
+    /// <summary>
+    /// The shades the import installs for <paramref name="ending"/>'s screen, by shade, from the ending's colours and its
+    /// bound palette-effect colours: a check reading the shown colours of many states of one ending builds them once.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The ending's palette-effect colours are not bound.</exception>
+    internal static Dictionary<PictureShade, SheetShade> InstalledShades(EndingCreditsState ending)
     {
         Ensure.NotNull(ending);
         EndingPaletteSet palettes = InstalledFixtures.EndingColours;
         IPaletteFxColorSource paletteFx = ending.InstalledArtwork.PaletteFxArtwork
             ?? throw new InvalidOperationException("The ending's shown colours require its installed palette-effect colours.");
-        Dictionary<PictureShade, SheetShade> installed = EndingScreenShades.Screen(palettes, paletteFx).ToDictionary(shade => shade.Shade);
+        return EndingScreenShades.Screen(palettes, paletteFx).ToDictionary(shade => shade.Shade);
+    }
+
+    /// <summary>The colours <paramref name="ending"/>'s pictures show now, from the shades <see cref="InstalledShades"/> built for it.</summary>
+    /// <exception cref="KeyNotFoundException">The screen names a shade the import installs on no ending sheet.</exception>
+    internal static RgbColor[] Of(EndingCreditsState ending, IReadOnlyDictionary<PictureShade, SheetShade> installed)
+    {
+        Ensure.NotNull(ending);
+        Ensure.NotNull(installed);
         var colours = new RgbColor[EndingScreenInks.ScreenColourCount];
         foreach (PictureShade shown in ending.screen.Colours.Shading.Shades)
         {

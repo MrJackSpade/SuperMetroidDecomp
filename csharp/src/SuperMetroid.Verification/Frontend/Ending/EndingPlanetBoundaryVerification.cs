@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
@@ -123,6 +124,8 @@ internal static class EndingPlanetBoundaryVerification
             audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "planet crossfade reached");
+        // The ending's installed shades, which every compared frame's shown colours are read through, are built once.
+        var shownShades = EndingShownColours.InstalledShades(ending);
         // Rebuild the upper VRAM image from D8C1/D8E1/D901/D921/D941/D961.
         // In particular D961 transfers only $1000 font bytes at byte $A000.
         byte[] nativeVram = ending.ShownVram().ToArray();
@@ -135,21 +138,33 @@ internal static class EndingPlanetBoundaryVerification
         Console.WriteLine($"Explosion setup: {memoryDifferences} VRAM bytes differ from literal DMA reconstruction.");
         int differences = 0, checkedFrames = 0;
         string firstDifference = "none";
+        ShownFloorPairing? crossfadeFloors = null;
+        int composedFloorFrames = 0;
         while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
         {
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-            RgbColor[] snapshotColours = EndingShownColours.Of(ending);
+            RgbColor[] snapshotColours = EndingShownColours.Of(ending, shownShades);
             var projection = snapshot.LayersOf<TurningFloorLayer>().Single();
+            // The native floor shows what the reconstruction's floor shows in the frame's colours. Where the live floor shows
+            // exactly that at every floor point it stands in for it, drawing the same pixels without composing and laying
+            // the reconstruction's floor again every frame (#1568).
+            ShownFloorPairing floors = crossfadeFloors is { } paired && paired.Pairs(projection.Floor, nativeVram) ? paired
+                : new ShownFloorPairing(projection.Floor, nativeVram, snapshotColours);
+            crossfadeFloors = floors;
+            bool floorsAlike = floors.ShowAlike(projection.Floor, snapshotColours);
+            AffineFloor nativeFloor = floorsAlike ? projection.Floor : floors.MemoryFloor(snapshotColours);
+            if (!floorsAlike)
+                composedFloorFrames++;
             // The crossfade keeps the atmosphere's wrapping floor, and the scene's sprites glow over the planet and the
             // sky (#1514); the native reconstruction draws the scene's sprites in the native colours.
             FramePaint nativeSprites = new FramePaint(snapshot.Paint.Backdrop, snapshot.SpriteDraws).WithNativeColours(snapshotColours);
             DisplayLayer[] nativeLayers = [new TurningFloorLayer(projection.Transform with { Outside = FloorOverflowMode.Wrap },
-                    AffineFloorFixtures.Floor(nativeVram, snapshotColours)),
+                    nativeFloor),
                 new SpritesLayer(nativeSprites.SpriteDraws, SpriteBlend.Glows)];
             var nativeMemory = new FramePaint(nativeSprites.Backdrop);
             var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
-            int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
+            int changed = Differences(actual, expected);
             if (changed > 0 && differences == 0)
             {
                 int pixel = Enumerable.Range(0, actual.Length).First(index => actual[index] != expected[index]);
@@ -173,19 +188,38 @@ internal static class EndingPlanetBoundaryVerification
             checkedFrames++;
             ending.Step();
         }
-        Console.WriteLine($"Planet crossfade: {checkedFrames} frames, {differences} pixels differ from native wrapping/composition.");
+        Console.WriteLine($"Planet crossfade: {checkedFrames} frames, {differences} pixels differ from native wrapping/composition; "
+            + $"{composedFloorFrames} frames drew the reconstruction's own floor, the rest the live floor that shows alike.");
         AssertEqual(0, differences, $"planet crossfade preserves native map wrap and main/subscreen composition (first: {firstDifference})");
+        ShownFloorPairing? explosionFloors = null;
+        int floorFrames = 0, drawnFrames = 0;
         for (int frame = 0; frame < 2048 && ending.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             var live = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-            RgbColor[] liveColours = EndingShownColours.Of(ending);
-            byte[] reconstructed = ending.ShownVram();
-            nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
-            // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction.
-            DisplayLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is TurningFloorLayer floor
-                ? (floor with { Floor = AffineFloorFixtures.Floor(reconstructed, liveColours) }) : layer)];
-            var nativePixels = DisplayRendering.Render(new LayeredScene(live.Paint, reconstructedLayers, live.Brightness));
-            differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
+            TurningFloorLayer[] liveFloors = live.LayersOf<TurningFloorLayer>();
+            // The reconstruction changes only the turning floor: a frame that shows none is the same scene either way.
+            if (liveFloors.Length > 0)
+            {
+                floorFrames++;
+                RgbColor[] liveColours = EndingShownColours.Of(ending, shownShades);
+                byte[] reconstructed = ending.ShownVram();
+                nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
+                // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction. Where every
+                // floor the frame shows shows at every floor point what the reconstruction's floor shows, the frames are
+                // the same scene and draw the same pixels (#1568); only a frame whose floors differ is drawn both ways.
+                ShownFloorPairing floors = explosionFloors is { } paired && paired.Pairs(liveFloors[0].Floor, reconstructed) ? paired
+                    : new ShownFloorPairing(liveFloors[0].Floor, reconstructed, liveColours);
+                explosionFloors = floors;
+                if (!liveFloors.All(layer => floors.ShowAlike(layer.Floor, liveColours)))
+                {
+                    AffineFloor reconstructedFloor = floors.MemoryFloor(liveColours);
+                    DisplayLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is TurningFloorLayer floor
+                        ? (floor with { Floor = reconstructedFloor }) : layer)];
+                    var nativePixels = DisplayRendering.Render(new LayeredScene(live.Paint, reconstructedLayers, live.Brightness));
+                    differences += Differences(ending.Render(), nativePixels);
+                    drawnFrames++;
+                }
+            }
             if (capture is not null && capture.Frames.Contains(frame))
             {
                 // The native comparison replays exactly this sample's graphics and OAM under the retail registers.
@@ -200,9 +234,23 @@ internal static class EndingPlanetBoundaryVerification
             audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Stage.Phase, "planet explosion reaches ship flyaway");
-        Console.WriteLine($"Complete explosion: {differences} pixel mismatches against exact native upper-VRAM transfers.");
+        Console.WriteLine($"Complete explosion: {differences} pixel mismatches against exact native upper-VRAM transfers; "
+            + $"{floorFrames} frames showed a turning floor, {drawnFrames} of them drawn both ways where the floors did not show alike.");
         AssertEqual(0, differences, "explosion retains graphics outside the native font DMA extent");
         AssertEqual(0, memoryDifferences, "explosion setup executes exactly the native DMA byte ranges");
+    }
+
+    /// <summary>The number of pixels at which <paramref name="first"/> and <paramref name="second"/>, two frames, differ.</summary>
+    private static int Differences(ReadOnlySpan<RgbaPixel> first, ReadOnlySpan<RgbaPixel> second)
+    {
+        AssertEqual(first.Length, second.Length, "compared frames' pixel counts");
+        int count = 0;
+        for (int pixel = 0; pixel < first.Length; pixel++)
+        {
+            if (first[pixel] != second[pixel])
+                count++;
+        }
+        return count;
     }
 
     /// <summary>Runs the planet VRAM and rendered-boundary comparison without frame capture.</summary>

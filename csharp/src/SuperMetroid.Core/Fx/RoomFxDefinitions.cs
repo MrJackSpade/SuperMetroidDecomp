@@ -12,1720 +12,1720 @@ public static class RoomFxDefinitions
     /// <summary>The LandingSiteWhenZebesTimebombSet room FX.</summary>
     public static RoomFxHeader LandingSiteWhenZebesTimebombSet { get; } = new(nameof(LandingSiteWhenZebesTimebombSet),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.CrateriaEscapeYellowLightning], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.CrateriaEscapeYellowLightning], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ParlorWhenZebesTimebombSet room FX.</summary>
     public static RoomFxHeader ParlorWhenZebesTimebombSet { get; } = new(nameof(ParlorWhenZebesTimebombSet),
     [
-        new(null, false, 1256, 16, SignedEightEight.FromSignedRaw(-104), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.CrateriaEscapeCreBlockPixel], [], RoomFxPaletteBlend.None),
+        new(null, false, 1256, 16, SignedEightEight.FromSignedRaw(-104), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.CrateriaEscapeCreBlockPixel], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ClimbWhenZebesTimebombSet room FX.</summary>
     public static RoomFxHeader ClimbWhenZebesTimebombSet { get; } = new(nameof(ClimbWhenZebesTimebombSet),
     [
-        new(null, false, 2280, 16, SignedEightEight.FromSignedRaw(-104), 40, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.OldTourianRedFlashing, PaletteFxObject.OldTourianBackgroundRailingsFlashYellow, PaletteFxObject.OldTourianBackgroundPanelsFlashYellow], [], RoomFxPaletteBlend.None),
+        new(null, false, 2280, 16, SignedEightEight.FromSignedRaw(-104), 40, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.OldTourianRedFlashing, PaletteFxObject.OldTourianBackgroundRailingsFlashYellow, PaletteFxObject.OldTourianBackgroundPanelsFlashYellow], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BombTorizoWhenZebesTimebombSet room FX.</summary>
     public static RoomFxHeader BombTorizoWhenZebesTimebombSet { get; } = new(nameof(BombTorizoWhenZebesTimebombSet),
     [
-        new(null, false, 240, 184, SignedEightEight.FromSignedRaw(-16), 48, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, 240, 184, SignedEightEight.FromSignedRaw(-16), 48, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FlywayWhenZebesTimebombSet room FX.</summary>
     public static RoomFxHeader FlywayWhenZebesTimebombSet { get; } = new(nameof(FlywayWhenZebesTimebombSet),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ParlorWhenZebesAwake room FX.</summary>
     public static RoomFxHeader ParlorWhenZebesAwake { get; } = new(nameof(ParlorWhenZebesAwake),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ClimbWhenZebesAwake room FX.</summary>
     public static RoomFxHeader ClimbWhenZebesAwake { get; } = new(nameof(ClimbWhenZebesAwake),
     [
-        new(TourianDoorDefinitions.TourianEscape41, false, 2312, 0, SignedEightEight.FromSignedRaw(-128), 32, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.CrateriaLightning, PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.CrateriaEscapeYellowLightning, PaletteFxObject.OldTourianRedFlashing, PaletteFxObject.OldTourianBackgroundRailingsFlashYellow], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.Lava),
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(TourianDoorDefinitions.TourianEscape41, false, 2312, 0, SignedEightEight.FromSignedRaw(-128), 32, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.CrateriaLightning, PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.CrateriaEscapeYellowLightning, PaletteFxObject.OldTourianRedFlashing, PaletteFxObject.OldTourianBackgroundRailingsFlashYellow], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The PitWithMorphBallAndMissiles room FX.</summary>
     public static RoomFxHeader PitWithMorphBallAndMissiles { get; } = new(nameof(PitWithMorphBallAndMissiles),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ElevToBlueBrinstarWithMorphBallAndMissiles room FX.</summary>
     public static RoomFxHeader ElevToBlueBrinstarWithMorphBallAndMissiles { get; } = new(nameof(ElevToBlueBrinstarWithMorphBallAndMissiles),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FinalMissileBombwayWhenZebesAwake room FX.</summary>
     public static RoomFxHeader FinalMissileBombwayWhenZebesAwake { get; } = new(nameof(FinalMissileBombwayWhenZebesAwake),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FinalMissileWhenZebesAwake room FX.</summary>
     public static RoomFxHeader FinalMissileWhenZebesAwake { get; } = new(nameof(FinalMissileWhenZebesAwake),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The LandingSiteDefaultOrWhenZebesAwake room FX.</summary>
     public static RoomFxHeader LandingSiteDefaultOrWhenZebesAwake { get; } = new(nameof(LandingSiteDefaultOrWhenZebesAwake),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Rain, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.Rain, RoomLiquidOptions.None, [PaletteFxObject.CrateriaLightning], [], RoomFxPaletteBlend.LandingSiteRain),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Rain, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.None, [PaletteFxObject.CrateriaLightning], [], RoomFxPaletteBlend.LandingSiteRain),
     ]);
 
     /// <summary>The LandingSiteWithPowerBombs room FX.</summary>
     public static RoomFxHeader LandingSiteWithPowerBombs { get; } = new(nameof(LandingSiteWithPowerBombs),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GauntletEntrance room FX.</summary>
     public static RoomFxHeader GauntletEntrance { get; } = new(nameof(GauntletEntrance),
     [
-        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [], [], RoomFxPaletteBlend.None),
+        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ParlorDefault room FX.</summary>
     public static RoomFxHeader ParlorDefault { get; } = new(nameof(ParlorDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
     ]);
 
     /// <summary>The CrateriaPowerBombs room FX.</summary>
     public static RoomFxHeader CrateriaPowerBombs { get; } = new(nameof(CrateriaPowerBombs),
     [
-        new(null, false, 192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The CrateriaSave room FX.</summary>
     public static RoomFxHeader CrateriaSave { get; } = new(nameof(CrateriaSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WestOcean room FX.</summary>
     public static RoomFxHeader WestOcean { get; } = new(nameof(WestOcean),
     [
-        new(null, false, 1264, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift, [], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.CrateriaLake], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 1264, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.CrateriaLake], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The BowlingAlleyPath room FX.</summary>
     public static RoomFxHeader BowlingAlleyPath { get; } = new(nameof(BowlingAlleyPath),
     [
-        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The CrateriaKihunters room FX.</summary>
     public static RoomFxHeader CrateriaKihunters { get; } = new(nameof(CrateriaKihunters),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ForgottenHighwayElev room FX.</summary>
     public static RoomFxHeader ForgottenHighwayElev { get; } = new(nameof(ForgottenHighwayElev),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The EastOcean room FX.</summary>
     public static RoomFxHeader EastOcean { get; } = new(nameof(EastOcean),
     [
-        new(null, false, 1264, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift, [], [AnimatedTileObject.CrateriaLake], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 1264, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [AnimatedTileObject.CrateriaLake], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The ForgottenHighwayKagos room FX.</summary>
     public static RoomFxHeader ForgottenHighwayKagos { get; } = new(nameof(ForgottenHighwayKagos),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The CrabMaze room FX.</summary>
     public static RoomFxHeader CrabMaze { get; } = new(nameof(CrabMaze),
     [
-        new(null, false, 432, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 432, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The ForgottenHighwayElbow room FX.</summary>
     public static RoomFxHeader ForgottenHighwayElbow { get; } = new(nameof(ForgottenHighwayElbow),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The CrateriaTube room FX.</summary>
     public static RoomFxHeader CrateriaTube { get; } = new(nameof(CrateriaTube),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Moat room FX.</summary>
     public static RoomFxHeader Moat { get; } = new(nameof(Moat),
     [
-        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift, [], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.CrateriaLake], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.CrateriaLake], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The RedBrinstarElev room FX.</summary>
     public static RoomFxHeader RedBrinstarElev { get; } = new(nameof(RedBrinstarElev),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GauntletETank room FX.</summary>
     public static RoomFxHeader GauntletETank { get; } = new(nameof(GauntletETank),
     [
-        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The PreBowling room FX.</summary>
     public static RoomFxHeader PreBowling { get; } = new(nameof(PreBowling),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ClimbDefault room FX.</summary>
     public static RoomFxHeader ClimbDefault { get; } = new(nameof(ClimbDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fog, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.FogAdditive, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fog, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
     ]);
 
     /// <summary>The PitDefault room FX.</summary>
     public static RoomFxHeader PitDefault { get; } = new(nameof(PitDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fog, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.FogAdditive, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fog, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
     ]);
 
     /// <summary>The ElevToBlueBrinstarDefault room FX.</summary>
     public static RoomFxHeader ElevToBlueBrinstarDefault { get; } = new(nameof(ElevToBlueBrinstarDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDead room FX.</summary>
     public static RoomFxHeader BombTorizoDefaultOrWhenAreaTorizoDead { get; } = new(nameof(BombTorizoDefaultOrWhenAreaTorizoDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FlywayDefaultOrWhenAreaTorizoDead room FX.</summary>
     public static RoomFxHeader FlywayDefaultOrWhenAreaTorizoDead { get; } = new(nameof(FlywayDefaultOrWhenAreaTorizoDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The VariousRooms8381C2 room FX.</summary>
     public static RoomFxHeader VariousRooms8381C2 { get; } = new(nameof(VariousRooms8381C2),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The CrateriaSuper room FX.</summary>
     public static RoomFxHeader CrateriaSuper { get; } = new(nameof(CrateriaSuper),
     [
-        new(null, false, 2016, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 2016, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The FinalMissileBombwayDefault room FX.</summary>
     public static RoomFxHeader FinalMissileBombwayDefault { get; } = new(nameof(FinalMissileBombwayDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
     ]);
 
     /// <summary>The FinalMissileDefault room FX.</summary>
     public static RoomFxHeader FinalMissileDefault { get; } = new(nameof(FinalMissileDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog),
     ]);
 
     /// <summary>The VariousRooms8381F4 room FX.</summary>
     public static RoomFxHeader VariousRooms8381F4 { get; } = new(nameof(VariousRooms8381F4),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GreenBrinstarMainShaft room FX.</summary>
     public static RoomFxHeader GreenBrinstarMainShaft { get; } = new(nameof(GreenBrinstarMainShaft),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SporeSpawnSuper room FX.</summary>
     public static RoomFxHeader SporeSpawnSuper { get; } = new(nameof(SporeSpawnSuper),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.Spores, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BrinstarPreMap room FX.</summary>
     public static RoomFxHeader BrinstarPreMap { get; } = new(nameof(BrinstarPreMap),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The EarlySupers room FX.</summary>
     public static RoomFxHeader EarlySupers { get; } = new(nameof(EarlySupers),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BrinstarReserveTank room FX.</summary>
     public static RoomFxHeader BrinstarReserveTank { get; } = new(nameof(BrinstarReserveTank),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GreenBrinstarMap room FX.</summary>
     public static RoomFxHeader GreenBrinstarMap { get; } = new(nameof(GreenBrinstarMap),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GreenBrinstarFirefleas room FX.</summary>
     public static RoomFxHeader GreenBrinstarFirefleas { get; } = new(nameof(GreenBrinstarFirefleas),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fireflea, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fireflea, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GreenBrinstarMissileRefill room FX.</summary>
     public static RoomFxHeader GreenBrinstarMissileRefill { get; } = new(nameof(GreenBrinstarMissileRefill),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Dachora room FX.</summary>
     public static RoomFxHeader Dachora { get; } = new(nameof(Dachora),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.Spores, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BigPink room FX.</summary>
     public static RoomFxHeader BigPink { get; } = new(nameof(BigPink),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.Spores, RoomLiquidOptions.None, [], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, RoomLiquidOptions.None, [], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SporeSpawnKihunters room FX.</summary>
     public static RoomFxHeader SporeSpawnKihunters { get; } = new(nameof(SporeSpawnKihunters),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SporeSpawn room FX.</summary>
     public static RoomFxHeader SporeSpawn { get; } = new(nameof(SporeSpawn),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.SporeSpawnBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.SporeSpawnBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The PinkBrinstarPowerBombs room FX.</summary>
     public static RoomFxHeader PinkBrinstarPowerBombs { get; } = new(nameof(PinkBrinstarPowerBombs),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GreenHillZone room FX.</summary>
     public static RoomFxHeader GreenHillZone { get; } = new(nameof(GreenHillZone),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MorphBallDefault room FX.</summary>
     public static RoomFxHeader MorphBallDefault { get; } = new(nameof(MorphBallDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ConstructionZoneDefault room FX.</summary>
     public static RoomFxHeader ConstructionZoneDefault { get; } = new(nameof(ConstructionZoneDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BlueBrinstarETankDefault room FX.</summary>
     public static RoomFxHeader BlueBrinstarETankDefault { get; } = new(nameof(BlueBrinstarETankDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The NoobBridge room FX.</summary>
     public static RoomFxHeader NoobBridge { get; } = new(nameof(NoobBridge),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GreenBrinstarBeetoms room FX.</summary>
     public static RoomFxHeader GreenBrinstarBeetoms { get; } = new(nameof(GreenBrinstarBeetoms),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The EtecoonETank room FX.</summary>
     public static RoomFxHeader EtecoonETank { get; } = new(nameof(EtecoonETank),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The EtecoonSuper room FX.</summary>
     public static RoomFxHeader EtecoonSuper { get; } = new(nameof(EtecoonSuper),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The DachoraEnergyRefill room FX.</summary>
     public static RoomFxHeader DachoraEnergyRefill { get; } = new(nameof(DachoraEnergyRefill),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SporeSpawnFarming room FX.</summary>
     public static RoomFxHeader SporeSpawnFarming { get; } = new(nameof(SporeSpawnFarming),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.Spores, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Spores, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.SporesBrightenBehind, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WaterwayETank room FX.</summary>
     public static RoomFxHeader WaterwayETank { get; } = new(nameof(WaterwayETank),
     [
-        new(null, false, 168, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 168, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The FirstMissile room FX.</summary>
     public static RoomFxHeader FirstMissile { get; } = new(nameof(FirstMissile),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The PinkBrinstarHoppers room FX.</summary>
     public static RoomFxHeader PinkBrinstarHoppers { get; } = new(nameof(PinkBrinstarHoppers),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarBlueBackgroundSpores], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The HopperETank room FX.</summary>
     public static RoomFxHeader HopperETank { get; } = new(nameof(HopperETank),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BigPinkSaveRoom room FX.</summary>
     public static RoomFxHeader BigPinkSaveRoom { get; } = new(nameof(BigPinkSaveRoom),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BlueBrinstarBoulders room FX.</summary>
     public static RoomFxHeader BlueBrinstarBoulders { get; } = new(nameof(BlueBrinstarBoulders),
     [
-        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The BillyMays room FX.</summary>
     public static RoomFxHeader BillyMays { get; } = new(nameof(BillyMays),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GreenBrinstarSave room FX.</summary>
     public static RoomFxHeader GreenBrinstarSave { get; } = new(nameof(GreenBrinstarSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The EtecoonSave room FX.</summary>
     public static RoomFxHeader EtecoonSave { get; } = new(nameof(EtecoonSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The RedTower room FX.</summary>
     public static RoomFxHeader RedTower { get; } = new(nameof(RedTower),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarRedBackgroundGlow, PaletteFxObject.BeaconFlashing], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarRedBackgroundGlow, PaletteFxObject.BeaconFlashing], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The RedBrinstarFirefleas room FX.</summary>
     public static RoomFxHeader RedBrinstarFirefleas { get; } = new(nameof(RedBrinstarFirefleas),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fireflea, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fireflea, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The XrayScope room FX.</summary>
     public static RoomFxHeader XrayScope { get; } = new(nameof(XrayScope),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Hellway room FX.</summary>
     public static RoomFxHeader Hellway { get; } = new(nameof(Hellway),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarRedBackgroundGlow], [AnimatedTileObject.BrinstarPlant], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarRedBackgroundGlow], [AnimatedTileObject.BrinstarPlant], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Caterpillar room FX.</summary>
     public static RoomFxHeader Caterpillar { get; } = new(nameof(Caterpillar),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BrinstarRedBackgroundGlow, PaletteFxObject.BeaconFlashing], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BrinstarRedBackgroundGlow, PaletteFxObject.BeaconFlashing], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BetaPowerBomb room FX.</summary>
     public static RoomFxHeader BetaPowerBomb { get; } = new(nameof(BetaPowerBomb),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [AnimatedTileObject.BrinstarPlant], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [AnimatedTileObject.BrinstarPlant], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The AlphaPowerBomb room FX.</summary>
     public static RoomFxHeader AlphaPowerBomb { get; } = new(nameof(AlphaPowerBomb),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [AnimatedTileObject.BrinstarPlant], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [AnimatedTileObject.BrinstarPlant], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SkreeBoost room FX.</summary>
     public static RoomFxHeader SkreeBoost { get; } = new(nameof(SkreeBoost),
     [
-        new(null, false, 190, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 190, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The BelowSpazer room FX.</summary>
     public static RoomFxHeader BelowSpazer { get; } = new(nameof(BelowSpazer),
     [
-        new(null, false, 446, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 446, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The Spazer room FX.</summary>
     public static RoomFxHeader Spazer { get; } = new(nameof(Spazer),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The VariousRooms8383D2 room FX.</summary>
     public static RoomFxHeader VariousRooms8383D2 { get; } = new(nameof(VariousRooms8383D2),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.BeaconFlashing], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BeaconFlashing], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MiniKraid room FX.</summary>
     public static RoomFxHeader MiniKraid { get; } = new(nameof(MiniKraid),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The KraidEyeDoor room FX.</summary>
     public static RoomFxHeader KraidEyeDoor { get; } = new(nameof(KraidEyeDoor),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Kraid room FX.</summary>
     public static RoomFxHeader Kraid { get; } = new(nameof(Kraid),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The StatuesHallway room FX.</summary>
     public static RoomFxHeader StatuesHallway { get; } = new(nameof(StatuesHallway),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fog, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.FogAdditive, RoomLiquidOptions.None, [PaletteFxObject.BeaconFlashing], [], RoomFxPaletteBlend.Fog),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fog, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.None, [PaletteFxObject.BeaconFlashing], [], RoomFxPaletteBlend.Fog),
     ]);
 
     /// <summary>The RedTowerRefill room FX.</summary>
     public static RoomFxHeader RedTowerRefill { get; } = new(nameof(RedTowerRefill),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The KraidRefill room FX.</summary>
     public static RoomFxHeader KraidRefill { get; } = new(nameof(KraidRefill),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Statues room FX.</summary>
     public static RoomFxHeader Statues { get; } = new(nameof(Statues),
     [
-        new(null, false, 176, 511, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.TourianEntranceStatue, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 176, 511, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.TourianEntranceStatue, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The WarehouseEntrance room FX.</summary>
     public static RoomFxHeader WarehouseEntrance { get; } = new(nameof(WarehouseEntrance),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The VariaSuit room FX.</summary>
     public static RoomFxHeader VariaSuit { get; } = new(nameof(VariaSuit),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WarehouseSave room FX.</summary>
     public static RoomFxHeader WarehouseSave { get; } = new(nameof(WarehouseSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The RedBrinstarSave room FX.</summary>
     public static RoomFxHeader RedBrinstarSave { get; } = new(nameof(RedBrinstarSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The IceBeamAcid room FX.</summary>
     public static RoomFxHeader IceBeamAcid { get; } = new(nameof(IceBeamAcid),
     [
-        new(null, false, 184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The Cathedral room FX.</summary>
     public static RoomFxHeader Cathedral { get; } = new(nameof(Cathedral),
     [
-        new(null, false, 433, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 433, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The CathedralEntrance room FX.</summary>
     public static RoomFxHeader CathedralEntrance { get; } = new(nameof(CathedralEntrance),
     [
-        new(null, false, 464, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 464, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The BusinessCenter room FX.</summary>
     public static RoomFxHeader BusinessCenter { get; } = new(nameof(BusinessCenter),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The IceBeamGate room FX.</summary>
     public static RoomFxHeader IceBeamGate { get; } = new(nameof(IceBeamGate),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The IceBeamTutorial room FX.</summary>
     public static RoomFxHeader IceBeamTutorial { get; } = new(nameof(IceBeamTutorial),
     [
-        new(null, false, 178, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 178, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The IceBeam room FX.</summary>
     public static RoomFxHeader IceBeam { get; } = new(nameof(IceBeam),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The IceBeamSnake room FX.</summary>
     public static RoomFxHeader IceBeamSnake { get; } = new(nameof(IceBeamSnake),
     [
-        new(null, false, 696, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 696, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The CrumbleShaft room FX.</summary>
     public static RoomFxHeader CrumbleShaft { get; } = new(nameof(CrumbleShaft),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The CrocomireSpeedway room FX.</summary>
     public static RoomFxHeader CrocomireSpeedway { get; } = new(nameof(CrocomireSpeedway),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The Crocomire room FX.</summary>
     public static RoomFxHeader Crocomire { get; } = new(nameof(Crocomire),
     [
-        new(null, false, 198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [AnimatedTileObject.HorizontalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The HiJumpBoots room FX.</summary>
     public static RoomFxHeader HiJumpBoots { get; } = new(nameof(HiJumpBoots),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The CrocomireEscape room FX.</summary>
     public static RoomFxHeader CrocomireEscape { get; } = new(nameof(CrocomireEscape),
     [
-        new(null, false, 440, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 440, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The HiJumpETank room FX.</summary>
     public static RoomFxHeader HiJumpETank { get; } = new(nameof(HiJumpETank),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The PostCrocFarming room FX.</summary>
     public static RoomFxHeader PostCrocFarming { get; } = new(nameof(PostCrocFarming),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The PostCrocSave room FX.</summary>
     public static RoomFxHeader PostCrocSave { get; } = new(nameof(PostCrocSave),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The PostCrocPowerBombs room FX.</summary>
     public static RoomFxHeader PostCrocPowerBombs { get; } = new(nameof(PostCrocPowerBombs),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The PostCrocShaft room FX.</summary>
     public static RoomFxHeader PostCrocShaft { get; } = new(nameof(PostCrocShaft),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The PostCrocMissile room FX.</summary>
     public static RoomFxHeader PostCrocMissile { get; } = new(nameof(PostCrocMissile),
     [
-        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.LargeTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GrappleTutorial3 room FX.</summary>
     public static RoomFxHeader GrappleTutorial3 { get; } = new(nameof(GrappleTutorial3),
     [
-        new(null, false, 184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The PostCrocJump room FX.</summary>
     public static RoomFxHeader PostCrocJump { get; } = new(nameof(PostCrocJump),
     [
-        new(null, false, 692, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.None),
+        new(null, false, 692, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GrappleTutorial2 room FX.</summary>
     public static RoomFxHeader GrappleTutorial2 { get; } = new(nameof(GrappleTutorial2),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GrappleTutorial1 room FX.</summary>
     public static RoomFxHeader GrappleTutorial1 { get; } = new(nameof(GrappleTutorial1),
     [
-        new(null, false, 192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The GrappleBeam room FX.</summary>
     public static RoomFxHeader GrappleBeam { get; } = new(nameof(GrappleBeam),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The NorfairReserveTank room FX.</summary>
     public static RoomFxHeader NorfairReserveTank { get; } = new(nameof(NorfairReserveTank),
     [
-        new(null, false, 199, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 199, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The GreenBubblesMissiles room FX.</summary>
     public static RoomFxHeader GreenBubblesMissiles { get; } = new(nameof(GreenBubblesMissiles),
     [
-        new(null, false, 198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The BubbleMountain room FX.</summary>
     public static RoomFxHeader BubbleMountain { get; } = new(nameof(BubbleMountain),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The SpeedBoosterHall room FX.</summary>
     public static RoomFxHeader SpeedBoosterHall { get; } = new(nameof(SpeedBoosterHall),
     [
-        new(NorfairDoorDefinitions.SpeedBooster0, false, 474, 176, SignedEightEight.FromSignedRaw(0), 240, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
-        new(null, false, 474, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(NorfairDoorDefinitions.SpeedBooster0, false, 474, 176, SignedEightEight.FromSignedRaw(0), 240, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 474, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The SpeedBooster room FX.</summary>
     public static RoomFxHeader SpeedBooster { get; } = new(nameof(SpeedBooster),
     [
-        new(null, false, 218, 0, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 218, 0, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The SingleChamber room FX.</summary>
     public static RoomFxHeader SingleChamber { get; } = new(nameof(SingleChamber),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The DoubleChamber room FX.</summary>
     public static RoomFxHeader DoubleChamber { get; } = new(nameof(DoubleChamber),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The WaveBeam room FX.</summary>
     public static RoomFxHeader WaveBeam { get; } = new(nameof(WaveBeam),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The SpikyPlatformsTunnel room FX.</summary>
     public static RoomFxHeader SpikyPlatformsTunnel { get; } = new(nameof(SpikyPlatformsTunnel),
     [
-        new(null, false, 192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The Volcano room FX.</summary>
     public static RoomFxHeader Volcano { get; } = new(nameof(Volcano),
     [
-        new(NorfairDoorDefinitions.KronicBoost1, false, 736, 608, SignedEightEight.FromSignedRaw(-10), 64, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
-        new(null, false, 616, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(NorfairDoorDefinitions.KronicBoost1, false, 736, 608, SignedEightEight.FromSignedRaw(-10), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 616, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The KronicBoost room FX.</summary>
     public static RoomFxHeader KronicBoost { get; } = new(nameof(KronicBoost),
     [
-        new(null, false, 724, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 724, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The MagdolliteTunnel room FX.</summary>
     public static RoomFxHeader MagdolliteTunnel { get; } = new(nameof(MagdolliteTunnel),
     [
-        new(null, false, 190, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 190, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The PurpleShaft room FX.</summary>
     public static RoomFxHeader PurpleShaft { get; } = new(nameof(PurpleShaft),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The LavaDive room FX.</summary>
     public static RoomFxHeader LavaDive { get; } = new(nameof(LavaDive),
     [
-        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The LowerNorfairElev room FX.</summary>
     public static RoomFxHeader LowerNorfairElev { get; } = new(nameof(LowerNorfairElev),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The UpperNorfairFarming room FX.</summary>
     public static RoomFxHeader UpperNorfairFarming { get; } = new(nameof(UpperNorfairFarming),
     [
-        new(null, false, 448, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 448, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The RisingTide room FX.</summary>
     public static RoomFxHeader RisingTide { get; } = new(nameof(RisingTide),
     [
-        new(NorfairDoorDefinitions.Cathedral1, false, 264, 192, SignedEightEight.FromSignedRaw(-32), 64, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
-        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(NorfairDoorDefinitions.Cathedral1, false, 264, 192, SignedEightEight.FromSignedRaw(-32), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The AcidSnakesTunnel room FX.</summary>
     public static RoomFxHeader AcidSnakesTunnel { get; } = new(nameof(AcidSnakesTunnel),
     [
-        new(null, false, 197, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 197, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The SpikyAcidSnakesTunnel room FX.</summary>
     public static RoomFxHeader SpikyAcidSnakesTunnel { get; } = new(nameof(SpikyAcidSnakesTunnel),
     [
-        new(null, false, 198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
+        new(null, false, 198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The UpperNorfairRefill room FX.</summary>
     public static RoomFxHeader UpperNorfairRefill { get; } = new(nameof(UpperNorfairRefill),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The PurpleFarming room FX.</summary>
     public static RoomFxHeader PurpleFarming { get; } = new(nameof(PurpleFarming),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The BatCave room FX.</summary>
     public static RoomFxHeader BatCave { get; } = new(nameof(BatCave),
     [
-        new(null, false, 436, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 436, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The NorfairMap room FX.</summary>
     public static RoomFxHeader NorfairMap { get; } = new(nameof(NorfairMap),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The BubbleMountainSave room FX.</summary>
     public static RoomFxHeader BubbleMountainSave { get; } = new(nameof(BubbleMountainSave),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The FrogSpeedway room FX.</summary>
     public static RoomFxHeader FrogSpeedway { get; } = new(nameof(FrogSpeedway),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The RedPirateShaft room FX.</summary>
     public static RoomFxHeader RedPirateShaft { get; } = new(nameof(RedPirateShaft),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FrogSave room FX.</summary>
     public static RoomFxHeader FrogSave { get; } = new(nameof(FrogSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The CrocomireSave room FX.</summary>
     public static RoomFxHeader CrocomireSave { get; } = new(nameof(CrocomireSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The LNElevSave room FX.</summary>
     public static RoomFxHeader LNElevSave { get; } = new(nameof(LNElevSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The AcidStatue room FX.</summary>
     public static RoomFxHeader AcidStatue { get; } = new(nameof(AcidStatue),
     [
-        new(NorfairDoorDefinitions.GoldenTorizo0, false, 722, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
-        new(null, false, 200, 722, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(NorfairDoorDefinitions.GoldenTorizo0, false, 722, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 200, 722, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MainHall room FX.</summary>
     public static RoomFxHeader MainHall { get; } = new(nameof(MainHall),
     [
-        new(null, false, 705, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 705, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GoldenTorizo room FX.</summary>
     public static RoomFxHeader GoldenTorizo { get; } = new(nameof(GoldenTorizo),
     [
-        new(null, false, 710, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 710, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FastRipper room FX.</summary>
     public static RoomFxHeader FastRipper { get; } = new(nameof(FastRipper),
     [
-        new(null, false, 184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GTEnergyRefill room FX.</summary>
     public static RoomFxHeader GTEnergyRefill { get; } = new(nameof(GTEnergyRefill),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Ridley room FX.</summary>
     public static RoomFxHeader Ridley { get; } = new(nameof(Ridley),
     [
-        new(null, false, 528, 464, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 528, 464, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The LNFarming room FX.</summary>
     public static RoomFxHeader LNFarming { get; } = new(nameof(LNFarming),
     [
-        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FastPillarsSetup room FX.</summary>
     public static RoomFxHeader FastPillarsSetup { get; } = new(nameof(FastPillarsSetup),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The UnusedRoom8387EC room FX.</summary>
     public static RoomFxHeader UnusedRoom8387EC { get; } = new(nameof(UnusedRoom8387EC),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MickeyMouse room FX.</summary>
     public static RoomFxHeader MickeyMouse { get; } = new(nameof(MickeyMouse),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Pillar room FX.</summary>
     public static RoomFxHeader Pillar { get; } = new(nameof(Pillar),
     [
-        new(null, false, 232, 16, SignedEightEight.FromSignedRaw(-32), 80, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 232, 16, SignedEightEight.FromSignedRaw(-32), 80, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Plowerhouse room FX.</summary>
     public static RoomFxHeader Plowerhouse { get; } = new(nameof(Plowerhouse),
     [
-        new(null, false, 205, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 205, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WorstRoomInTheGame room FX.</summary>
     public static RoomFxHeader WorstRoomInTheGame { get; } = new(nameof(WorstRoomInTheGame),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Amphitheatre room FX.</summary>
     public static RoomFxHeader Amphitheatre { get; } = new(nameof(Amphitheatre),
     [
-        new(NorfairDoorDefinitions.RedKihunterShaft1, false, 208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
-        new(null, false, 1256, 208, SignedEightEight.FromSignedRaw(-128), 96, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(NorfairDoorDefinitions.RedKihunterShaft1, false, 208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 1256, 208, SignedEightEight.FromSignedRaw(-128), 96, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The LNSpringballMaze room FX.</summary>
     public static RoomFxHeader LNSpringballMaze { get; } = new(nameof(LNSpringballMaze),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The LNEscapePowerBombs room FX.</summary>
     public static RoomFxHeader LNEscapePowerBombs { get; } = new(nameof(LNEscapePowerBombs),
     [
-        new(null, false, 179, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 179, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The RedKihunterShaft room FX.</summary>
     public static RoomFxHeader RedKihunterShaft { get; } = new(nameof(RedKihunterShaft),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Wasteland room FX.</summary>
     public static RoomFxHeader Wasteland { get; } = new(nameof(Wasteland),
     [
-        new(null, false, 704, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, 704, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MetalPirates room FX.</summary>
     public static RoomFxHeader MetalPirates { get; } = new(nameof(MetalPirates),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ThreeMusketeers room FX.</summary>
     public static RoomFxHeader ThreeMusketeers { get; } = new(nameof(ThreeMusketeers),
     [
-        new(null, false, 720, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 720, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The RidleyETank room FX.</summary>
     public static RoomFxHeader RidleyETank { get; } = new(nameof(RidleyETank),
     [
-        new(null, false, 221, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 221, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ScrewAttack room FX.</summary>
     public static RoomFxHeader ScrewAttack { get; } = new(nameof(ScrewAttack),
     [
-        new(null, false, 733, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
+        new(null, false, 733, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The LNFireflea room FX.</summary>
     public static RoomFxHeader LNFireflea { get; } = new(nameof(LNFireflea),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fireflea, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Fireflea, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The LNSave room FX.</summary>
     public static RoomFxHeader LNSave { get; } = new(nameof(LNSave),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The BowlingAlleyWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader BowlingAlleyWhenAreaBossDead { get; } = new(nameof(BowlingAlleyWhenAreaBossDead),
     [
-        new(null, false, 432, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillLeftwards], RoomFxPaletteBlend.None),
+        new(null, false, 432, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillLeftwards], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WreckedShipEntranceWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader WreckedShipEntranceWhenAreaBossDead { get; } = new(nameof(WreckedShipEntranceWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The AtticWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader AtticWhenAreaBossDead { get; } = new(nameof(AtticWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.WreckedShipScreen], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.WreckedShipScreen], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The AssemblyLineWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader AssemblyLineWhenAreaBossDead { get; } = new(nameof(AssemblyLineWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.WreckedShipTreadmillLeftwards, AnimatedTileObject.WreckedShipScreen], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.WreckedShipTreadmillLeftwards, AnimatedTileObject.WreckedShipScreen], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WreckedShipMainShaftWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader WreckedShipMainShaftWhenAreaBossDead { get; } = new(nameof(WreckedShipMainShaftWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillRightwards], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillRightwards], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SpikyDeathWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader SpikyDeathWhenAreaBossDead { get; } = new(nameof(SpikyDeathWhenAreaBossDead),
     [
-        new(null, false, 168, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillLeftwards], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 168, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillLeftwards], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The ElectricDeathWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader ElectricDeathWhenAreaBossDead { get; } = new(nameof(ElectricDeathWhenAreaBossDead),
     [
-        new(null, false, 680, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 680, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The WreckedShipETankWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader WreckedShipETankWhenAreaBossDead { get; } = new(nameof(WreckedShipETankWhenAreaBossDead),
     [
-        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillRightwards], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.VerticalSpikes, AnimatedTileObject.WreckedShipTreadmillRightwards], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The BasementWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader BasementWhenAreaBossDead { get; } = new(nameof(BasementWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WreckedShipMapWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader WreckedShipMapWhenAreaBossDead { get; } = new(nameof(WreckedShipMapWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The PhantoonWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader PhantoonWhenAreaBossDead { get; } = new(nameof(PhantoonWhenAreaBossDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SpongeBathWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader SpongeBathWhenAreaBossDead { get; } = new(nameof(SpongeBathWhenAreaBossDead),
     [
-        new(null, false, 168, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LiquidOrFogAdditive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
+        new(null, false, 168, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.WaterAndAcid),
     ]);
 
     /// <summary>The WSWestSuperWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader WSWestSuperWhenAreaBossDead { get; } = new(nameof(WSWestSuperWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WSEastSuperWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader WSEastSuperWhenAreaBossDead { get; } = new(nameof(WSEastSuperWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.WreckedShipTreadmillLeftwards], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.WreckedShipTreadmillLeftwards], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GravitySuitOrWreckedShipSaveWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader GravitySuitOrWreckedShipSaveWhenAreaBossDead { get; } = new(nameof(GravitySuitOrWreckedShipSaveWhenAreaBossDead),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.WreckedShipGreenLights], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BowlingAlleyDefault room FX.</summary>
     public static RoomFxHeader BowlingAlleyDefault { get; } = new(nameof(BowlingAlleyDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WreckedShipEntranceDefault room FX.</summary>
     public static RoomFxHeader WreckedShipEntranceDefault { get; } = new(nameof(WreckedShipEntranceDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The AtticDefault room FX.</summary>
     public static RoomFxHeader AtticDefault { get; } = new(nameof(AtticDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.WreckedShipPowerOff, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The AssemblyLineDefault room FX.</summary>
     public static RoomFxHeader AssemblyLineDefault { get; } = new(nameof(AssemblyLineDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WreckedShipMainShaftDefault room FX.</summary>
     public static RoomFxHeader WreckedShipMainShaftDefault { get; } = new(nameof(WreckedShipMainShaftDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.WreckedShipPowerOff, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SpikyDeathDefault room FX.</summary>
     public static RoomFxHeader SpikyDeathDefault { get; } = new(nameof(SpikyDeathDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ElectricDeathDefault room FX.</summary>
     public static RoomFxHeader ElectricDeathDefault { get; } = new(nameof(ElectricDeathDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WreckedShipETankDefault room FX.</summary>
     public static RoomFxHeader WreckedShipETankDefault { get; } = new(nameof(WreckedShipETankDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BasementDefault room FX.</summary>
     public static RoomFxHeader BasementDefault { get; } = new(nameof(BasementDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WreckedShipMapDefault room FX.</summary>
     public static RoomFxHeader WreckedShipMapDefault { get; } = new(nameof(WreckedShipMapDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.WreckedShipPowerOff, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The PhantoonDefault room FX.</summary>
     public static RoomFxHeader PhantoonDefault { get; } = new(nameof(PhantoonDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The SpongeBathDefault room FX.</summary>
     public static RoomFxHeader SpongeBathDefault { get; } = new(nameof(SpongeBathDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The WSWestSuperDefault room FX.</summary>
     public static RoomFxHeader WSWestSuperDefault { get; } = new(nameof(WSWestSuperDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GravitySuitOrWSEastSuperOrWreckedShipSaveDefault room FX.</summary>
     public static RoomFxHeader GravitySuitOrWSEastSuperOrWreckedShipSaveDefault { get; } = new(nameof(GravitySuitOrWSEastSuperOrWreckedShipSaveDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The GlassTunnelSave room FX.</summary>
     public static RoomFxHeader GlassTunnelSave { get; } = new(nameof(GlassTunnelSave),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The GlassTunnel room FX.</summary>
     public static RoomFxHeader GlassTunnel { get; } = new(nameof(GlassTunnel),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The WestTunnel room FX.</summary>
     public static RoomFxHeader WestTunnel { get; } = new(nameof(WestTunnel),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The EastTunnel room FX.</summary>
     public static RoomFxHeader EastTunnel { get; } = new(nameof(EastTunnel),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MainStreet room FX.</summary>
     public static RoomFxHeader MainStreet { get; } = new(nameof(MainStreet),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The FishTank room FX.</summary>
     public static RoomFxHeader FishTank { get; } = new(nameof(FishTank),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The MamaTurtle room FX.</summary>
     public static RoomFxHeader MamaTurtle { get; } = new(nameof(MamaTurtle),
     [
-        new(null, false, 698, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 698, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The CrabTunnel room FX.</summary>
     public static RoomFxHeader CrabTunnel { get; } = new(nameof(CrabTunnel),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The MtEverest room FX.</summary>
     public static RoomFxHeader MtEverest { get; } = new(nameof(MtEverest),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The RedFish room FX.</summary>
     public static RoomFxHeader RedFish { get; } = new(nameof(RedFish),
     [
-        new(null, false, 384, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 384, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The WateringHole room FX.</summary>
     public static RoomFxHeader WateringHole { get; } = new(nameof(WateringHole),
     [
-        new(null, false, 437, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 437, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The NWestMaridiaBug room FX.</summary>
     public static RoomFxHeader NWestMaridiaBug { get; } = new(nameof(NWestMaridiaBug),
     [
-        new(null, false, 437, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 437, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The CrabShaft room FX.</summary>
     public static RoomFxHeader CrabShaft { get; } = new(nameof(CrabShaft),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The PseudoPlasmaSpark room FX.</summary>
     public static RoomFxHeader PseudoPlasmaSpark { get; } = new(nameof(PseudoPlasmaSpark),
     [
-        new(null, false, 437, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 437, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The CrabHole room FX.</summary>
     public static RoomFxHeader CrabHole { get; } = new(nameof(CrabHole),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The WestSandHallTunnel room FX.</summary>
     public static RoomFxHeader WestSandHallTunnel { get; } = new(nameof(WestSandHallTunnel),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The PlasmaTutorial room FX.</summary>
     public static RoomFxHeader PlasmaTutorial { get; } = new(nameof(PlasmaTutorial),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The Plasma room FX.</summary>
     public static RoomFxHeader Plasma { get; } = new(nameof(Plasma),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The ThreadTheNeedle room FX.</summary>
     public static RoomFxHeader ThreadTheNeedle { get; } = new(nameof(ThreadTheNeedle),
     [
-        new(null, false, 181, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 181, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The MaridiaElev room FX.</summary>
     public static RoomFxHeader MaridiaElev { get; } = new(nameof(MaridiaElev),
     [
-        new(null, false, 1461, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 1461, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The PlasmaSpark room FX.</summary>
     public static RoomFxHeader PlasmaSpark { get; } = new(nameof(PlasmaSpark),
     [
-        new(null, false, 948, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 948, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The Kassiuz room FX.</summary>
     public static RoomFxHeader Kassiuz { get; } = new(nameof(Kassiuz),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop28, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The MaridiaMap room FX.</summary>
     public static RoomFxHeader MaridiaMap { get; } = new(nameof(MaridiaMap),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterB),
     ]);
 
     /// <summary>The ForgottenHighwaySave room FX.</summary>
     public static RoomFxHeader ForgottenHighwaySave { get; } = new(nameof(ForgottenHighwaySave),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The Toilet room FX.</summary>
     public static RoomFxHeader Toilet { get; } = new(nameof(Toilet),
     [
-        new(MaridiaDoorDefinitions.PlasmaSpark1, false, 128, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
-        new(MaridiaDoorDefinitions.Oasis2, false, 128, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
-        new(null, false, 128, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(MaridiaDoorDefinitions.PlasmaSpark1, false, 128, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(MaridiaDoorDefinitions.Oasis2, false, 128, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 128, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The BugSandHole room FX.</summary>
     public static RoomFxHeader BugSandHole { get; } = new(nameof(BugSandHole),
     [
-        new(null, false, 181, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 181, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The WestSandHall room FX.</summary>
     public static RoomFxHeader WestSandHall { get; } = new(nameof(WestSandHall),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The Oasis room FX.</summary>
     public static RoomFxHeader Oasis { get; } = new(nameof(Oasis),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The EastSandHall room FX.</summary>
     public static RoomFxHeader EastSandHall { get; } = new(nameof(EastSandHall),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The WestSandHole room FX.</summary>
     public static RoomFxHeader WestSandHole { get; } = new(nameof(WestSandHole),
     [
-        new(null, false, 214, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 214, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The EastSandHole room FX.</summary>
     public static RoomFxHeader EastSandHole { get; } = new(nameof(EastSandHole),
     [
-        new(null, false, 214, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 214, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The EastAqueductQuicksandWestAqueductQuicksand room FX.</summary>
     public static RoomFxHeader EastAqueductQuicksandWestAqueductQuicksand { get; } = new(nameof(EastAqueductQuicksandWestAqueductQuicksand),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Aqueduct room FX.</summary>
     public static RoomFxHeader Aqueduct { get; } = new(nameof(Aqueduct),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The Butterfly room FX.</summary>
     public static RoomFxHeader Butterfly { get; } = new(nameof(Butterfly),
     [
-        new(null, false, 73, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 73, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The BotwoonHallway room FX.</summary>
     public static RoomFxHeader BotwoonHallway { get; } = new(nameof(BotwoonHallway),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The Pants room FX.</summary>
     public static RoomFxHeader Pants { get; } = new(nameof(Pants),
     [
-        new(null, false, 688, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 688, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The EastPants room FX.</summary>
     public static RoomFxHeader EastPants { get; } = new(nameof(EastPants),
     [
-        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The Springball room FX.</summary>
     public static RoomFxHeader Springball { get; } = new(nameof(Springball),
     [
-        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The BelowBotwoonETank room FX.</summary>
     public static RoomFxHeader BelowBotwoonETank { get; } = new(nameof(BelowBotwoonETank),
     [
-        new(null, false, 72, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 72, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaSandPits], [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The Colosseum room FX.</summary>
     public static RoomFxHeader Colosseum { get; } = new(nameof(Colosseum),
     [
-        new(null, false, 279, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterfallSubtractive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.MaridiaSandPits, PaletteFxObject.MaridiaBackgroundWaterfalls], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 279, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.MaridiaSandPits, PaletteFxObject.MaridiaBackgroundWaterfalls], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The AqueductSave room FX.</summary>
     public static RoomFxHeader AqueductSave { get; } = new(nameof(AqueductSave),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The ThePrecious room FX.</summary>
     public static RoomFxHeader ThePrecious { get; } = new(nameof(ThePrecious),
     [
-        new(null, false, 191, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 191, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The BotwoonETank room FX.</summary>
     public static RoomFxHeader BotwoonETank { get; } = new(nameof(BotwoonETank),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The DraygonSave room FX.</summary>
     public static RoomFxHeader DraygonSave { get; } = new(nameof(DraygonSave),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The MaridiaMissileRefill room FX.</summary>
     public static RoomFxHeader MaridiaMissileRefill { get; } = new(nameof(MaridiaMissileRefill),
     [
-        new(null, false, 0, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 0, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The PlasmaBeachQuicksandBotwoonQuicksand room FX.</summary>
     public static RoomFxHeader PlasmaBeachQuicksandBotwoonQuicksand { get; } = new(nameof(PlasmaBeachQuicksandBotwoonQuicksand),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.VisorBackdrop2A, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None) { AnimatesVisor = true },
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Shaktool room FX.</summary>
     public static RoomFxHeader Shaktool { get; } = new(nameof(Shaktool),
     [
-        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
+        new(null, false, 176, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterC),
     ]);
 
     /// <summary>The HalfieClimb room FX.</summary>
     public static RoomFxHeader HalfieClimb { get; } = new(nameof(HalfieClimb),
     [
-        new(null, false, 309, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterfallSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaBackgroundWaterfalls], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 309, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.MaridiaBackgroundWaterfalls], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The Botwoon room FX.</summary>
     public static RoomFxHeader Botwoon { get; } = new(nameof(Botwoon),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The SpaceJump room FX.</summary>
     public static RoomFxHeader SpaceJump { get; } = new(nameof(SpaceJump),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The MaridiaEnergyRefill room FX.</summary>
     public static RoomFxHeader MaridiaEnergyRefill { get; } = new(nameof(MaridiaEnergyRefill),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The WestCactusAlley room FX.</summary>
     public static RoomFxHeader WestCactusAlley { get; } = new(nameof(WestCactusAlley),
     [
-        new(null, false, 185, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 185, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The EastCactusAlley room FX.</summary>
     public static RoomFxHeader EastCactusAlley { get; } = new(nameof(EastCactusAlley),
     [
-        new(null, false, 309, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterfallSubtractive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.MaridiaBackgroundWaterfalls], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD),
+        new(null, false, 309, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.MaridiaBackgroundWaterfalls], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD),
     ]);
 
     /// <summary>The Draygon room FX.</summary>
     public static RoomFxHeader Draygon { get; } = new(nameof(Draygon),
     [
-        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.WaterSubtractive, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
+        new(null, false, 16, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.SmallTide, [], [], RoomFxPaletteBlend.MaridiaWaterA),
     ]);
 
     /// <summary>The TourianFirst room FX.</summary>
     public static RoomFxHeader TourianFirst { get; } = new(nameof(TourianFirst),
     [
-        new(null, false, 956, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 956, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The Metroids1 room FX.</summary>
     public static RoomFxHeader Metroids1 { get; } = new(nameof(Metroids1),
     [
-        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 16, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The Metroids2 room FX.</summary>
     public static RoomFxHeader Metroids2 { get; } = new(nameof(Metroids2),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Metroids3 room FX.</summary>
     public static RoomFxHeader Metroids3 { get; } = new(nameof(Metroids3),
     [
-        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 16, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 208, null, SignedEightEight.FromSignedRaw(0), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The Metroids4 room FX.</summary>
     public static RoomFxHeader Metroids4 { get; } = new(nameof(Metroids4),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BlueHopper room FX.</summary>
     public static RoomFxHeader BlueHopper { get; } = new(nameof(BlueHopper),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The DustTorizo room FX.</summary>
     public static RoomFxHeader DustTorizo { get; } = new(nameof(DustTorizo),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The BigBoy room FX.</summary>
     public static RoomFxHeader BigBoy { get; } = new(nameof(BigBoy),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Seaweed room FX.</summary>
     public static RoomFxHeader Seaweed { get; } = new(nameof(Seaweed),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The TourianRecharge room FX.</summary>
     public static RoomFxHeader TourianRecharge { get; } = new(nameof(TourianRecharge),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MotherBrainDefaultOrWhenMotherBrainGlassDestroyed room FX.</summary>
     public static RoomFxHeader MotherBrainDefaultOrWhenMotherBrainGlassDestroyed { get; } = new(nameof(MotherBrainDefaultOrWhenMotherBrainGlassDestroyed),
     [
-        new(null, false, 232, null, SignedEightEight.FromSignedRaw(0), 16, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
-        new(null, false, 232, 184, SignedEightEight.FromSignedRaw(-16), 16, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
-        new(null, false, 184, 232, SignedEightEight.FromSignedRaw(48), 16, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 232, null, SignedEightEight.FromSignedRaw(0), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 232, 184, SignedEightEight.FromSignedRaw(-16), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
+        new(null, false, 184, 232, SignedEightEight.FromSignedRaw(48), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava),
     ]);
 
     /// <summary>The TourianEyeDoor room FX.</summary>
     public static RoomFxHeader TourianEyeDoor { get; } = new(nameof(TourianEyeDoor),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The RinkaShaft room FX.</summary>
     public static RoomFxHeader RinkaShaft { get; } = new(nameof(RinkaShaft),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MotherBrainSave room FX.</summary>
     public static RoomFxHeader MotherBrainSave { get; } = new(nameof(MotherBrainSave),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The TourianEscape1 room FX.</summary>
     public static RoomFxHeader TourianEscape1 { get; } = new(nameof(TourianEscape1),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianShutterRedFlashing, PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianShutterRedFlashing, PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The TourianEscape2 room FX.</summary>
     public static RoomFxHeader TourianEscape2 { get; } = new(nameof(TourianEscape2),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The TourianEscape3 room FX.</summary>
     public static RoomFxHeader TourianEscape3 { get; } = new(nameof(TourianEscape3),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The ToruianEscaper4 room FX.</summary>
     public static RoomFxHeader ToruianEscaper4 { get; } = new(nameof(ToruianEscaper4),
     [
-        new(null, false, 1504, 16, SignedEightEight.FromSignedRaw(0), 64, RoomFxType.Acid, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.LavaAcidAdditive, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
+        new(null, false, 1504, 16, SignedEightEight.FromSignedRaw(0), 64, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxObject.TourianGeneralLevelRedFlashing, PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The UpperTourianSave room FX.</summary>
     public static RoomFxHeader UpperTourianSave { get; } = new(nameof(UpperTourianSave),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The CeresElev room FX.</summary>
     public static RoomFxHeader CeresElev { get; } = new(nameof(CeresElev),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.CeresElevator, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.CeresElevator, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FallingTileDefault room FX.</summary>
     public static RoomFxHeader FallingTileDefault { get; } = new(nameof(FallingTileDefault),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MagnetStairsDefault room FX.</summary>
     public static RoomFxHeader MagnetStairsDefault { get; } = new(nameof(MagnetStairsDefault),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The DeadScientistDefault room FX.</summary>
     public static RoomFxHeader DeadScientistDefault { get; } = new(nameof(DeadScientistDefault),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Room58EscapeDefault room FX.</summary>
     public static RoomFxHeader Room58EscapeDefault { get; } = new(nameof(Room58EscapeDefault),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The CeresRidleyDefault room FX.</summary>
     public static RoomFxHeader CeresRidleyDefault { get; } = new(nameof(CeresRidleyDefault),
     [
-        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.CeresRidley, LayerBlendingConfiguration.NormalGameplay, LayerBlendingConfiguration.NormalGameplay, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, false, null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.CeresRidley, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The FallingTileWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader FallingTileWhenAreaBossDead { get; } = new(nameof(FallingTileWhenAreaBossDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MagnetStairsWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader MagnetStairsWhenAreaBossDead { get; } = new(nameof(MagnetStairsWhenAreaBossDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The DeadScientistWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader DeadScientistWhenAreaBossDead { get; } = new(nameof(DeadScientistWhenAreaBossDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The Room58EscapeWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader Room58EscapeWhenAreaBossDead { get; } = new(nameof(Room58EscapeWhenAreaBossDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The CeresRidleyWhenAreaBossDead room FX.</summary>
     public static RoomFxHeader CeresRidleyWhenAreaBossDead { get; } = new(nameof(CeresRidleyWhenAreaBossDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 
     /// <summary>The MotherBrainWhenMainAreaBossDead room FX.</summary>
     public static RoomFxHeader MotherBrainWhenMainAreaBossDead { get; } = new(nameof(MotherBrainWhenMainAreaBossDead),
     [
-        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
+        new(null, true, 0, 0, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None),
     ]);
 }

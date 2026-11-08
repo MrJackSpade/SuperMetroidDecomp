@@ -53,9 +53,6 @@ internal sealed class MotherBrainAscent
     internal void SetupMotherBrainPhaseTwoBrain(
         MotherBrainEnemyState state)
     {
-        // The room's verified Mother Brain phase-two blend.
-        state.LayerBlendingDefaultConfig = LayerBlendingConfiguration.MotherBrainPhaseTwo;
-        _room.Services.MotherBrain.SetLayerBlendingDefault(state.LayerBlendingDefaultConfig);
         state.BrainFunction = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
 
         // Both records become tangible before the suspense pause, but remain invisible for

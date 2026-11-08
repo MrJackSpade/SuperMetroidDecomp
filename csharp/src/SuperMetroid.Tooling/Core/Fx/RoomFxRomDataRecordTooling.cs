@@ -15,10 +15,10 @@ internal static class RoomFxRomDataRecordTooling
         public const int TimerOffset = 8;
         /// <summary>Byte offset of the native room-FX type selector.</summary>
         public const int TypeOffset = 9;
-        /// <summary>Byte offset of the default layer blend configuration used outside the layer-3 override.</summary>
-        public const int DefaultLayerBlendConfigurationOffset = 10;
-        /// <summary>Byte offset of the layer-3-specific blend configuration.</summary>
-        public const int Layer3LayerBlendConfigurationOffset = 11;
+        /// <summary>Byte offset of the default blend byte, which says whether the room animates Samus's visor (#1545).</summary>
+        public const int DefaultBlendOffset = 10;
+        /// <summary>Byte offset of the effect blend byte, which names the room effect's own blend (#1545).</summary>
+        public const int EffectBlendOffset = 11;
         /// <summary>Byte offset of the bitfield controlling native liquid behavior.</summary>
         public const int LiquidOptionsOffset = 12;
         /// <summary>Byte offset of the palette-FX selection bitset.</summary>

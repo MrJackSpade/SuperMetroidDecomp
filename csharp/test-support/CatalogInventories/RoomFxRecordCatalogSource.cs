@@ -114,6 +114,20 @@ internal static class RoomFxRecordCatalogSource
         };
     }
 
+    /// <summary>
+    /// Renders a room effect's blend as the generated catalog spells it: the <see cref="RoomEffectBlendDefinitions"/>
+    /// member it is, or null where the effect shows none (#1545).
+    /// </summary>
+    private static string EffectBlend(RoomEffectBlend? blend)
+    {
+        if (blend is null)
+            return "null";
+        PropertyInfo[] members = [.. typeof(RoomEffectBlendDefinitions).GetProperties(BindingFlags.Public | BindingFlags.Static)
+            .Where(property => ReferenceEquals(property.GetValue(null), blend))];
+        return members.Length == 1 ? $"{nameof(RoomEffectBlendDefinitions)}.{members[0].Name}"
+            : throw new InvalidDataException($"Blend {blend} is not one {nameof(RoomEffectBlendDefinitions)} member.");
+    }
+
     /// <summary>Renders one member of a closed identity as the generated catalog spells it.</summary>
     private static string Member<TIdentity>(TIdentity value)
         where TIdentity : struct, Enum =>
@@ -187,10 +201,9 @@ internal static class RoomFxRecordCatalogSource
                     $"{SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
                     $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
                     $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
-                    $"{Member(record.DefaultLayerBlend)}, {Member(record.EffectLayerBlend)}, " +
+                    $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
                     $"{Flags(record.LiquidOptions)}, {Effects(record.PaletteEffects)}, " +
-                    $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)})" +
-                    (record.AnimatesVisor ? " { AnimatesVisor = true }," : ","));
+                    $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)}),");
             }
             source.AppendLine("    ]);");
         }

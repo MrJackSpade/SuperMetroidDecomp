@@ -32,8 +32,8 @@ internal static class WaterfallRoomsVerification
         foreach (ushort room in new ushort[] { 0xd72a, 0xd913 })
         {
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
-            if (runtime.RoomFxOverlay.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
-                throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
+            if (runtime.RoomFxOverlay.Blend != RoomEffectBlendDefinitions.WaterfallDarkensBehind)
+                throw new InvalidDataException($"Reported waterfall room {room:X4} lost its waterfall blend.");
             runtime.ScreenLayers.Choose(runtime.Room.LoadedScope);
             runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
             runtime.FrameBoundary.BeginAcceptedFrame(0);

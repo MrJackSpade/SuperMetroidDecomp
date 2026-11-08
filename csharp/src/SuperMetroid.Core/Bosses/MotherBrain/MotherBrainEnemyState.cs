@@ -165,9 +165,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>True while the floor clips Mother Brain's body as she rises from the fake death.</summary>
     public bool RisingFloorClipActive { get; internal set; }
 
-    /// <summary>Last verified room layer-blending configuration written by the body AI.</summary>
-    public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; internal set; } = LayerBlendingConfiguration.Unconfigured;
-
     /// <summary>
     /// Where her phase-two body layer is placed: the layer position shown at the screen's top-left. Its vertical
     /// coordinate moves oppositely to the body's vertical movement, keeping the large body attached.

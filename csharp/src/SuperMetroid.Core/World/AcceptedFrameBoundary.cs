@@ -164,9 +164,9 @@ internal sealed class AcceptedFrameBoundary
     {
         var room = _room.ActiveRoom;
         return new(
-            // Before the first room no FX record is selected and no blending is configured.
+            // Before the first room no FX record is selected and no effect blends.
             _room.FxOverlay?.Type ?? RoomFxType.None,
-            _room.FxOverlay?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
+            _room.FxOverlay?.Blend,
             LatchedScrollingSky.Capture(_room.ScrollingSky),
             room?.Definition,
             // Before the first room no boss is loaded.

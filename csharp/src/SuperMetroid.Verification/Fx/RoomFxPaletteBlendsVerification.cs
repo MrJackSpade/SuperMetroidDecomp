@@ -71,7 +71,7 @@ internal static class RoomFxPaletteBlendsVerification
             AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} load names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} load does not read bank-$89");
 
-            _ = state.ApplyEntry(SelectCompiledBlendRecord(id));
+            state.ApplyEntry(SelectCompiledBlendRecord(id));
             AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} FX entry names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} FX entry does not read bank-$89");
         }

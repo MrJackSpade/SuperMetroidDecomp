@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx;
-
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's per-line blending effect and its separately latched display configuration.</summary>
@@ -15,32 +13,31 @@ public sealed class PhantoonBlendingState
     private int _setupCalls;
     /// <summary>Permanent deletion state after the mouth's control removes this owner.</summary>
     private bool _deleted;
-    /// <summary>Current effect-pass result: the room default, the background hidden, or the background blended over what lies behind it; not necessarily the displayed result.</summary>
-    public LayerBlendingConfiguration Configuration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
+    /// <summary>Current effect-pass result: the body shown as the room shows it, hidden, or translucent; not necessarily the displayed result.</summary>
+    public PhantoonBodyBlend Configuration { get; private set; } = PhantoonBodyBlend.Room;
     /// <summary>Configuration copied at the last display latch and consumed by rendering, unaffected by subsequent <see cref="Step"/> calls until latched again.</summary>
-    public LayerBlendingConfiguration DisplayedConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
+    public PhantoonBodyBlend DisplayedConfiguration { get; private set; } = PhantoonBodyBlend.Room;
     /// <summary>The background mosaic block size in screen pixels latched for display, before this frame's enemy AI changes it; one means no quantization.</summary>
     public int DisplayedMosaicBlockSize { get; private set; } = 1;
 
     /// <summary>
-    /// Advances one ordinary-gameplay effect pass, resetting to the room default even during the two setup calls or after deletion.
-    /// Thereafter semi-transparency takes precedence; otherwise the mouth's <see cref="PhantoonLayerControl"/> hides the background, hides it and permanently deletes this owner, or leaves the room default.
+    /// Advances one ordinary-gameplay effect pass, resetting to the room's own showing even during the two setup calls or after deletion.
+    /// Thereafter semi-transparency takes precedence; otherwise the mouth's <see cref="PhantoonLayerControl"/> hides the background, hides it and permanently deletes this owner, or leaves the room's showing.
     /// </summary>
     /// <param name="boss">Encounter state read without mutation or retention; its mouth must exist when the active, non-semitransparent branch reads its control byte.</param>
-    /// <param name="roomDefault">This pass's room blending configuration, not the previous pass's result.</param>
     /// <remarks>Semi-transparency takes precedence over removal. This advances setup/deletion state but does not publish display state, write colours, or update the boss.</remarks>
-    public void Step(PhantoonEnemyState boss, LayerBlendingConfiguration roomDefault)
+    public void Step(PhantoonEnemyState boss)
     {
-        // The effect pass resets configuration from the room every pass.
+        // The effect pass resets the body to the room's showing every pass.
         // A nonzero control byte is a no-write branch, not "retain yesterday's mode".
-        Configuration = roomDefault;
+        Configuration = PhantoonBodyBlend.Room;
         if (_deleted) return;
         if (_setupCalls < SetupCalls) { _setupCalls++; return; }
         if (boss.SemiTransparent)
-            Configuration = LayerBlendingConfiguration.PhantoonSemiTransparent;
+            Configuration = PhantoonBodyBlend.Translucent;
         else if (boss.MouthState.LayerControl is PhantoonLayerControl.Hidden or PhantoonLayerControl.Removed)
         {
-            Configuration = LayerBlendingConfiguration.PhantoonHidden;
+            Configuration = PhantoonBodyBlend.Hidden;
             // The pre-instruction advances sleep to delete with timer one, so the
             // instruction handler removes this owner on this same call.
             _deleted = boss.MouthState.LayerControl == PhantoonLayerControl.Removed;

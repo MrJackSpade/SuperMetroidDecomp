@@ -54,7 +54,7 @@ internal static class TourianStatueWaterVerification
             "Native low-nibble FX dispatch selects water below the statue surface");
         var displayed = runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("No displayed water snapshot");
         AssertEqual(0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
-        AssertEqual(LayerBlendingConfiguration.LiquidOrFogAdditive, displayed.LayerBlendConfiguration, "Native configuration 18");
+        AssertEqual(RoomEffectBlendDefinitions.OverlayBrightens, displayed.Blend, "the statues' water brightens the room");
         var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var full = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertEqual(1, full.Layers.Count(layer => layer is OverlayBlendLayer), "One BG3 water plane accompanies the statue");

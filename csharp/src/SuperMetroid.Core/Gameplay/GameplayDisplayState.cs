@@ -4,18 +4,12 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// What the gameplay display currently shows: the elevator shaft's transform, the latched scene and the default layer
-/// blending.
+/// What the gameplay display currently shows: the elevator shaft's transform, the latched scene and whether the room
+/// animates Samus's visor.
 /// </summary>
 internal sealed class GameplayDisplayState
 {
 
-    /// <summary>
-    /// The room's default layer blending. Room and per-line effect setup own it; the current Landing Site
-    /// shell starts at the room effects' cleared default two.
-    /// </summary>
-    public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; set; } =
-        LayerBlendingConfiguration.NormalGameplay;
 
     /// <summary>
     /// The Ceres elevator shaft's current turning floor. The shaft room main publishes it after the
@@ -50,6 +44,6 @@ internal sealed class GameplayDisplayState
     private static GameplayDisplayLatch InitialLatch => new(
         default, default, null, null, null, null, 0,
         new GameplayLatchedScene(default,
-            LayerBlendingConfiguration.Unconfigured, null, null, null),
+            null, null, null, null),
         default, default, null, null);
 }

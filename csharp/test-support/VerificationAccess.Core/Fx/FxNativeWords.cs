@@ -13,9 +13,6 @@ internal static class FxNativeWords
     /// <summary>A <see cref="RoomFxType"/> value naming no effect, standing for a dispatcher byte that names none.</summary>
     internal const RoomFxType UndefinedFxType = (RoomFxType)ushort.MaxValue;
 
-    /// <summary>A <see cref="LayerBlendingConfiguration"/> value naming no configuration, standing for a byte that names none.</summary>
-    internal const LayerBlendingConfiguration UndefinedLayerBlend = (LayerBlendingConfiguration)ushort.MaxValue;
-
     /// <summary>A <see cref="RoomFxPaletteBlend"/> value naming no blend, standing for a selector byte that names none.</summary>
     internal const RoomFxPaletteBlend UndefinedPaletteBlend = (RoomFxPaletteBlend)byte.MaxValue;
 
@@ -26,11 +23,6 @@ internal static class FxNativeWords
     internal static RoomFxType FxType(int word) =>
         word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.TryDecode((ushort)word, out RoomFxType type)
             ? type : UndefinedFxType;
-
-    /// <summary>The layer-blending configuration native byte <paramref name="word"/> names, or <see cref="UndefinedLayerBlend"/>.</summary>
-    internal static LayerBlendingConfiguration LayerBlend(int word) =>
-        word is >= 0 and <= ushort.MaxValue && RoomFxRecordCodec.LayerBlends.TryDecode((ushort)word, out LayerBlendingConfiguration configuration)
-            ? configuration : UndefinedLayerBlend;
 
     /// <summary>The palette blend native selector byte <paramref name="word"/> names, or <see cref="UndefinedPaletteBlend"/>.</summary>
     internal static RoomFxPaletteBlend PaletteBlend(int word) =>

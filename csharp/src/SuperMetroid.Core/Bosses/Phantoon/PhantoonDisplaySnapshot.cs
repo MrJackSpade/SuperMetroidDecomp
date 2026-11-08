@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx;
-
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
@@ -8,11 +6,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// palette the frame's colour snapshot carries, which is exact palette state.
 /// </summary>
 /// <param name="Wave">The active wave rippling the background, or null when the wave channel is inactive.</param>
-/// <param name="Configuration">Latched blend configuration: the room default, the background hidden, or the background semitransparent.</param>
+/// <param name="Configuration">Latched body blend: shown as the room shows it, hidden, or translucent.</param>
 /// <param name="MosaicBlockSize">Background mosaic block size in screen pixels latched for display, 1..16; one means no quantization.</param>
 public sealed record PhantoonDisplaySnapshot(
     PhantoonWave? Wave,
-    LayerBlendingConfiguration Configuration,
+    PhantoonBodyBlend Configuration,
     int MosaicBlockSize)
 {
     /// <summary>Copies the boss's display-latched wave and blend state.</summary>

@@ -188,7 +188,7 @@ internal sealed class EnemyRoomEffects
         {
             // The acid change is applied once, on the pass that requested it. Reapplying it each frame would reset
             // its delay and prevent the acid from moving.
-            _display.LayerBlendingDefaultConfig = roomFxOverlay.ApplyEntry(acidChange);
+            roomFxOverlay.ApplyEntry(acidChange);
         }
         if (requests.MotherBrainObjects.Count == 0)
             return;

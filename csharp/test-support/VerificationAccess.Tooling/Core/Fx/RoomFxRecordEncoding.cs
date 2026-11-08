@@ -19,9 +19,6 @@ internal static class RoomFxRecordEncoding
     /// <summary>The record byte naming <paramref name="type"/>.</summary>
     internal static byte TypeByte(RoomFxType type) => (byte)RoomFxRecordWords.Types.Word(type);
 
-    /// <summary>The record byte naming <paramref name="configuration"/>.</summary>
-    internal static byte LayerBlendByte(LayerBlendingConfiguration configuration) => (byte)RoomFxRecordCodec.LayerBlends.Word(configuration);
-
     /// <summary>The record byte naming <paramref name="blend"/>.</summary>
     internal static byte PaletteBlendByte(RoomFxPaletteBlend blend) => (byte)RoomFxRecordWords.PaletteBlends.Word(blend);
 

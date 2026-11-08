@@ -38,17 +38,13 @@ public static class GameplayDisplayCapture
             MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
             if (rainbow?.Active != true && latched.RoomFxOverlay is { } fx)
             {
-                if (fx.Type == RoomFxType.Spores)
+                // An effect whose overlay lies behind the room blends the room with it; one lying over the room is drawn
+                // over the finished scene (#1545).
+                if (fx.Blend?.BlendsBehind is not null)
                 {
                     if (layers[0] is not GameplaySceneLayer ordinary)
-                        throw new NotSupportedException("Spore FX requires an ordinary gameplay base.");
-                    layers[0] = GameplayEffectCapture.CaptureSpores(ordinary, fx);
-                }
-                else if (fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
-                {
-                    if (layers[0] is not GameplaySceneLayer ordinary)
-                        throw new NotSupportedException("Waterfall FX requires an ordinary gameplay base.");
-                    layers[0] = GameplayEffectCapture.CaptureWaterfall(ordinary, fx);
+                        throw new NotSupportedException("An effect blending behind the room requires an ordinary gameplay base.");
+                    layers[0] = GameplayEffectCapture.CaptureEffectBlendingBehind(ordinary, fx);
                 }
                 else AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(fx, FxOverlay(latched)));
             }
@@ -244,13 +240,13 @@ public static class GameplayDisplayCapture
     {
         var ordinary = (GameplaySceneLayer)basis.Layers[0];
         var mode = phantoon.Configuration;
-        if (mode is not (LayerBlendingConfiguration.PhantoonHidden or LayerBlendingConfiguration.PhantoonSemiTransparent))
+        if (mode == PhantoonBodyBlend.Room)
             return ordinary;
         var gameplay = new GameplaySceneLayer(ordinary.View with
         {
             ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background,
         }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
-        if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
+        if (mode == PhantoonBodyBlend.Hidden) return gameplay;
         // Phantoon's translucent body is the background lying behind the room: it brightens the foreground, the actors taking
         // part in blends and the backdrop wherever it shows, without ever covering the foreground (#1514).
         return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new GameplayBlend
@@ -311,9 +307,8 @@ public static class GameplayDisplayCapture
         // opaque is a presentation quirk the port does not keep. With nothing lying behind, the room combines with the
         // blend's colour unhalved, as it does wherever its liquid shows nothing.
         // Whether the blend darkens belongs to the room's liquid, even when the liquid is currently off screen and shows
-        // nothing.
-        bool roomDarkens = scene.LayerBlendConfiguration is
-            LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
+        // nothing: it darkens where the room effect's own blend does (#1545).
+        bool roomDarkens = scene.Blend?.Operation == BlendOperation.Subtract;
         // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
         // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
         int level = mode switch

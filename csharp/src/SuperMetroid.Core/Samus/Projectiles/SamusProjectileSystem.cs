@@ -196,11 +196,11 @@ public sealed class SamusProjectileSystem
     /// </remarks>
     /// <param name="colours">Samus's shown colours.</param>
     /// <param name="samus">Samus.</param>
-    /// <param name="roomAnimatesVisor">Whether the room animates Samus's visor (<see cref="RoomFxOverlayState.AnimatesVisor"/>).</param>
+    /// <param name="roomVisorAnimation">Whether the room animates Samus's visor (<see cref="RoomFxOverlayState.VisorAnimation"/>).</param>
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
         SamusColours colours,
         SamusState samus,
-        bool roomAnimatesVisor = false)
+        RoomVisorAnimation roomVisorAnimation = RoomVisorAnimation.Steady)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
@@ -241,7 +241,7 @@ public sealed class SamusProjectileSystem
             LastVisorPaletteStep = samus.VisorPalette.Update(
                 colours,
                 samus.Xray.SpecialPaletteKind,
-                roomAnimatesVisor);
+                roomVisorAnimation);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.Inactive);
             return LastBeamChargePaletteStep;

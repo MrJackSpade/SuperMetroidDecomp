@@ -106,16 +106,14 @@ internal static class FxDefinitionMigrationVerification
         // The FX records hold decoded fields; the record codec encodes them back to the bytes the catalog held before.
         RoomFxRecordDefinition climb = RoomFxDefinitions.ClimbWhenZebesTimebombSet.Records[0];
         AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
-        AssertEqual(LayerBlendingConfiguration.LavaAcidAdditive, climb.EffectLayerBlend, "Climb layer-three blend");
+        AssertEqual(RoomEffectBlendDefinitions.OverlayBrightens, climb.EffectBlend, "Climb effect blend");
         AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");
         AssertEqual("OldTourianRedFlashing, OldTourianBackgroundRailingsFlashYellow, OldTourianBackgroundPanelsFlashYellow",
             string.Join(", ", climb.PaletteEffects), "Climb palette effects");
         AssertEqual(AreaId.Crateria, RoomFxHeaderAreas.Of(RoomFxDefinitions.ClimbWhenZebesTimebombSet), "Climb FX area");
         AssertEqual((byte)0x04, RoomFxRecordEncoding.TypeByte(climb.Type), "Climb type byte");
-        AssertEqual((byte)0x1e, RoomFxRecordEncoding.LayerBlendByte(climb.EffectLayerBlend), "Climb blend byte");
         AssertEqual((byte)0x38, RoomFxRecordEncoding.PaletteEffectsByte(climb.PaletteEffects, AreaId.Crateria), "Climb palette-effect byte");
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
-        AssertEqual(0x34, RoomFxRecordCodec.LayerBlends.Word(LayerBlendingConfiguration.MotherBrainPhaseTwo), "Mother Brain blend byte");
         AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
         AssertEqual("blend-EE", RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
         AssertEqual((byte)0x80, RoomFxRecordEncoding.PaletteEffectsByte([PaletteFxObject.BeaconFlashing], AreaId.Crateria),

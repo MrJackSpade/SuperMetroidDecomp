@@ -18,7 +18,7 @@ internal sealed class EndingColours
     private readonly List<PictureShade> shown = [];
 
     /// <summary>The colour groups whose palette-effect records <see cref="shown"/> holds.</summary>
-    private readonly HashSet<string> paletteFxEffects = new(StringComparer.Ordinal);
+    private readonly List<string> paletteFxEffects = [];
 
     /// <summary>The solid colour shown behind every layer, where nothing is drawn.</summary>
     internal RgbColor Backdrop { get; private set; } = RgbColor.Black;
@@ -57,7 +57,8 @@ internal sealed class EndingColours
     internal void PaletteFx(PaletteFxColours colours, PaletteFxFrame record, RgbColor? backdrop)
     {
         PictureShade shade = PaletteFxShades.Of(colours, record);
-        paletteFxEffects.Add(shade.Effect);
+        if (!paletteFxEffects.Contains(shade.Effect))
+            paletteFxEffects.Add(shade.Effect);
         Show(shade, backdrop);
     }
 

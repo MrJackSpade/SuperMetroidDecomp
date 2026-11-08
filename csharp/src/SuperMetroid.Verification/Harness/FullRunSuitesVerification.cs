@@ -526,6 +526,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDoorOpeningTrajectories), () => VerifyDoorOpeningTrajectories()),
         new(nameof(VerifyCreditsObjectInterpreter), () => VerifyCreditsObjectInterpreter()),
         new(nameof(VerifyEndingCreditsState), () => VerifyEndingCreditsState()),
+        new(nameof(SuperMetroid.Verification.Frontend.Ending.EndingSceneColoursVerification.VerifyEndingSceneColours),
+            SuperMetroid.Verification.Frontend.Ending.EndingSceneColoursVerification.VerifyEndingSceneColours),
         new(nameof(VerifyRepeatAndHeldInputDelays), () => VerifyRepeatAndHeldInputDelays()),
         new(nameof(VerifyDemoInputObject), () => VerifyDemoInputObject()),
         new(nameof(VerifyAttractDemoScene), () => VerifyAttractDemoScene()),

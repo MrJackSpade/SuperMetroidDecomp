@@ -280,9 +280,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (DeadTorizo is not { } state)
             return;
 
+        // The hook is published wherever it lies; the display clips it to the view (#1541).
         int screenY = CoordinateAxis.Wrap(187 - camera.Y);
-        if (CoordinateAxis.AsSigned(screenY) < 0)
-            return;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
             new Position16<ScreenPixels>(CoordinateAxis.Wrap(296 - camera.X), screenY), PictureShading.Standard, rows: ShownSand(state));
     }

@@ -139,17 +139,8 @@ internal sealed class RoomSpriteObjectPool
             if (!slot.IsActive)
                 continue;
 
+            // Every placement is published wherever it lies; the display clips it to the view (#1520, #1541).
             Position16<ScreenPixels> screen = slot.Position.Whole.ToScreen(camera);
-            // The game uses signed tests on `(x + 16)`, `(x - 272)`, `y`, and
-            // `(y - 272)`. Unsigned host comparisons incorrectly discarded partially visible
-            // objects whose wrapped screen coordinate represented a small negative offset.
-            if (CoordinateAxis.AsSigned(screen.X + 16) < 0 ||
-                CoordinateAxis.Difference(screen.X, 272) >= 0 ||
-                CoordinateAxis.AsSigned(screen.Y) < 0 ||
-                CoordinateAxis.Difference(screen.Y, 272) >= 0)
-            {
-                continue;
-            }
 
             EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(slot.Frame);
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, slot.SlotIndex),

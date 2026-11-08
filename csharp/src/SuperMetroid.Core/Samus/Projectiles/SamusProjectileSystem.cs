@@ -620,7 +620,7 @@ public sealed class SamusProjectileSystem
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (slot.Sprite is not null)
                 ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
-                    slot, cameraPosition, horizontalMargin: null, artwork);
+                    slot, cameraPosition, artwork);
         }
     }
 
@@ -679,7 +679,7 @@ public sealed class SamusProjectileSystem
                 continue;
 
             ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
-                slot, cameraPosition, horizontalMargin: 48, artwork);
+                slot, cameraPosition, artwork);
         }
     }
 

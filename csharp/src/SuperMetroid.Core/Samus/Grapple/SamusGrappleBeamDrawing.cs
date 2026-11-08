@@ -38,7 +38,7 @@ public static class SamusGrappleBeamDrawing
     /// Ports <c>HandleGrappleBeamFlare</c>. Call before atmosphere and Samus,
     /// exactly where the active half of the grapple draw handler calls it.
     /// </summary>
-    /// <returns>True when the flare origin passed the vertical visibility test.</returns>
+    /// <returns>True when the flare is drawn: the grapple is firing or connected with a flare to show.</returns>
     public static bool DrawFlareBeforeSamus(
         SamusState samus,
         SpriteFrameBuffer sprites,
@@ -88,10 +88,7 @@ public static class SamusGrappleBeamDrawing
 
         int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y);
-        // The draw tests only Y's high byte. X is allowed to wrap into the screen's ninth X bit, while
-        // any Y outside the 256 unsigned screen rows suppresses the whole frame.
-        if (ScreenConversions.IsOutsideSpriteRange(screenY))
-            return false;
+        // The flare is published wherever it lies; the display clips it to the view (#1541).
 
         // The first word of both facing rows is zero. Grapple uses the
         // shared main flare only; charge-spark direction offsets do not apply.
@@ -266,11 +263,7 @@ public static class SamusGrappleBeamDrawing
     {
         bool swinging = samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
         int relativeY = CoordinateAxis.Wrap(grapple.Anchor.Y - cameraPosition.Y);
-        // The ordinary endpoint tests its center before subtracting the sprite
-        // half-width. Swinging deliberately bypasses this vertical rejection.
-        if (!swinging && ScreenConversions.IsOutsideSpriteRange(relativeY))
-            return;
-
+        // The endpoint is published wherever it lies; the display clips it to the view (#1541).
         // Only the swinging routine lets the first of its two subtractions borrow from the second.
         // Consequently unsigned camera subtraction can carry a borrow into the
         // half-character offset, even when wrapped coordinates look adjacent.

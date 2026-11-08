@@ -68,7 +68,8 @@ internal sealed record CharacterSpriteDraw
         // Mirroring the frame mirrors each part's rectangle about the origin and reverses its pixels.
         int x = unchecked((short)Origin.X) + (flipX ? -part.Offset.X - part.Size.X : part.Offset.X);
         int y = unchecked((short)Origin.Y) + (flipY ? -part.Offset.Y - part.Size.Y : part.Offset.Y);
-        return new(new Offset16<ScreenPixels>(checked((short)x), checked((short)y)), part.Size, part.Character,
+        // Screen coordinates are wrapping words: a placement published far off the view wraps like any other.
+        return new(new Offset16<ScreenPixels>(unchecked((short)x), unchecked((short)y)), part.Size, part.Character,
             flipX != ((part.Flip & TileFlip.Horizontal) != 0),
             flipY != ((part.Flip & TileFlip.Vertical) != 0),
             part.Palette ?? Palette, part.Priority ?? Priority);

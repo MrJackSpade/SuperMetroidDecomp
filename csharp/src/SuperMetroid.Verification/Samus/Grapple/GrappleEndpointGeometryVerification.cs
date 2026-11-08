@@ -21,7 +21,7 @@ internal static class GrappleEndpointGeometryVerification
         // $94:B093 chooses by pose, not grapple connection phase. Keep the
         // rope origin off-screen so its first visited slot is culled and only
         // the endpoint can emit OAM. Probe both sides of the camera subtraction
-        // as well as the pre-centering vertical visibility boundary.
+        // as well as positions above and below the view, where the endpoint is still published.
         foreach (SamusPoseId pose in new[]
         {
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
@@ -44,11 +44,9 @@ internal static class GrappleEndpointGeometryVerification
             SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), InstalledFixtures.GrappleSheet, samusPose: pose);
             OamBuffer oam = oamFrame.FinalizeAsOam();
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
-            ushort relativeY = unchecked((ushort)(endpointY - camera));
-            bool visible = swinging || (LittleEndianBytes.HighByteInPlace(relativeY)) == 0;
             string context = $"pose {(int)SamusPoseNumbers.Number(pose):X2}, camera {camera}, offsets {offsetX}/{offsetY}";
-            AssertEqual(visible ? 4 : 0, (oam.LastFinalizedSpriteCount * 4), "Native endpoint vertical gate: " + context);
-            if (!visible) continue;
+            // The endpoint is published wherever it lies; the display clips it to the view (#1541).
+            AssertEqual(4, (oam.LastFinalizedSpriteCount * 4), "Endpoint is published wherever it lies: " + context);
             // Connected code omits the second SEC. Preserve the borrow from the
             // camera subtraction, including when unsigned world coordinates wrap.
             ushort x = unchecked((ushort)(endpointX - camera - 4 - (swinging && endpointX < camera ? 1 : 0)));
@@ -60,10 +58,10 @@ internal static class GrappleEndpointGeometryVerification
             AssertEqual((byte)0x3a, oam.LowTable[3], "Native endpoint palette/priority");
         }
         Suite(nameof(VerifyGrappleEndpointActor), () => VerifyGrappleEndpointActor());
-        Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native clipping, borrow and OAM attributes.");
+        Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native placement, borrow and OAM attributes.");
     }
 
-    /// <summary>Checks the endpoint pose gate through the full gameplay actor drawing pass.</summary>
+    /// <summary>Checks the full gameplay actor drawing pass publishes the endpoint in every pose.</summary>
     private static void VerifyGrappleEndpointActor()
     {
         var runtime = CreateRetailRuntimeFixture();
@@ -87,7 +85,8 @@ internal static class GrappleEndpointGeometryVerification
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             runtime.Sprites.FinalizeFrame();
             int endpoints = runtime.Sprites.Draws.Count(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint);
-            AssertEqual(SamusPoseNumbers.Number(pose) == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {(int)SamusPoseNumbers.Number(pose):X2}");
+            // The endpoint just above the view is published in every pose; the display clips it (#1541).
+            AssertEqual(1, endpoints, $"Actual gameplay actor publishes the endpoint in pose {(int)SamusPoseNumbers.Number(pose):X2}");
         }
     }
 }

@@ -64,16 +64,11 @@ internal sealed class ProjectileAnimation
         SpriteSource source,
         SamusProjectileSlot slot,
         Position16<RoomPixels> cameraPosition,
-        int? horizontalMargin,
         ProjectileDrawArtwork artwork)
     {
         int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
-        if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
-            ScreenConversions.IsOutsideSpriteRange(screenY))
-        {
-            return;
-        }
+        // Every placement is published wherever it lies; the display clips it to the view (#1541).
 
         ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
         // The empty composition an invisible projectile shows draws nothing, and so does a composition the loaded
@@ -156,11 +151,7 @@ internal sealed class ProjectileAnimation
         int screenX = CoordinateAxis.Wrap(renderPoint.X + xOffset - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(renderPoint.Y + yOffset - pose.PoseYOffset - cameraPosition.Y);
 
-        // The flare draw clips only by the origin's Y high byte. The shared loader
-        // deliberately allows individual entries to wrap, matching charge sparks near an
-        // edge instead of applying the generic on-screen-origin parking rule.
-        if (ScreenConversions.IsOutsideSpriteRange(screenY))
-            return;
+        // The flare is published wherever it lies; the display clips it to the view (#1541).
 
         int indexOffset = CoordinateAxis.Wrap(pose.FacingLeft
             ? component switch { 0 => 0, 1 => 42, _ => 48 }

@@ -167,7 +167,7 @@ public sealed class SamusAtmosphericEffectsState
         }
     }
 
-    /// <summary>Clips an eight-pixel effect to the 256-pixel screen, then draws the sheet frame of its installed attributes.</summary>
+    /// <summary>Draws the sheet frame of an eight-pixel effect's installed attributes wherever it lies; the display clips it (#1541).</summary>
     private static void DrawDirectSmallSprite(
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
@@ -177,8 +177,6 @@ public sealed class SamusAtmosphericEffectsState
     {
         int screenX = CoordinateAxis.Difference(slot.Position.X - drawing.Camera.X, 4);
         int screenY = CoordinateAxis.Difference(slot.Position.Y - drawing.Camera.Y, 4);
-        if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
-            return;
 
         // Type two has no sprite list of its own, so the game draws it from whatever unrelated values happen to be
         // left over. That appearance is not part of the game's design; type two draws nothing (owner decision on
@@ -189,7 +187,7 @@ public sealed class SamusAtmosphericEffectsState
             drawing.Frame(frame), new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)), SpriteMirror.None));
     }
 
-    /// <summary>Draws splash/bubble frames of Samus's spritemap table, clipping Y's high byte while preserving X wrap.</summary>
+    /// <summary>Draws splash and bubble frames of Samus's spritemap table wherever they lie; the display clips them (#1541).</summary>
     private static void DrawSamusTableSpritemap(
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
@@ -198,10 +196,6 @@ public sealed class SamusAtmosphericEffectsState
     {
         int screenX = CoordinateAxis.Wrap(slot.Position.X - drawing.Camera.X);
         int screenY = CoordinateAxis.Wrap(slot.Position.Y - drawing.Camera.Y);
-
-        // The draw rejects any nonzero high byte of Y. X is deliberately not clipped;
-        if (ScreenConversions.IsOutsideSpriteRange(screenY))
-            return;
 
         drawing.Sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
             drawing.Frame(frame), Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));

@@ -171,13 +171,9 @@ internal sealed class ProjectileTrails
         if (side.FrameHold == 0)
             return;
 
-        // The trail draw requires both complete 16-bit camera-relative coordinates to have
-        // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
-        // are skipped rather than wrapped or parked.
+        // The trail is published wherever it lies; the display clips it to the view (#1541).
         int screenX = CoordinateAxis.Wrap(side.DisplayedPosition.X - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(side.DisplayedPosition.Y - cameraPosition.Y);
-        if (ScreenConversions.IsOutsideSpriteRange(screenX) || ScreenConversions.IsOutsideSpriteRange(screenY))
-            return;
 
         // A side allocated over an earlier trail keeps showing that trail's last pose until its own first one.
         SpriteSheetFrame image = objects.Sheet.Frame(side.ShownPose is { } pose

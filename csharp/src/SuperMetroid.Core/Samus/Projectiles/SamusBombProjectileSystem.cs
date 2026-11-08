@@ -290,13 +290,9 @@ public sealed class SamusBombProjectileSystem
             if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer.IsZero)
                 continue;
 
-            // The bomb draw admits X in [-48,304). Y is admitted only when the high byte of
-            // the wrapped room-relative word is zero, i.e. [0,255]. The screen itself clips the
-            // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
+            // The bomb is published wherever it lies; the display clips it to the view (#1541).
             int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
             int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
-            if (screenX < -48 || screenX >= 304 || ScreenConversions.IsOutsideSpriteRange(screenY))
-                continue;
 
             ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.");
             // The empty composition draws nothing, and so does a composition the loaded combination's sheet holds as

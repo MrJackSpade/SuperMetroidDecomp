@@ -29,8 +29,8 @@ internal static class FrozenMetroidShellVerification
         slot.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
-        (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyA.Position = state.OuterBodyA.Position.WithWholeX(500); // Isolate the shell from the electrical overlay.
-        var shell = state.OuterBodyB;
+        // The shell is read by its own draws, apart from the electrical overlay.
+        var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyB;
         // The shell program's second record, the native alternating empty shell frame.
         var shellSteps = RoomSpriteObjectAnimations.Programs.Steps(RoomSpriteObjectProgram.MetroidShell);
         shell.Cursor = new(RoomSpriteObjectProgram.MetroidShell, 2);
@@ -38,9 +38,7 @@ internal static class FrozenMetroidShellVerification
         shell.Frame = shown.Frame;
         shell.Timer = shown.Duration;
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
-        var actual = new OamBuffer();
-        actual.BeginFrame();
-        enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);
+        OamBuffer actual = ShellOam();
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
         ushort retainedTimer = shell.FrameHold;
@@ -60,14 +58,32 @@ internal static class FrozenMetroidShellVerification
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");
             Require(shell.FrameHold == retainedTimer && shell.DisableFlags == 1,
                 "Freezing must preserve the native animation timer while disabling advancement.");
-            actual.BeginFrame();
-            enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);
+            actual = ShellOam();
             Require(actual.NextByteOffset == expected.NextByteOffset &&
                 actual.ImageEquals(expected),
-                "Frozen shell OAM must match every authored part and frozen palette attribute.");
+                $"Frozen shell OAM must match every authored part and frozen palette attribute: expected {Convert.ToHexString(expected.LowTable[..expected.NextByteOffset])}, " +
+                $"got {Convert.ToHexString(actual.LowTable[..Math.Max(actual.NextByteOffset, actual.LastFinalizedSpriteCount * 4)])}.");
         }
         Console.WriteLine("Frozen Metroid shell: empty-frame reproduction, visible frozen OAM and retained timer passed.");
         return 0;
+
+        OamBuffer ShellOam()
+        {
+            var drawn = new SpriteFrameBuffer();
+            drawn.BeginFrame();
+            enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, Position16<RoomPixels>.Zero);
+            drawn.FinalizeFrame();
+            var source = new SpriteSource(SpriteSourceKind.RoomSpriteObject, shell.SlotIndex);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            oam.AppendDrawn(frame =>
+            {
+                foreach (SpriteDraw draw in drawn.Draws)
+                    if (draw.Source == source)
+                        frame.Add(draw);
+            });
+            return oam;
+        }
 
         static void Require(bool condition, string message)
         {

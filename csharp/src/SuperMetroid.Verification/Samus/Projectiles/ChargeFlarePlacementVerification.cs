@@ -71,13 +71,21 @@ internal static class ChargeFlarePlacementVerification
             ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));
             ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
-            if ((LittleEndianBytes.HighByteInPlace(y)) == 0) DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
+            // The flare is published wherever it lies and the display clips it (#1541): one the cartridge culls by its Y
+            // high byte publishes the parts the cartridge draws for it on the screen.
+            bool onScreen = LittleEndianBytes.HighByteInPlace(y) == 0;
+            DrawImportedFlareSpritemap(bus, native, selector, new(x, onScreen ? y : (byte)y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
                 new ChargeFlareArtwork { Placement = stock, Objects = objects },
                 new ChargeFlarePose { Direction = direction, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
             // The draw depth replaces each part's priority tier (#1514); everything else must match the cartridge.
-            AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7: {pose} direction {direction} at {coordinate}, floor {transform is not null}, component {component} ({native.FirstDifference(actual)})");
-            AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
+            AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement publishes every native part");
+            if (!onScreen)
+            {
+                cases++;
+                continue;
+            }
+            AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"Flare placement stock preserves native OAM for running, facing, overread directions and Mode7: {pose} direction {direction} at {coordinate}, floor {transform is not null}, component {component} ({native.FirstDifference(actual)})");
             cases++;
         }
         // A charged turning pose draws its flare from the turn row its restriction's low four bits select, where the

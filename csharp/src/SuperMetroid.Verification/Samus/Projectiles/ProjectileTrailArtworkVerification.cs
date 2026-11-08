@@ -88,17 +88,24 @@ internal static class ProjectileTrailArtworkVerification
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
             side.InstructionPointer = (ushort)(frame + 4); side.FrameHold = 3;
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.ShownPose = pose;
-            // The OAM capacity stop is a dropped presentation quirk (#1308); culling and every byte remain.
-            var native = new OamBuffer();
+            // The OAM capacity stop is a dropped presentation quirk (#1308), and so is the off-screen cull (#1541):
+            // a trail on the screen draws its native sprite, and one off it is published where it lies for the
+            // display to clip.
+            var sprites = new SpriteFrameBuffer();
+            sprites.BeginFrame();
+            system.AdvanceTrails(true);
+            system.DrawTrails(sprites, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
+            OamBuffer authored = sprites.FinalizeAsOam();
+            AssertEqual(1, sprites.Draws.Length, $"Trail pose {pose} at {coordinate} is published once");
+            AssertEqual(Position16<ScreenPixels>.Of(coordinate, coordinate), sprites.Draws[0].Origin,
+                $"Trail pose {pose} at {coordinate} is published where it lies");
             if (coordinate < 256)
-                native.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)coordinate, (byte)coordinate), attributes);
-            OamBuffer authored = SpriteFrameBuffer.DrawnOam(sprites =>
             {
-                system.AdvanceTrails(true);
-                system.DrawTrails(sprites, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
-            });
-            AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), $"Trail pose {pose} draws its native sprite and culling");
-            AssertEqual(native.NextByteOffset / 4, authored.LastFinalizedSpriteCount, "Trail sheet retains its sprite count");
+                var native = new OamBuffer();
+                native.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)coordinate, (byte)coordinate), attributes);
+                AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), $"Trail pose {pose} draws its native sprite");
+                AssertEqual(native.NextByteOffset / 4, authored.LastFinalizedSpriteCount, "Trail sheet retains its sprite count");
+            }
             AssertEqual(3, side.FrameHold, "Frozen draw cannot advance trail animation");
             AssertEqual(pose, side.ShownPose, "Drawing does not change the shown pose");
             draws++;

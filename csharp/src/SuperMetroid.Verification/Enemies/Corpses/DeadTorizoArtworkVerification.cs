@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -51,8 +50,6 @@ internal static class DeadTorizoArtworkVerification
         AssertTrue(nativeCorpse.ImageEquals(installedCorpse) &&
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
             "Dead Torizo private corpse hook's installed composition is the native OAM");
-        AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, new(0, 188)).NextByteOffset,
-            "Dead Torizo private hook retains its above-screen cull");
 
         var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
@@ -198,15 +195,6 @@ internal static class DeadTorizoArtworkVerification
     /// <summary>The first <paramref name="length"/> bytes of the staged sand strips.</summary>
     private static byte[] Sand(CorpseStaging staging, int length) =>
         staging.Upload(new CorpseRotRow(0, CorpseWorkMemory.CorpseRottingHeap + CorpseWorkMemory.DeadTorizoSandOffset, length, 0));
-
-    /// <summary>Renders the corpse hook's published frame as the OAM image it stands for.</summary>
-    internal static OamBuffer DrawDeadTorizoCorpseFrame(InstalledEnemyArtwork artwork, Position16<RoomPixels> camera)
-    {
-        RoomEnemySystem enemies = InitializeDeadTorizo(artwork);
-        var oam = new OamBuffer();
-        oam.AppendDrawn(frame => enemies.DeadTorizoBehavior.DrawDeadTorizoHook(frame, camera));
-        return oam;
-    }
 
     /// <summary>Compares each initialized corpse or sand staging byte with the independent retail copy.</summary>
     private static void AssertDeadTorizoBufferParity(

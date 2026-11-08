@@ -118,12 +118,15 @@ internal static class RoomBlockPicturesVerification
                 continue;
             rows++;
             for (int y = row * CharacterPixels; y < (row + 1) * CharacterPixels; y++)
-            for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
             {
-                var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
+                // Whether the pixel line's band shows does not depend on the column.
                 AssertTrue(shown.BandsShown[y / SkyPictures.BandPixels], $"{room.Name}: the sky shows row {row}");
-                (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
-                AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
+                for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
+                {
+                    var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
+                    (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
+                    AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
+                }
             }
         }
         AssertTrue(rows > 0, $"{room.Name}'s sky shows rows");
@@ -154,9 +157,10 @@ internal static class RoomBlockPicturesVerification
         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
         SpriteImage sheet = picture.Sheet;
         int at = (picture.Corner.Y + pixel.Y) * sheet.Size.X + picture.Corner.X + pixel.X;
-        AssertTrue(Painted(sheet, at) == expected && (colour == 0 || (sheet.Inks[at].FrontTile == word.HasPriority
-                && sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel())),
-            $"{context}: the picture paints index {Painted(sheet, at)} where tile ${word.Raw:X4} paints {expected}");
+        // The message is built only for a failing pixel, since every checked pixel comes through here.
+        if (!(Painted(sheet, at) == expected && (colour == 0 || (sheet.Inks[at].FrontTile == word.HasPriority
+                && sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel()))))
+            AssertTrue(false, $"{context}: the picture paints index {Painted(sheet, at)} where tile ${word.Raw:X4} paints {expected}");
     }
 
     /// <summary>The palette index the import composed <paramref name="sheet"/>'s pixel at <paramref name="at"/> as (#1544); zero for a transparent pixel.</summary>
@@ -332,9 +336,7 @@ internal static class RoomBlockPicturesVerification
             BgCharacterSet layer3 = BgCharacterSet.Layer3;
             int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
             ArtworkFrameSelections frames = RoomScopeOf(runtime).ArtworkFrames;
-            IReadOnlyList<AppearanceOption> effects = UploadsOf(runtime).Bg3Options;
-            RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
-                ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed presentation."));
+            var effects = new RoomAnimatedCharacters(UploadsOf(runtime).Bg3Options, layer3, AnimatedTilesOf(runtime, room.Name));
             // The overlay shows the effect's page picture (#1514): each of its cells paints the word the cartridge writes
             // there, from the row it writes the page to.
             FxOverlayPage page = new WrittenPictureResolver((runtime.Room.Scope
@@ -354,8 +356,7 @@ internal static class RoomBlockPicturesVerification
                 var word = new SnesBgTilemapWord(planeWords[index]);
                 SpriteImage sheet = shownPage.Sheet;
                 // A character an effect's animation paints shows the frame it selected (#1406), which VRAM never holds.
-                ReadOnlySpan<byte> bytes = CharacterBytes(effects, frames, layer3, word.CharacterIndex, animatedTiles,
-                    vram[(characterBase * sizeof(ushort))..], out _);
+                ReadOnlySpan<byte> bytes = effects.Bytes(frames, word.CharacterIndex, vram[(characterBase * sizeof(ushort))..], out _);
                 for (int y = 0; y < CharacterPixels; y++)
                 for (int x = 0; x < CharacterPixels; x++)
                 {
@@ -403,8 +404,9 @@ internal static class RoomBlockPicturesVerification
                 int tile = map[y / 8 * (AffineFloor.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
                 int at = (shown.Image.Corner.Y + y) * sheet.Size.X + shown.Image.Corner.X + x;
-                AssertTrue(Painted(sheet, at) == expected && (expected == 0 || sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel()),
-                    $"{floor.Name}: floor pixel ({x}, {y}) paints index {Painted(sheet, at)} where its tile's characters name {expected}");
+                // The message is built only for a failing pixel.
+                if (!(Painted(sheet, at) == expected && (expected == 0 || sheet.Pixels[at] == StandardOf(sheet, expected).ToRgbaPixel())))
+                    AssertTrue(false, $"{floor.Name}: floor pixel ({x}, {y}) paints index {Painted(sheet, at)} where its tile's characters name {expected}");
                 checkedPixels++;
             }
         }
@@ -419,12 +421,14 @@ internal static class RoomBlockPicturesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
         runtime.Player.IntroducedSamus.Control.LockHandlers();
+        // The tileset's animations and the characters each paints are the room's, read once for all its frames.
+        var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int rebound = 0;
         for (int frame = 0; frame < Frames; frame++)
         {
             ArtworkFrameSelections latched = SelectionsOf(runtime);
             runtime.StepFrame(0);
-            rebound += AssertBackgroundPaintsTiles(runtime, latched, $"{room.Name} frame {frame}");
+            rebound += AssertBackgroundPaintsTiles(runtime, animations, latched, $"{room.Name} frame {frame}");
         }
         AssertEqual(expectRebound, rebound > 0, $"{room.Name}'s background shows cells over artwork bound after its load");
         Console.WriteLine($"Room background images: {room.Name} painted its two pages for {Frames} frames, {rebound} cell pictures over rebound artwork.");
@@ -432,13 +436,12 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>
     /// Asserts BG2's library background paints, pixel for pixel over both pages, the palette index, priority and standard
-    /// colour the image's tilemap tiles paint over the characters the cartridge would show; returns its rebound cells.
+    /// colour the image's tilemap tiles paint over the characters the cartridge would show, as <paramref name="animations"/>
+    /// paint them in <paramref name="latched"/>'s frames; returns its rebound cells.
     /// </summary>
-    private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
+    private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, RoomAnimatedCharacters animations,
+        ArtworkFrameSelections latched, string where)
     {
-        IReadOnlyList<AppearanceOption> options = UploadsOf(runtime).Options;
-        RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
-            ?? throw new InvalidOperationException($"{where}: the runtime has no installed presentation."));
         RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.BackgroundImage
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
@@ -446,26 +449,16 @@ internal static class RoomBlockPicturesVerification
         // the import pipeline replays them (#1466).
         string name = (runtime.Room.Scope?.BackgroundImage
             ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Name;
-        ImmutableArray<ushort> words = [.. UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words];
-        // A 32x64 map lays the two pages out one above the other, as the image does.
-        for (int y = 0; y < RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels; y++)
-        for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
+        ushort[] words = UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words;
+        // A 32x64 map lays the two pages out one above the other, as the image does. Each tile's character is read once
+        // for the eight rows of eight pixels it paints.
+        for (int tileY = 0; tileY < RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels / CharacterPixels; tileY++)
+        for (int tileX = 0; tileX < RoomBackgroundImage.PagePixels / CharacterPixels; tileX++)
         {
-            var word = new SnesBgTilemapWord(words[y / CharacterPixels * RoomBackgroundImage.PageTiles + x / CharacterPixels]);
-            int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
-            int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
+            var word = new SnesBgTilemapWord(words[tileY * RoomBackgroundImage.PageTiles + tileX]);
             // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
-            ReadOnlySpan<byte> bytes = CharacterBytes(options, latched, BgCharacterSet.Tiles, word.CharacterIndex, animatedTiles, vram, out _);
-            int address = pixelRow * 2;
-            int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1
-                | (bytes[address + 16] >> bit & 1) << 2 | (bytes[address + 17] >> bit & 1) << 3;
-            int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-            (SpriteSheetFrame picture, Position16<ImagePixels> picturePixel) = PictureAt(plane, x, y);
-            SpriteImage sheet = picture.Sheet;
-            int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
-            AssertTrue(Painted(sheet, pixel) == expected && (colour == 0 || (sheet.Inks[pixel].FrontTile == word.HasPriority
-                    && sheet.Pixels[pixel] == StandardOf(sheet, expected).ToRgbaPixel())),
-                $"{where}: the background paints index {Painted(sheet, pixel)} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
+            ReadOnlySpan<byte> bytes = animations.Bytes(latched, word.CharacterIndex, vram, out _);
+            AssertBackgroundTilePaints(plane, word, bytes, tileX, tileY, where);
         }
         int rebound = 0;
         for (int cell = 0; cell < RoomBackgroundImageGeometry.Words / RoomBackgroundImageGeometry.CellTiles; cell++)
@@ -474,6 +467,36 @@ internal static class RoomBlockPicturesVerification
                 rebound++;
         }
         return rebound;
+    }
+
+    /// <summary>
+    /// Asserts <paramref name="plane"/> paints, at each pixel of the tile at (<paramref name="tileX"/>, <paramref name="tileY"/>)
+    /// of its pages, the palette index, priority and standard colour <paramref name="word"/> paints over its character's
+    /// <paramref name="bytes"/>.
+    /// </summary>
+    private static void AssertBackgroundTilePaints(RoomBackgroundImagePlane plane, SnesBgTilemapWord word, ReadOnlySpan<byte> bytes,
+        int tileX, int tileY, string where)
+    {
+        for (int y = tileY * CharacterPixels; y < (tileY + 1) * CharacterPixels; y++)
+        for (int x = tileX * CharacterPixels; x < (tileX + 1) * CharacterPixels; x++)
+        {
+            int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
+            int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
+            int address = pixelRow * 2;
+            int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1
+                | (bytes[address + 16] >> bit & 1) << 2 | (bytes[address + 17] >> bit & 1) << 3;
+            int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
+            (SpriteSheetFrame picture, Position16<ImagePixels> picturePixel) = PictureAt(plane, x, y);
+            SpriteImage sheet = picture.Sheet;
+            int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
+            // The message is built only for a failing pixel: building it for each of the pages' pixels was the check's cost.
+            if (!(Painted(sheet, pixel) == expected && (colour == 0 || (sheet.Inks[pixel].FrontTile == word.HasPriority
+                    && sheet.Pixels[pixel] == StandardOf(sheet, expected).ToRgbaPixel()))))
+            {
+                AssertTrue(false,
+                    $"{where}: the background paints index {Painted(sheet, pixel)} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
+            }
+        }
     }
 
     /// <summary>
@@ -490,6 +513,8 @@ internal static class RoomBlockPicturesVerification
         progress?.Invoke(runtime);
         runtime.LoadCartridgeRoomForDebug(room, state: state);
         runtime.Player.IntroducedSamus.Control.LockHandlers();
+        // The tileset's animations and the characters each paints are the room's, read once for all its frames.
+        var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int checkedPictures = 0, uploaded = 0;
         for (int frame = 0; frame < Frames; frame++)
         {
@@ -497,7 +522,7 @@ internal static class RoomBlockPicturesVerification
             // update after it selects the next ones (#1406).
             ArtworkFrameSelections latched = SelectionsOf(runtime);
             runtime.StepFrame(0);
-            (int pictures, int over) = AssertPicturesPaintLive(runtime, latched, $"{room.Name} frame {frame}");
+            (int pictures, int over) = AssertPicturesPaintLive(runtime, animations, latched, $"{room.Name} frame {frame}");
             checkedPictures += pictures;
             uploaded += over;
         }
@@ -531,27 +556,10 @@ internal static class RoomBlockPicturesVerification
     /// <summary>What the loaded room's tileset's rooms show over their characters, as the import pipeline replays it.</summary>
     private static RoomBlockUploads.TilesetUploads UploadsOf(SuperMetroidRuntime runtime) => TilesetUploads.Value[RoomScopeOf(runtime).Assets.Tileset];
 
-    /// <summary>
-    /// The bytes of <paramref name="set"/>'s character <paramref name="character"/> as the room shows it: the frame an
-    /// animation of <paramref name="options"/> that paints it selected in <paramref name="frames"/>, which no VRAM image
-    /// holds, or else its bytes in <paramref name="characters"/>, the set's characters from its first.
-    /// </summary>
-    private static ReadOnlySpan<byte> CharacterBytes(IReadOnlyList<AppearanceOption> options, ArtworkFrameSelections frames, BgCharacterSet set,
-        int character, RoomFxAnimatedTileAtlas animatedTiles, ReadOnlySpan<byte> characters, out bool animated)
-    {
-        int characterWords = set.CharacterBytes() / sizeof(ushort);
-        foreach (AppearanceOption option in options.Where(option => option.Input is AnimationAppearance && option.Upload.Covers(set, character))
-            .OrderBy(option => option.Input.Token, StringComparer.Ordinal))
-        {
-            if (!frames.TryShown(((AnimationAppearance)option.Input).Animation, out ArtworkFrame frame))
-                continue;
-            animated = true;
-            int offset = (character - option.Upload.FirstCharacter) * characterWords;
-            return AnimatedTileFrameArtwork.Bytes(BgArtworkIdentity.Frame(frame), animatedTiles).Span[(offset * sizeof(ushort))..];
-        }
-        animated = false;
-        return characters[(character * characterWords * sizeof(ushort))..];
-    }
+    /// <summary>The installed characters of the animated-tile frames <paramref name="runtime"/>'s room <paramref name="room"/> can show.</summary>
+    private static RoomFxAnimatedTileAtlas AnimatedTilesOf(SuperMetroidRuntime runtime, string room) =>
+        InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
+            ?? throw new InvalidOperationException($"{room}: the runtime has no installed presentation."));
 
     /// <summary>
     /// Asserts each picture the displayed BG1 resolves by block identity and appearance (#1431, #1466) paints, pixel for
@@ -560,17 +568,15 @@ internal static class RoomBlockPicturesVerification
     /// its palette selectors' colours (#1538). Returns the pictures checked and those shown for inputs that no longer show
     /// the room's load.
     /// </summary>
-    private static (int Pictures, int Uploaded) AssertPicturesPaintLive(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
+    private static (int Pictures, int Uploaded) AssertPicturesPaintLive(SuperMetroidRuntime runtime, RoomAnimatedCharacters tileAnimations,
+        ArtworkFrameSelections latched, string where)
     {
-        RoomFxAnimatedTileAtlas animatedTiles = InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(runtime.Artwork.MapPresentation
-            ?? throw new InvalidOperationException("The runtime has no installed presentation."));
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Foreground.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
         RoomAppearanceView appearance = AppearanceOf(runtime, latched);
         // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles,
         // and the frames its animations paint over them.
         bool sprites = rooms.BlockArtwork == RoomBlockArtwork.Sprites;
-        IReadOnlyList<AppearanceOption> options = sprites ? [] : UploadsOf(runtime).Options;
         byte[] tiles = sprites
             ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Shown(runtime)).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
@@ -597,7 +603,8 @@ internal static class RoomBlockPicturesVerification
                 bool animated = false;
                 ReadOnlySpan<byte> bytes = collectible
                     ? DynamicCollectibleGraphics.Get(shownCollectible.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
-                    : CharacterBytes(options, latched, BgCharacterSet.Tiles, word.CharacterIndex, animatedTiles, tiles, out animated);
+                    : sprites ? tiles.AsSpan(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())
+                    : tileAnimations.Bytes(latched, word.CharacterIndex, tiles, out animated);
                 for (int y = 0; y < CharacterPixels; y++)
                 {
                     int row = word.FlipVertically ? CharacterPixels - 1 - y : y;
@@ -609,10 +616,14 @@ internal static class RoomBlockPicturesVerification
                             | (bytes[address + 16] >> bit & 1) << 2 | (bytes[address + 17] >> bit & 1) << 3;
                         int pixel = (picture.Corner.Y + tile / 2 * CharacterPixels + y) * sheet.Size.X + picture.Corner.X + tile % 2 * CharacterPixels + x;
                         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-                        AssertTrue(Painted(sheet, pixel) == expected && (colour == 0 || sheet.Inks[pixel].FrontTile == word.HasPriority)
-                            && (colour == 0 || sheet.Pixels[pixel] == StandardOf(sheet, expected).ToRgbaPixel()),
-                            $"{where}: block {block}'s picture paints index {Painted(sheet, pixel)} front tile {sheet.Inks[pixel].FrontTile} " +
-                            $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected}{(animated ? " in its animation's frame" : "")}");
+                        // The message is built only for a failing pixel.
+                        if (!(Painted(sheet, pixel) == expected && (colour == 0 || sheet.Inks[pixel].FrontTile == word.HasPriority)
+                            && (colour == 0 || sheet.Pixels[pixel] == StandardOf(sheet, expected).ToRgbaPixel())))
+                        {
+                            AssertTrue(false,
+                                $"{where}: block {block}'s picture paints index {Painted(sheet, pixel)} front tile {sheet.Inks[pixel].FrontTile} " +
+                                $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected}{(animated ? " in its animation's frame" : "")}");
+                        }
                     }
                 }
             }

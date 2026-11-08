@@ -23,8 +23,20 @@ internal static class AnimatedTileFrameArtwork
 
     /// <summary>The animated-tile frame <paramref name="frame"/> names, with its characters' cartridge source and how the atlas holds them.</summary>
     private static FramePicture Find(BgArtworkIdentity frame) =>
-        Frames().FirstOrDefault(candidate => BgArtworkIdentity.Frame(candidate.Frame) == frame) ??
-            throw new InvalidDataException($"{frame.Name} is not an animated-tile frame.");
+        ByIdentity.Value.TryGetValue(frame, out FramePicture? picture) ? picture
+            : throw new InvalidDataException($"{frame.Name} is not an animated-tile frame.");
+
+    /// <summary>
+    /// Every animated-tile frame by the identity it is bound as, built once since checks resolve a frame for each character
+    /// they read: the first frame of each identity, in the order the frames list them.
+    /// </summary>
+    private static readonly Lazy<Dictionary<BgArtworkIdentity, FramePicture>> ByIdentity = new(() =>
+    {
+        var frames = new Dictionary<BgArtworkIdentity, FramePicture>();
+        foreach (FramePicture picture in Frames())
+            frames.TryAdd(BgArtworkIdentity.Frame(picture.Frame), picture);
+        return frames;
+    });
 
     /// <summary>One animated-tile frame: its characters' cartridge source and how the installed atlas holds them.</summary>
     private sealed record FramePicture(ArtworkFrame Frame, int Source, Func<RoomFxAnimatedTileAtlas, ReadOnlyMemory<byte>> Resolve);

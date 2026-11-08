@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The colours a Ridley encounter has loaded (#1512): the shades laid over its sprites (Ridley's, the Ceres door's, the
-/// container's and the Baby's) and over its room's pictures (the alarm, the warning, the retreat, the floor's zoom and
+/// The colours a Ridley encounter has loaded (#1512, #1544): the shades laid over Ridley's own sprites (with the Ceres
+/// Baby and its container he carries) and over his room's pictures (the alarm, the warning, the retreat, the floor's zoom and
 /// Norfair's reveal), in the order they were loaded.
 /// </summary>
 internal sealed class RidleyColours : IGameplayShadingSource
@@ -18,8 +18,8 @@ internal sealed class RidleyColours : IGameplayShadingSource
     internal LaidShades Room { get; } = new();
 
     /// <summary>
-    /// The shading the encounter's sprites draw in: the shades laid over them, with the hurt flash's row over those when
-    /// <paramref name="flashing"/>, as the flash's draw takes the common row whatever the encounter loaded into its own.
+    /// The shading the encounter's sprites draw in: the shades laid over them, with the hurt flash over those when
+    /// <paramref name="flashing"/>, which shows whatever the encounter laid.
     /// </summary>
     internal PictureShading SpriteShading(bool flashing)
     {

@@ -342,7 +342,7 @@ internal sealed class ProjectileMotion
     /// </summary>
     private static void IgniteMissile(SamusState samus, SamusProjectileSlot slot)
     {
-        int ignitionSpeed = slot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
+        SignedEightEight ignitionSpeed = slot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
         slot.MissileIgnition = SamusMissileIgnition.Ignited;

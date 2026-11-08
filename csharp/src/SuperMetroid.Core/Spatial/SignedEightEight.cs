@@ -11,6 +11,9 @@ public readonly record struct SignedEightEight
     /// <summary>The unchanged two's-complement word containing eight whole and eight fractional bits.</summary>
     public ushort RawValue { get; init; }
 
+    /// <summary>No velocity at all.</summary>
+    public static SignedEightEight Zero => default;
+
     /// <summary>The raw word read as its signed two's-complement value.</summary>
     public int SignedRawValue => unchecked((short)RawValue);
 

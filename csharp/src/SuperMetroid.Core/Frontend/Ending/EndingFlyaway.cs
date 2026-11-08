@@ -91,14 +91,14 @@ internal sealed class EndingFlyaway
             _stage.Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
             if (crittersEscaped)
             {
-                _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
+                EndingSprite podActor = _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
                     EndingAnimalEscapeDefinitions.Colouring, EndingAnimalEscapeDefinitions.Program,
                     EndingSpriteRole.AnimalEscape);
-                IntroDiscoverySprite pod = sprites[^1].Sprite;
+                IntroDiscoverySprite pod = podActor.Sprite;
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
                 // Cinematic dispatch precedes actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.
-                _stage.StepEndingSpriteFrameBehavior(sprites[^1]);
+                _stage.StepEndingSpriteFrameBehavior(podActor);
                 pod.Step();
             }
         }

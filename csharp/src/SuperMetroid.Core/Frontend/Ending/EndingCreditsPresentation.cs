@@ -212,7 +212,7 @@ internal static class EndingCreditsPresentation
         }
         else
         {
-            foreach (EndingSprite wrapper in ending.sprites.OrderByDescending(actor => actor.TraversalSlot))
+            foreach (EndingSprite wrapper in ending.sprites)
             {
                 if (!Shows(LayerOf(wrapper.Role)))
                     continue;

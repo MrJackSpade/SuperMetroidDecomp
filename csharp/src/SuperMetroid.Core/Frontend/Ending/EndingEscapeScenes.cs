@@ -90,17 +90,22 @@ internal sealed class EndingEscapeScenes
         }
     }
 
-    /// <summary>Visits live cinematic slots from high to low, allowing callback replacements in lower slots to run this frame.</summary>
+    /// <summary>
+    /// Runs the live actors in running order. An actor a step spawns after the running one runs later in this same pass;
+    /// one spawned before it waits for the next pass.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An actor's own step replaced it.</exception>
     internal void StepSprites()
     {
-        // Traversal re-reads each slot. A callback can replace a lower slot,
-        // which then runs later in this same frame; higher slots wait until next frame.
-        for (int slot = EndingSpriteSlots.Count - 1; slot >= 0; slot--)
+        for (int place = 0; place < sprites.Count; place++)
         {
-            EndingSprite? wrapper = sprites.Find(actor => actor.TraversalSlot == slot && actor.Sprite.IsActive);
-            if (wrapper is null) continue;
+            EndingSprite wrapper = sprites[place];
+            if (!wrapper.Sprite.IsActive) continue;
             _stage.StepEndingSpriteFrameBehavior(wrapper);
             wrapper.Sprite.Step(HandleSpriteCue);
+            place = sprites.IndexOf(wrapper);
+            if (place < 0)
+                throw new InvalidOperationException($"The ending's {wrapper.Role} actor was replaced by its own step.");
         }
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }

@@ -414,7 +414,7 @@ internal static class SamusBodyArtworkVerification
                 placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");
             AssertEqual(frameDependent
                     ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(bus.ReadCartridgeByte(descriptor + 2) & 0x7f)
-                    : (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection?)null, placement.LaterDirection,
+                    : null, placement.LaterDirection,
                 $"arm-cannon pose {pose:X2} later direction");
             int displacements = descriptor + (frameDependent ? 4 : 2);
             AssertEqual((drawingWindowEnd - displacements) / 2, placement.FrameCount, $"arm-cannon pose {pose:X2} placed frames");

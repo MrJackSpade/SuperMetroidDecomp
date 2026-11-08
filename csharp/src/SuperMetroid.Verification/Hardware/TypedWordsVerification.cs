@@ -195,7 +195,7 @@ internal static void VerifyTypedNativeWords()
         "SNES signed table delta crosses wrap seam");
 
     var positiveEightEight = new SignedEightEight(0x0180);
-    AssertEqual((sbyte)1, positiveEightEight.WholePixels,
+    AssertEqual(1, positiveEightEight.WholePixels,
         "signed 8.8 positive whole byte");
     AssertEqual((byte)0x80, positiveEightEight.Fraction,
         "signed 8.8 positive fraction byte");

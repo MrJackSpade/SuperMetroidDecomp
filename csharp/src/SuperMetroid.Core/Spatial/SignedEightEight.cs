@@ -57,18 +57,6 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     /// <summary>The velocity halved, its lowest fraction bit dropped toward negative infinity.</summary>
     public SignedEightEight Halved() => FromSignedRaw(SignedRawValue >> 1);
 
-    /// <summary>Whether <paramref name="left"/> is the slower velocity, comparing signed values.</summary>
-    public static bool operator <(SignedEightEight left, SignedEightEight right) => left.SignedRawValue < right.SignedRawValue;
-
-    /// <summary>Whether <paramref name="left"/> is the faster velocity, comparing signed values.</summary>
-    public static bool operator >(SignedEightEight left, SignedEightEight right) => left.SignedRawValue > right.SignedRawValue;
-
-    /// <summary>Whether <paramref name="left"/> is no faster than <paramref name="right"/>, comparing signed values.</summary>
-    public static bool operator <=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue <= right.SignedRawValue;
-
-    /// <summary>Whether <paramref name="left"/> is no slower than <paramref name="right"/>, comparing signed values.</summary>
-    public static bool operator >=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue >= right.SignedRawValue;
-
     /// <summary>
     /// A velocity changed by an acceleration, as the game's velocity arithmetic adds them: a sum past the largest
     /// positive value continues from the most negative one and the reverse (<see cref="Wrapped"/>).
@@ -87,18 +75,6 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     /// <exception cref="ArgumentOutOfRangeException">The value is the most negative one.</exception>
     public static SignedEightEight operator -(SignedEightEight value) => FromSignedRaw(-value.SignedRawValue);
 
-    /// <summary>Whether <paramref name="left"/> is the lesser signed velocity.</summary>
-    public static bool operator <(SignedEightEight left, SignedEightEight right) => left.SignedRawValue < right.SignedRawValue;
-
-    /// <summary>Whether <paramref name="left"/> is the greater signed velocity.</summary>
-    public static bool operator >(SignedEightEight left, SignedEightEight right) => left.SignedRawValue > right.SignedRawValue;
-
-    /// <summary>Whether <paramref name="left"/> is no greater than <paramref name="right"/> as a signed velocity.</summary>
-    public static bool operator <=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue <= right.SignedRawValue;
-
-    /// <summary>Whether <paramref name="left"/> is no less than <paramref name="right"/> as a signed velocity.</summary>
-    public static bool operator >=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue >= right.SignedRawValue;
-
     /// <summary>
     /// The velocity times a factor in 256ths, <paramref name="factorInTwoHundredFiftySixths"/>, as a 16.16 displacement
     /// that keeps the product's full precision: the product of the two 8.8 values, nothing truncated.
@@ -111,19 +87,12 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     public SignedSixteenSixteen ToSixteenSixteenDelta() =>
         SignedSixteenSixteen.FromRaw(unchecked((short)RawValue) << 8);
 
-    /// <summary>No velocity at all.</summary>
-    public static SignedEightEight Zero => default;
-
     /// <summary>Whether the velocity is no movement at all.</summary>
     public bool IsZero => RawValue == 0;
 
     /// <summary>The velocity of <paramref name="wholePixels"/> pixels, -128 through 127, and <paramref name="fraction"/> 256ths, 0 through 255, an update.</summary>
     public static SignedEightEight FromParts(int wholePixels, int fraction) =>
         FromSignedRaw(Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, wholePixels) * 256 + Ensure.BetweenInclusive(0, byte.MaxValue, fraction));
-
-    /// <summary>The velocity's whole pixels an update, rounded toward decreasing coordinates, as the game reads a speed's whole byte.</summary>
-    [IntegerQuantity("whole pixels of a signed 8.8 speed")]
-    public int WholePixels => SignedRawValue >> 8;
 
     /// <summary>
     /// The velocity's whole quarter pixels an update, rounded toward decreasing coordinates, as the game reads a speed's

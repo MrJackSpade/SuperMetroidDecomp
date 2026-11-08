@@ -105,7 +105,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Intro palette rows:256 native colors reach the transfer bytes and colour lists; reviewed material choices and all shade calculations keep no stock rows.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
-            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(selected.BackgroundColours.AsSpan(), selected.SpriteColours.AsSpan());
+            ReadOnlySpan<byte> bytes = ScreenColourWords.Words(selected.BackgroundColours.AsSpan(), selected.SpriteColours.AsSpan());
             for (int color = 0; color < expected.Length; color++)
                 AssertEqual(expected[color], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes[(color * 2)..]), "intro palette transfer word");
             // The opening's colours are plain lists the import pre-colours its sheets from (#1512): backgrounds, then sprites.

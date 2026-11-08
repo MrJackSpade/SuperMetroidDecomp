@@ -1694,7 +1694,7 @@ internal static class LookupStream5Verification
         // The import reads the palette as its background colours then its sprite colours (#1512); the game keeps its backdrop.
         AssertEqual(SnesCgram.ColorCount, stock.Colours.Length, "Ceres palette holds every colour of both owners");
         AssertEqual(stock.Colours[0], stock.Backdrop, "Ceres palette's backdrop is its first background colour");
-        AssertEqual(CgramPalettes.ByteCount, ScreenColourImage.Words(stock.BackgroundColours.AsSpan(), stock.SpriteColours.AsSpan()).Length,
+        AssertEqual(CgramPalettes.ByteCount, ScreenColourWords.Words(stock.BackgroundColours.AsSpan(), stock.SpriteColours.AsSpan()).Length,
             "Ceres palette serializes every colour of both owners");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFileFormat.FloorFileName),
@@ -1720,7 +1720,7 @@ internal static class LookupStream5Verification
             CeresFlightPalette actual = CeresFlightPaletteFile.Read(json);
             RgbColor[] selected = [.. actual.Colours];
             RgbColor[] loaded = [.. actual.BackgroundColours, .. actual.SpriteColours];
-            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(actual.BackgroundColours.AsSpan(), actual.SpriteColours.AsSpan());
+            ReadOnlySpan<byte> bytes = ScreenColourWords.Words(actual.BackgroundColours.AsSpan(), actual.SpriteColours.AsSpan());
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5 color = colors[index];

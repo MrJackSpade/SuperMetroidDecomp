@@ -116,7 +116,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroDiscoveryActorSpriteArtwork), () => VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
-            AssertTrue(ScreenColourImage.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan()).AsSpan().SequenceEqual(
+            AssertTrue(ScreenColourWords.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan()).AsSpan().SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
@@ -181,7 +181,7 @@ internal static class IntroCinematicArtworkVerification
             // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
             File.WriteAllBytes(paletteStockPath, stockPalette);
             AssertTrue(IntroPaletteWords(IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory).Palette).AsSpan().SequenceEqual(
-                    ScreenColourImage.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
+                    ScreenColourWords.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
                 "the restored stock shows exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
@@ -607,5 +607,5 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>The installed opening palette's colours as the colour words the cartridge stores them in (#1512).</summary>
     private static byte[] IntroPaletteWords(IntroCinematicPalette palette) =>
-        ScreenColourImage.Words(palette.BackgroundColours.AsSpan(), palette.SpriteColours.AsSpan());
+        ScreenColourWords.Words(palette.BackgroundColours.AsSpan(), palette.SpriteColours.AsSpan());
 }

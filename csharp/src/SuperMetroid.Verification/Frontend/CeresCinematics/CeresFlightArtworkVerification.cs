@@ -44,7 +44,7 @@ internal static class CeresFlightArtworkVerification
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         // The installed colours in the cartridge's colour order, compared with the native palette colour by colour.
-        byte[] installedWords = ScreenColourImage.Words(intro.FlightPalette.BackgroundColours.AsSpan(),
+        byte[] installedWords = ScreenColourWords.Words(intro.FlightPalette.BackgroundColours.AsSpan(),
             intro.FlightPalette.SpriteColours.AsSpan());
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))),

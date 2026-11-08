@@ -80,9 +80,6 @@ public sealed class CeresFlightPalette
     public ImmutableArray<RgbColor> Colours => [.. Enumerable.Range(0, ColourCount)
         .Select(colour => edits.TryGetValue(colour, out RgbColor edited) ? edited : Calculate(colour))];
 
-    /// <summary>The selected background colours, which the Ceres scenes' floors, caption and planet are pictured in.</summary>
-    public ImmutableArray<RgbColor> BackgroundColours => Colours[..OwnerColours];
-
     /// <summary>The selected sprite colours, which the Ceres scenes' actors are pictured in.</summary>
     public ImmutableArray<RgbColor> SpriteColours => Colours[OwnerColours..];
 

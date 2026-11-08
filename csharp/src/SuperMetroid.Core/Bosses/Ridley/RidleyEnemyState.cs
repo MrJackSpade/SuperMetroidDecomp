@@ -101,8 +101,6 @@ public sealed class RidleyEnemyState
     public int HoverCounter { get; internal set; }
     /// <summary>Where Ridley's typed body program resumes (#641).</summary>
     internal AnimationProgramCursor<RidleyBodyProgram> BodyProgram { get; set; }
-    /// <summary>Where each death-breakup fragment's typed program resumes, by its enemy slot (#641).</summary>
-    internal Dictionary<int, AnimationProgramCursor<RidleyBreakupFrame>> BreakupPrograms { get; } = [];
     /// <summary>Gets the claw-height pose Ridley's body program last selected: zero standing, one legs half extended, two legs extended.</summary>
     public int FeetDistanceIndex { get; internal set; }
     /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>

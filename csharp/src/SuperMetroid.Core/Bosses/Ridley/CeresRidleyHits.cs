@@ -12,8 +12,6 @@ internal sealed class CeresRidleyHits
 {
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Performs Samus and projectile contact against Ridley's extended body.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
@@ -21,10 +19,9 @@ internal sealed class CeresRidleyHits
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyHits(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyCollision collision, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyHits(EnemyRoomBinding room, EnemyCollision collision, RidleyEncounter ridleyEncounter)
     {
         _room = room;
-        _slotTable = slotTable;
         _collision = collision;
         _ridleyEncounter = ridleyEncounter;
     }
@@ -44,7 +41,7 @@ internal sealed class CeresRidleyHits
         if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             return 0;
 
-        RoomEnemySlot slot = _slotTable.Slots[0];
+        RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
         if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres ||
             slot.Properties.HasAny(
                 EnemyProperties.Invisible |
@@ -162,7 +159,7 @@ internal sealed class CeresRidleyHits
         // Samus's invincibility timer. It does not inspect the knockback-active
         // word. The extra host guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
-        RoomEnemySlot slot = _slotTable.Slots[0];
+        RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
         if (_ridleyEncounter.Ridley is null ||
             !RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
             slot.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||

@@ -9,36 +9,33 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal sealed class RidleyEncounter : ICeresEscapeStatus
 {
-    /// <summary>Physical slot table used to distinguish the Ceres actor from the Norfair boss.</summary>
-    private readonly EnemySlotTable _slotTable;
-
-    /// <summary>Binds both Ridley encounters to their shared enemy slot table.</summary>
-    /// <param name="slotTable">The enemy slots, whose slot zero distinguishes Ceres Ridley.</param>
+    /// <summary>Binds both Ridley encounters to the room's enemies, among which <see cref="Parts"/> names his.</summary>
+    /// <param name="slotTable">The room's enemies.</param>
     /// <param name="session">The session that holds Ceres's escape progress across rooms.</param>
     internal RidleyEncounter(EnemySlotTable slotTable, EnemySession session)
     {
-        _slotTable = slotTable;
+        Parts = new RidleyParts(slotTable);
         _session = Ensure.NotNull(session);
     }
 
     /// <summary>The session that holds Ceres's escape progress across rooms.</summary>
     private readonly EnemySession _session;
 
-    /// <summary>Ridley's body, which both encounters keep in slot zero.</summary>
-    internal RoomEnemySlot Body => _slotTable.Slots[0];
+    /// <summary>The enemies of Ridley's rooms his encounters reach by name: his body and Ceres's door.</summary>
+    internal RidleyParts Parts { get; }
 
     /// <summary>
-    /// Ridley's state beyond the common enemy record while either encounter owns slot zero,
+    /// Ridley's state beyond the common enemy record while either encounter owns his body,
     /// kept in named fields rather than in dozens of generic enemy variables.
     /// </summary>
     public RidleyEnemyState? Ridley { get; internal set; }
 
     /// <summary>
-    /// Ridley's state while the Ceres getaway owns slot zero, and null during the Lower
+    /// Ridley's state while his body is Ceres Ridley, and null during the Lower
     /// Norfair fight, which has neither the Baby nor the rotating Ceres floor.
     /// </summary>
     public RidleyEnemyState? CeresRidley =>
-        _slotTable.Slots[0].DefinitionId == EnemyDefinitionId.RidleyCeres ? Ridley : null;
+        Parts.Body.DefinitionId == EnemyDefinitionId.RidleyCeres ? Ridley : null;
 
     /// <summary>
     /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load
@@ -51,16 +48,16 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
         set => _session.CeresStatus = value;
     }
 
-    /// <summary>Requires a slot-zero Ridley definition and its shared state extension.</summary>
+    /// <summary>Requires Ridley's body as a Ridley definition and its shared state extension.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)
     {
         if (!RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
-            slot.SlotIndex != 0 ||
+            !Parts.IsBody(slot) ||
             Ridley is null)
         {
             throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} executed shared Ridley code without an " +
-                "extended Ridley state in the first enemy slot.");
+                $"Enemy slot {slot.SlotIndex} executed shared Ridley code without being Ridley's body " +
+                "with an extended Ridley state.");
         }
         return Ridley;
     }
@@ -77,16 +74,16 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
         return RequireRidley(slot);
     }
 
-    /// <summary>Admits only Ceres Ridley's slot-zero actor and initialized state extension.</summary>
+    /// <summary>Admits only Ceres Ridley's body and initialized state extension.</summary>
     internal RidleyEnemyState RequireCeresRidley(RoomEnemySlot slot)
     {
         if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres ||
-            slot.SlotIndex != 0 ||
+            !Parts.IsBody(slot) ||
             Ridley is null)
         {
             throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} executed a Ceres Ridley routine without " +
-                "the extended Ceres Ridley state in the first enemy slot.");
+                $"Enemy slot {slot.SlotIndex} executed a Ceres Ridley routine without being " +
+                "Ceres Ridley's body with the extended Ceres Ridley state.");
         }
 
         return Ridley;

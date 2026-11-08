@@ -285,11 +285,8 @@ internal sealed class CrocomireCombat
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        // The setup performs one horizontal collision move and deliberately ignores
-        // carry. It also writes the graphics word of physical projectile slot zero rather
-        // than the current slot, as the game does.
+        // The setup performs one horizontal collision move and deliberately ignores carry.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-        _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading);
         // The timer is still zero from the spawn, so the sum is the velocity's word.
         projectile.GeneralTimer += projectile.Velocity.X.RawValue;
 
@@ -331,28 +328,27 @@ internal sealed class CrocomireCombat
     /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
     private static readonly SignedSixteenSixteen SpikeWallPieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
 
-    /// <summary>Ports the byte-precise slot-dependent shard motion.</summary>
+    /// <summary>Ports the byte-precise shard motion, whose limits each piece takes from its place in the wall.</summary>
     internal void RunCrocomireSpikeWallPiece(RoomEnemyProjectileSlot projectile)
     {
-        int slot = projectile.SlotIndex;
-        int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(slot);
         CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
+        int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
         int acceleration = piece.Acceleration;
         if (acceleration != maximumAcceleration)
         {
-            acceleration += CrocomireSpikeMotion.AccelerationDelta(slot);
+            acceleration += CrocomireSpikeMotion.AccelerationDelta(piece.Piece);
             if (acceleration >= maximumAcceleration)
                 acceleration = maximumAcceleration;
         }
         piece.Acceleration = acceleration;
 
         // The acceleration's whole part is added to the 8.8 velocity's fraction: a fraction that passes a whole
-        // pixel raises the whole velocity by one, and it is then capped by this physical slot's maximum. The piece
+        // pixel raises the whole velocity by one, and it is then capped by this piece's maximum. The piece
         // starts at rest and its whole velocity stays at or below its cap of at most six pixels.
         int accelerated = projectile.Velocity.X.RawValue + UnsignedEightEight.Whole(acceleration);
         int velocityFraction = EightEight.FractionOf(accelerated);
         int velocityWhole = EightEight.WholeOf(accelerated);
-        int maximumVelocity = CrocomireSpikeMotion.MaximumVelocity(slot);
+        int maximumVelocity = CrocomireSpikeMotion.MaximumVelocity(piece.Piece);
         if (velocityWhole >= maximumVelocity)
             velocityWhole = maximumVelocity;
         var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: velocityWhole, fraction: velocityFraction));
@@ -372,9 +368,9 @@ internal sealed class CrocomireCombat
             return;
 
         Position16<RoomPixels> impact = projectile.Position.Whole;
-        bool evenSlot = projectile.SlotIndex % 2 == 0;
+        bool crumbles = CrocomireSpikeWallCrumbleSounds.Crumbles(piece.Piece);
         projectile.Clear();
-        if (evenSlot)
+        if (crumbles)
             _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.BigDustCloud);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);

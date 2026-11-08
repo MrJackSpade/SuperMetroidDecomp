@@ -18,9 +18,6 @@ internal sealed record CeresDoorBehaviorDependencies
     /// <summary>Queues the door's opening and destruction sounds.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Provides slot zero's frame counter for the shared palette cycle.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
-
     /// <summary>Owns the tile and palette destinations for Ceres door artwork.</summary>
     public required EnemyPresentation Presentation { get; init; }
 

@@ -3,44 +3,50 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
-/// <summary>Compares compiled spike motion limits for all eighteen physical slots with bank-$86 retail data.</summary>
+/// <summary>Compares compiled spike motion limits for the wall's eight pieces with bank-$86 retail data.</summary>
 internal static class CrocomireSpikeMotionDefinitionsVerification
 {
-    /// <summary>Checks each slot's acceleration increment and rejects indexes outside the native table.</summary>
+    /// <summary>
+    /// The native table entry of the top piece: the cartridge indexes its motion tables by projectile slot, and the
+    /// pieces take the pool's last eight slots, the top piece the first of them.
+    /// </summary>
+    private const int TopPieceTableEntry = 10;
+
+    /// <summary>Checks each piece's acceleration increment and rejects places outside the wall.</summary>
     internal static void VerifyCrocomireSpikeAccelerationDelta(SuperMetroidAddressSpace rom)
     {
-        for (int slot = 0; slot < 18; slot++)
+        for (int piece = 0; piece < CrocomireSpikeMotionDefinitions.PieceCount; piece++)
         {
-            int address = 0x8691c3 + 2 * slot;
+            int address = 0x8691c3 + 2 * (TopPieceTableEntry + piece);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, CrocomireSpikeMotion.AccelerationDelta(slot),
-                $"Crocomire spike acceleration increment, physical slot {slot}");
+            AssertEqual(expected, CrocomireSpikeMotion.AccelerationDelta(piece),
+                $"Crocomire spike acceleration increment, piece {piece}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.AccelerationDelta(-1), "negative increment slot");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.AccelerationDelta(18), "increment slot past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.AccelerationDelta(-1), "negative increment piece");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.AccelerationDelta(CrocomireSpikeMotionDefinitions.PieceCount), "increment piece past end");
     }
 
-    /// <summary>Checks each slot's acceleration cap and native table bounds.</summary>
+    /// <summary>Checks each piece's acceleration cap and rejects places outside the wall.</summary>
     internal static void VerifyCrocomireSpikeMaximumAcceleration(SuperMetroidAddressSpace rom)
     {
-        for (int slot = 0; slot < 18; slot++)
+        for (int piece = 0; piece < CrocomireSpikeMotionDefinitions.PieceCount; piece++)
         {
-            int address = 0x8691e7 + 2 * slot;
+            int address = 0x8691e7 + 2 * (TopPieceTableEntry + piece);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, CrocomireSpikeMotion.MaximumAcceleration(slot),
-                $"Crocomire spike acceleration limit, physical slot {slot}");
+            AssertEqual(expected, CrocomireSpikeMotion.MaximumAcceleration(piece),
+                $"Crocomire spike acceleration limit, piece {piece}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumAcceleration(-1), "negative acceleration limit slot");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumAcceleration(18), "acceleration limit slot past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumAcceleration(-1), "negative acceleration limit piece");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumAcceleration(CrocomireSpikeMotionDefinitions.PieceCount), "acceleration limit piece past end");
     }
 
-    /// <summary>Checks the low byte of each slot's velocity cap and native table bounds.</summary>
+    /// <summary>Checks the low byte of each piece's velocity cap and rejects places outside the wall.</summary>
     internal static void VerifyCrocomireSpikeMaximumVelocity(SuperMetroidAddressSpace rom)
     {
-        for (int slot = 0; slot < 18; slot++)
-            AssertEqual(rom.ReadCartridgeByte(0x86920b + 2 * slot), CrocomireSpikeMotion.MaximumVelocity(slot),
-                $"Crocomire spike velocity limit, physical slot {slot}");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumVelocity(-1), "negative velocity limit slot");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumVelocity(18), "velocity limit slot past end");
+        for (int piece = 0; piece < CrocomireSpikeMotionDefinitions.PieceCount; piece++)
+            AssertEqual(rom.ReadCartridgeByte(0x86920b + 2 * (TopPieceTableEntry + piece)), CrocomireSpikeMotion.MaximumVelocity(piece),
+                $"Crocomire spike velocity limit, piece {piece}");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumVelocity(-1), "negative velocity limit piece");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumVelocity(CrocomireSpikeMotionDefinitions.PieceCount), "velocity limit piece past end");
     }
 }

@@ -13,7 +13,7 @@ internal sealed class EndingStage
     private readonly int gameTimeHours;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
+    /// <summary>The ending's live actors in the order they run and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     private readonly List<EndingSprite> sprites ;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -76,40 +76,40 @@ internal sealed class EndingStage
     internal void RequireFloorArtwork() =>
         _ = FloorArtwork ?? throw new InvalidOperationException("Ending turning-floor scene requires installed artwork.");
 
-    /// <summary>Allocates or replaces a cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
-    internal void SpawnSprite(
+    /// <summary>
+    /// Adds an actor in its place in the running order: one the ending shows one of at a time replaces the one already shown
+    /// and takes its fixed place after every other actor; any other follows the actors that spawned before it.
+    /// </summary>
+    /// <returns>The actor added.</returns>
+    internal EndingSprite SpawnSprite(
         Position16<ScreenPixels> position,
         EndingSpriteColouring colouring,
         CinematicSpriteProgram program,
         EndingSpriteRole role)
     {
-        int slot = role switch
-        {
-            EndingSpriteRole.ExplosionStarsRight => EndingSpriteSlots.RightStars,
-            EndingSpriteRole.ExplosionStarsLeft => EndingSpriteSlots.LeftStars,
-            EndingSpriteRole.ExplosionAfterglow => EndingSpriteSlots.Afterglow,
-            EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.ForcedSlot,
-            // Every other actor takes the highest free dynamic slot.
-            EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudRightB or
-            EndingSpriteRole.CloudLeftB or EndingSpriteRole.CloudTopA or EndingSpriteRole.CloudTopB or
-            EndingSpriteRole.CloudBottomA or EndingSpriteRole.CloudBottomB or EndingSpriteRole.ExplodingZebes or
-            EndingSpriteRole.ExplosionLava or EndingSpriteRole.ExplosionGlow or EndingSpriteRole.ExplosionStars or
-            EndingSpriteRole.ExplosionSilhouette or EndingSpriteRole.OperationWasText or
-            EndingSpriteRole.CompletedSuccessfullyText or EndingSpriteRole.ClearTimeText or
-            EndingSpriteRole.ClearTimeDigit or EndingSpriteRole.RewardSamus => Enumerable.Range(0, EndingSpriteSlots.Count).Reverse()
-                .FirstOrDefault(candidate => !sprites.Any(actor => actor.TraversalSlot == candidate && actor.Sprite.IsActive), -1),
-            _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Undefined ending sprite role."),
-        };
-        if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
-        sprites.RemoveAll(actor => actor.TraversalSlot == slot);
-        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), program), role)
-            { TraversalSlot = slot });
+        if (!Enum.IsDefined(role))
+            throw new ArgumentOutOfRangeException(nameof(role), role, "Undefined ending sprite role.");
+        int rank = SoleActorRank(role);
+        if (rank >= 0)
+            sprites.RemoveAll(actor => actor.Role == role);
+        var added = new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), program), role);
+        // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
+        int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
+        sprites.Insert(place >= 0 ? place : sprites.Count, added);
         if (role == EndingSpriteRole.ExplosionStarsLeft)
-            sprites[^1].Sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway);
+            added.Sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway);
+        return added;
     }
 
+    /// <summary>
+    /// Where <paramref name="role"/> stands among the actors the ending shows one of at a time, zero for the first to run, or
+    /// minus one for an actor that runs in spawn order ahead of them.
+    /// </summary>
+    private static int SoleActorRank(EndingSpriteRole role) => Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role);
+
     /// <summary>Installs a sprite from its authored position, attributes and program.</summary>
-    internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
+    /// <returns>The actor added.</returns>
+    internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,
             definition.Colouring,

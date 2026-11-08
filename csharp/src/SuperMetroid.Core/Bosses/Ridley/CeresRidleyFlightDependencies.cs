@@ -20,7 +20,7 @@ internal sealed record CeresRidleyFlightDependencies
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
+    /// <summary>Finds the free place the turning-floor wall enemy takes when Ridley spawns it.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>

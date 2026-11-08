@@ -21,8 +21,6 @@ internal sealed class CeresRidleyBabyScene
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
@@ -30,12 +28,11 @@ internal sealed class CeresRidleyBabyScene
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
     {
         _room = room;
         _earthquake = earthquake;
         _audio = audio;
-        _slotTable = slotTable;
         _presentation = presentation;
         _ridleyEncounter = ridleyEncounter;
     }
@@ -158,7 +155,7 @@ internal sealed class CeresRidleyBabyScene
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
         if (_ridleyEncounter.Ridley is null ||
-            _slotTable.Slots[0].DefinitionId != EnemyDefinitionId.RidleyCeres ||
+            _ridleyEncounter.Parts.Body.DefinitionId != EnemyDefinitionId.RidleyCeres ||
             _ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
@@ -177,7 +174,7 @@ internal sealed class CeresRidleyBabyScene
         Ensure.NotNull(sprites);
         _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
-            _slotTable.Slots[0].DefinitionId != EnemyDefinitionId.RidleyCeres ||
+            _ridleyEncounter.Parts.Body.DefinitionId != EnemyDefinitionId.RidleyCeres ||
             !_ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
@@ -201,11 +198,10 @@ internal sealed class CeresRidleyBabyScene
             }
         }
 
-        // Enemy one is the ordinary Ridley-room door. Its hiding step hands its
-        // drawing to Ridley's scene when the common enemy pass intentionally hides the actor;
-        // the Baby and door draw then draws this fixed overlay after the Baby. This is a cross-slot
-        // draw hook, not a replacement for the door actor's own instruction interpreter.
-        RoomEnemySlot door = _slotTable.Slots[1];
+        // The room's door hands its drawing to Ridley's scene in its hiding step, when the common
+        // enemy pass intentionally hides the actor; the Baby and door draw then draws this fixed overlay
+        // after the Baby. This draws the door for it; it does not replace the door actor's own program.
+        RoomEnemySlot door = _ridleyEncounter.Parts.CeresRoomDoor;
         if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
             // The scene draws the door itself rather than through the common enemy drawing, so it applies the door's

@@ -9,10 +9,10 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Checks ending flyaway OAM priority when the afterglow competes with both starfields.</summary>
+/// <summary>Checks the ending flyaway's drawing order when the afterglow competes with both starfields.</summary>
 internal static class EndingExplosionSlotOrderVerification
 {
-    /// <summary>Confirms native descending actor slots give all 37 afterglow pieces OAM space before the starfields and preserve ship occlusion.</summary>
+    /// <summary>Confirms the running order draws all 37 afterglow pieces before the starfields and preserves ship occlusion.</summary>
     internal static void VerifyEndingExplosionSlotOrder()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -39,7 +39,7 @@ internal static class EndingExplosionSlotOrderVerification
         PlacedSpritePart[] liveParts = [.. snapshot.SpriteParts().Take(afterglowParts.Length)];
         int[] mismatches = [.. Enumerable.Range(0, afterglowParts.Length).Where(index => index >= liveParts.Length || liveParts[index] != afterglowParts[index])];
         AssertTrue(mismatches.Length == 0,
-            "native slot order preserves all 37 afterglow pieces before starfield OAM overflow" +
+            "the running order draws all 37 afterglow pieces before the starfields" +
             string.Concat(mismatches.Select(index => $" [part {index}: live {(index < liveParts.Length ? liveParts[index].Part.ToString() : "missing")}, native {afterglowParts[index].Part}]")));
         // The white sky, then the afterglow behind the departing gunship, tinted with the sky's white, then the gunship
         // (#1514).

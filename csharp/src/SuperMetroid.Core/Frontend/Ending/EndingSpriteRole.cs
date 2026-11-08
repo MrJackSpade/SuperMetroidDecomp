@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Cinematic actor slots and their animation behavior.</summary>
+/// <summary>The ending's cinematic actors, by what each shows and how it moves.</summary>
 internal enum EndingSpriteRole
 {
     /// <summary>First right-moving cloud in escape scene A.</summary>

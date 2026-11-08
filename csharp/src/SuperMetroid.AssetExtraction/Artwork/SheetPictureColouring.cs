@@ -1,6 +1,4 @@
 using SuperMetroid.Core;
-using System.Security.Cryptography;
-using System.Text;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 
@@ -10,8 +8,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// A sprite sheet's colouring over the colour groups some of its pictures use (#1513): the palette bits its draws OR in,
 /// the standard colours of those groups, and what each shade it is pre-coloured in shows of them. A sheet manifest stores
 /// all 128 colours and every shade, so two sheets differ in groups a picture never shows; restricted to the groups a
-/// picture uses, a colouring says exactly how that picture is drawn, so sheets that colour it alike hold the same picture,
-/// and pictures whose colourings agree on the groups they share can be held on one sheet.
+/// picture uses, a colouring says exactly how that picture is drawn. What a picture shows in it (<see cref="WriteShown"/>,
+/// through <see cref="SheetPicture.LookIn"/>) names its colours by the order the picture shows them, not by their indices,
+/// so pictures drawn alike from different rows or palette bits look the same (#1544). Pictures held on one composed sheet
+/// share its indices and palette bits, so those whose colourings agree on the groups they share can be held on one sheet.
 /// <para>
 /// Every shade a sheet names is kept, even one that recolours none of the covered groups' inks: a draw names a shade the
 /// sheet must hold, and a picture moved to another sheet keeps every shade it could be drawn in.
@@ -35,20 +35,16 @@ internal sealed class SheetPictureColouring
         Groups = groups;
         this.colours = colours;
         this.shades = shades;
-        Key = KeyOf();
     }
 
-    /// <summary>The palette bits the sheet's draws OR into each ink's own row.</summary>
+    /// <summary>
+    /// The palette bits the sheet's draws OR into each ink's own row: where its colours came from, which the import's source
+    /// record keeps, not what they show.
+    /// </summary>
     internal int PaletteBits { get; }
 
     /// <summary>The colour groups the colouring covers.</summary>
     internal ImageColourGroups Groups { get; }
-
-    /// <summary>
-    /// A hash of everything the colouring shows: its palette bits, each covered group's colours, and each shade that
-    /// recolours a covered ink or blends, with what it shows. Colourings with one key draw a picture over the groups alike.
-    /// </summary>
-    internal string Key { get; }
 
     /// <summary>The colouring sheet manifest <paramref name="document"/> gives the colour groups <paramref name="groups"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet is not a sprite sheet, or its colours or a shade are malformed.</exception>
@@ -144,33 +140,78 @@ internal sealed class SheetPictureColouring
     /// <summary>Whether <paramref name="groups"/> covers <paramref name="ink"/>'s colour group.</summary>
     private static bool Covers(ImageColourGroups groups, int ink) => groups.Contains(ImageColourGroup.Numbered(ink / GroupColours));
 
-    /// <summary>Hashes everything the colouring shows into <see cref="Key"/>.</summary>
-    private string KeyOf()
+    /// <summary>
+    /// Writes what the colouring shows of the inks <paramref name="shown"/>, a picture's shown inks in the order it first
+    /// shows them (#1544): each one's colour, then each shade that recolours one of them or blends, with its key, whether it
+    /// blends, and the colour it shows each one it recolours in, named by its place in <paramref name="shown"/>. The inks'
+    /// own indices and the palette bits are left out: they say where a colour came from, not what it is.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An ink lies in a group the colouring does not cover.</exception>
+    internal void WriteShown(BinaryWriter writer, IReadOnlyList<int> shown)
     {
-        using var stream = new MemoryStream();
-        using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
+        Ensure.NotNull(writer);
+        Ensure.NotNull(shown);
+        foreach (int ink in shown)
         {
-            writer.Write(PaletteBits);
-            for (int ink = 0; ink < colours.Length; ink++)
+            if (!Covers(Groups, ink))
+                throw new InvalidOperationException($"A picture shows ink {ink}, of a colour group its colouring does not cover.");
+            WriteColour(writer, colours[ink]);
+        }
+        foreach ((string key, SheetPictureShade shade) in shades)
+        {
+            int[] recoloured = [.. Enumerable.Range(0, shown.Count).Where(order => shade.Colours.ContainsKey(shown[order]))];
+            if (recoloured.Length == 0 && !shade.Blends)
+                continue;
+            writer.Write(key);
+            writer.Write(shade.Blends);
+            writer.Write(recoloured.Length);
+            foreach (int order in recoloured)
             {
-                if (!Covers(Groups, ink))
-                    continue;
-                writer.Write(ink);
-                WriteColour(writer, colours[ink]);
-            }
-            foreach ((string key, SheetPictureShade shade) in shades.Where(shade => shade.Value.Shows))
-            {
-                writer.Write(key);
-                writer.Write(shade.Blends);
-                writer.Write(shade.Colours.Count);
-                foreach ((int ink, RgbColor colour) in shade.Colours)
-                {
-                    writer.Write(ink);
-                    WriteColour(writer, colour);
-                }
+                writer.Write(order);
+                WriteColour(writer, shade.Colours[shown[order]]);
             }
         }
-        return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
+    }
+
+    /// <summary>
+    /// This colouring of a picture whose shown inks are <paramref name="shown"/>, with every shade <paramref name="other"/>
+    /// names as well, <paramref name="other"/> being the colouring of a picture that looks the same and whose shown inks are
+    /// <paramref name="otherShown"/>, place for place (#1544). A shade only <paramref name="other"/> names is added over this
+    /// picture's inks, recolouring each of its shown inks as it recolours the other picture's ink of the same place, so every
+    /// shade either picture can be drawn in stays installed beside it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// The pictures' shown inks do not correspond place for place, or a shade both name shows them differently, which their
+    /// one look rules out.
+    /// </exception>
+    internal SheetPictureColouring WithShadesOf(SheetPictureColouring other, IReadOnlyList<int> otherShown, IReadOnlyList<int> shown)
+    {
+        Ensure.NotNull(other);
+        Ensure.NotNull(otherShown);
+        Ensure.NotNull(shown);
+        if (otherShown.Count != shown.Count)
+            throw new InvalidOperationException($"A picture showing {shown.Count} colours looks the same as one showing {otherShown.Count}.");
+        var merged = new SortedDictionary<string, SheetPictureShade>(shades, StringComparer.Ordinal);
+        foreach ((string key, SheetPictureShade shade) in other.shades)
+        {
+            var translated = new SortedDictionary<int, RgbColor>();
+            for (int order = 0; order < shown.Count; order++)
+            {
+                if (shade.Colours.TryGetValue(otherShown[order], out RgbColor colour))
+                    translated.Add(shown[order], colour);
+            }
+            if (!merged.TryGetValue(key, out SheetPictureShade? kept))
+            {
+                merged.Add(key, new SheetPictureShade(shade.Blends, translated));
+                continue;
+            }
+            bool alike = kept.Blends == shade.Blends && Enumerable.Range(0, shown.Count).All(order =>
+                kept.Colours.TryGetValue(shown[order], out RgbColor keptColour) == translated.TryGetValue(shown[order], out RgbColor otherColour)
+                && keptColour == otherColour);
+            if (!alike)
+                throw new InvalidOperationException($"Shade {key} shows two pictures of one look differently.");
+        }
+        return new SheetPictureColouring(PaletteBits, Groups, colours, merged);
     }
 
     /// <summary>Writes a colour's three channels.</summary>

@@ -8,8 +8,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Blends">Whether a draw showing the shade takes part in colour math over every part.</param>
 /// <param name="Colours">The colour each recoloured ink of the covered groups shows, by ink; an ink it leaves out keeps what lies under it.</param>
-internal sealed record SheetPictureShade(bool Blends, SortedDictionary<int, RgbColor> Colours)
-{
-    /// <summary>Whether the shade changes how a picture over the covered groups shows: it recolours one of their inks or blends.</summary>
-    internal bool Shows => Blends || Colours.Count > 0;
-}
+internal sealed record SheetPictureShade(bool Blends, SortedDictionary<int, RgbColor> Colours);

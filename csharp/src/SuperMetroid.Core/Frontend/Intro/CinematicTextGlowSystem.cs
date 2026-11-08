@@ -30,13 +30,13 @@ internal sealed class CinematicTextGlowSystem
             if (!slot.Active || --slot.Timer != 0) continue;
             for (int row = 0; row < slot.Size.Y; row++)
             for (int column = 0; column < slot.Size.X; column++)
-                text.Recolour(new(slot.Cell.X + column, slot.Cell.Y + row), slot.Palette);
-            if (slot.Palette == CinematicTextGlowDefinitions.FinalPalette)
+                text.Recolour(new(slot.Cell.X + column, slot.Cell.Y + row), slot.ColourVariant);
+            if (slot.ColourVariant == CinematicTextGlowDefinitions.FinalVariant)
                 slot.Active = false;
             else
             {
-                slot.Palette++;
-                slot.Timer = CinematicTextGlowDefinitions.PaletteDuration;
+                slot.ColourVariant++;
+                slot.Timer = CinematicTextGlowDefinitions.VariantDuration;
             }
         }
     }
@@ -54,8 +54,8 @@ internal sealed class CinematicTextGlowSystem
         public int Timer;
         /// <summary>
         /// Current colour variant given to the rectangle's cells: zero when the glow starts, raised by one each phase up to
-        /// <see cref="CinematicTextGlowDefinitions.FinalPalette"/>, where the glow ends.
+        /// <see cref="CinematicTextGlowDefinitions.FinalVariant"/>, where the glow ends.
         /// </summary>
-        public int Palette;
+        public int ColourVariant;
     }
 }

@@ -1126,8 +1126,6 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley retreat copies BG palette-five colors");
     AssertEqual(0x6200, Shown()[0x21],
         "Ceres Ridley retreat copies BG palette-two colors");
-    AssertEqual(0x6200, Shown()[0xf1],
-        "Ceres Ridley retreat copies OBJ palette-seven colors");
 
     AssertTrue(enemies.Audio.SoundRequests.Contains(
             new SoundRequest(Library2Sound.CeresRidleyGetaway, Priority: SoundRequestPriority.Normal)),

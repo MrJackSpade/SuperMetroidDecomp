@@ -127,7 +127,7 @@ internal static class IntroContentIdentityVerification
         RoomBackgroundTilemapAtlas Map(string name, int seed = 0) => RoomBackgroundTilemapAtlas.Load(
             MapJson(name, seed), RoomBackgroundTilemapFormat.BytesPerPage);
         // A black backdrop with an optional red-channel edit; the colours behind the backdrops are the import's alone (#1544).
-        RgbColor Backdrop(string name) => new(edit == name ? 1 : 0, 0, 0);
+        RgbColor Backdrop(string name) => new FadeLevelColour(edit == name ? 1 : 0, 0, 0).ToColour();
 
         // Build semantic sprite frames, optionally reversing key insertion.
         MemoryStream Sprites(string family, IEnumerable<string> sourceNames, int version = 1)

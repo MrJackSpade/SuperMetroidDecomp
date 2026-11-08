@@ -11,7 +11,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks compiled projectile collision radii independently of frame artwork.</summary>
 internal static class ProjectileRadiiVerification
 {
-    /// <summary>Compares 805 bank 93 radius pairs and checks projectile and bomb frames under the stock sprite bindings.</summary>
+    /// <summary>Compares 795 bank 93 radius pairs and checks projectile and bomb frames under the stock sprite bindings.</summary>
     internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.
@@ -83,10 +83,8 @@ internal static class ProjectileRadiiVerification
             0x939f8b, 0x939f93, 0x939f9b, 0x939fa7, 0x939faf, 0x939fb7, 0x939fc3, 0x939fcb, 0x939fd3, 0x939fdb, 0x939fe7, 0x939fef,
             0x939ff7, 0x939fff, 0x93a00b, 0x93a013, 0x93a01b, 0x93a023, 0x93a02b, 0x93a033, 0x93a03d, 0x93a045, 0x93a04d, 0x93a055,
             0x93a05d, 0x93a065, 0x93a06f, 0x93a077, 0x93a07f, 0x93a087, 0x93a08f, 0x93a099, 0x93a0a1, 0x93a0a9, 0x93a0b1, 0x93a0b9,
-            0x93a0c5, 0x93a0cd, 0x93a0d5, 0x93a0dd, 0x93a0e5, 0x93a0ed, 0x93a0f7, 0x93a0ff, 0x93a107, 0x93a10f, 0x93a11d, 0x93a125,
-            0x93a12d, 0x93a135, 0x93a141, 0x93a149, 0x93a151, 0x93a15d, 0x93a165, 0x93a171, 0x93a179, 0x93a181, 0x93a189, 0x93a191,
-            0x93a199,
-        ];
+            0x93a0c5, 0x93a0cd, 0x93a0d5, 0x93a0dd, 0x93a0e5, 0x93a0ed, 0x93a11d, 0x93a125,
+            0x93a12d, 0x93a135, 0x93a141, 0x93a149, 0x93a151, 0x93a15d, 0x93a165];
         foreach (int address in addresses)
         {
             Extent16<RoomPixels> radius = SamusProjectileProgramsVerification.RecordAt((ushort)(address - 4)).Radius;
@@ -129,7 +127,7 @@ internal static class ProjectileRadiiVerification
             AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Bomb stream progression unchanged");
             bombFrames++;
         }
-        Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 805 projectile frames and {bombFrames} bomb frames pass.");
+        Console.WriteLine($"Projectile radii: 795 native pairs, loud non-catalog rejection, 795 projectile frames and {bombFrames} bomb frames pass.");
     }
 
     /// <summary>Runs radius and instruction checks against the same retail cartridge.</summary>

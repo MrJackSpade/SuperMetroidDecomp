@@ -405,7 +405,7 @@ internal sealed class BeamFiring
         sharedProjectiles.SetSharedCooldown(21);
         _charge.ChargedShotGlowTimer = WrappingCountdown.Start((1 << 15) | 20);
         _charge.StartHyperBeamFlare();
-        _charge.FlareCounter = BeamChargeDefinitions.HyperBeamFlareCounter;
+        _charge.FlareCounter = BeamChargeState.HyperBeamFlareCounter;
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(
             charged: true, hyperBeamType);

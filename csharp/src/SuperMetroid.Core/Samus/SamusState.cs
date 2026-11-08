@@ -303,13 +303,13 @@ public sealed class SamusState
     /// The projectile flare counter. Values at least 60 mean the charge
     /// beam is fully charged; spin and wall-jump movement use that producer-owned word to
     /// publish contact-damage index four without owning the projectile charge lifecycle. It mirrors the projectile
-    /// charge's flare counter, 0 through <see cref="Projectiles.BeamChargeDefinitions.HyperBeamFlareCounter"/>; the setter
+    /// charge's flare counter, 0 through <see cref="Projectiles.BeamChargeState.HyperBeamFlareCounter"/>; the setter
     /// rejects any other value.
     /// </summary>
     public int ProjectileFlareCounter
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, Projectiles.BeamChargeDefinitions.HyperBeamFlareCounter, value);
+        set => field = Ensure.BetweenInclusive(0, Projectiles.BeamChargeState.HyperBeamFlareCounter, value);
     }
 
     /// <summary>

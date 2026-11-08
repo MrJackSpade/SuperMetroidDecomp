@@ -5,23 +5,28 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Beam charge state: the flare counter, the previous charge, the charged-shot glow timer, the charge palette index and the three flare components' frames and timers.</summary>
 internal sealed class BeamChargeState
 {
+    /// <summary>
+    /// The flare counter a Hyper Beam shot stores: past every charge threshold, so the Hyper Beam always reads as fully
+    /// charged and never advances it; the largest value the counter holds.
+    /// </summary>
+    internal const int HyperBeamFlareCounter = 1 << 15;
 
     /// <summary>
     /// 60 frames arms a charged shot and 120 is the SBA clamp; the charge advances no further, and a Hyper Beam shot
-    /// stores <see cref="BeamChargeDefinitions.HyperBeamFlareCounter"/>, the setter's upper bound.
+    /// stores <see cref="HyperBeamFlareCounter"/>, the setter's upper bound.
     /// </summary>
     [IntegerQuantity("updates the charge flare has shown")]
     public int FlareCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, BeamChargeDefinitions.HyperBeamFlareCounter, value);
+        internal set => field = Ensure.BetweenInclusive(0, HyperBeamFlareCounter, value);
     }
 
     /// <summary>The <see cref="FlareCounter"/> sampled before the current charge-input update.</summary>
     public int PreviousBeamChargeCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, BeamChargeDefinitions.HyperBeamFlareCounter, value);
+        internal set => field = Ensure.BetweenInclusive(0, HyperBeamFlareCounter, value);
     }
 
     /// <summary>

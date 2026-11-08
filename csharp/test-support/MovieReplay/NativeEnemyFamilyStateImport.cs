@@ -8,7 +8,6 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Sbug;
@@ -209,7 +208,7 @@ internal static class NativeEnemyFamilyStateImport
                     throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Function}.");
             }
             draygonRecord.SwoopPathEntryCount = words.C / DraygonNativeWords.SwoopEntryBytes;
-            draygonRecord.SwoopVelocity = SixteenSixteen.Compose(words.D, words.E);
+            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteen.Compose(words.D, words.E));
         }
         if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
         {

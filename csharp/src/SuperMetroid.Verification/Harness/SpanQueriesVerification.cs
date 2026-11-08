@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;using SuperMetroid.AssetExtraction.Video;
 
@@ -72,9 +73,9 @@ internal static class SpanQueriesVerification
         oam.BeginFrame();
         oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
-        var red = new ScreenTintLayer(31, 0, 0);
+        var red = new ScreenTintLayer(new RgbColor(255, 0, 0));
         var objects = new SpritesLayer([]);
-        var blue = new ScreenTintLayer(0, 0, 31);
+        var blue = new ScreenTintLayer(new RgbColor(0, 0, 255));
         var snapshot = new LayeredScene(memory, new DisplayLayer[] { red, objects, blue }, 15);
         LayeredScene without = snapshot.Without<ScreenTintLayer>();
         AssertTrue(without.Layers.SequenceEqual(new DisplayLayer[] { objects }), "Without removes only the selected kind");

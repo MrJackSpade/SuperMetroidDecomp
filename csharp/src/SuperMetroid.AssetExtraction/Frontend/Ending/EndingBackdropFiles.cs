@@ -64,8 +64,8 @@ public static class EndingBackdropFiles
             Colour(document.Credits, nameof(document.Credits)), Colour(document.PostCredits, nameof(document.PostCredits)));
 
         RgbColor Colour(PaletteRgb5? colour, string scene) =>
-            colour is { Red: >= 0 and <= RgbColor.MaxChannel, Green: >= 0 and <= RgbColor.MaxChannel, Blue: >= 0 and <= RgbColor.MaxChannel }
+            colour is { Red: >= 0 and <= FadeLevelColour.FullLevel, Green: >= 0 and <= FadeLevelColour.FullLevel, Blue: >= 0 and <= FadeLevelColour.FullLevel }
                 ? colour.ToRgbColor()
-                : throw new InvalidDataException($"Ending backdrops {path}: the {scene} backdrop requires red, green and blue in 0..{RgbColor.MaxChannel}.");
+                : throw new InvalidDataException($"Ending backdrops {path}: the {scene} backdrop requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
     }
 }

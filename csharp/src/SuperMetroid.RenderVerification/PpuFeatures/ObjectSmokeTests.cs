@@ -36,8 +36,8 @@ internal static class ObjectSmokeTests
         }
         // The earlier draw covers the later one; a transparent hole in it must still expose the later draw.
         Array.Clear(vram); Array.Clear(oam); Array.Clear(palette);
-        palette[129] = new RgbColor(31, 0, 0);
-        palette[145] = new RgbColor(0, 0, 31);
+        palette[129] = new RgbColor(255, 0, 0);
+        palette[145] = new RgbColor(0, 0, 255);
         for (int row = 0; row < 8; row++) vram[row * 2] = 0x7f;
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;

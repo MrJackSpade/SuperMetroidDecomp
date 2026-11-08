@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal static class CrateriaLightningColors
 {
     /// <summary>
-    /// Four equally spaced RGB5 brightness phases and a white crest.
+    /// Four equally spaced level brightness phases and a white crest.
     /// Record phases ascend zero through four, descend to zero, then descend four to one.
-    /// Each nonwhite frame darkens by one RGB5 unit per color position.
+    /// Each nonwhite frame darkens by one level per color position.
     /// </summary>
     internal static bool TryCalculatedColor(PaletteFxColorKey key, out RgbColor color)
     {
@@ -24,12 +24,12 @@ internal static class CrateriaLightningColors
         // Colour words follow a base plus a per-phase step minus a per-position step: channels (12, 11, 11) rise
         // six per phase and fall one per position, never borrowing between channels.
         int level = 6 * phase - index;
-        color = phase == 4 ? RgbColor.White : new RgbColor(12 + level, 11 + level, 11 + level);
+        color = phase == 4 ? RgbColor.White : new FadeLevelColour(12 + level, 11 + level, 11 + level).ToColour();
         return true;
     }
 
     /// <summary>
-    /// Each dark-lightning channel decreases five RGB5 units per phase,
+    /// Each dark-lightning channel decreases five levels per phase,
     /// clamping at zero. Seven first-frame colors remain supplied inputs; other independent
     /// samples are retained whenever they differ from the supplied-base calculation.
     /// </summary>
@@ -40,10 +40,10 @@ internal static class CrateriaLightningColors
             !inputs.TryGetValue(DarkProgram.Color(0, index), out RgbColor first))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : frame == 9 ? 0 : 14 - frame;
-        int red = Math.Max(0, (first.Red) - 5 * phase);
-        int green = Math.Max(0, (first.Green) - 5 * phase);
-        int blue = Math.Max(0, (first.Blue) - 5 * phase);
-        color = new RgbColor(red, green, blue);
+        int red = Math.Max(0, (first.FadeLevels.Red) - 5 * phase);
+        int green = Math.Max(0, (first.FadeLevels.Green) - 5 * phase);
+        int blue = Math.Max(0, (first.FadeLevels.Blue) - 5 * phase);
+        color = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
 }

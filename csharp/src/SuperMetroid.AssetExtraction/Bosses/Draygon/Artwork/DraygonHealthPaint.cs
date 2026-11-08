@@ -34,7 +34,7 @@ internal sealed class DraygonHealthPaint
         int criticalRed = (Maximum * (Shades - shade) + Shades / 2) / Shades;
         int red = Interpolate(healthyRed, criticalRed, band);
         int green = Interpolate(healthyGreen, 0, band);
-        return new RgbColor(red, green, 0);
+        return new FadeLevelColour(red, green, 0).ToColour();
     }
 
     /// <summary>Immutable healthy gold material shared with the primary body palette.</summary>

@@ -55,7 +55,7 @@ internal static class TileSmokeTests
                 new PicturedPlaneLayer(lower, new Position16<PlanePixels>(3, 11)),
                 new PicturedPlaneLayer(upper, new Position16<PlanePixels>(65535, 255)),
                 new PicturedPlaneLayer(text, new Position16<PlanePixels>(0, 13)),
-                new ScreenTintLayer(3, 17, 31)], "ordered planes/fixed-color/fades", brightness);
+                new ScreenTintLayer(new FadeLevelColour(3, 17, 31).ToColour())], "ordered planes/fixed-color/fades", brightness);
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} pictured-background/color-math GPU comparisons passed.");
 
         void Check(DisplayLayer[] layers, string name, byte brightness = 15)
@@ -86,7 +86,7 @@ internal static class TileSmokeTests
         for (int i = 0; i < 1024; i++)
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(vram.AsSpan(0x4000 * 2 + i * 2), 0xec04);
         var palette = new RgbColor[SnesCgram.ColorCount];
-        palette[3 * 16 + 2] = new RgbColor(31, 0, 0); palette[3 * 16 + 10] = new RgbColor(0, 0, 31);
+        palette[3 * 16 + 2] = new RgbColor(255, 0, 0); palette[3 * 16 + 10] = new RgbColor(0, 0, 255);
         var memory = FramePaint.FromNative(palette, []);
         var frame = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new PictureGridLayer(VramPictureFixtures.Grid(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),

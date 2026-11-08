@@ -36,9 +36,9 @@ internal static class BabyMetroidFinalHealthPaint
     /// <summary>Adds half the initial glint increment to the weakened organ light, with channel-specific rounding.</summary>
     private static RgbColor Glint()
     {
-        int green = Math.Min(31, InnardLight.Green + (InitialSlots.InnardGlintAddition + GlintDivisor - 1) / GlintDivisor);
-        int blue = Math.Min(31, InnardLight.Blue + InitialSlots.InnardGlintAddition / GlintDivisor);
-        return new(InnardLight.Red, green, blue);
+        int green = Math.Min(31, InnardLight.FadeLevels.Green + (InitialSlots.InnardGlintAddition + GlintDivisor - 1) / GlintDivisor);
+        int blue = Math.Min(31, InnardLight.FadeLevels.Blue + InitialSlots.InnardGlintAddition / GlintDivisor);
+        return new FadeLevelColour(InnardLight.FadeLevels.Red, green, blue).ToColour();
     }
 
     /// <summary>Interpolates the organ's red by smoothstep, green linearly, and blue by one unit per shade.</summary>
@@ -48,13 +48,13 @@ internal static class BabyMetroidFinalHealthPaint
         int denominator = intervals * intervals * intervals;
         int weight = shade * shade * (3 * intervals - 2 * shade);
         // Standard smoothstep red and linear green both round up for this selected composition.
-        int red = (InnardLight.Red * (denominator - weight) + DarkContour.Red * weight + denominator - 1) / denominator;
-        int green = (InnardLight.Green * (intervals - shade) + DarkContour.Green * shade + intervals - 1) / intervals;
-        int blue = InnardLight.Blue - shade * InnardBlueSurfaceStep;
-        return new(red, green, blue);
+        int red = (InnardLight.FadeLevels.Red * (denominator - weight) + DarkContour.FadeLevels.Red * weight + denominator - 1) / denominator;
+        int green = (InnardLight.FadeLevels.Green * (intervals - shade) + DarkContour.FadeLevels.Green * shade + intervals - 1) / intervals;
+        int blue = InnardLight.FadeLevels.Blue - shade * InnardBlueSurfaceStep;
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 
     /// <summary>Darkens the initial fang outline to three quarters with the selected rounding policy.</summary>
-    private static RgbColor FangContour() => InitialSlots.FangOutline.Map((_, channel) =>
-        (channel * ContourNumerator + (ContourDenominator - 1) / 2) / ContourDenominator);
+    private static RgbColor FangContour() => InitialSlots.FangOutline.FadeLevels.Map((_, channel) =>
+        (channel * ContourNumerator + (ContourDenominator - 1) / 2) / ContourDenominator).ToColour();
 }

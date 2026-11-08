@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Immutable control words for the three Samus-in-heat palette programs.
 /// </summary>
 /// <remarks>
-/// Each timed record contains fifteen BGR555 colors between its duration and terminal
+/// Each timed record contains fifteen colours between its duration and terminal
 /// wait command. Those 720 color words remain live presentation data; this catalog owns
 /// only program setup, timing, waits, and loop control.
 /// The Power, Varia, and Gravity programs each install the heat frame behaviour

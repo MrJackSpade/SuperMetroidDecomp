@@ -49,7 +49,7 @@ internal static class SidehopperPaletteRecognition
                 EndpointChannel(colors, ColorChannel.Green) is not { } green ||
                 EndpointChannel(colors, ColorChannel.Blue) is not { } blue)
                 return supplied;
-            endpoint = new(red, green, blue);
+            endpoint = new FadeLevelColour(red, green, blue).ToColour();
         }
         for (int color = 8; color < count; color++)
             if (SidehopperCorpsePalette.Interpolate(colors[8], endpoint, color - 8) != colors[color]) return supplied;
@@ -66,11 +66,11 @@ internal static class SidehopperPaletteRecognition
     /// </summary>
     private static int? EndpointChannel(RgbColor[] colors, ColorChannel channel)
     {
-        int start = colors[8][channel];
+        int start = colors[8].FadeLevels[channel];
         int lower = 0, upper = 31;
         for (int phase = 1; phase < colors.Length - 8; phase++)
         {
-            int sample = colors[8 + phase][channel];
+            int sample = colors[8 + phase].FadeLevels[channel];
             int numerator = sample * 7 - start * (7 - phase) - 3;
             lower = Math.Max(lower, (int)Math.Ceiling((double)numerator / phase));
             upper = Math.Min(upper, (int)Math.Floor((double)(numerator + 6) / phase));

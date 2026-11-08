@@ -57,7 +57,7 @@ internal sealed class SporeSpawnHealthBands
     {
         if (color == 0) return critical[0];
         int intervals = SporeSpawnColorDefinitions.HealthFrameCount - 1;
-        return healthy[color].Zip(critical[color], (_, start, end) =>
-            (start * (intervals - frame) + end * frame + intervals / 2) / intervals);
+        return healthy[color].FadeLevels.Zip(critical[color].FadeLevels, (_, start, end) =>
+            (start * (intervals - frame) + end * frame + intervals / 2) / intervals).ToColour();
     }
 }

@@ -176,8 +176,8 @@ internal sealed class SheetPictureColouring
     /// <summary>Writes a colour's three channels.</summary>
     private static void WriteColour(BinaryWriter writer, RgbColor colour)
     {
-        writer.Write(colour.Red);
-        writer.Write(colour.Green);
-        writer.Write(colour.Blue);
+        writer.Write(colour.FadeLevels.Red);
+        writer.Write(colour.FadeLevels.Green);
+        writer.Write(colour.FadeLevels.Blue);
     }
 }

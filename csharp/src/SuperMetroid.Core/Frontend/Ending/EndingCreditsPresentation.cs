@@ -94,7 +94,7 @@ internal static class EndingCreditsPresentation
             else layers.Add(Sprites(ending, objectSheet, blend: RewardSpritesGlow(ending) ? SpriteBlend.Glows : SpriteBlend.Drawn));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
-            layers.Add(EndingFlyaway.WhiteAddition(ending.CreditsRoll.WhiteFlashColor));
+            layers.Add(WhiteWash.Layer(ending.CreditsRoll.WhiteFlashColor));
         return new(paint, layers.ToArray(), ending.Stage.Brightness);
     }
 
@@ -169,8 +169,7 @@ internal static class EndingCreditsPresentation
         new(PrepareSprites(ending, objectSheet, only).Draws, blend, tint);
 
     /// <summary>The colour the flyaway's white sky tints the sprites with, or null while it shows none.</summary>
-    private static RgbColor? FlyawaySkyWhite(EndingCreditsState ending) => ending.Flyaway.FlyawayFixedColor is { } white
-        ? new RgbColor(white.Red, white.Green, white.Blue) : null;
+    private static RgbColor? FlyawaySkyWhite(EndingCreditsState ending) => ending.Flyaway.FlyawayFixedColor?.Colour;
 
     /// <summary>The sprite layer <paramref name="role"/>'s sprite shows on (#1514): the starfields lie behind, every other sprite in front.</summary>
     /// <exception cref="InvalidOperationException">The role is undefined.</exception>

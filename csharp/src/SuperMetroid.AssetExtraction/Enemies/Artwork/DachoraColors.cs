@@ -19,11 +19,11 @@ internal static class DachoraColors
     {
         RgbColor basis = normal[color];
         if (color == 0) return frame == 0 ? DachoraColorCatalog.SpeedFlashBackdrop : basis;
-        int blue = basis.Blue;
+        int blue = basis.FadeLevels.Blue;
         int target = Math.Min(blue + 16, 31);
         int steps = DachoraColorDefinitions.AnimatedFrameCount - 1;
         int shifted = blue + ((target - blue) * frame + steps / 2) / steps;
-        return basis.WithBlue(shifted);
+        return basis.FadeLevels.WithBlue(shifted).ToColour();
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ internal static class DachoraColors
     {
         RgbColor basis = normal[color];
         if (color == 0) return basis;
-        return basis.Map((_, channel) => channel + frame * (31 - channel) / 5);
+        return basis.FadeLevels.Map((_, channel) => channel + frame * (31 - channel) / 5).ToColour();
     }
 
     /// <summary>Resolves one selected Dachora color, preserving every supplied speed/shine deviation.</summary>

@@ -25,7 +25,7 @@ internal static class PlanetZebesTextColors
     internal static PaletteFxColorKey Endpoint(int color) => PlanetZebesTextPaletteFxColorDefinitions.All[0]
         .Color(PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1, color);
 
-    /// <summary>Round each RGB5 endpoint channel to nearest over seven intervals; fade-out reverses the phase.</summary>
+    /// <summary>Round each endpoint level to nearest over seven intervals; fade-out reverses the phase.</summary>
     internal static bool TryCalculate(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> inputs, out RgbColor color)
     {
         color = RgbColor.Black;
@@ -33,10 +33,10 @@ internal static class PlanetZebesTextColors
             || !inputs.TryGetValue(Endpoint(index), out RgbColor endpoint)) return false;
         int intervals = PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1;
         int phase = owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? frame : intervals - frame;
-        int red = ((endpoint.Red) * phase + intervals / 2) / intervals;
-        int green = ((endpoint.Green) * phase + intervals / 2) / intervals;
-        int blue = ((endpoint.Blue) * phase + intervals / 2) / intervals;
-        color = new RgbColor(red, green, blue);
+        int red = ((endpoint.FadeLevels.Red) * phase + intervals / 2) / intervals;
+        int green = ((endpoint.FadeLevels.Green) * phase + intervals / 2) / intervals;
+        int blue = ((endpoint.FadeLevels.Blue) * phase + intervals / 2) / intervals;
+        color = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
 }

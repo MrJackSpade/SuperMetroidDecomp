@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// runs <c>SetColorIndex(160)</c>, sixteen 36-byte
 /// records of <c>24, colors[16], Wait</c>, then <c>Delete</c> at
 /// its end after 384 frames. All 35 control words match. For every
-/// BGR555 component and column, frames 0..7 interpolate from frame 0 to
+/// level and column, frames 0..7 interpolate from frame 0 to
 /// frame 7 using <c>floor(((7 - f)*q0 + f*q7)/7)</c>. Frame 8 repeats frame
 /// 7 except that its last color changes from a dim grey to black. Frames
 /// 8..15 interpolate from frame 8 to frame 15 with <c>t = f - 8</c> and
@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionGunshipPaletteFxColorDefinitions
 {
 
-    /// <summary>Each record writes sixteen live BGR555 colors.</summary>
+    /// <summary>Each record writes sixteen live colours.</summary>
     public const int ColorsPerFrame = 16;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>

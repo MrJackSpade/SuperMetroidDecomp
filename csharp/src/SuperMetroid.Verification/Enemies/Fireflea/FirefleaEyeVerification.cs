@@ -54,7 +54,7 @@ internal static class FirefleaEyeVerification
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = ScreenWindow.Closed;
-            var layer = new GameplayBlendLayer(objects, closed, false, actualDarkness.Blend with { Colour = new RgbColor(darkness, darkness, darkness) });
+            var layer = new GameplayBlendLayer(objects, closed, false, actualDarkness.Blend with { Colour = new FadeLevelColour(darkness, darkness, darkness).ToColour() });
             var pixels = DisplayRendering.Render(new LayeredScene(memory, new DisplayLayer[] { layer }, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");

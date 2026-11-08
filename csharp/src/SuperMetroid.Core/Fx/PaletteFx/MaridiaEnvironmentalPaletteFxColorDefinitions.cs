@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Immutable control words for Maridia's sand and background-waterfall palette loops.
 /// </summary>
 /// <remarks>
-/// The sand-pit, sand-fall and background-waterfall definitions own 112 BGR555 color
+/// The sand-pit, sand-fall and background-waterfall definitions own 112 colour
 /// words. Those colors remain presentation data; this catalog owns only color-index
 /// setup, durations, waits, and loop control.
 /// Sand pits start at colour byte 72 and run four ten-frame records,

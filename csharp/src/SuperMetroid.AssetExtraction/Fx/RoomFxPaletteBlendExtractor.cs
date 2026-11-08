@@ -32,13 +32,13 @@ public static class RoomFxPaletteBlendExtractor
             {
                 RgbColor stored = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
                     : RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * ColourWordCodec.ByteCount)));
-                int red = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairRed(id, index == 0) ?? stored.Red : stored.Red;
-                int green = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairGreen(id, red, index == 0) ?? stored.Green : RoomFxPaletteBlendRules.CalculatedThirdGreen(id) ?? stored.Green;
+                int red = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairRed(id, index == 0) ?? stored.FadeLevels.Red : stored.FadeLevels.Red;
+                int green = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairGreen(id, red, index == 0) ?? stored.FadeLevels.Green : RoomFxPaletteBlendRules.CalculatedThirdGreen(id) ?? stored.FadeLevels.Green;
                 colors[index] = new PaletteRgb5
                 {
                     Red = red,
                     Green = green,
-                    Blue = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairBlue(id, red, green, index == 0) ?? stored.Blue : RoomFxPaletteBlendRules.CalculatedThirdBlue(id, red) ?? stored.Blue,
+                    Blue = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairBlue(id, red, green, index == 0) ?? stored.FadeLevels.Blue : RoomFxPaletteBlendRules.CalculatedThirdBlue(id, red) ?? stored.FadeLevels.Blue,
                 };
             }
             blends.Add(RoomFxPaletteBlendDocumentRules.Key(id), colors);

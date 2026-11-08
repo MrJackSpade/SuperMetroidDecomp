@@ -15,6 +15,6 @@ internal static class ZebetitePulsePaint
         int greenStart = color == 0 ? WarmGreenBias : WarmGreenBias / 2;
         int red = redStart + (ChannelMaximum - redStart) * phase / intervals;
         int green = greenStart * (intervals - phase) / intervals;
-        return new RgbColor(red, green, 0);
+        return new FadeLevelColour(red, green, 0).ToColour();
     }
 }

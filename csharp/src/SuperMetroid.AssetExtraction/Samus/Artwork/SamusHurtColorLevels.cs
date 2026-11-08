@@ -42,13 +42,13 @@ internal static class SamusHurtColorLevels
     internal static RgbColor IntroFromLevel(int red)
     {
         int blue = Math.Max(OutlineLevel, red - BlueTintDrop);
-        return new RgbColor(red, red, blue);
+        return new FadeLevelColour(red, red, blue).ToColour();
     }
 
     /// <summary>Floor-scaled RGB5 blend toward maximum white; applies only to indices 1..15, excluding the independently supplied zero slot.</summary>
     internal static RgbColor HurtFromIntro(RgbColor intro)
     {
         int Blend(int channel) => (SourceWeight * channel + WhiteWeight * FullIntensity) / (SourceWeight + WhiteWeight);
-        return intro.Map((_, channel) => Blend(channel));
+        return intro.FadeLevels.Map((_, channel) => Blend(channel)).ToColour();
     }
 }

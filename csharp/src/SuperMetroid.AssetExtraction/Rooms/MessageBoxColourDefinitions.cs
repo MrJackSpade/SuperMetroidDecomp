@@ -12,11 +12,11 @@ internal static class MessageBoxColourDefinitions
     internal const int LightInk = 25;
 
     /// <summary>The light colour installed for the message box.</summary>
-    internal static RgbColor Light => new(17, 29, 2);
+    internal static RgbColor Light => new(140, 239, 16);
 
     /// <summary>The ink of a tileset's BG3 picture the dark message colour shows in: the HUD effect colours' eleventh.</summary>
     internal const int DarkInk = 26;
 
     /// <summary>The dark colour installed for the message box.</summary>
-    internal static RgbColor Dark => new(31, 0, 0);
+    internal static RgbColor Dark => new(255, 0, 0);
 }

@@ -51,7 +51,7 @@ internal static class WindowSceneSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(parentPaint,
                 new DisplayLayer[] { parentSprites, window,
-                    background, window, new ScreenTintLayer(1,2,3) }, DisplayBrightness.Combine(13, 11)));
+                    background, window, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()) }, DisplayBrightness.Combine(13, 11)));
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");

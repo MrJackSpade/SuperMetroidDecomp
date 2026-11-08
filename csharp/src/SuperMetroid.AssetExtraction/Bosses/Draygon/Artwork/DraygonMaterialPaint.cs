@@ -56,5 +56,5 @@ internal sealed class DraygonMaterialPaint
     }
 
     /// <summary>Forms the five-bit RGB channels calculated for one Draygon material entry.</summary>
-    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new FadeLevelColour(red, green, blue).ToColour();
 }

@@ -84,6 +84,6 @@ internal static class EnemyTileArtworkCeresDoorVerification
     private static RgbColor Native(ISnesAddressSpace bus, int address)
     {
         int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-        return new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31);
+        return new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour();
     }
 }

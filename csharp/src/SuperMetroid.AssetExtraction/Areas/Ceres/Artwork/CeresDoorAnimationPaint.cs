@@ -53,7 +53,7 @@ internal sealed class CeresDoorAnimationPaint
     {
         if (color != 0) return normal.ColorAt(8 + color);
         RgbColor normalSeed = normal.ColorAt(8);
-        return new(normalSeed.Red, normalSeed.Green, firstSeedBlue);
+        return new FadeLevelColour(normalSeed.FadeLevels.Red, normalSeed.FadeLevels.Green, firstSeedBlue).ToColour();
     }
 
     /// <summary>Resolves an edited beacon cell or reconstructs its mirrored fade color.</summary>
@@ -71,7 +71,7 @@ internal sealed class CeresDoorAnimationPaint
     {
         int phase = Math.Min(step, 7 - step);
         RgbColor seed = seedEdits.TryGetValue(new PaintColour(0, color), out RgbColor edited) ? edited : SharedSeed(color);
-        int red = seed.Red, green = seed.Green, blue = seed.Blue;
+        int red = seed.FadeLevels.Red, green = seed.FadeLevels.Green, blue = seed.FadeLevels.Blue;
         if (phase == 0 && color >= 3)
         {
             red = Math.Min(MaximumChannel, red + GoldBrightening);
@@ -85,6 +85,6 @@ internal sealed class CeresDoorAnimationPaint
             blue = Math.Clamp(blue + delta, 0, MaximumChannel);
             if (phase == 3 && color == 4) red = dimMiddleAmberRed;
         }
-        return new(red, green, blue);
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 }

@@ -36,13 +36,13 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
     InstalledSamusDeathPalettes Death, IPaletteFxColorSource PaletteFx)
 {
     /// <summary>The visible colours of an ordinary charged shot's glow, every one but the transparent first.</summary>
-    private static readonly RgbColor ChargedShotGlowColour = new(31, 31, 0);
+    private static readonly RgbColor ChargedShotGlowColour = new(255, 255, 0);
 
     /// <summary>The visor's green as a door transition finishes loading the next room.</summary>
-    private static readonly RgbColor DoorCompletionVisorColour = new(0, 31, 14);
+    private static readonly RgbColor DoorCompletionVisorColour = new(0, 255, 115);
 
     /// <summary>The grapple flare's colour once the grapple's firing colours are loaded.</summary>
-    private static readonly RgbColor GrappleFiringFlareColour = new(17, 28, 31);
+    private static readonly RgbColor GrappleFiringFlareColour = new(140, 231, 255);
 
     /// <summary>
     /// Every shade Samus's sheets are pre-coloured in (#1512): one per colouring her colour state can name, each recolouring

@@ -33,10 +33,10 @@ internal static class SpriteDrawSmokeTests
             // A sheet of four eight-pixel frames: three solid in colour 1 of rows 0 to 2, and one in row 3 colouring only
             // its left column, so a horizontal mirror moves that column to the frame's right edge.
             var palette = new RgbColor[SnesCgram.ColorCount];
-            palette[128 + 1] = new RgbColor(31, 0, 0);
-            palette[128 + 16 + 1] = new RgbColor(0, 31, 0);
-            palette[128 + 32 + 1] = new RgbColor(0, 0, 31);
-            palette[128 + 48 + 1] = new RgbColor(31, 31, 0);
+            palette[128 + 1] = new RgbColor(255, 0, 0);
+            palette[128 + 16 + 1] = new RgbColor(0, 255, 0);
+            palette[128 + 32 + 1] = new RgbColor(0, 0, 255);
+            palette[128 + 48 + 1] = new RgbColor(255, 255, 0);
             const int Frames = 4, Side = 8;
             var size = new Extent16<ImagePixels>(Frames * Side, Side);
             var sheetPixels = new RgbaPixel[size.X * size.Y];

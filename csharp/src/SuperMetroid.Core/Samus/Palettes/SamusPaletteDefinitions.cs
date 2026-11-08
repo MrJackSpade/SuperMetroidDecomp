@@ -82,7 +82,7 @@ public static class SamusPaletteDefinitions
     /// The six bubble colors follow each step's ten body colors.
     /// For bubble color <c>c = 0..5</c>, let
     /// <c>k = (c-r+6)%6</c> and <c>q = k + (k &gt;= 3 ? 1 : 0)</c>.
-    /// The stock BGR555 word is 32767 less 1056 times <c>q</c>, except
+    /// The stock colour is 32767 less 1056 times <c>q</c>, except
     /// <c>r = 5, c = 0</c> is 32767 rather than 31711.
     /// All 36 words, including that authored exception, match the
     /// original data. The bubble cursor visits steps 0..5 and wraps
@@ -97,7 +97,7 @@ public static class SamusPaletteDefinitions
         public const int BubblePaletteCount = 6;
     }
 
-    /// <summary>The light beam's colour endpoints in the shared Varia/Gravity pickup sequence, in five-bit channels.</summary>
+    /// <summary>The light beam's colour endpoints in the shared Varia/Gravity pickup sequence, in levels.</summary>
     public static class SuitPickup
     {
         /// <summary>Initial red shared by both transformations.</summary>

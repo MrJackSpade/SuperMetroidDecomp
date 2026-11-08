@@ -36,15 +36,15 @@ internal static class EndingGunshipPaletteColors
         {
             if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxColorDefinitions.Color(15, color), out RgbColor bright))
                 return false;
-            value = Pack((bright.Red) * 2 / 7, (bright.Green) * 2 / 7, (bright.Blue) * 2 / 7);
+            value = Pack((bright.FadeLevels.Red) * 2 / 7, (bright.FadeLevels.Green) * 2 / 7, (bright.FadeLevels.Blue) * 2 / 7);
             return true;
         }
         int first = frame < 8 ? 0 : 8, last = frame < 8 ? 7 : 15;
         if (!Endpoint(first, color, colors, out RgbColor a) || !Endpoint(last, color, colors, out RgbColor b)) return false;
         int t = frame - first, bias = frame < 8 ? 0 : 3;
-        value = Pack(((a.Red) * (7 - t) + (b.Red) * t + bias) / 7,
-            ((a.Green) * (7 - t) + (b.Green) * t + bias) / 7,
-            ((a.Blue) * (7 - t) + (b.Blue) * t + bias) / 7);
+        value = Pack(((a.FadeLevels.Red) * (7 - t) + (b.FadeLevels.Red) * t + bias) / 7,
+            ((a.FadeLevels.Green) * (7 - t) + (b.FadeLevels.Green) * t + bias) / 7,
+            ((a.FadeLevels.Blue) * (7 - t) + (b.FadeLevels.Blue) * t + bias) / 7);
         return true;
     }
 
@@ -54,6 +54,6 @@ internal static class EndingGunshipPaletteColors
         PaletteFxColorKey key = ZebesExplosionGunshipPaletteFxColorDefinitions.Color(frame, color);
         return colors.TryGetValue(key, out value) || TryCalculatedColor(key, colors, out value);
     }
-    /// <summary>Forms one RGB5 value from independently interpolated gunship color channels.</summary>
-    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
+    /// <summary>Forms one colour from independently interpolated gunship color channels.</summary>
+    private static RgbColor Pack(int red, int green, int blue) => new FadeLevelColour(red, green, blue).ToColour();
 }

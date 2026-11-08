@@ -47,9 +47,9 @@ public sealed class InstalledCrystalFlashColors
     internal static RgbColor CalculateBody(int frame, int color)
     {
         if (color == 0)
-            return new RgbColor(0, 0, 14);
+            return new RgbColor(0, 0, 115);
         int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
-        return new RgbColor(grey, grey, grey);
+        return new FadeLevelColour(grey, grey, grey).ToColour();
     }
     /// <summary>Returns one editable bubble color from the independently cycling six-frame sequence, preserving supplied edits and the painted white sample.</summary>
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
@@ -80,6 +80,6 @@ public sealed class InstalledCrystalFlashColors
         int phase = (color - frame + CrystalFlashColorFormat.BubbleColorCount)
             % CrystalFlashColorFormat.BubbleColorCount;
         int channel = 31 - (6 * phase + 2) / 5;
-        return new RgbColor(31, channel, channel);
+        return new FadeLevelColour(31, channel, channel).ToColour();
     }
 }

@@ -26,7 +26,7 @@ internal static class TourianStatuePaint
     /// <summary>Interpolates an eight-bit stone channel and keeps its high five bits for the palette.</summary>
     private static int GreyChannel(int first, int last, int step) => (first * (6 - step) + last * step) / (6 * 8);
     /// <summary>Packs selected five-bit channel levels into a palette color.</summary>
-    private static RgbColor Pack(int r, int g, int b) => new RgbColor(r, g, b);
+    private static RgbColor Pack(int r, int g, int b) => new FadeLevelColour(r, g, b).ToColour();
     /// <summary>Interpolates a channel with nearest-integer rounding.</summary>
     private static int Nearest(int first, int last, int step, int count) =>
         (first * (count - step) + last * step + count / 2) / count;

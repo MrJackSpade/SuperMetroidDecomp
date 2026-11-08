@@ -58,14 +58,14 @@ internal static class MotherBrainRainbowPaletteRecognition
     /// <summary>Seeks eight-bit tissue endpoints whose four-interval gradient quantizes to every supplied tissue shade.</summary>
     private static bool TryChannel(RgbColor[] colors, ColorChannel channel, out int first, out int last)
     {
-        int low = colors[8][channel] * 8;
-        int high = colors[12][channel] * 8;
+        int low = colors[8].FadeLevels[channel] * 8;
+        int high = colors[12].FadeLevels[channel] * 8;
         for (int start = low; start < low + 8; start++)
             for (int end = high; end < high + 8; end++)
             {
                 bool matches = true;
                 for (int step = 0; step <= 4; step++)
-                    if ((start * (4 - step) + end * step) / 32 != colors[8 + step][channel])
+                    if ((start * (4 - step) + end * step) / 32 != colors[8 + step].FadeLevels[channel])
                     { matches = false; break; }
                 if (matches) { first = start; last = end; return true; }
             }
@@ -164,13 +164,13 @@ internal static class MotherBrainRainbowPaletteRecognition
     private static Presentation.RedOriginColors? RedOrigin(Presentation.BodyColors colors)
     {
         if (colors.Length != MotherBrainRainbowPaletteGeometry.ColorCount ||
-            colors[0].Red < (RedOriginSlots.PlateStart - 1) * MotherBrainRainbowPaletteGeometry.HeadRedStep) return null;
+            colors[0].FadeLevels.Red < (RedOriginSlots.PlateStart - 1) * MotherBrainRainbowPaletteGeometry.HeadRedStep) return null;
         var selected = new Presentation.RedOriginColors(
             new(colors[0], colors[RedOriginSlots.PlateStart], colors[RedOriginSlots.PlateEnd],
                 colors[RedOriginSlots.TissueStart], colors[RedOriginSlots.TissueEnd]),
-            new(colors[RedOriginSlots.DarkHead].Green, colors[RedOriginSlots.DarkHead].Blue),
-            [colors[RedOriginSlots.TissueStart + 1].Green, colors[RedOriginSlots.TissueStart + 2].Green,
-                colors[RedOriginSlots.TissueStart + 3].Green],
+            new(colors[RedOriginSlots.DarkHead].FadeLevels.Green, colors[RedOriginSlots.DarkHead].FadeLevels.Blue),
+            [colors[RedOriginSlots.TissueStart + 1].FadeLevels.Green, colors[RedOriginSlots.TissueStart + 2].FadeLevels.Green,
+                colors[RedOriginSlots.TissueStart + 3].FadeLevels.Green],
             [colors[RedOriginSlots.TailStart], colors[RedOriginSlots.TailStart + 1]]);
         for (int color = 0; color < colors.Length; color++)
             if (selected[color] != colors[color]) return null;
@@ -193,9 +193,9 @@ internal static class MotherBrainRainbowPaletteRecognition
         for (int color = 0; color < source.Length; color++)
         {
             RgbColor from = source[color], to = selected[color];
-            if (channels.Red && from.Red + channels.RedAddition != to.Red ||
-                channels.Green && from.Green + channels.GreenAddition != to.Green ||
-                channels.Blue && from.Blue != to.Blue) return null;
+            if (channels.Red && from.FadeLevels.Red + channels.RedAddition != to.FadeLevels.Red ||
+                channels.Green && from.FadeLevels.Green + channels.GreenAddition != to.FadeLevels.Green ||
+                channels.Blue && from.FadeLevels.Blue != to.FadeLevels.Blue) return null;
         }
         int independentCount = (channels.Red ? 0 : 1) + (channels.Green ? 0 : 1) + (channels.Blue ? 0 : 1);
         if (independentCount != 1) throw new InvalidOperationException("A rainbow shade profile requires one independently supplied channel.");
@@ -204,11 +204,11 @@ internal static class MotherBrainRainbowPaletteRecognition
         for (int color = 0; color < source.Length; color++)
         {
             RgbColor word = selected[color];
-            if (!channels.Red) samples[index++] = word.Red;
-            if (!channels.Green) samples[index++] = word.Green;
-            if (!channels.Blue) samples[index++] = word.Blue;
+            if (!channels.Red) samples[index++] = word.FadeLevels.Red;
+            if (!channels.Green) samples[index++] = word.FadeLevels.Green;
+            if (!channels.Blue) samples[index++] = word.FadeLevels.Blue;
         }
-        return new(source, channels, ShadeChannel(samples, profile, color => source[color].Green));
+        return new(source, channels, ShadeChannel(samples, profile, color => source[color].FadeLevels.Green));
     }
 
     /// <summary>Retains independent samples only when the phase's supplied samples follow the shade profile.</summary>

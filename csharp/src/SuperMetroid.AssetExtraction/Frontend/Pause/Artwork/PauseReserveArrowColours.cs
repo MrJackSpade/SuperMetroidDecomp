@@ -43,7 +43,7 @@ public sealed class PauseReserveArrowColours
         arrowStartEdits = new ReserveArrowColorEdits(arrowFrames[0].Color6 == solidColor11 ? null : arrowFrames[0].Color6,
             arrowFrames[0].Color11 == solidColor6 ? null : arrowFrames[0].Color11);
         var middle = arrowFrames[PauseReserveArrowDefinitions.ArrowFrames / 2 - 1];
-        arrowGreyLevels = new ReserveArrowGreyLevels(middle.Color6.Red, middle.Color11.Red);
+        arrowGreyLevels = new ReserveArrowGreyLevels(middle.Color6.FadeLevels.Red, middle.Color11.FadeLevels.Red);
         for (int frame = 0; frame < arrowFrames.Length; frame++)
         {
             if (arrowFrames[frame].Color6 != CalculateArrowColor(frame, ReserveArrowBevel.Shade))
@@ -93,9 +93,9 @@ public sealed class PauseReserveArrowColours
         bool second = bevel == ReserveArrowBevel.Light;
         RgbColor start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
         int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
-        if (phase == steps) return new(grey, grey, grey);
+        if (phase == steps) return new FadeLevelColour(grey, grey, grey).ToColour();
         ColorChannel held = second ? ColorChannel.Blue : ColorChannel.Red;
-        return start.Map((channel, channelStart) =>
+        return start.FadeLevels.Map((channel, channelStart) =>
         {
             int channelPhase = phase == steps - 1 && channel == held ? phase - 1 : phase;
             float remaining = 1;
@@ -107,7 +107,7 @@ public sealed class PauseReserveArrowColours
             // cannot remove the intermediate rounding or alter the integral crossings.
             float delta = (float)((double)(grey - channelStart) * amount);
             return (int)(float)(channelStart + (double)delta);
-        });
+        }).ToColour();
     }
 
     /// <summary>Uses the supplied independent bevel shade when present; otherwise mirrors the calculated 32-phase ramp.</summary>

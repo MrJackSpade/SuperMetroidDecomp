@@ -24,6 +24,6 @@ internal static class SidehopperCorpsePaint
     /// <summary>Scales each five-bit channel with the authored integer rounding for a corpse shade.</summary>
     private static RgbColor Scale(RgbColor color, int numerator, int denominator, int rounding)
     {
-        return color.Map((_, a) => ((a * numerator + rounding) / denominator));
+        return color.FadeLevels.Map((_, a) => ((a * numerator + rounding) / denominator)).ToColour();
     }
 }

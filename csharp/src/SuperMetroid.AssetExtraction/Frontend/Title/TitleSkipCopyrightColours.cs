@@ -12,5 +12,5 @@ internal static class TitleSkipCopyrightColours
     internal static RgbColor White => RgbColor.White;
 
     /// <summary>The skip-only copyright colour, kept under its historical Red name.</summary>
-    internal static RgbColor Red => new(0, 12, 31);
+    internal static RgbColor Red => new(0, 99, 255);
 }

@@ -56,7 +56,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
     {
         this.colors = colors;
         RgbColor Word(EndingGunshipPaletteInk ink) => colors[Key(ink)];
-        int Red(EndingGunshipPaletteInk ink) => Word(ink).Red;
+        int Red(EndingGunshipPaletteInk ink) => Word(ink).FadeLevels.Red;
         Channels Gold(EndingGunshipPaletteInk ink) => new(Word(ink), null, Math.Max(0, Red(ink) - 1), null);
         Channels Hull(EndingGunshipPaletteInk ink, int? red = null) => new(Word(ink), red, Math.Max(0, Red(ink) - 3), 0);
         highlight = Gold(EndingGunshipPaletteInk.Highlight);
@@ -69,15 +69,15 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
             (Red(EndingGunshipPaletteInk.HullShadeLight) + Red(EndingGunshipPaletteInk.HullShadeDark) + 1) / 2);
 
         RgbColor cockpit = Word(EndingGunshipPaletteInk.CockpitLight);
-        int green = cockpit.Green, blue = cockpit.Blue;
+        int green = cockpit.FadeLevels.Green, blue = cockpit.FadeLevels.Blue;
         Channels Cockpit(EndingGunshipPaletteInk ink) => new(Word(ink), 0, null,
-            green == 0 ? null : Math.Min(31, (Word(ink).Green) * blue / green));
+            green == 0 ? null : Math.Min(31, (Word(ink).FadeLevels.Green) * blue / green));
         cockpitLight = new(cockpit, 0, null, null);
         cockpitMiddle = Cockpit(EndingGunshipPaletteInk.CockpitMiddle);
         cockpitDark = Cockpit(EndingGunshipPaletteInk.CockpitDark);
 
         RgbColor underside = Word(EndingGunshipPaletteInk.UndersideLight);
-        undersideBlueOffset = (underside.Blue) - (underside.Red);
+        undersideBlueOffset = (underside.FadeLevels.Blue) - (underside.FadeLevels.Red);
         Channels Underside(EndingGunshipPaletteInk ink) => new(Word(ink), null, Red(ink), Math.Clamp(Red(ink) + undersideBlueOffset, 0, 31));
         undersideLight = Underside(EndingGunshipPaletteInk.UndersideLight);
         undersideMiddle = Underside(EndingGunshipPaletteInk.UndersideMiddle);
@@ -85,7 +85,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) colors.Remove(Key(ink));
     }
 
-    /// <summary>Nullable independent RGB5 components over a calculated gunship ink.</summary>
+    /// <summary>Nullable independent levels over a calculated gunship ink.</summary>
     private readonly struct Channels
     {
         /// <summary>Independent red component, or null when supplied by a shared rule.</summary>
@@ -94,12 +94,12 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         internal readonly int? green;
         /// <summary>Independent blue component, or null when supplied by a shared rule.</summary>
         internal readonly int? blue;
-        /// <summary>Retains supplied RGB5 components only where a calculated target does not explain them.</summary>
+        /// <summary>Retains supplied levels only where a calculated target does not explain them.</summary>
         internal Channels(RgbColor supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
         {
-            red = (supplied.Red) == expectedRed ? null : supplied.Red;
-            green = (supplied.Green) == expectedGreen ? null : supplied.Green;
-            blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
+            red = (supplied.FadeLevels.Red) == expectedRed ? null : supplied.FadeLevels.Red;
+            green = (supplied.FadeLevels.Green) == expectedGreen ? null : supplied.FadeLevels.Green;
+            blue = (supplied.FadeLevels.Blue) == expectedBlue ? null : supplied.FadeLevels.Blue;
         }
         /// <summary>Selects an authored red component or its calculated shade relationship.</summary>
         internal int Red(int calculated) => red ?? calculated;
@@ -108,7 +108,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         /// <summary>Selected cockpit blue channel, defaulting to black when absent.</summary>
         internal int Blue => blue ?? 0;
         /// <summary>Overlays independent components onto a calculated gold, cockpit, or underside target.</summary>
-        internal RgbColor Apply(int r, int g, int b) => new(red ?? r, green ?? g, blue ?? b);
+        internal RgbColor Apply(int r, int g, int b) => new FadeLevelColour(red ?? r, green ?? g, blue ?? b).ToColour();
     }
 
     /// <summary>Calculates a gold or hull shade's green offset from red before applying independent edits.</summary>
@@ -120,7 +120,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         int blue = cockpitLight.Green == 0 ? 0 : Math.Min(31, channels.Green * cockpitLight.Blue / cockpitLight.Green);
         return channels.Apply(0, channels.Green, blue);
     }
-    /// <summary>Uses equal red and green with the common blue offset, clamped to RGB5.</summary>
+    /// <summary>Uses equal red and green with the common blue offset, clamped to the levels.</summary>
     private RgbColor Underside(Channels channels)
     {
         int red = channels.Red(0);

@@ -52,6 +52,6 @@ internal sealed class CeresRidleyAlarmColors
             2 => new RedGreenLevels(DarkRed + phase * 4 / 5, DarkGreen + phase / 8),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
-        return new(red, green, blue);
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 }

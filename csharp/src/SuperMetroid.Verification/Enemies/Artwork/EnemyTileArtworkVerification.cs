@@ -224,7 +224,7 @@ internal static class EnemyTileArtworkVerification
                 for (int color = 0; color < EnemyPaletteSheetFile.ColorCount; color++)
                 {
                     int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), paletteAddress + color * sizeof(ushort));
-                    AssertEqual(new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31), installedColours[color],
+                    AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), installedColours[color],
                         $"enemy {pointer} RGB5 JSON preserves native palette colour {color}");
                 }
             }

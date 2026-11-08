@@ -39,6 +39,6 @@ internal sealed class BabyMetroidFade
     {
         int remaining = BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1 - frame;
         int intervals = BabyMetroidCutsceneColorDefinitions.FadeFrameCount + 1;
-        return Endpoint(color).Map((_, channel) => channel * remaining / intervals);
+        return Endpoint(color).FadeLevels.Map((_, channel) => channel * remaining / intervals).ToColour();
     }
 }

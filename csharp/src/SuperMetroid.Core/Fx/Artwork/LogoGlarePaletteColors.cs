@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>The logo glare colors: seven equal RGB5 intervals to
+/// <summary>The logo glare colors: seven equal level intervals to
 /// white followed by the mirrored return. For frame0..13, t is frame+1 up to6
 /// and13-frame thereafter. Each channel is floor((base*(7-t)+31*t)/7).
 /// All224 original words independently confirm this interpolation. The final
@@ -24,10 +24,10 @@ internal static class LogoGlarePaletteColors
             !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.Color(13, color), out RgbColor basis))
             return false;
         int t = frame < 7 ? frame + 1 : 13 - frame;
-        int red = ((basis.Red) * (7 - t) + 31 * t) / 7;
-        int green = ((basis.Green) * (7 - t) + 31 * t) / 7;
-        int blue = ((basis.Blue) * (7 - t) + 31 * t) / 7;
-        value = new RgbColor(red, green, blue);
+        int red = ((basis.FadeLevels.Red) * (7 - t) + 31 * t) / 7;
+        int green = ((basis.FadeLevels.Green) * (7 - t) + 31 * t) / 7;
+        int blue = ((basis.FadeLevels.Blue) * (7 - t) + 31 * t) / 7;
+        value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
 }

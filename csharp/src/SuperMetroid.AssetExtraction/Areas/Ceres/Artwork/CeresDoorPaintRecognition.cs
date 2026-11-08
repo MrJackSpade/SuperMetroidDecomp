@@ -25,8 +25,8 @@ internal static class CeresDoorPaintRecognition
     {
         Ensure.LengthEqual(colors, 6);
         var edits = new Dictionary<PaintColour, RgbColor>();
-        var paint = new CeresDoorWarmTargetPaint(new(colors[0].Blue, colors[1].Red, colors[1].Green, colors[2].Red,
-            colors[3].Red, colors[3].Green, colors[3].Blue), edits);
+        var paint = new CeresDoorWarmTargetPaint(new(colors[0].FadeLevels.Blue, colors[1].FadeLevels.Red, colors[1].FadeLevels.Green, colors[2].FadeLevels.Red,
+            colors[3].FadeLevels.Red, colors[3].FadeLevels.Green, colors[3].FadeLevels.Blue), edits);
         for (int index = 0; index < colors.Length; index++)
             if (paint.ColorAt(index) != colors[index]) edits.Add(new PaintColour(0, index), colors[index]);
         return paint;
@@ -37,9 +37,9 @@ internal static class CeresDoorPaintRecognition
     {
         Ensure.LengthEqual(colors, 8);
         var levels = new int[4];
-        for (int index = 0; index < levels.Length; index++) levels[index] = colors[index].Red;
+        for (int index = 0; index < levels.Length; index++) levels[index] = colors[index].FadeLevels.Red;
         var edits = new Dictionary<PaintColour, RgbColor>();
-        var paint = new CeresDoorEscapeSurfacePaint(levels, colors[4].Red, colors[7].Red, colors[5].Blue, edits);
+        var paint = new CeresDoorEscapeSurfacePaint(levels, colors[4].FadeLevels.Red, colors[7].FadeLevels.Red, colors[5].FadeLevels.Blue, edits);
         for (int index = 0; index < colors.Length; index++)
             if (paint.ColorAt(index) != colors[index]) edits.Add(new PaintColour(0, index), colors[index]);
         return paint;
@@ -53,7 +53,7 @@ internal static class CeresDoorPaintRecognition
         for (int slot = 1; slot <= colors.Length; slot++)
             foreach (ColorChannel channel in Enum.GetValues<ColorChannel>())
                 if (StoresPaint(slot, channel))
-                    seeds.Add(new CeresDoorPaintChannel(slot, channel), colors[slot - 1][channel]);
+                    seeds.Add(new CeresDoorPaintChannel(slot, channel), colors[slot - 1].FadeLevels[channel]);
         var edits = new Dictionary<PaintColour, RgbColor>();
         var paint = new CeresDoorNormalPaint(WarmTargets(colors.Slice(8, 6)), seeds, edits);
         for (int slot = 1; slot <= colors.Length; slot++)
@@ -86,7 +86,7 @@ internal static class CeresDoorPaintRecognition
     {
         Ensure.LengthEqual(colors, 15);
         var edits = new Dictionary<PaintColour, RgbColor>();
-        var paint = new CeresDoorEscapePaint(warm, Surface(colors[..8]), colors[14].Blue, edits);
+        var paint = new CeresDoorEscapePaint(warm, Surface(colors[..8]), colors[14].FadeLevels.Blue, edits);
         for (int index = 0; index < colors.Length; index++)
             if (paint.ColorAt(index) != colors[index]) edits.Add(new PaintColour(0, index), colors[index]);
         return paint;
@@ -100,7 +100,7 @@ internal static class CeresDoorPaintRecognition
             throw new ArgumentException("Beacon paint requires eight six-color steps.", nameof(steps));
         var seedEdits = new Dictionary<PaintColour, RgbColor>();
         var edits = new Dictionary<PaintColour, RgbColor>();
-        var paint = new CeresDoorAnimationPaint(normal, steps[1][0].Blue, steps[3][4].Red, seedEdits, edits);
+        var paint = new CeresDoorAnimationPaint(normal, steps[1][0].FadeLevels.Blue, steps[3][4].FadeLevels.Red, seedEdits, edits);
         for (int color = 0; color < 6; color++)
             if (steps[1][color] != paint.SharedSeed(color)) seedEdits.Add(new PaintColour(0, color), steps[1][color]);
         for (int step = 0; step < 8; step++)

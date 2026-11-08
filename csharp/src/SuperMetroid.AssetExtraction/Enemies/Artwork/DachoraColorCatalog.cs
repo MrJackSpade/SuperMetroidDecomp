@@ -17,7 +17,7 @@ public sealed class DachoraColorCatalog
     internal DachoraColorCatalog(DachoraColorSelection selection) => this.selection = selection;
 
     /// <summary>The speed-boost sequence's flash backdrop in its first frame, authored paint.</summary>
-    internal static readonly RgbColor SpeedFlashBackdrop = new(0, 12, 5);
+    internal static readonly RgbColor SpeedFlashBackdrop = new(0, 99, 41);
 
     /// <summary>Resolves one selected Dachora color, using the normal palette as a calculated animated basis while preserving every supplied speed/shine deviation.</summary>
     /// <param name="phase">Exclusive default, speed-boost, or stored-shine palette phase selected by enemy behavior.</param>

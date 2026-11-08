@@ -51,14 +51,14 @@ internal static class TitleGradientVerification
         ScreenGradient gradient = TitleGradientDecoder.Decode(bus, 0);
         AssertEqual(0, gradient.Top, "title gradient's band starts on the top line");
         AssertEqual(ScreenGeometry.ScreenHeightPixels, gradient.Bottom, "title gradient's band runs to the bottom of the screen");
-        AssertEqual(new GradientStop(0, new RgbColor(15, 15, 15), SubtractFromBackground), gradient.Stops[0], "title gradient starts subtracting fifteen");
-        AssertStop(gradient, new GradientStop(4, new RgbColor(14, 14, 14), SubtractFromBackground), "title gradient steps down after four lines");
+        AssertEqual(new GradientStop(0, new RgbColor(123, 123, 123), SubtractFromBackground), gradient.Stops[0], "title gradient starts subtracting fifteen");
+        AssertStop(gradient, new GradientStop(4, new RgbColor(115, 115, 115), SubtractFromBackground), "title gradient steps down after four lines");
         GradientStop lastSubtractive = StopCovering(gradient, 121);
         AssertEqual(SubtractFromBackground, lastSubtractive.Blend, "last subtractive title line subtracts");
         AssertEqual(RgbColor.Black, lastSubtractive.Colour, "last subtractive title line's colour is black");
         AssertStop(gradient, new GradientStop(122, RgbColor.Black, AddToBackgroundAndObjects), "first additive title band begins");
-        AssertStop(gradient, new GradientStop(132, new RgbColor(0, 1, 1), AddToBackgroundAndObjects), "lower title cyan band begins");
-        AssertStop(gradient, new GradientStop(144, new RgbColor(0, 2, 2), AddToBackgroundAndObjects), "second lower cyan band begins");
+        AssertStop(gradient, new GradientStop(132, new RgbColor(0, 8, 8), AddToBackgroundAndObjects), "lower title cyan band begins");
+        AssertStop(gradient, new GradientStop(144, new RgbColor(0, 16, 16), AddToBackgroundAndObjects), "second lower cyan band begins");
         for (int stop = 1; stop < gradient.Stops.Length; stop++)
         {
             GradientStop above = gradient.Stops[stop - 1], below = gradient.Stops[stop];

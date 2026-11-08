@@ -31,8 +31,8 @@ public static class SamusFullBodyCycleColorFormat
     {
         value = RgbColor.Black;
         if (palette is < 29 or > 31 || color != 2) return false;
-        int red = palette == 29 ? basis.Red : palette == 31 ? bright.Red : ((basis.Red) + (bright.Red) + 1) / 2;
-        value = new(red, Math.Min(31, basis.Green + 5), basis.Blue);
+        int red = palette == 29 ? basis.FadeLevels.Red : palette == 31 ? bright.FadeLevels.Red : ((basis.FadeLevels.Red) + (bright.FadeLevels.Red) + 1) / 2;
+        value = new FadeLevelColour(red, Math.Min(31, basis.FadeLevels.Green + 5), basis.FadeLevels.Blue).ToColour();
         return true;
     }
 
@@ -42,7 +42,7 @@ public static class SamusFullBodyCycleColorFormat
     /// inks, not newly encoded color constants. Differing supplied Gravity
     /// words remain explicit overrides, including when Power sources change.</remarks>
     internal static RgbColor GravitySharedBase(RgbColor powerBase, RgbColor powerDim) =>
-        powerDim.WithBlue(powerBase.Blue);
+        powerDim.FadeLevels.WithBlue(powerBase.FadeLevels.Blue).ToColour();
 
     /// <summary>Calculates Power Screw Attack's descending-red ink and shared gold ink.</summary>
     /// <remarks>Original9CC4/9CE4/9D04 subtract five red and add five green
@@ -56,10 +56,10 @@ public static class SamusFullBodyCycleColorFormat
         value = RgbColor.Black;
         if (palette is < 13 or > 15 || color is not (2 or 12)) return false;
         int shade = palette - 12;
-        int red = color == 2 ? Math.Max(0, (basis.Red) - 5 * shade) : speedDim.Red;
-        int green = Math.Min(31, (color == 2 ? basis : speedDim).Green + (color == 2 ? 5 : 10) * shade);
-        int blue = Math.Min(31, (basis.Blue) + (color == 12 && shade == 3 ? 10 : 0));
-        value = new RgbColor(red, green, blue);
+        int red = color == 2 ? Math.Max(0, (basis.FadeLevels.Red) - 5 * shade) : speedDim.FadeLevels.Red;
+        int green = Math.Min(31, (color == 2 ? basis : speedDim).FadeLevels.Green + (color == 2 ? 5 : 10) * shade);
+        int blue = Math.Min(31, (basis.FadeLevels.Blue) + (color == 12 && shade == 3 ? 10 : 0));
+        value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
 
@@ -83,10 +83,10 @@ public static class SamusFullBodyCycleColorFormat
         bool slow = suit == 0 ? color is 1 or 10 or 11 :
             suit == 1 && color is 10 or 11 or 12;
         if (!fast && !slow) return false;
-        int green = Math.Min(31, (basis.Green) + (fast ? 10 : 5) * shade);
+        int green = Math.Min(31, (basis.FadeLevels.Green) + (fast ? 10 : 5) * shade);
         int blueAdd = suit == 0 && color == 4 ? 10 >> (3 - shade) : fast && shade == 3 ? 10 : 0;
-        int blue = Math.Min(31, (basis.Blue) + blueAdd);
-        value = new(basis.Red, green, blue);
+        int blue = Math.Min(31, (basis.FadeLevels.Blue) + blueAdd);
+        value = new FadeLevelColour(basis.FadeLevels.Red, green, blue).ToColour();
         return true;
     }
 
@@ -103,14 +103,14 @@ public static class SamusFullBodyCycleColorFormat
         int suit = palette / 16, shade = palette % 4;
         if (suit == 0 && color is 1 or 9 or 11 or 12)
         {
-            value = StoredShineColor(basis, shade).WithBlue(basis.Blue);
+            value = StoredShineColor(basis, shade).FadeLevels.WithBlue(basis.FadeLevels.Blue).ToColour();
             return true;
         }
         int step = suit == 0 && color == 10 ? 3 :
             (suit is 0 or 1 && color == 2) || (suit == 1 && color is 1 or 10 or 11 or 12) ? 5 : 0;
         if (step == 0) return false;
-        value = new(Math.Min(31, basis.Red + (suit == 1 && color == 10 ? 0 : step * shade)),
-            Math.Min(31, basis.Green + step * shade), basis.Blue);
+        value = new FadeLevelColour(Math.Min(31, basis.FadeLevels.Red + (suit == 1 && color == 10 ? 0 : step * shade)),
+            Math.Min(31, basis.FadeLevels.Green + step * shade), basis.FadeLevels.Blue).ToColour();
         return true;
     }
 
@@ -143,9 +143,9 @@ public static class SamusFullBodyCycleColorFormat
             3 => new ShineTint(26, 10),
             _ => throw new ArgumentOutOfRangeException(nameof(shade)),
         };
-        return new(Math.Min(31, basis.Red + warm),
-            Math.Min(31, basis.Green + warm),
-            Math.Min(31, basis.Blue + blue));
+        return new FadeLevelColour(Math.Min(31, basis.FadeLevels.Red + warm),
+            Math.Min(31, basis.FadeLevels.Green + warm),
+            Math.Min(31, basis.FadeLevels.Blue + blue)).ToColour();
     }
 
     /// <summary>Returns a shared Speed Booster channel source, or -1 outside the five-word mapping.</summary>
@@ -170,7 +170,7 @@ public static class SamusFullBodyCycleColorFormat
         if (palette == 1 && color == 9) return LoadingPaletteColors.TintColor(basis, 2);
         RgbColor tint = palette == 2 ? LoadingPaletteColors.TintColor(basis, 1) :
             palette == 19 ? LoadingPaletteColors.VariaTintColor(basis, 0) : basis;
-        return tint.WithBlue(shared.Blue);
+        return tint.FadeLevels.WithBlue(shared.FadeLevels.Blue).ToColour();
     }
 
     /// <summary>Brightens seven independently supplied dim Speed Booster inks.</summary>
@@ -230,10 +230,10 @@ public static class SamusFullBodyCycleColorFormat
     internal static RgbColor StoredShineColor(RgbColor basis, int shade)
     {
         if ((uint)shade >= 4) throw new ArgumentOutOfRangeException(nameof(shade));
-        int red = ((4 - shade) * (basis.Red) + 31 * shade) / 4;
-        int green = ((4 - shade) * (basis.Green) + 31 * shade) / 4;
-        int blue = ((4 - shade) * (basis.Blue) + 31 * shade) / 4;
-        return new RgbColor(red, green, blue);
+        int red = ((4 - shade) * (basis.FadeLevels.Red) + 31 * shade) / 4;
+        int green = ((4 - shade) * (basis.FadeLevels.Green) + 31 * shade) / 4;
+        int blue = ((4 - shade) * (basis.FadeLevels.Blue) + 31 * shade) / 4;
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 
     /// <summary>Shares each family's opaque base row with its suit's Speed Booster base.</summary>

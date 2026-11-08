@@ -41,7 +41,7 @@ internal sealed class NorfairRidleyInitialPaint
     }
 
     /// <summary>Reconstructs the clear-slot value from the source's copied blue channel.</summary>
-    private RgbColor ClearSlot => new(0, 0, clearBlue);
+    private RgbColor ClearSlot => new FadeLevelColour(0, 0, clearBlue).ToColour();
 
     /// <summary>Uses an edited clear slot when supplied; otherwise resolves the matching armor or organ material.</summary>
     internal RgbColor ColorAt(int index)

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 /// <remarks>
 /// The four entries select a colour destination and converge on the
-/// shared eight-frame program. Its 64 BGR555 colors remain live presentation
+/// shared eight-frame program. Its 64 colours remain live presentation
 /// data; only color-index setup, branches, durations, waits, and deletion are compiled.
 /// Draygon, Kraid, Ridley, and Phantoon select colour bytes 192,
 /// 224, 288, and 320 respectively. The first three entries
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianStatueGreyPaletteFxColorDefinitions
 {
 
-    /// <summary>Eight BGR555 colors are presentation-owned by each timed record.</summary>
+    /// <summary>Eight colours are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>

@@ -119,7 +119,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
     /// <summary>Selected room-FX effect overlay pages, separate from animated characters and palette-blend colors.</summary>
     /// <summary>The Ceres haze's installed tints.</summary>
     public CeresHazeTints CeresHaze { get; }
-    /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
+    /// <summary>Fixed colours for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public InstalledPowerBombFixedColors PowerBombFixedColors { get; }
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>

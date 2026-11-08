@@ -42,8 +42,8 @@ internal sealed class IntroCeresFlightState
     /// <summary>Five station and asteroid sprites created when the camera switches to rear view.</summary>
     internal IntroDiscoverySprite[] RearViewActors { get; private set; } = [];
     /// <summary>
-    /// The intensity of the rear-view flash's white, from zero to 31: set to 31 when the rear view starts and lowered
-    /// by one per update, stopping at zero. The flash is grey: red, green and blue always share this intensity.
+    /// The steps left of the rear-view flash's white wash (<see cref="WhiteWash"/>): all of them when the rear view starts,
+    /// one fewer each update, stopping at none.
     /// </summary>
     private int flashIntensity;
     /// <summary>How many of the caption's letters are shown, in order; the next letter typed is this one.</summary>
@@ -213,7 +213,7 @@ internal sealed class IntroCeresFlightState
         }
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
-            layers.Add(new ScreenTintLayer(Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity)));
+            layers.Add(WhiteWash.Layer(flashIntensity));
         }
         return new(new FramePaint(Backdrop), layers.ToArray(), brightness);
     }
@@ -258,8 +258,8 @@ internal sealed class IntroCeresFlightState
             .ToArray();
 
         // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at
-        // white and removes one five-bit component step per frame until black.
-        flashIntensity = 31;
+        // white and takes one step off the wash per frame until black.
+        flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
 

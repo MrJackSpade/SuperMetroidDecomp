@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainRoomFlashPaintDefinitions
 {
     /// <summary>Warm flood paint, RGB5(31,31,22), repeated over the selected highlighted slots.</summary>
-    internal static readonly RgbColor WarmFlood = new(31, 31, 22);
+    internal static readonly RgbColor WarmFlood = new(255, 255, 181);
     /// <summary>Twelve background colors plus first foreground field brighten;
     /// the remaining eleven foreground colors dim. This split is the selected material composition.</summary>
     internal const int HighlightedColorCount = 13;

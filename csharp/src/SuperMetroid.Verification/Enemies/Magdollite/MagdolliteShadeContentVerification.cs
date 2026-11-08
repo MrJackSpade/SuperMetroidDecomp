@@ -46,7 +46,7 @@ internal static class MagdolliteShadeContentVerification
                     int source = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                         (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
                     int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source);
-                    AssertEqual(new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31), inks[first + color],
+                    AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), inks[first + color],
                         $"{set.Name} Magdollite glow frame {frame} ink {color} shows the cartridge's colour");
                 }
                 else

@@ -78,14 +78,14 @@ internal sealed class CeresBabyPaint
         int addition = BrightnessStep * phase;
         // The selected tooth pulse delays red by one pose step while G/B brighten.
         int redAddition = color is >= 9 and <= 11 ? BrightnessStep * Math.Max(0, phase - 1) : addition;
-        int green = basis.Green + addition, blue = basis.Blue + addition;
+        int green = basis.FadeLevels.Green + addition, blue = basis.FadeLevels.Blue + addition;
         // Cyan glass stays one channel unit below the white glints at its peak.
         if (color == 12)
         {
             green = Math.Min(Maximum - 1, green);
             blue = Math.Min(Maximum - 1, blue);
         }
-        return RgbColor.Saturating(basis.Red + redAddition, green, blue);
+        return RgbColor.Saturating(basis.FadeLevels.Red + redAddition, green, blue);
     }
 
     /// <summary>Constructs a base Baby/container color from glass, dome, body, or fang inputs.</summary>
@@ -94,11 +94,10 @@ internal sealed class CeresBabyPaint
         0 => Pack(glassRed, Maximum, glassBlue),
         >= 1 and <= 3 => Pack(domeTint, domeGreen - domeShadeStep * (color - 1), domeTint),
         >= 4 and <= 6 => BodyColor(color + 4),
-        7 => Pack(BodyColor(10).Red / 2, 0, BodyColor(10).Blue / 2),
-        8 => Pack(outlineRed, 0, BodyColor(10).Blue / 4),
+        7 => Pack(BodyColor(10).FadeLevels.Red / 2, 0, BodyColor(10).FadeLevels.Blue / 2),
+        8 => Pack(outlineRed, 0, BodyColor(10).FadeLevels.Blue / 4),
         9 => BabyMetroidInitialPaintDefinitions.FangLight,
-        10 => BabyMetroidInitialPaintDefinitions.FangLight.Zip(BabyMetroidInitialPaintDefinitions.FangDark,
-            (_, light, dark) => (light + dark) / 2),
+        10 => BabyMetroidInitialPaintDefinitions.FangLight.FadeLevels.Zip(BabyMetroidInitialPaintDefinitions.FangDark.FadeLevels, (_, light, dark) => (light + dark) / 2).ToColour(),
         11 => BabyMetroidInitialPaintDefinitions.FangDark,
         12 => Pack(glassMiddleRed, Maximum - glassGreenStep, Maximum - glassGreenStep),
         13 => Pack(Maximum, Maximum, Maximum),

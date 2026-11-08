@@ -41,7 +41,7 @@ internal static class CinematicSnapshotTestsVerification
                 LayeredScene snapshot = flight.CaptureRenderSnapshot();
                 byte[] held = GraphDigest(snapshot);
                 coloredRearView |= snapshot.Layers.Any(layer => layer is ScreenTintLayer c
-                    && (c.Red != 0 || c.Green != 0 || c.Blue != 0));
+                    && c.Colour != RgbColor.Black);
                 AssertTrue(ScenePixels.Same(flight.CaptureRenderSnapshot(), snapshot), $"Ceres flight snapshot tick {tick} shows the live scene's pixels");
                 flight.StepFrame();
                 Survives(held, snapshot, tick);

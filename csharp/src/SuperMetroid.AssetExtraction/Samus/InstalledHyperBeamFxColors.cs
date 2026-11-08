@@ -40,7 +40,7 @@ public sealed class InstalledHyperBeamFxColors
     /// <summary>Separates supplied palette rows into canonical relationships and exact independent edits.</summary>
     internal InstalledHyperBeamFxColors(RgbColor[][] frames)
     {
-        neutralIntensity = frames[0][0].Red;
+        neutralIntensity = frames[0][0].FadeLevels.Red;
         neutralOverrides = new(frames[0][0], HyperBeamFxColorFormat.Neutral(neutralIntensity));
         for (int frame = 0; frame < HyperBeamFxColorFormat.FrameCount; frame++)
         for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
@@ -127,9 +127,9 @@ public sealed class InstalledHyperBeamFxColors
     /// All relationships are between supplied RGB5 inputs; differing edits
     /// stay explicit. Independent shade intensities have the class-level art disposition.</remarks>
     private static HyperBeamEndpointChannels SharedEndpointChannels(int frame, int color, RgbColor white, RgbColor red) =>
-        frame == 0 ? new HyperBeamEndpointChannels(white.Red, null) :
-        frame == 4 ? new HyperBeamEndpointChannels(null, red.Red) :
-        color is 3 or 7 ? new HyperBeamEndpointChannels(null, red.Green) : new HyperBeamEndpointChannels(red.Red, null);
+        frame == 0 ? new HyperBeamEndpointChannels(white.FadeLevels.Red, null) :
+        frame == 4 ? new HyperBeamEndpointChannels(null, red.FadeLevels.Red) :
+        color is 3 or 7 ? new HyperBeamEndpointChannels(null, red.FadeLevels.Green) : new HyperBeamEndpointChannels(red.FadeLevels.Red, null);
     /// <summary>Stores independent endpoint channels while deriving the paired blue hue channel.</summary>
     internal readonly struct PairedChannels
     {
@@ -143,18 +143,18 @@ public sealed class InstalledHyperBeamFxColors
         /// <summary>Extracts only channels that differ from the shared red or green hue basis.</summary>
         internal PairedChannels(RgbColor supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
         {
-            int suppliedRed = supplied.Red, suppliedGreen = supplied.Green;
+            int suppliedRed = supplied.FadeLevels.Red, suppliedGreen = supplied.FadeLevels.Green;
             red = suppliedRed == sharedRed ? null : suppliedRed;
             green = suppliedGreen == sharedGreen ? null : suppliedGreen;
             int expectedBlue = redHue ? suppliedGreen : suppliedRed;
-            blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
+            blue = (supplied.FadeLevels.Blue) == expectedBlue ? null : supplied.FadeLevels.Blue;
         }
 
         /// <summary>Recombines edited channels with shared hue extrema and the paired blue channel.</summary>
         internal RgbColor Resolve(bool redHue, int sharedRed = 0, int sharedGreen = 0)
         {
             int resolvedRed = red ?? sharedRed, resolvedGreen = green ?? sharedGreen;
-            return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));
+            return new FadeLevelColour(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed)).ToColour();
         }
     }
 

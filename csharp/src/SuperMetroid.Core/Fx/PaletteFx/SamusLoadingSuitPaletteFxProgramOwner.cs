@@ -5,7 +5,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
 {
     /// <summary>Power-suit colors.</summary>
     /// <remarks>
-    /// Issue #856 / #625: all 144 BGR555 words in the Power-suit loading program
+    /// Issue #856 / #625: all 144 colours in the Power-suit loading program
     /// match existing authored Samus palettes. Records
     /// 0, 2, 4, 6, 8 equal the normal Power Suit palette; records 1 and 3
     /// equal its first speed-boost shade; records 5 and 7 equal
@@ -18,7 +18,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     PowerSuit,
     /// <summary>Varia-suit colors.</summary>
     /// <remarks>
-    /// Issue #857 / #625: all 144 BGR555 words in the Varia-suit loading program
+    /// Issue #857 / #625: all 144 colours in the Varia-suit loading program
     /// match existing authored Samus palettes. Records
     /// 0, 2, 4, 6, 8 equal the normal Varia Suit palette; records 1 and 3
     /// equal its first speed-boost shade; records 5 and 7 equal
@@ -31,7 +31,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     VariaSuit,
     /// <summary>Gravity-suit colors.</summary>
     /// <remarks>
-    /// Issue #858 / #625: all 144 BGR555 words in the Gravity-suit loading program
+    /// Issue #858 / #625: all 144 colours in the Gravity-suit loading program
     /// match existing authored Samus palettes. Records
     /// 0, 2, 4, 6, 8 equal the normal Gravity Suit palette; records 1 and 3
     /// equal its first speed-boost shade; records 5 and 7 equal

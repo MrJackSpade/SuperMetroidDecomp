@@ -54,9 +54,9 @@ public sealed class FirefleaFxState
         Timer = timer;
 
         int shade = FirefleaShades.FlashingShade(index) + FirefleaShades.DarknessShade(darkness);
-        // Each of the game's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
+        // Each of the game's three writes carries the shade as its grey level, wrapping within the levels. Past the darkness ramp the
         // shade's upper bits only select channels the other writes set to the same value.
-        int intensity = shade & RgbColor.MaxChannel;
-        fixedColor.Color = new RgbColor(intensity, intensity, intensity);
+        int intensity = shade % (FadeLevelColour.FullLevel + 1);
+        fixedColor.Color = new FadeLevelColour(intensity, intensity, intensity).ToColour();
     }
 }

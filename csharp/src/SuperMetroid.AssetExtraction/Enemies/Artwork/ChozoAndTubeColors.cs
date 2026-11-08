@@ -31,7 +31,7 @@ internal static class ChozoAndTubeColors
         int red = 31 - (31 * step + 3) / 7;
         int green = 27 - (27 * step + 3) / 7;
         int blue = 29 - 4 * step;
-        return new RgbColor(red, green, blue);
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 
     /// <summary>Resolves a statue ink from an authored edit or the selected variant's calculated paint.</summary>

@@ -58,9 +58,9 @@ internal static class KraidPaint
         {
             int step = color - RampFirst;
             const int steps = RampLast - RampFirst;
-            return new RgbColor(Nearest(RampLight.Red, RampDark.Red, step, steps),
-                Nearest(RampLight.Green, RampDark.Green, step, steps),
-                Nearest(RampLight.Blue, RampDark.Blue, step, steps));
+            return new FadeLevelColour(Nearest(RampLight.FadeLevels.Red, RampDark.FadeLevels.Red, step, steps),
+                Nearest(RampLight.FadeLevels.Green, RampDark.FadeLevels.Green, step, steps),
+                Nearest(RampLight.FadeLevels.Blue, RampDark.FadeLevels.Blue, step, steps)).ToColour();
         }
         int trailing = color - RampLast - 1;
         return (uint)trailing < (uint)FirstBandTrailingInks.Length

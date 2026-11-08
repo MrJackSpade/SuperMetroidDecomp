@@ -133,24 +133,18 @@ internal sealed class EndingFlyaway
             .FromRaw(delta)
             .AddTo(position.Whole, position.Fraction);
 
-    /// <summary>Fixed-color white component over the planet escape, from full white (31) fading to zero, where it stays.</summary>
+    /// <summary>The steps left of the white wash over the planet escape (<see cref="WhiteWash"/>), from full white fading to none, where it stays.</summary>
     private int flyawayWhite;
 
     /// <summary>Countdown between flyaway fixed-color decrements.</summary>
     private int flyawayFadeCountdown;
 
-    /// <summary>Fixed-color addition active only during visible planet flyaway phases.</summary>
+    /// <summary>The white wash, shown only during visible planet flyaway phases.</summary>
     internal ScreenTintLayer? FlyawayFixedColor => flyawayWhite != 0
         && EndingCreditsPhaseGroups.PlanetEscape.Contains(_stage.Phase)
-        ? WhiteAddition(flyawayWhite) : null;
+        ? WhiteWash.Layer(flyawayWhite) : null;
 
-    /// <summary>Adds the same five-bit <paramref name="white"/> component to all three channels of the composed screen.</summary>
-    internal static ScreenTintLayer WhiteAddition(int white)
-    {
-        return new(white, white, white);
-    }
-
-    /// <summary>Decreases the flyaway white component at its authored interval.</summary>
+    /// <summary>Takes one step off the flyaway's white wash at its authored interval.</summary>
     private void StepFlyawayFade()
     {
         if (--flyawayFadeCountdown > 0) return;

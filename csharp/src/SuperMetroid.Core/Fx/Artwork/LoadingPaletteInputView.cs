@@ -73,8 +73,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
         LoadingSuitColor.PowerBright9 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.PowerBright9)), 0),
         LoadingSuitColor.PowerDim12 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.PowerDim12)), 2),
         LoadingSuitColor.VariaBright10 => LoadingPaletteColors.VariaTintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.VariaBright10)), 0),
-        LoadingSuitColor.VariaBright11 => LoadingPaletteColors.VariaTintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.VariaBright11)), 0)
-            .WithBlue(variaBright10.Apply(Expected(LoadingSuitColor.VariaBright10)).Blue),
+        LoadingSuitColor.VariaBright11 => LoadingPaletteColors.VariaTintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.VariaBright11)), 0).FadeLevels.WithBlue(variaBright10.Apply(Expected(LoadingSuitColor.VariaBright10)).FadeLevels.Blue).ToColour(),
         LoadingSuitColor.VariaDim12 => LoadingPaletteColors.VariaTintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.VariaDim12)), 2),
         LoadingSuitColor.GravityDim2 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.GravityDim2)), 2),
         _ => throw new InvalidOperationException($"Undefined loading suit color {slot}."),
@@ -92,12 +91,12 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
         /// <summary>Captures differing channels; independentMask bits0/1/2 always retain red/green/blue inputs.</summary>
         internal Channels(RgbColor supplied, RgbColor expected, int independentMask = 0)
         {
-            red = (independentMask & 1) == 0 && supplied.Red == expected.Red ? null : supplied.Red;
-            green = (independentMask & 2) == 0 && supplied.Green == expected.Green ? null : supplied.Green;
-            blue = (independentMask & 4) == 0 && supplied.Blue == expected.Blue ? null : supplied.Blue;
+            red = (independentMask & 1) == 0 && supplied.FadeLevels.Red == expected.FadeLevels.Red ? null : supplied.FadeLevels.Red;
+            green = (independentMask & 2) == 0 && supplied.FadeLevels.Green == expected.FadeLevels.Green ? null : supplied.FadeLevels.Green;
+            blue = (independentMask & 4) == 0 && supplied.FadeLevels.Blue == expected.FadeLevels.Blue ? null : supplied.FadeLevels.Blue;
         }
         /// <summary>Overlays retained independent channels on the calculated normal-suit tint.</summary>
-        internal RgbColor Apply(RgbColor expected) => new(red ?? expected.Red, green ?? expected.Green, blue ?? expected.Blue);
+        internal RgbColor Apply(RgbColor expected) => new FadeLevelColour(red ?? expected.FadeLevels.Red, green ?? expected.FadeLevels.Green, blue ?? expected.FadeLevels.Blue).ToColour();
     }
 
     /// <summary>Resolves an ordinary stored color or reconstructs one of eight derived loading-tint endpoints.</summary>

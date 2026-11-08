@@ -73,9 +73,9 @@ public class MotherBrainRainbowPalettePresentation
             {
                 red = 31; green = 0; blue = Falling(step - 60);
             }
-            return new RgbColor(red, green, blue);
+            return new FadeLevelColour(red, green, blue).ToColour();
         }
-        /// <summary>Rounds an increasing channel to its RGB5 sample.</summary>
+        /// <summary>Rounds an increasing channel to its level.</summary>
         private static int Rising(int step) => (31 * step + 7) / 15;
         /// <summary>Applies the descending channel's changed bias after step eight.</summary>
         private static int Falling(int step) => 31 - 2 * step - (step >= 9 ? 1 : 0);

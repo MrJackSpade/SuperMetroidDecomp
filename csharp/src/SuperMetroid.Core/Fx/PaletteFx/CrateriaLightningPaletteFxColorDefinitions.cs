@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 /// <remarks>
 /// The first definition is the live Landing Site lightning effect. The second
-/// is its unused dark-lightning counterpart. Their 202 BGR555
+/// is its unused dark-lightning counterpart. Their 202 colour
 /// words remain presentation data; timer setup, timing, branches, and targets are compiled.
 /// </remarks>
 public static class CrateriaLightningPaletteFxColorDefinitions

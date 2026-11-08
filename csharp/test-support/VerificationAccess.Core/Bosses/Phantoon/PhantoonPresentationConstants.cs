@@ -16,8 +16,8 @@ internal static class PhantoonPresentationConstants
         RgbColor current,
         RgbColor target)
     {
-        return current.Zip(target, (_, from, to) =>
-            CalculatePhantoonTransitionComponent(numerator, denominator, from, to));
+        return current.FadeLevels.Zip(target.FadeLevels, (_, from, to) =>
+            CalculatePhantoonTransitionComponent(numerator, denominator, from, to)).ToColour();
     }
     /// <summary>Interpolates one RGB5 channel during a palette transition.</summary>
     internal static int CalculatePhantoonTransitionComponent(

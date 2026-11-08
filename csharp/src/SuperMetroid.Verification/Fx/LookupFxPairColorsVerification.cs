@@ -50,7 +50,7 @@ internal static class LookupFxPairColorsVerification
             AssertEqual(expected, (calculated ?? throw new InvalidOperationException("Verification requires calculated.")), "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[color].ToWord() >> shift) & 31, "Installed paired-color component");
             RgbColor ink = stock.Inks(FxNativeWords.PaletteBlend(id))[color];
-            AssertEqual(expected, shift switch { 0 => ink.Red, 5 => ink.Green, _ => ink.Blue }, "Layer 3's paired blend ink shows the component");
+            AssertEqual(expected, shift switch { 0 => ink.FadeLevels.Red, 5 => ink.FadeLevels.Green, _ => ink.FadeLevels.Blue }, "Layer 3's paired blend ink shows the component");
         }
     }
 

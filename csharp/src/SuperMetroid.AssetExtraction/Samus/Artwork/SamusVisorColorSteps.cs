@@ -11,12 +11,12 @@ internal static class SamusVisorColorSteps
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return WideningStart.Zip(FullBeamStart, (_, start, fullBeam) =>
+        return WideningStart.FadeLevels.Zip(FullBeamStart.FadeLevels, (_, start, fullBeam) =>
         {
             if (index >= WideningPhaseCount)
                 return fullBeam - (index - WideningPhaseCount) * DarkeningStep;
             int intervals = WideningPhaseCount - 1;
             return (start * (intervals - index) + 31 * index + intervals / 2) / intervals;
-        });
+        }).ToColour();
     }
 }

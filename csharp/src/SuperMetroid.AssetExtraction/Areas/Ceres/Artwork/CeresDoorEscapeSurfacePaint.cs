@@ -48,6 +48,6 @@ internal sealed class CeresDoorEscapeSurfacePaint
     {
         int level = index < 4 ? highlightAndEdgeLevels[index] : Math.Max(bevelShadow, bevelPeak - BevelShadeStep * (index - 4));
         int blue = index == 0 ? level : index == 5 ? middleBevelBlue : Math.Min(MaximumChannel, level + BlueTint);
-        return new(level, level, blue);
+        return new FadeLevelColour(level, level, blue).ToColour();
     }
 }

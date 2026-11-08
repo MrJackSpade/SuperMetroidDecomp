@@ -1823,7 +1823,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < count; index++)
             {
                 int address = PowerBombColorSources.Start(sequence) + index * 3;
-                var native = new RgbColor(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
+                var native = new FadeLevelColour(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2)).ToColour();
                 AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
             }
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })

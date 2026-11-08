@@ -389,7 +389,7 @@ public sealed class SamusPowerBombExplosionState
             return true;
         }
 
-        FixedColor = FixedColor.Map((_, channel) => channel == 0 ? 0 : channel - 1);
+        FixedColor = FixedColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
 
         ReloadAfterglowTimerLowByte();
         return false;
@@ -434,7 +434,7 @@ public sealed class SamusPowerBombExplosionState
         if (_crystalFlashAfterglowStepsRemaining != 0)
         {
             _crystalFlashAfterglowStepsRemaining--;
-            FixedColor = FixedColor.Map((_, channel) => channel == 0 ? 0 : channel - 1);
+            FixedColor = FixedColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
             ReloadAfterglowTimerLowByte();
             return false;
         }

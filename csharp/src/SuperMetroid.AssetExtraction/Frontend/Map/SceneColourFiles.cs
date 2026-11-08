@@ -82,9 +82,9 @@ public static class SceneColourFiles
                 Colour(document.CeresHazeAfterRidleyDies, "Ceres haze once Ridley is dead")));
 
         static RgbColor Colour(PaletteRgb5? colour, string name) =>
-            colour is { Red: >= 0 and <= RgbColor.MaxChannel, Green: >= 0 and <= RgbColor.MaxChannel, Blue: >= 0 and <= RgbColor.MaxChannel }
+            colour is { Red: >= 0 and <= FadeLevelColour.FullLevel, Green: >= 0 and <= FadeLevelColour.FullLevel, Blue: >= 0 and <= FadeLevelColour.FullLevel }
                 ? colour.ToRgbColor()
-                : throw new InvalidDataException($"Scene colours: the {name} requires red, green and blue in 0..{RgbColor.MaxChannel}.");
+                : throw new InvalidDataException($"Scene colours: the {name} requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
     }
 
     /// <summary>The six Zebes areas, whose world maps each have a backdrop.</summary>

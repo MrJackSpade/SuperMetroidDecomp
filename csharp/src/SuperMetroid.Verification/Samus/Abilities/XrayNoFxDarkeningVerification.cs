@@ -101,7 +101,7 @@ internal static class XrayNoFxDarkeningVerification
 
     /// <summary><paramref name="pixel"/> with each five-bit channel replaced by <paramref name="map"/> of it.</summary>
     private static RgbaPixel Channels(RgbaPixel pixel, Func<int, int> map) =>
-        new RgbColor(map(pixel.R >> 3), map(pixel.G >> 3), map(pixel.B >> 3)).ToRgbaPixel();
+        new FadeLevelColour(map(pixel.R >> 3), map(pixel.G >> 3), map(pixel.B >> 3)).ToColour().ToRgbaPixel();
 
     /// <summary>Runs the focused no-FX X-ray display check.</summary>
     [VerificationCommand("--xray-no-fx-darkening")]

@@ -144,17 +144,17 @@ internal static class GameplayDisplayFrameTestsVerification
         RoomFxType originalFx = runtime.RoomFxOverlay.Type;
         RoomFixedColor fixedColor = runtime.RoomFxOverlay.FixedColors;
         runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
-        fixedColor.Color = new RgbColor(9, 9, 9);
+        fixedColor.Color = new RgbColor(74, 74, 74);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(9, darkness.Blend.Colour.Red, "Fireflea's fixed colour publishes with its blend");
-        fixedColor.Color = fixedColor.Color.WithRed(4);
-        AssertEqual(9, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.Red,
+        AssertEqual(9, darkness.Blend.Colour.FadeLevels.Red, "Fireflea's fixed colour publishes with its blend");
+        fixedColor.Color = fixedColor.Color.FadeLevels.WithRed(4).ToColour();
+        AssertEqual(9, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
             "a fixed colour chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(4, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.Red,
+        AssertEqual(4, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
             "the next accepted frame publishes the chosen fixed colour");
         runtime.RoomFxOverlay.Type = originalFx;
         fixedColor.Color = RgbColor.Black;
@@ -167,15 +167,15 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 4; i++) explosion.StepFrame();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        int latchedRed = explosion.FixedColor.Red;
+        int latchedRed = explosion.FixedColor.FadeLevels.Red;
         int steps = 0;
-        while (explosion.FixedColor.Red == latchedRed && steps++ < 64) explosion.StepFrame();
-        AssertTrue(explosion.FixedColor.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
+        while (explosion.FixedColor.FadeLevels.Red == latchedRed && steps++ < 64) explosion.StepFrame();
+        AssertTrue(explosion.FixedColor.FadeLevels.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
         GameplayDisplayFrame pending = runtime.PublishDisplayFrame();
         AssertEqual(explosion.RenderedPhase, pending.FrameEnd.PowerBomb.RenderedPhase, "power-bomb window table is read live");
-        AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).FixedColor.Red, "power-bomb COLDATA waits for the NMI");
+        AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).FixedColor.FadeLevels.Red, "power-bomb COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(explosion.FixedColor.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).FixedColor.Red,
+        AssertEqual(explosion.FixedColor.FadeLevels.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).FixedColor.FadeLevels.Red,
             "the accepted NMI publishes power-bomb COLDATA");
         explosion.Reset();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -186,11 +186,11 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
         RgbColor suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
-        AssertEqual(suitBefore.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
-            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "suit COLDATA waits for the NMI");
+        AssertEqual(suitBefore.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
+            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.FadeLevels.Red, "suit COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(runtime.SuitPickup.FixedColor.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
-            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "the accepted NMI publishes suit COLDATA");
+        AssertEqual(runtime.SuitPickup.FixedColor.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
+            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.FadeLevels.Red, "the accepted NMI publishes suit COLDATA");
     }
 
     /// <summary>Door setup shows the shaft's floor with its transform; room setup's characters and Ridley's floor follow the accepted frame.</summary>

@@ -98,7 +98,7 @@ internal static class InstalledPowerBombIsolationTests
 
     /// <summary>Captures the three live fixed-color outputs without including simulation state.</summary>
     internal static ExplosionColors Colors(SamusPowerBombExplosionState state) =>
-        new ExplosionColors(state.FixedColor.Red, state.FixedColor.Green, state.FixedColor.Blue);
+        new ExplosionColors(state.FixedColor.FadeLevels.Red, state.FixedColor.FadeLevels.Green, state.FixedColor.FadeLevels.Blue);
 
     /// <summary>Fails the focused isolation check with its current edit/frame context.</summary>
     internal static void Require(bool condition, string context)
@@ -113,7 +113,7 @@ internal static class InstalledPowerBombIsolationTests
         // (17,17,7). Check every reachable radius, not just the final row.
         for (ushort radius = 0; radius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit; radius++)
         {
-            var native = stock.Resolve(PowerBombFixedColorSequence.Explosion, radius >> 11);
+            FadeLevelColour native = stock.Resolve(PowerBombFixedColorSequence.Explosion, radius >> 11).FadeLevels;
             Require(PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(radius) ==
                 Math.Max(native.Red, Math.Max(native.Green, native.Blue)), $"Native fade operand differs at radius {radius}.");
         }

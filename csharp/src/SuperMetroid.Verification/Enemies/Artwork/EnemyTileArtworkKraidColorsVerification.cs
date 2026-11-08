@@ -230,7 +230,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         // A room whose fifth colour group holds distinct colours, so every step of a fade moves them.
         var standard = new RgbColor[ImageColourGroup.HalfColours];
         for (int colour = 0; colour < standard.Length; colour++)
-            standard[colour] = new RgbColor(colour % 32, (colour * 7) % 32, (31 - colour % 32));
+            standard[colour] = new FadeLevelColour(colour % 32, (colour * 7) % 32, (31 - colour % 32)).ToColour();
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
         var room = new RgbColor[KraidPalettes.BandColors];
         Array.Copy(standard, KraidBackdropFirstInk, room, 0, room.Length);

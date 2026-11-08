@@ -12,14 +12,14 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <c>1, colors[16], Wait</c> record follows, and
 /// <c>Delete</c> ends the program. Thus
 /// <c>(36 + 3 + 3 + 2)*2*3 + 1 = 265</c> frames elapse. All 99
-/// control words and 12 timer bytes match the original programs. The 432 BGR555 words
+/// control words and 12 timer bytes match the original programs. The 432 colours
 /// remain live presentation data supplied by the presentation compiler;
 /// this catalog owns only placement, timing, replay, and deletion.
 /// </remarks>
 public static class SamusLoadingSuitPaletteFxColorDefinitions
 {
 
-    /// <summary>Each record writes sixteen live BGR555 colors.</summary>
+    /// <summary>Each record writes sixteen live colours.</summary>
     public const int ColorsPerFrame = 16;
     /// <summary>The Power-suit definition's program.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =

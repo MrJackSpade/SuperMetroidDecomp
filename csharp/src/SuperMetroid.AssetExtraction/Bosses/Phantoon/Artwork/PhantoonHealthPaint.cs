@@ -12,9 +12,9 @@ internal static class PhantoonHealthPaint
         if ((uint)band >= 8) throw new ArgumentOutOfRangeException(nameof(band));
         RgbColor healthy = Healthy(ink);
         int weight = MinimumWeight + band;
-        int red = (31 * WeightDenominator + ((healthy.Red) - 31) * weight) / WeightDenominator;
-        int green = ((healthy.Green) * weight + CoolChannelNumeratorBias) / WeightDenominator;
-        int blue = ((healthy.Blue) * weight + CoolChannelNumeratorBias) / WeightDenominator;
+        int red = (31 * WeightDenominator + ((healthy.FadeLevels.Red) - 31) * weight) / WeightDenominator;
+        int green = ((healthy.FadeLevels.Green) * weight + CoolChannelNumeratorBias) / WeightDenominator;
+        int blue = ((healthy.FadeLevels.Blue) * weight + CoolChannelNumeratorBias) / WeightDenominator;
         return Rgb(red, green, blue);
     }
 
@@ -57,5 +57,5 @@ internal static class PhantoonHealthPaint
     /// <summary>Uses equal red and green channels for Phantoon's olive materials.</summary>
     private static RgbColor Olive(int intensity, int blue) => Rgb(intensity, intensity, blue);
     /// <summary>Forms one five-bit material color from its calculated channels.</summary>
-    private static RgbColor Rgb(int red, int green, int blue) => new RgbColor(red, green, blue);
+    private static RgbColor Rgb(int red, int green, int blue) => new FadeLevelColour(red, green, blue).ToColour();
 }

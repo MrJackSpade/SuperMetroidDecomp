@@ -181,9 +181,9 @@ internal static class InstalledSporesTests
         foreach (int enabled in Enumerable.Range(0, 4))
         {
             var vram = new SnesVram(); var colors = new RgbColor[SnesCgram.ColorCount];
-            colors[0] = new RgbColor(2, 2, 2);
-            colors[1] = new RgbColor(10, 0, 0); colors[2] = new RgbColor(0, 12, 0); colors[3] = new RgbColor(0, 0, 7);
-            colors[128 + palette * 16 + 1] = new RgbColor(18, 2, 0);
+            colors[0] = new RgbColor(16, 16, 16);
+            colors[1] = new RgbColor(82, 0, 0); colors[2] = new RgbColor(0, 99, 0); colors[3] = new RgbColor(0, 0, 57);
+            colors[128 + palette * 16 + 1] = new RgbColor(148, 16, 0);
             for (int y = 0; y < 8; y++)
             {
                 vram.LoadBytes(y * 2, new byte[] { 255, 0 });

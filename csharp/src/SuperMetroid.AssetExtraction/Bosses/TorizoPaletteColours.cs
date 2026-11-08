@@ -16,30 +16,30 @@ internal static class TorizoPaletteColours
     /// <summary>The orb/flame and statue-shading colours shared by Bomb and Golden Torizo.</summary>
     private static readonly RgbColor[] SharedColors =
     [
-        new RgbColor(0, 0, 14), new RgbColor(31, 31, 0), new RgbColor(27, 25, 0), new RgbColor(22, 16, 0), new RgbColor(19, 8, 0), new RgbColor(30, 24, 26), new RgbColor(22, 16, 18), new RgbColor(17, 12, 13),
-        new RgbColor(9, 7, 8), new RgbColor(0, 12, 5), new RgbColor(0, 12, 5), new RgbColor(0, 12, 5), new RgbColor(0, 12, 5), new RgbColor(0, 12, 5), new RgbColor(0, 12, 5), new RgbColor(0, 12, 5),
-        new RgbColor(0, 0, 14), new RgbColor(31, 22, 0), new RgbColor(23, 14, 0), new RgbColor(12, 5, 0), new RgbColor(19, 19, 22), new RgbColor(13, 13, 16), new RgbColor(8, 8, 11), new RgbColor(3, 3, 6),
-        new RgbColor(6, 4, 5), new RgbColor(5, 10, 0), new RgbColor(5, 10, 0), new RgbColor(5, 10, 0), new RgbColor(31, 31, 31), new RgbColor(5, 10, 0), new RgbColor(5, 10, 0), new RgbColor(0, 0, 0),
+        new RgbColor(0, 0, 115), new RgbColor(255, 255, 0), new RgbColor(222, 206, 0), new RgbColor(181, 132, 0), new RgbColor(156, 66, 0), new RgbColor(247, 198, 214), new RgbColor(181, 132, 148), new RgbColor(140, 99, 107),
+        new RgbColor(74, 57, 66), new RgbColor(0, 99, 41), new RgbColor(0, 99, 41), new RgbColor(0, 99, 41), new RgbColor(0, 99, 41), new RgbColor(0, 99, 41), new RgbColor(0, 99, 41), new RgbColor(0, 99, 41),
+        new RgbColor(0, 0, 115), new RgbColor(255, 181, 0), new RgbColor(189, 115, 0), new RgbColor(99, 41, 0), new RgbColor(156, 156, 181), new RgbColor(107, 107, 132), new RgbColor(66, 66, 90), new RgbColor(24, 24, 49),
+        new RgbColor(49, 33, 41), new RgbColor(41, 82, 0), new RgbColor(41, 82, 0), new RgbColor(41, 82, 0), new RgbColor(255, 255, 255), new RgbColor(41, 82, 0), new RgbColor(41, 82, 0), new RgbColor(0, 0, 0),
     ];
     /// <summary>Bomb Torizo's initial (statue) body and belly colours.</summary>
     internal static ReadOnlySpan<RgbColor> BombInitial => BombInitialColors;
     /// <summary>Bomb Torizo's statue body colors before the normal-body transition.</summary>
     private static readonly RgbColor[] BombInitialColors =
     [
-        new RgbColor(0, 0, 14), new RgbColor(31, 28, 25), new RgbColor(25, 20, 20), new RgbColor(14, 9, 9), new RgbColor(10, 5, 5), new RgbColor(28, 23, 23), new RgbColor(23, 18, 17), new RgbColor(18, 13, 13),
-        new RgbColor(16, 11, 11), new RgbColor(31, 27, 22), new RgbColor(24, 15, 15), new RgbColor(14, 8, 11), new RgbColor(31, 26, 23), new RgbColor(26, 16, 23), new RgbColor(21, 9, 23), new RgbColor(3, 3, 3),
-        new RgbColor(0, 0, 14), new RgbColor(26, 21, 18), new RgbColor(18, 13, 13), new RgbColor(7, 2, 2), new RgbColor(3, 0, 0), new RgbColor(21, 16, 16), new RgbColor(16, 11, 10), new RgbColor(11, 6, 6),
-        new RgbColor(9, 4, 4), new RgbColor(26, 17, 17), new RgbColor(19, 5, 10), new RgbColor(9, 0, 6), new RgbColor(31, 27, 27), new RgbColor(29, 15, 20), new RgbColor(19, 8, 16), new RgbColor(3, 3, 3),
+        new RgbColor(0, 0, 115), new RgbColor(255, 231, 206), new RgbColor(206, 165, 165), new RgbColor(115, 74, 74), new RgbColor(82, 41, 41), new RgbColor(231, 189, 189), new RgbColor(189, 148, 140), new RgbColor(148, 107, 107),
+        new RgbColor(132, 90, 90), new RgbColor(255, 222, 181), new RgbColor(198, 123, 123), new RgbColor(115, 66, 90), new RgbColor(255, 214, 189), new RgbColor(214, 132, 189), new RgbColor(173, 74, 189), new RgbColor(24, 24, 24),
+        new RgbColor(0, 0, 115), new RgbColor(214, 173, 148), new RgbColor(148, 107, 107), new RgbColor(57, 16, 16), new RgbColor(24, 0, 0), new RgbColor(173, 132, 132), new RgbColor(132, 90, 82), new RgbColor(90, 49, 49),
+        new RgbColor(74, 33, 33), new RgbColor(214, 140, 140), new RgbColor(156, 41, 82), new RgbColor(74, 0, 49), new RgbColor(255, 222, 222), new RgbColor(239, 123, 165), new RgbColor(156, 66, 132), new RgbColor(24, 24, 24),
     ];
     /// <summary>Normal body targets loaded by Bomb Torizo's palette setup.</summary>
     internal static ReadOnlySpan<RgbColor> Normal => NormalColors;
     /// <summary>Normal Bomb Torizo body targets for the selected-palette fade.</summary>
     private static readonly RgbColor[] NormalColors =
     [
-        new RgbColor(0, 0, 14), new RgbColor(26, 21, 21), new RgbColor(18, 13, 16), new RgbColor(7, 2, 5), new RgbColor(3, 0, 1), new RgbColor(21, 16, 19), new RgbColor(16, 11, 13), new RgbColor(11, 6, 9),
-        new RgbColor(8, 3, 6), new RgbColor(31, 27, 27), new RgbColor(24, 15, 20), new RgbColor(14, 8, 16), new RgbColor(31, 24, 0), new RgbColor(26, 14, 0), new RgbColor(21, 7, 0), new RgbColor(3, 3, 3),
-        new RgbColor(0, 0, 14), new RgbColor(21, 16, 16), new RgbColor(13, 8, 11), new RgbColor(2, 0, 0), new RgbColor(0, 0, 0), new RgbColor(16, 11, 14), new RgbColor(11, 6, 8), new RgbColor(6, 1, 3),
-        new RgbColor(3, 0, 1), new RgbColor(26, 17, 17), new RgbColor(19, 5, 10), new RgbColor(9, 0, 6), new RgbColor(31, 27, 27), new RgbColor(29, 15, 20), new RgbColor(19, 8, 16), new RgbColor(3, 3, 3),
+        new RgbColor(0, 0, 115), new RgbColor(214, 173, 173), new RgbColor(148, 107, 132), new RgbColor(57, 16, 41), new RgbColor(24, 0, 8), new RgbColor(173, 132, 156), new RgbColor(132, 90, 107), new RgbColor(90, 49, 74),
+        new RgbColor(66, 24, 49), new RgbColor(255, 222, 222), new RgbColor(198, 123, 165), new RgbColor(115, 66, 132), new RgbColor(255, 198, 0), new RgbColor(214, 115, 0), new RgbColor(173, 57, 0), new RgbColor(24, 24, 24),
+        new RgbColor(0, 0, 115), new RgbColor(173, 132, 132), new RgbColor(107, 66, 90), new RgbColor(16, 0, 0), new RgbColor(0, 0, 0), new RgbColor(132, 90, 115), new RgbColor(90, 49, 66), new RgbColor(49, 8, 24),
+        new RgbColor(24, 0, 8), new RgbColor(214, 140, 140), new RgbColor(156, 41, 82), new RgbColor(74, 0, 49), new RgbColor(255, 222, 222), new RgbColor(239, 123, 165), new RgbColor(156, 66, 132), new RgbColor(24, 24, 24),
     ];
     /// <summary>
     /// The Golden encounter's initial body pair written by Torizo_C280 before
@@ -49,19 +49,19 @@ internal static class TorizoPaletteColours
     /// <summary>Golden Torizo's initial body pair before its first damage callback.</summary>
     private static readonly RgbColor[] GoldenInitialColors =
     [
-        new RgbColor(0, 0, 14), new RgbColor(21, 21, 26), new RgbColor(16, 13, 18), new RgbColor(5, 2, 7), new RgbColor(1, 0, 3), new RgbColor(19, 16, 21), new RgbColor(13, 11, 16), new RgbColor(9, 6, 11),
-        new RgbColor(6, 3, 8), new RgbColor(20, 24, 21), new RgbColor(12, 14, 12), new RgbColor(3, 7, 5), new RgbColor(16, 17, 21), new RgbColor(9, 11, 13), new RgbColor(3, 4, 6), new RgbColor(6, 3, 3),
-        new RgbColor(0, 0, 14), new RgbColor(16, 16, 21), new RgbColor(11, 8, 13), new RgbColor(0, 0, 2), new RgbColor(0, 0, 0), new RgbColor(14, 11, 16), new RgbColor(8, 6, 11), new RgbColor(3, 1, 6),
-        new RgbColor(1, 0, 3), new RgbColor(17, 17, 26), new RgbColor(10, 5, 19), new RgbColor(6, 0, 9), new RgbColor(27, 27, 31), new RgbColor(20, 15, 29), new RgbColor(16, 8, 19), new RgbColor(3, 3, 3),
+        new RgbColor(0, 0, 115), new RgbColor(173, 173, 214), new RgbColor(132, 107, 148), new RgbColor(41, 16, 57), new RgbColor(8, 0, 24), new RgbColor(156, 132, 173), new RgbColor(107, 90, 132), new RgbColor(74, 49, 90),
+        new RgbColor(49, 24, 66), new RgbColor(165, 198, 173), new RgbColor(99, 115, 99), new RgbColor(24, 57, 41), new RgbColor(132, 140, 173), new RgbColor(74, 90, 107), new RgbColor(24, 33, 49), new RgbColor(49, 24, 24),
+        new RgbColor(0, 0, 115), new RgbColor(132, 132, 173), new RgbColor(90, 66, 107), new RgbColor(0, 0, 16), new RgbColor(0, 0, 0), new RgbColor(115, 90, 132), new RgbColor(66, 49, 90), new RgbColor(24, 8, 49),
+        new RgbColor(8, 0, 24), new RgbColor(140, 140, 214), new RgbColor(82, 41, 156), new RgbColor(49, 0, 74), new RgbColor(222, 222, 255), new RgbColor(165, 123, 239), new RgbColor(132, 66, 156), new RgbColor(24, 24, 24),
     ];
     /// <summary>Golden body targets loaded by Golden Torizo's palette setup.</summary>
     internal static ReadOnlySpan<RgbColor> Golden => GoldenColors;
     /// <summary>Golden Torizo body targets loaded by its palette transition.</summary>
     private static readonly RgbColor[] GoldenColors =
     [
-        new RgbColor(0, 0, 14), new RgbColor(30, 29, 18), new RgbColor(25, 21, 1), new RgbColor(8, 5, 0), new RgbColor(0, 0, 0), new RgbColor(26, 25, 5), new RgbColor(22, 19, 0), new RgbColor(18, 15, 0),
-        new RgbColor(13, 10, 0), new RgbColor(0, 31, 28), new RgbColor(0, 25, 19), new RgbColor(0, 17, 10), new RgbColor(0, 31, 31), new RgbColor(0, 21, 22), new RgbColor(0, 9, 22), new RgbColor(3, 2, 0),
-        new RgbColor(0, 0, 14), new RgbColor(25, 24, 13), new RgbColor(20, 16, 0), new RgbColor(3, 0, 0), new RgbColor(0, 0, 0), new RgbColor(21, 20, 0), new RgbColor(17, 14, 0), new RgbColor(13, 10, 0),
-        new RgbColor(8, 5, 0), new RgbColor(0, 26, 18), new RgbColor(0, 15, 9), new RgbColor(0, 7, 0), new RgbColor(0, 26, 26), new RgbColor(0, 16, 17), new RgbColor(0, 4, 17), new RgbColor(0, 0, 0),
+        new RgbColor(0, 0, 115), new RgbColor(247, 239, 148), new RgbColor(206, 173, 8), new RgbColor(66, 41, 0), new RgbColor(0, 0, 0), new RgbColor(214, 206, 41), new RgbColor(181, 156, 0), new RgbColor(148, 123, 0),
+        new RgbColor(107, 82, 0), new RgbColor(0, 255, 231), new RgbColor(0, 206, 156), new RgbColor(0, 140, 82), new RgbColor(0, 255, 255), new RgbColor(0, 173, 181), new RgbColor(0, 74, 181), new RgbColor(24, 16, 0),
+        new RgbColor(0, 0, 115), new RgbColor(206, 198, 107), new RgbColor(165, 132, 0), new RgbColor(24, 0, 0), new RgbColor(0, 0, 0), new RgbColor(173, 165, 0), new RgbColor(140, 115, 0), new RgbColor(107, 82, 0),
+        new RgbColor(66, 41, 0), new RgbColor(0, 214, 148), new RgbColor(0, 123, 74), new RgbColor(0, 57, 0), new RgbColor(0, 214, 214), new RgbColor(0, 132, 140), new RgbColor(0, 33, 140), new RgbColor(0, 0, 0),
     ];
 }

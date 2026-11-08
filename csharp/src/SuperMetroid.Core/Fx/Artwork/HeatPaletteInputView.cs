@@ -42,13 +42,13 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<PaletteFxColorK
         RgbColor mixed = colors[HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed)];
         RgbColor redBase = ReadBase(HeatPaletteColors.RedEndpointBase);
         RgbColor mixedBase = ReadBase(HeatPaletteColors.MixedEndpointBase);
-        redTarget = red.Red;
-        mixedRedTarget = mixed.Red;
-        mixedGreenTarget = mixed.Green;
-        greenOverride = red.Green == redBase.Green ? null : red.Green;
-        blueOverride = red.Blue == redBase.Blue ? null : red.Blue;
-        int calculatedBlue = mixedBase.Blue + mixedGreenTarget - mixedBase.Green;
-        mixedBlueOverride = mixed.Blue == calculatedBlue ? null : mixed.Blue;
+        redTarget = red.FadeLevels.Red;
+        mixedRedTarget = mixed.FadeLevels.Red;
+        mixedGreenTarget = mixed.FadeLevels.Green;
+        greenOverride = red.FadeLevels.Green == redBase.FadeLevels.Green ? null : red.FadeLevels.Green;
+        blueOverride = red.FadeLevels.Blue == redBase.FadeLevels.Blue ? null : red.FadeLevels.Blue;
+        int calculatedBlue = mixedBase.FadeLevels.Blue + mixedGreenTarget - mixedBase.FadeLevels.Green;
+        mixedBlueOverride = mixed.FadeLevels.Blue == calculatedBlue ? null : mixed.FadeLevels.Blue;
         colors.Remove(HeatPaletteColors.Key(HeatPaletteEndpoint.Red));
         colors.Remove(HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed));
     }
@@ -68,14 +68,14 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<PaletteFxColorK
         if (key == HeatPaletteColors.Key(HeatPaletteEndpoint.Red))
         {
             RgbColor original = ReadBase(HeatPaletteColors.RedEndpointBase);
-            value = new(redTarget, greenOverride ?? original.Green, blueOverride ?? original.Blue);
+            value = new FadeLevelColour(redTarget, greenOverride ?? original.FadeLevels.Green, blueOverride ?? original.FadeLevels.Blue).ToColour();
             return true;
         }
         if (key == HeatPaletteColors.Key(HeatPaletteEndpoint.Mixed))
         {
             RgbColor original = ReadBase(HeatPaletteColors.MixedEndpointBase);
-            int blue = mixedBlueOverride ?? (original.Blue + mixedGreenTarget - original.Green);
-            value = new(mixedRedTarget, mixedGreenTarget, blue);
+            int blue = mixedBlueOverride ?? (original.FadeLevels.Blue + mixedGreenTarget - original.FadeLevels.Green);
+            value = new FadeLevelColour(mixedRedTarget, mixedGreenTarget, blue).ToColour();
             return true;
         }
         return colors.TryGetValue(key, out value);

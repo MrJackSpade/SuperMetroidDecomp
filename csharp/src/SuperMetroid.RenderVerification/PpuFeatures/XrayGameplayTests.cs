@@ -28,8 +28,8 @@ internal static class XrayGameplayTests
             var vram = new SnesVram();
             var cgram = new SnesCgram();
             cgram.SetColor(0, XrayRoomDisplayRules.ActiveBackdrop);
-            cgram.SetColor(1, new RgbColor(31, 0, 0)); cgram.SetColor(2, new RgbColor(0, 20, 0)); cgram.SetColor(3, new RgbColor(0, 0, 10));
-            cgram.SetColor(128 + palette * 16 + 1, new RgbColor(31, 0, 0));
+            cgram.SetColor(1, new RgbColor(255, 0, 0)); cgram.SetColor(2, new RgbColor(0, 165, 0)); cgram.SetColor(3, new RgbColor(0, 0, 82));
+            cgram.SetColor(128 + palette * 16 + 1, new RgbColor(255, 0, 0));
             for (int y = 0; y < 8; y++)
             {
                 vram.LoadBytes(y * 2, new byte[] { 255, 0 }); // OBJ character zero, red.
@@ -57,7 +57,7 @@ internal static class XrayGameplayTests
                 Blended = BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
                 Operation = subtract ? BlendOperation.Subtract : BlendOperation.Add,
                 Halved = half && sub,
-                Colour = new RgbColor(7, 7, 7),
+                Colour = new RgbColor(57, 57, 57),
             }, bg3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
             count++;
@@ -126,7 +126,7 @@ internal static class XrayGameplayTests
                     Blended = BlendedLayers.Background | BlendedLayers.Backdrop,
                     Operation = BlendOperation.Subtract,
                     Halved = false,
-                    Colour = new RgbColor(18, 18, 18),
+                    Colour = new RgbColor(148, 148, 148),
                 });
                 var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
                 var darkPixels = DisplayRendering.Render(darkScene);
@@ -218,7 +218,7 @@ internal static class XrayGameplayTests
                 | (random.Next(2) == 0 ? default : BlendedLayers.Backdrop),
             Operation = random.Next(2) == 0 ? BlendOperation.Add : BlendOperation.Subtract,
             Halved = random.Next(2) == 0,
-            Colour = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)),
+            Colour = new FadeLevelColour((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)).ToColour(),
         };
 
         // A seeded window (#1468): a cone from an apex on or off the screen joined with a rectangle, within a band of lines.

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A fade toward one colour (#1512): at step <see cref="Step"/> of <see cref="Steps"/>, each channel has moved that
-/// fraction of the way, rounding toward the colour shown.
+/// A fade toward one colour (#1512, #1544): at step <see cref="Step"/> of <see cref="Steps"/>, the colour shown is blended
+/// that fraction of the way toward <see cref="Toward"/> (<see cref="RgbColor.Blend"/>).
 /// </summary>
 public sealed record ColourFade : ColourEffect
 {
@@ -18,5 +18,5 @@ public sealed record ColourFade : ColourEffect
 
     /// <inheritdoc />
     public override RgbColor Apply(RgbColor shown) =>
-        shown.Zip(Toward, (_, from, to) => from + (to - from) * Step / Steps);
+        shown.Blend(Toward, Step, Steps);
 }

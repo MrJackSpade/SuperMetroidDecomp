@@ -2,10 +2,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// A colour added to the screen inside a window (#1468): each channel is widened to eight bits, added and clamped at
-/// 255, and the screen's opacity kept. Beams, the Power Bomb's blast, the suit pickup's light and the Ceres haze are
+/// A colour added to the screen inside a window (#1468): each channel is added and held at full, and the screen's
+/// opacity kept. Beams, the Power Bomb's blast, the suit pickup's light and the Ceres haze are
 /// colours added through their windows. Unlike the intro's colour addition, the screen's colour is not first reduced
-/// to five-bit channels.
+/// to the game's authored levels.
 /// </summary>
 /// <param name="Window">The pixels the colour is added to.</param>
 /// <param name="Colour">The colour added, whole on every line unless <paramref name="Steps"/> strengthens it down the screen.</param>

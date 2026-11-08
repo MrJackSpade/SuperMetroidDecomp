@@ -63,6 +63,6 @@ internal sealed class MotherBrainDeathFade
         // Without a supplied endpoint the fade ends at black with a one-unit bias.
         RgbColor end = last is null ? RgbColor.Black : last[color];
         int bias = last is null ? 1 : steps / 2;
-        return start.Zip(end, (_, from, to) => (from * (steps - frame) + to * frame + bias) / steps);
+        return start.FadeLevels.Zip(end.FadeLevels, (_, from, to) => (from * (steps - frame) + to * frame + bias) / steps).ToColour();
     }
 }

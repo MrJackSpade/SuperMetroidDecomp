@@ -277,7 +277,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The beam fade tests green before updating the cone or darkening any channel. Once green
         // has reached zero intensity, the beam is removed on this pass, its colour black.
-        if (MorphBallEyeBeam.Color.Green == 0)
+        if (MorphBallEyeBeam.GreenFaded)
         {
             MorphBallEyeBeam.Reset();
             return;

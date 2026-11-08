@@ -8,7 +8,7 @@ internal static class MorphBallEyeBeamDefinitions
     internal const int TrackingPoses = 16;
 
     /// <summary>The colour the beam adds when it appears: red and green at intensity 16, without blue.</summary>
-    internal static RgbColor InitialColor { get; } = new(16, 16, 0);
+    internal static RgbColor InitialColor { get; } = new(132, 132, 0);
 
     /// <summary>The beam cycles through sixteen colours.</summary>
     internal const int ColorCycleLength = 16;

@@ -310,7 +310,7 @@ public static class GameplayDisplayCapture
         bool roomDarkens = scene.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         RgbColor fixedColor = latched.FixedColors.Shared;
-        int red = fixedColor.Red, green = fixedColor.Green, blue = fixedColor.Blue;
+        int red = fixedColor.FadeLevels.Red, green = fixedColor.FadeLevels.Green, blue = fixedColor.FadeLevels.Blue;
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
         // Phase five deletes the per-line effect object but its blend bits have already been
@@ -329,7 +329,7 @@ public static class GameplayDisplayCapture
             Blended = XrayRoomDisplayRules.Blended(mode),
             Operation = XrayRoomDisplayRules.Operation(mode, roomDarkens),
             Halved = XrayRoomDisplayRules.Halves(mode) && overlayBehind is not null,
-            Colour = new RgbColor(red, green, blue),
+            Colour = new FadeLevelColour(red, green, blue).ToColour(),
         }, overlayBehind);
         return new(paint, new DisplayLayer[] { layer, Hud(latched) }, basis.Brightness);
     }

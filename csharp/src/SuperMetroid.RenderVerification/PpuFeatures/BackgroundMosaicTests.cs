@@ -18,7 +18,7 @@ internal static class BackgroundMosaicTests
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        for (int color = 1; color <= 15; color++) cgram.SetColor(color, new RgbColor(color, 15 - color, 0));
+        for (int color = 1; color <= 15; color++) cgram.SetColor(color, new FadeLevelColour(color, 15 - color, 0).ToColour());
         // A repeating asymmetric pixel pattern makes both sampling axes observable.
         byte[] character = new byte[32];
         for (int y = 0; y < 8; y++)
@@ -30,7 +30,7 @@ internal static class BackgroundMosaicTests
         }
         vram.LoadBytes(0, character);
         for (int row = 0; row < 8; row++) vram.LoadBytes(32 + row * 2, new byte[] { 255, 0 });
-        cgram.SetColor(241, new RgbColor(0, 0, 31));
+        cgram.SetColor(241, new RgbColor(0, 0, 255));
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 96; oam[1] = 64; oam[2] = 1; oam[3] = 0x3e;
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);

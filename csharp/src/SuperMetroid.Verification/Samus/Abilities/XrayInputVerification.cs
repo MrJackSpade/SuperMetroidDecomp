@@ -119,7 +119,7 @@ internal static class XrayInputVerification
         var finishFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(finishFrame.Layers[0] is GameplayBlendLayer,
             "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
-        AssertEqual(0, ((GameplayBlendLayer)finishFrame.Layers[0]).Blend.Colour.Red,
+        AssertEqual(0, ((GameplayBlendLayer)finishFrame.Layers[0]).Blend.Colour.FadeLevels.Red,
             "phase five clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");

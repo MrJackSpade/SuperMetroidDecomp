@@ -19,17 +19,17 @@ internal sealed class RoomFxThirdColor
     public RoomFxThirdColor(RoomFxPaletteBlend selection, RgbColor color)
     {
         this.selection = selection;
-        red = color.Red;
-        int green = color.Green;
+        red = color.FadeLevels.Red;
+        int green = color.FadeLevels.Green;
         greenOverride = RoomFxPaletteBlendRules.CalculatedThirdGreen(selection) == green ? null : green;
-        int blue = color.Blue;
-        blueOverride = RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, color.Red) == blue ? null : blue;
+        int blue = color.FadeLevels.Blue;
+        blueOverride = RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, color.FadeLevels.Red) == blue ? null : blue;
     }
 
     /// <summary>Combines the retained red channel with edited or calculated weather channels.</summary>
-    internal RgbColor CreateColor() => new(red,
+    internal RgbColor CreateColor() => new FadeLevelColour(red,
         greenOverride ?? RoomFxPaletteBlendRules.CalculatedThirdGreen(selection) ??
             throw new InvalidOperationException("A blend color without a green edit has a calculated green."),
         blueOverride ?? RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, red) ??
-            throw new InvalidOperationException("A blend color without a blue edit has a calculated blue."));
+            throw new InvalidOperationException("A blend color without a blue edit has a calculated blue.")).ToColour();
 }

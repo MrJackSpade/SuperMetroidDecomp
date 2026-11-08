@@ -247,14 +247,15 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Uploads a colour added through a window (#1468): the window's shapes, the colour's five-bit channels and, when
+    /// Uploads a colour added through a window (#1468): the window's shapes, the colour's shader levels and, when
     /// it strengthens down the screen, its steps (the first line, lines per step, steps and the steps added to every line).
     /// </summary>
     private unsafe void DispatchColorWindows(ColourAddWindowLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.LineColourAdd;
-        data[10] = (uint)layer.Colour.Red; data[11] = (uint)layer.Colour.Green; data[12] = (uint)layer.Colour.Blue;
+        FadeLevelColour added = ShaderLevels(layer.Colour);
+        data[10] = (uint)added.Red; data[11] = (uint)added.Green; data[12] = (uint)added.Blue;
         data[26] = 224;
         if (layer.Steps is { } steps)
         {
@@ -310,7 +311,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[4] = r.ForegroundScroll.Y;
         data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = BlendWord(layer.Blend);
-        data[10] = (uint)layer.Blend.Colour.Red; data[11] = (uint)layer.Blend.Colour.Green; data[12] = (uint)layer.Blend.Colour.Blue;
+        FadeLevelColour blendColour = ShaderLevels(layer.Blend.Colour);
+        data[10] = (uint)blendColour.Red; data[11] = (uint)blendColour.Green; data[12] = (uint)blendColour.Blue;
         // The foreground is always the room's; the background is what the room publishes for it (#1403).
         data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Gameplay.Rooms);
         // What lies behind what blends: nothing (the blend's colour), the overlay, the background or both.
@@ -781,7 +783,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                             _ => throw new InvalidOperationException($"Undefined sprite blend {sprites.Blend}."),
                         },
                         Green = sprites.Tint is not null ? 1u : 0u,
-                        Blue = sprites.Tint is { } tint ? (uint)(tint.Red | tint.Green << 5 | tint.Blue << 10) : 0,
+                        Blue = sprites.Tint is { } tint ? PackedShaderLevels(tint) : 0,
                     });
                     break;
                 case PictureGridLayer grid:
@@ -809,7 +811,8 @@ public sealed class D3D11FrameRenderer : IDisposable
                     });
                     break;
                 case ScreenTintLayer add:
-                    DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });
+                    FadeLevelColour addedLevels = ShaderLevels(add.Colour);
+                    DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)addedLevels.Red, Green = (uint)addedLevels.Green, Blue = (uint)addedLevels.Blue });
                     break;
                 case ScreenGradientLayer gradient:
                     DispatchGradient(gradient.Gradient);
@@ -996,6 +999,20 @@ public sealed class D3D11FrameRenderer : IDisposable
     };
 
     /// <summary>
+    /// The levels the tile shaders' colour maths takes a described colour in (#1544): the shaders add, blend and halve
+    /// colours on thirty-two levels a channel, so a colour reaches them as its nearest levels, exactly its own for every
+    /// colour the game authored.
+    /// </summary>
+    private static FadeLevelColour ShaderLevels(RgbColor colour) => FadeLevelColour.Nearest(colour);
+
+    /// <summary>A sprite tint's levels packed into one shader word, five bits a channel, red lowest, as the sprite pass unpacks it.</summary>
+    private static uint PackedShaderLevels(RgbColor colour)
+    {
+        FadeLevelColour levels = ShaderLevels(colour);
+        return (uint)(levels.Red | levels.Green << 5 | levels.Blue << 10);
+    }
+
+    /// <summary>
     /// Draws a gradient over the composed layers (#1468): its band in the header's first and end scanline words, its
     /// stop count in the level word, and each stop as a row: its colour's channels, then its blend with the line its
     /// band begins on above it. The shader finds each line's stop.
@@ -1009,8 +1026,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             GradientStop shown = gradient.Stops[stop];
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + stop * 4;
-            data[offset] = (uint)shown.Colour.Red; data[offset + 1] = (uint)shown.Colour.Green;
-            data[offset + 2] = (uint)shown.Colour.Blue;
+            FadeLevelColour stopColour = ShaderLevels(shown.Colour);
+            data[offset] = (uint)stopColour.Red; data[offset + 1] = (uint)stopColour.Green;
+            data[offset + 2] = (uint)stopColour.Blue;
             data[offset + 3] = GradientBlendWord(shown.Blend) | (uint)shown.Line << D3D11ShaderLayout.GradientStopLineShift;
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));

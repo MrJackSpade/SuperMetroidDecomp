@@ -12,11 +12,11 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainDrainedPaintDefinitions
 {
     /// <summary>Drained/revival-start/corpse-final color zero: shared cortex and lower-face tissue highlight, repeated at color eight.</summary>
-    internal static readonly RgbColor Highlight = new(24, 25, 19);
+    internal static readonly RgbColor Highlight = new(198, 206, 156);
     /// <summary>Drained/revival-start/corpse-final color three: silhouette and internal olive-grey outlines.</summary>
-    internal static readonly RgbColor Outline = new(5, 5, 3);
+    internal static readonly RgbColor Outline = new(41, 41, 24);
     /// <summary>Drained/revival-start/corpse-final color twelve: darkest lower-face and neck tissue, sprite palette index thirteen.</summary>
-    internal static readonly RgbColor DarkestTissue = new(9, 10, 6);
+    internal static readonly RgbColor DarkestTissue = new(74, 82, 49);
 
     /// <summary>
     /// Exact bounded RGB8 representation (193,200,155) of Highlight for the tissue
@@ -24,9 +24,9 @@ internal static class MotherBrainDrainedPaintDefinitions
     /// this does not claim knowledge of the historical palette-authoring tool.
     /// </summary>
     internal static Rgb8 HighlightRgb8 =>
-        new(Highlight.Red * 8 + 1, Highlight.Green * 8, Highlight.Blue * 8 + 3);
+        new(Highlight.FadeLevels.Red * 8 + 1, Highlight.FadeLevels.Green * 8, Highlight.FadeLevels.Blue * 8 + 3);
 
     /// <summary>Exact bounded RGB8 representation (79,83,55) of DarkestTissue for that same four-interval gradient.</summary>
     internal static Rgb8 DarkestTissueRgb8 =>
-        new(DarkestTissue.Red * 8 + 7, DarkestTissue.Green * 8 + 3, DarkestTissue.Blue * 8 + 7);
+        new(DarkestTissue.FadeLevels.Red * 8 + 7, DarkestTissue.FadeLevels.Green * 8 + 3, DarkestTissue.FadeLevels.Blue * 8 + 7);
 }

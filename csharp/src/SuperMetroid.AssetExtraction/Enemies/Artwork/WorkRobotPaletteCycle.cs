@@ -25,7 +25,7 @@ public sealed class WorkRobotPaletteCycle
     {
         int phase = Math.Min(frame, 6 - frame);
         int position = (color + phase) & 3;
-        return new RgbColor(31 - 16 * (position >> 1) - 7 * (position & 1), 0, 0);
+        return new FadeLevelColour(31 - 16 * (position >> 1) - 7 * (position & 1), 0, 0).ToColour();
     }
 
     /// <summary>Resolves one packed RGB555 color from an authored Work Robot cycle frame.</summary>

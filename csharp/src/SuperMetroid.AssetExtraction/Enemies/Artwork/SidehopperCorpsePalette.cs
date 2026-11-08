@@ -37,7 +37,7 @@ internal sealed class SidehopperCorpsePalette
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
         if (stockTarget) return SidehopperCorpsePaint.Color(color);
         if (!calculated) return independentOrSupplied[color];
-        if (color == 5) return new RgbColor(31, 31, 31);
+        if (color == 5) return new RgbColor(255, 255, 255);
         if (color < 8) return independentOrSupplied[color < 5 ? color : color - 1];
         return Interpolate(independentOrSupplied[7], independentOrSupplied[8], color - 8);
     }
@@ -45,6 +45,6 @@ internal sealed class SidehopperCorpsePalette
     /// <summary>Interpolates RGB5 channels with the game's seven-interval nearest rounding.</summary>
     internal static RgbColor Interpolate(RgbColor start, RgbColor end, int phase)
     {
-        return start.Zip(end, (_, a, b) => ((a * (7 - phase) + b * phase + 3) / 7));
+        return start.FadeLevels.Zip(end.FadeLevels, (_, a, b) => ((a * (7 - phase) + b * phase + 3) / 7)).ToColour();
     }
 }

@@ -1044,7 +1044,7 @@ internal static void VerifyPowerBombColorMathWindow()
     ColourAddWindowLayer scaled = CaptureWindow();
     AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(4, 3)), DisplayScreen.HudHeight),
         scaled.Window, "the first flash is an oval of the drawn radius");
-    AssertEqual(new RgbColor(1, 2, 3), scaled.Colour, "the first flash adds the installed fixed colour");
+    AssertEqual(new RgbColor(8, 16, 24), scaled.Colour, "the first flash adds the installed fixed colour");
 
     // The walked yellow ovals are centred on the blast, not on a screen midpoint.
     while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)

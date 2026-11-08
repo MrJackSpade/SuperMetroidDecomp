@@ -6,20 +6,20 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class SidehopperCorpsePaintDefinitions
 {
     /// <summary>Pale yellow limb/ligament highlight.</summary>
-    internal static readonly RgbColor LimbLight = new(31, 31, 21);
+    internal static readonly RgbColor LimbLight = new(255, 255, 173);
     /// <summary>Medium olive head/limb details, equal red/green.</summary>
-    internal static readonly RgbColor OliveMedium = new(9, 9, 2);
+    internal static readonly RgbColor OliveMedium = new(74, 74, 16);
     /// <summary>Dark olive head/limb contours.</summary>
-    internal static readonly RgbColor OliveDark = new(5, 5, 0);
+    internal static readonly RgbColor OliveDark = new(41, 41, 0);
     /// <summary>Warm gray eyes visible on the Zoomer corpse.</summary>
-    internal static readonly RgbColor EyeGray = new(17, 17, 16);
+    internal static readonly RgbColor EyeGray = new(140, 140, 132);
     /// <summary>Ochre shell/body light, visible on the Ripper corpse.</summary>
-    internal static readonly RgbColor BodyLight = new(31, 25, 18);
+    internal static readonly RgbColor BodyLight = new(255, 206, 148);
     /// <summary>Ochre shell/body darkest shade, visible on the Skree corpse.</summary>
-    internal static readonly RgbColor BodyDark = new(5, 3, 1);
+    internal static readonly RgbColor BodyDark = new(41, 24, 8);
     /// <summary>The corpse palette's first word, copied as a standalone transparent-slot compatibility payload.
     /// The shifted auxiliary copy uses its first word as visible ink1 and is excluded.</summary>
-    internal static readonly RgbColor TransparentSlot = new(0, 0, 14);
+    internal static readonly RgbColor TransparentSlot = new(0, 0, 115);
     /// <summary>Ink2 is the selected nearest three-quarter pale-limb shade.</summary>
     internal const int LimbShadeNumerator = 3, LimbShadeDenominator = 4;
     /// <summary>Ink7 is the selected floor two-thirds dark-body outline/mouth shade.</summary>

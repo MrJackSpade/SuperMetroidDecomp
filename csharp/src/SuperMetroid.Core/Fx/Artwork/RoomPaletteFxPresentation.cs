@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
-    /// <summary>Explicit RGB5 samples by the record color each one is.</summary>
+    /// <summary>Explicit colour samples by the record color each one is.</summary>
     internal readonly Dictionary<PaletteFxColorKey, RgbColor> colors;
 
     /// <summary>Canonical and derived heat-palette samples shared across Samus suits.</summary>

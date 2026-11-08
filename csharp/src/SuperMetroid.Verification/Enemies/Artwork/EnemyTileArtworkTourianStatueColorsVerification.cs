@@ -152,7 +152,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             for (int color = 0; color < count; color++)
             {
                 ushort word = ReadReferenceWord(source + color * 2);
-                AssertEqual(new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31), shown[destination + color],
+                AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), shown[destination + color],
                     $"{context}: colour {destination + color}");
             }
         }

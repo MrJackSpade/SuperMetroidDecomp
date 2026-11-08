@@ -419,7 +419,7 @@ internal sealed class MotherBrainProjectiles
 
         // The shard's launch angle is the random word's low byte. It selects signed sine/cosine velocities, and its
         // top four bits choose one of sixteen authored shard animation lists.
-        int angle = _room.Random.Generate() & byte.MaxValue;
+        int angle = MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate());
         shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle + 64)));
         shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle) * 4));
         int animationIndex = angle >> 4;

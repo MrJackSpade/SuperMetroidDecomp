@@ -47,7 +47,7 @@ internal static class LookupSmallGameTablesVerification
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration,
             "The table's first entry is the ordinary fall gravity");
         for (int bounces = 1; bounces <= MotherBrainBombBounces.Count; bounces++)
-            AssertEqual((int?)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
                 MotherBrainBombBounces.YAcceleration(bounces), $"Bomb gravity after bounce {bounces}");
         int expiry = MotherBrainBombBounces.Count + 1;
         AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * expiry),

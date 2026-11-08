@@ -150,7 +150,7 @@ public sealed class SamusDrainedState
         RainbowPaletteEnabled = true;
         SpecialPaletteFrame = 1;
         CommonPaletteTimer = 1;
-        ChargePaletteIndex = 0;
+        HyperBeamGlowStep = 0;
         _suitPaletteRestoreRequested = false;
     }
 
@@ -176,7 +176,7 @@ public sealed class SamusDrainedState
         RainbowPaletteEnabled = false;
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 0;
-        ChargePaletteIndex = 0;
+        HyperBeamGlowStep = 0;
         _suitPaletteRestoreRequested = true;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
     }

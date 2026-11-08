@@ -24,4 +24,14 @@ public static class PowampMotionDefinitions
     /// </summary>
     internal static readonly EightEightVector<RoomPixels>[] SpikeAccelerations =
         [new(0, -32), new(32, -32), new(32, 0), new(32, 32), new(0, 32), new(-32, 32), new(-32, 0), new(-32, -32)];
+
+    /// <summary>
+    /// The inflate stage a sinking balloon restarts when Powamp dies, by the sinking poses it had shown: after two it
+    /// restarts stage one, after three stage zero. One that had shown a single sinking pose keeps sinking.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<int, PowampProgram> SunkBalloonRestarts = new Dictionary<int, PowampProgram>
+    {
+        [2] = PowampProgram.BalloonInflate1,
+        [3] = PowampProgram.BalloonInflate0,
+    };
 }

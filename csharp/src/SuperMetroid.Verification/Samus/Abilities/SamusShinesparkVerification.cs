@@ -327,13 +327,13 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(4, horizontal.Shinespark.CrashRadius,
         "crash orbit expands by four");
     AssertEqual(unchecked((ushort)(crashCenterX - 2)),
-        horizontal.HorizontalSpeed.FirstSpeedEchoPosition.Value.X,
+        horizontal.HorizontalSpeed.FirstSpeedEchoPosition!.Value.X,
         "right-facing first crash echo folds into negative X half");
     AssertEqual(unchecked((ushort)(crashCenterY - 2)),
-        horizontal.HorizontalSpeed.FirstSpeedEchoPosition.Value.Y,
+        horizontal.HorizontalSpeed.FirstSpeedEchoPosition!.Value.Y,
         "right-facing first crash echo folds into negative Y half");
     AssertEqual(unchecked((ushort)(crashCenterX + 2)),
-        horizontal.HorizontalSpeed.SecondSpeedEchoPosition.Value.X,
+        horizontal.HorizontalSpeed.SecondSpeedEchoPosition!.Value.X,
         "opposite crash echo uses positive X half");
     AssertTrue(!firstCrash.CrashSequenceFinished,
         "first crash orbit frame cannot finish sequence");

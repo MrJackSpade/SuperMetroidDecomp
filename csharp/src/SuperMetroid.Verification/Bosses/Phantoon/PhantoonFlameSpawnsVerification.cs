@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;
-using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 

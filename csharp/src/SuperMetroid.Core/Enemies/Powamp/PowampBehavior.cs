@@ -312,12 +312,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // A balloon that had sunk through two poses restarts inflate stage one, and one that had sunk through three
             // restarts stage zero; one that had shown a single sinking pose keeps sinking.
-            PowampProgram replacement = shownPoses switch
-            {
-                2 => PowampProgram.BalloonInflate1,
-                3 => PowampProgram.BalloonInflate0,
-                _ => throw new InvalidDataException($"Powamp death saw a sinking balloon with {shownPoses} poses shown."),
-            };
+            PowampProgram replacement = PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(shownPoses, out PowampProgram restart)
+                ? restart
+                : throw new InvalidDataException($"Powamp death saw a sinking balloon with {shownPoses} poses shown.");
             SetPowampProgram(balloon.Slot, balloon.State, replacement);
         }
 
